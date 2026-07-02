@@ -1,0 +1,316 @@
+exports[`prefer-test-context-assert > invalid(1): import test from 'node:test';\nimport assert from 'node:assert';\ntest('x', t => { assert.strictEqual(a, b); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('x', t => { assert.strictEqual(a, b); });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(1): import test from 'node:test';\nimport assert from 'node:assert';\ntest('x', t => { assert.strictEqual(a, b); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | test('x', t => { assert.strictEqual(a, b); });
+    |                  ^^^^^^^^^^^^^^^^^^ Prefer the test context \`t.assert.strictEqual()\` over the imported \`node:assert\`, so the runner ties the assertion to this test.
+
+Suggestion 1/1: Replace with \`t.assert.strictEqual()\`.:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('x', t => { t.assert.strictEqual(a, b); });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(10): import {it} from 'node:test';\nimport assert from 'node:assert';\nit('x', t => { assert.ok(value); }); 1`] = `
+
+  1 | import {it} from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | it('x', t => { assert.ok(value); });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(10): import {it} from 'node:test';\nimport assert from 'node:assert';\nit('x', t => { assert.ok(value); }); 2`] = `
+
+Message:
+  1 | import {it} from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | it('x', t => { assert.ok(value); });
+    |                ^^^^^^^^^ Prefer the test context \`t.assert.ok()\` over the imported \`node:assert\`, so the runner ties the assertion to this test.
+
+Suggestion 1/1: Replace with \`t.assert.ok()\`.:
+  1 | import {it} from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | it('x', t => { t.assert.ok(value); });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(11): import * as nodeTest from 'node:test';\nimport assert from 'node:assert';\nnodeTest.test('x', t => { assert.ok(value); }); 1`] = `
+
+  1 | import * as nodeTest from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | nodeTest.test('x', t => { assert.ok(value); });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(11): import * as nodeTest from 'node:test';\nimport assert from 'node:assert';\nnodeTest.test('x', t => { assert.ok(value); }); 2`] = `
+
+Message:
+  1 | import * as nodeTest from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | nodeTest.test('x', t => { assert.ok(value); });
+    |                           ^^^^^^^^^ Prefer the test context \`t.assert.ok()\` over the imported \`node:assert\`, so the runner ties the assertion to this test.
+
+Suggestion 1/1: Replace with \`t.assert.ok()\`.:
+  1 | import * as nodeTest from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | nodeTest.test('x', t => { t.assert.ok(value); });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(12): import test from 'node:test';\nimport * as assert from 'node:assert';\ntest('x', t => { assert.deepStrictEqual(a, b); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import * as assert from 'node:assert';
+  3 | test('x', t => { assert.deepStrictEqual(a, b); });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(12): import test from 'node:test';\nimport * as assert from 'node:assert';\ntest('x', t => { assert.deepStrictEqual(a, b); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import * as assert from 'node:assert';
+> 3 | test('x', t => { assert.deepStrictEqual(a, b); });
+    |                  ^^^^^^^^^^^^^^^^^^^^^^ Prefer the test context \`t.assert.deepStrictEqual()\` over the imported \`node:assert\`, so the runner ties the assertion to this test.
+
+Suggestion 1/1: Replace with \`t.assert.deepStrictEqual()\`.:
+  1 | import test from 'node:test';
+  2 | import * as assert from 'node:assert';
+  3 | test('x', t => { t.assert.deepStrictEqual(a, b); });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(13): import test from 'node:test';\nimport assert from 'node:assert';\ntest('x', t => { assert./* keep */ok(value); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('x', t => { assert./* keep */ok(value); });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(13): import test from 'node:test';\nimport assert from 'node:assert';\ntest('x', t => { assert./* keep */ok(value); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | test('x', t => { assert./* keep */ok(value); });
+    |                  ^^^^^^^^^^^^^^^^^^^ Prefer the test context \`t.assert.ok()\` over the imported \`node:assert\`, so the runner ties the assertion to this test.
+
+`;
+
+exports[`prefer-test-context-assert > invalid(14): import test from 'node:test';\nimport assert from 'node:assert';\ntest('x', (t: TestContext) => { assert.ok(value); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('x', (t: TestContext) => { assert.ok(value); });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(14): import test from 'node:test';\nimport assert from 'node:assert';\ntest('x', (t: TestContext) => { assert.ok(value); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | test('x', (t: TestContext) => { assert.ok(value); });
+    |                                 ^^^^^^^^^ Prefer the test context \`t.assert.ok()\` over the imported \`node:assert\`, so the runner ties the assertion to this test.
+
+Suggestion 1/1: Replace with \`t.assert.ok()\`.:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('x', (t: TestContext) => { t.assert.ok(value); });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(2): import test from 'node:test';\nimport assert from 'node:assert';\ntest('x', t => { assert(value); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('x', t => { assert(value); });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(2): import test from 'node:test';\nimport assert from 'node:assert';\ntest('x', t => { assert(value); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | test('x', t => { assert(value); });
+    |                  ^^^^^^ Prefer the test context \`t.assert.ok()\` over the imported \`node:assert\`, so the runner ties the assertion to this test.
+
+Suggestion 1/1: Replace with \`t.assert.ok()\`.:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('x', t => { t.assert.ok(value); });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(3): import test from 'node:test';\nimport {strictEqual} from 'node:assert';\ntest('x', t => { strictEqual(a, b); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import {strictEqual} from 'node:assert';
+  3 | test('x', t => { strictEqual(a, b); });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(3): import test from 'node:test';\nimport {strictEqual} from 'node:assert';\ntest('x', t => { strictEqual(a, b); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import {strictEqual} from 'node:assert';
+> 3 | test('x', t => { strictEqual(a, b); });
+    |                  ^^^^^^^^^^^ Prefer the test context \`t.assert.strictEqual()\` over the imported \`node:assert\`, so the runner ties the assertion to this test.
+
+Suggestion 1/1: Replace with \`t.assert.strictEqual()\`.:
+  1 | import test from 'node:test';
+  2 | import {strictEqual} from 'node:assert';
+  3 | test('x', t => { t.assert.strictEqual(a, b); });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(4): import test from 'node:test';\nimport {deepStrictEqual as deep} from 'node:assert';\ntest('x', t => { deep(a, b); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import {deepStrictEqual as deep} from 'node:assert';
+  3 | test('x', t => { deep(a, b); });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(4): import test from 'node:test';\nimport {deepStrictEqual as deep} from 'node:assert';\ntest('x', t => { deep(a, b); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import {deepStrictEqual as deep} from 'node:assert';
+> 3 | test('x', t => { deep(a, b); });
+    |                  ^^^^ Prefer the test context \`t.assert.deepStrictEqual()\` over the imported \`node:assert\`, so the runner ties the assertion to this test.
+
+Suggestion 1/1: Replace with \`t.assert.deepStrictEqual()\`.:
+  1 | import test from 'node:test';
+  2 | import {deepStrictEqual as deep} from 'node:assert';
+  3 | test('x', t => { t.assert.deepStrictEqual(a, b); });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(5): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('x', t => { assert.equal(a, b); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | test('x', t => { assert.equal(a, b); });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(5): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('x', t => { assert.equal(a, b); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+> 3 | test('x', t => { assert.equal(a, b); });
+    |                  ^^^^^^^^^^^^ Prefer the test context \`t.assert.strictEqual()\` over the imported \`node:assert\`, so the runner ties the assertion to this test.
+
+Suggestion 1/1: Replace with \`t.assert.strictEqual()\`.:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | test('x', t => { t.assert.strictEqual(a, b); });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(6): import test from 'node:test';\nimport {deepEqual} from 'node:assert/strict';\ntest('x', t => { deepEqual(a, b); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import {deepEqual} from 'node:assert/strict';
+  3 | test('x', t => { deepEqual(a, b); });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(6): import test from 'node:test';\nimport {deepEqual} from 'node:assert/strict';\ntest('x', t => { deepEqual(a, b); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import {deepEqual} from 'node:assert/strict';
+> 3 | test('x', t => { deepEqual(a, b); });
+    |                  ^^^^^^^^^ Prefer the test context \`t.assert.deepStrictEqual()\` over the imported \`node:assert\`, so the runner ties the assertion to this test.
+
+Suggestion 1/1: Replace with \`t.assert.deepStrictEqual()\`.:
+  1 | import test from 'node:test';
+  2 | import {deepEqual} from 'node:assert/strict';
+  3 | test('x', t => { t.assert.deepStrictEqual(a, b); });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(7): import test from 'node:test';\nimport assert from 'node:assert';\ntest('x', t => { assert.deepEqual(a, b); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('x', t => { assert.deepEqual(a, b); });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(7): import test from 'node:test';\nimport assert from 'node:assert';\ntest('x', t => { assert.deepEqual(a, b); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | test('x', t => { assert.deepEqual(a, b); });
+    |                  ^^^^^^^^^^^^^^^^ Prefer the test context \`t.assert.deepEqual()\` over the imported \`node:assert\`, so the runner ties the assertion to this test.
+
+Suggestion 1/1: Replace with \`t.assert.deepEqual()\`.:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('x', t => { t.assert.deepEqual(a, b); });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(8): import test from 'node:test';\nimport assert from 'node:assert';\ntest('x', context => { assert.ok(value); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('x', context => { assert.ok(value); });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(8): import test from 'node:test';\nimport assert from 'node:assert';\ntest('x', context => { assert.ok(value); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | test('x', context => { assert.ok(value); });
+    |                        ^^^^^^^^^ Prefer the test context \`context.assert.ok()\` over the imported \`node:assert\`, so the runner ties the assertion to this test.
+
+Suggestion 1/1: Replace with \`context.assert.ok()\`.:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('x', context => { context.assert.ok(value); });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(9): import test from 'node:test';\nimport assert from 'node:assert';\ntest('x', t => { t.test('y', t2 => { assert.ok(value); }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('x', t => { t.test('y', t2 => { assert.ok(value); }); });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(9): import test from 'node:test';\nimport assert from 'node:assert';\ntest('x', t => { t.test('y', t2 => { assert.ok(value); }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | test('x', t => { t.test('y', t2 => { assert.ok(value); }); });
+    |                                      ^^^^^^^^^ Prefer the test context \`t2.assert.ok()\` over the imported \`node:assert\`, so the runner ties the assertion to this test.
+
+Suggestion 1/1: Replace with \`t2.assert.ok()\`.:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('x', t => { t.test('y', t2 => { t2.assert.ok(value); }); });
+
+`;

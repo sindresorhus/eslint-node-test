@@ -1,0 +1,83 @@
+exports[`consistent-test-context-name > invalid(1): import test from 'node:test';\ntest('t', context => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', context => {});
+
+`;
+
+exports[`consistent-test-context-name > invalid(1): import test from 'node:test';\ntest('t', context => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', context => {});
+    |           ^^^^^^^ Name the test context parameter \`t\` instead of \`context\`.
+
+`;
+
+exports[`consistent-test-context-name > invalid(2): import test from 'node:test';\ntest('t', async ctx => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', async ctx => {});
+
+`;
+
+exports[`consistent-test-context-name > invalid(2): import test from 'node:test';\ntest('t', async ctx => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', async ctx => {});
+    |                 ^^^ Name the test context parameter \`t\` instead of \`ctx\`.
+
+`;
+
+exports[`consistent-test-context-name > invalid(3): import {it} from 'node:test';\nit('t', testContext => {}); 1`] = `
+
+  1 | import {it} from 'node:test';
+  2 | it('t', testContext => {});
+
+`;
+
+exports[`consistent-test-context-name > invalid(3): import {it} from 'node:test';\nit('t', testContext => {}); 2`] = `
+
+Message:
+  1 | import {it} from 'node:test';
+> 2 | it('t', testContext => {});
+    |         ^^^^^^^^^^^ Name the test context parameter \`t\` instead of \`testContext\`.
+
+`;
+
+exports[`consistent-test-context-name > invalid(4): import test from 'node:test';\ntest('t', async t => { await t.test('s', subContext => {}); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', async t => { await t.test('s', subContext => {}); });
+
+`;
+
+exports[`consistent-test-context-name > invalid(4): import test from 'node:test';\ntest('t', async t => { await t.test('s', subContext => {}); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', async t => { await t.test('s', subContext => {}); });
+    |                                          ^^^^^^^^^^ Name the test context parameter \`t\` instead of \`subContext\`.
+
+`;
+
+exports[`consistent-test-context-name > invalid(5): import test from 'node:test';\ntest('t', t => {}); 1`] = `
+
+Options:
+- name: 'context'
+
+Code:
+  1 | import test from 'node:test';
+  2 | test('t', t => {});
+
+`;
+
+exports[`consistent-test-context-name > invalid(5): import test from 'node:test';\ntest('t', t => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', t => {});
+    |           ^ Name the test context parameter \`context\` instead of \`t\`.
+
+`;

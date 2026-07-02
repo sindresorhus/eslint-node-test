@@ -1,0 +1,233 @@
+exports[`prefer-strict-assert > invalid(1): import assert from 'node:assert';\nassert.equal(a, b); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.equal(a, b);
+
+`;
+
+exports[`prefer-strict-assert > invalid(1): import assert from 'node:assert';\nassert.equal(a, b); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.equal(a, b);
+    | ^^^^^^^^^^^^^^^^^^ Prefer \`strictEqual\` over the legacy loose \`equal\`.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(a, b);
+
+`;
+
+exports[`prefer-strict-assert > invalid(10): import test from 'node:test';\ntest('t', t => { t.assert.deepEqual(a, b); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', t => { t.assert.deepEqual(a, b); });
+
+`;
+
+exports[`prefer-strict-assert > invalid(10): import test from 'node:test';\ntest('t', t => { t.assert.deepEqual(a, b); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', t => { t.assert.deepEqual(a, b); });
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`deepStrictEqual\` over the legacy loose \`deepEqual\`.
+
+Output:
+  1 | import test from 'node:test';
+  2 | test('t', t => { t.assert.deepStrictEqual(a, b); });
+
+`;
+
+exports[`prefer-strict-assert > invalid(11): import assert from 'node:assert';\nimport strict from 'node:assert/strict';\nassert.equal(a, b);\nstrict.equal(c, d); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | import strict from 'node:assert/strict';
+  3 | assert.equal(a, b);
+  4 | strict.equal(c, d);
+
+`;
+
+exports[`prefer-strict-assert > invalid(11): import assert from 'node:assert';\nimport strict from 'node:assert/strict';\nassert.equal(a, b);\nstrict.equal(c, d); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+  2 | import strict from 'node:assert/strict';
+> 3 | assert.equal(a, b);
+    | ^^^^^^^^^^^^^^^^^^ Prefer \`strictEqual\` over the legacy loose \`equal\`.
+  4 | strict.equal(c, d);
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | import strict from 'node:assert/strict';
+  3 | assert.strictEqual(a, b);
+  4 | strict.equal(c, d);
+
+`;
+
+exports[`prefer-strict-assert > invalid(12): import assert from 'node:assert';\nassert.equal(a as string, b); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.equal(a as string, b);
+
+`;
+
+exports[`prefer-strict-assert > invalid(12): import assert from 'node:assert';\nassert.equal(a as string, b); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.equal(a as string, b);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`strictEqual\` over the legacy loose \`equal\`.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(a as string, b);
+
+`;
+
+exports[`prefer-strict-assert > invalid(2): import assert from 'node:assert';\nassert.notEqual(a, b); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.notEqual(a, b);
+
+`;
+
+exports[`prefer-strict-assert > invalid(2): import assert from 'node:assert';\nassert.notEqual(a, b); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.notEqual(a, b);
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer \`notStrictEqual\` over the legacy loose \`notEqual\`.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.notStrictEqual(a, b);
+
+`;
+
+exports[`prefer-strict-assert > invalid(3): import assert from 'node:assert';\nassert.deepEqual(a, b); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.deepEqual(a, b);
+
+`;
+
+exports[`prefer-strict-assert > invalid(3): import assert from 'node:assert';\nassert.deepEqual(a, b); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.deepEqual(a, b);
+    | ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`deepStrictEqual\` over the legacy loose \`deepEqual\`.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.deepStrictEqual(a, b);
+
+`;
+
+exports[`prefer-strict-assert > invalid(4): import assert from 'node:assert';\nassert.notDeepEqual(a, b); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.notDeepEqual(a, b);
+
+`;
+
+exports[`prefer-strict-assert > invalid(4): import assert from 'node:assert';\nassert.notDeepEqual(a, b); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.notDeepEqual(a, b);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`notDeepStrictEqual\` over the legacy loose \`notDeepEqual\`.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.notDeepStrictEqual(a, b);
+
+`;
+
+exports[`prefer-strict-assert > invalid(5): import assert from 'node:assert';\nassert.equal(a, b, \"message\"); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.equal(a, b, "message");
+
+`;
+
+exports[`prefer-strict-assert > invalid(5): import assert from 'node:assert';\nassert.equal(a, b, \"message\"); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.equal(a, b, "message");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`strictEqual\` over the legacy loose \`equal\`.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(a, b, "message");
+
+`;
+
+exports[`prefer-strict-assert > invalid(6): import {equal} from 'node:assert';\nequal(a, b); 1`] = `
+
+  1 | import {equal} from 'node:assert';
+  2 | equal(a, b);
+
+`;
+
+exports[`prefer-strict-assert > invalid(6): import {equal} from 'node:assert';\nequal(a, b); 2`] = `
+
+Message:
+  1 | import {equal} from 'node:assert';
+> 2 | equal(a, b);
+    | ^^^^^^^^^^^ Prefer \`strictEqual\` over the legacy loose \`equal\`.
+
+`;
+
+exports[`prefer-strict-assert > invalid(7): import {deepEqual} from 'node:assert';\ndeepEqual(a, b); 1`] = `
+
+  1 | import {deepEqual} from 'node:assert';
+  2 | deepEqual(a, b);
+
+`;
+
+exports[`prefer-strict-assert > invalid(7): import {deepEqual} from 'node:assert';\ndeepEqual(a, b); 2`] = `
+
+Message:
+  1 | import {deepEqual} from 'node:assert';
+> 2 | deepEqual(a, b);
+    | ^^^^^^^^^^^^^^^ Prefer \`deepStrictEqual\` over the legacy loose \`deepEqual\`.
+
+`;
+
+exports[`prefer-strict-assert > invalid(8): import {equal as eq} from 'node:assert';\neq(a, b); 1`] = `
+
+  1 | import {equal as eq} from 'node:assert';
+  2 | eq(a, b);
+
+`;
+
+exports[`prefer-strict-assert > invalid(8): import {equal as eq} from 'node:assert';\neq(a, b); 2`] = `
+
+Message:
+  1 | import {equal as eq} from 'node:assert';
+> 2 | eq(a, b);
+    | ^^^^^^^^ Prefer \`strictEqual\` over the legacy loose \`equal\`.
+
+`;
+
+exports[`prefer-strict-assert > invalid(9): import test from 'node:test';\ntest('t', t => { t.assert.equal(a, b); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', t => { t.assert.equal(a, b); });
+
+`;
+
+exports[`prefer-strict-assert > invalid(9): import test from 'node:test';\ntest('t', t => { t.assert.equal(a, b); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', t => { t.assert.equal(a, b); });
+    |                  ^^^^^^^^^^^^^^^^^^^^ Prefer \`strictEqual\` over the legacy loose \`equal\`.
+
+Output:
+  1 | import test from 'node:test';
+  2 | test('t', t => { t.assert.strictEqual(a, b); });
+
+`;

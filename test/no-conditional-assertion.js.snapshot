@@ -1,0 +1,411 @@
+exports[`no-conditional-assertion > invalid(1): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", () => { if (x) { assert.strictEqual(1, 1); } }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+  3 | test("t1", () => { if (x) { assert.strictEqual(1, 1); } });
+
+`;
+
+exports[`no-conditional-assertion > invalid(1): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", () => { if (x) { assert.strictEqual(1, 1); } }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+> 3 | test("t1", () => { if (x) { assert.strictEqual(1, 1); } });
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^ Assertions should not be placed inside conditionals, as they may never execute.
+
+`;
+
+exports[`no-conditional-assertion > invalid(10): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", () => { for (let i = 0; i < 3; i++) { assert.ok(i >= 0); } }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+  3 | test("t1", () => { for (let i = 0; i < 3; i++) { assert.ok(i >= 0); } });
+
+`;
+
+exports[`no-conditional-assertion > invalid(10): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", () => { for (let i = 0; i < 3; i++) { assert.ok(i >= 0); } }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+> 3 | test("t1", () => { for (let i = 0; i < 3; i++) { assert.ok(i >= 0); } });
+    |                                                  ^^^^^^^^^^^^^^^^^ Assertions should not be placed inside conditionals, as they may never execute.
+
+`;
+
+exports[`no-conditional-assertion > invalid(11): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", () => { for (const item of items) { assert.ok(item); } }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+  3 | test("t1", () => { for (const item of items) { assert.ok(item); } });
+
+`;
+
+exports[`no-conditional-assertion > invalid(11): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", () => { for (const item of items) { assert.ok(item); } }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+> 3 | test("t1", () => { for (const item of items) { assert.ok(item); } });
+    |                                                ^^^^^^^^^^^^^^^ Assertions should not be placed inside conditionals, as they may never execute.
+
+`;
+
+exports[`no-conditional-assertion > invalid(12): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", () => { for (const key in obj) { assert.ok(key); } }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+  3 | test("t1", () => { for (const key in obj) { assert.ok(key); } });
+
+`;
+
+exports[`no-conditional-assertion > invalid(12): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", () => { for (const key in obj) { assert.ok(key); } }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+> 3 | test("t1", () => { for (const key in obj) { assert.ok(key); } });
+    |                                             ^^^^^^^^^^^^^^ Assertions should not be placed inside conditionals, as they may never execute.
+
+`;
+
+exports[`no-conditional-assertion > invalid(13): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", () => { do { assert.ok(1); } while (x); }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+  3 | test("t1", () => { do { assert.ok(1); } while (x); });
+
+`;
+
+exports[`no-conditional-assertion > invalid(13): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", () => { do { assert.ok(1); } while (x); }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+> 3 | test("t1", () => { do { assert.ok(1); } while (x); });
+    |                         ^^^^^^^^^^^^ Assertions should not be placed inside conditionals, as they may never execute.
+
+`;
+
+exports[`no-conditional-assertion > invalid(14): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", () => { if (x) { assert(value); } }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+  3 | test("t1", () => { if (x) { assert(value); } });
+
+`;
+
+exports[`no-conditional-assertion > invalid(14): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", () => { if (x) { assert(value); } }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+> 3 | test("t1", () => { if (x) { assert(value); } });
+    |                             ^^^^^^^^^^^^^ Assertions should not be placed inside conditionals, as they may never execute.
+
+`;
+
+exports[`no-conditional-assertion > invalid(15): import test from \"node:test\";\nimport {strictEqual} from \"node:assert\";\ntest(\"t1\", () => { if (x) { strictEqual(1, 1); } }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | import {strictEqual} from "node:assert";
+  3 | test("t1", () => { if (x) { strictEqual(1, 1); } });
+
+`;
+
+exports[`no-conditional-assertion > invalid(15): import test from \"node:test\";\nimport {strictEqual} from \"node:assert\";\ntest(\"t1\", () => { if (x) { strictEqual(1, 1); } }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+  2 | import {strictEqual} from "node:assert";
+> 3 | test("t1", () => { if (x) { strictEqual(1, 1); } });
+    |                             ^^^^^^^^^^^^^^^^^ Assertions should not be placed inside conditionals, as they may never execute.
+
+`;
+
+exports[`no-conditional-assertion > invalid(16): import test from \"node:test\";\ntest(\"t1\", t => { if (x) { t.assert.strictEqual(1, 1); } }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("t1", t => { if (x) { t.assert.strictEqual(1, 1); } });
+
+`;
+
+exports[`no-conditional-assertion > invalid(16): import test from \"node:test\";\ntest(\"t1\", t => { if (x) { t.assert.strictEqual(1, 1); } }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test("t1", t => { if (x) { t.assert.strictEqual(1, 1); } });
+    |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertions should not be placed inside conditionals, as they may never execute.
+
+`;
+
+exports[`no-conditional-assertion > invalid(17): import {it} from \"node:test\";\nimport assert from \"node:assert\";\nit(\"t1\", () => { if (x) { assert.ok(1); } }); 1`] = `
+
+  1 | import {it} from "node:test";
+  2 | import assert from "node:assert";
+  3 | it("t1", () => { if (x) { assert.ok(1); } });
+
+`;
+
+exports[`no-conditional-assertion > invalid(17): import {it} from \"node:test\";\nimport assert from \"node:assert\";\nit(\"t1\", () => { if (x) { assert.ok(1); } }); 2`] = `
+
+Message:
+  1 | import {it} from "node:test";
+  2 | import assert from "node:assert";
+> 3 | it("t1", () => { if (x) { assert.ok(1); } });
+    |                           ^^^^^^^^^^^^ Assertions should not be placed inside conditionals, as they may never execute.
+
+`;
+
+exports[`no-conditional-assertion > invalid(18): import {test as myTest} from \"node:test\";\nimport assert from \"node:assert\";\nmyTest(\"t1\", () => { if (x) { assert.ok(1); } }); 1`] = `
+
+  1 | import {test as myTest} from "node:test";
+  2 | import assert from "node:assert";
+  3 | myTest("t1", () => { if (x) { assert.ok(1); } });
+
+`;
+
+exports[`no-conditional-assertion > invalid(18): import {test as myTest} from \"node:test\";\nimport assert from \"node:assert\";\nmyTest(\"t1\", () => { if (x) { assert.ok(1); } }); 2`] = `
+
+Message:
+  1 | import {test as myTest} from "node:test";
+  2 | import assert from "node:assert";
+> 3 | myTest("t1", () => { if (x) { assert.ok(1); } });
+    |                               ^^^^^^^^^^^^ Assertions should not be placed inside conditionals, as they may never execute.
+
+`;
+
+exports[`no-conditional-assertion > invalid(19): import * as nodeTest from \"node:test\";\nimport assert from \"node:assert\";\nnodeTest.test(\"t1\", () => { if (x) { assert.ok(1); } }); 1`] = `
+
+  1 | import * as nodeTest from "node:test";
+  2 | import assert from "node:assert";
+  3 | nodeTest.test("t1", () => { if (x) { assert.ok(1); } });
+
+`;
+
+exports[`no-conditional-assertion > invalid(19): import * as nodeTest from \"node:test\";\nimport assert from \"node:assert\";\nnodeTest.test(\"t1\", () => { if (x) { assert.ok(1); } }); 2`] = `
+
+Message:
+  1 | import * as nodeTest from "node:test";
+  2 | import assert from "node:assert";
+> 3 | nodeTest.test("t1", () => { if (x) { assert.ok(1); } });
+    |                                      ^^^^^^^^^^^^ Assertions should not be placed inside conditionals, as they may never execute.
+
+`;
+
+exports[`no-conditional-assertion > invalid(2): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", () => { if (x) { assert.ok(1); } else { setup(); } }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+  3 | test("t1", () => { if (x) { assert.ok(1); } else { setup(); } });
+
+`;
+
+exports[`no-conditional-assertion > invalid(2): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", () => { if (x) { assert.ok(1); } else { setup(); } }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+> 3 | test("t1", () => { if (x) { assert.ok(1); } else { setup(); } });
+    |                             ^^^^^^^^^^^^ Assertions should not be placed inside conditionals, as they may never execute.
+
+`;
+
+exports[`no-conditional-assertion > invalid(20): import {beforeEach} from \"node:test\";\nimport assert from \"node:assert\";\nbeforeEach(() => { if (x) { assert.ok(1); } }); 1`] = `
+
+  1 | import {beforeEach} from "node:test";
+  2 | import assert from "node:assert";
+  3 | beforeEach(() => { if (x) { assert.ok(1); } });
+
+`;
+
+exports[`no-conditional-assertion > invalid(20): import {beforeEach} from \"node:test\";\nimport assert from \"node:assert\";\nbeforeEach(() => { if (x) { assert.ok(1); } }); 2`] = `
+
+Message:
+  1 | import {beforeEach} from "node:test";
+  2 | import assert from "node:assert";
+> 3 | beforeEach(() => { if (x) { assert.ok(1); } });
+    |                             ^^^^^^^^^^^^ Assertions should not be placed inside conditionals, as they may never execute.
+
+`;
+
+exports[`no-conditional-assertion > invalid(21): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", () => { const check = () => { if (x) { assert.ok(1); } }; check(); }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+  3 | test("t1", () => { const check = () => { if (x) { assert.ok(1); } }; check(); });
+
+`;
+
+exports[`no-conditional-assertion > invalid(21): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", () => { const check = () => { if (x) { assert.ok(1); } }; check(); }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+> 3 | test("t1", () => { const check = () => { if (x) { assert.ok(1); } }; check(); });
+    |                                                   ^^^^^^^^^^^^ Assertions should not be placed inside conditionals, as they may never execute.
+
+`;
+
+exports[`no-conditional-assertion > invalid(22): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", async t => { await t.test(\"inner\", () => { if (x) { assert.ok(1); } }); }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+  3 | test("t1", async t => { await t.test("inner", () => { if (x) { assert.ok(1); } }); });
+
+`;
+
+exports[`no-conditional-assertion > invalid(22): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", async t => { await t.test(\"inner\", () => { if (x) { assert.ok(1); } }); }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+> 3 | test("t1", async t => { await t.test("inner", () => { if (x) { assert.ok(1); } }); });
+    |                                                                ^^^^^^^^^^^^ Assertions should not be placed inside conditionals, as they may never execute.
+
+`;
+
+exports[`no-conditional-assertion > invalid(23): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", (): void => { if (x) { assert.ok(1); } }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+  3 | test("t1", (): void => { if (x) { assert.ok(1); } });
+
+`;
+
+exports[`no-conditional-assertion > invalid(23): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", (): void => { if (x) { assert.ok(1); } }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+> 3 | test("t1", (): void => { if (x) { assert.ok(1); } });
+    |                                   ^^^^^^^^^^^^ Assertions should not be placed inside conditionals, as they may never execute.
+
+`;
+
+exports[`no-conditional-assertion > invalid(3): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", () => { x ? assert.ok(1) : null; }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+  3 | test("t1", () => { x ? assert.ok(1) : null; });
+
+`;
+
+exports[`no-conditional-assertion > invalid(3): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", () => { x ? assert.ok(1) : null; }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+> 3 | test("t1", () => { x ? assert.ok(1) : null; });
+    |                        ^^^^^^^^^^^^ Assertions should not be placed inside conditionals, as they may never execute.
+
+`;
+
+exports[`no-conditional-assertion > invalid(4): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", () => { x ? null : assert.ok(1); }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+  3 | test("t1", () => { x ? null : assert.ok(1); });
+
+`;
+
+exports[`no-conditional-assertion > invalid(4): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", () => { x ? null : assert.ok(1); }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+> 3 | test("t1", () => { x ? null : assert.ok(1); });
+    |                               ^^^^^^^^^^^^ Assertions should not be placed inside conditionals, as they may never execute.
+
+`;
+
+exports[`no-conditional-assertion > invalid(5): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", () => { ready && assert.ok(value); }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+  3 | test("t1", () => { ready && assert.ok(value); });
+
+`;
+
+exports[`no-conditional-assertion > invalid(5): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", () => { ready && assert.ok(value); }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+> 3 | test("t1", () => { ready && assert.ok(value); });
+    |                             ^^^^^^^^^^^^^^^^ Assertions should not be placed inside conditionals, as they may never execute.
+
+`;
+
+exports[`no-conditional-assertion > invalid(6): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", () => { ready || assert.ok(value); }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+  3 | test("t1", () => { ready || assert.ok(value); });
+
+`;
+
+exports[`no-conditional-assertion > invalid(6): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", () => { ready || assert.ok(value); }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+> 3 | test("t1", () => { ready || assert.ok(value); });
+    |                             ^^^^^^^^^^^^^^^^ Assertions should not be placed inside conditionals, as they may never execute.
+
+`;
+
+exports[`no-conditional-assertion > invalid(7): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", () => { ready ?? assert.ok(value); }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+  3 | test("t1", () => { ready ?? assert.ok(value); });
+
+`;
+
+exports[`no-conditional-assertion > invalid(7): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", () => { ready ?? assert.ok(value); }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+> 3 | test("t1", () => { ready ?? assert.ok(value); });
+    |                             ^^^^^^^^^^^^^^^^ Assertions should not be placed inside conditionals, as they may never execute.
+
+`;
+
+exports[`no-conditional-assertion > invalid(8): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", () => { switch (x) { case 1: assert.ok(1); break; } }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+  3 | test("t1", () => { switch (x) { case 1: assert.ok(1); break; } });
+
+`;
+
+exports[`no-conditional-assertion > invalid(8): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", () => { switch (x) { case 1: assert.ok(1); break; } }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+> 3 | test("t1", () => { switch (x) { case 1: assert.ok(1); break; } });
+    |                                         ^^^^^^^^^^^^ Assertions should not be placed inside conditionals, as they may never execute.
+
+`;
+
+exports[`no-conditional-assertion > invalid(9): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", () => { while (running) { assert.ok(1); } }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+  3 | test("t1", () => { while (running) { assert.ok(1); } });
+
+`;
+
+exports[`no-conditional-assertion > invalid(9): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", () => { while (running) { assert.ok(1); } }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+> 3 | test("t1", () => { while (running) { assert.ok(1); } });
+    |                                      ^^^^^^^^^^^^ Assertions should not be placed inside conditionals, as they may never execute.
+
+`;

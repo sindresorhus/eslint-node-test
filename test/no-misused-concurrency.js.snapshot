@@ -1,0 +1,97 @@
+exports[`no-misused-concurrency > invalid(1): import test from 'node:test';\ntest('t', {concurrency: true}, () => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', {concurrency: true}, () => {});
+
+`;
+
+exports[`no-misused-concurrency > invalid(1): import test from 'node:test';\ntest('t', {concurrency: true}, () => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', {concurrency: true}, () => {});
+    |            ^^^^^^^^^^^^^^^^^ The \`concurrency\` option has no effect on a test without subtests. It only controls how a suite or a test's subtests run concurrently.
+
+`;
+
+exports[`no-misused-concurrency > invalid(2): import test from 'node:test';\ntest('t', {concurrency: 5}, () => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', {concurrency: 5}, () => {});
+
+`;
+
+exports[`no-misused-concurrency > invalid(2): import test from 'node:test';\ntest('t', {concurrency: 5}, () => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', {concurrency: 5}, () => {});
+    |            ^^^^^^^^^^^^^^ The \`concurrency\` option has no effect on a test without subtests. It only controls how a suite or a test's subtests run concurrently.
+
+`;
+
+exports[`no-misused-concurrency > invalid(3): import {it} from 'node:test';\nit('t', {concurrency: true}, () => {}); 1`] = `
+
+  1 | import {it} from 'node:test';
+  2 | it('t', {concurrency: true}, () => {});
+
+`;
+
+exports[`no-misused-concurrency > invalid(3): import {it} from 'node:test';\nit('t', {concurrency: true}, () => {}); 2`] = `
+
+Message:
+  1 | import {it} from 'node:test';
+> 2 | it('t', {concurrency: true}, () => {});
+    |          ^^^^^^^^^^^^^^^^^ The \`concurrency\` option has no effect on a test without subtests. It only controls how a suite or a test's subtests run concurrently.
+
+`;
+
+exports[`no-misused-concurrency > invalid(4): import test from 'node:test';\ntest('t', async t => { await t.test('inner', {concurrency: true}, () => {}); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', async t => { await t.test('inner', {concurrency: true}, () => {}); });
+
+`;
+
+exports[`no-misused-concurrency > invalid(4): import test from 'node:test';\ntest('t', async t => { await t.test('inner', {concurrency: true}, () => {}); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', async t => { await t.test('inner', {concurrency: true}, () => {}); });
+    |                                               ^^^^^^^^^^^^^^^^^ The \`concurrency\` option has no effect on a test without subtests. It only controls how a suite or a test's subtests run concurrently.
+
+`;
+
+exports[`no-misused-concurrency > invalid(5): import test from 'node:test';\ntest('t', {concurrency: true}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', {concurrency: true});
+
+`;
+
+exports[`no-misused-concurrency > invalid(5): import test from 'node:test';\ntest('t', {concurrency: true}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', {concurrency: true});
+    |            ^^^^^^^^^^^^^^^^^ The \`concurrency\` option has no effect on a test without subtests. It only controls how a suite or a test's subtests run concurrently.
+
+`;
+
+exports[`no-misused-concurrency > invalid(6): import test from 'node:test';\nimport assert from 'node:assert';\ntest('t', {concurrency: true}, t => { t.assert.ok(1); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('t', {concurrency: true}, t => { t.assert.ok(1); });
+
+`;
+
+exports[`no-misused-concurrency > invalid(6): import test from 'node:test';\nimport assert from 'node:assert';\ntest('t', {concurrency: true}, t => { t.assert.ok(1); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | test('t', {concurrency: true}, t => { t.assert.ok(1); });
+    |            ^^^^^^^^^^^^^^^^^ The \`concurrency\` option has no effect on a test without subtests. It only controls how a suite or a test's subtests run concurrently.
+
+`;

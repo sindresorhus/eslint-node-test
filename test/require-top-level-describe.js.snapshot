@@ -1,0 +1,107 @@
+exports[`require-top-level-describe > invalid(1): import {describe, test, it, before, beforeEach} from 'node:test';\ntest(\"a\", () => {}); 1`] = `
+
+  1 | import {describe, test, it, before, beforeEach} from 'node:test';
+  2 | test("a", () => {});
+
+`;
+
+exports[`require-top-level-describe > invalid(1): import {describe, test, it, before, beforeEach} from 'node:test';\ntest(\"a\", () => {}); 2`] = `
+
+Message:
+  1 | import {describe, test, it, before, beforeEach} from 'node:test';
+> 2 | test("a", () => {});
+    | ^^^^^^^^^^^^^^^^^^^ A test must be placed inside a top-level \`describe\`.
+
+`;
+
+exports[`require-top-level-describe > invalid(2): import {describe, test, it, before, beforeEach} from 'node:test';\nit(\"a\", () => {}); 1`] = `
+
+  1 | import {describe, test, it, before, beforeEach} from 'node:test';
+  2 | it("a", () => {});
+
+`;
+
+exports[`require-top-level-describe > invalid(2): import {describe, test, it, before, beforeEach} from 'node:test';\nit(\"a\", () => {}); 2`] = `
+
+Message:
+  1 | import {describe, test, it, before, beforeEach} from 'node:test';
+> 2 | it("a", () => {});
+    | ^^^^^^^^^^^^^^^^^ A test must be placed inside a top-level \`describe\`.
+
+`;
+
+exports[`require-top-level-describe > invalid(3): import {describe, test, it, before, beforeEach} from 'node:test';\nbeforeEach(() => {});\ndescribe(\"s\", () => { it(\"a\", () => {}); }); 1`] = `
+
+  1 | import {describe, test, it, before, beforeEach} from 'node:test';
+  2 | beforeEach(() => {});
+  3 | describe("s", () => { it("a", () => {}); });
+
+`;
+
+exports[`require-top-level-describe > invalid(3): import {describe, test, it, before, beforeEach} from 'node:test';\nbeforeEach(() => {});\ndescribe(\"s\", () => { it(\"a\", () => {}); }); 2`] = `
+
+Message:
+  1 | import {describe, test, it, before, beforeEach} from 'node:test';
+> 2 | beforeEach(() => {});
+    | ^^^^^^^^^^^^^^^^^^^^ A hook must be placed inside a top-level \`describe\`.
+  3 | describe("s", () => { it("a", () => {}); });
+
+`;
+
+exports[`require-top-level-describe > invalid(4): import {describe, test, it, before, beforeEach} from 'node:test';\ntest(\"a\", () => {});\ndescribe(\"s\", () => { it(\"b\", () => {}); }); 1`] = `
+
+  1 | import {describe, test, it, before, beforeEach} from 'node:test';
+  2 | test("a", () => {});
+  3 | describe("s", () => { it("b", () => {}); });
+
+`;
+
+exports[`require-top-level-describe > invalid(4): import {describe, test, it, before, beforeEach} from 'node:test';\ntest(\"a\", () => {});\ndescribe(\"s\", () => { it(\"b\", () => {}); }); 2`] = `
+
+Message:
+  1 | import {describe, test, it, before, beforeEach} from 'node:test';
+> 2 | test("a", () => {});
+    | ^^^^^^^^^^^^^^^^^^^ A test must be placed inside a top-level \`describe\`.
+  3 | describe("s", () => { it("b", () => {}); });
+
+`;
+
+exports[`require-top-level-describe > invalid(5): import {describe, test, it, before, beforeEach} from 'node:test';\ndescribe(\"a\", () => {});\ndescribe(\"b\", () => {});\ndescribe(\"c\", () => {}); 1`] = `
+
+Options:
+- maxTopLevelDescribes: 2
+
+Code:
+  1 | import {describe, test, it, before, beforeEach} from 'node:test';
+  2 | describe("a", () => {});
+  3 | describe("b", () => {});
+  4 | describe("c", () => {});
+
+`;
+
+exports[`require-top-level-describe > invalid(5): import {describe, test, it, before, beforeEach} from 'node:test';\ndescribe(\"a\", () => {});\ndescribe(\"b\", () => {});\ndescribe(\"c\", () => {}); 2`] = `
+
+Message:
+  1 | import {describe, test, it, before, beforeEach} from 'node:test';
+  2 | describe("a", () => {});
+  3 | describe("b", () => {});
+> 4 | describe("c", () => {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^ There should be no more than 2 top-level \`describe\` blocks in a file.
+
+`;
+
+exports[`require-top-level-describe > invalid(6): import {describe, test, it, before, beforeEach} from 'node:test';\ntest(\"a\", () => {}); 1`] = `
+
+  1 | import {describe, test, it, before, beforeEach} from 'node:test';
+  2 | test("a", () => {});
+
+`;
+
+exports[`require-top-level-describe > invalid(6): import {describe, test, it, before, beforeEach} from 'node:test';\ntest(\"a\", () => {}); 2`] = `
+
+Message:
+  1 | import {describe, test, it, before, beforeEach} from 'node:test';
+> 2 | test("a", () => {});
+    | ^^^^^^^^^^^^^^^^^^^ A test must be placed inside a top-level \`describe\`.
+
+`;

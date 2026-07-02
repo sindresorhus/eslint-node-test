@@ -1,0 +1,193 @@
+exports[`no-conditional-tests > invalid(1): import {test, describe, it} from 'node:test';\nif (x) { test(\"a\", () => {}); } 1`] = `
+
+  1 | import {test, describe, it} from 'node:test';
+  2 | if (x) { test("a", () => {}); }
+
+`;
+
+exports[`no-conditional-tests > invalid(1): import {test, describe, it} from 'node:test';\nif (x) { test(\"a\", () => {}); } 2`] = `
+
+Message:
+  1 | import {test, describe, it} from 'node:test';
+> 2 | if (x) { test("a", () => {}); }
+    |          ^^^^^^^^^^^^^^^^^^^ Do not register a test conditionally; it makes the suite structure non-deterministic.
+
+`;
+
+exports[`no-conditional-tests > invalid(10): import {test, describe, it} from 'node:test';\nif (x) { for (const c of cases) { test(c.name, () => {}); } } 1`] = `
+
+  1 | import {test, describe, it} from 'node:test';
+  2 | if (x) { for (const c of cases) { test(c.name, () => {}); } }
+
+`;
+
+exports[`no-conditional-tests > invalid(10): import {test, describe, it} from 'node:test';\nif (x) { for (const c of cases) { test(c.name, () => {}); } } 2`] = `
+
+Message:
+  1 | import {test, describe, it} from 'node:test';
+> 2 | if (x) { for (const c of cases) { test(c.name, () => {}); } }
+    |                                   ^^^^^^^^^^^^^^^^^^^^^^ Do not register a test conditionally; it makes the suite structure non-deterministic.
+
+`;
+
+exports[`no-conditional-tests > invalid(11): import {test, describe, it} from 'node:test';\nif (x) { test(\"a\", () => {}); } 1`] = `
+
+  1 | import {test, describe, it} from 'node:test';
+  2 | if (x) { test("a", () => {}); }
+
+`;
+
+exports[`no-conditional-tests > invalid(11): import {test, describe, it} from 'node:test';\nif (x) { test(\"a\", () => {}); } 2`] = `
+
+Message:
+  1 | import {test, describe, it} from 'node:test';
+> 2 | if (x) { test("a", () => {}); }
+    |          ^^^^^^^^^^^^^^^^^^^ Do not register a test conditionally; it makes the suite structure non-deterministic.
+
+`;
+
+exports[`no-conditional-tests > invalid(2): import {test, describe, it} from 'node:test';\nif (x) test(\"a\", () => {}); 1`] = `
+
+  1 | import {test, describe, it} from 'node:test';
+  2 | if (x) test("a", () => {});
+
+`;
+
+exports[`no-conditional-tests > invalid(2): import {test, describe, it} from 'node:test';\nif (x) test(\"a\", () => {}); 2`] = `
+
+Message:
+  1 | import {test, describe, it} from 'node:test';
+> 2 | if (x) test("a", () => {});
+    |        ^^^^^^^^^^^^^^^^^^^ Do not register a test conditionally; it makes the suite structure non-deterministic.
+
+`;
+
+exports[`no-conditional-tests > invalid(3): import {test, describe, it} from 'node:test';\nif (x) { test(\"a\", () => {}); } else { test(\"b\", () => {}); } 1`] = `
+
+  1 | import {test, describe, it} from 'node:test';
+  2 | if (x) { test("a", () => {}); } else { test("b", () => {}); }
+
+`;
+
+exports[`no-conditional-tests > invalid(3): import {test, describe, it} from 'node:test';\nif (x) { test(\"a\", () => {}); } else { test(\"b\", () => {}); } 2`] = `
+
+Message:
+  1 | import {test, describe, it} from 'node:test';
+> 2 | if (x) { test("a", () => {}); } else { test("b", () => {}); }
+    |          ^^^^^^^^^^^^^^^^^^^ Do not register a test conditionally; it makes the suite structure non-deterministic.
+
+`;
+
+exports[`no-conditional-tests > invalid(3): import {test, describe, it} from 'node:test';\nif (x) { test(\"a\", () => {}); } else { test(\"b\", () => {}); } 3`] = `
+
+Message:
+  1 | import {test, describe, it} from 'node:test';
+> 2 | if (x) { test("a", () => {}); } else { test("b", () => {}); }
+    |                                        ^^^^^^^^^^^^^^^^^^^ Do not register a test conditionally; it makes the suite structure non-deterministic.
+
+`;
+
+exports[`no-conditional-tests > invalid(4): import {test, describe, it} from 'node:test';\nprocess.env.CI && test(\"a\", () => {}); 1`] = `
+
+  1 | import {test, describe, it} from 'node:test';
+  2 | process.env.CI && test("a", () => {});
+
+`;
+
+exports[`no-conditional-tests > invalid(4): import {test, describe, it} from 'node:test';\nprocess.env.CI && test(\"a\", () => {}); 2`] = `
+
+Message:
+  1 | import {test, describe, it} from 'node:test';
+> 2 | process.env.CI && test("a", () => {});
+    |                   ^^^^^^^^^^^^^^^^^^^ Do not register a test conditionally; it makes the suite structure non-deterministic.
+
+`;
+
+exports[`no-conditional-tests > invalid(5): import {test, describe, it} from 'node:test';\nskipSuite || test(\"a\", () => {}); 1`] = `
+
+  1 | import {test, describe, it} from 'node:test';
+  2 | skipSuite || test("a", () => {});
+
+`;
+
+exports[`no-conditional-tests > invalid(5): import {test, describe, it} from 'node:test';\nskipSuite || test(\"a\", () => {}); 2`] = `
+
+Message:
+  1 | import {test, describe, it} from 'node:test';
+> 2 | skipSuite || test("a", () => {});
+    |              ^^^^^^^^^^^^^^^^^^^ Do not register a test conditionally; it makes the suite structure non-deterministic.
+
+`;
+
+exports[`no-conditional-tests > invalid(6): import {test, describe, it} from 'node:test';\ncond ? test(\"a\", () => {}) : test(\"b\", () => {}); 1`] = `
+
+  1 | import {test, describe, it} from 'node:test';
+  2 | cond ? test("a", () => {}) : test("b", () => {});
+
+`;
+
+exports[`no-conditional-tests > invalid(6): import {test, describe, it} from 'node:test';\ncond ? test(\"a\", () => {}) : test(\"b\", () => {}); 2`] = `
+
+Message:
+  1 | import {test, describe, it} from 'node:test';
+> 2 | cond ? test("a", () => {}) : test("b", () => {});
+    |        ^^^^^^^^^^^^^^^^^^^ Do not register a test conditionally; it makes the suite structure non-deterministic.
+
+`;
+
+exports[`no-conditional-tests > invalid(6): import {test, describe, it} from 'node:test';\ncond ? test(\"a\", () => {}) : test(\"b\", () => {}); 3`] = `
+
+Message:
+  1 | import {test, describe, it} from 'node:test';
+> 2 | cond ? test("a", () => {}) : test("b", () => {});
+    |                              ^^^^^^^^^^^^^^^^^^^ Do not register a test conditionally; it makes the suite structure non-deterministic.
+
+`;
+
+exports[`no-conditional-tests > invalid(7): import {test, describe, it} from 'node:test';\nswitch (x) { case 1: test(\"a\", () => {}); break; } 1`] = `
+
+  1 | import {test, describe, it} from 'node:test';
+  2 | switch (x) { case 1: test("a", () => {}); break; }
+
+`;
+
+exports[`no-conditional-tests > invalid(7): import {test, describe, it} from 'node:test';\nswitch (x) { case 1: test(\"a\", () => {}); break; } 2`] = `
+
+Message:
+  1 | import {test, describe, it} from 'node:test';
+> 2 | switch (x) { case 1: test("a", () => {}); break; }
+    |                      ^^^^^^^^^^^^^^^^^^^ Do not register a test conditionally; it makes the suite structure non-deterministic.
+
+`;
+
+exports[`no-conditional-tests > invalid(8): import {test, describe, it} from 'node:test';\nif (x) { describe(\"s\", () => {}); } 1`] = `
+
+  1 | import {test, describe, it} from 'node:test';
+  2 | if (x) { describe("s", () => {}); }
+
+`;
+
+exports[`no-conditional-tests > invalid(8): import {test, describe, it} from 'node:test';\nif (x) { describe(\"s\", () => {}); } 2`] = `
+
+Message:
+  1 | import {test, describe, it} from 'node:test';
+> 2 | if (x) { describe("s", () => {}); }
+    |          ^^^^^^^^^^^^^^^^^^^^^^^ Do not register a suite conditionally; it makes the suite structure non-deterministic.
+
+`;
+
+exports[`no-conditional-tests > invalid(9): import {test, describe, it} from 'node:test';\ndescribe(\"s\", () => { if (x) { it(\"a\", () => {}); } }); 1`] = `
+
+  1 | import {test, describe, it} from 'node:test';
+  2 | describe("s", () => { if (x) { it("a", () => {}); } });
+
+`;
+
+exports[`no-conditional-tests > invalid(9): import {test, describe, it} from 'node:test';\ndescribe(\"s\", () => { if (x) { it(\"a\", () => {}); } }); 2`] = `
+
+Message:
+  1 | import {test, describe, it} from 'node:test';
+> 2 | describe("s", () => { if (x) { it("a", () => {}); } });
+    |                                ^^^^^^^^^^^^^^^^^ Do not register a test conditionally; it makes the suite structure non-deterministic.
+
+`;

@@ -1,0 +1,159 @@
+exports[`require-await-concurrent-subtests > invalid(1): import test from 'node:test';\ntest('t', async t => {\n\txs.map(x => t.test(x, () => {}));\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', async t => {
+  3 | 	xs.map(x => t.test(x, () => {}));
+  4 | });
+
+`;
+
+exports[`require-await-concurrent-subtests > invalid(1): import test from 'node:test';\ntest('t', async t => {\n\txs.map(x => t.test(x, () => {}));\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', async t => {
+> 3 | 	xs.map(x => t.test(x, () => {}));
+    | 	            ^^^^^^^^^^^^^^^^^^^ Subtests created in a \`map()\` callback are not awaited, so they are cancelled when the parent test finishes. Use \`await Promise.all(items.map(item => t.test(…)))\`.
+  4 | });
+
+`;
+
+exports[`require-await-concurrent-subtests > invalid(2): import test from 'node:test';\ntest('t', async t => {\n\txs.map(x => { return t.test(x, () => {}); });\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', async t => {
+  3 | 	xs.map(x => { return t.test(x, () => {}); });
+  4 | });
+
+`;
+
+exports[`require-await-concurrent-subtests > invalid(2): import test from 'node:test';\ntest('t', async t => {\n\txs.map(x => { return t.test(x, () => {}); });\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', async t => {
+> 3 | 	xs.map(x => { return t.test(x, () => {}); });
+    | 	                     ^^^^^^^^^^^^^^^^^^^ Subtests created in a \`map()\` callback are not awaited, so they are cancelled when the parent test finishes. Use \`await Promise.all(items.map(item => t.test(…)))\`.
+  4 | });
+
+`;
+
+exports[`require-await-concurrent-subtests > invalid(3): import test from 'node:test';\ntest('t', async t => {\n\tawait xs.map(x => t.test(x, () => {}));\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', async t => {
+  3 | 	await xs.map(x => t.test(x, () => {}));
+  4 | });
+
+`;
+
+exports[`require-await-concurrent-subtests > invalid(3): import test from 'node:test';\ntest('t', async t => {\n\tawait xs.map(x => t.test(x, () => {}));\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', async t => {
+> 3 | 	await xs.map(x => t.test(x, () => {}));
+    | 	                  ^^^^^^^^^^^^^^^^^^^ Subtests created in a \`map()\` callback are not awaited, so they are cancelled when the parent test finishes. Use \`await Promise.all(items.map(item => t.test(…)))\`.
+  4 | });
+
+`;
+
+exports[`require-await-concurrent-subtests > invalid(4): import test from 'node:test';\ntest('t', async t => {\n\tPromise.all(xs.map(x => t.test(x, () => {})));\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', async t => {
+  3 | 	Promise.all(xs.map(x => t.test(x, () => {})));
+  4 | });
+
+`;
+
+exports[`require-await-concurrent-subtests > invalid(4): import test from 'node:test';\ntest('t', async t => {\n\tPromise.all(xs.map(x => t.test(x, () => {})));\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', async t => {
+> 3 | 	Promise.all(xs.map(x => t.test(x, () => {})));
+    | 	                        ^^^^^^^^^^^^^^^^^^^ Subtests created in a \`map()\` callback are not awaited, so they are cancelled when the parent test finishes. Use \`await Promise.all(items.map(item => t.test(…)))\`.
+  4 | });
+
+`;
+
+exports[`require-await-concurrent-subtests > invalid(5): import test from 'node:test';\ntest('t', async t => {\n\tvoid Promise.all(xs.map(x => t.test(x, () => {})));\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', async t => {
+  3 | 	void Promise.all(xs.map(x => t.test(x, () => {})));
+  4 | });
+
+`;
+
+exports[`require-await-concurrent-subtests > invalid(5): import test from 'node:test';\ntest('t', async t => {\n\tvoid Promise.all(xs.map(x => t.test(x, () => {})));\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', async t => {
+> 3 | 	void Promise.all(xs.map(x => t.test(x, () => {})));
+    | 	                             ^^^^^^^^^^^^^^^^^^^ Subtests created in a \`map()\` callback are not awaited, so they are cancelled when the parent test finishes. Use \`await Promise.all(items.map(item => t.test(…)))\`.
+  4 | });
+
+`;
+
+exports[`require-await-concurrent-subtests > invalid(6): import test from 'node:test';\ntest('t', async t => {\n\txs.forEach(x => t.test(x, () => {}));\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', async t => {
+  3 | 	xs.forEach(x => t.test(x, () => {}));
+  4 | });
+
+`;
+
+exports[`require-await-concurrent-subtests > invalid(6): import test from 'node:test';\ntest('t', async t => {\n\txs.forEach(x => t.test(x, () => {}));\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', async t => {
+> 3 | 	xs.forEach(x => t.test(x, () => {}));
+    | 	                ^^^^^^^^^^^^^^^^^^^ Subtests created in a \`forEach()\` callback are not awaited, so they are cancelled when the parent test finishes. Use \`await Promise.all(items.map(item => t.test(…)))\`.
+  4 | });
+
+`;
+
+exports[`require-await-concurrent-subtests > invalid(7): import test from 'node:test';\ntest('t', async t => {\n\txs.forEach(async x => { await t.test(x, () => {}); });\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', async t => {
+  3 | 	xs.forEach(async x => { await t.test(x, () => {}); });
+  4 | });
+
+`;
+
+exports[`require-await-concurrent-subtests > invalid(7): import test from 'node:test';\ntest('t', async t => {\n\txs.forEach(async x => { await t.test(x, () => {}); });\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', async t => {
+> 3 | 	xs.forEach(async x => { await t.test(x, () => {}); });
+    | 	                              ^^^^^^^^^^^^^^^^^^^ Subtests created in a \`forEach()\` callback are not awaited, so they are cancelled when the parent test finishes. Use \`await Promise.all(items.map(item => t.test(…)))\`.
+  4 | });
+
+`;
+
+exports[`require-await-concurrent-subtests > invalid(8): import test from 'node:test';\ntest('t', async t => {\n\txs.flatMap(x => t.test(x, () => {}));\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', async t => {
+  3 | 	xs.flatMap(x => t.test(x, () => {}));
+  4 | });
+
+`;
+
+exports[`require-await-concurrent-subtests > invalid(8): import test from 'node:test';\ntest('t', async t => {\n\txs.flatMap(x => t.test(x, () => {}));\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', async t => {
+> 3 | 	xs.flatMap(x => t.test(x, () => {}));
+    | 	                ^^^^^^^^^^^^^^^^^^^ Subtests created in a \`flatMap()\` callback are not awaited, so they are cancelled when the parent test finishes. Use \`await Promise.all(items.map(item => t.test(…)))\`.
+  4 | });
+
+`;

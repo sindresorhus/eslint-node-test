@@ -1,0 +1,94 @@
+/**
+@typedef {
+	{
+		name?: string,
+		names?: string[],
+		argumentsLength?: number,
+		minimumArguments?: number,
+		maximumArguments?: number,
+		allowSpreadElement?: boolean,
+		optional?: boolean,
+	} | string | string[]
+} CallOrNewExpressionCheckOptions
+*/
+// eslint-disable-next-line complexity
+function create(node, options, types) {
+	if (!types.includes(node?.type)) {
+		return false;
+	}
+
+	if (typeof options === 'string') {
+		options = {names: [options]};
+	}
+
+	if (Array.isArray(options)) {
+		options = {names: options};
+	}
+
+	let {
+		name,
+		names,
+		argumentsLength,
+		minimumArguments,
+		maximumArguments,
+		allowSpreadElement,
+		optional,
+	} = {
+		minimumArguments: 0,
+		maximumArguments: Infinity,
+		allowSpreadElement: false,
+		...options,
+	};
+
+	if (name) {
+		names = [name];
+	}
+
+	if (
+		(optional === true && (node.optional !== optional))
+		|| (
+			optional === false
+			// `node.optional` can be `undefined` in some parsers
+			&& node.optional
+		)
+	) {
+		return false;
+	}
+
+	if (typeof argumentsLength === 'number' && node.arguments.length !== argumentsLength) {
+		return false;
+	}
+
+	if (minimumArguments !== 0 && node.arguments.length < minimumArguments) {
+		return false;
+	}
+
+	if (Number.isFinite(maximumArguments) && node.arguments.length > maximumArguments) {
+		return false;
+	}
+
+	if (!allowSpreadElement) {
+		const maximumArgumentsLength = Number.isFinite(maximumArguments) ? maximumArguments : argumentsLength;
+		if (
+			typeof maximumArgumentsLength === 'number'
+			&& node.arguments.some((node, index) =>
+				node.type === 'SpreadElement'
+				&& index < maximumArgumentsLength)
+		) {
+			return false;
+		}
+	}
+
+	return !(Array.isArray(names)
+		&& names.length > 0
+		&& (
+			node.callee.type !== 'Identifier'
+			|| !names.includes(node.callee.name)
+		));
+}
+
+/**
+@param {CallOrNewExpressionCheckOptions} [options]
+@returns {boolean}
+*/
+export const isCallExpression = (node, options) => create(node, options, ['CallExpression']);

@@ -1,0 +1,111 @@
+exports[`no-test-inside-hook > invalid(1): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nbeforeEach(() => { it('a', () => {}); }); 1`] = `
+
+  1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
+  2 | beforeEach(() => { it('a', () => {}); });
+
+`;
+
+exports[`no-test-inside-hook > invalid(1): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nbeforeEach(() => { it('a', () => {}); }); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | beforeEach(() => { it('a', () => {}); });
+    |                    ^^^^^^^^^^^^^^^^^ Do not define a test or suite inside a hook. Define it at the top level or inside a \`describe\`.
+
+`;
+
+exports[`no-test-inside-hook > invalid(2): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nbefore(() => { test('a', () => {}); }); 1`] = `
+
+  1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
+  2 | before(() => { test('a', () => {}); });
+
+`;
+
+exports[`no-test-inside-hook > invalid(2): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nbefore(() => { test('a', () => {}); }); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | before(() => { test('a', () => {}); });
+    |                ^^^^^^^^^^^^^^^^^^^ Do not define a test or suite inside a hook. Define it at the top level or inside a \`describe\`.
+
+`;
+
+exports[`no-test-inside-hook > invalid(3): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nafterEach(() => { it('a', () => {}); }); 1`] = `
+
+  1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
+  2 | afterEach(() => { it('a', () => {}); });
+
+`;
+
+exports[`no-test-inside-hook > invalid(3): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nafterEach(() => { it('a', () => {}); }); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | afterEach(() => { it('a', () => {}); });
+    |                   ^^^^^^^^^^^^^^^^^ Do not define a test or suite inside a hook. Define it at the top level or inside a \`describe\`.
+
+`;
+
+exports[`no-test-inside-hook > invalid(4): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nbefore(() => { describe('s', () => {}); }); 1`] = `
+
+  1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
+  2 | before(() => { describe('s', () => {}); });
+
+`;
+
+exports[`no-test-inside-hook > invalid(4): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nbefore(() => { describe('s', () => {}); }); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | before(() => { describe('s', () => {}); });
+    |                ^^^^^^^^^^^^^^^^^^^^^^^ Do not define a test or suite inside a hook. Define it at the top level or inside a \`describe\`.
+
+`;
+
+exports[`no-test-inside-hook > invalid(5): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nafter(() => { suite('s', () => {}); }); 1`] = `
+
+  1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
+  2 | after(() => { suite('s', () => {}); });
+
+`;
+
+exports[`no-test-inside-hook > invalid(5): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nafter(() => { suite('s', () => {}); }); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | after(() => { suite('s', () => {}); });
+    |               ^^^^^^^^^^^^^^^^^^^^ Do not define a test or suite inside a hook. Define it at the top level or inside a \`describe\`.
+
+`;
+
+exports[`no-test-inside-hook > invalid(6): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\ndescribe('outer', () => { beforeEach(() => { it('a', () => {}); }); }); 1`] = `
+
+  1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
+  2 | describe('outer', () => { beforeEach(() => { it('a', () => {}); }); });
+
+`;
+
+exports[`no-test-inside-hook > invalid(6): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\ndescribe('outer', () => { beforeEach(() => { it('a', () => {}); }); }); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | describe('outer', () => { beforeEach(() => { it('a', () => {}); }); });
+    |                                              ^^^^^^^^^^^^^^^^^ Do not define a test or suite inside a hook. Define it at the top level or inside a \`describe\`.
+
+`;
+
+exports[`no-test-inside-hook > invalid(7): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nbeforeEach(() => { if (x) { it('a', () => {}); } }); 1`] = `
+
+  1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
+  2 | beforeEach(() => { if (x) { it('a', () => {}); } });
+
+`;
+
+exports[`no-test-inside-hook > invalid(7): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nbeforeEach(() => { if (x) { it('a', () => {}); } }); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | beforeEach(() => { if (x) { it('a', () => {}); } });
+    |                             ^^^^^^^^^^^^^^^^^ Do not define a test or suite inside a hook. Define it at the top level or inside a \`describe\`.
+
+`;

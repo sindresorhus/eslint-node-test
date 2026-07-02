@@ -1,0 +1,171 @@
+exports[`no-only-test > invalid(1): import test from \"node:test\";\ntest.only(\"title\", () => {}); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test.only("title", () => {});
+
+`;
+
+exports[`no-only-test > invalid(1): import test from \"node:test\";\ntest.only(\"title\", () => {}); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test.only("title", () => {});
+    |      ^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
+
+Suggestion 1/1: Remove \`.only\`.:
+  1 | import test from "node:test";
+  2 | test("title", () => {});
+
+`;
+
+exports[`no-only-test > invalid(2): import {it} from \"node:test\";\nit.only(\"title\", () => {}); 1`] = `
+
+  1 | import {it} from "node:test";
+  2 | it.only("title", () => {});
+
+`;
+
+exports[`no-only-test > invalid(2): import {it} from \"node:test\";\nit.only(\"title\", () => {}); 2`] = `
+
+Message:
+  1 | import {it} from "node:test";
+> 2 | it.only("title", () => {});
+    |    ^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
+
+Suggestion 1/1: Remove \`.only\`.:
+  1 | import {it} from "node:test";
+  2 | it("title", () => {});
+
+`;
+
+exports[`no-only-test > invalid(3): import {describe} from \"node:test\";\ndescribe.only(\"title\", () => {}); 1`] = `
+
+  1 | import {describe} from "node:test";
+  2 | describe.only("title", () => {});
+
+`;
+
+exports[`no-only-test > invalid(3): import {describe} from \"node:test\";\ndescribe.only(\"title\", () => {}); 2`] = `
+
+Message:
+  1 | import {describe} from "node:test";
+> 2 | describe.only("title", () => {});
+    |          ^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
+
+Suggestion 1/1: Remove \`.only\`.:
+  1 | import {describe} from "node:test";
+  2 | describe("title", () => {});
+
+`;
+
+exports[`no-only-test > invalid(4): import {test} from \"node:test\";\ntest.only(\"title\", () => {}); 1`] = `
+
+  1 | import {test} from "node:test";
+  2 | test.only("title", () => {});
+
+`;
+
+exports[`no-only-test > invalid(4): import {test} from \"node:test\";\ntest.only(\"title\", () => {}); 2`] = `
+
+Message:
+  1 | import {test} from "node:test";
+> 2 | test.only("title", () => {});
+    |      ^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
+
+Suggestion 1/1: Remove \`.only\`.:
+  1 | import {test} from "node:test";
+  2 | test("title", () => {});
+
+`;
+
+exports[`no-only-test > invalid(5): import test from \"node:test\";\ntest(\"title\", {only: true}, () => {}); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("title", {only: true}, () => {});
+
+`;
+
+exports[`no-only-test > invalid(5): import test from \"node:test\";\ntest(\"title\", {only: true}, () => {}); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test("title", {only: true}, () => {});
+    |                ^^^^^^^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
+
+`;
+
+exports[`no-only-test > invalid(6): import {it} from \"node:test\";\nit(\"title\", {only: true}, () => {}); 1`] = `
+
+  1 | import {it} from "node:test";
+  2 | it("title", {only: true}, () => {});
+
+`;
+
+exports[`no-only-test > invalid(6): import {it} from \"node:test\";\nit(\"title\", {only: true}, () => {}); 2`] = `
+
+Message:
+  1 | import {it} from "node:test";
+> 2 | it("title", {only: true}, () => {});
+    |              ^^^^^^^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
+
+`;
+
+exports[`no-only-test > invalid(7): import {test as t} from \"node:test\";\nt.only(\"title\", () => {}); 1`] = `
+
+  1 | import {test as t} from "node:test";
+  2 | t.only("title", () => {});
+
+`;
+
+exports[`no-only-test > invalid(7): import {test as t} from \"node:test\";\nt.only(\"title\", () => {}); 2`] = `
+
+Message:
+  1 | import {test as t} from "node:test";
+> 2 | t.only("title", () => {});
+    |   ^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
+
+Suggestion 1/1: Remove \`.only\`.:
+  1 | import {test as t} from "node:test";
+  2 | t("title", () => {});
+
+`;
+
+exports[`no-only-test > invalid(8): import * as nodeTest from \"node:test\";\nnodeTest.test.only(\"title\", () => {}); 1`] = `
+
+  1 | import * as nodeTest from "node:test";
+  2 | nodeTest.test.only("title", () => {});
+
+`;
+
+exports[`no-only-test > invalid(8): import * as nodeTest from \"node:test\";\nnodeTest.test.only(\"title\", () => {}); 2`] = `
+
+Message:
+  1 | import * as nodeTest from "node:test";
+> 2 | nodeTest.test.only("title", () => {});
+    |               ^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
+
+Suggestion 1/1: Remove \`.only\`.:
+  1 | import * as nodeTest from "node:test";
+  2 | nodeTest.test("title", () => {});
+
+`;
+
+exports[`no-only-test > invalid(9): import test from \"test\";\ntest.only(\"title\", () => {}); 1`] = `
+
+  1 | import test from "test";
+  2 | test.only("title", () => {});
+
+`;
+
+exports[`no-only-test > invalid(9): import test from \"test\";\ntest.only(\"title\", () => {}); 2`] = `
+
+Message:
+  1 | import test from "test";
+> 2 | test.only("title", () => {});
+    |      ^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
+
+Suggestion 1/1: Remove \`.only\`.:
+  1 | import test from "test";
+  2 | test("title", () => {});
+
+`;

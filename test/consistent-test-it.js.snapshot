@@ -1,0 +1,138 @@
+exports[`consistent-test-it > invalid(1): import {test, it, describe, suite} from 'node:test';\nit(\"a\", () => {}); 1`] = `
+
+  1 | import {test, it, describe, suite} from 'node:test';
+  2 | it("a", () => {});
+
+`;
+
+exports[`consistent-test-it > invalid(1): import {test, it, describe, suite} from 'node:test';\nit(\"a\", () => {}); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite} from 'node:test';
+> 2 | it("a", () => {});
+    | ^^^^^^^^^^^^^^^^^ Prefer \`test\` over \`it\` at the top level.
+
+`;
+
+exports[`consistent-test-it > invalid(2): import {test, it, describe, suite} from 'node:test';\ndescribe(\"s\", () => { test(\"a\", () => {}); }); 1`] = `
+
+  1 | import {test, it, describe, suite} from 'node:test';
+  2 | describe("s", () => { test("a", () => {}); });
+
+`;
+
+exports[`consistent-test-it > invalid(2): import {test, it, describe, suite} from 'node:test';\ndescribe(\"s\", () => { test(\"a\", () => {}); }); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite} from 'node:test';
+> 2 | describe("s", () => { test("a", () => {}); });
+    |                       ^^^^^^^^^^^^^^^^^^^ Prefer \`it\` over \`test\` inside a \`describe\`.
+
+`;
+
+exports[`consistent-test-it > invalid(3): import {test, it, describe, suite} from 'node:test';\ntest(\"a\", () => {});\ndescribe(\"s\", () => { test(\"b\", () => {}); }); 1`] = `
+
+  1 | import {test, it, describe, suite} from 'node:test';
+  2 | test("a", () => {});
+  3 | describe("s", () => { test("b", () => {}); });
+
+`;
+
+exports[`consistent-test-it > invalid(3): import {test, it, describe, suite} from 'node:test';\ntest(\"a\", () => {});\ndescribe(\"s\", () => { test(\"b\", () => {}); }); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite} from 'node:test';
+  2 | test("a", () => {});
+> 3 | describe("s", () => { test("b", () => {}); });
+    |                       ^^^^^^^^^^^^^^^^^^^ Prefer \`it\` over \`test\` inside a \`describe\`.
+
+`;
+
+exports[`consistent-test-it > invalid(4): import {test, it, describe, suite} from 'node:test';\ndescribe(\"s\", () => { it(\"a\", () => {}); }); 1`] = `
+
+Options:
+- fn: 'test'
+  withinDescribe: 'test'
+
+Code:
+  1 | import {test, it, describe, suite} from 'node:test';
+  2 | describe("s", () => { it("a", () => {}); });
+
+`;
+
+exports[`consistent-test-it > invalid(4): import {test, it, describe, suite} from 'node:test';\ndescribe(\"s\", () => { it(\"a\", () => {}); }); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite} from 'node:test';
+> 2 | describe("s", () => { it("a", () => {}); });
+    |                       ^^^^^^^^^^^^^^^^^ Prefer \`test\` over \`it\` inside a \`describe\`.
+
+`;
+
+exports[`consistent-test-it > invalid(5): import {test, it, describe, suite} from 'node:test';\ntest(\"a\", () => {}); 1`] = `
+
+Options:
+- fn: 'it'
+
+Code:
+  1 | import {test, it, describe, suite} from 'node:test';
+  2 | test("a", () => {});
+
+`;
+
+exports[`consistent-test-it > invalid(5): import {test, it, describe, suite} from 'node:test';\ntest(\"a\", () => {}); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite} from 'node:test';
+> 2 | test("a", () => {});
+    | ^^^^^^^^^^^^^^^^^^^ Prefer \`it\` over \`test\` at the top level.
+
+`;
+
+exports[`consistent-test-it > invalid(6): import {test, it, describe, suite} from 'node:test';\nit.only(\"a\", () => {}); 1`] = `
+
+  1 | import {test, it, describe, suite} from 'node:test';
+  2 | it.only("a", () => {});
+
+`;
+
+exports[`consistent-test-it > invalid(6): import {test, it, describe, suite} from 'node:test';\nit.only(\"a\", () => {}); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite} from 'node:test';
+> 2 | it.only("a", () => {});
+    | ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`test\` over \`it\` at the top level.
+
+`;
+
+exports[`consistent-test-it > invalid(7): import * as nodeTest from 'node:test';\nnodeTest.it(\"a\", () => {}); 1`] = `
+
+  1 | import * as nodeTest from 'node:test';
+  2 | nodeTest.it("a", () => {});
+
+`;
+
+exports[`consistent-test-it > invalid(7): import * as nodeTest from 'node:test';\nnodeTest.it(\"a\", () => {}); 2`] = `
+
+Message:
+  1 | import * as nodeTest from 'node:test';
+> 2 | nodeTest.it("a", () => {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`test\` over \`it\` at the top level.
+
+`;
+
+exports[`consistent-test-it > invalid(8): import {test, it, describe, suite} from 'node:test';\nit(\"a\", () => {}); 1`] = `
+
+  1 | import {test, it, describe, suite} from 'node:test';
+  2 | it("a", () => {});
+
+`;
+
+exports[`consistent-test-it > invalid(8): import {test, it, describe, suite} from 'node:test';\nit(\"a\", () => {}); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite} from 'node:test';
+> 2 | it("a", () => {});
+    | ^^^^^^^^^^^^^^^^^ Prefer \`test\` over \`it\` at the top level.
+
+`;

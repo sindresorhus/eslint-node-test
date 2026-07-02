@@ -1,0 +1,161 @@
+exports[`prefer-todo > invalid(1): import {test} from 'node:test';\ntest(\"x\"); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | test("x");
+
+`;
+
+exports[`prefer-todo > invalid(1): import {test} from 'node:test';\ntest(\"x\"); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | test("x");
+    | ^^^^^^^^^ Empty placeholder test. Use \`.todo\` to mark it as unfinished.
+
+Suggestion 1/1: Mark as \`.todo\`.:
+  1 | import {test} from 'node:test';
+  2 | test.todo("x");
+
+`;
+
+exports[`prefer-todo > invalid(2): import {test} from 'node:test';\ntest(\"x\", () => {}); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | test("x", () => {});
+
+`;
+
+exports[`prefer-todo > invalid(2): import {test} from 'node:test';\ntest(\"x\", () => {}); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | test("x", () => {});
+    | ^^^^^^^^^^^^^^^^^^^ Empty placeholder test. Use \`.todo\` to mark it as unfinished.
+
+Suggestion 1/1: Mark as \`.todo\`.:
+  1 | import {test} from 'node:test';
+  2 | test.todo("x");
+
+`;
+
+exports[`prefer-todo > invalid(3): import {test} from 'node:test';\ntest(\"x\", function () {}); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | test("x", function () {});
+
+`;
+
+exports[`prefer-todo > invalid(3): import {test} from 'node:test';\ntest(\"x\", function () {}); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | test("x", function () {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Empty placeholder test. Use \`.todo\` to mark it as unfinished.
+
+Suggestion 1/1: Mark as \`.todo\`.:
+  1 | import {test} from 'node:test';
+  2 | test.todo("x");
+
+`;
+
+exports[`prefer-todo > invalid(4): import {test} from 'node:test';\ntest(\"x\", async () => {}); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | test("x", async () => {});
+
+`;
+
+exports[`prefer-todo > invalid(4): import {test} from 'node:test';\ntest(\"x\", async () => {}); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | test("x", async () => {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Empty placeholder test. Use \`.todo\` to mark it as unfinished.
+
+Suggestion 1/1: Mark as \`.todo\`.:
+  1 | import {test} from 'node:test';
+  2 | test.todo("x");
+
+`;
+
+exports[`prefer-todo > invalid(5): import {it} from 'node:test';\nit(\"x\", () => {}); 1`] = `
+
+  1 | import {it} from 'node:test';
+  2 | it("x", () => {});
+
+`;
+
+exports[`prefer-todo > invalid(5): import {it} from 'node:test';\nit(\"x\", () => {}); 2`] = `
+
+Message:
+  1 | import {it} from 'node:test';
+> 2 | it("x", () => {});
+    | ^^^^^^^^^^^^^^^^^ Empty placeholder test. Use \`.todo\` to mark it as unfinished.
+
+Suggestion 1/1: Mark as \`.todo\`.:
+  1 | import {it} from 'node:test';
+  2 | it.todo("x");
+
+`;
+
+exports[`prefer-todo > invalid(6): import * as nodeTest from 'node:test';\nnodeTest.test(\"x\", () => {}); 1`] = `
+
+  1 | import * as nodeTest from 'node:test';
+  2 | nodeTest.test("x", () => {});
+
+`;
+
+exports[`prefer-todo > invalid(6): import * as nodeTest from 'node:test';\nnodeTest.test(\"x\", () => {}); 2`] = `
+
+Message:
+  1 | import * as nodeTest from 'node:test';
+> 2 | nodeTest.test("x", () => {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Empty placeholder test. Use \`.todo\` to mark it as unfinished.
+
+Suggestion 1/1: Mark as \`.todo\`.:
+  1 | import * as nodeTest from 'node:test';
+  2 | nodeTest.test.todo("x");
+
+`;
+
+exports[`prefer-todo > invalid(7): import {test} from 'node:test';\ntest(\"x\", () => {\n\t// TODO: write this\n}); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | test("x", () => {
+  3 | 	// TODO: write this
+  4 | });
+
+`;
+
+exports[`prefer-todo > invalid(7): import {test} from 'node:test';\ntest(\"x\", () => {\n\t// TODO: write this\n}); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | test("x", () => {
+    | ^^^^^^^^^^^^^^^^^
+> 3 | 	// TODO: write this
+    | ^^^^^^^^^^^^^^^^^^^^
+> 4 | });
+    | ^^ Empty placeholder test. Use \`.todo\` to mark it as unfinished.
+
+`;
+
+exports[`prefer-todo > invalid(8): import {test} from 'node:test';\ntest(\"x\", (): void => {}); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | test("x", (): void => {});
+
+`;
+
+exports[`prefer-todo > invalid(8): import {test} from 'node:test';\ntest(\"x\", (): void => {}); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | test("x", (): void => {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Empty placeholder test. Use \`.todo\` to mark it as unfinished.
+
+Suggestion 1/1: Mark as \`.todo\`.:
+  1 | import {test} from 'node:test';
+  2 | test.todo("x");
+
+`;

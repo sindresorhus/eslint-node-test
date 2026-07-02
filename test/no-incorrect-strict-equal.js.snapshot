@@ -1,0 +1,331 @@
+exports[`no-incorrect-strict-equal > invalid(1): import assert from 'node:assert';\nassert.strictEqual(a, {}); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(a, {});
+
+`;
+
+exports[`no-incorrect-strict-equal > invalid(1): import assert from 'node:assert';\nassert.strictEqual(a, {}); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.strictEqual(a, {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal, which compares by reference rather than structure. Use \`deepStrictEqual\` instead.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.deepStrictEqual(a, {});
+
+`;
+
+exports[`no-incorrect-strict-equal > invalid(10): import assert from 'node:assert';\nassert.strictEqual(a, {}, \"message\"); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(a, {}, "message");
+
+`;
+
+exports[`no-incorrect-strict-equal > invalid(10): import assert from 'node:assert';\nassert.strictEqual(a, {}, \"message\"); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.strictEqual(a, {}, "message");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal, which compares by reference rather than structure. Use \`deepStrictEqual\` instead.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.deepStrictEqual(a, {}, "message");
+
+`;
+
+exports[`no-incorrect-strict-equal > invalid(11): import assert from 'node:assert/strict';\nassert.strictEqual(a, {}); 1`] = `
+
+  1 | import assert from 'node:assert/strict';
+  2 | assert.strictEqual(a, {});
+
+`;
+
+exports[`no-incorrect-strict-equal > invalid(11): import assert from 'node:assert/strict';\nassert.strictEqual(a, {}); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert/strict';
+> 2 | assert.strictEqual(a, {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal, which compares by reference rather than structure. Use \`deepStrictEqual\` instead.
+
+Output:
+  1 | import assert from 'node:assert/strict';
+  2 | assert.deepStrictEqual(a, {});
+
+`;
+
+exports[`no-incorrect-strict-equal > invalid(12): import test from 'node:test';\ntest('t', t => { t.assert.strictEqual(a, {}); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', t => { t.assert.strictEqual(a, {}); });
+
+`;
+
+exports[`no-incorrect-strict-equal > invalid(12): import test from 'node:test';\ntest('t', t => { t.assert.strictEqual(a, {}); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', t => { t.assert.strictEqual(a, {}); });
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal, which compares by reference rather than structure. Use \`deepStrictEqual\` instead.
+
+Output:
+  1 | import test from 'node:test';
+  2 | test('t', t => { t.assert.deepStrictEqual(a, {}); });
+
+`;
+
+exports[`no-incorrect-strict-equal > invalid(13): import test from 'node:test';\ntest('t', t => { t.assert.notStrictEqual([1], b); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', t => { t.assert.notStrictEqual([1], b); });
+
+`;
+
+exports[`no-incorrect-strict-equal > invalid(13): import test from 'node:test';\ntest('t', t => { t.assert.notStrictEqual([1], b); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', t => { t.assert.notStrictEqual([1], b); });
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`notStrictEqual\` with an object or array literal, which compares by reference rather than structure. Use \`notDeepStrictEqual\` instead.
+
+Output:
+  1 | import test from 'node:test';
+  2 | test('t', t => { t.assert.notDeepStrictEqual([1], b); });
+
+`;
+
+exports[`no-incorrect-strict-equal > invalid(14): import {strictEqual} from 'node:assert';\nstrictEqual(a, {}); 1`] = `
+
+  1 | import {strictEqual} from 'node:assert';
+  2 | strictEqual(a, {});
+
+`;
+
+exports[`no-incorrect-strict-equal > invalid(14): import {strictEqual} from 'node:assert';\nstrictEqual(a, {}); 2`] = `
+
+Message:
+  1 | import {strictEqual} from 'node:assert';
+> 2 | strictEqual(a, {});
+    | ^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal, which compares by reference rather than structure. Use \`deepStrictEqual\` instead.
+
+`;
+
+exports[`no-incorrect-strict-equal > invalid(15): import {equal as eq} from 'node:assert';\neq(a, [1]); 1`] = `
+
+  1 | import {equal as eq} from 'node:assert';
+  2 | eq(a, [1]);
+
+`;
+
+exports[`no-incorrect-strict-equal > invalid(15): import {equal as eq} from 'node:assert';\neq(a, [1]); 2`] = `
+
+Message:
+  1 | import {equal as eq} from 'node:assert';
+> 2 | eq(a, [1]);
+    | ^^^^^^^^^^ Avoid using \`equal\` with an object or array literal, which compares by reference rather than structure. Use \`deepEqual\` instead.
+
+`;
+
+exports[`no-incorrect-strict-equal > invalid(16): import assert from 'node:assert';\nassert.strictEqual(a, {x: 1} as const); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(a, {x: 1} as const);
+
+`;
+
+exports[`no-incorrect-strict-equal > invalid(16): import assert from 'node:assert';\nassert.strictEqual(a, {x: 1} as const); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.strictEqual(a, {x: 1} as const);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal, which compares by reference rather than structure. Use \`deepStrictEqual\` instead.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.deepStrictEqual(a, {x: 1} as const);
+
+`;
+
+exports[`no-incorrect-strict-equal > invalid(17): import assert from 'node:assert';\nassert.strictEqual(a, [1, 2] as number[]); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(a, [1, 2] as number[]);
+
+`;
+
+exports[`no-incorrect-strict-equal > invalid(17): import assert from 'node:assert';\nassert.strictEqual(a, [1, 2] as number[]); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.strictEqual(a, [1, 2] as number[]);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal, which compares by reference rather than structure. Use \`deepStrictEqual\` instead.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.deepStrictEqual(a, [1, 2] as number[]);
+
+`;
+
+exports[`no-incorrect-strict-equal > invalid(2): import assert from 'node:assert';\nassert.strictEqual(a, {x: 1}); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(a, {x: 1});
+
+`;
+
+exports[`no-incorrect-strict-equal > invalid(2): import assert from 'node:assert';\nassert.strictEqual(a, {x: 1}); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.strictEqual(a, {x: 1});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal, which compares by reference rather than structure. Use \`deepStrictEqual\` instead.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.deepStrictEqual(a, {x: 1});
+
+`;
+
+exports[`no-incorrect-strict-equal > invalid(3): import assert from 'node:assert';\nassert.strictEqual({a: 1}, b); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual({a: 1}, b);
+
+`;
+
+exports[`no-incorrect-strict-equal > invalid(3): import assert from 'node:assert';\nassert.strictEqual({a: 1}, b); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.strictEqual({a: 1}, b);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal, which compares by reference rather than structure. Use \`deepStrictEqual\` instead.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.deepStrictEqual({a: 1}, b);
+
+`;
+
+exports[`no-incorrect-strict-equal > invalid(4): import assert from 'node:assert';\nassert.strictEqual(a, [1, 2]); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(a, [1, 2]);
+
+`;
+
+exports[`no-incorrect-strict-equal > invalid(4): import assert from 'node:assert';\nassert.strictEqual(a, [1, 2]); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.strictEqual(a, [1, 2]);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal, which compares by reference rather than structure. Use \`deepStrictEqual\` instead.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.deepStrictEqual(a, [1, 2]);
+
+`;
+
+exports[`no-incorrect-strict-equal > invalid(5): import assert from 'node:assert';\nassert.strictEqual([1], b); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual([1], b);
+
+`;
+
+exports[`no-incorrect-strict-equal > invalid(5): import assert from 'node:assert';\nassert.strictEqual([1], b); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.strictEqual([1], b);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal, which compares by reference rather than structure. Use \`deepStrictEqual\` instead.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.deepStrictEqual([1], b);
+
+`;
+
+exports[`no-incorrect-strict-equal > invalid(6): import assert from 'node:assert';\nassert.equal(a, {}); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.equal(a, {});
+
+`;
+
+exports[`no-incorrect-strict-equal > invalid(6): import assert from 'node:assert';\nassert.equal(a, {}); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.equal(a, {});
+    | ^^^^^^^^^^^^^^^^^^^ Avoid using \`equal\` with an object or array literal, which compares by reference rather than structure. Use \`deepEqual\` instead.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.deepEqual(a, {});
+
+`;
+
+exports[`no-incorrect-strict-equal > invalid(7): import assert from 'node:assert';\nassert.notEqual(a, []); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.notEqual(a, []);
+
+`;
+
+exports[`no-incorrect-strict-equal > invalid(7): import assert from 'node:assert';\nassert.notEqual(a, []); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.notEqual(a, []);
+    | ^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`notEqual\` with an object or array literal, which compares by reference rather than structure. Use \`notDeepEqual\` instead.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.notDeepEqual(a, []);
+
+`;
+
+exports[`no-incorrect-strict-equal > invalid(8): import assert from 'node:assert';\nassert.notStrictEqual(a, {x: 1}); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.notStrictEqual(a, {x: 1});
+
+`;
+
+exports[`no-incorrect-strict-equal > invalid(8): import assert from 'node:assert';\nassert.notStrictEqual(a, {x: 1}); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.notStrictEqual(a, {x: 1});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`notStrictEqual\` with an object or array literal, which compares by reference rather than structure. Use \`notDeepStrictEqual\` instead.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.notDeepStrictEqual(a, {x: 1});
+
+`;
+
+exports[`no-incorrect-strict-equal > invalid(9): import assert from 'node:assert';\nassert.strictEqual({}, {}); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual({}, {});
+
+`;
+
+exports[`no-incorrect-strict-equal > invalid(9): import assert from 'node:assert';\nassert.strictEqual({}, {}); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.strictEqual({}, {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal, which compares by reference rather than structure. Use \`deepStrictEqual\` instead.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.deepStrictEqual({}, {});
+
+`;

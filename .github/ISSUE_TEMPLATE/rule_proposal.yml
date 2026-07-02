@@ -1,0 +1,55 @@
+name: Rule proposal
+description: Have an idea for a new rule?
+title: "Rule proposal: "
+labels:
+  - new rule
+  - evaluating
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before opening a new issue:
+        - Look for existing [open or closed rule proposals](https://github.com/sindresorhus/eslint-plugin-node-test/issues?q=is%3Aissue+label%3A%22new+rule%22)
+  - type: textarea
+    validations:
+      required: true
+    attributes:
+      label: Description
+      description: Explain here why this rule would be beneficial
+  - type: textarea
+    validations:
+      required: true
+    attributes:
+      label: Examples
+      description: Provide examples of code to detect and the acceptable alternatives.
+      value: |
+        ```js
+        // ❌
+        var replace = 'me';
+
+        // ✅
+        const replace = 'me';
+        ```
+
+        ```js
+        // ❌
+        function foo() {
+        	var replace = 'me';
+        	return replace;
+        }
+
+        // ✅
+        function foo() {
+        	return 'me';
+        }
+        ```
+  - type: input
+    validations:
+      required: true
+    attributes:
+      label: Proposed rule name
+      placeholder: no-invalid-rule-name
+  - type: textarea
+    attributes:
+      label: Additional Info
+      description: Additional Info

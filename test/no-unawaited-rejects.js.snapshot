@@ -1,0 +1,288 @@
+exports[`no-unawaited-rejects > invalid(1): import assert from 'node:assert';\nasync function test() {\n\tassert.rejects(fn);\n} 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | async function test() {
+  3 | 	assert.rejects(fn);
+  4 | }
+
+`;
+
+exports[`no-unawaited-rejects > invalid(1): import assert from 'node:assert';\nasync function test() {\n\tassert.rejects(fn);\n} 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+  2 | async function test() {
+> 3 | 	assert.rejects(fn);
+    | 	^^^^^^^^^^^^^^^^^^ \`assert.rejects()\` must be awaited or returned.
+  4 | }
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | async function test() {
+  3 | 	await assert.rejects(fn);
+  4 | }
+
+`;
+
+exports[`no-unawaited-rejects > invalid(10): import assert from 'node:assert/strict';\nasync function test() {\n\tassert.rejects(fn);\n} 1`] = `
+
+  1 | import assert from 'node:assert/strict';
+  2 | async function test() {
+  3 | 	assert.rejects(fn);
+  4 | }
+
+`;
+
+exports[`no-unawaited-rejects > invalid(10): import assert from 'node:assert/strict';\nasync function test() {\n\tassert.rejects(fn);\n} 2`] = `
+
+Message:
+  1 | import assert from 'node:assert/strict';
+  2 | async function test() {
+> 3 | 	assert.rejects(fn);
+    | 	^^^^^^^^^^^^^^^^^^ \`assert.rejects()\` must be awaited or returned.
+  4 | }
+
+Output:
+  1 | import assert from 'node:assert/strict';
+  2 | async function test() {
+  3 | 	await assert.rejects(fn);
+  4 | }
+
+`;
+
+exports[`no-unawaited-rejects > invalid(11): import assert from 'node:assert';\nasync function test() {\n\tassert.rejects(fn as () => Promise<void>);\n} 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | async function test() {
+  3 | 	assert.rejects(fn as () => Promise<void>);
+  4 | }
+
+`;
+
+exports[`no-unawaited-rejects > invalid(11): import assert from 'node:assert';\nasync function test() {\n\tassert.rejects(fn as () => Promise<void>);\n} 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+  2 | async function test() {
+> 3 | 	assert.rejects(fn as () => Promise<void>);
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`assert.rejects()\` must be awaited or returned.
+  4 | }
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | async function test() {
+  3 | 	await assert.rejects(fn as () => Promise<void>);
+  4 | }
+
+`;
+
+exports[`no-unawaited-rejects > invalid(12): import assert from 'node:assert';\nconst run = async () => {\n\tassert.rejects(fn);\n}; 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | const run = async () => {
+  3 | 	assert.rejects(fn);
+  4 | };
+
+`;
+
+exports[`no-unawaited-rejects > invalid(12): import assert from 'node:assert';\nconst run = async () => {\n\tassert.rejects(fn);\n}; 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+  2 | const run = async () => {
+> 3 | 	assert.rejects(fn);
+    | 	^^^^^^^^^^^^^^^^^^ \`assert.rejects()\` must be awaited or returned.
+  4 | };
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | const run = async () => {
+  3 | 	await assert.rejects(fn);
+  4 | };
+
+`;
+
+exports[`no-unawaited-rejects > invalid(2): import assert from 'node:assert';\nasync function test() {\n\tassert.doesNotReject(fn);\n} 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | async function test() {
+  3 | 	assert.doesNotReject(fn);
+  4 | }
+
+`;
+
+exports[`no-unawaited-rejects > invalid(2): import assert from 'node:assert';\nasync function test() {\n\tassert.doesNotReject(fn);\n} 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+  2 | async function test() {
+> 3 | 	assert.doesNotReject(fn);
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^ \`assert.doesNotReject()\` must be awaited or returned.
+  4 | }
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | async function test() {
+  3 | 	await assert.doesNotReject(fn);
+  4 | }
+
+`;
+
+exports[`no-unawaited-rejects > invalid(3): import assert from 'node:assert';\nassert.rejects(fn); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.rejects(fn);
+
+`;
+
+exports[`no-unawaited-rejects > invalid(3): import assert from 'node:assert';\nassert.rejects(fn); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.rejects(fn);
+    | ^^^^^^^^^^^^^^^^^^ \`assert.rejects()\` must be awaited or returned.
+
+`;
+
+exports[`no-unawaited-rejects > invalid(4): import assert from 'node:assert';\nassert.doesNotReject(fn); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.doesNotReject(fn);
+
+`;
+
+exports[`no-unawaited-rejects > invalid(4): import assert from 'node:assert';\nassert.doesNotReject(fn); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.doesNotReject(fn);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ \`assert.doesNotReject()\` must be awaited or returned.
+
+`;
+
+exports[`no-unawaited-rejects > invalid(5): import assert from 'node:assert';\nfunction test() {\n\tassert.rejects(fn);\n} 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | function test() {
+  3 | 	assert.rejects(fn);
+  4 | }
+
+`;
+
+exports[`no-unawaited-rejects > invalid(5): import assert from 'node:assert';\nfunction test() {\n\tassert.rejects(fn);\n} 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+  2 | function test() {
+> 3 | 	assert.rejects(fn);
+    | 	^^^^^^^^^^^^^^^^^^ \`assert.rejects()\` must be awaited or returned.
+  4 | }
+
+`;
+
+exports[`no-unawaited-rejects > invalid(6): import {rejects, doesNotReject} from 'node:assert';\nasync function test() {\n\trejects(fn);\n} 1`] = `
+
+  1 | import {rejects, doesNotReject} from 'node:assert';
+  2 | async function test() {
+  3 | 	rejects(fn);
+  4 | }
+
+`;
+
+exports[`no-unawaited-rejects > invalid(6): import {rejects, doesNotReject} from 'node:assert';\nasync function test() {\n\trejects(fn);\n} 2`] = `
+
+Message:
+  1 | import {rejects, doesNotReject} from 'node:assert';
+  2 | async function test() {
+> 3 | 	rejects(fn);
+    | 	^^^^^^^^^^^ \`assert.rejects()\` must be awaited or returned.
+  4 | }
+
+Output:
+  1 | import {rejects, doesNotReject} from 'node:assert';
+  2 | async function test() {
+  3 | 	await rejects(fn);
+  4 | }
+
+`;
+
+exports[`no-unawaited-rejects > invalid(7): import {rejects, doesNotReject} from 'node:assert';\nasync function test() {\n\tdoesNotReject(fn);\n} 1`] = `
+
+  1 | import {rejects, doesNotReject} from 'node:assert';
+  2 | async function test() {
+  3 | 	doesNotReject(fn);
+  4 | }
+
+`;
+
+exports[`no-unawaited-rejects > invalid(7): import {rejects, doesNotReject} from 'node:assert';\nasync function test() {\n\tdoesNotReject(fn);\n} 2`] = `
+
+Message:
+  1 | import {rejects, doesNotReject} from 'node:assert';
+  2 | async function test() {
+> 3 | 	doesNotReject(fn);
+    | 	^^^^^^^^^^^^^^^^^ \`assert.doesNotReject()\` must be awaited or returned.
+  4 | }
+
+Output:
+  1 | import {rejects, doesNotReject} from 'node:assert';
+  2 | async function test() {
+  3 | 	await doesNotReject(fn);
+  4 | }
+
+`;
+
+exports[`no-unawaited-rejects > invalid(8): import test from 'node:test';\nimport assert from 'node:assert';\nasync function run() {\n\tt.assert.rejects(fn);\n} 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | async function run() {
+  4 | 	t.assert.rejects(fn);
+  5 | }
+
+`;
+
+exports[`no-unawaited-rejects > invalid(8): import test from 'node:test';\nimport assert from 'node:assert';\nasync function run() {\n\tt.assert.rejects(fn);\n} 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | async function run() {
+> 4 | 	t.assert.rejects(fn);
+    | 	^^^^^^^^^^^^^^^^^^^^ \`assert.rejects()\` must be awaited or returned.
+  5 | }
+
+Output:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | async function run() {
+  4 | 	await t.assert.rejects(fn);
+  5 | }
+
+`;
+
+exports[`no-unawaited-rejects > invalid(9): import test from 'node:test';\ntest('t', async t => {\n\tt.assert.rejects(fn);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', async t => {
+  3 | 	t.assert.rejects(fn);
+  4 | });
+
+`;
+
+exports[`no-unawaited-rejects > invalid(9): import test from 'node:test';\ntest('t', async t => {\n\tt.assert.rejects(fn);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', async t => {
+> 3 | 	t.assert.rejects(fn);
+    | 	^^^^^^^^^^^^^^^^^^^^ \`assert.rejects()\` must be awaited or returned.
+  4 | });
+
+Output:
+  1 | import test from 'node:test';
+  2 | test('t', async t => {
+  3 | 	await t.assert.rejects(fn);
+  4 | });
+
+`;

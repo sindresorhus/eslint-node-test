@@ -1,0 +1,192 @@
+exports[`no-skip-without-return > invalid(1): import test from 'node:test';\ntest(\"x\", t => { t.skip(); assert.ok(x); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("x", t => { t.skip(); assert.ok(x); });
+
+`;
+
+exports[`no-skip-without-return > invalid(1): import test from 'node:test';\ntest(\"x\", t => { t.skip(); assert.ok(x); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("x", t => { t.skip(); assert.ok(x); });
+    |                  ^^^^^^^^ \`t.skip()\` does not stop the test; code after it still runs. Return afterwards.
+
+Suggestion 1/1: Add \`return\` after \`t.skip()\`.:
+  1 | import test from 'node:test';
+  2 | test("x", t => { t.skip();
+  3 | return; assert.ok(x); });
+
+`;
+
+exports[`no-skip-without-return > invalid(2): import test from 'node:test';\ntest(\"x\", t => {\n\tt.skip();\n\tassert.ok(x);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("x", t => {
+  3 | 	t.skip();
+  4 | 	assert.ok(x);
+  5 | });
+
+`;
+
+exports[`no-skip-without-return > invalid(2): import test from 'node:test';\ntest(\"x\", t => {\n\tt.skip();\n\tassert.ok(x);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test("x", t => {
+> 3 | 	t.skip();
+    | 	^^^^^^^^ \`t.skip()\` does not stop the test; code after it still runs. Return afterwards.
+  4 | 	assert.ok(x);
+  5 | });
+
+Suggestion 1/1: Add \`return\` after \`t.skip()\`.:
+  1 | import test from 'node:test';
+  2 | test("x", t => {
+  3 | 	t.skip();
+  4 | 	return;
+  5 | 	assert.ok(x);
+  6 | });
+
+`;
+
+exports[`no-skip-without-return > invalid(3): import test from 'node:test';\ntest(\"x\", t => { if (cond) { t.skip(); } assert.ok(x); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("x", t => { if (cond) { t.skip(); } assert.ok(x); });
+
+`;
+
+exports[`no-skip-without-return > invalid(3): import test from 'node:test';\ntest(\"x\", t => { if (cond) { t.skip(); } assert.ok(x); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("x", t => { if (cond) { t.skip(); } assert.ok(x); });
+    |                              ^^^^^^^^ \`t.skip()\` does not stop the test; code after it still runs. Return afterwards.
+
+Suggestion 1/1: Add \`return\` after \`t.skip()\`.:
+  1 | import test from 'node:test';
+  2 | test("x", t => { if (cond) { t.skip();
+  3 | return; } assert.ok(x); });
+
+`;
+
+exports[`no-skip-without-return > invalid(4): import test from 'node:test';\ntest(\"x\", t => { t.todo(); assert.ok(x); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("x", t => { t.todo(); assert.ok(x); });
+
+`;
+
+exports[`no-skip-without-return > invalid(4): import test from 'node:test';\ntest(\"x\", t => { t.todo(); assert.ok(x); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("x", t => { t.todo(); assert.ok(x); });
+    |                  ^^^^^^^^ \`t.todo()\` does not stop the test; code after it still runs. Return afterwards.
+
+Suggestion 1/1: Add \`return\` after \`t.todo()\`.:
+  1 | import test from 'node:test';
+  2 | test("x", t => { t.todo();
+  3 | return; assert.ok(x); });
+
+`;
+
+exports[`no-skip-without-return > invalid(5): import test from 'node:test';\ntest(\"x\", t => { t.skip(\"not ready\"); assert.ok(x); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("x", t => { t.skip("not ready"); assert.ok(x); });
+
+`;
+
+exports[`no-skip-without-return > invalid(5): import test from 'node:test';\ntest(\"x\", t => { t.skip(\"not ready\"); assert.ok(x); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("x", t => { t.skip("not ready"); assert.ok(x); });
+    |                  ^^^^^^^^^^^^^^^^^^^ \`t.skip()\` does not stop the test; code after it still runs. Return afterwards.
+
+Suggestion 1/1: Add \`return\` after \`t.skip()\`.:
+  1 | import test from 'node:test';
+  2 | test("x", t => { t.skip("not ready");
+  3 | return; assert.ok(x); });
+
+`;
+
+exports[`no-skip-without-return > invalid(6): import test from 'node:test';\ntest(\"x\", context => { context.skip(); doStuff(); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("x", context => { context.skip(); doStuff(); });
+
+`;
+
+exports[`no-skip-without-return > invalid(6): import test from 'node:test';\ntest(\"x\", context => { context.skip(); doStuff(); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("x", context => { context.skip(); doStuff(); });
+    |                        ^^^^^^^^^^^^^^ \`context.skip()\` does not stop the test; code after it still runs. Return afterwards.
+
+Suggestion 1/1: Add \`return\` after \`context.skip()\`.:
+  1 | import test from 'node:test';
+  2 | test("x", context => { context.skip();
+  3 | return; doStuff(); });
+
+`;
+
+exports[`no-skip-without-return > invalid(7): import test from 'node:test';\ntest(\"x\", async t => { await t.test(\"child\", t2 => { t2.skip(); doStuff(); }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("x", async t => { await t.test("child", t2 => { t2.skip(); doStuff(); }); });
+
+`;
+
+exports[`no-skip-without-return > invalid(7): import test from 'node:test';\ntest(\"x\", async t => { await t.test(\"child\", t2 => { t2.skip(); doStuff(); }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("x", async t => { await t.test("child", t2 => { t2.skip(); doStuff(); }); });
+    |                                                      ^^^^^^^^^ \`t2.skip()\` does not stop the test; code after it still runs. Return afterwards.
+
+Suggestion 1/1: Add \`return\` after \`t2.skip()\`.:
+  1 | import test from 'node:test';
+  2 | test("x", async t => { await t.test("child", t2 => { t2.skip();
+  3 | return; doStuff(); }); });
+
+`;
+
+exports[`no-skip-without-return > invalid(8): import test from 'node:test';\ntest(\"x\", t => { if (cond) t.skip(); assert.ok(x); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("x", t => { if (cond) t.skip(); assert.ok(x); });
+
+`;
+
+exports[`no-skip-without-return > invalid(8): import test from 'node:test';\ntest(\"x\", t => { if (cond) t.skip(); assert.ok(x); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("x", t => { if (cond) t.skip(); assert.ok(x); });
+    |                            ^^^^^^^^ \`t.skip()\` does not stop the test; code after it still runs. Return afterwards.
+
+`;
+
+exports[`no-skip-without-return > invalid(9): import test from 'node:test';\ntest(\"x\", (t: any) => { t.skip(); assert.ok(x); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("x", (t: any) => { t.skip(); assert.ok(x); });
+
+`;
+
+exports[`no-skip-without-return > invalid(9): import test from 'node:test';\ntest(\"x\", (t: any) => { t.skip(); assert.ok(x); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("x", (t: any) => { t.skip(); assert.ok(x); });
+    |                         ^^^^^^^^ \`t.skip()\` does not stop the test; code after it still runs. Return afterwards.
+
+Suggestion 1/1: Add \`return\` after \`t.skip()\`.:
+  1 | import test from 'node:test';
+  2 | test("x", (t: any) => { t.skip();
+  3 | return; assert.ok(x); });
+
+`;

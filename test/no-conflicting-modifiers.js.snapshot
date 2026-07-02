@@ -1,0 +1,175 @@
+exports[`no-conflicting-modifiers > invalid(1): import {test, describe, it} from 'node:test';\ntest.skip.only(\"x\", () => {}); 1`] = `
+
+  1 | import {test, describe, it} from 'node:test';
+  2 | test.skip.only("x", () => {});
+
+`;
+
+exports[`no-conflicting-modifiers > invalid(1): import {test, describe, it} from 'node:test';\ntest.skip.only(\"x\", () => {}); 2`] = `
+
+Message:
+  1 | import {test, describe, it} from 'node:test';
+> 2 | test.skip.only("x", () => {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`; \`node:test\` applies only one.
+
+`;
+
+exports[`no-conflicting-modifiers > invalid(10): import * as nodeTest from 'node:test';\nnodeTest.test.skip.only(\"x\", () => {}); 1`] = `
+
+  1 | import * as nodeTest from 'node:test';
+  2 | nodeTest.test.skip.only("x", () => {});
+
+`;
+
+exports[`no-conflicting-modifiers > invalid(10): import * as nodeTest from 'node:test';\nnodeTest.test.skip.only(\"x\", () => {}); 2`] = `
+
+Message:
+  1 | import * as nodeTest from 'node:test';
+> 2 | nodeTest.test.skip.only("x", () => {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`; \`node:test\` applies only one.
+
+`;
+
+exports[`no-conflicting-modifiers > invalid(11): import {test, describe, it} from 'node:test';\ntest.skip.only(\"x\", (): void => {}); 1`] = `
+
+  1 | import {test, describe, it} from 'node:test';
+  2 | test.skip.only("x", (): void => {});
+
+`;
+
+exports[`no-conflicting-modifiers > invalid(11): import {test, describe, it} from 'node:test';\ntest.skip.only(\"x\", (): void => {}); 2`] = `
+
+Message:
+  1 | import {test, describe, it} from 'node:test';
+> 2 | test.skip.only("x", (): void => {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`; \`node:test\` applies only one.
+
+`;
+
+exports[`no-conflicting-modifiers > invalid(2): import {test, describe, it} from 'node:test';\nit.only.skip(\"x\", () => {}); 1`] = `
+
+  1 | import {test, describe, it} from 'node:test';
+  2 | it.only.skip("x", () => {});
+
+`;
+
+exports[`no-conflicting-modifiers > invalid(2): import {test, describe, it} from 'node:test';\nit.only.skip(\"x\", () => {}); 2`] = `
+
+Message:
+  1 | import {test, describe, it} from 'node:test';
+> 2 | it.only.skip("x", () => {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`; \`node:test\` applies only one.
+
+`;
+
+exports[`no-conflicting-modifiers > invalid(3): import {test, describe, it} from 'node:test';\ntest(\"x\", {skip: true, only: true}, () => {}); 1`] = `
+
+  1 | import {test, describe, it} from 'node:test';
+  2 | test("x", {skip: true, only: true}, () => {});
+
+`;
+
+exports[`no-conflicting-modifiers > invalid(3): import {test, describe, it} from 'node:test';\ntest(\"x\", {skip: true, only: true}, () => {}); 2`] = `
+
+Message:
+  1 | import {test, describe, it} from 'node:test';
+> 2 | test("x", {skip: true, only: true}, () => {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`; \`node:test\` applies only one.
+
+`;
+
+exports[`no-conflicting-modifiers > invalid(4): import {test, describe, it} from 'node:test';\ntest(\"x\", {skip: \"later\", only: true}, () => {}); 1`] = `
+
+  1 | import {test, describe, it} from 'node:test';
+  2 | test("x", {skip: "later", only: true}, () => {});
+
+`;
+
+exports[`no-conflicting-modifiers > invalid(4): import {test, describe, it} from 'node:test';\ntest(\"x\", {skip: \"later\", only: true}, () => {}); 2`] = `
+
+Message:
+  1 | import {test, describe, it} from 'node:test';
+> 2 | test("x", {skip: "later", only: true}, () => {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`; \`node:test\` applies only one.
+
+`;
+
+exports[`no-conflicting-modifiers > invalid(5): import {test, describe, it} from 'node:test';\ntest.skip(\"x\", {only: true}, () => {}); 1`] = `
+
+  1 | import {test, describe, it} from 'node:test';
+  2 | test.skip("x", {only: true}, () => {});
+
+`;
+
+exports[`no-conflicting-modifiers > invalid(5): import {test, describe, it} from 'node:test';\ntest.skip(\"x\", {only: true}, () => {}); 2`] = `
+
+Message:
+  1 | import {test, describe, it} from 'node:test';
+> 2 | test.skip("x", {only: true}, () => {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`; \`node:test\` applies only one.
+
+`;
+
+exports[`no-conflicting-modifiers > invalid(6): import {test, describe, it} from 'node:test';\ntest(\"x\", {only: true, skip: true, todo: true}, () => {}); 1`] = `
+
+  1 | import {test, describe, it} from 'node:test';
+  2 | test("x", {only: true, skip: true, todo: true}, () => {});
+
+`;
+
+exports[`no-conflicting-modifiers > invalid(6): import {test, describe, it} from 'node:test';\ntest(\"x\", {only: true, skip: true, todo: true}, () => {}); 2`] = `
+
+Message:
+  1 | import {test, describe, it} from 'node:test';
+> 2 | test("x", {only: true, skip: true, todo: true}, () => {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`, \`todo\`; \`node:test\` applies only one.
+
+`;
+
+exports[`no-conflicting-modifiers > invalid(7): import {test, describe, it} from 'node:test';\ndescribe.skip.only(\"s\", () => {}); 1`] = `
+
+  1 | import {test, describe, it} from 'node:test';
+  2 | describe.skip.only("s", () => {});
+
+`;
+
+exports[`no-conflicting-modifiers > invalid(7): import {test, describe, it} from 'node:test';\ndescribe.skip.only(\"s\", () => {}); 2`] = `
+
+Message:
+  1 | import {test, describe, it} from 'node:test';
+> 2 | describe.skip.only("s", () => {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`; \`node:test\` applies only one.
+
+`;
+
+exports[`no-conflicting-modifiers > invalid(8): import {beforeEach} from 'node:test';\nbeforeEach({skip: true, todo: true}, () => {}); 1`] = `
+
+  1 | import {beforeEach} from 'node:test';
+  2 | beforeEach({skip: true, todo: true}, () => {});
+
+`;
+
+exports[`no-conflicting-modifiers > invalid(8): import {beforeEach} from 'node:test';\nbeforeEach({skip: true, todo: true}, () => {}); 2`] = `
+
+Message:
+  1 | import {beforeEach} from 'node:test';
+> 2 | beforeEach({skip: true, todo: true}, () => {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`skip\`, \`todo\`; \`node:test\` applies only one.
+
+`;
+
+exports[`no-conflicting-modifiers > invalid(9): import {test, describe, it} from 'node:test';\ntest(\"x\", {\"skip\": true, only: true}, () => {}); 1`] = `
+
+  1 | import {test, describe, it} from 'node:test';
+  2 | test("x", {"skip": true, only: true}, () => {});
+
+`;
+
+exports[`no-conflicting-modifiers > invalid(9): import {test, describe, it} from 'node:test';\ntest(\"x\", {\"skip\": true, only: true}, () => {}); 2`] = `
+
+Message:
+  1 | import {test, describe, it} from 'node:test';
+> 2 | test("x", {"skip": true, only: true}, () => {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`; \`node:test\` applies only one.
+
+`;

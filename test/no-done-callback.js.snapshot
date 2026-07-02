@@ -1,0 +1,249 @@
+exports[`no-done-callback > invalid(1): import {test, beforeEach} from 'node:test';\ntest(\"x\", (t, done) => { done(); }); 1`] = `
+
+  1 | import {test, beforeEach} from 'node:test';
+  2 | test("x", (t, done) => { done(); });
+
+`;
+
+exports[`no-done-callback > invalid(1): import {test, beforeEach} from 'node:test';\ntest(\"x\", (t, done) => { done(); }); 2`] = `
+
+Message:
+  1 | import {test, beforeEach} from 'node:test';
+> 2 | test("x", (t, done) => { done(); });
+    |               ^^^^ Use \`async\`/\`await\` or return a Promise instead of the \`done\` callback parameter.
+
+`;
+
+exports[`no-done-callback > invalid(10): import * as nodeTest from 'node:test';\nnodeTest.test(\"x\", (t, done) => { done(); }); 1`] = `
+
+  1 | import * as nodeTest from 'node:test';
+  2 | nodeTest.test("x", (t, done) => { done(); });
+
+`;
+
+exports[`no-done-callback > invalid(10): import * as nodeTest from 'node:test';\nnodeTest.test(\"x\", (t, done) => { done(); }); 2`] = `
+
+Message:
+  1 | import * as nodeTest from 'node:test';
+> 2 | nodeTest.test("x", (t, done) => { done(); });
+    |                        ^^^^ Use \`async\`/\`await\` or return a Promise instead of the \`done\` callback parameter.
+
+`;
+
+exports[`no-done-callback > invalid(11): import {test, beforeEach} from 'node:test';\ntest(\"x\", (t, done, extra) => { done(); }); 1`] = `
+
+  1 | import {test, beforeEach} from 'node:test';
+  2 | test("x", (t, done, extra) => { done(); });
+
+`;
+
+exports[`no-done-callback > invalid(11): import {test, beforeEach} from 'node:test';\ntest(\"x\", (t, done, extra) => { done(); }); 2`] = `
+
+Message:
+  1 | import {test, beforeEach} from 'node:test';
+> 2 | test("x", (t, done, extra) => { done(); });
+    |               ^^^^ Use \`async\`/\`await\` or return a Promise instead of the \`done\` callback parameter.
+
+`;
+
+exports[`no-done-callback > invalid(12): import {test, beforeEach} from 'node:test';\ntest(\"x\", (t, {fail}) => { fail(); }); 1`] = `
+
+  1 | import {test, beforeEach} from 'node:test';
+  2 | test("x", (t, {fail}) => { fail(); });
+
+`;
+
+exports[`no-done-callback > invalid(12): import {test, beforeEach} from 'node:test';\ntest(\"x\", (t, {fail}) => { fail(); }); 2`] = `
+
+Message:
+  1 | import {test, beforeEach} from 'node:test';
+> 2 | test("x", (t, {fail}) => { fail(); });
+    |               ^^^^^^ Use \`async\`/\`await\` or return a Promise instead of the \`done\` callback parameter.
+
+`;
+
+exports[`no-done-callback > invalid(13): import {test, beforeEach} from 'node:test';\ntest(\"x\", ({signal}, done) => { done(); }); 1`] = `
+
+  1 | import {test, beforeEach} from 'node:test';
+  2 | test("x", ({signal}, done) => { done(); });
+
+`;
+
+exports[`no-done-callback > invalid(13): import {test, beforeEach} from 'node:test';\ntest(\"x\", ({signal}, done) => { done(); }); 2`] = `
+
+Message:
+  1 | import {test, beforeEach} from 'node:test';
+> 2 | test("x", ({signal}, done) => { done(); });
+    |                      ^^^^ Use \`async\`/\`await\` or return a Promise instead of the \`done\` callback parameter.
+
+`;
+
+exports[`no-done-callback > invalid(14): import {test, beforeEach} from 'node:test';\ntest(\"x\", (t: TestContext, done: () => void) => { done(); }); 1`] = `
+
+  1 | import {test, beforeEach} from 'node:test';
+  2 | test("x", (t: TestContext, done: () => void) => { done(); });
+
+`;
+
+exports[`no-done-callback > invalid(14): import {test, beforeEach} from 'node:test';\ntest(\"x\", (t: TestContext, done: () => void) => { done(); }); 2`] = `
+
+Message:
+  1 | import {test, beforeEach} from 'node:test';
+> 2 | test("x", (t: TestContext, done: () => void) => { done(); });
+    |                            ^^^^^^^^^^^^^^^^ Use \`async\`/\`await\` or return a Promise instead of the \`done\` callback parameter.
+
+`;
+
+exports[`no-done-callback > invalid(2): import test from 'node:test';\ntest(\"x\", (t, done) => { done(); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("x", (t, done) => { done(); });
+
+`;
+
+exports[`no-done-callback > invalid(2): import test from 'node:test';\ntest(\"x\", (t, done) => { done(); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("x", (t, done) => { done(); });
+    |               ^^^^ Use \`async\`/\`await\` or return a Promise instead of the \`done\` callback parameter.
+
+`;
+
+exports[`no-done-callback > invalid(3): import {test, beforeEach} from 'node:test';\ntest.only(\"x\", (t, done) => { done(); }); 1`] = `
+
+  1 | import {test, beforeEach} from 'node:test';
+  2 | test.only("x", (t, done) => { done(); });
+
+`;
+
+exports[`no-done-callback > invalid(3): import {test, beforeEach} from 'node:test';\ntest.only(\"x\", (t, done) => { done(); }); 2`] = `
+
+Message:
+  1 | import {test, beforeEach} from 'node:test';
+> 2 | test.only("x", (t, done) => { done(); });
+    |                    ^^^^ Use \`async\`/\`await\` or return a Promise instead of the \`done\` callback parameter.
+
+`;
+
+exports[`no-done-callback > invalid(4): import {test, beforeEach} from 'node:test';\ntest(\"x\", async (t, done) => { done(); }); 1`] = `
+
+  1 | import {test, beforeEach} from 'node:test';
+  2 | test("x", async (t, done) => { done(); });
+
+`;
+
+exports[`no-done-callback > invalid(4): import {test, beforeEach} from 'node:test';\ntest(\"x\", async (t, done) => { done(); }); 2`] = `
+
+Message:
+  1 | import {test, beforeEach} from 'node:test';
+> 2 | test("x", async (t, done) => { done(); });
+    |                     ^^^^ Use \`async\`/\`await\` or return a Promise instead of the \`done\` callback parameter.
+
+`;
+
+exports[`no-done-callback > invalid(5): import {test, beforeEach} from 'node:test';\ntest(\"x\", function (t, done) { done(); }); 1`] = `
+
+  1 | import {test, beforeEach} from 'node:test';
+  2 | test("x", function (t, done) { done(); });
+
+`;
+
+exports[`no-done-callback > invalid(5): import {test, beforeEach} from 'node:test';\ntest(\"x\", function (t, done) { done(); }); 2`] = `
+
+Message:
+  1 | import {test, beforeEach} from 'node:test';
+> 2 | test("x", function (t, done) { done(); });
+    |                        ^^^^ Use \`async\`/\`await\` or return a Promise instead of the \`done\` callback parameter.
+
+`;
+
+exports[`no-done-callback > invalid(6): import {test, beforeEach} from 'node:test';\nbeforeEach((t, done) => { done(); }); 1`] = `
+
+  1 | import {test, beforeEach} from 'node:test';
+  2 | beforeEach((t, done) => { done(); });
+
+`;
+
+exports[`no-done-callback > invalid(6): import {test, beforeEach} from 'node:test';\nbeforeEach((t, done) => { done(); }); 2`] = `
+
+Message:
+  1 | import {test, beforeEach} from 'node:test';
+> 2 | beforeEach((t, done) => { done(); });
+    |                ^^^^ Use \`async\`/\`await\` or return a Promise instead of the \`done\` callback parameter.
+
+`;
+
+exports[`no-done-callback > invalid(7): import {before, after, afterEach} from 'node:test';\nbefore((t, done) => { done(); });\nafter((t, done) => { done(); });\nafterEach((t, done) => { done(); }); 1`] = `
+
+  1 | import {before, after, afterEach} from 'node:test';
+  2 | before((t, done) => { done(); });
+  3 | after((t, done) => { done(); });
+  4 | afterEach((t, done) => { done(); });
+
+`;
+
+exports[`no-done-callback > invalid(7): import {before, after, afterEach} from 'node:test';\nbefore((t, done) => { done(); });\nafter((t, done) => { done(); });\nafterEach((t, done) => { done(); }); 2`] = `
+
+Message:
+  1 | import {before, after, afterEach} from 'node:test';
+> 2 | before((t, done) => { done(); });
+    |            ^^^^ Use \`async\`/\`await\` or return a Promise instead of the \`done\` callback parameter.
+  3 | after((t, done) => { done(); });
+  4 | afterEach((t, done) => { done(); });
+
+`;
+
+exports[`no-done-callback > invalid(7): import {before, after, afterEach} from 'node:test';\nbefore((t, done) => { done(); });\nafter((t, done) => { done(); });\nafterEach((t, done) => { done(); }); 3`] = `
+
+Message:
+  1 | import {before, after, afterEach} from 'node:test';
+  2 | before((t, done) => { done(); });
+> 3 | after((t, done) => { done(); });
+    |           ^^^^ Use \`async\`/\`await\` or return a Promise instead of the \`done\` callback parameter.
+  4 | afterEach((t, done) => { done(); });
+
+`;
+
+exports[`no-done-callback > invalid(7): import {before, after, afterEach} from 'node:test';\nbefore((t, done) => { done(); });\nafter((t, done) => { done(); });\nafterEach((t, done) => { done(); }); 4`] = `
+
+Message:
+  1 | import {before, after, afterEach} from 'node:test';
+  2 | before((t, done) => { done(); });
+  3 | after((t, done) => { done(); });
+> 4 | afterEach((t, done) => { done(); });
+    |               ^^^^ Use \`async\`/\`await\` or return a Promise instead of the \`done\` callback parameter.
+
+`;
+
+exports[`no-done-callback > invalid(8): import {it} from 'node:test';\nit(\"x\", (t, cb) => { cb(); }); 1`] = `
+
+  1 | import {it} from 'node:test';
+  2 | it("x", (t, cb) => { cb(); });
+
+`;
+
+exports[`no-done-callback > invalid(8): import {it} from 'node:test';\nit(\"x\", (t, cb) => { cb(); }); 2`] = `
+
+Message:
+  1 | import {it} from 'node:test';
+> 2 | it("x", (t, cb) => { cb(); });
+    |             ^^ Use \`async\`/\`await\` or return a Promise instead of the \`cb\` callback parameter.
+
+`;
+
+exports[`no-done-callback > invalid(9): import {test as t} from 'node:test';\nt(\"x\", (ctx, done) => { done(); }); 1`] = `
+
+  1 | import {test as t} from 'node:test';
+  2 | t("x", (ctx, done) => { done(); });
+
+`;
+
+exports[`no-done-callback > invalid(9): import {test as t} from 'node:test';\nt(\"x\", (ctx, done) => { done(); }); 2`] = `
+
+Message:
+  1 | import {test as t} from 'node:test';
+> 2 | t("x", (ctx, done) => { done(); });
+    |              ^^^^ Use \`async\`/\`await\` or return a Promise instead of the \`done\` callback parameter.
+
+`;

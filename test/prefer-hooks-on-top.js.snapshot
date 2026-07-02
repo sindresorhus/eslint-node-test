@@ -1,0 +1,119 @@
+exports[`prefer-hooks-on-top > invalid(1): import {describe, it, test, before, beforeEach, after, afterEach} from 'node:test';\nit(\"a\", () => {});\nbeforeEach(() => {}); 1`] = `
+
+  1 | import {describe, it, test, before, beforeEach, after, afterEach} from 'node:test';
+  2 | it("a", () => {});
+  3 | beforeEach(() => {});
+
+`;
+
+exports[`prefer-hooks-on-top > invalid(1): import {describe, it, test, before, beforeEach, after, afterEach} from 'node:test';\nit(\"a\", () => {});\nbeforeEach(() => {}); 2`] = `
+
+Message:
+  1 | import {describe, it, test, before, beforeEach, after, afterEach} from 'node:test';
+  2 | it("a", () => {});
+> 3 | beforeEach(() => {});
+    | ^^^^^^^^^^^^^^^^^^^^ Hook \`beforeEach\` should come before any test or \`describe\` in its scope.
+
+`;
+
+exports[`prefer-hooks-on-top > invalid(2): import {describe, it, test, before, beforeEach, after, afterEach} from 'node:test';\ndescribe(\"s\", () => {\n\tit(\"a\", () => {});\n\tbeforeEach(() => {});\n}); 1`] = `
+
+  1 | import {describe, it, test, before, beforeEach, after, afterEach} from 'node:test';
+  2 | describe("s", () => {
+  3 | 	it("a", () => {});
+  4 | 	beforeEach(() => {});
+  5 | });
+
+`;
+
+exports[`prefer-hooks-on-top > invalid(2): import {describe, it, test, before, beforeEach, after, afterEach} from 'node:test';\ndescribe(\"s\", () => {\n\tit(\"a\", () => {});\n\tbeforeEach(() => {});\n}); 2`] = `
+
+Message:
+  1 | import {describe, it, test, before, beforeEach, after, afterEach} from 'node:test';
+  2 | describe("s", () => {
+  3 | 	it("a", () => {});
+> 4 | 	beforeEach(() => {});
+    | 	^^^^^^^^^^^^^^^^^^^^ Hook \`beforeEach\` should come before any test or \`describe\` in its scope.
+  5 | });
+
+`;
+
+exports[`prefer-hooks-on-top > invalid(3): import {describe, it, test, before, beforeEach, after, afterEach} from 'node:test';\nit(\"a\", () => {});\nafterEach(() => {});\nit(\"b\", () => {}); 1`] = `
+
+  1 | import {describe, it, test, before, beforeEach, after, afterEach} from 'node:test';
+  2 | it("a", () => {});
+  3 | afterEach(() => {});
+  4 | it("b", () => {});
+
+`;
+
+exports[`prefer-hooks-on-top > invalid(3): import {describe, it, test, before, beforeEach, after, afterEach} from 'node:test';\nit(\"a\", () => {});\nafterEach(() => {});\nit(\"b\", () => {}); 2`] = `
+
+Message:
+  1 | import {describe, it, test, before, beforeEach, after, afterEach} from 'node:test';
+  2 | it("a", () => {});
+> 3 | afterEach(() => {});
+    | ^^^^^^^^^^^^^^^^^^^ Hook \`afterEach\` should come before any test or \`describe\` in its scope.
+  4 | it("b", () => {});
+
+`;
+
+exports[`prefer-hooks-on-top > invalid(4): import {describe, it, test, before, beforeEach, after, afterEach} from 'node:test';\ndescribe(\"s\", () => {});\nbefore(() => {}); 1`] = `
+
+  1 | import {describe, it, test, before, beforeEach, after, afterEach} from 'node:test';
+  2 | describe("s", () => {});
+  3 | before(() => {});
+
+`;
+
+exports[`prefer-hooks-on-top > invalid(4): import {describe, it, test, before, beforeEach, after, afterEach} from 'node:test';\ndescribe(\"s\", () => {});\nbefore(() => {}); 2`] = `
+
+Message:
+  1 | import {describe, it, test, before, beforeEach, after, afterEach} from 'node:test';
+  2 | describe("s", () => {});
+> 3 | before(() => {});
+    | ^^^^^^^^^^^^^^^^ Hook \`before\` should come before any test or \`describe\` in its scope.
+
+`;
+
+exports[`prefer-hooks-on-top > invalid(5): import {describe, it, test, before, beforeEach, after, afterEach} from 'node:test';\nbeforeEach(() => {});\ndescribe(\"s\", () => {\n\tit(\"a\", () => {});\n\tafter(() => {});\n}); 1`] = `
+
+  1 | import {describe, it, test, before, beforeEach, after, afterEach} from 'node:test';
+  2 | beforeEach(() => {});
+  3 | describe("s", () => {
+  4 | 	it("a", () => {});
+  5 | 	after(() => {});
+  6 | });
+
+`;
+
+exports[`prefer-hooks-on-top > invalid(5): import {describe, it, test, before, beforeEach, after, afterEach} from 'node:test';\nbeforeEach(() => {});\ndescribe(\"s\", () => {\n\tit(\"a\", () => {});\n\tafter(() => {});\n}); 2`] = `
+
+Message:
+  1 | import {describe, it, test, before, beforeEach, after, afterEach} from 'node:test';
+  2 | beforeEach(() => {});
+  3 | describe("s", () => {
+  4 | 	it("a", () => {});
+> 5 | 	after(() => {});
+    | 	^^^^^^^^^^^^^^^ Hook \`after\` should come before any test or \`describe\` in its scope.
+  6 | });
+
+`;
+
+exports[`prefer-hooks-on-top > invalid(6): import {describe, it, test, before, beforeEach, after, afterEach} from 'node:test';\nit(\"a\", () => {});\nbeforeEach((): void => {}); 1`] = `
+
+  1 | import {describe, it, test, before, beforeEach, after, afterEach} from 'node:test';
+  2 | it("a", () => {});
+  3 | beforeEach((): void => {});
+
+`;
+
+exports[`prefer-hooks-on-top > invalid(6): import {describe, it, test, before, beforeEach, after, afterEach} from 'node:test';\nit(\"a\", () => {});\nbeforeEach((): void => {}); 2`] = `
+
+Message:
+  1 | import {describe, it, test, before, beforeEach, after, afterEach} from 'node:test';
+  2 | it("a", () => {});
+> 3 | beforeEach((): void => {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Hook \`beforeEach\` should come before any test or \`describe\` in its scope.
+
+`;

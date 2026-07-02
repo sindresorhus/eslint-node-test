@@ -1,0 +1,153 @@
+exports[`require-context-assert-with-plan > invalid(1): import test from 'node:test';\nimport assert from 'node:assert';\ntest('t', t => { t.plan(1); assert.strictEqual(1, 1); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('t', t => { t.plan(1); assert.strictEqual(1, 1); });
+
+`;
+
+exports[`require-context-assert-with-plan > invalid(1): import test from 'node:test';\nimport assert from 'node:assert';\ntest('t', t => { t.plan(1); assert.strictEqual(1, 1); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | test('t', t => { t.plan(1); assert.strictEqual(1, 1); });
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^ This assertion is not counted by \`t.plan()\`. Use \`t.assert\` so the runner counts it toward the plan.
+
+`;
+
+exports[`require-context-assert-with-plan > invalid(2): import test from 'node:test';\nimport assert from 'node:assert';\ntest('t', t => { t.plan(1); assert(1); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('t', t => { t.plan(1); assert(1); });
+
+`;
+
+exports[`require-context-assert-with-plan > invalid(2): import test from 'node:test';\nimport assert from 'node:assert';\ntest('t', t => { t.plan(1); assert(1); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | test('t', t => { t.plan(1); assert(1); });
+    |                             ^^^^^^^^^ This assertion is not counted by \`t.plan()\`. Use \`t.assert\` so the runner counts it toward the plan.
+
+`;
+
+exports[`require-context-assert-with-plan > invalid(3): import test from 'node:test';\nimport {strictEqual} from 'node:assert';\ntest('t', t => { t.plan(1); strictEqual(1, 1); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import {strictEqual} from 'node:assert';
+  3 | test('t', t => { t.plan(1); strictEqual(1, 1); });
+
+`;
+
+exports[`require-context-assert-with-plan > invalid(3): import test from 'node:test';\nimport {strictEqual} from 'node:assert';\ntest('t', t => { t.plan(1); strictEqual(1, 1); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import {strictEqual} from 'node:assert';
+> 3 | test('t', t => { t.plan(1); strictEqual(1, 1); });
+    |                             ^^^^^^^^^^^^^^^^^ This assertion is not counted by \`t.plan()\`. Use \`t.assert\` so the runner counts it toward the plan.
+
+`;
+
+exports[`require-context-assert-with-plan > invalid(4): import test from 'node:test';\nimport assert from 'node:assert';\ntest('t', t => { t.plan(2); assert.ok(1); assert.ok(2); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('t', t => { t.plan(2); assert.ok(1); assert.ok(2); });
+
+`;
+
+exports[`require-context-assert-with-plan > invalid(4): import test from 'node:test';\nimport assert from 'node:assert';\ntest('t', t => { t.plan(2); assert.ok(1); assert.ok(2); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | test('t', t => { t.plan(2); assert.ok(1); assert.ok(2); });
+    |                             ^^^^^^^^^^^^ This assertion is not counted by \`t.plan()\`. Use \`t.assert\` so the runner counts it toward the plan.
+
+`;
+
+exports[`require-context-assert-with-plan > invalid(4): import test from 'node:test';\nimport assert from 'node:assert';\ntest('t', t => { t.plan(2); assert.ok(1); assert.ok(2); }); 3`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | test('t', t => { t.plan(2); assert.ok(1); assert.ok(2); });
+    |                                           ^^^^^^^^^^^^ This assertion is not counted by \`t.plan()\`. Use \`t.assert\` so the runner counts it toward the plan.
+
+`;
+
+exports[`require-context-assert-with-plan > invalid(5): import test from 'node:test';\nimport assert from 'node:assert';\ntest('t', t => { assert.ok(1); t.plan(1); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('t', t => { assert.ok(1); t.plan(1); });
+
+`;
+
+exports[`require-context-assert-with-plan > invalid(5): import test from 'node:test';\nimport assert from 'node:assert';\ntest('t', t => { assert.ok(1); t.plan(1); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | test('t', t => { assert.ok(1); t.plan(1); });
+    |                  ^^^^^^^^^^^^ This assertion is not counted by \`t.plan()\`. Use \`t.assert\` so the runner counts it toward the plan.
+
+`;
+
+exports[`require-context-assert-with-plan > invalid(6): import test from 'node:test';\nimport assert from 'node:assert';\ntest('t', context => { context.plan(1); assert.ok(1); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('t', context => { context.plan(1); assert.ok(1); });
+
+`;
+
+exports[`require-context-assert-with-plan > invalid(6): import test from 'node:test';\nimport assert from 'node:assert';\ntest('t', context => { context.plan(1); assert.ok(1); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | test('t', context => { context.plan(1); assert.ok(1); });
+    |                                         ^^^^^^^^^^^^ This assertion is not counted by \`context.plan()\`. Use \`context.assert\` so the runner counts it toward the plan.
+
+`;
+
+exports[`require-context-assert-with-plan > invalid(7): import test from 'node:test';\nimport assert from 'node:assert';\ntest('t', t => { t.plan(2); t.assert.ok(1); assert.ok(2); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('t', t => { t.plan(2); t.assert.ok(1); assert.ok(2); });
+
+`;
+
+exports[`require-context-assert-with-plan > invalid(7): import test from 'node:test';\nimport assert from 'node:assert';\ntest('t', t => { t.plan(2); t.assert.ok(1); assert.ok(2); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | test('t', t => { t.plan(2); t.assert.ok(1); assert.ok(2); });
+    |                                             ^^^^^^^^^^^^ This assertion is not counted by \`t.plan()\`. Use \`t.assert\` so the runner counts it toward the plan.
+
+`;
+
+exports[`require-context-assert-with-plan > invalid(8): import test from 'node:test';\nimport assert from 'node:assert';\ntest('t', async t => { await t.test('s', s => { s.plan(1); assert.ok(1); }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('t', async t => { await t.test('s', s => { s.plan(1); assert.ok(1); }); });
+
+`;
+
+exports[`require-context-assert-with-plan > invalid(8): import test from 'node:test';\nimport assert from 'node:assert';\ntest('t', async t => { await t.test('s', s => { s.plan(1); assert.ok(1); }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | test('t', async t => { await t.test('s', s => { s.plan(1); assert.ok(1); }); });
+    |                                                            ^^^^^^^^^^^^ This assertion is not counted by \`s.plan()\`. Use \`s.assert\` so the runner counts it toward the plan.
+
+`;

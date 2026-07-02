@@ -1,0 +1,131 @@
+exports[`max-assertions > invalid(1): import test from 'node:test';\nimport assert from 'node:assert';\ntest('x', () => { assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('x', () => { assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); });
+
+`;
+
+exports[`max-assertions > invalid(1): import test from 'node:test';\nimport assert from 'node:assert';\ntest('x', () => { assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | test('x', () => { assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); });
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Too many assertions (6). Maximum allowed is 5.
+
+`;
+
+exports[`max-assertions > invalid(2): import test from 'node:test';\nimport assert from 'node:assert';\ntest('x', t => { t.assert.ok(a); t.assert.ok(b); t.assert.ok(c); t.assert.ok(d); t.assert.ok(e); t.assert.ok(f); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('x', t => { t.assert.ok(a); t.assert.ok(b); t.assert.ok(c); t.assert.ok(d); t.assert.ok(e); t.assert.ok(f); });
+
+`;
+
+exports[`max-assertions > invalid(2): import test from 'node:test';\nimport assert from 'node:assert';\ntest('x', t => { t.assert.ok(a); t.assert.ok(b); t.assert.ok(c); t.assert.ok(d); t.assert.ok(e); t.assert.ok(f); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | test('x', t => { t.assert.ok(a); t.assert.ok(b); t.assert.ok(c); t.assert.ok(d); t.assert.ok(e); t.assert.ok(f); });
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Too many assertions (6). Maximum allowed is 5.
+
+`;
+
+exports[`max-assertions > invalid(3): import test from 'node:test';\ntest('x', t => { t.assert.ok(a); t.assert.ok(b); t.assert.ok(c); t.assert.ok(d); t.assert.ok(e); t.assert.ok(f); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('x', t => { t.assert.ok(a); t.assert.ok(b); t.assert.ok(c); t.assert.ok(d); t.assert.ok(e); t.assert.ok(f); });
+
+`;
+
+exports[`max-assertions > invalid(3): import test from 'node:test';\ntest('x', t => { t.assert.ok(a); t.assert.ok(b); t.assert.ok(c); t.assert.ok(d); t.assert.ok(e); t.assert.ok(f); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('x', t => { t.assert.ok(a); t.assert.ok(b); t.assert.ok(c); t.assert.ok(d); t.assert.ok(e); t.assert.ok(f); });
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Too many assertions (6). Maximum allowed is 5.
+
+`;
+
+exports[`max-assertions > invalid(4): import test from 'node:test';\nimport assert from 'node:assert';\ntest('x', () => { assert.ok(x); assert.ok(x); assert.ok(x); }); 1`] = `
+
+Options:
+- max: 2
+
+Code:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('x', () => { assert.ok(x); assert.ok(x); assert.ok(x); });
+
+`;
+
+exports[`max-assertions > invalid(4): import test from 'node:test';\nimport assert from 'node:assert';\ntest('x', () => { assert.ok(x); assert.ok(x); assert.ok(x); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | test('x', () => { assert.ok(x); assert.ok(x); assert.ok(x); });
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Too many assertions (3). Maximum allowed is 2.
+
+`;
+
+exports[`max-assertions > invalid(5): import test from 'node:test';\nimport assert from 'node:assert';\ntest('x', t => { assert.ok(a); t.test('y', () => { assert.ok(x); assert.ok(x); assert.ok(x); }); }); 1`] = `
+
+Options:
+- max: 2
+
+Code:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('x', t => { assert.ok(a); t.test('y', () => { assert.ok(x); assert.ok(x); assert.ok(x); }); });
+
+`;
+
+exports[`max-assertions > invalid(5): import test from 'node:test';\nimport assert from 'node:assert';\ntest('x', t => { assert.ok(a); t.test('y', () => { assert.ok(x); assert.ok(x); assert.ok(x); }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | test('x', t => { assert.ok(a); t.test('y', () => { assert.ok(x); assert.ok(x); assert.ok(x); }); });
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Too many assertions (3). Maximum allowed is 2.
+
+`;
+
+exports[`max-assertions > invalid(6): import {it} from 'node:test';\nimport assert from 'node:assert';\nit('x', () => { assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); }); 1`] = `
+
+  1 | import {it} from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | it('x', () => { assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); });
+
+`;
+
+exports[`max-assertions > invalid(6): import {it} from 'node:test';\nimport assert from 'node:assert';\nit('x', () => { assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); }); 2`] = `
+
+Message:
+  1 | import {it} from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | it('x', () => { assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); });
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Too many assertions (6). Maximum allowed is 5.
+
+`;
+
+exports[`max-assertions > invalid(7): import test from 'node:test';\nimport assert from 'node:assert';\ntest('x', () => { assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('x', () => { assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); });
+
+`;
+
+exports[`max-assertions > invalid(7): import test from 'node:test';\nimport assert from 'node:assert';\ntest('x', () => { assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | test('x', () => { assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); });
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Too many assertions (6). Maximum allowed is 5.
+
+`;

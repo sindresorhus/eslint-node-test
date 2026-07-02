@@ -1,0 +1,79 @@
+exports[`no-skip-without-reason > invalid(1): import test from 'node:test';\ntest('t', {skip: true}, () => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', {skip: true}, () => {});
+
+`;
+
+exports[`no-skip-without-reason > invalid(1): import test from 'node:test';\ntest('t', {skip: true}, () => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', {skip: true}, () => {});
+    |            ^^^^^^^^^^ Give \`skip\` a reason string instead of \`true\` explaining why.
+
+`;
+
+exports[`no-skip-without-reason > invalid(2): import test from 'node:test';\ntest('t', {todo: true}, () => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', {todo: true}, () => {});
+
+`;
+
+exports[`no-skip-without-reason > invalid(2): import test from 'node:test';\ntest('t', {todo: true}, () => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', {todo: true}, () => {});
+    |            ^^^^^^^^^^ Give \`todo\` a reason string instead of \`true\` explaining why.
+
+`;
+
+exports[`no-skip-without-reason > invalid(3): import test from 'node:test';\ntest('t', t => { t.skip(); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', t => { t.skip(); });
+
+`;
+
+exports[`no-skip-without-reason > invalid(3): import test from 'node:test';\ntest('t', t => { t.skip(); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', t => { t.skip(); });
+    |                  ^^^^^^^^ Pass a reason message to \`t.skip()\`.
+
+`;
+
+exports[`no-skip-without-reason > invalid(4): import test from 'node:test';\ntest('t', t => { t.todo(); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', t => { t.todo(); });
+
+`;
+
+exports[`no-skip-without-reason > invalid(4): import test from 'node:test';\ntest('t', t => { t.todo(); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', t => { t.todo(); });
+    |                  ^^^^^^^^ Pass a reason message to \`t.todo()\`.
+
+`;
+
+exports[`no-skip-without-reason > invalid(5): import {describe} from 'node:test';\ndescribe('s', {skip: true}, () => {}); 1`] = `
+
+  1 | import {describe} from 'node:test';
+  2 | describe('s', {skip: true}, () => {});
+
+`;
+
+exports[`no-skip-without-reason > invalid(5): import {describe} from 'node:test';\ndescribe('s', {skip: true}, () => {}); 2`] = `
+
+Message:
+  1 | import {describe} from 'node:test';
+> 2 | describe('s', {skip: true}, () => {});
+    |                ^^^^^^^^^^ Give \`skip\` a reason string instead of \`true\` explaining why.
+
+`;

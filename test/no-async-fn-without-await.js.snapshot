@@ -1,0 +1,302 @@
+exports[`no-async-fn-without-await > invalid(1): import test from 'node:test';\ntest(\"title\", async t => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("title", async t => {});
+
+`;
+
+exports[`no-async-fn-without-await > invalid(1): import test from 'node:test';\ntest(\"title\", async t => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("title", async t => {});
+    |               ^^^^^ Async test/hook function has no \`await\` expression.
+
+Suggestion 1/1: Remove the \`async\` keyword.:
+  1 | import test from 'node:test';
+  2 | test("title", t => {});
+
+`;
+
+exports[`no-async-fn-without-await > invalid(10): import {afterEach} from \"node:test\";\nafterEach(async () => { foo(); }); 1`] = `
+
+  1 | import {afterEach} from "node:test";
+  2 | afterEach(async () => { foo(); });
+
+`;
+
+exports[`no-async-fn-without-await > invalid(10): import {afterEach} from \"node:test\";\nafterEach(async () => { foo(); }); 2`] = `
+
+Message:
+  1 | import {afterEach} from "node:test";
+> 2 | afterEach(async () => { foo(); });
+    |           ^^^^^ Async test/hook function has no \`await\` expression.
+
+Suggestion 1/1: Remove the \`async\` keyword.:
+  1 | import {afterEach} from "node:test";
+  2 | afterEach(() => { foo(); });
+
+`;
+
+exports[`no-async-fn-without-await > invalid(11): import test from 'node:test';\ntest(\"title\", async t => { async function helper() { await foo(); } }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("title", async t => { async function helper() { await foo(); } });
+
+`;
+
+exports[`no-async-fn-without-await > invalid(11): import test from 'node:test';\ntest(\"title\", async t => { async function helper() { await foo(); } }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("title", async t => { async function helper() { await foo(); } });
+    |               ^^^^^ Async test/hook function has no \`await\` expression.
+
+Suggestion 1/1: Remove the \`async\` keyword.:
+  1 | import test from 'node:test';
+  2 | test("title", t => { async function helper() { await foo(); } });
+
+`;
+
+exports[`no-async-fn-without-await > invalid(12): import test from 'node:test';\ntest(\"title\", async t => { const helper = async () => { await foo(); }; }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("title", async t => { const helper = async () => { await foo(); }; });
+
+`;
+
+exports[`no-async-fn-without-await > invalid(12): import test from 'node:test';\ntest(\"title\", async t => { const helper = async () => { await foo(); }; }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("title", async t => { const helper = async () => { await foo(); }; });
+    |               ^^^^^ Async test/hook function has no \`await\` expression.
+
+Suggestion 1/1: Remove the \`async\` keyword.:
+  1 | import test from 'node:test';
+  2 | test("title", t => { const helper = async () => { await foo(); }; });
+
+`;
+
+exports[`no-async-fn-without-await > invalid(13): import test from 'node:test';\ntest(\"title\", async t => { async function helper() { for await (const x of gen()) {} } }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("title", async t => { async function helper() { for await (const x of gen()) {} } });
+
+`;
+
+exports[`no-async-fn-without-await > invalid(13): import test from 'node:test';\ntest(\"title\", async t => { async function helper() { for await (const x of gen()) {} } }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("title", async t => { async function helper() { for await (const x of gen()) {} } });
+    |               ^^^^^ Async test/hook function has no \`await\` expression.
+
+Suggestion 1/1: Remove the \`async\` keyword.:
+  1 | import test from 'node:test';
+  2 | test("title", t => { async function helper() { for await (const x of gen()) {} } });
+
+`;
+
+exports[`no-async-fn-without-await > invalid(14): import test from \"node:test\";\ntest(\"title\", async (t: unknown) => {}); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("title", async (t: unknown) => {});
+
+`;
+
+exports[`no-async-fn-without-await > invalid(14): import test from \"node:test\";\ntest(\"title\", async (t: unknown) => {}); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test("title", async (t: unknown) => {});
+    |               ^^^^^ Async test/hook function has no \`await\` expression.
+
+Suggestion 1/1: Remove the \`async\` keyword.:
+  1 | import test from "node:test";
+  2 | test("title", (t: unknown) => {});
+
+`;
+
+exports[`no-async-fn-without-await > invalid(15): import test from 'node:test';\ntest(\"a\", async t => { await foo(); });\ntest(\"b\", async t => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("a", async t => { await foo(); });
+  3 | test("b", async t => {});
+
+`;
+
+exports[`no-async-fn-without-await > invalid(15): import test from 'node:test';\ntest(\"a\", async t => { await foo(); });\ntest(\"b\", async t => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test("a", async t => { await foo(); });
+> 3 | test("b", async t => {});
+    |           ^^^^^ Async test/hook function has no \`await\` expression.
+
+Suggestion 1/1: Remove the \`async\` keyword.:
+  1 | import test from 'node:test';
+  2 | test("a", async t => { await foo(); });
+  3 | test("b", t => {});
+
+`;
+
+exports[`no-async-fn-without-await > invalid(2): import test from 'node:test';\ntest(\"title\", async function(t) {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("title", async function(t) {});
+
+`;
+
+exports[`no-async-fn-without-await > invalid(2): import test from 'node:test';\ntest(\"title\", async function(t) {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("title", async function(t) {});
+    |               ^^^^^ Async test/hook function has no \`await\` expression.
+
+Suggestion 1/1: Remove the \`async\` keyword.:
+  1 | import test from 'node:test';
+  2 | test("title", function(t) {});
+
+`;
+
+exports[`no-async-fn-without-await > invalid(3): import test from 'node:test';\ntest(async t => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test(async t => {});
+
+`;
+
+exports[`no-async-fn-without-await > invalid(3): import test from 'node:test';\ntest(async t => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test(async t => {});
+    |      ^^^^^ Async test/hook function has no \`await\` expression.
+
+Suggestion 1/1: Remove the \`async\` keyword.:
+  1 | import test from 'node:test';
+  2 | test(t => {});
+
+`;
+
+exports[`no-async-fn-without-await > invalid(4): import {test} from \"node:test\";\ntest(\"title\", async t => {}); 1`] = `
+
+  1 | import {test} from "node:test";
+  2 | test("title", async t => {});
+
+`;
+
+exports[`no-async-fn-without-await > invalid(4): import {test} from \"node:test\";\ntest(\"title\", async t => {}); 2`] = `
+
+Message:
+  1 | import {test} from "node:test";
+> 2 | test("title", async t => {});
+    |               ^^^^^ Async test/hook function has no \`await\` expression.
+
+Suggestion 1/1: Remove the \`async\` keyword.:
+  1 | import {test} from "node:test";
+  2 | test("title", t => {});
+
+`;
+
+exports[`no-async-fn-without-await > invalid(5): import {test as t} from \"node:test\";\nt(\"title\", async fn => {}); 1`] = `
+
+  1 | import {test as t} from "node:test";
+  2 | t("title", async fn => {});
+
+`;
+
+exports[`no-async-fn-without-await > invalid(5): import {test as t} from \"node:test\";\nt(\"title\", async fn => {}); 2`] = `
+
+Message:
+  1 | import {test as t} from "node:test";
+> 2 | t("title", async fn => {});
+    |            ^^^^^ Async test/hook function has no \`await\` expression.
+
+Suggestion 1/1: Remove the \`async\` keyword.:
+  1 | import {test as t} from "node:test";
+  2 | t("title", fn => {});
+
+`;
+
+exports[`no-async-fn-without-await > invalid(6): import * as nodeTest from \"node:test\";\nnodeTest.test(\"title\", async t => {}); 1`] = `
+
+  1 | import * as nodeTest from "node:test";
+  2 | nodeTest.test("title", async t => {});
+
+`;
+
+exports[`no-async-fn-without-await > invalid(6): import * as nodeTest from \"node:test\";\nnodeTest.test(\"title\", async t => {}); 2`] = `
+
+Message:
+  1 | import * as nodeTest from "node:test";
+> 2 | nodeTest.test("title", async t => {});
+    |                        ^^^^^ Async test/hook function has no \`await\` expression.
+
+Suggestion 1/1: Remove the \`async\` keyword.:
+  1 | import * as nodeTest from "node:test";
+  2 | nodeTest.test("title", t => {});
+
+`;
+
+exports[`no-async-fn-without-await > invalid(7): import test from \"test\";\ntest(\"title\", async t => {}); 1`] = `
+
+  1 | import test from "test";
+  2 | test("title", async t => {});
+
+`;
+
+exports[`no-async-fn-without-await > invalid(7): import test from \"test\";\ntest(\"title\", async t => {}); 2`] = `
+
+Message:
+  1 | import test from "test";
+> 2 | test("title", async t => {});
+    |               ^^^^^ Async test/hook function has no \`await\` expression.
+
+Suggestion 1/1: Remove the \`async\` keyword.:
+  1 | import test from "test";
+  2 | test("title", t => {});
+
+`;
+
+exports[`no-async-fn-without-await > invalid(8): import {it} from \"node:test\";\nit(\"title\", async t => {}); 1`] = `
+
+  1 | import {it} from "node:test";
+  2 | it("title", async t => {});
+
+`;
+
+exports[`no-async-fn-without-await > invalid(8): import {it} from \"node:test\";\nit(\"title\", async t => {}); 2`] = `
+
+Message:
+  1 | import {it} from "node:test";
+> 2 | it("title", async t => {});
+    |             ^^^^^ Async test/hook function has no \`await\` expression.
+
+Suggestion 1/1: Remove the \`async\` keyword.:
+  1 | import {it} from "node:test";
+  2 | it("title", t => {});
+
+`;
+
+exports[`no-async-fn-without-await > invalid(9): import {before} from \"node:test\";\nbefore(async () => {}); 1`] = `
+
+  1 | import {before} from "node:test";
+  2 | before(async () => {});
+
+`;
+
+exports[`no-async-fn-without-await > invalid(9): import {before} from \"node:test\";\nbefore(async () => {}); 2`] = `
+
+Message:
+  1 | import {before} from "node:test";
+> 2 | before(async () => {});
+    |        ^^^^^ Async test/hook function has no \`await\` expression.
+
+Suggestion 1/1: Remove the \`async\` keyword.:
+  1 | import {before} from "node:test";
+  2 | before(() => {});
+
+`;

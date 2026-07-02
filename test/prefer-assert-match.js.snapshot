@@ -1,0 +1,486 @@
+exports[`prefer-assert-match > invalid(1): import assert from 'node:assert';\nassert.strictEqual(/\\d+/.test('foo'), /* keep */ true); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(/\\d+/.test('foo'), /* keep */ true);
+
+`;
+
+exports[`prefer-assert-match > invalid(1): import assert from 'node:assert';\nassert.strictEqual(/\\d+/.test('foo'), /* keep */ true); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.strictEqual(/\\d+/.test('foo'), /* keep */ true);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`assert.match()\` over asserting \`test()\` results.
+
+`;
+
+exports[`prefer-assert-match > invalid(10): import assert from 'node:assert';\nassert.strictEqual(/\\d+/.test('foo'), false); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(/\\d+/.test('foo'), false);
+
+`;
+
+exports[`prefer-assert-match > invalid(10): import assert from 'node:assert';\nassert.strictEqual(/\\d+/.test('foo'), false); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.strictEqual(/\\d+/.test('foo'), false);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`assert.doesNotMatch()\` over asserting \`test()\` results.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.doesNotMatch('foo', /\\d+/);
+
+`;
+
+exports[`prefer-assert-match > invalid(11): import assert from 'node:assert';\nassert.strictEqual(true, /\\d+/.test('foo')); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(true, /\\d+/.test('foo'));
+
+`;
+
+exports[`prefer-assert-match > invalid(11): import assert from 'node:assert';\nassert.strictEqual(true, /\\d+/.test('foo')); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.strictEqual(true, /\\d+/.test('foo'));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`assert.match()\` over asserting \`test()\` results.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.match('foo', /\\d+/);
+
+`;
+
+exports[`prefer-assert-match > invalid(12): import assert from 'node:assert';\nassert.strictEqual(false, /\\d+/.test('foo')); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(false, /\\d+/.test('foo'));
+
+`;
+
+exports[`prefer-assert-match > invalid(12): import assert from 'node:assert';\nassert.strictEqual(false, /\\d+/.test('foo')); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.strictEqual(false, /\\d+/.test('foo'));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`assert.doesNotMatch()\` over asserting \`test()\` results.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.doesNotMatch('foo', /\\d+/);
+
+`;
+
+exports[`prefer-assert-match > invalid(13): import assert from 'node:assert';\nassert.equal(/\\d+/.test('foo'), true); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.equal(/\\d+/.test('foo'), true);
+
+`;
+
+exports[`prefer-assert-match > invalid(13): import assert from 'node:assert';\nassert.equal(/\\d+/.test('foo'), true); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.equal(/\\d+/.test('foo'), true);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`assert.match()\` over asserting \`test()\` results.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.match('foo', /\\d+/);
+
+`;
+
+exports[`prefer-assert-match > invalid(14): import assert from 'node:assert';\nassert.notStrictEqual(/\\d+/.test('foo'), true); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.notStrictEqual(/\\d+/.test('foo'), true);
+
+`;
+
+exports[`prefer-assert-match > invalid(14): import assert from 'node:assert';\nassert.notStrictEqual(/\\d+/.test('foo'), true); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.notStrictEqual(/\\d+/.test('foo'), true);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`assert.doesNotMatch()\` over asserting \`test()\` results.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.doesNotMatch('foo', /\\d+/);
+
+`;
+
+exports[`prefer-assert-match > invalid(15): import assert from 'node:assert';\nassert.notStrictEqual(/\\d+/.test('foo'), false); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.notStrictEqual(/\\d+/.test('foo'), false);
+
+`;
+
+exports[`prefer-assert-match > invalid(15): import assert from 'node:assert';\nassert.notStrictEqual(/\\d+/.test('foo'), false); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.notStrictEqual(/\\d+/.test('foo'), false);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`assert.match()\` over asserting \`test()\` results.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.match('foo', /\\d+/);
+
+`;
+
+exports[`prefer-assert-match > invalid(16): import assert from 'node:assert';\nassert.notEqual(/\\d+/.test('foo'), true); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.notEqual(/\\d+/.test('foo'), true);
+
+`;
+
+exports[`prefer-assert-match > invalid(16): import assert from 'node:assert';\nassert.notEqual(/\\d+/.test('foo'), true); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.notEqual(/\\d+/.test('foo'), true);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`assert.doesNotMatch()\` over asserting \`test()\` results.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.doesNotMatch('foo', /\\d+/);
+
+`;
+
+exports[`prefer-assert-match > invalid(17): import assert from 'node:assert';\nassert.notStrictEqual(true, /\\d+/.test('foo')); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.notStrictEqual(true, /\\d+/.test('foo'));
+
+`;
+
+exports[`prefer-assert-match > invalid(17): import assert from 'node:assert';\nassert.notStrictEqual(true, /\\d+/.test('foo')); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.notStrictEqual(true, /\\d+/.test('foo'));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`assert.doesNotMatch()\` over asserting \`test()\` results.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.doesNotMatch('foo', /\\d+/);
+
+`;
+
+exports[`prefer-assert-match > invalid(18): import assert from 'node:assert';\nassert.notEqual(false, /\\d+/.test('foo')); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.notEqual(false, /\\d+/.test('foo'));
+
+`;
+
+exports[`prefer-assert-match > invalid(18): import assert from 'node:assert';\nassert.notEqual(false, /\\d+/.test('foo')); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.notEqual(false, /\\d+/.test('foo'));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`assert.match()\` over asserting \`test()\` results.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.match('foo', /\\d+/);
+
+`;
+
+exports[`prefer-assert-match > invalid(19): import {ok, strictEqual, match} from 'node:assert';\nok(/\\d+/.test('foo')); 1`] = `
+
+  1 | import {ok, strictEqual, match} from 'node:assert';
+  2 | ok(/\\d+/.test('foo'));
+
+`;
+
+exports[`prefer-assert-match > invalid(19): import {ok, strictEqual, match} from 'node:assert';\nok(/\\d+/.test('foo')); 2`] = `
+
+Message:
+  1 | import {ok, strictEqual, match} from 'node:assert';
+> 2 | ok(/\\d+/.test('foo'));
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer \`assert.match()\` over asserting \`test()\` results.
+
+`;
+
+exports[`prefer-assert-match > invalid(2): import assert from 'node:assert';\nassert.ok((/\\d+/.test('foo'))); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok((/\\d+/.test('foo')));
+
+`;
+
+exports[`prefer-assert-match > invalid(2): import assert from 'node:assert';\nassert.ok((/\\d+/.test('foo'))); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok((/\\d+/.test('foo')));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`assert.match()\` over asserting \`test()\` results.
+
+`;
+
+exports[`prefer-assert-match > invalid(20): import test from 'node:test';\nimport assert from 'node:assert';\ntest('t', t => { t.assert.ok(/\\d+/.test('foo')); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('t', t => { t.assert.ok(/\\d+/.test('foo')); });
+
+`;
+
+exports[`prefer-assert-match > invalid(20): import test from 'node:test';\nimport assert from 'node:assert';\ntest('t', t => { t.assert.ok(/\\d+/.test('foo')); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | test('t', t => { t.assert.ok(/\\d+/.test('foo')); });
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`assert.match()\` over asserting \`test()\` results.
+
+Output:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('t', t => { t.assert.match('foo', /\\d+/); });
+
+`;
+
+exports[`prefer-assert-match > invalid(21): import test from 'node:test';\ntest('t', t => { t.assert.ok(/\\d+/.test('foo')); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', t => { t.assert.ok(/\\d+/.test('foo')); });
+
+`;
+
+exports[`prefer-assert-match > invalid(21): import test from 'node:test';\ntest('t', t => { t.assert.ok(/\\d+/.test('foo')); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', t => { t.assert.ok(/\\d+/.test('foo')); });
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`assert.match()\` over asserting \`test()\` results.
+
+Output:
+  1 | import test from 'node:test';
+  2 | test('t', t => { t.assert.match('foo', /\\d+/); });
+
+`;
+
+exports[`prefer-assert-match > invalid(22): import assert from 'node:assert/strict';\nassert.ok(/\\d+/.test('foo')); 1`] = `
+
+  1 | import assert from 'node:assert/strict';
+  2 | assert.ok(/\\d+/.test('foo'));
+
+`;
+
+exports[`prefer-assert-match > invalid(22): import assert from 'node:assert/strict';\nassert.ok(/\\d+/.test('foo')); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert/strict';
+> 2 | assert.ok(/\\d+/.test('foo'));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`assert.match()\` over asserting \`test()\` results.
+
+Output:
+  1 | import assert from 'node:assert/strict';
+  2 | assert.match('foo', /\\d+/);
+
+`;
+
+exports[`prefer-assert-match > invalid(23): import assert from 'node:assert';\nassert.ok(/\\d+/.test('foo' as string)); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok(/\\d+/.test('foo' as string));
+
+`;
+
+exports[`prefer-assert-match > invalid(23): import assert from 'node:assert';\nassert.ok(/\\d+/.test('foo' as string)); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok(/\\d+/.test('foo' as string));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`assert.match()\` over asserting \`test()\` results.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.match('foo' as string, /\\d+/);
+
+`;
+
+exports[`prefer-assert-match > invalid(24): import assert from 'node:assert';\nassert.ok(new RegExp('^foo').test('foobar')); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok(new RegExp('^foo').test('foobar'));
+
+`;
+
+exports[`prefer-assert-match > invalid(24): import assert from 'node:assert';\nassert.ok(new RegExp('^foo').test('foobar')); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok(new RegExp('^foo').test('foobar'));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`assert.match()\` over asserting \`test()\` results.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.match('foobar', new RegExp('^foo'));
+
+`;
+
+exports[`prefer-assert-match > invalid(25): import assert from 'node:assert';\nassert.ok(RegExp('^foo').test('foobar')); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok(RegExp('^foo').test('foobar'));
+
+`;
+
+exports[`prefer-assert-match > invalid(25): import assert from 'node:assert';\nassert.ok(RegExp('^foo').test('foobar')); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok(RegExp('^foo').test('foobar'));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`assert.match()\` over asserting \`test()\` results.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.match('foobar', RegExp('^foo'));
+
+`;
+
+exports[`prefer-assert-match > invalid(3): import assert from 'node:assert';\nassert.strictEqual((/\\d+/.test('foo')), true); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual((/\\d+/.test('foo')), true);
+
+`;
+
+exports[`prefer-assert-match > invalid(3): import assert from 'node:assert';\nassert.strictEqual((/\\d+/.test('foo')), true); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.strictEqual((/\\d+/.test('foo')), true);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`assert.match()\` over asserting \`test()\` results.
+
+`;
+
+exports[`prefer-assert-match > invalid(4): import assert from 'node:assert';\nassert.ok(/\\d+/.test('foo')); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok(/\\d+/.test('foo'));
+
+`;
+
+exports[`prefer-assert-match > invalid(4): import assert from 'node:assert';\nassert.ok(/\\d+/.test('foo')); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok(/\\d+/.test('foo'));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`assert.match()\` over asserting \`test()\` results.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.match('foo', /\\d+/);
+
+`;
+
+exports[`prefer-assert-match > invalid(5): import assert from 'node:assert';\nassert.ok(new RegExp('\\\\d+').test('foo')); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok(new RegExp('\\\\d+').test('foo'));
+
+`;
+
+exports[`prefer-assert-match > invalid(5): import assert from 'node:assert';\nassert.ok(new RegExp('\\\\d+').test('foo')); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok(new RegExp('\\\\d+').test('foo'));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`assert.match()\` over asserting \`test()\` results.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.match('foo', new RegExp('\\\\d+'));
+
+`;
+
+exports[`prefer-assert-match > invalid(6): import assert from 'node:assert';\nassert.ok(!/\\d+/.test('foo')); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok(!/\\d+/.test('foo'));
+
+`;
+
+exports[`prefer-assert-match > invalid(6): import assert from 'node:assert';\nassert.ok(!/\\d+/.test('foo')); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok(!/\\d+/.test('foo'));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`assert.doesNotMatch()\` over asserting \`test()\` results.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.doesNotMatch('foo', /\\d+/);
+
+`;
+
+exports[`prefer-assert-match > invalid(7): import assert from 'node:assert';\nassert.ok('foo'.match(/\\d+/)); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok('foo'.match(/\\d+/));
+
+`;
+
+exports[`prefer-assert-match > invalid(7): import assert from 'node:assert';\nassert.ok('foo'.match(/\\d+/)); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok('foo'.match(/\\d+/));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`assert.match()\` over asserting \`match()\` results.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.match('foo', /\\d+/);
+
+`;
+
+exports[`prefer-assert-match > invalid(8): import assert from 'node:assert';\nassert.ok(!'foo'.match(/\\d+/)); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok(!'foo'.match(/\\d+/));
+
+`;
+
+exports[`prefer-assert-match > invalid(8): import assert from 'node:assert';\nassert.ok(!'foo'.match(/\\d+/)); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok(!'foo'.match(/\\d+/));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`assert.doesNotMatch()\` over asserting \`match()\` results.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.doesNotMatch('foo', /\\d+/);
+
+`;
+
+exports[`prefer-assert-match > invalid(9): import assert from 'node:assert';\nassert.strictEqual(/\\d+/.test('foo'), true); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(/\\d+/.test('foo'), true);
+
+`;
+
+exports[`prefer-assert-match > invalid(9): import assert from 'node:assert';\nassert.strictEqual(/\\d+/.test('foo'), true); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.strictEqual(/\\d+/.test('foo'), true);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`assert.match()\` over asserting \`test()\` results.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.match('foo', /\\d+/);
+
+`;

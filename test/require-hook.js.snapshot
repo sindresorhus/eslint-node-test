@@ -1,0 +1,108 @@
+exports[`require-hook > invalid(1): import {test, describe, beforeEach} from 'node:test';\nstartServer();\ntest(\"x\", () => {}); 1`] = `
+
+  1 | import {test, describe, beforeEach} from 'node:test';
+  2 | startServer();
+  3 | test("x", () => {});
+
+`;
+
+exports[`require-hook > invalid(1): import {test, describe, beforeEach} from 'node:test';\nstartServer();\ntest(\"x\", () => {}); 2`] = `
+
+Message:
+  1 | import {test, describe, beforeEach} from 'node:test';
+> 2 | startServer();
+    | ^^^^^^^^^^^^^^ This runs when the file is loaded, not as part of a test. Move it into a \`before\`, \`beforeEach\`, \`after\`, or \`afterEach\` hook.
+  3 | test("x", () => {});
+
+`;
+
+exports[`require-hook > invalid(2): import {test, describe, beforeEach} from 'node:test';\ndescribe(\"s\", () => { seedData(); test(\"x\", () => {}); }); 1`] = `
+
+  1 | import {test, describe, beforeEach} from 'node:test';
+  2 | describe("s", () => { seedData(); test("x", () => {}); });
+
+`;
+
+exports[`require-hook > invalid(2): import {test, describe, beforeEach} from 'node:test';\ndescribe(\"s\", () => { seedData(); test(\"x\", () => {}); }); 2`] = `
+
+Message:
+  1 | import {test, describe, beforeEach} from 'node:test';
+> 2 | describe("s", () => { seedData(); test("x", () => {}); });
+    |                       ^^^^^^^^^^^ This runs when the file is loaded, not as part of a test. Move it into a \`before\`, \`beforeEach\`, \`after\`, or \`afterEach\` hook.
+
+`;
+
+exports[`require-hook > invalid(3): import {test, describe, beforeEach} from 'node:test';\ndatabase.connect();\ntest(\"x\", () => {}); 1`] = `
+
+  1 | import {test, describe, beforeEach} from 'node:test';
+  2 | database.connect();
+  3 | test("x", () => {});
+
+`;
+
+exports[`require-hook > invalid(3): import {test, describe, beforeEach} from 'node:test';\ndatabase.connect();\ntest(\"x\", () => {}); 2`] = `
+
+Message:
+  1 | import {test, describe, beforeEach} from 'node:test';
+> 2 | database.connect();
+    | ^^^^^^^^^^^^^^^^^^^ This runs when the file is loaded, not as part of a test. Move it into a \`before\`, \`beforeEach\`, \`after\`, or \`afterEach\` hook.
+  3 | test("x", () => {});
+
+`;
+
+exports[`require-hook > invalid(4): import {test, describe, beforeEach} from 'node:test';\ndescribe(\"s\", () => { describe(\"inner\", () => { seedData(); test(\"x\", () => {}); }); }); 1`] = `
+
+  1 | import {test, describe, beforeEach} from 'node:test';
+  2 | describe("s", () => { describe("inner", () => { seedData(); test("x", () => {}); }); });
+
+`;
+
+exports[`require-hook > invalid(4): import {test, describe, beforeEach} from 'node:test';\ndescribe(\"s\", () => { describe(\"inner\", () => { seedData(); test(\"x\", () => {}); }); }); 2`] = `
+
+Message:
+  1 | import {test, describe, beforeEach} from 'node:test';
+> 2 | describe("s", () => { describe("inner", () => { seedData(); test("x", () => {}); }); });
+    |                                                 ^^^^^^^^^^^ This runs when the file is loaded, not as part of a test. Move it into a \`before\`, \`beforeEach\`, \`after\`, or \`afterEach\` hook.
+
+`;
+
+exports[`require-hook > invalid(5): import {test, describe, beforeEach} from 'node:test';\nlog(\"loaded\");\ntest(\"x\", () => {}); 1`] = `
+
+Options:
+- allow:
+    - 'debug'
+
+Code:
+  1 | import {test, describe, beforeEach} from 'node:test';
+  2 | log("loaded");
+  3 | test("x", () => {});
+
+`;
+
+exports[`require-hook > invalid(5): import {test, describe, beforeEach} from 'node:test';\nlog(\"loaded\");\ntest(\"x\", () => {}); 2`] = `
+
+Message:
+  1 | import {test, describe, beforeEach} from 'node:test';
+> 2 | log("loaded");
+    | ^^^^^^^^^^^^^^ This runs when the file is loaded, not as part of a test. Move it into a \`before\`, \`beforeEach\`, \`after\`, or \`afterEach\` hook.
+  3 | test("x", () => {});
+
+`;
+
+exports[`require-hook > invalid(6): import {test, describe, beforeEach} from 'node:test';\nstartServer();\ntest(\"x\", () => {}); 1`] = `
+
+  1 | import {test, describe, beforeEach} from 'node:test';
+  2 | startServer();
+  3 | test("x", () => {});
+
+`;
+
+exports[`require-hook > invalid(6): import {test, describe, beforeEach} from 'node:test';\nstartServer();\ntest(\"x\", () => {}); 2`] = `
+
+Message:
+  1 | import {test, describe, beforeEach} from 'node:test';
+> 2 | startServer();
+    | ^^^^^^^^^^^^^^ This runs when the file is loaded, not as part of a test. Move it into a \`before\`, \`beforeEach\`, \`after\`, or \`afterEach\` hook.
+  3 | test("x", () => {});
+
+`;

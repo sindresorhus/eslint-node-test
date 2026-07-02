@@ -1,0 +1,139 @@
+exports[`test-title-format > invalid(1): import test from \"node:test\";\ntest(\"Test something\", () => {}); 1`] = `
+
+Options:
+- format: '^Should'
+
+Code:
+  1 | import test from "node:test";
+  2 | test("Test something", () => {});
+
+`;
+
+exports[`test-title-format > invalid(1): import test from \"node:test\";\ntest(\"Test something\", () => {}); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test("Test something", () => {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test title does not match the required format: \`/^Should/v\`.
+
+`;
+
+exports[`test-title-format > invalid(2): import test from \"node:test\";\ntest(\`Test something\`, () => {}); 1`] = `
+
+Options:
+- format: '^Should'
+
+Code:
+  1 | import test from "node:test";
+  2 | test(\`Test something\`, () => {});
+
+`;
+
+exports[`test-title-format > invalid(2): import test from \"node:test\";\ntest(\`Test something\`, () => {}); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test(\`Test something\`, () => {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test title does not match the required format: \`/^Should/v\`.
+
+`;
+
+exports[`test-title-format > invalid(3): import {describe} from \"node:test\";\ndescribe(\"My suite\", () => {}); 1`] = `
+
+Options:
+- format: '^Should'
+
+Code:
+  1 | import {describe} from "node:test";
+  2 | describe("My suite", () => {});
+
+`;
+
+exports[`test-title-format > invalid(3): import {describe} from \"node:test\";\ndescribe(\"My suite\", () => {}); 2`] = `
+
+Message:
+  1 | import {describe} from "node:test";
+> 2 | describe("My suite", () => {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test title does not match the required format: \`/^Should/v\`.
+
+`;
+
+exports[`test-title-format > invalid(4): import {it} from \"node:test\";\nit(\"Test something\", () => {}); 1`] = `
+
+Options:
+- format: '^Should'
+
+Code:
+  1 | import {it} from "node:test";
+  2 | it("Test something", () => {});
+
+`;
+
+exports[`test-title-format > invalid(4): import {it} from \"node:test\";\nit(\"Test something\", () => {}); 2`] = `
+
+Message:
+  1 | import {it} from "node:test";
+> 2 | it("Test something", () => {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test title does not match the required format: \`/^Should/v\`.
+
+`;
+
+exports[`test-title-format > invalid(5): import {test as myTest} from \"node:test\";\nmyTest(\"Test something\", () => {}); 1`] = `
+
+Options:
+- format: '^Should'
+
+Code:
+  1 | import {test as myTest} from "node:test";
+  2 | myTest("Test something", () => {});
+
+`;
+
+exports[`test-title-format > invalid(5): import {test as myTest} from \"node:test\";\nmyTest(\"Test something\", () => {}); 2`] = `
+
+Message:
+  1 | import {test as myTest} from "node:test";
+> 2 | myTest("Test something", () => {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test title does not match the required format: \`/^Should/v\`.
+
+`;
+
+exports[`test-title-format > invalid(6): import * as nodeTest from \"node:test\";\nnodeTest.test(\"Test something\", () => {}); 1`] = `
+
+Options:
+- format: '^Should'
+
+Code:
+  1 | import * as nodeTest from "node:test";
+  2 | nodeTest.test("Test something", () => {});
+
+`;
+
+exports[`test-title-format > invalid(6): import * as nodeTest from \"node:test\";\nnodeTest.test(\"Test something\", () => {}); 2`] = `
+
+Message:
+  1 | import * as nodeTest from "node:test";
+> 2 | nodeTest.test("Test something", () => {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test title does not match the required format: \`/^Should/v\`.
+
+`;
+
+exports[`test-title-format > invalid(7): import test from \"node:test\";\ntest(\"Test something\", () => {}); 1`] = `
+
+Options:
+- format: '^Should'
+
+Code:
+  1 | import test from "node:test";
+  2 | test("Test something", () => {});
+
+`;
+
+exports[`test-title-format > invalid(7): import test from \"node:test\";\ntest(\"Test something\", () => {}); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test("Test something", () => {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test title does not match the required format: \`/^Should/v\`.
+
+`;

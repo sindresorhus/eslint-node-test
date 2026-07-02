@@ -1,0 +1,241 @@
+exports[`no-commented-tests > invalid(1): // test(\"foo\", () => { 1`] = `
+
+  1 | // test("foo", () => {
+
+`;
+
+exports[`no-commented-tests > invalid(1): // test(\"foo\", () => { 2`] = `
+
+Message:
+> 1 | // test("foo", () => {
+    | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
+
+`;
+
+exports[`no-commented-tests > invalid(10): // test.only(\"foo\", () => {}) 1`] = `
+
+  1 | // test.only("foo", () => {})
+
+`;
+
+exports[`no-commented-tests > invalid(10): // test.only(\"foo\", () => {}) 2`] = `
+
+Message:
+> 1 | // test.only("foo", () => {})
+    | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
+
+`;
+
+exports[`no-commented-tests > invalid(11): // test.skip(\"foo\", () => {}) 1`] = `
+
+  1 | // test.skip("foo", () => {})
+
+`;
+
+exports[`no-commented-tests > invalid(11): // test.skip(\"foo\", () => {}) 2`] = `
+
+Message:
+> 1 | // test.skip("foo", () => {})
+    | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
+
+`;
+
+exports[`no-commented-tests > invalid(12): // it.only(\"foo\", () => {}) 1`] = `
+
+  1 | // it.only("foo", () => {})
+
+`;
+
+exports[`no-commented-tests > invalid(12): // it.only(\"foo\", () => {}) 2`] = `
+
+Message:
+> 1 | // it.only("foo", () => {})
+    | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
+
+`;
+
+exports[`no-commented-tests > invalid(13): /* test(\"foo\", () => {}) */ 1`] = `
+
+  1 | /* test("foo", () => {}) */
+
+`;
+
+exports[`no-commented-tests > invalid(13): /* test(\"foo\", () => {}) */ 2`] = `
+
+Message:
+> 1 | /* test("foo", () => {}) */
+    | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
+
+`;
+
+exports[`no-commented-tests > invalid(14): /*\n * test(\"foo\", () => {\n */ 1`] = `
+
+  1 | /*
+  2 |  * test("foo", () => {
+  3 |  */
+
+`;
+
+exports[`no-commented-tests > invalid(14): /*\n * test(\"foo\", () => {\n */ 2`] = `
+
+Message:
+  1 | /*
+> 2 |  * test("foo", () => {
+    | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
+  3 |  */
+
+`;
+
+exports[`no-commented-tests > invalid(15): // describe.only(\"group\", () => {}) 1`] = `
+
+  1 | // describe.only("group", () => {})
+
+`;
+
+exports[`no-commented-tests > invalid(15): // describe.only(\"group\", () => {}) 2`] = `
+
+Message:
+> 1 | // describe.only("group", () => {})
+    | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
+
+`;
+
+exports[`no-commented-tests > invalid(16): // it.todo(\"foo\", () => {}) 1`] = `
+
+  1 | // it.todo("foo", () => {})
+
+`;
+
+exports[`no-commented-tests > invalid(16): // it.todo(\"foo\", () => {}) 2`] = `
+
+Message:
+> 1 | // it.todo("foo", () => {})
+    | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
+
+`;
+
+exports[`no-commented-tests > invalid(17): // test.todo(\"foo\", () => {}) 1`] = `
+
+  1 | // test.todo("foo", () => {})
+
+`;
+
+exports[`no-commented-tests > invalid(17): // test.todo(\"foo\", () => {}) 2`] = `
+
+Message:
+> 1 | // test.todo("foo", () => {})
+    | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
+
+`;
+
+exports[`no-commented-tests > invalid(2): // it(\"foo\", () => { 1`] = `
+
+  1 | // it("foo", () => {
+
+`;
+
+exports[`no-commented-tests > invalid(2): // it(\"foo\", () => { 2`] = `
+
+Message:
+> 1 | // it("foo", () => {
+    | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
+
+`;
+
+exports[`no-commented-tests > invalid(3): // describe(\"group\", () => { 1`] = `
+
+  1 | // describe("group", () => {
+
+`;
+
+exports[`no-commented-tests > invalid(3): // describe(\"group\", () => { 2`] = `
+
+Message:
+> 1 | // describe("group", () => {
+    | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
+
+`;
+
+exports[`no-commented-tests > invalid(4): // suite(\"group\", () => { 1`] = `
+
+  1 | // suite("group", () => {
+
+`;
+
+exports[`no-commented-tests > invalid(4): // suite(\"group\", () => { 2`] = `
+
+Message:
+> 1 | // suite("group", () => {
+    | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
+
+`;
+
+exports[`no-commented-tests > invalid(5): // before(() => { 1`] = `
+
+  1 | // before(() => {
+
+`;
+
+exports[`no-commented-tests > invalid(5): // before(() => { 2`] = `
+
+Message:
+> 1 | // before(() => {
+    | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
+
+`;
+
+exports[`no-commented-tests > invalid(6): // after(() => { 1`] = `
+
+  1 | // after(() => {
+
+`;
+
+exports[`no-commented-tests > invalid(6): // after(() => { 2`] = `
+
+Message:
+> 1 | // after(() => {
+    | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
+
+`;
+
+exports[`no-commented-tests > invalid(7): // beforeEach(() => { 1`] = `
+
+  1 | // beforeEach(() => {
+
+`;
+
+exports[`no-commented-tests > invalid(7): // beforeEach(() => { 2`] = `
+
+Message:
+> 1 | // beforeEach(() => {
+    | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
+
+`;
+
+exports[`no-commented-tests > invalid(8): // afterEach(() => { 1`] = `
+
+  1 | // afterEach(() => {
+
+`;
+
+exports[`no-commented-tests > invalid(8): // afterEach(() => { 2`] = `
+
+Message:
+> 1 | // afterEach(() => {
+    | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
+
+`;
+
+exports[`no-commented-tests > invalid(9): //test(\"foo\", () => {}) 1`] = `
+
+  1 | //test("foo", () => {})
+
+`;
+
+exports[`no-commented-tests > invalid(9): //test(\"foo\", () => {}) 2`] = `
+
+Message:
+> 1 | //test("foo", () => {})
+    | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
+
+`;

@@ -1,0 +1,184 @@
+exports[`valid-describe-callback > invalid(1): import {describe, suite} from 'node:test';\ndescribe(\"s\", t => {}); 1`] = `
+
+  1 | import {describe, suite} from 'node:test';
+  2 | describe("s", t => {});
+
+`;
+
+exports[`valid-describe-callback > invalid(1): import {describe, suite} from 'node:test';\ndescribe(\"s\", t => {}); 2`] = `
+
+Message:
+  1 | import {describe, suite} from 'node:test';
+> 2 | describe("s", t => {});
+    |               ^ The \`describe\` callback is called with no arguments. The test context is only passed to \`test\`/\`it\` callbacks.
+
+`;
+
+exports[`valid-describe-callback > invalid(10): import test from 'node:test';\ntest.describe(\"s\", t => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test.describe("s", t => {});
+
+`;
+
+exports[`valid-describe-callback > invalid(10): import test from 'node:test';\ntest.describe(\"s\", t => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test.describe("s", t => {});
+    |                    ^ The \`describe\` callback is called with no arguments. The test context is only passed to \`test\`/\`it\` callbacks.
+
+`;
+
+exports[`valid-describe-callback > invalid(11): import {describe, suite} from 'node:test';\ndescribe(\"s\", (t: SuiteContext) => {}); 1`] = `
+
+  1 | import {describe, suite} from 'node:test';
+  2 | describe("s", (t: SuiteContext) => {});
+
+`;
+
+exports[`valid-describe-callback > invalid(11): import {describe, suite} from 'node:test';\ndescribe(\"s\", (t: SuiteContext) => {}); 2`] = `
+
+Message:
+  1 | import {describe, suite} from 'node:test';
+> 2 | describe("s", (t: SuiteContext) => {});
+    |                ^^^^^^^^^^^^^^^ The \`describe\` callback is called with no arguments. The test context is only passed to \`test\`/\`it\` callbacks.
+
+`;
+
+exports[`valid-describe-callback > invalid(2): import {describe, suite} from 'node:test';\ndescribe(\"s\", function (t) {}); 1`] = `
+
+  1 | import {describe, suite} from 'node:test';
+  2 | describe("s", function (t) {});
+
+`;
+
+exports[`valid-describe-callback > invalid(2): import {describe, suite} from 'node:test';\ndescribe(\"s\", function (t) {}); 2`] = `
+
+Message:
+  1 | import {describe, suite} from 'node:test';
+> 2 | describe("s", function (t) {});
+    |                         ^ The \`describe\` callback is called with no arguments. The test context is only passed to \`test\`/\`it\` callbacks.
+
+`;
+
+exports[`valid-describe-callback > invalid(3): import {describe, suite} from 'node:test';\nsuite(\"s\", t => {}); 1`] = `
+
+  1 | import {describe, suite} from 'node:test';
+  2 | suite("s", t => {});
+
+`;
+
+exports[`valid-describe-callback > invalid(3): import {describe, suite} from 'node:test';\nsuite(\"s\", t => {}); 2`] = `
+
+Message:
+  1 | import {describe, suite} from 'node:test';
+> 2 | suite("s", t => {});
+    |            ^ The \`suite\` callback is called with no arguments. The test context is only passed to \`test\`/\`it\` callbacks.
+
+`;
+
+exports[`valid-describe-callback > invalid(4): import {describe, suite} from 'node:test';\ndescribe(\"s\", ({name}) => {}); 1`] = `
+
+  1 | import {describe, suite} from 'node:test';
+  2 | describe("s", ({name}) => {});
+
+`;
+
+exports[`valid-describe-callback > invalid(4): import {describe, suite} from 'node:test';\ndescribe(\"s\", ({name}) => {}); 2`] = `
+
+Message:
+  1 | import {describe, suite} from 'node:test';
+> 2 | describe("s", ({name}) => {});
+    |                ^^^^^^ The \`describe\` callback is called with no arguments. The test context is only passed to \`test\`/\`it\` callbacks.
+
+`;
+
+exports[`valid-describe-callback > invalid(5): import {describe, suite} from 'node:test';\ndescribe(\"s\", () => test(\"x\", () => {})); 1`] = `
+
+  1 | import {describe, suite} from 'node:test';
+  2 | describe("s", () => test("x", () => {}));
+
+`;
+
+exports[`valid-describe-callback > invalid(5): import {describe, suite} from 'node:test';\ndescribe(\"s\", () => test(\"x\", () => {})); 2`] = `
+
+Message:
+  1 | import {describe, suite} from 'node:test';
+> 2 | describe("s", () => test("x", () => {}));
+    |                     ^^^^^^^^^^^^^^^^^^^ The \`describe\` callback should not return a value, \`node:test\` ignores it. Use a block body.
+
+`;
+
+exports[`valid-describe-callback > invalid(6): import {describe, suite} from 'node:test';\ndescribe(\"s\", t => test(\"x\", () => {})); 1`] = `
+
+  1 | import {describe, suite} from 'node:test';
+  2 | describe("s", t => test("x", () => {}));
+
+`;
+
+exports[`valid-describe-callback > invalid(6): import {describe, suite} from 'node:test';\ndescribe(\"s\", t => test(\"x\", () => {})); 2`] = `
+
+Message:
+  1 | import {describe, suite} from 'node:test';
+> 2 | describe("s", t => test("x", () => {}));
+    |               ^ The \`describe\` callback is called with no arguments. The test context is only passed to \`test\`/\`it\` callbacks.
+
+`;
+
+exports[`valid-describe-callback > invalid(6): import {describe, suite} from 'node:test';\ndescribe(\"s\", t => test(\"x\", () => {})); 3`] = `
+
+Message:
+  1 | import {describe, suite} from 'node:test';
+> 2 | describe("s", t => test("x", () => {}));
+    |                    ^^^^^^^^^^^^^^^^^^^ The \`describe\` callback should not return a value, \`node:test\` ignores it. Use a block body.
+
+`;
+
+exports[`valid-describe-callback > invalid(7): import {describe, suite} from 'node:test';\ndescribe.only(\"s\", t => {}); 1`] = `
+
+  1 | import {describe, suite} from 'node:test';
+  2 | describe.only("s", t => {});
+
+`;
+
+exports[`valid-describe-callback > invalid(7): import {describe, suite} from 'node:test';\ndescribe.only(\"s\", t => {}); 2`] = `
+
+Message:
+  1 | import {describe, suite} from 'node:test';
+> 2 | describe.only("s", t => {});
+    |                    ^ The \`describe\` callback is called with no arguments. The test context is only passed to \`test\`/\`it\` callbacks.
+
+`;
+
+exports[`valid-describe-callback > invalid(8): import {describe, suite} from 'node:test';\ndescribe.skip(\"s\", t => {}); 1`] = `
+
+  1 | import {describe, suite} from 'node:test';
+  2 | describe.skip("s", t => {});
+
+`;
+
+exports[`valid-describe-callback > invalid(8): import {describe, suite} from 'node:test';\ndescribe.skip(\"s\", t => {}); 2`] = `
+
+Message:
+  1 | import {describe, suite} from 'node:test';
+> 2 | describe.skip("s", t => {});
+    |                    ^ The \`describe\` callback is called with no arguments. The test context is only passed to \`test\`/\`it\` callbacks.
+
+`;
+
+exports[`valid-describe-callback > invalid(9): import * as nodeTest from 'node:test';\nnodeTest.describe(\"s\", t => {}); 1`] = `
+
+  1 | import * as nodeTest from 'node:test';
+  2 | nodeTest.describe("s", t => {});
+
+`;
+
+exports[`valid-describe-callback > invalid(9): import * as nodeTest from 'node:test';\nnodeTest.describe(\"s\", t => {}); 2`] = `
+
+Message:
+  1 | import * as nodeTest from 'node:test';
+> 2 | nodeTest.describe("s", t => {});
+    |                        ^ The \`describe\` callback is called with no arguments. The test context is only passed to \`test\`/\`it\` callbacks.
+
+`;

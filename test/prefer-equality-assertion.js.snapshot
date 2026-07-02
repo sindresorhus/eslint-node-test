@@ -1,0 +1,263 @@
+exports[`prefer-equality-assertion > invalid(1): import assert from 'node:assert';\nassert(a === b); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert(a === b);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(1): import assert from 'node:assert';\nassert(a === b); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert(a === b);
+    | ^^^^^^^^^^^^^^^ Prefer \`strictEqual\` over \`ok\` with a \`===\` comparison for a clearer failure message.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(a, b);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(10): import test from 'node:test';\ntest('t', t => { t.assert.ok(a === b); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', t => { t.assert.ok(a === b); });
+
+`;
+
+exports[`prefer-equality-assertion > invalid(10): import test from 'node:test';\ntest('t', t => { t.assert.ok(a === b); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', t => { t.assert.ok(a === b); });
+    |                  ^^^^^^^^^^^^^^^^^^^^ Prefer \`strictEqual\` over \`ok\` with a \`===\` comparison for a clearer failure message.
+
+Output:
+  1 | import test from 'node:test';
+  2 | test('t', t => { t.assert.strictEqual(a, b); });
+
+`;
+
+exports[`prefer-equality-assertion > invalid(11): import assert from 'node:assert';\nassert.ok((a === b)); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok((a === b));
+
+`;
+
+exports[`prefer-equality-assertion > invalid(11): import assert from 'node:assert';\nassert.ok((a === b)); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok((a === b));
+    | ^^^^^^^^^^^^^^^^^^^^ Prefer \`strictEqual\` over \`ok\` with a \`===\` comparison for a clearer failure message.
+
+`;
+
+exports[`prefer-equality-assertion > invalid(12): import assert from 'node:assert';\nassert.ok(a === /* note */ b); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok(a === /* note */ b);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(12): import assert from 'node:assert';\nassert.ok(a === /* note */ b); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok(a === /* note */ b);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`strictEqual\` over \`ok\` with a \`===\` comparison for a clearer failure message.
+
+`;
+
+exports[`prefer-equality-assertion > invalid(13): import assert from 'node:assert';\nassert.ok((a as number) === b); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok((a as number) === b);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(13): import assert from 'node:assert';\nassert.ok((a as number) === b); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok((a as number) === b);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`strictEqual\` over \`ok\` with a \`===\` comparison for a clearer failure message.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual((a as number), b);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(14): import assert from 'node:assert';\nassert.ok((a === b) as boolean); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok((a === b) as boolean);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(14): import assert from 'node:assert';\nassert.ok((a === b) as boolean); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok((a === b) as boolean);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`strictEqual\` over \`ok\` with a \`===\` comparison for a clearer failure message.
+
+`;
+
+exports[`prefer-equality-assertion > invalid(2): import assert from 'node:assert';\nassert.ok(a === b); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok(a === b);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(2): import assert from 'node:assert';\nassert.ok(a === b); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok(a === b);
+    | ^^^^^^^^^^^^^^^^^^ Prefer \`strictEqual\` over \`ok\` with a \`===\` comparison for a clearer failure message.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(a, b);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(3): import assert from 'node:assert';\nassert.ok(a !== b); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok(a !== b);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(3): import assert from 'node:assert';\nassert.ok(a !== b); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok(a !== b);
+    | ^^^^^^^^^^^^^^^^^^ Prefer \`notStrictEqual\` over \`ok\` with a \`!==\` comparison for a clearer failure message.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.notStrictEqual(a, b);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(4): import assert from 'node:assert';\nassert.ok(a == b); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok(a == b);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(4): import assert from 'node:assert';\nassert.ok(a == b); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok(a == b);
+    | ^^^^^^^^^^^^^^^^^ Prefer \`equal\` over \`ok\` with a \`==\` comparison for a clearer failure message.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.equal(a, b);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(5): import assert from 'node:assert';\nassert.ok(a != b); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok(a != b);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(5): import assert from 'node:assert';\nassert.ok(a != b); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok(a != b);
+    | ^^^^^^^^^^^^^^^^^ Prefer \`notEqual\` over \`ok\` with a \`!=\` comparison for a clearer failure message.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.notEqual(a, b);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(6): import assert from 'node:assert';\nassert.ok(a === b, \"should match\"); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok(a === b, "should match");
+
+`;
+
+exports[`prefer-equality-assertion > invalid(6): import assert from 'node:assert';\nassert.ok(a === b, \"should match\"); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok(a === b, "should match");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`strictEqual\` over \`ok\` with a \`===\` comparison for a clearer failure message.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(a, b, "should match");
+
+`;
+
+exports[`prefer-equality-assertion > invalid(7): import assert from 'node:assert';\nassert.ok(foo() === bar.baz); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok(foo() === bar.baz);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(7): import assert from 'node:assert';\nassert.ok(foo() === bar.baz); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok(foo() === bar.baz);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`strictEqual\` over \`ok\` with a \`===\` comparison for a clearer failure message.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(foo(), bar.baz);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(8): import assert from 'node:assert';\nassert.ok(left === right === third); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok(left === right === third);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(8): import assert from 'node:assert';\nassert.ok(left === right === third); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok(left === right === third);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`strictEqual\` over \`ok\` with a \`===\` comparison for a clearer failure message.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(left === right, third);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(9): import {ok} from 'node:assert';\nok(a === b); 1`] = `
+
+  1 | import {ok} from 'node:assert';
+  2 | ok(a === b);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(9): import {ok} from 'node:assert';\nok(a === b); 2`] = `
+
+Message:
+  1 | import {ok} from 'node:assert';
+> 2 | ok(a === b);
+    | ^^^^^^^^^^^ Prefer \`strictEqual\` over \`ok\` with a \`===\` comparison for a clearer failure message.
+
+`;

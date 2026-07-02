@@ -1,0 +1,191 @@
+exports[`no-identical-assertion-arguments > invalid(1): import assert from 'node:assert';\nassert.strictEqual(x, x); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(x, x);
+
+`;
+
+exports[`no-identical-assertion-arguments > invalid(1): import assert from 'node:assert';\nassert.strictEqual(x, x); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.strictEqual(x, x);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Both arguments are the same, so this assertion always passes.
+
+`;
+
+exports[`no-identical-assertion-arguments > invalid(10): import assert from 'node:assert';\nassert.strictEqual((x), x); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual((x), x);
+
+`;
+
+exports[`no-identical-assertion-arguments > invalid(10): import assert from 'node:assert';\nassert.strictEqual((x), x); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.strictEqual((x), x);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Both arguments are the same, so this assertion always passes.
+
+`;
+
+exports[`no-identical-assertion-arguments > invalid(11): import * as assert from 'node:assert';\nassert.strictEqual(x, x); 1`] = `
+
+  1 | import * as assert from 'node:assert';
+  2 | assert.strictEqual(x, x);
+
+`;
+
+exports[`no-identical-assertion-arguments > invalid(11): import * as assert from 'node:assert';\nassert.strictEqual(x, x); 2`] = `
+
+Message:
+  1 | import * as assert from 'node:assert';
+> 2 | assert.strictEqual(x, x);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Both arguments are the same, so this assertion always passes.
+
+`;
+
+exports[`no-identical-assertion-arguments > invalid(12): import assert from 'node:assert';\nassert.strictEqual(x as Foo, x); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(x as Foo, x);
+
+`;
+
+exports[`no-identical-assertion-arguments > invalid(12): import assert from 'node:assert';\nassert.strictEqual(x as Foo, x); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.strictEqual(x as Foo, x);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Both arguments are the same, so this assertion always passes.
+
+`;
+
+exports[`no-identical-assertion-arguments > invalid(2): import assert from 'node:assert';\nassert.equal(x, x); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.equal(x, x);
+
+`;
+
+exports[`no-identical-assertion-arguments > invalid(2): import assert from 'node:assert';\nassert.equal(x, x); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.equal(x, x);
+    | ^^^^^^^^^^^^^^^^^^ Both arguments are the same, so this assertion always passes.
+
+`;
+
+exports[`no-identical-assertion-arguments > invalid(3): import assert from 'node:assert';\nassert.deepStrictEqual(value, value); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.deepStrictEqual(value, value);
+
+`;
+
+exports[`no-identical-assertion-arguments > invalid(3): import assert from 'node:assert';\nassert.deepStrictEqual(value, value); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.deepStrictEqual(value, value);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Both arguments are the same, so this assertion always passes.
+
+`;
+
+exports[`no-identical-assertion-arguments > invalid(4): import assert from 'node:assert';\nassert.strictEqual(obj.a, obj.a); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(obj.a, obj.a);
+
+`;
+
+exports[`no-identical-assertion-arguments > invalid(4): import assert from 'node:assert';\nassert.strictEqual(obj.a, obj.a); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.strictEqual(obj.a, obj.a);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Both arguments are the same, so this assertion always passes.
+
+`;
+
+exports[`no-identical-assertion-arguments > invalid(5): import assert from 'node:assert';\nassert.notStrictEqual(x, x); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.notStrictEqual(x, x);
+
+`;
+
+exports[`no-identical-assertion-arguments > invalid(5): import assert from 'node:assert';\nassert.notStrictEqual(x, x); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.notStrictEqual(x, x);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Both arguments are the same, so this assertion always fails.
+
+`;
+
+exports[`no-identical-assertion-arguments > invalid(6): import assert from 'node:assert';\nassert.notDeepEqual(obj.a, obj.a); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.notDeepEqual(obj.a, obj.a);
+
+`;
+
+exports[`no-identical-assertion-arguments > invalid(6): import assert from 'node:assert';\nassert.notDeepEqual(obj.a, obj.a); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.notDeepEqual(obj.a, obj.a);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Both arguments are the same, so this assertion always fails.
+
+`;
+
+exports[`no-identical-assertion-arguments > invalid(7): import assert from 'node:assert';\nassert.strictEqual(x, x, \"should match\"); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(x, x, "should match");
+
+`;
+
+exports[`no-identical-assertion-arguments > invalid(7): import assert from 'node:assert';\nassert.strictEqual(x, x, \"should match\"); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.strictEqual(x, x, "should match");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Both arguments are the same, so this assertion always passes.
+
+`;
+
+exports[`no-identical-assertion-arguments > invalid(8): import {strictEqual} from 'node:assert';\nstrictEqual(x, x); 1`] = `
+
+  1 | import {strictEqual} from 'node:assert';
+  2 | strictEqual(x, x);
+
+`;
+
+exports[`no-identical-assertion-arguments > invalid(8): import {strictEqual} from 'node:assert';\nstrictEqual(x, x); 2`] = `
+
+Message:
+  1 | import {strictEqual} from 'node:assert';
+> 2 | strictEqual(x, x);
+    | ^^^^^^^^^^^^^^^^^ Both arguments are the same, so this assertion always passes.
+
+`;
+
+exports[`no-identical-assertion-arguments > invalid(9): import test from 'node:test';\ntest(\"x\", t => { t.assert.strictEqual(value, value); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("x", t => { t.assert.strictEqual(value, value); });
+
+`;
+
+exports[`no-identical-assertion-arguments > invalid(9): import test from 'node:test';\ntest(\"x\", t => { t.assert.strictEqual(value, value); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("x", t => { t.assert.strictEqual(value, value); });
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Both arguments are the same, so this assertion always passes.
+
+`;

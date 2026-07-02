@@ -1,0 +1,125 @@
+exports[`no-standalone-assert > invalid(1): import test from 'node:test';\nimport assert from 'node:assert';\nassert.ok(value); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | assert.ok(value);
+
+`;
+
+exports[`no-standalone-assert > invalid(1): import test from 'node:test';\nimport assert from 'node:assert';\nassert.ok(value); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | assert.ok(value);
+    | ^^^^^^^^^^^^^^^^ Assertion runs when the module is loaded, not as part of a test. Move it into a test or hook.
+
+`;
+
+exports[`no-standalone-assert > invalid(2): import test from 'node:test';\nimport assert from 'node:assert';\nif (condition) { assert.ok(value); } 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | if (condition) { assert.ok(value); }
+
+`;
+
+exports[`no-standalone-assert > invalid(2): import test from 'node:test';\nimport assert from 'node:assert';\nif (condition) { assert.ok(value); } 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | if (condition) { assert.ok(value); }
+    |                  ^^^^^^^^^^^^^^^^ Assertion runs when the module is loaded, not as part of a test. Move it into a test or hook.
+
+`;
+
+exports[`no-standalone-assert > invalid(3): import test from 'node:test';\nimport assert from 'node:assert';\nfor (const item of items) { assert.strictEqual(item, 1); } 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | for (const item of items) { assert.strictEqual(item, 1); }
+
+`;
+
+exports[`no-standalone-assert > invalid(3): import test from 'node:test';\nimport assert from 'node:assert';\nfor (const item of items) { assert.strictEqual(item, 1); } 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | for (const item of items) { assert.strictEqual(item, 1); }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion runs when the module is loaded, not as part of a test. Move it into a test or hook.
+
+`;
+
+exports[`no-standalone-assert > invalid(4): import test from 'node:test';\nimport assert from 'node:assert';\nassert(value); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | assert(value);
+
+`;
+
+exports[`no-standalone-assert > invalid(4): import test from 'node:test';\nimport assert from 'node:assert';\nassert(value); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | assert(value);
+    | ^^^^^^^^^^^^^ Assertion runs when the module is loaded, not as part of a test. Move it into a test or hook.
+
+`;
+
+exports[`no-standalone-assert > invalid(5): import test from 'node:test';\nimport {ok} from 'node:assert';\nok(value); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import {ok} from 'node:assert';
+  3 | ok(value);
+
+`;
+
+exports[`no-standalone-assert > invalid(5): import test from 'node:test';\nimport {ok} from 'node:assert';\nok(value); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import {ok} from 'node:assert';
+> 3 | ok(value);
+    | ^^^^^^^^^ Assertion runs when the module is loaded, not as part of a test. Move it into a test or hook.
+
+`;
+
+exports[`no-standalone-assert > invalid(6): import * as nodeTest from 'node:test';\nimport * as assert from 'node:assert';\nassert.ok(value); 1`] = `
+
+  1 | import * as nodeTest from 'node:test';
+  2 | import * as assert from 'node:assert';
+  3 | assert.ok(value);
+
+`;
+
+exports[`no-standalone-assert > invalid(6): import * as nodeTest from 'node:test';\nimport * as assert from 'node:assert';\nassert.ok(value); 2`] = `
+
+Message:
+  1 | import * as nodeTest from 'node:test';
+  2 | import * as assert from 'node:assert';
+> 3 | assert.ok(value);
+    | ^^^^^^^^^^^^^^^^ Assertion runs when the module is loaded, not as part of a test. Move it into a test or hook.
+
+`;
+
+exports[`no-standalone-assert > invalid(7): import test from 'node:test';\nimport assert from 'node:assert';\nassert.ok(value as boolean); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | assert.ok(value as boolean);
+
+`;
+
+exports[`no-standalone-assert > invalid(7): import test from 'node:test';\nimport assert from 'node:assert';\nassert.ok(value as boolean); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | assert.ok(value as boolean);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion runs when the module is loaded, not as part of a test. Move it into a test or hook.
+
+`;

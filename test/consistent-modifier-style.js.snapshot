@@ -1,0 +1,103 @@
+exports[`consistent-modifier-style > invalid(1): import test from 'node:test';\ntest('t', {skip: true}, () => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', {skip: true}, () => {});
+
+`;
+
+exports[`consistent-modifier-style > invalid(1): import test from 'node:test';\ntest('t', {skip: true}, () => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', {skip: true}, () => {});
+    |            ^^^^^^^^^^ Use the chained modifier \`.skip\` instead of the \`skip\` option.
+
+`;
+
+exports[`consistent-modifier-style > invalid(2): import test from 'node:test';\ntest('t', {only: true}, () => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', {only: true}, () => {});
+
+`;
+
+exports[`consistent-modifier-style > invalid(2): import test from 'node:test';\ntest('t', {only: true}, () => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', {only: true}, () => {});
+    |            ^^^^^^^^^^ Use the chained modifier \`.only\` instead of the \`only\` option.
+
+`;
+
+exports[`consistent-modifier-style > invalid(3): import test from 'node:test';\ntest('t', {todo: true}, () => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', {todo: true}, () => {});
+
+`;
+
+exports[`consistent-modifier-style > invalid(3): import test from 'node:test';\ntest('t', {todo: true}, () => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', {todo: true}, () => {});
+    |            ^^^^^^^^^^ Use the chained modifier \`.todo\` instead of the \`todo\` option.
+
+`;
+
+exports[`consistent-modifier-style > invalid(4): import test from 'node:test';\ntest.skip('t', () => {}); 1`] = `
+
+Options:
+- style: 'options'
+
+Code:
+  1 | import test from 'node:test';
+  2 | test.skip('t', () => {});
+
+`;
+
+exports[`consistent-modifier-style > invalid(4): import test from 'node:test';\ntest.skip('t', () => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test.skip('t', () => {});
+    |      ^^^^ Use the \`skip\` option instead of the chained \`.skip\`.
+
+`;
+
+exports[`consistent-modifier-style > invalid(5): import test from 'node:test';\ntest.only('t', () => {}); 1`] = `
+
+Options:
+- style: 'options'
+
+Code:
+  1 | import test from 'node:test';
+  2 | test.only('t', () => {});
+
+`;
+
+exports[`consistent-modifier-style > invalid(5): import test from 'node:test';\ntest.only('t', () => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test.only('t', () => {});
+    |      ^^^^ Use the \`only\` option instead of the chained \`.only\`.
+
+`;
+
+exports[`consistent-modifier-style > invalid(6): import {describe} from 'node:test';\ndescribe('s', {only: true}, () => {}); 1`] = `
+
+  1 | import {describe} from 'node:test';
+  2 | describe('s', {only: true}, () => {});
+
+`;
+
+exports[`consistent-modifier-style > invalid(6): import {describe} from 'node:test';\ndescribe('s', {only: true}, () => {}); 2`] = `
+
+Message:
+  1 | import {describe} from 'node:test';
+> 2 | describe('s', {only: true}, () => {});
+    |                ^^^^^^^^^^ Use the chained modifier \`.only\` instead of the \`only\` option.
+
+`;

@@ -1,0 +1,127 @@
+exports[`no-conditional-in-test > invalid(1): import {test, describe, beforeEach} from 'node:test';\ntest(\"x\", () => { if (a) { assert.ok(b); } }); 1`] = `
+
+  1 | import {test, describe, beforeEach} from 'node:test';
+  2 | test("x", () => { if (a) { assert.ok(b); } });
+
+`;
+
+exports[`no-conditional-in-test > invalid(1): import {test, describe, beforeEach} from 'node:test';\ntest(\"x\", () => { if (a) { assert.ok(b); } }); 2`] = `
+
+Message:
+  1 | import {test, describe, beforeEach} from 'node:test';
+> 2 | test("x", () => { if (a) { assert.ok(b); } });
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^ Avoid conditional logic in a test; a test should run the same way every time.
+
+`;
+
+exports[`no-conditional-in-test > invalid(2): import {test, describe, beforeEach} from 'node:test';\ntest(\"x\", () => { if (a) { f(); } else { g(); } }); 1`] = `
+
+  1 | import {test, describe, beforeEach} from 'node:test';
+  2 | test("x", () => { if (a) { f(); } else { g(); } });
+
+`;
+
+exports[`no-conditional-in-test > invalid(2): import {test, describe, beforeEach} from 'node:test';\ntest(\"x\", () => { if (a) { f(); } else { g(); } }); 2`] = `
+
+Message:
+  1 | import {test, describe, beforeEach} from 'node:test';
+> 2 | test("x", () => { if (a) { f(); } else { g(); } });
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid conditional logic in a test; a test should run the same way every time.
+
+`;
+
+exports[`no-conditional-in-test > invalid(3): import {test, describe, beforeEach} from 'node:test';\ntest(\"x\", () => { const value = a ? 1 : 2; }); 1`] = `
+
+  1 | import {test, describe, beforeEach} from 'node:test';
+  2 | test("x", () => { const value = a ? 1 : 2; });
+
+`;
+
+exports[`no-conditional-in-test > invalid(3): import {test, describe, beforeEach} from 'node:test';\ntest(\"x\", () => { const value = a ? 1 : 2; }); 2`] = `
+
+Message:
+  1 | import {test, describe, beforeEach} from 'node:test';
+> 2 | test("x", () => { const value = a ? 1 : 2; });
+    |                                 ^^^^^^^^^ Avoid conditional logic in a test; a test should run the same way every time.
+
+`;
+
+exports[`no-conditional-in-test > invalid(4): import {test, describe, beforeEach} from 'node:test';\ntest(\"x\", () => { switch (a) { case 1: break; } }); 1`] = `
+
+  1 | import {test, describe, beforeEach} from 'node:test';
+  2 | test("x", () => { switch (a) { case 1: break; } });
+
+`;
+
+exports[`no-conditional-in-test > invalid(4): import {test, describe, beforeEach} from 'node:test';\ntest(\"x\", () => { switch (a) { case 1: break; } }); 2`] = `
+
+Message:
+  1 | import {test, describe, beforeEach} from 'node:test';
+> 2 | test("x", () => { switch (a) { case 1: break; } });
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid conditional logic in a test; a test should run the same way every time.
+
+`;
+
+exports[`no-conditional-in-test > invalid(5): import {test, describe, beforeEach} from 'node:test';\nbeforeEach(() => { if (a) { setup(); } }); 1`] = `
+
+  1 | import {test, describe, beforeEach} from 'node:test';
+  2 | beforeEach(() => { if (a) { setup(); } });
+
+`;
+
+exports[`no-conditional-in-test > invalid(5): import {test, describe, beforeEach} from 'node:test';\nbeforeEach(() => { if (a) { setup(); } }); 2`] = `
+
+Message:
+  1 | import {test, describe, beforeEach} from 'node:test';
+> 2 | beforeEach(() => { if (a) { setup(); } });
+    |                    ^^^^^^^^^^^^^^^^^^^ Avoid conditional logic in a test; a test should run the same way every time.
+
+`;
+
+exports[`no-conditional-in-test > invalid(6): import {test, describe, beforeEach} from 'node:test';\ndescribe(\"s\", () => { test(\"x\", () => { if (a) { f(); } }); }); 1`] = `
+
+  1 | import {test, describe, beforeEach} from 'node:test';
+  2 | describe("s", () => { test("x", () => { if (a) { f(); } }); });
+
+`;
+
+exports[`no-conditional-in-test > invalid(6): import {test, describe, beforeEach} from 'node:test';\ndescribe(\"s\", () => { test(\"x\", () => { if (a) { f(); } }); }); 2`] = `
+
+Message:
+  1 | import {test, describe, beforeEach} from 'node:test';
+> 2 | describe("s", () => { test("x", () => { if (a) { f(); } }); });
+    |                                         ^^^^^^^^^^^^^^^ Avoid conditional logic in a test; a test should run the same way every time.
+
+`;
+
+exports[`no-conditional-in-test > invalid(7): import {it} from 'node:test';\nit(\"x\", () => { if (a) { f(); } }); 1`] = `
+
+  1 | import {it} from 'node:test';
+  2 | it("x", () => { if (a) { f(); } });
+
+`;
+
+exports[`no-conditional-in-test > invalid(7): import {it} from 'node:test';\nit(\"x\", () => { if (a) { f(); } }); 2`] = `
+
+Message:
+  1 | import {it} from 'node:test';
+> 2 | it("x", () => { if (a) { f(); } });
+    |                 ^^^^^^^^^^^^^^^ Avoid conditional logic in a test; a test should run the same way every time.
+
+`;
+
+exports[`no-conditional-in-test > invalid(8): import {test, describe, beforeEach} from 'node:test';\ntest(\"x\", () => { if (a as boolean) { f(); } }); 1`] = `
+
+  1 | import {test, describe, beforeEach} from 'node:test';
+  2 | test("x", () => { if (a as boolean) { f(); } });
+
+`;
+
+exports[`no-conditional-in-test > invalid(8): import {test, describe, beforeEach} from 'node:test';\ntest(\"x\", () => { if (a as boolean) { f(); } }); 2`] = `
+
+Message:
+  1 | import {test, describe, beforeEach} from 'node:test';
+> 2 | test("x", () => { if (a as boolean) { f(); } });
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid conditional logic in a test; a test should run the same way every time.
+
+`;

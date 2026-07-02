@@ -1,0 +1,12 @@
+import {getTester} from './utils/test.js';
+
+const {test} = getTester(import.meta);
+
+test.snapshot({
+	valid: [
+		'import test from "node:test";\ntest("title", () => {});',
+	],
+	invalid: [
+		// 'import test from "node:test";\ntest("title", () => {});',
+	],
+});

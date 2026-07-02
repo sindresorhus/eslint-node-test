@@ -1,0 +1,181 @@
+exports[`no-identical-title > invalid(1): import test from \"node:test\";\ntest(\"a\", () => {});\ntest(\"a\", () => {}); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("a", () => {});
+  3 | test("a", () => {});
+
+`;
+
+exports[`no-identical-title > invalid(1): import test from \"node:test\";\ntest(\"a\", () => {});\ntest(\"a\", () => {}); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+  2 | test("a", () => {});
+> 3 | test("a", () => {});
+    |      ^^^ Test title is already used by another test in the same scope.
+
+`;
+
+exports[`no-identical-title > invalid(10): import test from \"node:test\";\ntest(\"a\", () => {});\ntest(\"a\", () => {}); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("a", () => {});
+  3 | test("a", () => {});
+
+`;
+
+exports[`no-identical-title > invalid(10): import test from \"node:test\";\ntest(\"a\", () => {});\ntest(\"a\", () => {}); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+  2 | test("a", () => {});
+> 3 | test("a", () => {});
+    |      ^^^ Test title is already used by another test in the same scope.
+
+`;
+
+exports[`no-identical-title > invalid(2): import {it} from \"node:test\";\nit(\"a\", () => {});\nit(\"a\", () => {}); 1`] = `
+
+  1 | import {it} from "node:test";
+  2 | it("a", () => {});
+  3 | it("a", () => {});
+
+`;
+
+exports[`no-identical-title > invalid(2): import {it} from \"node:test\";\nit(\"a\", () => {});\nit(\"a\", () => {}); 2`] = `
+
+Message:
+  1 | import {it} from "node:test";
+  2 | it("a", () => {});
+> 3 | it("a", () => {});
+    |    ^^^ Test title is already used by another test in the same scope.
+
+`;
+
+exports[`no-identical-title > invalid(3): import {describe} from \"node:test\";\ndescribe(\"a\", () => {});\ndescribe(\"a\", () => {}); 1`] = `
+
+  1 | import {describe} from "node:test";
+  2 | describe("a", () => {});
+  3 | describe("a", () => {});
+
+`;
+
+exports[`no-identical-title > invalid(3): import {describe} from \"node:test\";\ndescribe(\"a\", () => {});\ndescribe(\"a\", () => {}); 2`] = `
+
+Message:
+  1 | import {describe} from "node:test";
+  2 | describe("a", () => {});
+> 3 | describe("a", () => {});
+    |          ^^^ Test title is already used by another test in the same scope.
+
+`;
+
+exports[`no-identical-title > invalid(4): import test from \"node:test\";\nimport {describe} from \"node:test\";\ndescribe(\"suite\", () => { test(\"same\", () => {}); test(\"same\", () => {}); }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | import {describe} from "node:test";
+  3 | describe("suite", () => { test("same", () => {}); test("same", () => {}); });
+
+`;
+
+exports[`no-identical-title > invalid(4): import test from \"node:test\";\nimport {describe} from \"node:test\";\ndescribe(\"suite\", () => { test(\"same\", () => {}); test(\"same\", () => {}); }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+  2 | import {describe} from "node:test";
+> 3 | describe("suite", () => { test("same", () => {}); test("same", () => {}); });
+    |                                                        ^^^^^^ Test title is already used by another test in the same scope.
+
+`;
+
+exports[`no-identical-title > invalid(5): import test from \"node:test\";\nimport {it} from \"node:test\";\ntest(\"a\", () => {});\nit(\"a\", () => {}); 1`] = `
+
+  1 | import test from "node:test";
+  2 | import {it} from "node:test";
+  3 | test("a", () => {});
+  4 | it("a", () => {});
+
+`;
+
+exports[`no-identical-title > invalid(5): import test from \"node:test\";\nimport {it} from \"node:test\";\ntest(\"a\", () => {});\nit(\"a\", () => {}); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+  2 | import {it} from "node:test";
+  3 | test("a", () => {});
+> 4 | it("a", () => {});
+    |    ^^^ Test title is already used by another test in the same scope.
+
+`;
+
+exports[`no-identical-title > invalid(6): import test, {describe} from \"node:test\";\ndescribe(\"a\", () => {});\ntest(\"a\", () => {}); 1`] = `
+
+  1 | import test, {describe} from "node:test";
+  2 | describe("a", () => {});
+  3 | test("a", () => {});
+
+`;
+
+exports[`no-identical-title > invalid(6): import test, {describe} from \"node:test\";\ndescribe(\"a\", () => {});\ntest(\"a\", () => {}); 2`] = `
+
+Message:
+  1 | import test, {describe} from "node:test";
+  2 | describe("a", () => {});
+> 3 | test("a", () => {});
+    |      ^^^ Test title is already used by another test in the same scope.
+
+`;
+
+exports[`no-identical-title > invalid(7): import test from \"node:test\";\ntest(\"a\", () => {});\ntest(\`a\`, () => {}); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("a", () => {});
+  3 | test(\`a\`, () => {});
+
+`;
+
+exports[`no-identical-title > invalid(7): import test from \"node:test\";\ntest(\"a\", () => {});\ntest(\`a\`, () => {}); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+  2 | test("a", () => {});
+> 3 | test(\`a\`, () => {});
+    |      ^^^ Test title is already used by another test in the same scope.
+
+`;
+
+exports[`no-identical-title > invalid(8): import {test as myTest} from \"node:test\";\nmyTest(\"a\", () => {});\nmyTest(\"a\", () => {}); 1`] = `
+
+  1 | import {test as myTest} from "node:test";
+  2 | myTest("a", () => {});
+  3 | myTest("a", () => {});
+
+`;
+
+exports[`no-identical-title > invalid(8): import {test as myTest} from \"node:test\";\nmyTest(\"a\", () => {});\nmyTest(\"a\", () => {}); 2`] = `
+
+Message:
+  1 | import {test as myTest} from "node:test";
+  2 | myTest("a", () => {});
+> 3 | myTest("a", () => {});
+    |        ^^^ Test title is already used by another test in the same scope.
+
+`;
+
+exports[`no-identical-title > invalid(9): import * as nodeTest from \"node:test\";\nnodeTest.test(\"a\", () => {});\nnodeTest.test(\"a\", () => {}); 1`] = `
+
+  1 | import * as nodeTest from "node:test";
+  2 | nodeTest.test("a", () => {});
+  3 | nodeTest.test("a", () => {});
+
+`;
+
+exports[`no-identical-title > invalid(9): import * as nodeTest from \"node:test\";\nnodeTest.test(\"a\", () => {});\nnodeTest.test(\"a\", () => {}); 2`] = `
+
+Message:
+  1 | import * as nodeTest from "node:test";
+  2 | nodeTest.test("a", () => {});
+> 3 | nodeTest.test("a", () => {});
+    |               ^^^ Test title is already used by another test in the same scope.
+
+`;

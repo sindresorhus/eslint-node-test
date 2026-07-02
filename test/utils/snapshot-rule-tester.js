@@ -1,0 +1,283 @@
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import {codeFrameColumns} from '@babel/code-frame';
+import {Linter} from 'eslint';
+import outdent from 'outdent';
+import * as YAML from 'yaml';
+import {mergeLanguageOptions} from './language-options.js';
+
+const isPlainObject = value => value && Object.getPrototypeOf(value) === Object.prototype;
+
+function serializeOptions(value) {
+	return YAML.stringify(
+		value,
+		(key, value) => {
+			if (
+				Array.isArray(value)
+				|| isPlainObject(value)
+				|| typeof value === 'boolean'
+				|| typeof value === 'number'
+				|| typeof value === 'string'
+				|| value === null
+			) {
+				return value;
+			}
+
+			throw new Error('Unsupported value');
+		},
+		{
+			defaultKeyType: 'PLAIN',
+			defaultStringType: 'QUOTE_SINGLE',
+		},
+	)
+		.trimEnd();
+}
+
+// A simple version of `SourceCodeFixer.applyFixes`
+// https://github.com/eslint/eslint/issues/14936#issuecomment-906746754
+const applyFix = (code, {fix}) => `${code.slice(0, fix.range[0])}${fix.text}${code.slice(fix.range[1])}`;
+const codeFrameColumnsOptions = {linesAbove: Infinity, linesBelow: Infinity};
+
+function visualizeRange(text, location, message) {
+	return codeFrameColumns(
+		text,
+		location,
+		{
+			...codeFrameColumnsOptions,
+			message,
+		},
+	);
+}
+
+function visualizeEslintMessage(text, result) {
+	const {line, column, endLine, endColumn, message} = result;
+	const location = {
+		start: {
+			line,
+			column: Math.max(0, column - 1),
+		},
+	};
+
+	if (typeof endLine === 'number' && typeof endColumn === 'number') {
+		location.end = {
+			line: endLine,
+			column: Math.max(0, endColumn - 1),
+		};
+	}
+
+	return visualizeRange(text, location, message);
+}
+
+const printCode = code => codeFrameColumns(code, {start: {line: 0, column: 0}}, codeFrameColumnsOptions);
+const getAdditionalProperties = (object, properties) =>
+	Object.keys(object).filter(property => !properties.includes(property));
+
+function normalizeTests(tests) {
+	const additionalProperties = getAdditionalProperties(tests, ['valid', 'invalid']);
+	if (additionalProperties.length > 0) {
+		throw new Error(`Unexpected snapshot test properties: ${additionalProperties.join(', ')}`);
+	}
+
+	for (const type of ['valid', 'invalid']) {
+		normalizeTestCases(tests[type], type);
+	}
+
+	return tests;
+}
+
+function normalizeTestCases(cases, type) {
+	for (const [index, testCase] of cases.entries()) {
+		if (typeof testCase === 'string') {
+			cases[index] = {code: testCase};
+			continue;
+		}
+
+		const additionalProperties = getAdditionalProperties(
+			testCase,
+			['code', 'options', 'filename', 'languageOptions', 'language', 'only'],
+		);
+
+		if (additionalProperties.length > 0) {
+			throw new Error(`Unexpected ${type} snapshot test case properties: ${additionalProperties.join(', ')}`);
+		}
+	}
+}
+
+function getVerifyConfig(ruleId, rule, testerConfig, testCase) {
+	const {
+		languageOptions = {},
+		options = [],
+		language,
+	} = testCase;
+
+	// https://github.com/eslint/eslint/blob/ee7f9e62102d3dd0b7581d1e88e41bce3385980a/lib/rule-tester/rule-tester.js#L501
+	const pluginName = 'rule-to-test';
+
+	// Avoid a separate `{files}` config-array entry here. It makes ESLint merge an extra config for every snapshot test case. Keep `files` on the real config so non-JS filenames still match.
+	return {
+		files: ['**'],
+		...testerConfig,
+		languageOptions: mergeLanguageOptions(testerConfig.languageOptions, languageOptions),
+		// A non-JS language (e.g. `@eslint/css`, `@eslint/markdown`) and the plugin providing it.
+		...(language && {language: language.language}),
+		rules: {
+			[`${pluginName}/${ruleId}`]: ['error', ...options],
+		},
+		plugins: {
+			[pluginName]: {
+				rules: {
+					[ruleId]: rule,
+				},
+			},
+			...language?.plugins,
+		},
+		// https://github.com/eslint/eslint/blob/ee7f9e62102d3dd0b7581d1e88e41bce3385980a/lib/config/default-config.js#L46-L48
+		linterOptions: {
+			reportUnusedDisableDirectives: 'off',
+		},
+	};
+}
+
+// Reuse `Linter` instances across the hundreds of verify calls. A `Linter` is keyed only by its
+// `cwd`, so one default instance covers every case without a filename (the common path).
+const linterByCwd = new Map();
+
+function getLinter(filename) {
+	// https://github.com/eslint/eslint/pull/17989
+	const cwd = typeof filename === 'string' ? path.parse(filename).root : undefined;
+	let linter = linterByCwd.get(cwd);
+	if (!linter) {
+		linter = new Linter(cwd === undefined ? {} : {cwd});
+		linterByCwd.set(cwd, linter);
+	}
+
+	return linter;
+}
+
+function verify(code, verifyConfig, {filename}) {
+	const linter = getLinter(filename);
+	const messages = linter.verify(code, verifyConfig, {filename});
+
+	// Missed `message`, #1923
+	const invalidMessage = messages.find(({message}) => typeof message !== 'string');
+	if (invalidMessage) {
+		throw Object.assign(new Error('Unexpected message.'), {eslintMessage: invalidMessage});
+	}
+
+	const fatalError = messages.find(({fatal}) => fatal);
+	if (fatalError) {
+		const {line, column, message} = fatalError;
+		throw new SyntaxError('\n' + codeFrameColumns(code, {start: {line, column: Math.max(0, column - 1)}}, {message}));
+	}
+
+	return messages;
+}
+
+export default class SnapshotRuleTester {
+	constructor(test, testerConfig) {
+		this.test = test;
+		this.testerConfig = testerConfig;
+	}
+
+	run(ruleId, rule, tests) {
+		const {test, testerConfig} = this;
+		const {fixable} = rule.meta;
+
+		const {valid, invalid} = normalizeTests(tests);
+
+		for (const [index, testCase] of valid.entries()) {
+			const {code: input, filename, only} = testCase;
+			const verifyConfig = getVerifyConfig(ruleId, rule, testerConfig, testCase);
+
+			(only ? test.only : test)(
+				`valid(${index + 1}): ${input}`,
+				() => {
+					const messages = verify(input, verifyConfig, {filename});
+					assert.deepStrictEqual(messages, [], 'Valid case should not have errors.');
+				},
+			);
+		}
+
+		for (const [index, testCase] of invalid.entries()) {
+			const {code: input, options, filename, only} = testCase;
+			const verifyConfig = getVerifyConfig(ruleId, rule, testerConfig, testCase);
+			const runVerify = code => verify(code, verifyConfig, {filename});
+
+			(only ? test.only : test)(
+				`invalid(${index + 1}): ${input}`,
+				t => {
+					const messages = runVerify(input);
+
+					assert.notDeepStrictEqual(messages, [], 'Invalid case should have at least one error.');
+
+					const inputSnapshotParts = [];
+					let shouldPrintCodeHead = false;
+
+					if (Array.isArray(options)) {
+						inputSnapshotParts.push(outdent`
+							Options:
+							${serializeOptions(options)}
+						`);
+						shouldPrintCodeHead = true;
+					}
+
+					inputSnapshotParts.push(shouldPrintCodeHead
+						? outdent`
+							Code:
+							${printCode(input)}
+						`
+						: printCode(input));
+
+					if (filename !== undefined) {
+						// Render absolute in-repo filenames (e.g. type-aware fixtures) relative to the
+						// working directory so snapshots stay portable across machines.
+						const displayFilename = path.isAbsolute(filename) && filename.startsWith(process.cwd())
+							? path.relative(process.cwd(), filename)
+							: filename;
+						inputSnapshotParts.unshift(`Filename: ${displayFilename}`);
+					}
+
+					t.assert.snapshot(`\n${inputSnapshotParts.join('\n\n')}\n`);
+
+					for (const [index, message] of messages.entries()) {
+						const snapshotParts = [
+							outdent`
+								Message:
+								${visualizeEslintMessage(input, message)}
+							`,
+						];
+
+						if (fixable && message.fix) {
+							const output = applyFix(input, message);
+							if (output !== input) {
+								runVerify(output);
+
+								snapshotParts.push(outdent`
+									Output:
+									${printCode(output)}
+								`);
+							}
+						}
+
+						const {suggestions = []} = message;
+
+						for (const [index, suggestion] of suggestions.entries()) {
+							const output = applyFix(input, suggestion);
+							assert.notStrictEqual(output, input, 'Suggestion should provide different output.');
+
+							runVerify(output);
+
+							snapshotParts.push(outdent`
+								Suggestion ${index + 1}/${suggestions.length}: ${suggestion.desc}:
+								${printCode(output)}
+							`);
+						}
+
+						t.assert.snapshot(`\n${snapshotParts.join('\n\n')}\n`);
+					}
+				},
+			);
+		}
+	}
+}
+export {visualizeEslintMessage};

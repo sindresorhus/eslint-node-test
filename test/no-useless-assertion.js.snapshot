@@ -1,0 +1,95 @@
+exports[`no-useless-assertion > invalid(1): import assert from 'node:assert';\nassert.doesNotThrow(fn); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.doesNotThrow(fn);
+
+`;
+
+exports[`no-useless-assertion > invalid(1): import assert from 'node:assert';\nassert.doesNotThrow(fn); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.doesNotThrow(fn);
+    | ^^^^^^^^^^^^^^^^^^^^^^^ \`doesNotThrow()\` is not useful. It catches an error only to rethrow it, so call the code directly instead.
+
+`;
+
+exports[`no-useless-assertion > invalid(2): import assert from 'node:assert';\nassert.doesNotThrow(() => compute()); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.doesNotThrow(() => compute());
+
+`;
+
+exports[`no-useless-assertion > invalid(2): import assert from 'node:assert';\nassert.doesNotThrow(() => compute()); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.doesNotThrow(() => compute());
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`doesNotThrow()\` is not useful. It catches an error only to rethrow it, so call the code directly instead.
+
+`;
+
+exports[`no-useless-assertion > invalid(3): import assert from 'node:assert';\nawait assert.doesNotReject(fn); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | await assert.doesNotReject(fn);
+
+`;
+
+exports[`no-useless-assertion > invalid(3): import assert from 'node:assert';\nawait assert.doesNotReject(fn); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | await assert.doesNotReject(fn);
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^ \`doesNotReject()\` is not useful. It catches an error only to rethrow it, so call the code directly instead.
+
+`;
+
+exports[`no-useless-assertion > invalid(4): import {doesNotThrow} from 'node:assert';\ndoesNotThrow(fn); 1`] = `
+
+  1 | import {doesNotThrow} from 'node:assert';
+  2 | doesNotThrow(fn);
+
+`;
+
+exports[`no-useless-assertion > invalid(4): import {doesNotThrow} from 'node:assert';\ndoesNotThrow(fn); 2`] = `
+
+Message:
+  1 | import {doesNotThrow} from 'node:assert';
+> 2 | doesNotThrow(fn);
+    | ^^^^^^^^^^^^^^^^ \`doesNotThrow()\` is not useful. It catches an error only to rethrow it, so call the code directly instead.
+
+`;
+
+exports[`no-useless-assertion > invalid(5): import test from 'node:test';\ntest('t', t => { t.assert.doesNotThrow(fn); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', t => { t.assert.doesNotThrow(fn); });
+
+`;
+
+exports[`no-useless-assertion > invalid(5): import test from 'node:test';\ntest('t', t => { t.assert.doesNotThrow(fn); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', t => { t.assert.doesNotThrow(fn); });
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^ \`doesNotThrow()\` is not useful. It catches an error only to rethrow it, so call the code directly instead.
+
+`;
+
+exports[`no-useless-assertion > invalid(6): import assert from 'node:assert';\nassert.doesNotThrow(fn as () => void); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.doesNotThrow(fn as () => void);
+
+`;
+
+exports[`no-useless-assertion > invalid(6): import assert from 'node:assert';\nassert.doesNotThrow(fn as () => void); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.doesNotThrow(fn as () => void);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`doesNotThrow()\` is not useful. It catches an error only to rethrow it, so call the code directly instead.
+
+`;
