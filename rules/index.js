@@ -62,6 +62,7 @@ export {default as 'require-await-concurrent-subtests'} from './require-await-co
 export {default as 'require-context-assert-with-plan'} from './require-context-assert-with-plan.js';
 export {default as 'require-hook'} from './require-hook.js';
 export {default as 'require-throws-expectation'} from './require-throws-expectation.js';
+export {default as 'require-throws-validator-return-true'} from './require-throws-validator-return-true.js';
 export {default as 'require-top-level-describe'} from './require-top-level-describe.js';
 export {default as 'test-title-format'} from './test-title-format.js';
 export {default as 'test-title'} from './test-title.js';
