@@ -67,6 +67,7 @@ test.snapshot({
 		// Assertion calls return `undefined`
 		withAssert('assert.throws(fn, error => assert.match(error.message, /bad/));'),
 		withAssert('assert.throws(fn, error => { return assert.match(error.message, /bad/); });'),
+		withNamedImport('throws, match', 'throws(fn, error => { return match(error.message, /bad/); });'),
 
 		// Async validators return a Promise, not `true`
 		withAssert('assert.throws(fn, async error => true);'),
@@ -89,6 +90,7 @@ test.snapshot({
 
 		// Test context assert
 		withTest('test(\'t\', t => { t.assert.rejects(fn, error => { t.assert.match(error.message, /bad/); }); });'),
+		withTest('test(\'t\', t => { t.assert.throws(fn, error => t.assert.match(error.message, /bad/)); });'),
 
 		// TypeScript
 		{

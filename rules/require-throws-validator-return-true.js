@@ -90,7 +90,7 @@ function hasReturnTrue(functionBody, context, imports) {
 	return walk(functionBody);
 }
 
-function validatorCanReturnTrue(validator, context, imports) {
+function canValidatorReturnTrue(validator, context, imports) {
 	if (validator.async || validator.generator) {
 		return false;
 	}
@@ -120,7 +120,7 @@ const create = context => {
 			return;
 		}
 
-		if (validatorCanReturnTrue(validator, context, imports)) {
+		if (canValidatorReturnTrue(validator, context, imports)) {
 			return;
 		}
 
