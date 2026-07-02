@@ -9,14 +9,16 @@
 
 Mutating `process.env` directly in a test or subtest callback leaks into later tests running in the same process. This makes tests order-dependent and hard to debug.
 
-Use the test context's `mock.property()` for test-local environment overrides, or move shared environment setup into hooks that restore the original value.
+Move environment setup into hooks that restore the original value.
 
 This rule only targets persistent environment state. It does not report reads from `process.env`, console output, `process.stdout`, other process APIs, or mutating calls that target `process` itself, such as `Object.defineProperty(process, 'env', …)` or `Reflect.set(process, 'env', …)`. Top-level hooks and non-test callbacks nested inside tests are intentionally out of scope, so hooks can own paired setup and teardown without triggering this rule.
+
+CommonJS aliases such as `const {env} = require('node:process')` are not resolved.
 
 ## Examples
 
 ```js
-import test from 'node:test';
+import test, {beforeEach, afterEach} from 'node:test';
 
 // ❌
 test('reads config', () => {
@@ -29,8 +31,17 @@ test('reads config', () => {
 });
 
 // ✅
-test('reads config', t => {
-	t.mock.property(process.env, 'NODE_ENV', 'production');
+let previousNodeEnvironment;
+beforeEach(() => {
+	previousNodeEnvironment = process.env.NODE_ENV;
+	process.env.NODE_ENV = 'production';
+});
+afterEach(() => {
+	if (previousNodeEnvironment === undefined) {
+		delete process.env.NODE_ENV;
+	} else {
+		process.env.NODE_ENV = previousNodeEnvironment;
+	}
 });
 
 // ✅

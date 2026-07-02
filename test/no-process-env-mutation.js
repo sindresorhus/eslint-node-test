@@ -16,9 +16,6 @@ test.snapshot({
 		inTest('const nodeEnvironment = process.env.NODE_ENV;'),
 		inTest('assert.equal(process.env.NODE_ENV, \'test\');'),
 
-		// The preferred test-local pattern
-		inTest('t.mock.property(process.env, \'NODE_ENV\', \'production\');'),
-
 		// Outside test callbacks
 		withTestImport('process.env.NODE_ENV = \'production\';'),
 		withTestImport('delete process.env.NODE_ENV;'),
@@ -42,6 +39,9 @@ test.snapshot({
 		inTest('function helper(process) {\n\tprocess.env.NODE_ENV = \'production\';\n}'),
 		inTest('const Object = {assign() {}};\nObject.assign(process.env, values);'),
 		inTest('const Reflect = {set() {}};\nReflect.set(process.env, \'NODE_ENV\', \'production\');'),
+		inTest('const env = \'stdout\';\nprocess[env].NODE_ENV = \'production\';'),
+		inTest('const assign = \'keys\';\nObject[assign](process.env, values);'),
+		inTest('const set = \'get\';\nReflect[set](process.env, \'NODE_ENV\', \'production\');'),
 
 		// Reassigning an alias does not mutate `process.env`
 		inTest('let environment = process.env;\nenvironment = {};\nenvironment.NODE_ENV = \'production\';'),
@@ -58,6 +58,10 @@ test.snapshot({
 	invalid: [
 		// Direct member mutations
 		inTest('process.env.NODE_ENV = \'production\';'),
+		inTest('process.env[\'NODE_ENV\'] = \'production\';'),
+		inTest('process.env.NODE_ENV = value;'),
+		inTest('{\n\tconst t = {mock: {property() {}}};\n\tprocess.env.NODE_ENV = \'production\';\n}'),
+		inTest('const result = (process.env.NODE_ENV = \'production\');'),
 		inTest('process.env.NODE_ENV += \'-test\';'),
 		inTest('process.env.COUNT++;'),
 		inTest('++process.env.COUNT;'),

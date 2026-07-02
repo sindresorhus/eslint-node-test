@@ -12,7 +12,7 @@ import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js'
 const MESSAGE_ID = 'no-process-env-mutation';
 
 const messages = {
-	[MESSAGE_ID]: 'Do not mutate `process.env` inside a test. Use `t.mock.property()` or a hook that restores the original value.',
+	[MESSAGE_ID]: 'Do not mutate `process.env` inside a test. Use a hook that restores the original value.',
 };
 
 const PROCESS_MODULES = new Set(['node:process', 'process']);
@@ -43,6 +43,10 @@ const getStaticPropertyName = node => {
 		return node.name;
 	}
 
+	return getStaticExpressionPropertyName(node);
+};
+
+const getStaticExpressionPropertyName = node => {
 	if (node.type === 'Literal' && (typeof node.value === 'string' || typeof node.value === 'number')) {
 		return String(node.value);
 	}
@@ -62,7 +66,7 @@ const getMemberPropertyName = node => {
 	}
 
 	if (node.computed) {
-		return getStaticPropertyName(unwrapExpression(node.property));
+		return getStaticExpressionPropertyName(unwrapExpression(node.property));
 	}
 };
 
