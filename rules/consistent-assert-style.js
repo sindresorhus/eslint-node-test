@@ -145,7 +145,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce a consistent truthiness assertion style.',
-			recommended: false,
+			recommended: true,
 		},
 		fixable: 'code',
 		schema: [
@@ -160,7 +160,7 @@ const config = {
 				additionalProperties: false,
 			},
 		],
-		defaultOptions: [{style: 'assert'}],
+		defaultOptions: [{style: 'assert-ok'}],
 		messages,
 		languages: ['js/js'],
 	},

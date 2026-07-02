@@ -8,18 +8,18 @@ const withBareAssert = code => `import assert from 'assert';\n${code}`;
 const withBareStrictAssert = code => `import assert from 'assert/strict';\n${code}`;
 const withNamedImport = (methods, code) => `import {${methods}} from 'node:assert';\n${code}`;
 const withStrictNamedImport = (methods, code) => `import {${methods}} from 'node:assert/strict';\n${code}`;
-const assertOkStyle = {style: 'assert-ok'};
+const assertStyle = {style: 'assert'};
 
 test.snapshot({
 	valid: [
-		// Default: prefer `assert(…)`
-		withAssert('assert(value);'),
-		withAssert('assert(value, "message");'),
+		// Default: prefer `assert.ok(…)`
+		withAssert('assert.ok(value);'),
+		withAssert('assert.ok(value, "message");'),
 		withAssert('assert.strictEqual(actual, expected);'),
 
-		// Custom option: prefer `assert.ok(…)`
-		{code: withAssert('assert.ok(value);'), options: [assertOkStyle]},
-		{code: withAssert('assert.ok(value, "message");'), options: [assertOkStyle]},
+		// Custom option: prefer `assert(…)`
+		{code: withAssert('assert(value);'), options: [assertStyle]},
+		{code: withAssert('assert(value, "message");'), options: [assertStyle]},
 
 		// Unrelated globals and non-assert imports
 		'assert.ok(value);',
@@ -27,7 +27,7 @@ test.snapshot({
 
 		// Namespace import is not callable
 		'import * as assert from \'node:assert\';\nassert.ok(value);',
-		{code: 'import * as assert from \'node:assert\';\nassert(value);', options: [assertOkStyle]},
+		'import * as assert from \'node:assert\';\nassert(value);',
 
 		// Named `ok` import would require import rewrites
 		withNamedImport('ok', 'ok(value);'),
@@ -35,7 +35,7 @@ test.snapshot({
 
 		// CommonJS is not supported by this plugin's import resolver
 		'const assert = require("node:assert");\nassert.ok(value);',
-		{code: 'const assert = require("node:assert");\nassert(value);', options: [assertOkStyle]},
+		'const assert = require("node:assert");\nassert(value);',
 
 		// Non-simple member forms are ignored
 		withAssert('assert["ok"](value);'),
@@ -44,15 +44,15 @@ test.snapshot({
 		withAssert('(assert).ok(value);'),
 		withAssert('(assert.ok)(value);'),
 		withAssert('wrapper.assert.ok(value);'),
-		{code: withAssert('assert?.(value);'), options: [assertOkStyle]},
-		{code: withAssert('(assert)(value);'), options: [assertOkStyle]},
+		withAssert('assert?.(value);'),
+		withAssert('(assert)(value);'),
 
 		// `t.assert` is an object, not a callable function
 		'import test from \'node:test\';\ntest(\'t\', t => { t.assert.ok(value); });',
 
 		// Shadowed binding
 		withAssert('function fn(assert) { assert.ok(value); }'),
-		{code: withAssert('function fn(assert) { assert(value); }'), options: [assertOkStyle]},
+		withAssert('function fn(assert) { assert(value); }'),
 
 		// Type-only imports do not create value bindings
 		{
@@ -65,50 +65,47 @@ test.snapshot({
 		},
 	],
 	invalid: [
-		// Default: prefer `assert(…)`
-		withAssert('assert.ok(value);'),
-		withAssert('assert.ok(value, "message");'),
-		withStrictAssert('assert.ok(value);'),
-		withBareAssert('assert.ok(value);'),
-		withBareStrictAssert('assert.ok(value);'),
+		// Default: prefer `assert.ok(…)`
+		withAssert('assert(value);'),
+		withAssert('assert(value, "message");'),
+		withAssert('assert /* comment */ (value);'),
+		withStrictAssert('assert(value);'),
+		withBareAssert('assert(value);'),
+		withBareStrictAssert('assert(value);'),
+		'import check from \'node:assert\';\ncheck(value);',
 
 		// Callable named imports
-		withNamedImport('default as assert', 'assert.ok(value);'),
-		withNamedImport('strict as assert', 'assert.ok(value);'),
-		'import check from \'node:assert\';\ncheck.ok(value);',
-		withStrictNamedImport('default as assert', 'assert.ok(value);'),
-		withStrictNamedImport('strict as assert', 'assert.ok(value);'),
-		'import {strict as assert} from \'assert/strict\';\nassert.ok(value);',
+		withNamedImport('default as assert', 'assert(value);'),
+		withNamedImport('strict as assert', 'assert(value);'),
+		'import {strict as strictAssert} from \'node:assert\';\nstrictAssert(value);',
+		withStrictNamedImport('default as assert', 'assert(value);'),
+		withStrictNamedImport('strict as assert', 'assert(value);'),
+		'import {strict as assert} from \'assert/strict\';\nassert(value);',
 
-		// Custom option: prefer `assert.ok(…)`
-		{code: withAssert('assert(value);'), options: [assertOkStyle]},
-		{code: withAssert('assert(value, "message");'), options: [assertOkStyle]},
-		{code: withAssert('assert /* comment */ (value);'), options: [assertOkStyle]},
-		{code: withStrictAssert('assert(value);'), options: [assertOkStyle]},
-		{code: withBareAssert('assert(value);'), options: [assertOkStyle]},
-		{code: withBareStrictAssert('assert(value);'), options: [assertOkStyle]},
-		{code: 'import check from \'node:assert\';\ncheck(value);', options: [assertOkStyle]},
-		{code: withNamedImport('default as assert', 'assert(value);'), options: [assertOkStyle]},
-		{code: withNamedImport('strict as assert', 'assert(value);'), options: [assertOkStyle]},
-		{code: 'import {strict as strictAssert} from \'node:assert\';\nstrictAssert(value);', options: [assertOkStyle]},
-		{code: withStrictNamedImport('default as assert', 'assert(value);'), options: [assertOkStyle]},
-		{code: withStrictNamedImport('strict as assert', 'assert(value);'), options: [assertOkStyle]},
-		{
-			code: 'import {strict as assert} from \'assert/strict\';\nassert(value);',
-			options: [assertOkStyle],
-		},
+		// Custom option: prefer `assert(…)`
+		{code: withAssert('assert.ok(value);'), options: [assertStyle]},
+		{code: withAssert('assert.ok(value, "message");'), options: [assertStyle]},
+		{code: withStrictAssert('assert.ok(value);'), options: [assertStyle]},
+		{code: withBareAssert('assert.ok(value);'), options: [assertStyle]},
+		{code: withBareStrictAssert('assert.ok(value);'), options: [assertStyle]},
+		{code: withNamedImport('default as assert', 'assert.ok(value);'), options: [assertStyle]},
+		{code: withNamedImport('strict as assert', 'assert.ok(value);'), options: [assertStyle]},
+		{code: 'import check from \'node:assert\';\ncheck.ok(value);', options: [assertStyle]},
+		{code: withStrictNamedImport('default as assert', 'assert.ok(value);'), options: [assertStyle]},
+		{code: withStrictNamedImport('strict as assert', 'assert.ok(value);'), options: [assertStyle]},
+		{code: 'import {strict as assert} from \'assert/strict\';\nassert.ok(value);', options: [assertStyle]},
 
 		// Comments inside the callee are reported without an autofix
-		withAssert('assert /* comment */ .ok(value);'),
+		{code: withAssert('assert /* comment */ .ok(value);'), options: [assertStyle]},
 
 		// TypeScript
 		{
-			code: withAssert('assert.ok(value as boolean);'),
+			code: withAssert('assert(value as boolean);'),
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
-			code: withAssert('assert(value as boolean);'),
-			options: [assertOkStyle],
+			code: withAssert('assert.ok(value as boolean);'),
+			options: [assertStyle],
 			languageOptions: {parser: parsers.typescript},
 		},
 	],

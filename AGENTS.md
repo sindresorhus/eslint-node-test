@@ -161,6 +161,7 @@ On rebase, `rules/index.js` and the `readme.md` rules table almost always confli
 ## Documentation
 
 Use JavaScript syntax for configuration examples, not JSON-style quoted keys and strings, unless the example is specifically JSON.
+For rule configuration examples, put the severity and options on separate lines inside the rule array when the rule has options.
 
 ## Testing
 
