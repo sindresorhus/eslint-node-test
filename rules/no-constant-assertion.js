@@ -199,7 +199,7 @@ const create = context => {
 		if (callback) {
 			const variable = getContextParameterVariable(callback, sourceCode);
 			if (variable) {
-				activeContexts.push({node, callback, variable});
+				activeContexts.push({callback, variable});
 				trackedTestCalls.add(node);
 			}
 		}

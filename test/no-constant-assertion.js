@@ -86,6 +86,7 @@ test.snapshot({
 
 		// Test context assertion
 		'import test from \'node:test\';\ntest(\'t\', t => { t.assert.strictEqual(1, 1); });',
+		'import * as nodeTest from \'node:test\';\nnodeTest.test(\'t\', t => { t.assert.strictEqual(1, 1); });',
 		'import test from \'node:test\';\ntest(\'outer\', t => { t.test(\'inner\', subtest => { t.assert.strictEqual(1, 1); }); });',
 		'import test from \'node:test\';\ntest(\'outer\', t => { t.test(\'inner\', subtest => { subtest.assert.strictEqual(1, 1); }); });',
 		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { t.assert.strictEqual(1, 1); });',
