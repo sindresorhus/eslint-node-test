@@ -41,7 +41,7 @@ const create = context => {
 
 	context.on('CallExpression', node => {
 		const parsed = parseTestCall(node, imports);
-		if (parsed?.kind !== 'test' && parsed?.kind !== 'suite') {
+		if (!parsed) {
 			return;
 		}
 
@@ -63,7 +63,7 @@ const config = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Disallow conditionally registering tests and suites.',
+			description: 'Disallow conditionally registering tests, suites, and hooks.',
 			recommended: true,
 		},
 		schema: [],
