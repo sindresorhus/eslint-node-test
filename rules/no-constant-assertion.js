@@ -90,30 +90,6 @@ function isNodeTestCall(node, imports, sourceCode) {
 	return isImportBindingVariable(variable);
 }
 
-function isImportedAssertCall(node, imports, sourceCode) {
-	const {callee} = node;
-	if (callee.type === 'Identifier') {
-		if (!imports.assertNamed.has(callee.name) && !imports.assertNamespace.has(callee.name)) {
-			return false;
-		}
-
-		const variable = findVariable(sourceCode.getScope(callee), callee);
-		return isImportBindingVariable(variable);
-	}
-
-	if (
-		callee.type === 'MemberExpression'
-		&& !callee.computed
-		&& callee.object.type === 'Identifier'
-		&& imports.assertNamespace.has(callee.object.name)
-	) {
-		const variable = findVariable(sourceCode.getScope(callee.object), callee.object);
-		return isImportBindingVariable(variable);
-	}
-
-	return false;
-}
-
 function getContextAssertReceiver(node) {
 	const {callee} = node;
 	if (
@@ -209,11 +185,7 @@ const create = context => {
 			return;
 		}
 
-		if (getContextAssertReceiver(node)) {
-			if (isUntrackedContextAssertCall(node, activeContexts, sourceCode)) {
-				return;
-			}
-		} else if (!isImportedAssertCall(node, imports, sourceCode)) {
+		if (getContextAssertReceiver(node) && isUntrackedContextAssertCall(node, activeContexts, sourceCode)) {
 			return;
 		}
 

@@ -5,6 +5,7 @@ const {test} = getTester(import.meta);
 const withAssert = code => `import assert from 'node:assert';\n${code}`;
 const withStrictAssert = code => `import assert from 'node:assert/strict';\n${code}`;
 const withNamedImport = (methods, code) => `import {${methods}} from 'node:assert';\n${code}`;
+const withNamedStrictImport = (methods, code) => `import {${methods}} from 'node:assert/strict';\n${code}`;
 
 test.snapshot({
 	valid: [
@@ -83,6 +84,7 @@ test.snapshot({
 		withNamedImport('strictEqual', 'strictEqual(1, 1);'),
 		withNamedImport('strictEqual as same', 'same(1, 1);'),
 		withStrictAssert('assert.equal(1, "1");'),
+		withNamedStrictImport('equal', 'equal(1, "1");'),
 
 		// Test context assertion
 		'import test from \'node:test\';\ntest(\'t\', t => { t.assert.strictEqual(1, 1); });',
@@ -92,6 +94,7 @@ test.snapshot({
 		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { t.assert.strictEqual(1, 1); });',
 		'import {beforeEach as setup} from \'node:test\';\nsetup(t => { t.assert.strictEqual(1, 1); });',
 		'import test from \'node:test\';\ntest.beforeEach(t => { t.assert.strictEqual(1, 1); });',
+		'import * as nodeTest from \'node:test\';\nnodeTest.beforeEach(t => { t.assert.strictEqual(1, 1); });',
 
 		// TypeScript
 		{

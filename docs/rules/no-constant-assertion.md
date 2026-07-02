@@ -13,6 +13,8 @@ Use `assert.fail()` for intentional unreachable code. This rule reports `assert(
 
 This rule reports `ok`, bare `assert()`, `ifError`, equality assertions, and match assertions with a static asserted value and regex literal pattern.
 
+For match assertions, this rule intentionally only evaluates regex literal patterns.
+
 ## Examples
 
 ```js
