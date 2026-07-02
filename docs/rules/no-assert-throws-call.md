@@ -11,7 +11,7 @@
 
 `assert.throws()` must receive a function that it can call and catch. Passing the result of a call, like `assert.throws(parse(input))`, runs `parse(input)` before `assert.throws()` starts. If that call throws, the error escapes the assertion entirely.
 
-This rule reports direct calls passed as the first argument to `assert.throws()`. Calls that obviously produce functions, like `.bind()` and `Function()`, are ignored. Other function factories are intentionally not guessed; if a factory call is valid in your test, pass a named callback or disable the rule for that line.
+This rule reports direct calls passed as the first argument to `assert.throws()`. Calls that obviously produce functions, like `.bind()` and `Function()`, are ignored. Other function factories are intentionally not guessed; if a factory call is valid in your test, assign the factory result to a variable before passing it or disable the rule for that line.
 
 ## Examples
 
