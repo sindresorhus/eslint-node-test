@@ -40,6 +40,13 @@ function getLeadingComments(sourceCode, node, context) {
 	return sourceCode.getCommentsBefore(target).filter(comment => sourceCode.getRange(comment)[0] > previousTokenEnd);
 }
 
+function hasTrailingComment(sourceCode, node, context) {
+	const parentheses = getParentheses(node, context);
+	const target = parentheses.at(-1) ?? node;
+	const nextToken = sourceCode.getTokenAfter(target, {includeComments: true});
+	return nextToken?.type === 'Block' || nextToken?.type === 'Line';
+}
+
 function getExpressionReplacement(node, context) {
 	const {sourceCode} = context;
 	const isBodyParenthesized = isParenthesized(node, context);
@@ -47,18 +54,27 @@ function getExpressionReplacement(node, context) {
 	const [leadingComment] = getLeadingComments(sourceCode, node, context);
 	const [start, end] = leadingComment ? [sourceCode.getRange(leadingComment)[0], range[1]] : range;
 	const text = sourceCode.text.slice(start, end);
+	const unwrappedNode = unwrapTypeScriptExpression(node);
 
 	return {
 		range: [start, end],
-		text: !isBodyParenthesized && expressionStatementUnsafeTypes.has(node.type) ? `(${text})` : text,
+		text: !isBodyParenthesized && expressionStatementUnsafeTypes.has(unwrappedNode.type) ? `(${text})` : text,
 	};
 }
 
+function hasLineCommentInRange(sourceCode, range) {
+	return sourceCode.getAllComments().some(comment => comment.type === 'Line' && sourceCode.getRange(comment)[0] >= range[0] && sourceCode.getRange(comment)[1] <= range[1]);
+}
+
 function canFixCallback(callback, context) {
+	const {sourceCode} = context;
+	const replacement = getExpressionReplacement(callback.body, context);
+
 	return (
 		!callback.async
 		&& !callback.returnType
-		&& getLeadingComments(context.sourceCode, callback.body, context).every(comment => comment.type !== 'Line')
+		&& !hasLineCommentInRange(sourceCode, sourceCode.getRange(replacement))
+		&& !hasTrailingComment(sourceCode, callback.body, context)
 	);
 }
 
@@ -123,7 +139,7 @@ function isSupportedAssertionCall(node, imports, context, tracker) {
 	}
 
 	const contextAssertIdentifier = getContextAssertIdentifier(node);
-	return contextAssertIdentifier ? isCurrentTestContextIdentifier(contextAssertIdentifier, tracker, sourceCode) : true;
+	return contextAssertIdentifier ? isCurrentTestContextIdentifier(contextAssertIdentifier, tracker, sourceCode) : false;
 }
 
 function getProblem(node, context, imports, tracker) {
