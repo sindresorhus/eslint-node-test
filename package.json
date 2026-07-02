@@ -59,7 +59,8 @@
 		"xo"
 	],
 	"dependencies": {
-		"@eslint-community/eslint-utils": "^4.9.1"
+		"@eslint-community/eslint-utils": "^4.9.1",
+		"quote-js-string": "^0.1.0"
 	},
 	"devDependencies": {
 		"@babel/code-frame": "^8.0.0",
