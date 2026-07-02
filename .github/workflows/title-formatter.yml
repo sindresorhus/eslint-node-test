@@ -17,7 +17,7 @@ jobs:
         with:
           sparse-checkout: docs/rules
       - name: Auto-format rule names in titles
-        uses: fregante/keyword-formatter-action@v2
+        uses: fregante/keyword-formatter-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           keywords-path: docs/rules
