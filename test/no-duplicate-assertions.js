@@ -14,6 +14,19 @@ const withStrictAndLooseAssert = code => [
 	'});',
 ].join('\n');
 const withContextTest = code => 'import test from \'node:test\';\ntest(\'user\', t => {\n' + code + '\n});';
+const withNamedAssertImport = code => [
+	'import test from \'node:test\';',
+	'import {strictEqual} from \'node:assert\';',
+	'test(\'user\', () => {',
+	code,
+	'});',
+].join('\n');
+const withShadowedTestParameter = code => [
+	head + 'function helper(test) {',
+	code,
+	'}',
+	'helper(localTest);',
+].join('\n');
 const withDescribe = code => [
 	'import {describe, beforeEach} from \'node:test\';',
 	'import assert from \'node:assert\';',
@@ -38,6 +51,7 @@ test.snapshot({
 		// Different assertions
 		withTest('\tassert.strictEqual(user.id, 1);\n\tassert.strictEqual(user.name, \'Ada\');'),
 		withTest('\tassert.strictEqual(user.id, 1);\n\tassert.equal(user.id, 1);'),
+		withTest('\tassert.strictEqual((user.id, user.name), \'Ada\');\n\tassert.strictEqual(user.id, user.name, \'Ada\');'),
 
 		// Same assertion in sibling tests
 		`${head}test('a', () => {\n\tassert.strictEqual(user.id, 1);\n});\ntest('b', () => {\n\tassert.strictEqual(user.id, 1);\n});`,
@@ -54,6 +68,16 @@ test.snapshot({
 
 		// Non-context `assert` properties are ignored
 		withContextTest('\tfake.assert.strictEqual(user.id, 1);\n\tfake.assert.strictEqual(user.id, 1);'),
+
+		// Computed properties are ignored
+		withTest('\tassert[\'strictEqual\'](user.id, 1);\n\tassert[\'strictEqual\'](user.id, 1);'),
+
+		// Shadowed imports are ignored
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'user\', assert => {\n\tassert.strictEqual(user.id, 1);\n\tassert.strictEqual(user.id, 1);\n});',
+		withNamedAssertImport('\tconst strictEqual = localAssert;\n\tstrictEqual(user.id, 1);\n\tstrictEqual(user.id, 1);'),
+		withShadowedTestParameter('\ttest(\'local\', () => {\n\t\tassert.strictEqual(user.id, 1);\n\t\tassert.strictEqual(user.id, 1);\n\t});'),
+		withShadowedTestParameter('\ttest(\'local\', t => {\n\t\tt.test(\'child\', () => {\n\t\t\tassert.strictEqual(user.id, 1);\n\t\t\tassert.strictEqual(user.id, 1);\n\t\t});\n\t});'),
+		withContextTest('\tfunction helper(t) {\n\t\tt.test(\'child\', () => {\n\t\t\tassert.strictEqual(user.id, 1);\n\t\t\tassert.strictEqual(user.id, 1);\n\t\t});\n\t}\n\thelper(localContext);'),
 
 		// Strict-mode legacy aliases have different semantics from loose legacy methods
 		withStrictAndLooseAssert('\tstrictAssert.equal(user.id, 1);\n\tlooseAssert.equal(user.id, 1);'),
@@ -77,6 +101,9 @@ test.snapshot({
 
 		// Test context assertion
 		withContextTest('\tt.assert.strictEqual(user.id, 1);\n\tt.assert.strictEqual(user.id, 1);'),
+
+		// Nested test bodies are checked independently
+		`${head}test('parent', t => {\n\tt.test('child', () => {\n\t\tassert.strictEqual(user.id, 1);\n\t\tassert.strictEqual(user.id, 1);\n\t});\n});`,
 
 		// Bare `assert()` is the same assertion method as `assert.ok()`
 		withTest('\tassert(user.active);\n\tassert.ok(user.active);'),

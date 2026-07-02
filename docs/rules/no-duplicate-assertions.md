@@ -11,7 +11,7 @@ Repeating the same assertion twice in a row is usually a copy-paste leftover. Th
 
 This rule only reports adjacent identical assertion statements inside a test body. It intentionally does not report the same assertion repeated later in the test, since that can be a valid way to check that a value stayed stable across an operation.
 
-Assertions are compared by their canonical assertion method and argument source. For example, `assert(value)` and `assert.ok(value)` are treated as the same assertion.
+Assertions are compared by their canonical assertion method and normalized argument source. For example, `assert(value)` and `assert.ok(value)` are treated as the same assertion.
 
 ## Examples
 
