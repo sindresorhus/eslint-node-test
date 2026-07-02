@@ -41,6 +41,7 @@ test.snapshot({
 		withSetup('beforeEach(() => { process.exit(0); });'),
 		withSetup('afterEach(() => { process.exit(0); });'),
 		withSetup('test(\'a\', () => { setImmediate(() => { process.exit(0); }); });'),
+		withSetup('process?.exit(0);'),
 		withSetup('process.exit?.(0);'),
 		withSetup('(process?.exit)(0);'),
 
@@ -50,6 +51,7 @@ test.snapshot({
 		'import {test as nodeTest} from \'node:test\';\nprocess.exit(0);',
 		'import test from \'test\';\nprocess.exit(0);',
 		'import {test as bareTest} from \'test\';\nprocess.exitCode = 1;',
+		'import * as bareTest from \'test\';\nprocess.exit(0);',
 
 		// `process.exitCode` writes anywhere in a test file
 		withSetup('process.exitCode = 1;'),
