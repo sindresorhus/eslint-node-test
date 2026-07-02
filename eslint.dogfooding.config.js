@@ -26,6 +26,7 @@ const config = [
 			'test/**/*.js',
 		],
 		rules: {
+			'node-test/consistent-assert-style': 'off',
 			'node-test/consistent-test-filename': 'off',
 			'node-test/max-assertions': 'off',
 			'node-test/no-conditional-assertion': 'off',
