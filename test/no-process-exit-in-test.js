@@ -63,6 +63,7 @@ test.snapshot({
 		withSetup('process.exitCode ??= 1;'),
 		withSetup('process.exitCode++;'),
 		withSetup('++process.exitCode;'),
+		withSetup('import process from \'node:process\';\nprocess.exit(0);'),
 		withSetup('function helper(process) { process.exit(0); }'),
 		withSetup('function helper(process) { process.exitCode = 1; }'),
 

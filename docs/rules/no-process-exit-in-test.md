@@ -7,13 +7,11 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Tests should fail through thrown errors or assertions, not by controlling the Node.js process. `process.exit()` stops the test runner immediately, so the current test and later tests may not report normally. Setting `process.exitCode` is also confusing in tests: the suite can finish with passing tests in the report while the process exits non-zero.
+Tests should fail through thrown errors or assertions, not by controlling the Node.js process. `process.exit()` stops the runner immediately, while `process.exitCode` can make the suite exit non-zero even when all reported tests pass.
 
-This rule reports direct `process.exit()` calls and direct writes to `process.exitCode` in files that import `node:test` or `test`. It intentionally does not chase aliases, destructuring, or computed properties. Shadowed `process` bindings are unsupported and may still be reported.
+This rule reports direct `process.exit()` calls and direct writes to `process.exitCode` in files that import `node:test` or `test`. It intentionally ignores aliases, destructuring, and computed properties. Shadowed `process` bindings are unsupported and may still be reported.
 
-This overlaps with [`n/no-process-exit`](https://github.com/eslint-community/eslint-plugin-n/blob/master/docs/rules/no-process-exit.md) and [`unicorn/no-process-exit`](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/main/docs/rules/no-process-exit.md), which cover `process.exit()` globally. This rule is narrower and also covers `process.exitCode` in Node.js test files.
-
-If you need to test CLI exit behavior, run the CLI in a child process and assert on that child process's exit status.
+This overlaps with [`n/no-process-exit`](https://github.com/eslint-community/eslint-plugin-n/blob/master/docs/rules/no-process-exit.md) and [`unicorn/no-process-exit`](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/main/docs/rules/no-process-exit.md), but is test-scoped and also covers `process.exitCode`. To test CLI exits, run the CLI in a child process and assert on the child's exit status.
 
 ## Examples
 
