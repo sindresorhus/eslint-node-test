@@ -32,6 +32,7 @@ export {default as 'no-misused-concurrency'} from './no-misused-concurrency.js';
 export {default as 'no-mock-timers-destructured-import'} from './no-mock-timers-destructured-import.js';
 export {default as 'no-nested-tests'} from './no-nested-tests.js';
 export {default as 'no-only-test'} from './no-only-test.js';
+export {default as 'no-process-exit-in-test'} from './no-process-exit-in-test.js';
 export {default as 'no-skip-test'} from './no-skip-test.js';
 export {default as 'no-skip-without-reason'} from './no-skip-without-reason.js';
 export {default as 'no-skip-without-return'} from './no-skip-without-return.js';
