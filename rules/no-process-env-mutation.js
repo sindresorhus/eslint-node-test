@@ -66,6 +66,16 @@ const getMemberPropertyName = node => {
 	}
 };
 
+const getImportSpecifierName = specifier => {
+	if (specifier.imported.type === 'Identifier') {
+		return specifier.imported.name;
+	}
+
+	if (typeof specifier.imported.value === 'string') {
+		return specifier.imported.value;
+	}
+};
+
 const isUnshadowedGlobal = (context, node, name) => {
 	if (node.type !== 'Identifier' || node.name !== name) {
 		return false;
@@ -116,12 +126,13 @@ const collectProcessModuleBindings = context => {
 		for (const specifier of node.specifiers) {
 			if (specifier.type === 'ImportDefaultSpecifier' || specifier.type === 'ImportNamespaceSpecifier') {
 				processNames.add(specifier.local.name);
-			} else if (
-				specifier.type === 'ImportSpecifier'
-				&& specifier.imported.type === 'Identifier'
-				&& specifier.imported.name === 'env'
-			) {
-				environmentNames.add(specifier.local.name);
+			} else if (specifier.type === 'ImportSpecifier') {
+				const importedName = getImportSpecifierName(specifier);
+				if (importedName === 'default') {
+					processNames.add(specifier.local.name);
+				} else if (importedName === 'env') {
+					environmentNames.add(specifier.local.name);
+				}
 			}
 		}
 	}
@@ -150,14 +161,56 @@ const create = context => {
 			);
 	};
 
-	const isEnvironmentObject = node => {
+	const isEnvironmentDestructuringProperty = (property, localName) => {
+		if (property.type !== 'Property' || property.computed || getStaticPropertyName(property.key) !== 'env') {
+			return false;
+		}
+
+		const {value} = property;
+		if (value.type === 'Identifier') {
+			return value.name === localName;
+		}
+
+		return value.type === 'AssignmentPattern'
+			&& value.left.type === 'Identifier'
+			&& value.left.name === localName;
+	};
+
+	const isEnvironmentAlias = (node, seenVariables) => {
+		if (node.type !== 'Identifier') {
+			return false;
+		}
+
+		const variable = findVariable(sourceCode.getScope(node), node);
+		if (!variable || seenVariables.has(variable)) {
+			return false;
+		}
+
+		seenVariables.add(variable);
+
+		const definition = variable.defs.length === 1 ? variable.defs[0] : undefined;
+		const declarator = definition?.type === 'Variable' ? definition.node : undefined;
+		if (!declarator?.init || declarator.parent?.kind !== 'const') {
+			return false;
+		}
+
+		if (declarator.id.type === 'Identifier') {
+			return isEnvironmentObject(declarator.init, seenVariables);
+		}
+
+		return declarator.id.type === 'ObjectPattern'
+			&& isProcessObject(declarator.init)
+			&& declarator.id.properties.some(property => isEnvironmentDestructuringProperty(property, node.name));
+	};
+
+	const isEnvironmentObject = (node, seenVariables = new Set()) => {
 		node = unwrapExpression(node);
 		if (!node) {
 			return false;
 		}
 
 		if (node.type === 'Identifier') {
-			return isImportBinding(context, node, environmentNames);
+			return isImportBinding(context, node, environmentNames) || isEnvironmentAlias(node, seenVariables);
 		}
 
 		return node.type === 'MemberExpression'
@@ -168,6 +221,45 @@ const create = context => {
 	const isEnvironmentMember = node => {
 		node = unwrapExpression(node);
 		return node?.type === 'MemberExpression' && isEnvironmentObject(node.object);
+	};
+
+	const getEnvironmentAssignmentTarget = node => {
+		node = unwrapExpression(node);
+		if (!node) {
+			return;
+		}
+
+		if (node.type === 'MemberExpression' && (isEnvironmentObject(node) || isEnvironmentMember(node))) {
+			return node;
+		}
+
+		if (node.type === 'AssignmentPattern') {
+			return getEnvironmentAssignmentTarget(node.left);
+		}
+
+		if (node.type === 'RestElement') {
+			return getEnvironmentAssignmentTarget(node.argument);
+		}
+
+		if (node.type === 'ArrayPattern') {
+			for (const element of node.elements) {
+				const target = getEnvironmentAssignmentTarget(element);
+				if (target) {
+					return target;
+				}
+			}
+
+			return;
+		}
+
+		if (node.type === 'ObjectPattern') {
+			for (const property of node.properties) {
+				const target = getEnvironmentAssignmentTarget(property.type === 'Property' ? property.value : property.argument);
+				if (target) {
+					return target;
+				}
+			}
+		}
 	};
 
 	const getContextVariable = callback => {
@@ -247,11 +339,7 @@ const create = context => {
 		}
 
 		if (node.type === 'AssignmentExpression') {
-			if (isEnvironmentObject(node.left) || isEnvironmentMember(node.left)) {
-				return unwrapExpression(node.left);
-			}
-
-			return;
+			return getEnvironmentAssignmentTarget(node.left);
 		}
 
 		if (node.type === 'UpdateExpression') {
@@ -298,6 +386,14 @@ const create = context => {
 		}
 	};
 
+	const getMutatingLoopTarget = node => {
+		if (!isInsideTestCallback(node)) {
+			return;
+		}
+
+		return getEnvironmentAssignmentTarget(node.left);
+	};
+
 	context.on('CallExpression', node => {
 		enterTestCall(node);
 
@@ -342,6 +438,30 @@ const create = context => {
 
 	context.on('UnaryExpression', node => {
 		const target = getMutatingProcessEnvironmentTarget(node);
+		if (!target) {
+			return;
+		}
+
+		return {
+			node: target,
+			messageId: MESSAGE_ID,
+		};
+	});
+
+	context.on('ForInStatement', node => {
+		const target = getMutatingLoopTarget(node);
+		if (!target) {
+			return;
+		}
+
+		return {
+			node: target,
+			messageId: MESSAGE_ID,
+		};
+	});
+
+	context.on('ForOfStatement', node => {
+		const target = getMutatingLoopTarget(node);
 		if (!target) {
 			return;
 		}
