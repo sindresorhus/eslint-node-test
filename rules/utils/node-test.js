@@ -132,6 +132,7 @@ function collectFromImport(node, bindings) {
 
 function scanImports(context) {
 	const bindings = {
+		sourceCode: context.sourceCode,
 		// Map of local identifier name -> canonical `node:test` export name.
 		locals: new Map(),
 		// `import * as nodeTest from 'node:test'` -> namespace local name.
@@ -169,10 +170,26 @@ function scanImports(context) {
 	};
 }
 
+function getVariable(identifier, imports) {
+	return findVariable(imports.sourceCode.getScope(identifier), identifier);
+}
+
+function getDeclaredVariable(identifier, node, imports) {
+	return imports.sourceCode.getDeclaredVariables(node).find(variable => variable.identifiers.includes(identifier));
+}
+
+function isImportedBindingReference(identifier, imports) {
+	return getVariable(identifier, imports)?.defs.some(definition => definition.type === 'ImportBinding') ?? false;
+}
+
 /** Whether a node references the global `mock` — a named/renamed import or `namespace.mock`. */
 export function isGlobalMock(node, imports) {
 	return (
-		(node.type === 'Identifier' && imports.mockLocals.has(node.name))
+		(
+			node.type === 'Identifier'
+			&& imports.mockLocals.has(node.name)
+			&& isImportedBindingReference(node, imports)
+		)
 		|| (
 			node.type === 'MemberExpression'
 			&& !node.computed
@@ -180,6 +197,7 @@ export function isGlobalMock(node, imports) {
 			&& node.property.name === 'mock'
 			&& node.object.type === 'Identifier'
 			&& node.object.name === imports.namespace
+			&& isImportedBindingReference(node.object, imports)
 		)
 	);
 }
@@ -270,6 +288,9 @@ export const parseTestCall = memoizeByNode(parseTestCallCache, (callExpression, 
 	}
 
 	const {root, members} = chain;
+	if (!isImportedBindingReference(root, imports)) {
+		return undefined;
+	}
 
 	let name;
 	let modifiers;
@@ -344,12 +365,14 @@ push this call's own context, and `leave(node)` on exit.
 */
 export function createContextTracker(imports) {
 	const names = [];
+	const variables = [];
 	const callbacks = [];
 	const pushedCalls = new Set();
 
 	const isSubtestCall = node => {
 		const receiver = getSubtestReceiver(node);
-		return receiver !== undefined && names.includes(receiver.name);
+		const variable = receiver && getVariable(receiver, imports);
+		return variable !== undefined && variables.includes(variable);
 	};
 
 	return {
@@ -371,6 +394,7 @@ export function createContextTracker(imports) {
 			if (callback) {
 				const parameter = callback.params[0];
 				names.push(parameter?.type === 'Identifier' ? parameter.name : undefined);
+				variables.push(parameter?.type === 'Identifier' ? getDeclaredVariable(parameter, callback, imports) : undefined);
 				callbacks.push(callback);
 				pushedCalls.add(node);
 			}
@@ -382,6 +406,7 @@ export function createContextTracker(imports) {
 
 			pushedCalls.delete(node);
 			names.pop();
+			variables.pop();
 			callbacks.pop();
 		},
 	};
@@ -583,11 +608,6 @@ export function nearestTestCallbackKind(node, imports) {
 	return undefined;
 }
 
-function isImportedIdentifier(node, imports) {
-	const variable = findVariable(imports.sourceCode.getScope(node), node);
-	return variable?.defs.some(({type}) => type === 'ImportBinding') ?? false;
-}
-
 /**
 Classify a `CallExpression` as a `node:assert` assertion call.
 
@@ -610,7 +630,7 @@ export const parseAssertionCall = memoizeByNode(parseAssertionCallCache, (callEx
 	if (
 		callee.type === 'Identifier'
 		&& imports.assertNamed.has(callee.name)
-		&& isImportedIdentifier(callee, imports)
+		&& isImportedBindingReference(callee, imports)
 	) {
 		return {
 			method: imports.assertNamed.get(callee.name),
@@ -622,7 +642,7 @@ export const parseAssertionCall = memoizeByNode(parseAssertionCallCache, (callEx
 	if (
 		callee.type === 'Identifier'
 		&& imports.assertNamespace.has(callee.name)
-		&& isImportedIdentifier(callee, imports)
+		&& isImportedBindingReference(callee, imports)
 	) {
 		// `assert(value)` — the bare assert function (alias of `ok`); no method identifier to rewrite.
 		return {
@@ -643,7 +663,7 @@ export const parseAssertionCall = memoizeByNode(parseAssertionCallCache, (callEx
 		if (
 			object.type === 'Identifier'
 			&& imports.assertNamespace.has(object.name)
-			&& isImportedIdentifier(object, imports)
+			&& isImportedBindingReference(object, imports)
 		) {
 			return {
 				method: callee.property.name,

@@ -1,10 +1,8 @@
-import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	resolveImports,
 	parseTestCall,
 	parseAssertionCall,
 	getTestCallback,
-	getSubtestReceiver,
 	createContextTracker,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
@@ -47,89 +45,12 @@ function getTestContextAssertionName(node) {
 	return callee.object.object.name;
 }
 
-function getImportedAssertReference(node, imports) {
-	const {callee} = node;
-	if (
-		callee.type === 'Identifier'
-		&& (
-			imports.assertNamed.has(callee.name)
-			|| imports.assertNamespace.has(callee.name)
-		)
-	) {
-		return callee;
-	}
-
-	if (
-		callee.type === 'MemberExpression'
-		&& !callee.computed
-		&& callee.object.type === 'Identifier'
-		&& imports.assertNamespace.has(callee.object.name)
-	) {
-		return callee.object;
-	}
-
-	return undefined;
-}
-
-function getVariable(identifier, context) {
-	if (!identifier) {
-		return undefined;
-	}
-
-	return findVariable(context.sourceCode.getScope(identifier), identifier);
-}
-
-function isImportedBinding(identifier, context) {
-	const variable = getVariable(identifier, context);
-	return variable?.defs.some(definition => definition.type === 'ImportBinding') ?? false;
-}
-
-function isSameVariable(left, right, context) {
-	const leftVariable = getVariable(left, context);
-	const rightVariable = getVariable(right, context);
-	return leftVariable !== undefined && leftVariable === rightVariable;
-}
-
-function getCalleeRoot(node) {
-	while (
-		node.type === 'MemberExpression'
-		&& !node.computed
-	) {
-		node = node.object;
-	}
-
-	return node.type === 'Identifier' ? node : undefined;
-}
-
-function isImportedTestCall(node, context, imports) {
-	const parsed = parseTestCall(node, imports);
-	return (
-		parsed?.kind === 'test'
-		&& isImportedBinding(getCalleeRoot(node.callee), context)
-	);
-}
-
-function isTrackedSubtestCall(node, context, tracker) {
-	const receiver = getSubtestReceiver(node);
-	const contextParameter = tracker.currentCallback()?.params[0];
-	return (
-		receiver !== undefined
-		&& contextParameter?.type === 'Identifier'
-		&& isSameVariable(receiver, contextParameter, context)
-	);
-}
-
 function getAssertionKey(assertionExpression, context, imports, tracker) {
 	const {node, isAwaited} = assertionExpression;
 	const assertion = parseAssertionCall(node, imports);
 	const testContextName = getTestContextAssertionName(node);
-	const importedAssertReference = getImportedAssertReference(node, imports);
 	if (
 		!assertion
-		|| (
-			importedAssertReference
-			&& !isImportedBinding(importedAssertReference, context)
-		)
 		|| (
 			testContextName !== undefined
 			&& !tracker.isContextName(testContextName)
@@ -186,10 +107,8 @@ const create = context => {
 	const testCallbackBodies = new WeakSet();
 
 	context.on('CallExpression', node => {
-		const isTest = isImportedTestCall(node, context, imports) || isTrackedSubtestCall(node, context, tracker);
-		if (isTest) {
-			tracker.update(node);
-		}
+		const isTest = parseTestCall(node, imports)?.kind === 'test' || tracker.isSubtestCall(node);
+		tracker.update(node);
 
 		const callback = getTestCallback(node);
 		if (
@@ -242,7 +161,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow adjacent duplicate assertions.',
-			recommended: false,
+			recommended: 'unopinionated',
 		},
 		schema: [],
 		messages,

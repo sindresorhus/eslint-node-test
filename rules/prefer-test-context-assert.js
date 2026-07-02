@@ -1,4 +1,4 @@
-import {resolveImports, createContextTracker} from './utils/node-test.js';
+import {resolveImports, parseAssertionCall, createContextTracker} from './utils/node-test.js';
 
 const MESSAGE_ID_ERROR = 'prefer-test-context-assert/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-test-context-assert/suggestion';
@@ -17,41 +17,35 @@ const LOOSE_TO_STRICT = new Map([
 	['notDeepEqual', 'notDeepStrictEqual'],
 ]);
 
+function isTestContextAssertCall(node) {
+	const {callee} = node;
+	return (
+		callee.type === 'MemberExpression'
+		&& !callee.computed
+		&& callee.object.type === 'MemberExpression'
+		&& !callee.object.computed
+		&& callee.object.property.type === 'Identifier'
+		&& callee.object.property.name === 'assert'
+	);
+}
+
 /**
-Classify a call as an imported `node:assert` assertion (not the `t.assert.*` form, which is
-already preferred) and resolve the method name to use on `t.assert`, accounting for strict mode.
+Resolve the imported `node:assert` method name to use on `t.assert`, accounting for strict mode.
 
 @returns {{method: string} | undefined}
 */
 const getAssertMethod = (node, imports) => {
-	const {callee} = node;
-
-	// `strictEqual(…)` — named import.
-	if (callee.type === 'Identifier' && imports.assertNamed.has(callee.name)) {
-		const method = imports.assertNamed.get(callee.name);
-		const isStrict = imports.strictAssertLocals.has(callee.name);
-		return {method: (isStrict && LOOSE_TO_STRICT.get(method)) || method};
+	if (isTestContextAssertCall(node)) {
+		return undefined;
 	}
 
-	// `assert(…)` — the bare assert function (alias of `ok`).
-	if (callee.type === 'Identifier' && imports.assertNamespace.has(callee.name)) {
-		return {method: 'ok'};
+	const assertion = parseAssertionCall(node, imports);
+	if (!assertion) {
+		return undefined;
 	}
 
-	// `assert.strictEqual(…)` — namespace member.
-	if (
-		callee.type === 'MemberExpression'
-		&& !callee.computed
-		&& callee.property.type === 'Identifier'
-		&& callee.object.type === 'Identifier'
-		&& imports.assertNamespace.has(callee.object.name)
-	) {
-		const method = callee.property.name;
-		const isStrict = imports.strictAssertLocals.has(callee.object.name);
-		return {method: (isStrict && LOOSE_TO_STRICT.get(method)) || method};
-	}
-
-	return undefined;
+	const {method, isStrict} = assertion;
+	return {method: (isStrict && LOOSE_TO_STRICT.get(method)) || method};
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
