@@ -44,7 +44,7 @@ export default defineConfig([
 ]);
 ```
 
-The rules only activate in files that import from `node:test` (and, for assertion rules, `node:assert`), so you can safely apply the plugin across your whole project.
+The rules only activate in files that import from `node:test`/`test` (and, for assertion rules, `node:assert`), so you can safely apply the plugin across your whole project.
 
 ## Rules
 
@@ -90,6 +90,7 @@ The rules only activate in files that import from `node:test` (and, for assertio
 | [no-mock-timers-destructured-import](docs/rules/no-mock-timers-destructured-import.md) | Disallow destructured timer imports when using `mock.timers`.                                              | ✅ ☑️ |    |    |
 | [no-nested-tests](docs/rules/no-nested-tests.md)                                       | Disallow tests and suites nested inside a test body.                                                       | ✅ ☑️ |    |    |
 | [no-only-test](docs/rules/no-only-test.md)                                             | Disallow the `.only` test modifier.                                                                        | ✅ ☑️ |    | 💡 |
+| [no-process-exit-in-test](docs/rules/no-process-exit-in-test.md)                       | Disallow process exit control in test files.                                                               | ✅ ☑️ |    |    |
 | [no-skip-test](docs/rules/no-skip-test.md)                                             | Disallow the `.skip` test modifier.                                                                        | ✅    |    | 💡 |
 | [no-skip-without-reason](docs/rules/no-skip-without-reason.md)                         | Require a reason when skipping or marking a test as todo.                                                  |      |    |    |
 | [no-skip-without-return](docs/rules/no-skip-without-return.md)                         | Disallow `t.skip()`/`t.todo()` without returning afterwards.                                               | ✅    |    | 💡 |
