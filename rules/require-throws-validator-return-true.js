@@ -91,7 +91,7 @@ function hasReturnTrue(functionBody, context, imports) {
 }
 
 function validatorCanReturnTrue(validator, context, imports) {
-	if (validator.async) {
+	if (validator.async || validator.generator) {
 		return false;
 	}
 

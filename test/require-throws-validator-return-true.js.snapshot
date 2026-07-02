@@ -110,14 +110,30 @@ Message:
 
 `;
 
-exports[`require-throws-validator-return-true > invalid(16): import assert from 'node:assert/strict';\nassert.throws(fn, error => Promise.all([true])); 1`] = `
+exports[`require-throws-validator-return-true > invalid(16): import assert from 'node:assert/strict';\nassert.throws(fn, error => { return Promise.resolve(true); }); 1`] = `
+
+  1 | import assert from 'node:assert/strict';
+  2 | assert.throws(fn, error => { return Promise.resolve(true); });
+
+`;
+
+exports[`require-throws-validator-return-true > invalid(16): import assert from 'node:assert/strict';\nassert.throws(fn, error => { return Promise.resolve(true); }); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert/strict';
+> 2 | assert.throws(fn, error => { return Promise.resolve(true); });
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Validator function passed to \`assert.throws()\` must return the boolean value \`true\`.
+
+`;
+
+exports[`require-throws-validator-return-true > invalid(17): import assert from 'node:assert/strict';\nassert.throws(fn, error => Promise.all([true])); 1`] = `
 
   1 | import assert from 'node:assert/strict';
   2 | assert.throws(fn, error => Promise.all([true]));
 
 `;
 
-exports[`require-throws-validator-return-true > invalid(16): import assert from 'node:assert/strict';\nassert.throws(fn, error => Promise.all([true])); 2`] = `
+exports[`require-throws-validator-return-true > invalid(17): import assert from 'node:assert/strict';\nassert.throws(fn, error => Promise.all([true])); 2`] = `
 
 Message:
   1 | import assert from 'node:assert/strict';
@@ -126,51 +142,35 @@ Message:
 
 `;
 
-exports[`require-throws-validator-return-true > invalid(17): import assert from 'node:assert/strict';\nassert.throws(fn, error => { const validate = () => true; validate(error); }); 1`] = `
+exports[`require-throws-validator-return-true > invalid(18): import assert from 'node:assert/strict';\nassert.throws(fn, function * (error) { return true; }); 1`] = `
 
   1 | import assert from 'node:assert/strict';
-  2 | assert.throws(fn, error => { const validate = () => true; validate(error); });
+  2 | assert.throws(fn, function * (error) { return true; });
 
 `;
 
-exports[`require-throws-validator-return-true > invalid(17): import assert from 'node:assert/strict';\nassert.throws(fn, error => { const validate = () => true; validate(error); }); 2`] = `
+exports[`require-throws-validator-return-true > invalid(18): import assert from 'node:assert/strict';\nassert.throws(fn, function * (error) { return true; }); 2`] = `
 
 Message:
   1 | import assert from 'node:assert/strict';
-> 2 | assert.throws(fn, error => { const validate = () => true; validate(error); });
-    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Validator function passed to \`assert.throws()\` must return the boolean value \`true\`.
+> 2 | assert.throws(fn, function * (error) { return true; });
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Validator function passed to \`assert.throws()\` must return the boolean value \`true\`.
 
 `;
 
-exports[`require-throws-validator-return-true > invalid(18): import {rejects, match} from 'node:assert/strict';\nrejects(fn, error => { match(error.message, /bad/); }); 1`] = `
+exports[`require-throws-validator-return-true > invalid(19): import assert from 'node:assert/strict';\nassert.throws(fn, function * (error) { yield true; }); 1`] = `
 
-  1 | import {rejects, match} from 'node:assert/strict';
-  2 | rejects(fn, error => { match(error.message, /bad/); });
+  1 | import assert from 'node:assert/strict';
+  2 | assert.throws(fn, function * (error) { yield true; });
 
 `;
 
-exports[`require-throws-validator-return-true > invalid(18): import {rejects, match} from 'node:assert/strict';\nrejects(fn, error => { match(error.message, /bad/); }); 2`] = `
+exports[`require-throws-validator-return-true > invalid(19): import assert from 'node:assert/strict';\nassert.throws(fn, function * (error) { yield true; }); 2`] = `
 
 Message:
-  1 | import {rejects, match} from 'node:assert/strict';
-> 2 | rejects(fn, error => { match(error.message, /bad/); });
-    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Validator function passed to \`assert.rejects()\` must return the boolean value \`true\`.
-
-`;
-
-exports[`require-throws-validator-return-true > invalid(19): import test from 'node:test';\ntest('t', t => { t.assert.rejects(fn, error => { t.assert.match(error.message, /bad/); }); }); 1`] = `
-
-  1 | import test from 'node:test';
-  2 | test('t', t => { t.assert.rejects(fn, error => { t.assert.match(error.message, /bad/); }); });
-
-`;
-
-exports[`require-throws-validator-return-true > invalid(19): import test from 'node:test';\ntest('t', t => { t.assert.rejects(fn, error => { t.assert.match(error.message, /bad/); }); }); 2`] = `
-
-Message:
-  1 | import test from 'node:test';
-> 2 | test('t', t => { t.assert.rejects(fn, error => { t.assert.match(error.message, /bad/); }); });
-    |                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Validator function passed to \`assert.rejects()\` must return the boolean value \`true\`.
+  1 | import assert from 'node:assert/strict';
+> 2 | assert.throws(fn, function * (error) { yield true; });
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Validator function passed to \`assert.throws()\` must return the boolean value \`true\`.
 
 `;
 
@@ -190,14 +190,62 @@ Message:
 
 `;
 
-exports[`require-throws-validator-return-true > invalid(20): import assert from 'node:assert/strict';\nassert.throws(fn, (error => { assert.match(error.message, /bad/); }) as (error: Error) => boolean); 1`] = `
+exports[`require-throws-validator-return-true > invalid(20): import assert from 'node:assert/strict';\nassert.throws(fn, error => { const validate = () => true; validate(error); }); 1`] = `
+
+  1 | import assert from 'node:assert/strict';
+  2 | assert.throws(fn, error => { const validate = () => true; validate(error); });
+
+`;
+
+exports[`require-throws-validator-return-true > invalid(20): import assert from 'node:assert/strict';\nassert.throws(fn, error => { const validate = () => true; validate(error); }); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert/strict';
+> 2 | assert.throws(fn, error => { const validate = () => true; validate(error); });
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Validator function passed to \`assert.throws()\` must return the boolean value \`true\`.
+
+`;
+
+exports[`require-throws-validator-return-true > invalid(21): import {rejects, match} from 'node:assert/strict';\nrejects(fn, error => { match(error.message, /bad/); }); 1`] = `
+
+  1 | import {rejects, match} from 'node:assert/strict';
+  2 | rejects(fn, error => { match(error.message, /bad/); });
+
+`;
+
+exports[`require-throws-validator-return-true > invalid(21): import {rejects, match} from 'node:assert/strict';\nrejects(fn, error => { match(error.message, /bad/); }); 2`] = `
+
+Message:
+  1 | import {rejects, match} from 'node:assert/strict';
+> 2 | rejects(fn, error => { match(error.message, /bad/); });
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Validator function passed to \`assert.rejects()\` must return the boolean value \`true\`.
+
+`;
+
+exports[`require-throws-validator-return-true > invalid(22): import test from 'node:test';\ntest('t', t => { t.assert.rejects(fn, error => { t.assert.match(error.message, /bad/); }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', t => { t.assert.rejects(fn, error => { t.assert.match(error.message, /bad/); }); });
+
+`;
+
+exports[`require-throws-validator-return-true > invalid(22): import test from 'node:test';\ntest('t', t => { t.assert.rejects(fn, error => { t.assert.match(error.message, /bad/); }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', t => { t.assert.rejects(fn, error => { t.assert.match(error.message, /bad/); }); });
+    |                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Validator function passed to \`assert.rejects()\` must return the boolean value \`true\`.
+
+`;
+
+exports[`require-throws-validator-return-true > invalid(23): import assert from 'node:assert/strict';\nassert.throws(fn, (error => { assert.match(error.message, /bad/); }) as (error: Error) => boolean); 1`] = `
 
   1 | import assert from 'node:assert/strict';
   2 | assert.throws(fn, (error => { assert.match(error.message, /bad/); }) as (error: Error) => boolean);
 
 `;
 
-exports[`require-throws-validator-return-true > invalid(20): import assert from 'node:assert/strict';\nassert.throws(fn, (error => { assert.match(error.message, /bad/); }) as (error: Error) => boolean); 2`] = `
+exports[`require-throws-validator-return-true > invalid(23): import assert from 'node:assert/strict';\nassert.throws(fn, (error => { assert.match(error.message, /bad/); }) as (error: Error) => boolean); 2`] = `
 
 Message:
   1 | import assert from 'node:assert/strict';

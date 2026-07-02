@@ -3,6 +3,7 @@ import {getTester, parsers} from './utils/test.js';
 const {test} = getTester(import.meta);
 
 const withAssert = code => `import assert from 'node:assert/strict';\n${code}`;
+const withAssertNamespace = code => `import * as assert from 'node:assert/strict';\n${code}`;
 const withNamedImport = (methods, code) => `import {${methods}} from 'node:assert/strict';\n${code}`;
 const withTest = code => `import test from 'node:test';\n${code}`;
 
@@ -22,8 +23,10 @@ test.snapshot({
 		// Explicit `true`
 		withAssert('assert.throws(fn, error => { assert.match(error.message, /bad/); return true; });'),
 		withAssert('assert.rejects(fn, error => { assert.match(error.message, /bad/); return true; });'),
+		withAssert('assert.throws(fn, error => { assert.match(error.message, /bad/); return true; }, "failure message");'),
 		withAssert('assert.throws(fn, error => true);'),
 		withAssert('assert.throws(fn, function (error) { return true; });'),
+		withAssertNamespace('assert.throws(fn, error => { assert.match(error.message, /bad/); return true; });'),
 
 		// Dynamic expressions may return `true`
 		withAssert('assert.throws(fn, error => error instanceof TypeError);'),
@@ -33,7 +36,7 @@ test.snapshot({
 		// Named import
 		withNamedImport('throws, match', 'throws(fn, error => { match(error.message, /bad/); return true; });'),
 
-		// T.assert
+		// Test context assert
 		withTest('test(\'t\', t => { t.assert.throws(fn, error => { t.assert.match(error.message, /bad/); return true; }); });'),
 
 		// TypeScript
@@ -67,7 +70,12 @@ test.snapshot({
 		withAssert('assert.throws(fn, async error => true);'),
 		withAssert('assert.throws(fn, async error => { return true; });'),
 		withAssert('assert.throws(fn, error => Promise.resolve(true));'),
+		withAssert('assert.throws(fn, error => { return Promise.resolve(true); });'),
 		withAssert('assert.throws(fn, error => Promise.all([true]));'),
+
+		// Generator validators return a generator object, not `true`
+		withAssert('assert.throws(fn, function * (error) { return true; });'),
+		withAssert('assert.throws(fn, function * (error) { yield true; });'),
 
 		// Nested functions do not make the validator return `true`
 		withAssert('assert.throws(fn, error => { const validate = () => true; validate(error); });'),
@@ -75,7 +83,7 @@ test.snapshot({
 		// Named import
 		withNamedImport('rejects, match', 'rejects(fn, error => { match(error.message, /bad/); });'),
 
-		// T.assert
+		// Test context assert
 		withTest('test(\'t\', t => { t.assert.rejects(fn, error => { t.assert.match(error.message, /bad/); }); });'),
 
 		// TypeScript
