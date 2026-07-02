@@ -1,4 +1,4 @@
-import {getStaticValue} from '@eslint-community/eslint-utils';
+import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
 import isFunction from '../ast/is-function.js';
 import unwrapTypeScriptExpression from './unwrap-typescript-expression.js';
 
@@ -40,6 +40,7 @@ Scan a file's top-level imports and resolve the local bindings for
 	assertNamespace: Set<string>,
 	assertNamed: Map<string, string>,
 	strictAssertLocals: Set<string>,
+	sourceCode: import('eslint').SourceCode,
 	isTestFile: boolean,
 	hasAssert: boolean,
 }}
@@ -157,6 +158,7 @@ function scanImports(context) {
 	const hasAssert = assertNamespace.size > 0 || assertNamed.size > 0;
 	return {
 		...bindings,
+		sourceCode: context.sourceCode,
 		// Local names bound to the `mock` export (`import {mock} from 'node:test'`, renamed too).
 		mockLocals: new Set([...locals].filter(([, canonical]) => canonical === 'mock').map(([local]) => local)),
 		isTestFile,
@@ -581,6 +583,11 @@ export function nearestTestCallbackKind(node, imports) {
 	return undefined;
 }
 
+function isImportedIdentifier(node, imports) {
+	const variable = findVariable(imports.sourceCode.getScope(node), node);
+	return variable?.defs.some(({type}) => type === 'ImportBinding') ?? false;
+}
+
 /**
 Classify a `CallExpression` as a `node:assert` assertion call.
 
@@ -600,7 +607,11 @@ export const parseAssertionCall = memoizeByNode(parseAssertionCallCache, (callEx
 	const {callee} = callExpression;
 
 	// `strictEqual(…)` — named import.
-	if (callee.type === 'Identifier' && imports.assertNamed.has(callee.name)) {
+	if (
+		callee.type === 'Identifier'
+		&& imports.assertNamed.has(callee.name)
+		&& isImportedIdentifier(callee, imports)
+	) {
 		return {
 			method: imports.assertNamed.get(callee.name),
 			methodNode: callee,
@@ -608,7 +619,11 @@ export const parseAssertionCall = memoizeByNode(parseAssertionCallCache, (callEx
 		};
 	}
 
-	if (callee.type === 'Identifier' && imports.assertNamespace.has(callee.name)) {
+	if (
+		callee.type === 'Identifier'
+		&& imports.assertNamespace.has(callee.name)
+		&& isImportedIdentifier(callee, imports)
+	) {
 		// `assert(value)` — the bare assert function (alias of `ok`); no method identifier to rewrite.
 		return {
 			method: 'ok',
@@ -625,7 +640,11 @@ export const parseAssertionCall = memoizeByNode(parseAssertionCallCache, (callEx
 		const {object} = callee;
 
 		// `assert.strictEqual(…)`
-		if (object.type === 'Identifier' && imports.assertNamespace.has(object.name)) {
+		if (
+			object.type === 'Identifier'
+			&& imports.assertNamespace.has(object.name)
+			&& isImportedIdentifier(object, imports)
+		) {
 			return {
 				method: callee.property.name,
 				methodNode: callee.property,
