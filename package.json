@@ -1,6 +1,6 @@
 {
 	"name": "eslint-node-test",
-	"version": "0.0.0",
+	"version": "0.1.0",
 	"description": "ESLint rules for the Node.js built-in test runner (`node:test`)",
 	"license": "MIT",
 	"repository": "sindresorhus/eslint-node-test",
