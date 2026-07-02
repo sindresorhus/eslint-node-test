@@ -2,7 +2,7 @@
 
 ## Philosophy
 
-This plugin lints tests written with the Node.js built-in test runner (`node:test`). The infrastructure (rule adapter, snapshot test harness, doc generation) is adapted from [`eslint-plugin-unicorn`](https://github.com/sindresorhus/eslint-plugin-unicorn); the rules are ported and adapted from [`eslint-plugin-ava`](https://github.com/avajs/eslint-plugin-ava).
+This plugin lints tests written with the Node.js built-in test runner (`node:test`).
 
 Keep rules simple. Target common patterns, skip rare edge cases rather than overcomplicating the rule.
 
@@ -102,12 +102,16 @@ This plugin only lints JavaScript/TypeScript test files, so every rule declares 
 
 ## Reusable utilities
 
+The infrastructure (rule adapter, snapshot test harness, doc generation) is adapted from `../eslint-plugin-unicorn`. Look in both for existing utilities and patterns before writing new ones here.
+
 Before writing helpers, check these directories:
 
 - **`rules/ast/`** - AST node type checks: `isMethodCall`, `isMemberExpression`, `isFunction`, `isLoop`, `isExpressionStatement`, `isStringExpression`, `isBooleanLiteral`, `isRegexLiteral`, `getStaticStringValue`, etc.
 - **`rules/utils/`** - General utilities: parenthesis helpers (`isParenthesized`, `getParenthesizedRange`, `getParentheses`), `isSameReference`, `isValueNotUsable`, `isPromiseType`, `isConditionalBranch`, `getEnclosingFunction`, `getComments`, `unwrapTypeScriptExpression`, etc.
 - **`rules/fix/`** - Fixer helpers: `removeArgument`, `removeMemberExpressionProperty`.
 - **`rules/shared/`** - Shared rule logic for rules that share patterns (e.g., `test-modifier-rule.js`).
+
+Also check `../eslint-plugin-unicorn/rules/ast/`, `../eslint-plugin-unicorn/rules/utils/`, and `../eslint-plugin-unicorn/rules/fix/` — this plugin's helpers were adapted from there and equivalents may already exist for a pattern this plugin doesn't have yet.
 
 Import from the barrel `index.js` in each directory (e.g., `import {isMethodCall} from './ast/index.js'`).
 

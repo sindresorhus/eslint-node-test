@@ -5,7 +5,6 @@ export {
 } from './parentheses/parentheses.js';
 
 export {default as containsSuspensionPoint} from './contains-suspension-point.js';
-export {default as escapeString} from './escape-string.js';
 export {default as getComments} from './get-comments.js';
 export {default as isPromiseType} from './is-promise-type.js';
 export {default as isSameReference} from './is-same-reference.js';

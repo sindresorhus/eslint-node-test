@@ -1,10 +1,10 @@
+import quoteJsString from 'quote-js-string';
 import {
 	resolveImports,
 	parseTestCall,
 	getTestTitle,
 	getTestCallback,
 } from './utils/node-test.js';
-import {escapeString} from './utils/index.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
 const MESSAGE_ID_MISSING = 'test-title/missing';
@@ -54,7 +54,7 @@ function getStaticTitleProblem(titleNode) {
 		return {
 			node: titleNode,
 			messageId: MESSAGE_ID_WHITESPACE,
-			fix: fixer => fixer.replaceText(titleNode, escapeString(trimmed, quote)),
+			fix: fixer => fixer.replaceText(titleNode, quoteJsString(trimmed, quote)),
 		};
 	}
 }
