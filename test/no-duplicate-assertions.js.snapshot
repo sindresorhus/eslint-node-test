@@ -1,0 +1,353 @@
+exports[`no-duplicate-assertions > invalid(1): import test from 'node:test';\nimport assert from 'node:assert';\ntest('user', () => {\n\tassert.strictEqual(user.id, 1);\n\tassert.strictEqual(user.id, 1);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('user', () => {
+  4 | 	assert.strictEqual(user.id, 1);
+  5 | 	assert.strictEqual(user.id, 1);
+  6 | });
+
+`;
+
+exports[`no-duplicate-assertions > invalid(1): import test from 'node:test';\nimport assert from 'node:assert';\ntest('user', () => {\n\tassert.strictEqual(user.id, 1);\n\tassert.strictEqual(user.id, 1);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('user', () => {
+  4 | 	assert.strictEqual(user.id, 1);
+> 5 | 	assert.strictEqual(user.id, 1);
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Duplicate adjacent assertion.
+  6 | });
+
+`;
+
+exports[`no-duplicate-assertions > invalid(10): import test from 'node:test';\nimport assert from 'node:assert';\ntest('user', () => {\n\tassert.strictEqual(user.profile?.id, 1);\n\tassert.strictEqual(user.profile?.id, 1);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('user', () => {
+  4 | 	assert.strictEqual(user.profile?.id, 1);
+  5 | 	assert.strictEqual(user.profile?.id, 1);
+  6 | });
+
+`;
+
+exports[`no-duplicate-assertions > invalid(10): import test from 'node:test';\nimport assert from 'node:assert';\ntest('user', () => {\n\tassert.strictEqual(user.profile?.id, 1);\n\tassert.strictEqual(user.profile?.id, 1);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('user', () => {
+  4 | 	assert.strictEqual(user.profile?.id, 1);
+> 5 | 	assert.strictEqual(user.profile?.id, 1);
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Duplicate adjacent assertion.
+  6 | });
+
+`;
+
+exports[`no-duplicate-assertions > invalid(11): import test from 'node:test';\nimport assert from 'node:assert';\ntest('user', async () => {\n\tawait assert.rejects(promise);\n\tawait assert.rejects(promise);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('user', async () => {
+  4 | 	await assert.rejects(promise);
+  5 | 	await assert.rejects(promise);
+  6 | });
+
+`;
+
+exports[`no-duplicate-assertions > invalid(11): import test from 'node:test';\nimport assert from 'node:assert';\ntest('user', async () => {\n\tawait assert.rejects(promise);\n\tawait assert.rejects(promise);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('user', async () => {
+  4 | 	await assert.rejects(promise);
+> 5 | 	await assert.rejects(promise);
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Duplicate adjacent assertion.
+  6 | });
+
+`;
+
+exports[`no-duplicate-assertions > invalid(12): import test from 'node:test';\nimport strictAssert from 'node:assert/strict';\nimport looseAssert from 'node:assert';\ntest('user', () => {\n\tstrictAssert.equal(user.id, 1);\n\tlooseAssert.strictEqual(user.id, 1);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import strictAssert from 'node:assert/strict';
+  3 | import looseAssert from 'node:assert';
+  4 | test('user', () => {
+  5 | 	strictAssert.equal(user.id, 1);
+  6 | 	looseAssert.strictEqual(user.id, 1);
+  7 | });
+
+`;
+
+exports[`no-duplicate-assertions > invalid(12): import test from 'node:test';\nimport strictAssert from 'node:assert/strict';\nimport looseAssert from 'node:assert';\ntest('user', () => {\n\tstrictAssert.equal(user.id, 1);\n\tlooseAssert.strictEqual(user.id, 1);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import strictAssert from 'node:assert/strict';
+  3 | import looseAssert from 'node:assert';
+  4 | test('user', () => {
+  5 | 	strictAssert.equal(user.id, 1);
+> 6 | 	looseAssert.strictEqual(user.id, 1);
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Duplicate adjacent assertion.
+  7 | });
+
+`;
+
+exports[`no-duplicate-assertions > invalid(13): import test from 'node:test';\nimport assert from 'node:assert';\ntest('user', () => {\n\tassert.strictEqual((user.id), 1);\n\tassert.strictEqual(user.id, 1);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('user', () => {
+  4 | 	assert.strictEqual((user.id), 1);
+  5 | 	assert.strictEqual(user.id, 1);
+  6 | });
+
+`;
+
+exports[`no-duplicate-assertions > invalid(13): import test from 'node:test';\nimport assert from 'node:assert';\ntest('user', () => {\n\tassert.strictEqual((user.id), 1);\n\tassert.strictEqual(user.id, 1);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('user', () => {
+  4 | 	assert.strictEqual((user.id), 1);
+> 5 | 	assert.strictEqual(user.id, 1);
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Duplicate adjacent assertion.
+  6 | });
+
+`;
+
+exports[`no-duplicate-assertions > invalid(14): import test from 'node:test';\nimport assert from 'node:assert';\ntest('user', () => {\n\tassert.strictEqual(user.id as number, 1);\n\tassert.strictEqual(user.id, 1);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('user', () => {
+  4 | 	assert.strictEqual(user.id as number, 1);
+  5 | 	assert.strictEqual(user.id, 1);
+  6 | });
+
+`;
+
+exports[`no-duplicate-assertions > invalid(14): import test from 'node:test';\nimport assert from 'node:assert';\ntest('user', () => {\n\tassert.strictEqual(user.id as number, 1);\n\tassert.strictEqual(user.id, 1);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('user', () => {
+  4 | 	assert.strictEqual(user.id as number, 1);
+> 5 | 	assert.strictEqual(user.id, 1);
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Duplicate adjacent assertion.
+  6 | });
+
+`;
+
+exports[`no-duplicate-assertions > invalid(2): import test from 'node:test';\nimport assert from 'node:assert';\ntest('user', () => {\n\tassert.strictEqual(user.id, 1);\n\tassert.strictEqual(user.id, 1);\n\tassert.strictEqual(user.id, 1);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('user', () => {
+  4 | 	assert.strictEqual(user.id, 1);
+  5 | 	assert.strictEqual(user.id, 1);
+  6 | 	assert.strictEqual(user.id, 1);
+  7 | });
+
+`;
+
+exports[`no-duplicate-assertions > invalid(2): import test from 'node:test';\nimport assert from 'node:assert';\ntest('user', () => {\n\tassert.strictEqual(user.id, 1);\n\tassert.strictEqual(user.id, 1);\n\tassert.strictEqual(user.id, 1);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('user', () => {
+  4 | 	assert.strictEqual(user.id, 1);
+> 5 | 	assert.strictEqual(user.id, 1);
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Duplicate adjacent assertion.
+  6 | 	assert.strictEqual(user.id, 1);
+  7 | });
+
+`;
+
+exports[`no-duplicate-assertions > invalid(2): import test from 'node:test';\nimport assert from 'node:assert';\ntest('user', () => {\n\tassert.strictEqual(user.id, 1);\n\tassert.strictEqual(user.id, 1);\n\tassert.strictEqual(user.id, 1);\n}); 3`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('user', () => {
+  4 | 	assert.strictEqual(user.id, 1);
+  5 | 	assert.strictEqual(user.id, 1);
+> 6 | 	assert.strictEqual(user.id, 1);
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Duplicate adjacent assertion.
+  7 | });
+
+`;
+
+exports[`no-duplicate-assertions > invalid(3): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('user', () => {\n\tassert.strictEqual(user.id, 1);\n\tassert.strictEqual(user.id, 1);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | test('user', () => {
+  4 | 	assert.strictEqual(user.id, 1);
+  5 | 	assert.strictEqual(user.id, 1);
+  6 | });
+
+`;
+
+exports[`no-duplicate-assertions > invalid(3): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('user', () => {\n\tassert.strictEqual(user.id, 1);\n\tassert.strictEqual(user.id, 1);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | test('user', () => {
+  4 | 	assert.strictEqual(user.id, 1);
+> 5 | 	assert.strictEqual(user.id, 1);
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Duplicate adjacent assertion.
+  6 | });
+
+`;
+
+exports[`no-duplicate-assertions > invalid(4): import test from 'node:test';\nimport {strictEqual} from 'node:assert';\ntest('user', () => {\n\tstrictEqual(user.id, 1);\n\tstrictEqual(user.id, 1);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import {strictEqual} from 'node:assert';
+  3 | test('user', () => {
+  4 | 	strictEqual(user.id, 1);
+  5 | 	strictEqual(user.id, 1);
+  6 | });
+
+`;
+
+exports[`no-duplicate-assertions > invalid(4): import test from 'node:test';\nimport {strictEqual} from 'node:assert';\ntest('user', () => {\n\tstrictEqual(user.id, 1);\n\tstrictEqual(user.id, 1);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import {strictEqual} from 'node:assert';
+  3 | test('user', () => {
+  4 | 	strictEqual(user.id, 1);
+> 5 | 	strictEqual(user.id, 1);
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^ Duplicate adjacent assertion.
+  6 | });
+
+`;
+
+exports[`no-duplicate-assertions > invalid(5): import test from 'node:test';\nimport * as assert from 'node:assert';\ntest('user', () => {\n\tassert.strictEqual(user.id, 1);\n\tassert.strictEqual(user.id, 1);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import * as assert from 'node:assert';
+  3 | test('user', () => {
+  4 | 	assert.strictEqual(user.id, 1);
+  5 | 	assert.strictEqual(user.id, 1);
+  6 | });
+
+`;
+
+exports[`no-duplicate-assertions > invalid(5): import test from 'node:test';\nimport * as assert from 'node:assert';\ntest('user', () => {\n\tassert.strictEqual(user.id, 1);\n\tassert.strictEqual(user.id, 1);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import * as assert from 'node:assert';
+  3 | test('user', () => {
+  4 | 	assert.strictEqual(user.id, 1);
+> 5 | 	assert.strictEqual(user.id, 1);
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Duplicate adjacent assertion.
+  6 | });
+
+`;
+
+exports[`no-duplicate-assertions > invalid(6): import test from 'node:test';\ntest('user', t => {\n\tt.assert.strictEqual(user.id, 1);\n\tt.assert.strictEqual(user.id, 1);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('user', t => {
+  3 | 	t.assert.strictEqual(user.id, 1);
+  4 | 	t.assert.strictEqual(user.id, 1);
+  5 | });
+
+`;
+
+exports[`no-duplicate-assertions > invalid(6): import test from 'node:test';\ntest('user', t => {\n\tt.assert.strictEqual(user.id, 1);\n\tt.assert.strictEqual(user.id, 1);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('user', t => {
+  3 | 	t.assert.strictEqual(user.id, 1);
+> 4 | 	t.assert.strictEqual(user.id, 1);
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Duplicate adjacent assertion.
+  5 | });
+
+`;
+
+exports[`no-duplicate-assertions > invalid(7): import test from 'node:test';\nimport assert from 'node:assert';\ntest('user', () => {\n\tassert(user.active);\n\tassert.ok(user.active);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('user', () => {
+  4 | 	assert(user.active);
+  5 | 	assert.ok(user.active);
+  6 | });
+
+`;
+
+exports[`no-duplicate-assertions > invalid(7): import test from 'node:test';\nimport assert from 'node:assert';\ntest('user', () => {\n\tassert(user.active);\n\tassert.ok(user.active);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('user', () => {
+  4 | 	assert(user.active);
+> 5 | 	assert.ok(user.active);
+    | 	^^^^^^^^^^^^^^^^^^^^^^^ Duplicate adjacent assertion.
+  6 | });
+
+`;
+
+exports[`no-duplicate-assertions > invalid(8): import test from 'node:test';\nimport assert from 'node:assert';\ntest('user', () => {\n\tassert.strictEqual(user.id, 1);\n\t// Copy-paste leftover\n\tassert.strictEqual(user.id, 1);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('user', () => {
+  4 | 	assert.strictEqual(user.id, 1);
+  5 | 	// Copy-paste leftover
+  6 | 	assert.strictEqual(user.id, 1);
+  7 | });
+
+`;
+
+exports[`no-duplicate-assertions > invalid(8): import test from 'node:test';\nimport assert from 'node:assert';\ntest('user', () => {\n\tassert.strictEqual(user.id, 1);\n\t// Copy-paste leftover\n\tassert.strictEqual(user.id, 1);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('user', () => {
+  4 | 	assert.strictEqual(user.id, 1);
+  5 | 	// Copy-paste leftover
+> 6 | 	assert.strictEqual(user.id, 1);
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Duplicate adjacent assertion.
+  7 | });
+
+`;
+
+exports[`no-duplicate-assertions > invalid(9): import test from 'node:test';\nimport assert from 'node:assert';\ntest('user', () => {\n\tassert.deepStrictEqual(...values);\n\tassert.deepStrictEqual(...values);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('user', () => {
+  4 | 	assert.deepStrictEqual(...values);
+  5 | 	assert.deepStrictEqual(...values);
+  6 | });
+
+`;
+
+exports[`no-duplicate-assertions > invalid(9): import test from 'node:test';\nimport assert from 'node:assert';\ntest('user', () => {\n\tassert.deepStrictEqual(...values);\n\tassert.deepStrictEqual(...values);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('user', () => {
+  4 | 	assert.deepStrictEqual(...values);
+> 5 | 	assert.deepStrictEqual(...values);
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Duplicate adjacent assertion.
+  6 | });
+
+`;
