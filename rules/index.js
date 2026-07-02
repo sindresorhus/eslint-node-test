@@ -21,6 +21,7 @@ export {default as 'no-conditional-assertion'} from './no-conditional-assertion.
 export {default as 'no-conditional-in-test'} from './no-conditional-in-test.js';
 export {default as 'no-conditional-tests'} from './no-conditional-tests.js';
 export {default as 'no-conflicting-modifiers'} from './no-conflicting-modifiers.js';
+export {default as 'no-constant-assertion'} from './no-constant-assertion.js';
 export {default as 'no-done-callback'} from './no-done-callback.js';
 export {default as 'no-duplicate-hooks'} from './no-duplicate-hooks.js';
 export {default as 'no-export'} from './no-export.js';

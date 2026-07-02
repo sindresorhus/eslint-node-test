@@ -1,0 +1,513 @@
+exports[`no-constant-assertion > invalid(1): import assert from 'node:assert';\nassert.ok(true); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok(true);
+
+`;
+
+exports[`no-constant-assertion > invalid(1): import assert from 'node:assert';\nassert.ok(true); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok(true);
+    | ^^^^^^^^^^^^^^^ This assertion has a constant outcome, so it does not test code behavior.
+
+`;
+
+exports[`no-constant-assertion > invalid(10): import assert from 'node:assert';\nassert.strictEqual(1, 1); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(1, 1);
+
+`;
+
+exports[`no-constant-assertion > invalid(10): import assert from 'node:assert';\nassert.strictEqual(1, 1); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.strictEqual(1, 1);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ This assertion has a constant outcome, so it does not test code behavior.
+
+`;
+
+exports[`no-constant-assertion > invalid(11): import assert from 'node:assert';\nassert.notStrictEqual(1, 1); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.notStrictEqual(1, 1);
+
+`;
+
+exports[`no-constant-assertion > invalid(11): import assert from 'node:assert';\nassert.notStrictEqual(1, 1); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.notStrictEqual(1, 1);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ This assertion has a constant outcome, so it does not test code behavior.
+
+`;
+
+exports[`no-constant-assertion > invalid(12): import assert from 'node:assert';\nassert.equal(1, \"1\"); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.equal(1, "1");
+
+`;
+
+exports[`no-constant-assertion > invalid(12): import assert from 'node:assert';\nassert.equal(1, \"1\"); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.equal(1, "1");
+    | ^^^^^^^^^^^^^^^^^^^^ This assertion has a constant outcome, so it does not test code behavior.
+
+`;
+
+exports[`no-constant-assertion > invalid(13): import assert from 'node:assert';\nassert.notEqual(1, \"1\"); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.notEqual(1, "1");
+
+`;
+
+exports[`no-constant-assertion > invalid(13): import assert from 'node:assert';\nassert.notEqual(1, \"1\"); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.notEqual(1, "1");
+    | ^^^^^^^^^^^^^^^^^^^^^^^ This assertion has a constant outcome, so it does not test code behavior.
+
+`;
+
+exports[`no-constant-assertion > invalid(14): import assert from 'node:assert';\nassert.deepStrictEqual({a: 1}, {a: 1}); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.deepStrictEqual({a: 1}, {a: 1});
+
+`;
+
+exports[`no-constant-assertion > invalid(14): import assert from 'node:assert';\nassert.deepStrictEqual({a: 1}, {a: 1}); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.deepStrictEqual({a: 1}, {a: 1});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This assertion has a constant outcome, so it does not test code behavior.
+
+`;
+
+exports[`no-constant-assertion > invalid(15): import assert from 'node:assert';\nassert.notDeepStrictEqual({a: 1}, {a: 1}); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.notDeepStrictEqual({a: 1}, {a: 1});
+
+`;
+
+exports[`no-constant-assertion > invalid(15): import assert from 'node:assert';\nassert.notDeepStrictEqual({a: 1}, {a: 1}); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.notDeepStrictEqual({a: 1}, {a: 1});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This assertion has a constant outcome, so it does not test code behavior.
+
+`;
+
+exports[`no-constant-assertion > invalid(16): import assert from 'node:assert';\nassert.deepEqual([1], [1]); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.deepEqual([1], [1]);
+
+`;
+
+exports[`no-constant-assertion > invalid(16): import assert from 'node:assert';\nassert.deepEqual([1], [1]); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.deepEqual([1], [1]);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ This assertion has a constant outcome, so it does not test code behavior.
+
+`;
+
+exports[`no-constant-assertion > invalid(17): import assert from 'node:assert';\nassert.notDeepEqual([1], [1]); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.notDeepEqual([1], [1]);
+
+`;
+
+exports[`no-constant-assertion > invalid(17): import assert from 'node:assert';\nassert.notDeepEqual([1], [1]); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.notDeepEqual([1], [1]);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This assertion has a constant outcome, so it does not test code behavior.
+
+`;
+
+exports[`no-constant-assertion > invalid(18): import assert from 'node:assert';\nassert.match(\"hello\", /ell/); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.match("hello", /ell/);
+
+`;
+
+exports[`no-constant-assertion > invalid(18): import assert from 'node:assert';\nassert.match(\"hello\", /ell/); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.match("hello", /ell/);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This assertion has a constant outcome, so it does not test code behavior.
+
+`;
+
+exports[`no-constant-assertion > invalid(19): import assert from 'node:assert';\nassert.doesNotMatch(\"hello\", /ell/); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.doesNotMatch("hello", /ell/);
+
+`;
+
+exports[`no-constant-assertion > invalid(19): import assert from 'node:assert';\nassert.doesNotMatch(\"hello\", /ell/); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.doesNotMatch("hello", /ell/);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This assertion has a constant outcome, so it does not test code behavior.
+
+`;
+
+exports[`no-constant-assertion > invalid(2): import assert from 'node:assert';\nassert.ok(false); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok(false);
+
+`;
+
+exports[`no-constant-assertion > invalid(2): import assert from 'node:assert';\nassert.ok(false); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok(false);
+    | ^^^^^^^^^^^^^^^^ This assertion has a constant outcome, so it does not test code behavior.
+
+`;
+
+exports[`no-constant-assertion > invalid(20): import * as assert from 'node:assert';\nassert.strictEqual(1, 1); 1`] = `
+
+  1 | import * as assert from 'node:assert';
+  2 | assert.strictEqual(1, 1);
+
+`;
+
+exports[`no-constant-assertion > invalid(20): import * as assert from 'node:assert';\nassert.strictEqual(1, 1); 2`] = `
+
+Message:
+  1 | import * as assert from 'node:assert';
+> 2 | assert.strictEqual(1, 1);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ This assertion has a constant outcome, so it does not test code behavior.
+
+`;
+
+exports[`no-constant-assertion > invalid(21): import {strictEqual} from 'node:assert';\nstrictEqual(1, 1); 1`] = `
+
+  1 | import {strictEqual} from 'node:assert';
+  2 | strictEqual(1, 1);
+
+`;
+
+exports[`no-constant-assertion > invalid(21): import {strictEqual} from 'node:assert';\nstrictEqual(1, 1); 2`] = `
+
+Message:
+  1 | import {strictEqual} from 'node:assert';
+> 2 | strictEqual(1, 1);
+    | ^^^^^^^^^^^^^^^^^ This assertion has a constant outcome, so it does not test code behavior.
+
+`;
+
+exports[`no-constant-assertion > invalid(22): import {strictEqual as same} from 'node:assert';\nsame(1, 1); 1`] = `
+
+  1 | import {strictEqual as same} from 'node:assert';
+  2 | same(1, 1);
+
+`;
+
+exports[`no-constant-assertion > invalid(22): import {strictEqual as same} from 'node:assert';\nsame(1, 1); 2`] = `
+
+Message:
+  1 | import {strictEqual as same} from 'node:assert';
+> 2 | same(1, 1);
+    | ^^^^^^^^^^ This assertion has a constant outcome, so it does not test code behavior.
+
+`;
+
+exports[`no-constant-assertion > invalid(23): import assert from 'node:assert/strict';\nassert.equal(1, \"1\"); 1`] = `
+
+  1 | import assert from 'node:assert/strict';
+  2 | assert.equal(1, "1");
+
+`;
+
+exports[`no-constant-assertion > invalid(23): import assert from 'node:assert/strict';\nassert.equal(1, \"1\"); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert/strict';
+> 2 | assert.equal(1, "1");
+    | ^^^^^^^^^^^^^^^^^^^^ This assertion has a constant outcome, so it does not test code behavior.
+
+`;
+
+exports[`no-constant-assertion > invalid(24): import test from 'node:test';\ntest('t', t => { t.assert.strictEqual(1, 1); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', t => { t.assert.strictEqual(1, 1); });
+
+`;
+
+exports[`no-constant-assertion > invalid(24): import test from 'node:test';\ntest('t', t => { t.assert.strictEqual(1, 1); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', t => { t.assert.strictEqual(1, 1); });
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^ This assertion has a constant outcome, so it does not test code behavior.
+
+`;
+
+exports[`no-constant-assertion > invalid(25): import test from 'node:test';\ntest('outer', t => { t.test('inner', subtest => { t.assert.strictEqual(1, 1); }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('outer', t => { t.test('inner', subtest => { t.assert.strictEqual(1, 1); }); });
+
+`;
+
+exports[`no-constant-assertion > invalid(25): import test from 'node:test';\ntest('outer', t => { t.test('inner', subtest => { t.assert.strictEqual(1, 1); }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('outer', t => { t.test('inner', subtest => { t.assert.strictEqual(1, 1); }); });
+    |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^ This assertion has a constant outcome, so it does not test code behavior.
+
+`;
+
+exports[`no-constant-assertion > invalid(26): import test from 'node:test';\ntest('outer', t => { t.test('inner', subtest => { subtest.assert.strictEqual(1, 1); }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('outer', t => { t.test('inner', subtest => { subtest.assert.strictEqual(1, 1); }); });
+
+`;
+
+exports[`no-constant-assertion > invalid(26): import test from 'node:test';\ntest('outer', t => { t.test('inner', subtest => { subtest.assert.strictEqual(1, 1); }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('outer', t => { t.test('inner', subtest => { subtest.assert.strictEqual(1, 1); }); });
+    |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This assertion has a constant outcome, so it does not test code behavior.
+
+`;
+
+exports[`no-constant-assertion > invalid(27): import {beforeEach} from 'node:test';\nbeforeEach(t => { t.assert.strictEqual(1, 1); }); 1`] = `
+
+  1 | import {beforeEach} from 'node:test';
+  2 | beforeEach(t => { t.assert.strictEqual(1, 1); });
+
+`;
+
+exports[`no-constant-assertion > invalid(27): import {beforeEach} from 'node:test';\nbeforeEach(t => { t.assert.strictEqual(1, 1); }); 2`] = `
+
+Message:
+  1 | import {beforeEach} from 'node:test';
+> 2 | beforeEach(t => { t.assert.strictEqual(1, 1); });
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^ This assertion has a constant outcome, so it does not test code behavior.
+
+`;
+
+exports[`no-constant-assertion > invalid(28): import {beforeEach as setup} from 'node:test';\nsetup(t => { t.assert.strictEqual(1, 1); }); 1`] = `
+
+  1 | import {beforeEach as setup} from 'node:test';
+  2 | setup(t => { t.assert.strictEqual(1, 1); });
+
+`;
+
+exports[`no-constant-assertion > invalid(28): import {beforeEach as setup} from 'node:test';\nsetup(t => { t.assert.strictEqual(1, 1); }); 2`] = `
+
+Message:
+  1 | import {beforeEach as setup} from 'node:test';
+> 2 | setup(t => { t.assert.strictEqual(1, 1); });
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^ This assertion has a constant outcome, so it does not test code behavior.
+
+`;
+
+exports[`no-constant-assertion > invalid(29): import test from 'node:test';\ntest.beforeEach(t => { t.assert.strictEqual(1, 1); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test.beforeEach(t => { t.assert.strictEqual(1, 1); });
+
+`;
+
+exports[`no-constant-assertion > invalid(29): import test from 'node:test';\ntest.beforeEach(t => { t.assert.strictEqual(1, 1); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test.beforeEach(t => { t.assert.strictEqual(1, 1); });
+    |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^ This assertion has a constant outcome, so it does not test code behavior.
+
+`;
+
+exports[`no-constant-assertion > invalid(3): import assert from 'node:assert';\nassert(false); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert(false);
+
+`;
+
+exports[`no-constant-assertion > invalid(3): import assert from 'node:assert';\nassert(false); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert(false);
+    | ^^^^^^^^^^^^^ This assertion has a constant outcome, so it does not test code behavior.
+
+`;
+
+exports[`no-constant-assertion > invalid(30): import assert from 'node:assert';\nassert.ok(true as boolean); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok(true as boolean);
+
+`;
+
+exports[`no-constant-assertion > invalid(30): import assert from 'node:assert';\nassert.ok(true as boolean); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok(true as boolean);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ This assertion has a constant outcome, so it does not test code behavior.
+
+`;
+
+exports[`no-constant-assertion > invalid(31): import assert from 'node:assert';\nassert.strictEqual(1 as const, 1); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(1 as const, 1);
+
+`;
+
+exports[`no-constant-assertion > invalid(31): import assert from 'node:assert';\nassert.strictEqual(1 as const, 1); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.strictEqual(1 as const, 1);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This assertion has a constant outcome, so it does not test code behavior.
+
+`;
+
+exports[`no-constant-assertion > invalid(32): import assert from 'node:assert';\nassert.ok((\"x\" satisfies string)); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok(("x" satisfies string));
+
+`;
+
+exports[`no-constant-assertion > invalid(32): import assert from 'node:assert';\nassert.ok((\"x\" satisfies string)); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok(("x" satisfies string));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This assertion has a constant outcome, so it does not test code behavior.
+
+`;
+
+exports[`no-constant-assertion > invalid(4): import assert from 'node:assert';\nassert.ok(1 === 1); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok(1 === 1);
+
+`;
+
+exports[`no-constant-assertion > invalid(4): import assert from 'node:assert';\nassert.ok(1 === 1); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok(1 === 1);
+    | ^^^^^^^^^^^^^^^^^^ This assertion has a constant outcome, so it does not test code behavior.
+
+`;
+
+exports[`no-constant-assertion > invalid(5): import assert from 'node:assert';\nassert.ok(\`value\`); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok(\`value\`);
+
+`;
+
+exports[`no-constant-assertion > invalid(5): import assert from 'node:assert';\nassert.ok(\`value\`); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok(\`value\`);
+    | ^^^^^^^^^^^^^^^^^^ This assertion has a constant outcome, so it does not test code behavior.
+
+`;
+
+exports[`no-constant-assertion > invalid(6): import assert from 'node:assert';\nconst value = true;\nassert.ok(value); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | const value = true;
+  3 | assert.ok(value);
+
+`;
+
+exports[`no-constant-assertion > invalid(6): import assert from 'node:assert';\nconst value = true;\nassert.ok(value); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+  2 | const value = true;
+> 3 | assert.ok(value);
+    | ^^^^^^^^^^^^^^^^ This assertion has a constant outcome, so it does not test code behavior.
+
+`;
+
+exports[`no-constant-assertion > invalid(7): import assert from 'node:assert';\nassert.ifError(undefined); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ifError(undefined);
+
+`;
+
+exports[`no-constant-assertion > invalid(7): import assert from 'node:assert';\nassert.ifError(undefined); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ifError(undefined);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ This assertion has a constant outcome, so it does not test code behavior.
+
+`;
+
+exports[`no-constant-assertion > invalid(8): import assert from 'node:assert';\nassert.ifError(null); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ifError(null);
+
+`;
+
+exports[`no-constant-assertion > invalid(8): import assert from 'node:assert';\nassert.ifError(null); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ifError(null);
+    | ^^^^^^^^^^^^^^^^^^^^ This assertion has a constant outcome, so it does not test code behavior.
+
+`;
+
+exports[`no-constant-assertion > invalid(9): import assert from 'node:assert';\nassert.ifError(0); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ifError(0);
+
+`;
+
+exports[`no-constant-assertion > invalid(9): import assert from 'node:assert';\nassert.ifError(0); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ifError(0);
+    | ^^^^^^^^^^^^^^^^^ This assertion has a constant outcome, so it does not test code behavior.
+
+`;
