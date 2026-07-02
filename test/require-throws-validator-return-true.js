@@ -3,6 +3,7 @@ import {getTester, parsers} from './utils/test.js';
 const {test} = getTester(import.meta);
 
 const withAssert = code => `import assert from 'node:assert/strict';\n${code}`;
+const withLooseAssert = code => `import assert from 'node:assert';\n${code}`;
 const withAssertNamespace = code => `import * as assert from 'node:assert/strict';\n${code}`;
 const withNamedImport = (methods, code) => `import {${methods}} from 'node:assert/strict';\n${code}`;
 const withTest = code => `import test from 'node:test';\n${code}`;
@@ -49,6 +50,7 @@ test.snapshot({
 		// Missing return
 		withAssert('assert.throws(fn, error => { assert.match(error.message, /bad/); });'),
 		withAssert('assert.rejects(fn, error => { assert.match(error.message, /bad/); });'),
+		withLooseAssert('assert.throws(fn, error => { assert.match(error.message, /bad/); });'),
 
 		// Empty return
 		withAssert('assert.throws(fn, error => { assert.match(error.message, /bad/); return; });'),
@@ -69,6 +71,8 @@ test.snapshot({
 		// Async validators return a Promise, not `true`
 		withAssert('assert.throws(fn, async error => true);'),
 		withAssert('assert.throws(fn, async error => { return true; });'),
+
+		// Promise-returning validators do not return `true`
 		withAssert('assert.throws(fn, error => Promise.resolve(true));'),
 		withAssert('assert.throws(fn, error => { return Promise.resolve(true); });'),
 		withAssert('assert.throws(fn, error => Promise.all([true]));'),

@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-`assert.throws()` and `assert.rejects()` accept a validator function as the error matcher. Node expects that validator to return the boolean value `true` after its internal checks pass. If the validator returns `undefined`, a truthy non-boolean value, or a `Promise`, Node throws an `AssertionError` even when the assertions inside the validator passed.
+`assert.throws()` and `assert.rejects()` accept a validator function as the error matcher. Node expects that validator to return the boolean value `true` after its internal checks pass. If the validator returns `undefined`, a truthy non-boolean value, a `Promise`, or a generator object, Node throws an `AssertionError` even when the assertions inside the validator passed.
 
 This rule reports inline validator functions passed to `assert.throws()`/`assert.rejects()` when they cannot return `true`. Referenced validators are ignored.
 
