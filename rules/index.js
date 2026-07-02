@@ -53,6 +53,7 @@ export {default as 'no-unawaited-subtest'} from './no-unawaited-subtest.js';
 export {default as 'no-unknown-test-options'} from './no-unknown-test-options.js';
 export {default as 'no-useless-assertion'} from './no-useless-assertion.js';
 export {default as 'prefer-assert-match'} from './prefer-assert-match.js';
+export {default as 'prefer-assert-throws-block'} from './prefer-assert-throws-block.js';
 export {default as 'prefer-assert-throws'} from './prefer-assert-throws.js';
 export {default as 'prefer-async-await'} from './prefer-async-await.js';
 export {default as 'prefer-context-mock'} from './prefer-context-mock.js';
