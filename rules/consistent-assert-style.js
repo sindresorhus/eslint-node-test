@@ -106,6 +106,7 @@ const create = context => {
 		if (
 			node.optional
 			|| callee.type !== 'MemberExpression'
+			|| isParenthesized(callee, context)
 			|| callee.optional
 			|| callee.computed
 			|| callee.object.type !== 'Identifier'

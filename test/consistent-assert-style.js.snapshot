@@ -178,7 +178,31 @@ Output:
 
 `;
 
-exports[`consistent-assert-style > invalid(17): import {default as assert} from 'node:assert';\nassert(value); 1`] = `
+exports[`consistent-assert-style > invalid(17): import check from 'node:assert';\ncheck(value); 1`] = `
+
+Options:
+- style: 'assert-ok'
+
+Code:
+  1 | import check from 'node:assert';
+  2 | check(value);
+
+`;
+
+exports[`consistent-assert-style > invalid(17): import check from 'node:assert';\ncheck(value); 2`] = `
+
+Message:
+  1 | import check from 'node:assert';
+> 2 | check(value);
+    | ^^^^^ Prefer \`check.ok(…)\` over \`check(…)\`.
+
+Output:
+  1 | import check from 'node:assert';
+  2 | check.ok(value);
+
+`;
+
+exports[`consistent-assert-style > invalid(18): import {default as assert} from 'node:assert';\nassert(value); 1`] = `
 
 Options:
 - style: 'assert-ok'
@@ -189,7 +213,7 @@ Code:
 
 `;
 
-exports[`consistent-assert-style > invalid(17): import {default as assert} from 'node:assert';\nassert(value); 2`] = `
+exports[`consistent-assert-style > invalid(18): import {default as assert} from 'node:assert';\nassert(value); 2`] = `
 
 Message:
   1 | import {default as assert} from 'node:assert';
@@ -202,7 +226,7 @@ Output:
 
 `;
 
-exports[`consistent-assert-style > invalid(18): import {strict as assert} from 'node:assert';\nassert(value); 1`] = `
+exports[`consistent-assert-style > invalid(19): import {strict as assert} from 'node:assert';\nassert(value); 1`] = `
 
 Options:
 - style: 'assert-ok'
@@ -213,7 +237,7 @@ Code:
 
 `;
 
-exports[`consistent-assert-style > invalid(18): import {strict as assert} from 'node:assert';\nassert(value); 2`] = `
+exports[`consistent-assert-style > invalid(19): import {strict as assert} from 'node:assert';\nassert(value); 2`] = `
 
 Message:
   1 | import {strict as assert} from 'node:assert';
@@ -223,30 +247,6 @@ Message:
 Output:
   1 | import {strict as assert} from 'node:assert';
   2 | assert.ok(value);
-
-`;
-
-exports[`consistent-assert-style > invalid(19): import {strict as strictAssert} from 'node:assert';\nstrictAssert(value); 1`] = `
-
-Options:
-- style: 'assert-ok'
-
-Code:
-  1 | import {strict as strictAssert} from 'node:assert';
-  2 | strictAssert(value);
-
-`;
-
-exports[`consistent-assert-style > invalid(19): import {strict as strictAssert} from 'node:assert';\nstrictAssert(value); 2`] = `
-
-Message:
-  1 | import {strict as strictAssert} from 'node:assert';
-> 2 | strictAssert(value);
-    | ^^^^^^^^^^^^ Prefer \`strictAssert.ok(…)\` over \`strictAssert(…)\`.
-
-Output:
-  1 | import {strict as strictAssert} from 'node:assert';
-  2 | strictAssert.ok(value);
 
 `;
 
@@ -270,7 +270,31 @@ Output:
 
 `;
 
-exports[`consistent-assert-style > invalid(20): import {default as assert} from 'node:assert/strict';\nassert(value); 1`] = `
+exports[`consistent-assert-style > invalid(20): import {strict as strictAssert} from 'node:assert';\nstrictAssert(value); 1`] = `
+
+Options:
+- style: 'assert-ok'
+
+Code:
+  1 | import {strict as strictAssert} from 'node:assert';
+  2 | strictAssert(value);
+
+`;
+
+exports[`consistent-assert-style > invalid(20): import {strict as strictAssert} from 'node:assert';\nstrictAssert(value); 2`] = `
+
+Message:
+  1 | import {strict as strictAssert} from 'node:assert';
+> 2 | strictAssert(value);
+    | ^^^^^^^^^^^^ Prefer \`strictAssert.ok(…)\` over \`strictAssert(…)\`.
+
+Output:
+  1 | import {strict as strictAssert} from 'node:assert';
+  2 | strictAssert.ok(value);
+
+`;
+
+exports[`consistent-assert-style > invalid(21): import {default as assert} from 'node:assert/strict';\nassert(value); 1`] = `
 
 Options:
 - style: 'assert-ok'
@@ -281,7 +305,7 @@ Code:
 
 `;
 
-exports[`consistent-assert-style > invalid(20): import {default as assert} from 'node:assert/strict';\nassert(value); 2`] = `
+exports[`consistent-assert-style > invalid(21): import {default as assert} from 'node:assert/strict';\nassert(value); 2`] = `
 
 Message:
   1 | import {default as assert} from 'node:assert/strict';
@@ -294,7 +318,7 @@ Output:
 
 `;
 
-exports[`consistent-assert-style > invalid(21): import {strict as assert} from 'node:assert/strict';\nassert(value); 1`] = `
+exports[`consistent-assert-style > invalid(22): import {strict as assert} from 'node:assert/strict';\nassert(value); 1`] = `
 
 Options:
 - style: 'assert-ok'
@@ -305,7 +329,7 @@ Code:
 
 `;
 
-exports[`consistent-assert-style > invalid(21): import {strict as assert} from 'node:assert/strict';\nassert(value); 2`] = `
+exports[`consistent-assert-style > invalid(22): import {strict as assert} from 'node:assert/strict';\nassert(value); 2`] = `
 
 Message:
   1 | import {strict as assert} from 'node:assert/strict';
@@ -318,7 +342,7 @@ Output:
 
 `;
 
-exports[`consistent-assert-style > invalid(22): import {strict as assert} from 'assert/strict';\nassert(value); 1`] = `
+exports[`consistent-assert-style > invalid(23): import {strict as assert} from 'assert/strict';\nassert(value); 1`] = `
 
 Options:
 - style: 'assert-ok'
@@ -329,7 +353,7 @@ Code:
 
 `;
 
-exports[`consistent-assert-style > invalid(22): import {strict as assert} from 'assert/strict';\nassert(value); 2`] = `
+exports[`consistent-assert-style > invalid(23): import {strict as assert} from 'assert/strict';\nassert(value); 2`] = `
 
 Message:
   1 | import {strict as assert} from 'assert/strict';
@@ -342,14 +366,14 @@ Output:
 
 `;
 
-exports[`consistent-assert-style > invalid(23): import assert from 'node:assert';\nassert /* comment */ .ok(value); 1`] = `
+exports[`consistent-assert-style > invalid(24): import assert from 'node:assert';\nassert /* comment */ .ok(value); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert /* comment */ .ok(value);
 
 `;
 
-exports[`consistent-assert-style > invalid(23): import assert from 'node:assert';\nassert /* comment */ .ok(value); 2`] = `
+exports[`consistent-assert-style > invalid(24): import assert from 'node:assert';\nassert /* comment */ .ok(value); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
@@ -358,14 +382,14 @@ Message:
 
 `;
 
-exports[`consistent-assert-style > invalid(24): import assert from 'node:assert';\nassert.ok(value as boolean); 1`] = `
+exports[`consistent-assert-style > invalid(25): import assert from 'node:assert';\nassert.ok(value as boolean); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.ok(value as boolean);
 
 `;
 
-exports[`consistent-assert-style > invalid(24): import assert from 'node:assert';\nassert.ok(value as boolean); 2`] = `
+exports[`consistent-assert-style > invalid(25): import assert from 'node:assert';\nassert.ok(value as boolean); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
@@ -378,7 +402,7 @@ Output:
 
 `;
 
-exports[`consistent-assert-style > invalid(25): import assert from 'node:assert';\nassert(value as boolean); 1`] = `
+exports[`consistent-assert-style > invalid(26): import assert from 'node:assert';\nassert(value as boolean); 1`] = `
 
 Options:
 - style: 'assert-ok'
@@ -389,7 +413,7 @@ Code:
 
 `;
 
-exports[`consistent-assert-style > invalid(25): import assert from 'node:assert';\nassert(value as boolean); 2`] = `
+exports[`consistent-assert-style > invalid(26): import assert from 'node:assert';\nassert(value as boolean); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
