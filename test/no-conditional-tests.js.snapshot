@@ -14,14 +14,126 @@ Message:
 
 `;
 
-exports[`no-conditional-tests > invalid(10): import {test, describe, it} from 'node:test';\nif (x) { for (const c of cases) { test(c.name, () => {}); } } 1`] = `
+exports[`no-conditional-tests > invalid(10): import {suite} from 'node:test';\nif (x) { suite(\"s\", () => {}); } 1`] = `
+
+  1 | import {suite} from 'node:test';
+  2 | if (x) { suite("s", () => {}); }
+
+`;
+
+exports[`no-conditional-tests > invalid(10): import {suite} from 'node:test';\nif (x) { suite(\"s\", () => {}); } 2`] = `
+
+Message:
+  1 | import {suite} from 'node:test';
+> 2 | if (x) { suite("s", () => {}); }
+    |          ^^^^^^^^^^^^^^^^^^^^ Do not register a suite conditionally; it makes the suite structure non-deterministic.
+
+`;
+
+exports[`no-conditional-tests > invalid(11): import {test, describe, it} from 'node:test';\ndescribe(\"s\", () => { if (x) { it(\"a\", () => {}); } }); 1`] = `
+
+  1 | import {test, describe, it} from 'node:test';
+  2 | describe("s", () => { if (x) { it("a", () => {}); } });
+
+`;
+
+exports[`no-conditional-tests > invalid(11): import {test, describe, it} from 'node:test';\ndescribe(\"s\", () => { if (x) { it(\"a\", () => {}); } }); 2`] = `
+
+Message:
+  1 | import {test, describe, it} from 'node:test';
+> 2 | describe("s", () => { if (x) { it("a", () => {}); } });
+    |                                ^^^^^^^^^^^^^^^^^ Do not register a test conditionally; it makes the suite structure non-deterministic.
+
+`;
+
+exports[`no-conditional-tests > invalid(12): import {beforeEach, afterEach} from 'node:test';\nif (x) { beforeEach(() => {}); } 1`] = `
+
+  1 | import {beforeEach, afterEach} from 'node:test';
+  2 | if (x) { beforeEach(() => {}); }
+
+`;
+
+exports[`no-conditional-tests > invalid(12): import {beforeEach, afterEach} from 'node:test';\nif (x) { beforeEach(() => {}); } 2`] = `
+
+Message:
+  1 | import {beforeEach, afterEach} from 'node:test';
+> 2 | if (x) { beforeEach(() => {}); }
+    |          ^^^^^^^^^^^^^^^^^^^^ Do not register a hook conditionally; it makes the suite structure non-deterministic.
+
+`;
+
+exports[`no-conditional-tests > invalid(13): import {beforeEach, afterEach} from 'node:test';\nprocess.env.CI && afterEach(() => cleanup()); 1`] = `
+
+  1 | import {beforeEach, afterEach} from 'node:test';
+  2 | process.env.CI && afterEach(() => cleanup());
+
+`;
+
+exports[`no-conditional-tests > invalid(13): import {beforeEach, afterEach} from 'node:test';\nprocess.env.CI && afterEach(() => cleanup()); 2`] = `
+
+Message:
+  1 | import {beforeEach, afterEach} from 'node:test';
+> 2 | process.env.CI && afterEach(() => cleanup());
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not register a hook conditionally; it makes the suite structure non-deterministic.
+
+`;
+
+exports[`no-conditional-tests > invalid(14): import {before as setup} from 'node:test';\nif (x) { setup(() => {}); } 1`] = `
+
+  1 | import {before as setup} from 'node:test';
+  2 | if (x) { setup(() => {}); }
+
+`;
+
+exports[`no-conditional-tests > invalid(14): import {before as setup} from 'node:test';\nif (x) { setup(() => {}); } 2`] = `
+
+Message:
+  1 | import {before as setup} from 'node:test';
+> 2 | if (x) { setup(() => {}); }
+    |          ^^^^^^^^^^^^^^^ Do not register a hook conditionally; it makes the suite structure non-deterministic.
+
+`;
+
+exports[`no-conditional-tests > invalid(15): import * as nodeTest from 'node:test';\nswitch (x) { case 1: nodeTest.after(() => {}); break; } 1`] = `
+
+  1 | import * as nodeTest from 'node:test';
+  2 | switch (x) { case 1: nodeTest.after(() => {}); break; }
+
+`;
+
+exports[`no-conditional-tests > invalid(15): import * as nodeTest from 'node:test';\nswitch (x) { case 1: nodeTest.after(() => {}); break; } 2`] = `
+
+Message:
+  1 | import * as nodeTest from 'node:test';
+> 2 | switch (x) { case 1: nodeTest.after(() => {}); break; }
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^ Do not register a hook conditionally; it makes the suite structure non-deterministic.
+
+`;
+
+exports[`no-conditional-tests > invalid(16): import test from 'node:test';\nif (x) { test.beforeEach(() => {}); } 1`] = `
+
+  1 | import test from 'node:test';
+  2 | if (x) { test.beforeEach(() => {}); }
+
+`;
+
+exports[`no-conditional-tests > invalid(16): import test from 'node:test';\nif (x) { test.beforeEach(() => {}); } 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | if (x) { test.beforeEach(() => {}); }
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^ Do not register a hook conditionally; it makes the suite structure non-deterministic.
+
+`;
+
+exports[`no-conditional-tests > invalid(17): import {test, describe, it} from 'node:test';\nif (x) { for (const c of cases) { test(c.name, () => {}); } } 1`] = `
 
   1 | import {test, describe, it} from 'node:test';
   2 | if (x) { for (const c of cases) { test(c.name, () => {}); } }
 
 `;
 
-exports[`no-conditional-tests > invalid(10): import {test, describe, it} from 'node:test';\nif (x) { for (const c of cases) { test(c.name, () => {}); } } 2`] = `
+exports[`no-conditional-tests > invalid(17): import {test, describe, it} from 'node:test';\nif (x) { for (const c of cases) { test(c.name, () => {}); } } 2`] = `
 
 Message:
   1 | import {test, describe, it} from 'node:test';
@@ -30,14 +142,14 @@ Message:
 
 `;
 
-exports[`no-conditional-tests > invalid(11): import {test, describe, it} from 'node:test';\nif (x) { test(\"a\", () => {}); } 1`] = `
+exports[`no-conditional-tests > invalid(18): import {test, describe, it} from 'node:test';\nif (x) { test(\"a\", () => {}); } 1`] = `
 
   1 | import {test, describe, it} from 'node:test';
   2 | if (x) { test("a", () => {}); }
 
 `;
 
-exports[`no-conditional-tests > invalid(11): import {test, describe, it} from 'node:test';\nif (x) { test(\"a\", () => {}); } 2`] = `
+exports[`no-conditional-tests > invalid(18): import {test, describe, it} from 'node:test';\nif (x) { test(\"a\", () => {}); } 2`] = `
 
 Message:
   1 | import {test, describe, it} from 'node:test';
@@ -119,14 +231,30 @@ Message:
 
 `;
 
-exports[`no-conditional-tests > invalid(6): import {test, describe, it} from 'node:test';\ncond ? test(\"a\", () => {}) : test(\"b\", () => {}); 1`] = `
+exports[`no-conditional-tests > invalid(6): import {test, describe, it} from 'node:test';\nmaybeTest ?? test(\"a\", () => {}); 1`] = `
+
+  1 | import {test, describe, it} from 'node:test';
+  2 | maybeTest ?? test("a", () => {});
+
+`;
+
+exports[`no-conditional-tests > invalid(6): import {test, describe, it} from 'node:test';\nmaybeTest ?? test(\"a\", () => {}); 2`] = `
+
+Message:
+  1 | import {test, describe, it} from 'node:test';
+> 2 | maybeTest ?? test("a", () => {});
+    |              ^^^^^^^^^^^^^^^^^^^ Do not register a test conditionally; it makes the suite structure non-deterministic.
+
+`;
+
+exports[`no-conditional-tests > invalid(7): import {test, describe, it} from 'node:test';\ncond ? test(\"a\", () => {}) : test(\"b\", () => {}); 1`] = `
 
   1 | import {test, describe, it} from 'node:test';
   2 | cond ? test("a", () => {}) : test("b", () => {});
 
 `;
 
-exports[`no-conditional-tests > invalid(6): import {test, describe, it} from 'node:test';\ncond ? test(\"a\", () => {}) : test(\"b\", () => {}); 2`] = `
+exports[`no-conditional-tests > invalid(7): import {test, describe, it} from 'node:test';\ncond ? test(\"a\", () => {}) : test(\"b\", () => {}); 2`] = `
 
 Message:
   1 | import {test, describe, it} from 'node:test';
@@ -135,7 +263,7 @@ Message:
 
 `;
 
-exports[`no-conditional-tests > invalid(6): import {test, describe, it} from 'node:test';\ncond ? test(\"a\", () => {}) : test(\"b\", () => {}); 3`] = `
+exports[`no-conditional-tests > invalid(7): import {test, describe, it} from 'node:test';\ncond ? test(\"a\", () => {}) : test(\"b\", () => {}); 3`] = `
 
 Message:
   1 | import {test, describe, it} from 'node:test';
@@ -144,14 +272,14 @@ Message:
 
 `;
 
-exports[`no-conditional-tests > invalid(7): import {test, describe, it} from 'node:test';\nswitch (x) { case 1: test(\"a\", () => {}); break; } 1`] = `
+exports[`no-conditional-tests > invalid(8): import {test, describe, it} from 'node:test';\nswitch (x) { case 1: test(\"a\", () => {}); break; } 1`] = `
 
   1 | import {test, describe, it} from 'node:test';
   2 | switch (x) { case 1: test("a", () => {}); break; }
 
 `;
 
-exports[`no-conditional-tests > invalid(7): import {test, describe, it} from 'node:test';\nswitch (x) { case 1: test(\"a\", () => {}); break; } 2`] = `
+exports[`no-conditional-tests > invalid(8): import {test, describe, it} from 'node:test';\nswitch (x) { case 1: test(\"a\", () => {}); break; } 2`] = `
 
 Message:
   1 | import {test, describe, it} from 'node:test';
@@ -160,34 +288,18 @@ Message:
 
 `;
 
-exports[`no-conditional-tests > invalid(8): import {test, describe, it} from 'node:test';\nif (x) { describe(\"s\", () => {}); } 1`] = `
+exports[`no-conditional-tests > invalid(9): import {test, describe, it} from 'node:test';\nif (x) { describe(\"s\", () => {}); } 1`] = `
 
   1 | import {test, describe, it} from 'node:test';
   2 | if (x) { describe("s", () => {}); }
 
 `;
 
-exports[`no-conditional-tests > invalid(8): import {test, describe, it} from 'node:test';\nif (x) { describe(\"s\", () => {}); } 2`] = `
+exports[`no-conditional-tests > invalid(9): import {test, describe, it} from 'node:test';\nif (x) { describe(\"s\", () => {}); } 2`] = `
 
 Message:
   1 | import {test, describe, it} from 'node:test';
 > 2 | if (x) { describe("s", () => {}); }
     |          ^^^^^^^^^^^^^^^^^^^^^^^ Do not register a suite conditionally; it makes the suite structure non-deterministic.
-
-`;
-
-exports[`no-conditional-tests > invalid(9): import {test, describe, it} from 'node:test';\ndescribe(\"s\", () => { if (x) { it(\"a\", () => {}); } }); 1`] = `
-
-  1 | import {test, describe, it} from 'node:test';
-  2 | describe("s", () => { if (x) { it("a", () => {}); } });
-
-`;
-
-exports[`no-conditional-tests > invalid(9): import {test, describe, it} from 'node:test';\ndescribe(\"s\", () => { if (x) { it(\"a\", () => {}); } }); 2`] = `
-
-Message:
-  1 | import {test, describe, it} from 'node:test';
-> 2 | describe("s", () => { if (x) { it("a", () => {}); } });
-    |                                ^^^^^^^^^^^^^^^^^ Do not register a test conditionally; it makes the suite structure non-deterministic.
 
 `;
