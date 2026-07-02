@@ -8,7 +8,7 @@ const withTest = code => `import test from 'node:test';\n${code}`;
 
 test.snapshot({
 	valid: [
-		// Not an assert import — ignored
+		// Not an assert import, ignored
 		'assert.throws(fn, "message");',
 
 		// No error matcher argument
@@ -20,7 +20,7 @@ test.snapshot({
 		withAssert('assert.throws(fn, {message: "boom"});'),
 		withAssert('assert.throws(fn, error => error.code === "X");'),
 
-		// String in the third position is the message — correct usage
+		// String in the third position is the message, correct usage
 		withAssert('assert.throws(fn, TypeError, "failure message");'),
 
 		// Other assertions are unaffected
