@@ -59,6 +59,10 @@ test.snapshot({
 			code: 'import type assert from \'node:assert\';\nassert.ok(value);',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'import {type strict as assert} from \'node:assert\';\nassert.ok(value);',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		// Default: prefer `assert(…)`
@@ -79,6 +83,7 @@ test.snapshot({
 		// Custom option: prefer `assert.ok(…)`
 		{code: withAssert('assert(value);'), options: [assertOkStyle]},
 		{code: withAssert('assert(value, "message");'), options: [assertOkStyle]},
+		{code: withAssert('assert /* comment */ (value);'), options: [assertOkStyle]},
 		{code: withStrictAssert('assert(value);'), options: [assertOkStyle]},
 		{code: withBareAssert('assert(value);'), options: [assertOkStyle]},
 		{code: withBareStrictAssert('assert(value);'), options: [assertOkStyle]},

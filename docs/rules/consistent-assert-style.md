@@ -15,6 +15,8 @@ The default is the shorter `assert(value)` form. If you prefer the explicit meth
 
 This rule only targets callable imports from `node:assert`, `node:assert/strict`, `assert`, and `assert/strict`. It intentionally ignores `t.assert.ok(value)`, because the test context's `assert` is an object of assertion methods, not a callable function.
 
+If you use eslint-plugin-unicorn's `consistent-assert` rule, configure this rule with `style: 'assert-ok'` or leave one of the rules disabled, since Unicorn enforces `assert.ok(value)`.
+
 ## Options
 
 ```js
