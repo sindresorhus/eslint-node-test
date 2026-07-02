@@ -8,10 +8,10 @@ const inAsyncTest = code => `import test from 'node:test';\nimport assert from '
 
 test.snapshot({
 	valid: [
-		// Not an assert import — ignored
+		// Not an assert import, ignored
 		'assert.throws(async () => {});',
 
-		// Synchronous function — correct usage
+		// Synchronous function, correct usage
 		withAssert('assert.throws(() => {});'),
 		withAssert('assert.throws(function () {});'),
 		withAssert('assert.doesNotThrow(() => {});'),
@@ -20,20 +20,20 @@ test.snapshot({
 		withAssert('await assert.rejects(async () => {});'),
 		withAssert('await assert.doesNotReject(async () => {});'),
 
-		// Async function correctly passed to `rejects` — not this rule's concern
+		// Async function correctly passed to `rejects`, not this rule's concern
 		withAssert('await assert.rejects(async () => {}, /boom/);'),
 
 		// First argument is not a function (a promise value)
 		withAssert('await assert.rejects(promise, /boom/);'),
 
-		// Non-async arrow returning a promise — intentionally not detected (kept simple)
+		// Non-async arrow returning a promise, intentionally not detected (kept simple)
 		withAssert('assert.throws(() => doAsync());'),
 
 		// Other methods
 		withAssert('assert.ok(async () => {});'),
 	],
 	invalid: [
-		// Async arrow passed to `throws` — bare statement in async function (await added)
+		// Async arrow passed to `throws`, bare statement in async function (await added)
 		inAsyncTest('assert.throws(async () => {});'),
 
 		// Async function expression
@@ -45,22 +45,22 @@ test.snapshot({
 		// `doesNotThrow` -> `doesNotReject`
 		inAsyncTest('assert.doesNotThrow(async () => {});'),
 
-		// Already awaited — suggestion only renames
+		// Already awaited, suggestion only renames
 		inAsyncTest('await assert.throws(async () => {});'),
 
-		// Bare statement outside an async function — suggestion renames without adding `await`
+		// Bare statement outside an async function, suggestion renames without adding `await`
 		withAssert('assert.throws(async () => {});'),
 
-		// Return value used — suggestion renames only
+		// Return value used, suggestion renames only
 		withAssert('const promise = assert.throws(async () => {});'),
 
 		// T.assert form
 		'import test from \'node:test\';\ntest(\'t\', async t => { t.assert.throws(async () => {}); });',
 
-		// Named import — reported but not fixed
+		// Named import, reported but not fixed
 		withNamedImport('throws', 'throws(async () => {});'),
 
-		// TypeScript — async arrow with a type annotation on the matcher
+		// TypeScript, async arrow with a type annotation on the matcher
 		{
 			code: inAsyncTest('assert.throws(async (): Promise<void> => {}, TypeError);'),
 			languageOptions: {parser: parsers.typescript},
