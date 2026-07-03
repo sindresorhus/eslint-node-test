@@ -3,10 +3,12 @@ import {
 	resolveImports,
 	parseTestCall,
 	getCalleeChain,
+	getHookCallback,
 	getTestCallback,
 	getSubtestReceiver,
 	getTestOptions,
 	findEnabledOptionsProperty,
+	isHookMemberTestCall,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 import {getEnclosingFunction} from './utils/index.js';
@@ -21,6 +23,7 @@ const messages = {
 const CALLBACK_TIMER_MODULES = new Set(['node:timers', 'timers']);
 const PROMISE_TIMER_MODULES = new Set(['node:timers/promises', 'timers/promises']);
 const ACTIVE_TEST_MODIFIERS = new Set(['only', 'todo']);
+const CONTEXT_HOOKS = new Set(['before', 'beforeEach', 'after', 'afterEach']);
 
 const unwrapExpression = node => {
 	let unwrapped = node && unwrapTypeScriptExpression(node);
@@ -74,6 +77,29 @@ function hasInactiveTestOptions(node) {
 function getSubtestModifiers(node) {
 	const {members = []} = getCalleeChain(node.callee) ?? {};
 	return members?.[0]?.name === 'test' ? members.slice(1) : [];
+}
+
+function getContextHookReceiver(node) {
+	const callee = unwrapExpression(node.callee);
+	if (
+		callee?.type !== 'MemberExpression'
+		|| callee.computed
+		|| callee.property.type !== 'Identifier'
+		|| !CONTEXT_HOOKS.has(callee.property.name)
+	) {
+		return;
+	}
+
+	const receiver = unwrapExpression(callee.object);
+	return receiver.type === 'Identifier' ? receiver : undefined;
+}
+
+function getParsedCallback(node, parsed) {
+	if (parsed.kind === 'hook' || isHookMemberTestCall(parsed)) {
+		return getHookCallback(node);
+	}
+
+	return getTestCallback(node);
 }
 
 function getTimerImportBindings(sourceCode) {
@@ -264,17 +290,33 @@ const create = context => {
 		return false;
 	};
 
+	const isCurrentTestContextReceiver = (node, receiver) => {
+		const currentTest = testStack.at(-1);
+		if (!currentTest?.contextVariable) {
+			return false;
+		}
+
+		const receiverVariable = findVariable(sourceCode.getScope(receiver), receiver);
+		return getEnclosingFunction(node) === currentTest.callback
+			&& currentTest.contextVariable === receiverVariable;
+	};
+
 	const isCurrentTestContextSubtestCall = node => {
 		const receiver = getSubtestReceiver(node);
 		if (receiver?.type !== 'Identifier') {
 			return false;
 		}
 
-		const currentTest = testStack.at(-1);
-		const receiverVariable = findVariable(sourceCode.getScope(receiver), receiver);
-		return currentTest
-			&& getEnclosingFunction(node) === currentTest.callback
-			&& currentTest.contextVariable === receiverVariable;
+		return isCurrentTestContextReceiver(node, receiver);
+	};
+
+	const isCurrentTestContextHookCall = node => {
+		const receiver = getContextHookReceiver(node);
+		if (!receiver) {
+			return false;
+		}
+
+		return isCurrentTestContextReceiver(node, receiver);
 	};
 
 	const isActiveSubtestCall = node => isCurrentTestContextSubtestCall(node)
@@ -294,13 +336,21 @@ const create = context => {
 
 		const parsed = parseTestCall(node, imports);
 		if (parsed) {
+			if (isHookMemberTestCall(parsed)) {
+				return getHookCallback(node);
+			}
+
 			return (
 				(parsed.kind === 'test' || parsed.kind === 'hook')
 				&& areActiveModifiers(parsed.modifiers)
 				&& !hasInactiveTestOptions(node)
 			)
-				? getTestCallback(node)
+				? getParsedCallback(node, parsed)
 				: undefined;
+		}
+
+		if (isCurrentTestContextHookCall(node)) {
+			return getHookCallback(node);
 		}
 
 		return isActiveSubtestCall(node) ? getTestCallback(node) : undefined;
@@ -309,11 +359,15 @@ const create = context => {
 	const getInactiveScopeCallback = node => {
 		const parsed = parseTestCall(node, imports);
 		if (parsed) {
+			if (isHookMemberTestCall(parsed)) {
+				return;
+			}
+
 			return (
 				!areActiveModifiers(parsed.modifiers)
 				|| hasInactiveTestOptions(node)
 			)
-				? getTestCallback(node)
+				? getParsedCallback(node, parsed)
 				: undefined;
 		}
 
