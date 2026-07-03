@@ -38,6 +38,8 @@ test.snapshot({
 		withTest('helper.assert.ok(a && b);'),
 		withTest('test(\'t\', t => {\n\thelper.assert.ok(a && b);\n});'),
 		withTest('test(t.assert.ok(a && b), t => {});'),
+		withTest('test.custom(\'t\', t => {\n\tt.assert.ok(a && b);\n});'),
+		withTestNamespace('nodeTest.test.custom(\'t\', t => {\n\tt.assert.ok(a && b);\n});'),
 
 		// Shadowed assertion bindings are unrelated.
 		withAssert('function helper(assert) {\n\tassert.ok(a && b);\n}'),
@@ -45,6 +47,7 @@ test.snapshot({
 		withTest('test(\'t\', t => {\n\tfunction helper(t) {\n\t\tt.assert.ok(a && b);\n\t}\n});'),
 		withTest('function helper(test) {\n\ttest(\'t\', t => {\n\t\tt.assert.ok(a && b);\n\t});\n}'),
 		withHook('function helper(beforeEach) {\n\tbeforeEach(t => {\n\t\tt.assert.ok(a && b);\n\t});\n}'),
+		withHook('beforeEach.custom(t => {\n\tt.assert.ok(a && b);\n});'),
 	],
 	invalid: [
 		// Bare assert.
@@ -74,6 +77,8 @@ test.snapshot({
 		withTestNamespace('nodeTest.test(\'t\', t => {\n\tt.assert.ok(a && b);\n});'),
 		withRenamedTest('nodeTest(\'t\', context => {\n\tcontext.assert.ok(a && b);\n});'),
 		withTest('test(\'parent\', t => {\n\tt.test(\'child\', t => {\n\t\tt.assert.ok(a && b);\n\t});\n});'),
+		withTest('test(\'parent\', t => {\n\tt.test(\'child\', subtest => {\n\t\tt.assert.ok(a && b);\n\t});\n});'),
+		withTest('test.beforeEach(t => {\n\tt.assert.ok(a && b);\n});'),
 		withHook('beforeEach(t => {\n\tt.assert.ok(a && b);\n});'),
 		withTestNamespace('nodeTest.beforeEach(t => {\n\tt.assert.ok(a && b);\n});'),
 
@@ -91,6 +96,9 @@ test.snapshot({
 
 		// Standalone, but not at the start of a line — reported without a fix.
 		withTest('test(\'t\', t => { t.assert.ok(a && b); });'),
+
+		// Braceless control-flow body — reported without a fix.
+		withAssert('if (enabled)\n\tassert.ok(a && b);'),
 
 		// Standalone, but with a trailing comment — reported without a fix.
 		withAssert('assert.ok(a && b); // keep'),
