@@ -42,6 +42,10 @@ test.snapshot({
 		// With an error matcher second argument
 		inAsyncTest('assert.throws(async () => {}, /boom/);'),
 
+		// Strict namespace
+		inAsyncTest('assert.strict.throws(async () => {});'),
+		'import test from \'node:test\';\nimport {strict as strictAssert} from \'node:assert\';\ntest(\'t\', async () => {\n\tstrictAssert.throws(async () => {});\n});',
+
 		// `doesNotThrow` -> `doesNotReject`
 		inAsyncTest('assert.doesNotThrow(async () => {});'),
 

@@ -15,6 +15,7 @@ test.snapshot({
 		// Ok — 1 required arg
 		withAssert('assert.ok(value);'),
 		withAssert('assert(value);'),
+		withAssert('assert.strict(value);'),
 		withAssert('assert.ok(value, "message");'),
 
 		// Equal / strictEqual / notEqual / notStrictEqual — 2 required args
@@ -53,6 +54,7 @@ test.snapshot({
 		withNamedImport('strictEqual', 'strictEqual(a, b);'),
 		withNamedImport('ok', 'ok(value);'),
 		withNamedImport('ok', 'ok(value, "message");'),
+		withNamedImport('strict as strictAssert', 'strictAssert(value);'),
 
 		// Node:assert/strict
 		withStrictAssert('assert.strictEqual(a, b);'),
@@ -115,6 +117,8 @@ test.snapshot({
 
 		// Bare assert — too few
 		withAssert('assert();'),
+		withAssert('assert.strict();'),
+		withNamedImport('strict as strictAssert', 'strictAssert();'),
 
 		// Equal — too few
 		withAssert('assert.equal(a);'),

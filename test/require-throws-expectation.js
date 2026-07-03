@@ -28,11 +28,13 @@ test.snapshot({
 	invalid: [
 		// No matcher
 		withAssert('assert.throws(fn);'),
+		withAssert('assert.strict.throws(fn);'),
 		withAssert('assert.throws(() => compute());'),
 		withAssert('assert.rejects(asyncFn);'),
 
 		// Named import
 		withNamedImport('throws', 'throws(fn);'),
+		withNamedImport('strict as strictAssert', 'strictAssert.throws(fn);'),
 
 		// T.assert
 		'import test from \'node:test\';\ntest(\'t\', t => { t.assert.throws(fn); });',

@@ -28,8 +28,14 @@ test.snapshot({
 		// Shadowed import name
 		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'x\', t => { function helper(assert) { assert.ok(value); } helper(localAssert); });',
 
-		// `assert.strict.equal` namespace form is intentionally not matched
-		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'x\', t => { assert.strict.equal(a, b); });',
+		// Assertion in test arguments where the context parameter is not in scope
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(assert.ok(value), t => {});',
+
+		// Context parameter name is shadowed at the assertion site
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'x\', t => { { const t = custom; assert.ok(value); } });',
+
+		// Unrelated `assert` property
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'x\', t => { custom.assert.ok(value); });',
 	],
 	invalid: [
 		// Namespace member
@@ -49,6 +55,14 @@ test.snapshot({
 
 		// Strict named import with a loose method
 		'import test from \'node:test\';\nimport {deepEqual} from \'node:assert/strict\';\ntest(\'x\', t => { deepEqual(a, b); });',
+
+		// Strict namespace forms with loose methods
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'x\', t => { assert.strict.equal(a, b); });',
+		'import test from \'node:test\';\nimport {strict as strictAssert} from \'node:assert\';\ntest(\'x\', t => { strictAssert.equal(a, b); });',
+
+		// Strict namespace callable form
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'x\', t => { assert.strict(value); });',
+		'import test from \'node:test\';\nimport {strict as strictAssert} from \'node:assert\';\ntest(\'x\', t => { strictAssert(value); });',
 
 		// Non-strict loose method stays loose
 		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'x\', t => { assert.deepEqual(a, b); });',

@@ -3,7 +3,9 @@ import {getTester, parsers} from './utils/test.js';
 const {test} = getTester(import.meta);
 
 const withAssert = code => `import assert from 'node:assert';\n${code}`;
+const withStrictAssert = code => `import assert from 'node:assert/strict';\n${code}`;
 const withNamedImport = (methods, code) => `import {${methods}} from 'node:assert';\n${code}`;
+const withNamedStrictImport = (methods, code) => `import {${methods}} from 'node:assert/strict';\n${code}`;
 const withTest = code => `import test from 'node:test';\n${code}`;
 
 test.snapshot({
@@ -31,6 +33,14 @@ test.snapshot({
 
 		// Negated comparison is not a bare comparison argument
 		withAssert('assert.ok(!(a === b));'),
+
+		// Loose comparisons in strict assert namespaces have no semantics-preserving equality assertion
+		withStrictAssert('assert.ok(a == b);'),
+		withNamedStrictImport('ok', 'ok(a != b);'),
+		withAssert('assert.strict.ok(a == b);'),
+		withAssert('assert.strict(a == b);'),
+		withNamedImport('strict as strictAssert', 'strictAssert.ok(a != b);'),
+		withNamedImport('strict as strictAssert', 'strictAssert(a == b);'),
 	],
 	invalid: [
 		// Bare assert
@@ -54,6 +64,12 @@ test.snapshot({
 
 		// T.assert.ok
 		withTest('test(\'t\', t => { t.assert.ok(a === b); });'),
+
+		// Strict assert namespaces with strict operators
+		withAssert('assert.strict.ok(a === b);'),
+		withAssert('assert.strict(a !== b);'),
+		withNamedImport('strict as strictAssert', 'strictAssert.ok(a !== b);'),
+		withNamedImport('strict as strictAssert', 'strictAssert(a === b);'),
 
 		// Parenthesized comparison — reported without a fix
 		withAssert('assert.ok((a === b));'),
