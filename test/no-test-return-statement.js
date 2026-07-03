@@ -66,11 +66,15 @@ test.snapshot({
 		typed('beforeEach(() => { return {a: 1}; });'),
 		typed('afterEach(() => { return [1, 2]; });'),
 		typed('beforeEach(() => { return 1; }, {timeout: 1000});'),
+		typed('beforeEach((() => { return 1; }) as () => number);'),
 
 		// Default import member hook
 		typed('test.beforeEach(() => { return 1; });'),
 
 		// Namespace import hook
 		typedCode('import * as nodeTest from \'node:test\';\nnodeTest.beforeEach(() => { return 1; });'),
+
+		// Renamed hook import
+		typedCode('import {beforeEach as setup} from \'node:test\';\nsetup(() => { return 1; });'),
 	],
 });

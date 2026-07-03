@@ -52,7 +52,25 @@ Message:
 
 `;
 
-exports[`no-test-return-statement > invalid(12): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest.beforeEach(() => { return 1; }); 1`] = `
+exports[`no-test-return-statement > invalid(12): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\nbeforeEach((() => { return 1; }) as () => number); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | beforeEach((() => { return 1; }) as () => number);
+
+`;
+
+exports[`no-test-return-statement > invalid(12): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\nbeforeEach((() => { return 1; }) as () => number); 2`] = `
+
+Message:
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | beforeEach((() => { return 1; }) as () => number);
+    |                     ^^^^^^^^^ Do not return a value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(13): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest.beforeEach(() => { return 1; }); 1`] = `
 
 Filename: test/fixtures/inline.ts
 
@@ -61,7 +79,7 @@ Filename: test/fixtures/inline.ts
 
 `;
 
-exports[`no-test-return-statement > invalid(12): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest.beforeEach(() => { return 1; }); 2`] = `
+exports[`no-test-return-statement > invalid(13): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest.beforeEach(() => { return 1; }); 2`] = `
 
 Message:
   1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
@@ -70,7 +88,7 @@ Message:
 
 `;
 
-exports[`no-test-return-statement > invalid(13): import * as nodeTest from 'node:test';\nnodeTest.beforeEach(() => { return 1; }); 1`] = `
+exports[`no-test-return-statement > invalid(14): import * as nodeTest from 'node:test';\nnodeTest.beforeEach(() => { return 1; }); 1`] = `
 
 Filename: test/fixtures/inline.ts
 
@@ -79,12 +97,30 @@ Filename: test/fixtures/inline.ts
 
 `;
 
-exports[`no-test-return-statement > invalid(13): import * as nodeTest from 'node:test';\nnodeTest.beforeEach(() => { return 1; }); 2`] = `
+exports[`no-test-return-statement > invalid(14): import * as nodeTest from 'node:test';\nnodeTest.beforeEach(() => { return 1; }); 2`] = `
 
 Message:
   1 | import * as nodeTest from 'node:test';
 > 2 | nodeTest.beforeEach(() => { return 1; });
     |                             ^^^^^^^^^ Do not return a value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(15): import {beforeEach as setup} from 'node:test';\nsetup(() => { return 1; }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import {beforeEach as setup} from 'node:test';
+  2 | setup(() => { return 1; });
+
+`;
+
+exports[`no-test-return-statement > invalid(15): import {beforeEach as setup} from 'node:test';\nsetup(() => { return 1; }); 2`] = `
+
+Message:
+  1 | import {beforeEach as setup} from 'node:test';
+> 2 | setup(() => { return 1; });
+    |               ^^^^^^^^^ Do not return a value from a test or hook. Return a Promise to signal async completion, or return nothing.
 
 `;
 

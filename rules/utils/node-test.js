@@ -563,8 +563,8 @@ export function getStaticString(node, context) {
 }
 
 /**
-Get the inline function implementation argument of a test/suite/hook call, if any.
-`node:test` signature is `(name?, options?, fn?)`, so the implementation is the last argument.
+Get the inline function implementation argument of a test/suite call, if any.
+This also handles hooks only when the callback is the final argument; hooks with trailing options need hook-specific handling.
 */
 export function getTestCallback(callExpression) {
 	for (let index = callExpression.arguments.length - 1; index >= 0; index -= 1) {
