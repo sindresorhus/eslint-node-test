@@ -5,14 +5,13 @@ import {
 	getCalleeChain,
 	getHookCallback,
 	getTestCallback,
-	getSubtestReceiver,
 	getTestOptions,
 	findEnabledOptionsProperty,
 	isHookMemberTestCall,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 import {getEnclosingFunction} from './utils/index.js';
-import {isFunction, isLoop} from './ast/index.js';
+import {isFunction} from './ast/index.js';
 
 const MESSAGE_ID = 'no-sleep-in-test';
 
@@ -22,7 +21,8 @@ const messages = {
 
 const CALLBACK_TIMER_MODULES = new Set(['node:timers', 'timers']);
 const PROMISE_TIMER_MODULES = new Set(['node:timers/promises', 'timers/promises']);
-const ACTIVE_TEST_MODIFIERS = new Set(['only', 'todo']);
+const TEST_MODIFIERS = new Set(['expectFailure', 'only', 'skip', 'todo']);
+const ACTIVE_TEST_MODIFIERS = new Set(['expectFailure', 'only', 'todo']);
 const CONTEXT_HOOKS = new Set(['before', 'beforeEach', 'after', 'afterEach']);
 
 const unwrapExpression = node => {
@@ -77,6 +77,17 @@ function hasInactiveTestOptions(node) {
 function getSubtestModifiers(node) {
 	const {members = []} = getCalleeChain(node.callee) ?? {};
 	return members?.[0]?.name === 'test' ? members.slice(1) : [];
+}
+
+function getSupportedSubtestReceiver(node) {
+	const chain = getCalleeChain(node.callee);
+	if (
+		chain
+		&& chain.members[0]?.name === 'test'
+		&& chain.members.slice(1).every(member => TEST_MODIFIERS.has(member.name))
+	) {
+		return chain.root;
+	}
 }
 
 function getContextHookReceiver(node) {
@@ -186,60 +197,34 @@ function isSetTimeoutCallee(node, timerImports) {
 		|| isImportedTimerSetTimeout(node, timerImports);
 }
 
-function getStatementExpression(node) {
-	if (node.type === 'ExpressionStatement') {
-		return node.expression;
+function containsExpression(node, predicate, visitorKeys) {
+	const stack = [node];
+
+	while (stack.length > 0) {
+		const current = unwrapExpression(stack.pop());
+		if (!current?.type) {
+			continue;
+		}
+
+		if (predicate(current)) {
+			return true;
+		}
+
+		if (isFunction(current)) {
+			continue;
+		}
+
+		for (const key of visitorKeys[current.type] ?? []) {
+			const child = current[key];
+			for (const childNode of Array.isArray(child) ? child : [child]) {
+				if (childNode?.type) {
+					stack.push(childNode);
+				}
+			}
+		}
 	}
 
-	if (node.type === 'ReturnStatement') {
-		return node.argument;
-	}
-}
-
-function statementBodyContainsExpression(statement, predicate) {
-	return statement.type === 'BlockStatement'
-		? bodyContainsExpression(statement, predicate)
-		: statementContainsExpression(statement, predicate);
-}
-
-function statementContainsExpression(statement, predicate) {
-	if (statement.type === 'VariableDeclaration') {
-		return statement.declarations.some(declaration => declaration.init && predicate(declaration.init));
-	}
-
-	if (statement.type === 'BlockStatement') {
-		return bodyContainsExpression(statement, predicate);
-	}
-
-	if (statement.type === 'IfStatement') {
-		return statementContainsExpression(statement.consequent, predicate)
-			|| (statement.alternate ? statementContainsExpression(statement.alternate, predicate) : false);
-	}
-
-	if (statement.type === 'TryStatement') {
-		return bodyContainsExpression(statement.block, predicate)
-			|| (statement.handler ? bodyContainsExpression(statement.handler.body, predicate) : false)
-			|| (statement.finalizer ? bodyContainsExpression(statement.finalizer, predicate) : false);
-	}
-
-	if (isLoop(statement)) {
-		return statementBodyContainsExpression(statement.body, predicate);
-	}
-
-	if (statement.type === 'SwitchStatement') {
-		return statement.cases.some(switchCase => switchCase.consequent.some(caseStatement => statementContainsExpression(caseStatement, predicate)));
-	}
-
-	const expression = getStatementExpression(statement);
-	return expression ? predicate(expression) : false;
-}
-
-function bodyContainsExpression(body, predicate) {
-	if (body.type !== 'BlockStatement') {
-		return predicate(body);
-	}
-
-	return body.body.some(statement => statementContainsExpression(statement, predicate));
+	return false;
 }
 
 function expressionCallsResolver(node, resolverVariable, sourceCode) {
@@ -254,7 +239,7 @@ function functionCallsResolver(node, resolverVariable, sourceCode) {
 		return false;
 	}
 
-	return bodyContainsExpression(node.body, expression => expressionCallsResolver(expression, resolverVariable, sourceCode));
+	return containsExpression(node.body, expression => expressionCallsResolver(expression, resolverVariable, sourceCode), sourceCode.visitorKeys);
 }
 
 function isResolverArgument(node, resolverVariable, sourceCode) {
@@ -292,7 +277,7 @@ function isSleepPromise(node, timerImports) {
 
 	const isSleepCall = expression => resolveOrRejectVariables.some(resolveOrRejectVariable =>
 		isSleepSetTimeoutCall(expression, resolveOrRejectVariable, timerImports));
-	return bodyContainsExpression(executorFunction.body, isSleepCall);
+	return containsExpression(executorFunction.body, isSleepCall, timerImports.sourceCode.visitorKeys);
 }
 
 function isPromiseTimerSleep(node, timerImports) {
@@ -350,7 +335,7 @@ const create = context => {
 	};
 
 	const isCurrentTestContextSubtestCall = node => {
-		const receiver = getSubtestReceiver(node);
+		const receiver = getSupportedSubtestReceiver(node);
 		if (receiver?.type !== 'Identifier') {
 			return false;
 		}
