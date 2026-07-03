@@ -4,7 +4,8 @@ import {
 	parseTestCall,
 	getTestCallback,
 	getSubtestReceiver,
-	MODIFIERS,
+	getTestOptions,
+	findEnabledOptionsProperty,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 import {getEnclosingFunction} from './utils/index.js';
@@ -16,7 +17,9 @@ const messages = {
 	[MESSAGE_ID]: 'Do not sleep in tests with `setTimeout`. Await the real signal or use mock timers instead.',
 };
 
-const TIMER_MODULES = new Set(['node:timers', 'timers']);
+const CALLBACK_TIMER_MODULES = new Set(['node:timers', 'timers']);
+const PROMISE_TIMER_MODULES = new Set(['node:timers/promises', 'timers/promises']);
+const ACTIVE_TEST_MODIFIERS = new Set(['only', 'todo']);
 
 const unwrapExpression = node => {
 	let unwrapped = node && unwrapTypeScriptExpression(node);
@@ -58,12 +61,48 @@ function isGlobalObjectSetTimeout(sourceCode, node) {
 		&& isIdentifierReference(node.property, 'setTimeout');
 }
 
+function getMemberChain(node) {
+	const members = [];
+	while (
+		node?.type === 'MemberExpression'
+		&& !node.computed
+		&& node.property.type === 'Identifier'
+	) {
+		members.unshift(node.property);
+		node = node.object;
+	}
+
+	return node?.type === 'Identifier' ? members : undefined;
+}
+
+function isActiveModifiers(modifiers) {
+	return modifiers.every(modifier => ACTIVE_TEST_MODIFIERS.has(modifier.name));
+}
+
+function hasInactiveTestOptions(node) {
+	const options = getTestOptions(node);
+	return Boolean(findEnabledOptionsProperty(options, 'skip'));
+}
+
+function getSubtestModifiers(node) {
+	const members = getMemberChain(node.callee);
+	return members?.[0]?.name === 'test' ? members.slice(1) : [];
+}
+
 function getTimerImportBindings(sourceCode) {
 	const named = new Set();
 	const namespace = new Set();
+	const promiseNamed = new Set();
+	const promiseNamespace = new Set();
 
 	for (const node of sourceCode.ast.body) {
-		if (node.type !== 'ImportDeclaration' || !TIMER_MODULES.has(node.source.value)) {
+		if (node.type !== 'ImportDeclaration') {
+			continue;
+		}
+
+		const isCallbackTimerModule = CALLBACK_TIMER_MODULES.has(node.source.value);
+		const isPromiseTimerModule = PROMISE_TIMER_MODULES.has(node.source.value);
+		if (!isCallbackTimerModule && !isPromiseTimerModule) {
 			continue;
 		}
 
@@ -75,34 +114,44 @@ function getTimerImportBindings(sourceCode) {
 			) {
 				const variable = findVariable(sourceCode.getScope(specifier.local), specifier.local);
 				if (variable) {
-					named.add(variable);
+					(isPromiseTimerModule ? promiseNamed : named).add(variable);
 				}
 			}
 
-			if (specifier.type === 'ImportNamespaceSpecifier') {
+			if (specifier.type === 'ImportNamespaceSpecifier' || specifier.type === 'ImportDefaultSpecifier') {
 				const variable = findVariable(sourceCode.getScope(specifier.local), specifier.local);
 				if (variable) {
-					namespace.add(variable);
+					(isPromiseTimerModule ? promiseNamespace : namespace).add(variable);
 				}
 			}
 		}
 	}
 
-	return {named, namespace, sourceCode};
+	return {
+		named, namespace, promiseNamed, promiseNamespace, sourceCode,
+	};
 }
 
-function isImportedTimerSetTimeout(node, timerImports) {
+function isImportedSetTimeout(node, sourceCode, named, namespace) {
 	node = unwrapExpression(node);
 
 	if (node?.type === 'Identifier') {
-		return timerImports.named.has(findVariable(timerImports.sourceCode.getScope(node), node));
+		return named.has(findVariable(sourceCode.getScope(node), node));
 	}
 
 	return node?.type === 'MemberExpression'
 		&& !node.computed
 		&& node.object.type === 'Identifier'
-		&& timerImports.namespace.has(findVariable(timerImports.sourceCode.getScope(node.object), node.object))
+		&& namespace.has(findVariable(sourceCode.getScope(node.object), node.object))
 		&& isIdentifierReference(node.property, 'setTimeout');
+}
+
+function isImportedTimerSetTimeout(node, timerImports) {
+	return isImportedSetTimeout(node, timerImports.sourceCode, timerImports.named, timerImports.namespace);
+}
+
+function isImportedPromiseTimerSetTimeout(node, timerImports) {
+	return isImportedSetTimeout(node, timerImports.sourceCode, timerImports.promiseNamed, timerImports.promiseNamespace);
 }
 
 function isSetTimeoutCallee(node, timerImports) {
@@ -185,6 +234,12 @@ function isSleepPromise(node, timerImports) {
 	return bodyContainsExpression(executorFunction.body, expression => isSleepSetTimeoutCall(expression, resolverVariable, timerImports));
 }
 
+function isPromiseTimerSleep(node, timerImports) {
+	node = unwrapExpression(node);
+	return node?.type === 'CallExpression'
+		&& isImportedPromiseTimerSetTimeout(node.callee, timerImports);
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const imports = resolveImports(context);
@@ -206,14 +261,16 @@ const create = context => {
 		return findVariable(sourceCode.getScope(parameter), parameter);
 	};
 
-	const isSubtestCall = node => {
+	const isActiveSubtestCall = node => {
 		const receiver = getSubtestReceiver(node);
 		if (receiver?.type !== 'Identifier') {
 			return false;
 		}
 
 		const receiverVariable = findVariable(sourceCode.getScope(receiver), receiver);
-		return testStack.some(test => test.contextVariable && test.contextVariable === receiverVariable);
+		return testStack.some(test => test.contextVariable && test.contextVariable === receiverVariable)
+			&& isActiveModifiers(getSubtestModifiers(node))
+			&& !hasInactiveTestOptions(node);
 	};
 
 	const getScopeBoundaryCallback = node => {
@@ -221,13 +278,14 @@ const create = context => {
 		if (parsed) {
 			return (
 				(parsed.kind === 'test' || parsed.kind === 'hook')
-				&& parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name))
+				&& isActiveModifiers(parsed.modifiers)
+				&& !hasInactiveTestOptions(node)
 			)
 				? getTestCallback(node)
 				: undefined;
 		}
 
-		return isSubtestCall(node) ? getTestCallback(node) : undefined;
+		return isActiveSubtestCall(node) ? getTestCallback(node) : undefined;
 	};
 
 	const isInsideTestCallback = node => {
@@ -265,6 +323,17 @@ const create = context => {
 			messageId: MESSAGE_ID,
 		};
 	});
+
+	context.on('CallExpression', node => {
+		if (!isInsideTestCallback(node) || !isPromiseTimerSleep(node, timerImports)) {
+			return;
+		}
+
+		return {
+			node,
+			messageId: MESSAGE_ID,
+		};
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
@@ -274,7 +343,7 @@ const config = {
 		type: 'problem',
 		docs: {
 			description: 'Disallow sleeping in tests with `setTimeout`.',
-			recommended: true,
+			recommended: false,
 		},
 		schema: [],
 		messages,
