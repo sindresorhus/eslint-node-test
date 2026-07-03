@@ -1,0 +1,335 @@
+exports[`require-mock-timers-advance > invalid(1): import test, {mock, beforeEach} from 'node:test';\ntest('title', t => { t.mock.timers.enable({apis: ['setTimeout']}); setTimeout(callback, 100); }); 1`] = `
+
+  1 | import test, {mock, beforeEach} from 'node:test';
+  2 | test('title', t => { t.mock.timers.enable({apis: ['setTimeout']}); setTimeout(callback, 100); });
+
+`;
+
+exports[`require-mock-timers-advance > invalid(1): import test, {mock, beforeEach} from 'node:test';\ntest('title', t => { t.mock.timers.enable({apis: ['setTimeout']}); setTimeout(callback, 100); }); 2`] = `
+
+Message:
+  1 | import test, {mock, beforeEach} from 'node:test';
+> 2 | test('title', t => { t.mock.timers.enable({apis: ['setTimeout']}); setTimeout(callback, 100); });
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` must be followed by \`tick()\` or \`runAll()\` so mocked timer callbacks can run.
+
+`;
+
+exports[`require-mock-timers-advance > invalid(10): import test, {mock, beforeEach} from 'node:test';\ntest('title', t => { t.mock.timers.enable({apis: ['Date'], ...options}); Date.now(); }); 1`] = `
+
+  1 | import test, {mock, beforeEach} from 'node:test';
+  2 | test('title', t => { t.mock.timers.enable({apis: ['Date'], ...options}); Date.now(); });
+
+`;
+
+exports[`require-mock-timers-advance > invalid(10): import test, {mock, beforeEach} from 'node:test';\ntest('title', t => { t.mock.timers.enable({apis: ['Date'], ...options}); Date.now(); }); 2`] = `
+
+Message:
+  1 | import test, {mock, beforeEach} from 'node:test';
+> 2 | test('title', t => { t.mock.timers.enable({apis: ['Date'], ...options}); Date.now(); });
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` must be followed by \`tick()\` or \`runAll()\` so mocked timer callbacks can run.
+
+`;
+
+exports[`require-mock-timers-advance > invalid(11): import test, {mock, beforeEach} from 'node:test';\ntest('title', () => { mock.timers.enable({apis: ['setTimeout']}); }); 1`] = `
+
+  1 | import test, {mock, beforeEach} from 'node:test';
+  2 | test('title', () => { mock.timers.enable({apis: ['setTimeout']}); });
+
+`;
+
+exports[`require-mock-timers-advance > invalid(11): import test, {mock, beforeEach} from 'node:test';\ntest('title', () => { mock.timers.enable({apis: ['setTimeout']}); }); 2`] = `
+
+Message:
+  1 | import test, {mock, beforeEach} from 'node:test';
+> 2 | test('title', () => { mock.timers.enable({apis: ['setTimeout']}); });
+    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` must be followed by \`tick()\` or \`runAll()\` so mocked timer callbacks can run.
+
+`;
+
+exports[`require-mock-timers-advance > invalid(12): import {test, mock as tracker} from 'node:test';\ntest('title', () => { tracker.timers.enable({apis: ['setTimeout']}); }); 1`] = `
+
+  1 | import {test, mock as tracker} from 'node:test';
+  2 | test('title', () => { tracker.timers.enable({apis: ['setTimeout']}); });
+
+`;
+
+exports[`require-mock-timers-advance > invalid(12): import {test, mock as tracker} from 'node:test';\ntest('title', () => { tracker.timers.enable({apis: ['setTimeout']}); }); 2`] = `
+
+Message:
+  1 | import {test, mock as tracker} from 'node:test';
+> 2 | test('title', () => { tracker.timers.enable({apis: ['setTimeout']}); });
+    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` must be followed by \`tick()\` or \`runAll()\` so mocked timer callbacks can run.
+
+`;
+
+exports[`require-mock-timers-advance > invalid(13): import * as nodeTest from 'node:test';\nnodeTest.test('title', () => { nodeTest.mock.timers.enable({apis: ['setTimeout']}); }); 1`] = `
+
+  1 | import * as nodeTest from 'node:test';
+  2 | nodeTest.test('title', () => { nodeTest.mock.timers.enable({apis: ['setTimeout']}); });
+
+`;
+
+exports[`require-mock-timers-advance > invalid(13): import * as nodeTest from 'node:test';\nnodeTest.test('title', () => { nodeTest.mock.timers.enable({apis: ['setTimeout']}); }); 2`] = `
+
+Message:
+  1 | import * as nodeTest from 'node:test';
+> 2 | nodeTest.test('title', () => { nodeTest.mock.timers.enable({apis: ['setTimeout']}); });
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` must be followed by \`tick()\` or \`runAll()\` so mocked timer callbacks can run.
+
+`;
+
+exports[`require-mock-timers-advance > invalid(14): import test, {mock, beforeEach} from 'node:test';\ntest('title', () => { mock.timers.enable({apis: ['setTimeout']}); { const mock = {timers: {tick() {}}}; mock.timers.tick(100); } }); 1`] = `
+
+  1 | import test, {mock, beforeEach} from 'node:test';
+  2 | test('title', () => { mock.timers.enable({apis: ['setTimeout']}); { const mock = {timers: {tick() {}}}; mock.timers.tick(100); } });
+
+`;
+
+exports[`require-mock-timers-advance > invalid(14): import test, {mock, beforeEach} from 'node:test';\ntest('title', () => { mock.timers.enable({apis: ['setTimeout']}); { const mock = {timers: {tick() {}}}; mock.timers.tick(100); } }); 2`] = `
+
+Message:
+  1 | import test, {mock, beforeEach} from 'node:test';
+> 2 | test('title', () => { mock.timers.enable({apis: ['setTimeout']}); { const mock = {timers: {tick() {}}}; mock.timers.tick(100); } });
+    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` must be followed by \`tick()\` or \`runAll()\` so mocked timer callbacks can run.
+
+`;
+
+exports[`require-mock-timers-advance > invalid(15): import test, {mock, beforeEach} from 'node:test';\ntest('title', t => { t.mock.timers.enable({apis: ['setTimeout']}); { const t = {mock: {timers: {tick() {}}}}; t.mock.timers.tick(100); } }); 1`] = `
+
+  1 | import test, {mock, beforeEach} from 'node:test';
+  2 | test('title', t => { t.mock.timers.enable({apis: ['setTimeout']}); { const t = {mock: {timers: {tick() {}}}}; t.mock.timers.tick(100); } });
+
+`;
+
+exports[`require-mock-timers-advance > invalid(15): import test, {mock, beforeEach} from 'node:test';\ntest('title', t => { t.mock.timers.enable({apis: ['setTimeout']}); { const t = {mock: {timers: {tick() {}}}}; t.mock.timers.tick(100); } }); 2`] = `
+
+Message:
+  1 | import test, {mock, beforeEach} from 'node:test';
+> 2 | test('title', t => { t.mock.timers.enable({apis: ['setTimeout']}); { const t = {mock: {timers: {tick() {}}}}; t.mock.timers.tick(100); } });
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` must be followed by \`tick()\` or \`runAll()\` so mocked timer callbacks can run.
+
+`;
+
+exports[`require-mock-timers-advance > invalid(16): import test, {mock, beforeEach} from 'node:test';\nbeforeEach(t => { t.mock.timers.enable({apis: ['setTimeout']}); }); 1`] = `
+
+  1 | import test, {mock, beforeEach} from 'node:test';
+  2 | beforeEach(t => { t.mock.timers.enable({apis: ['setTimeout']}); });
+
+`;
+
+exports[`require-mock-timers-advance > invalid(16): import test, {mock, beforeEach} from 'node:test';\nbeforeEach(t => { t.mock.timers.enable({apis: ['setTimeout']}); }); 2`] = `
+
+Message:
+  1 | import test, {mock, beforeEach} from 'node:test';
+> 2 | beforeEach(t => { t.mock.timers.enable({apis: ['setTimeout']}); });
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` must be followed by \`tick()\` or \`runAll()\` so mocked timer callbacks can run.
+
+`;
+
+exports[`require-mock-timers-advance > invalid(17): import test, {mock, beforeEach} from 'node:test';\ntest('outer', t => { t.test('inner', t => { t.mock.timers.enable({apis: ['setTimeout']}); }); }); 1`] = `
+
+  1 | import test, {mock, beforeEach} from 'node:test';
+  2 | test('outer', t => { t.test('inner', t => { t.mock.timers.enable({apis: ['setTimeout']}); }); });
+
+`;
+
+exports[`require-mock-timers-advance > invalid(17): import test, {mock, beforeEach} from 'node:test';\ntest('outer', t => { t.test('inner', t => { t.mock.timers.enable({apis: ['setTimeout']}); }); }); 2`] = `
+
+Message:
+  1 | import test, {mock, beforeEach} from 'node:test';
+> 2 | test('outer', t => { t.test('inner', t => { t.mock.timers.enable({apis: ['setTimeout']}); }); });
+    |                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` must be followed by \`tick()\` or \`runAll()\` so mocked timer callbacks can run.
+
+`;
+
+exports[`require-mock-timers-advance > invalid(18): import test, {mock, beforeEach} from 'node:test';\ntest('title', t => { t.beforeEach(() => { t.mock.timers.enable({apis: ['setTimeout']}); }); }); 1`] = `
+
+  1 | import test, {mock, beforeEach} from 'node:test';
+  2 | test('title', t => { t.beforeEach(() => { t.mock.timers.enable({apis: ['setTimeout']}); }); });
+
+`;
+
+exports[`require-mock-timers-advance > invalid(18): import test, {mock, beforeEach} from 'node:test';\ntest('title', t => { t.beforeEach(() => { t.mock.timers.enable({apis: ['setTimeout']}); }); }); 2`] = `
+
+Message:
+  1 | import test, {mock, beforeEach} from 'node:test';
+> 2 | test('title', t => { t.beforeEach(() => { t.mock.timers.enable({apis: ['setTimeout']}); }); });
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` must be followed by \`tick()\` or \`runAll()\` so mocked timer callbacks can run.
+
+`;
+
+exports[`require-mock-timers-advance > invalid(19): import test, {mock, beforeEach} from 'node:test';\ntest('title', t => { t.mock.timers.enable({apis: ['setTimeout']}); function helper() { t.mock.timers.tick(100); } }); 1`] = `
+
+  1 | import test, {mock, beforeEach} from 'node:test';
+  2 | test('title', t => { t.mock.timers.enable({apis: ['setTimeout']}); function helper() { t.mock.timers.tick(100); } });
+
+`;
+
+exports[`require-mock-timers-advance > invalid(19): import test, {mock, beforeEach} from 'node:test';\ntest('title', t => { t.mock.timers.enable({apis: ['setTimeout']}); function helper() { t.mock.timers.tick(100); } }); 2`] = `
+
+Message:
+  1 | import test, {mock, beforeEach} from 'node:test';
+> 2 | test('title', t => { t.mock.timers.enable({apis: ['setTimeout']}); function helper() { t.mock.timers.tick(100); } });
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` must be followed by \`tick()\` or \`runAll()\` so mocked timer callbacks can run.
+
+`;
+
+exports[`require-mock-timers-advance > invalid(2): import test, {mock, beforeEach} from 'node:test';\ntest('title', t => { t.mock.timers.enable(); }); 1`] = `
+
+  1 | import test, {mock, beforeEach} from 'node:test';
+  2 | test('title', t => { t.mock.timers.enable(); });
+
+`;
+
+exports[`require-mock-timers-advance > invalid(2): import test, {mock, beforeEach} from 'node:test';\ntest('title', t => { t.mock.timers.enable(); }); 2`] = `
+
+Message:
+  1 | import test, {mock, beforeEach} from 'node:test';
+> 2 | test('title', t => { t.mock.timers.enable(); });
+    |                      ^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` must be followed by \`tick()\` or \`runAll()\` so mocked timer callbacks can run.
+
+`;
+
+exports[`require-mock-timers-advance > invalid(20): import test, {mock, beforeEach} from 'node:test';\ntest('title', t => { t.mock.timers.enable({apis: ['Date'], now: 100}); const Date = {now() {}}; Date.now(); }); 1`] = `
+
+  1 | import test, {mock, beforeEach} from 'node:test';
+  2 | test('title', t => { t.mock.timers.enable({apis: ['Date'], now: 100}); const Date = {now() {}}; Date.now(); });
+
+`;
+
+exports[`require-mock-timers-advance > invalid(20): import test, {mock, beforeEach} from 'node:test';\ntest('title', t => { t.mock.timers.enable({apis: ['Date'], now: 100}); const Date = {now() {}}; Date.now(); }); 2`] = `
+
+Message:
+  1 | import test, {mock, beforeEach} from 'node:test';
+> 2 | test('title', t => { t.mock.timers.enable({apis: ['Date'], now: 100}); const Date = {now() {}}; Date.now(); });
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` with only \`Date\` must be followed by a \`Date\` read, \`tick()\`, or \`runAll()\` so the mocked clock is used.
+
+`;
+
+exports[`require-mock-timers-advance > invalid(21): import test, {mock, beforeEach} from 'node:test';\ntest('title', (t: TestContext) => { t.mock.timers.enable({apis: ['setImmediate']}); }); 1`] = `
+
+  1 | import test, {mock, beforeEach} from 'node:test';
+  2 | test('title', (t: TestContext) => { t.mock.timers.enable({apis: ['setImmediate']}); });
+
+`;
+
+exports[`require-mock-timers-advance > invalid(21): import test, {mock, beforeEach} from 'node:test';\ntest('title', (t: TestContext) => { t.mock.timers.enable({apis: ['setImmediate']}); }); 2`] = `
+
+Message:
+  1 | import test, {mock, beforeEach} from 'node:test';
+> 2 | test('title', (t: TestContext) => { t.mock.timers.enable({apis: ['setImmediate']}); });
+    |                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` must be followed by \`tick()\` or \`runAll()\` so mocked timer callbacks can run.
+
+`;
+
+exports[`require-mock-timers-advance > invalid(3): import test, {mock, beforeEach} from 'node:test';\ntest('title', t => { t.mock.timers.enable({apis: ['Date'], now: 100}); }); 1`] = `
+
+  1 | import test, {mock, beforeEach} from 'node:test';
+  2 | test('title', t => { t.mock.timers.enable({apis: ['Date'], now: 100}); });
+
+`;
+
+exports[`require-mock-timers-advance > invalid(3): import test, {mock, beforeEach} from 'node:test';\ntest('title', t => { t.mock.timers.enable({apis: ['Date'], now: 100}); }); 2`] = `
+
+Message:
+  1 | import test, {mock, beforeEach} from 'node:test';
+> 2 | test('title', t => { t.mock.timers.enable({apis: ['Date'], now: 100}); });
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` with only \`Date\` must be followed by a \`Date\` read, \`tick()\`, or \`runAll()\` so the mocked clock is used.
+
+`;
+
+exports[`require-mock-timers-advance > invalid(4): import test, {mock, beforeEach} from 'node:test';\ntest('title', t => { t.mock.timers.enable({apis: ['setTimeout', 'Date'], now: 100}); Date.now(); }); 1`] = `
+
+  1 | import test, {mock, beforeEach} from 'node:test';
+  2 | test('title', t => { t.mock.timers.enable({apis: ['setTimeout', 'Date'], now: 100}); Date.now(); });
+
+`;
+
+exports[`require-mock-timers-advance > invalid(4): import test, {mock, beforeEach} from 'node:test';\ntest('title', t => { t.mock.timers.enable({apis: ['setTimeout', 'Date'], now: 100}); Date.now(); }); 2`] = `
+
+Message:
+  1 | import test, {mock, beforeEach} from 'node:test';
+> 2 | test('title', t => { t.mock.timers.enable({apis: ['setTimeout', 'Date'], now: 100}); Date.now(); });
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` must be followed by \`tick()\` or \`runAll()\` so mocked timer callbacks can run.
+
+`;
+
+exports[`require-mock-timers-advance > invalid(5): import test, {mock, beforeEach} from 'node:test';\ntest('title', t => { t.mock.timers.enable({apis: ['setTimeout']}); t.mock.timers.setTime(100); }); 1`] = `
+
+  1 | import test, {mock, beforeEach} from 'node:test';
+  2 | test('title', t => { t.mock.timers.enable({apis: ['setTimeout']}); t.mock.timers.setTime(100); });
+
+`;
+
+exports[`require-mock-timers-advance > invalid(5): import test, {mock, beforeEach} from 'node:test';\ntest('title', t => { t.mock.timers.enable({apis: ['setTimeout']}); t.mock.timers.setTime(100); }); 2`] = `
+
+Message:
+  1 | import test, {mock, beforeEach} from 'node:test';
+> 2 | test('title', t => { t.mock.timers.enable({apis: ['setTimeout']}); t.mock.timers.setTime(100); });
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` must be followed by \`tick()\` or \`runAll()\` so mocked timer callbacks can run.
+
+`;
+
+exports[`require-mock-timers-advance > invalid(6): import test, {mock, beforeEach} from 'node:test';\ntest('title', t => { t.mock.timers.enable({apis: ['Date'], now: Date.now()}); }); 1`] = `
+
+  1 | import test, {mock, beforeEach} from 'node:test';
+  2 | test('title', t => { t.mock.timers.enable({apis: ['Date'], now: Date.now()}); });
+
+`;
+
+exports[`require-mock-timers-advance > invalid(6): import test, {mock, beforeEach} from 'node:test';\ntest('title', t => { t.mock.timers.enable({apis: ['Date'], now: Date.now()}); }); 2`] = `
+
+Message:
+  1 | import test, {mock, beforeEach} from 'node:test';
+> 2 | test('title', t => { t.mock.timers.enable({apis: ['Date'], now: Date.now()}); });
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` with only \`Date\` must be followed by a \`Date\` read, \`tick()\`, or \`runAll()\` so the mocked clock is used.
+
+`;
+
+exports[`require-mock-timers-advance > invalid(7): import test, {mock, beforeEach} from 'node:test';\ntest('title', t => { t.mock.timers.enable({apis: ['setTimeout'], now: t.mock.timers.tick(1)}); }); 1`] = `
+
+  1 | import test, {mock, beforeEach} from 'node:test';
+  2 | test('title', t => { t.mock.timers.enable({apis: ['setTimeout'], now: t.mock.timers.tick(1)}); });
+
+`;
+
+exports[`require-mock-timers-advance > invalid(7): import test, {mock, beforeEach} from 'node:test';\ntest('title', t => { t.mock.timers.enable({apis: ['setTimeout'], now: t.mock.timers.tick(1)}); }); 2`] = `
+
+Message:
+  1 | import test, {mock, beforeEach} from 'node:test';
+> 2 | test('title', t => { t.mock.timers.enable({apis: ['setTimeout'], now: t.mock.timers.tick(1)}); });
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` must be followed by \`tick()\` or \`runAll()\` so mocked timer callbacks can run.
+
+`;
+
+exports[`require-mock-timers-advance > invalid(8): import test, {mock, beforeEach} from 'node:test';\ntest('title', t => { t.mock.timers.enable({apis: ['setTimeout'], now: t.mock.timers.runAll()}); }); 1`] = `
+
+  1 | import test, {mock, beforeEach} from 'node:test';
+  2 | test('title', t => { t.mock.timers.enable({apis: ['setTimeout'], now: t.mock.timers.runAll()}); });
+
+`;
+
+exports[`require-mock-timers-advance > invalid(8): import test, {mock, beforeEach} from 'node:test';\ntest('title', t => { t.mock.timers.enable({apis: ['setTimeout'], now: t.mock.timers.runAll()}); }); 2`] = `
+
+Message:
+  1 | import test, {mock, beforeEach} from 'node:test';
+> 2 | test('title', t => { t.mock.timers.enable({apis: ['setTimeout'], now: t.mock.timers.runAll()}); });
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` must be followed by \`tick()\` or \`runAll()\` so mocked timer callbacks can run.
+
+`;
+
+exports[`require-mock-timers-advance > invalid(9): import test, {mock, beforeEach} from 'node:test';\ntest('title', t => { t.mock.timers.enable({apis: ['Date'], apis: ['setTimeout']}); Date.now(); }); 1`] = `
+
+  1 | import test, {mock, beforeEach} from 'node:test';
+  2 | test('title', t => { t.mock.timers.enable({apis: ['Date'], apis: ['setTimeout']}); Date.now(); });
+
+`;
+
+exports[`require-mock-timers-advance > invalid(9): import test, {mock, beforeEach} from 'node:test';\ntest('title', t => { t.mock.timers.enable({apis: ['Date'], apis: ['setTimeout']}); Date.now(); }); 2`] = `
+
+Message:
+  1 | import test, {mock, beforeEach} from 'node:test';
+> 2 | test('title', t => { t.mock.timers.enable({apis: ['Date'], apis: ['setTimeout']}); Date.now(); });
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` must be followed by \`tick()\` or \`runAll()\` so mocked timer callbacks can run.
+
+`;
