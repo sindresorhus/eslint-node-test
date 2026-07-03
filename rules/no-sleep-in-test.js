@@ -95,11 +95,23 @@ function getContextHookReceiver(node) {
 }
 
 function getParsedCallback(node, parsed) {
-	if (parsed.kind === 'hook' || isHookMemberTestCall(parsed)) {
+	if (getParsedKind(parsed) === 'hook') {
 		return getHookCallback(node);
 	}
 
 	return getTestCallback(node);
+}
+
+function getParsedKind(parsed) {
+	return isHookMemberTestCall(parsed) ? 'hook' : parsed.kind;
+}
+
+function getParsedModifiers(parsed) {
+	return isHookMemberTestCall(parsed) ? [] : parsed.modifiers;
+}
+
+function hasInactiveParsedOptions(node, parsed) {
+	return getParsedKind(parsed) !== 'hook' && hasInactiveTestOptions(node);
 }
 
 function getTimerImportBindings(sourceCode) {
@@ -336,14 +348,12 @@ const create = context => {
 
 		const parsed = parseTestCall(node, imports);
 		if (parsed) {
-			if (isHookMemberTestCall(parsed)) {
-				return getHookCallback(node);
-			}
+			const kind = getParsedKind(parsed);
 
 			return (
-				(parsed.kind === 'test' || parsed.kind === 'hook')
-				&& areActiveModifiers(parsed.modifiers)
-				&& !hasInactiveTestOptions(node)
+				(kind === 'test' || kind === 'hook')
+				&& areActiveModifiers(getParsedModifiers(parsed))
+				&& !hasInactiveParsedOptions(node, parsed)
 			)
 				? getParsedCallback(node, parsed)
 				: undefined;
@@ -359,13 +369,9 @@ const create = context => {
 	const getInactiveScopeCallback = node => {
 		const parsed = parseTestCall(node, imports);
 		if (parsed) {
-			if (isHookMemberTestCall(parsed)) {
-				return;
-			}
-
 			return (
-				!areActiveModifiers(parsed.modifiers)
-				|| hasInactiveTestOptions(node)
+				!areActiveModifiers(getParsedModifiers(parsed))
+				|| hasInactiveParsedOptions(node, parsed)
 			)
 				? getParsedCallback(node, parsed)
 				: undefined;
