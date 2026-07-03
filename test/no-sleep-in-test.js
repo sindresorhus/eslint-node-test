@@ -83,6 +83,7 @@ test.snapshot({
 		withTest('await new Promise(resolve => {\n\treturn setTimeout(resolve, 500);\n});'),
 		withTest('await new Promise(done => setTimeout(done, 500));'),
 		withTest('await new Promise((resolve, reject) => setTimeout(reject, 500));'),
+		withTest('await new Promise((resolve, reject) => setTimeout(() => reject(), 500));'),
 		withTest('await new Promise(resolve => setTimeout(resolve));'),
 		withTest('await new Promise(resolve => {\n\tconst timeout = setTimeout(resolve, 500);\n\treturn timeout;\n});'),
 		withTest('await new Promise(resolve => setTimeout(() => resolve(), 500));'),

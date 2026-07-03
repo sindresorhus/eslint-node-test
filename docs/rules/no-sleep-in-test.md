@@ -48,4 +48,4 @@ test('debounces', t => {
 });
 ```
 
-The rule intentionally does not report locally defined `sleep()` or `delay()` helper calls, nested helper function bodies, or bare `setTimeout(fn, ms)` scheduling. It only targets direct imported promise-timer `setTimeout()` calls and direct Promise sleep wrappers.
+The rule intentionally does not report locally defined `sleep()` or `delay()` helper calls, nested helper function bodies, or bare `setTimeout(fn, ms)` scheduling. It only targets direct imported promise-timer `setTimeout()` calls and direct Promise timer wrappers.
