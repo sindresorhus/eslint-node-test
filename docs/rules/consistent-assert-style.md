@@ -24,7 +24,7 @@ If you set `style: 'assert'`, do not also enable eslint-plugin-unicorn's [`consi
 	'node-test/consistent-assert-style': [
 		'error',
 		{
-			style: 'assert-ok', // 'assert' | 'assert-ok', default: 'assert-ok'
+			style: 'assert-ok' // 'assert' | 'assert-ok', default: 'assert-ok'
 		}
 	]
 }
