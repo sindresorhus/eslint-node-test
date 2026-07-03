@@ -113,7 +113,7 @@ function getContextHookReceiver(callExpression) {
 	return undefined;
 }
 
-function getGetTestContextLocals(sourceCode) {
+function getTestContextImportLocals(sourceCode) {
 	const locals = new Set();
 
 	for (const node of sourceCode.ast.body) {
@@ -144,7 +144,7 @@ function getHookCallback(callExpression) {
 const create = context => {
 	const {sourceCode} = context;
 	const imports = resolveImports(context);
-	const getTestContextLocals = getGetTestContextLocals(sourceCode);
+	const getTestContextLocals = getTestContextImportLocals(sourceCode);
 	if (!imports.isTestFile && getTestContextLocals.size === 0) {
 		return;
 	}
@@ -213,25 +213,34 @@ const create = context => {
 		contextVariables.pop();
 	};
 
-	const isGlobalMock = node =>
-		(
-			node.type === 'Identifier'
-			&& imports.mockLocals.has(node.name)
-			&& isImportedReference(node, sourceCode)
-		)
-		|| (
-			node.type === 'MemberExpression'
-			&& !node.computed
-			&& node.property.type === 'Identifier'
-			&& node.property.name === 'mock'
-			&& node.object.type === 'Identifier'
+	const isGlobalMock = node => {
+		const expression = unwrapTypeScriptExpression(node);
+		if (
+			expression.type === 'Identifier'
+			&& imports.mockLocals.has(expression.name)
+			&& isImportedReference(expression, sourceCode)
+		) {
+			return true;
+		}
+
+		if (
+			expression.type !== 'MemberExpression'
+			|| expression.computed
+			|| expression.property.type !== 'Identifier'
+			|| expression.property.name !== 'mock'
+		) {
+			return false;
+		}
+
+		const object = unwrapTypeScriptExpression(expression.object);
+		return object.type === 'Identifier'
 			&& (
-				node.object.name === imports.namespace
-				|| imports.locals.get(node.object.name) === 'test'
-				|| imports.locals.get(node.object.name) === 'it'
+				object.name === imports.namespace
+				|| imports.locals.get(object.name) === 'test'
+				|| imports.locals.get(object.name) === 'it'
 			)
-			&& isImportedReference(node.object, sourceCode)
-		);
+			&& isImportedReference(object, sourceCode);
+	};
 
 	const isCurrentContextReference = node => {
 		const variable = findVariable(sourceCode.getScope(node), node);
@@ -243,43 +252,59 @@ const create = context => {
 			return false;
 		}
 
-		const {callee} = node;
-		return (
+		const callee = unwrapTypeScriptExpression(node.callee);
+		if (
 			callee.type === 'Identifier'
 			&& getTestContextLocals.has(callee.name)
 			&& isImportedReference(callee, sourceCode)
-		)
-		|| (
-			callee.type === 'MemberExpression'
-			&& !callee.computed
-			&& callee.property.type === 'Identifier'
-			&& callee.property.name === 'getTestContext'
-			&& callee.object.type === 'Identifier'
+		) {
+			return true;
+		}
+
+		if (
+			callee.type !== 'MemberExpression'
+			|| callee.computed
+			|| callee.property.type !== 'Identifier'
+			|| callee.property.name !== 'getTestContext'
+		) {
+			return false;
+		}
+
+		const object = unwrapTypeScriptExpression(callee.object);
+		return object.type === 'Identifier'
 			&& (
-				callee.object.name === imports.namespace
-				|| imports.locals.get(callee.object.name) === 'test'
-				|| imports.locals.get(callee.object.name) === 'it'
+				object.name === imports.namespace
+				|| imports.locals.get(object.name) === 'test'
+				|| imports.locals.get(object.name) === 'it'
 			)
-			&& isImportedReference(callee.object, sourceCode)
+			&& isImportedReference(object, sourceCode);
+	};
+
+	const isContextMock = node => {
+		if (
+			node.type !== 'MemberExpression'
+			|| node.computed
+			|| node.property.type !== 'Identifier'
+			|| node.property.name !== 'mock'
+		) {
+			return false;
+		}
+
+		const object = unwrapTypeScriptExpression(node.object);
+		return (
+			(object.type === 'Identifier' && isCurrentContextReference(object))
+			|| isGetTestContextCall(object)
 		);
 	};
 
-	const isContextMock = node =>
-		node.type === 'MemberExpression'
-		&& !node.computed
-		&& node.property.type === 'Identifier'
-		&& node.property.name === 'mock'
-		&& (
-			(node.object.type === 'Identifier' && isCurrentContextReference(node.object))
-			|| isGetTestContextCall(node.object)
-		);
-
-	const isMockTimers = node =>
-		node.type === 'MemberExpression'
-		&& !node.computed
-		&& node.property.type === 'Identifier'
-		&& node.property.name === 'timers'
-		&& (isGlobalMock(node.object) || isContextMock(node.object));
+	const isMockTimers = node => {
+		const expression = unwrapTypeScriptExpression(node);
+		return expression.type === 'MemberExpression'
+			&& !expression.computed
+			&& expression.property.type === 'Identifier'
+			&& expression.property.name === 'timers'
+			&& (isGlobalMock(expression.object) || isContextMock(expression.object));
+	};
 
 	context.on('CallExpression', node => {
 		updateContext(node);

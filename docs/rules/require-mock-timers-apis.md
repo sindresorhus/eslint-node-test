@@ -9,7 +9,7 @@
 
 `mock.timers.enable()` defaults to mocking all timer APIs, including the global `Date` object. That can break unrelated code in the same test or hook that expects real wall-clock time, such as logging, cache TTLs, or timestamp comparisons.
 
-This rule requires an explicit `apis` property so the test states exactly which timer APIs it intends to mock. It checks the global `mock` export, `test.mock`, test context mocks like `t.mock`, and direct `getTestContext().mock` access.
+This rule requires an explicit `apis` property so the test states exactly which timer APIs it intends to mock. It checks the global `mock` export, `test.mock`, test context mocks like `t.mock`, and direct `getTestContext().mock` access inside tests where that Node.js API is available.
 
 ## Examples
 

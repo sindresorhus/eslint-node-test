@@ -40,7 +40,7 @@ test.snapshot({
 		head + 'test("a", t => { t.mock.timers.enable({apis: ["setTimeout"]}); });',
 
 		// Current test context with explicit apis.
-		'import {getTestContext} from \'node:test\';\ngetTestContext().mock.timers.enable({apis: ["setTimeout"]});',
+		'import {test, getTestContext} from \'node:test\';\ntest("a", () => { getTestContext().mock.timers.enable({apis: ["setTimeout"]}); });',
 
 		// The test context parameter is not in scope before the callback body.
 		head + 'test(t.mock.timers.enable(), t => {});',
@@ -141,16 +141,46 @@ test.snapshot({
 		head + 'test("a", t => { t.test("b", subtest => { t.mock.timers.enable(); }); });',
 
 		// Current test context.
-		'import {getTestContext} from \'node:test\';\ngetTestContext().mock.timers.enable();',
+		'import {test, getTestContext} from \'node:test\';\ntest("a", () => { getTestContext().mock.timers.enable(); });',
 
 		// Renamed current test context.
-		'import {getTestContext as context} from \'node:test\';\ncontext().mock.timers.enable({now: 1000});',
+		'import {test, getTestContext as context} from \'node:test\';\ntest("a", () => { context().mock.timers.enable({now: 1000}); });',
 
 		// Namespace current test context.
-		'import * as nodeTest from \'node:test\';\nnodeTest.getTestContext().mock.timers.enable();',
+		'import * as nodeTest from \'node:test\';\nnodeTest.test("a", () => { nodeTest.getTestContext().mock.timers.enable(); });',
 
 		// Default import current test context.
-		'import test from \'node:test\';\ntest.getTestContext().mock.timers.enable();',
+		'import test from \'node:test\';\ntest("a", () => { test.getTestContext().mock.timers.enable(); });',
+
+		// TypeScript non-null current test context.
+		{
+			code: 'import {test, getTestContext} from \'node:test\';\ntest("a", () => { getTestContext()!.mock.timers.enable(); });',
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// TypeScript cast current test context.
+		{
+			code: 'import {test, getTestContext} from \'node:test\';\ntest("a", () => { (getTestContext() as TestContext).mock.timers.enable({now: 1000}); });',
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// TypeScript-wrapped global mock.
+		{
+			code: head + '(mock as typeof mock).timers.enable();',
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// TypeScript-wrapped default test mock.
+		{
+			code: 'import test from \'node:test\';\n(test as typeof test).mock.timers.enable({now: 1000});',
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// TypeScript-wrapped default current test context.
+		{
+			code: 'import test from \'node:test\';\ntest("a", () => { (test as typeof test).getTestContext().mock.timers.enable(); });',
+			languageOptions: {parser: parsers.typescript},
+		},
 
 		// Hook context.
 		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { t.mock.timers.enable(); });',
