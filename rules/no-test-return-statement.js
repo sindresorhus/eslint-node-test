@@ -7,6 +7,7 @@ import {
 	getHookCallback,
 	getTestCallback,
 	getSubtestReceiver,
+	isHookMemberTestCall,
 } from './utils/node-test.js';
 import isFunction from './ast/is-function.js';
 import isPromiseType from './utils/is-promise-type.js';
@@ -79,12 +80,6 @@ function isContextHookCall(callExpression, state) {
 function isContextSubtestCall(callExpression, state) {
 	const receiver = getSubtestReceiver(callExpression);
 	return receiver !== undefined && isContextReference(receiver, state);
-}
-
-function isHookMemberTestCall(parsed) {
-	return parsed?.kind === 'test'
-		&& parsed.modifiers.length === 1
-		&& HOOK_FUNCTIONS.has(parsed.modifiers[0].name);
 }
 
 function getCheckedCallback(callExpression, state) {

@@ -346,7 +346,7 @@ export const parseTestCall = memoizeByNode(parseTestCallCache, (callExpression, 
 /** Get the modifier identifier node with the given name (`only`/`skip`/`todo`), or `undefined`. */
 export const findModifier = (modifiers, name) => modifiers.find(modifier => modifier.name === name);
 
-function isHookMemberTestCall(parsed) {
+export function isHookMemberTestCall(parsed) {
 	return parsed?.kind === 'test'
 		&& parsed.modifiers.length === 1
 		&& HOOK_FUNCTIONS.has(parsed.modifiers[0].name);
