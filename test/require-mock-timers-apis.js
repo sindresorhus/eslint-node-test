@@ -63,6 +63,9 @@ test.snapshot({
 		// Shadowed subtest receiver.
 		head + 'test("a", t => { const fn = t => { t.test("b", subtest => { subtest.mock.timers.enable(); }); }; });',
 
+		// Destructured context mock aliasing is intentionally ignored.
+		'import {test} from \'node:test\';\ntest("a", t => { const {mock} = t; mock.timers.enable(); });',
+
 		// Namespace mock with explicit apis.
 		'import * as nodeTest from \'node:test\';\nnodeTest.mock.timers.enable({apis: ["setTimeout"]});',
 
@@ -106,6 +109,8 @@ test.snapshot({
 		// Falsy apis values fall back to mocking every API.
 		head + 'mock.timers.enable({apis: null});',
 		head + 'mock.timers.enable({apis: false});',
+		head + 'mock.timers.enable({apis: 0});',
+		head + 'mock.timers.enable({apis: ""});',
 
 		// Spread without an explicit apis property.
 		head + 'mock.timers.enable({...timerOptions});',
@@ -128,11 +133,23 @@ test.snapshot({
 		// Context mock with a modifier.
 		head + 'test.only("a", t => { t.mock.timers.enable(); });',
 
+		// TypeScript-wrapped test call.
+		{
+			code: head + '(test as typeof test)("a", t => { t.mock.timers.enable(); });',
+			languageOptions: {parser: parsers.typescript},
+		},
+
 		// Context mock inside a nested closure.
 		head + 'test("a", t => { const fn = () => { t.mock.timers.enable(); }; fn(); });',
 
 		// Subtest context.
 		head + 'test("a", t => { t.test("b", subtest => { subtest.mock.timers.enable({now: 1000}); }); });',
+
+		// TypeScript-wrapped subtest receiver.
+		{
+			code: head + 'test("a", t => { (t as TestContext).test("b", subtest => { subtest.mock.timers.enable(); }); });',
+			languageOptions: {parser: parsers.typescript},
+		},
 
 		// Defaulted subtest context parameter.
 		head + 'test("a", t => { t.test("b", (subtest = fallback) => { subtest.mock.timers.enable(); }); });',
@@ -199,6 +216,12 @@ test.snapshot({
 
 		// Context hook.
 		head + 'test("a", t => { t.beforeEach(hookContext => { hookContext.mock.timers.enable(); }); });',
+
+		// TypeScript-wrapped context hook receiver.
+		{
+			code: head + 'test("a", t => { (t as TestContext).beforeEach(hookContext => { hookContext.mock.timers.enable(); }); });',
+			languageOptions: {parser: parsers.typescript},
+		},
 
 		// Context hook with options.
 		head + 'test("a", t => { t.beforeEach(hookContext => { hookContext.mock.timers.enable(); }, {timeout: 1000}); });',

@@ -100,14 +100,18 @@ function getParameterIdentifier(parameter) {
 
 function getContextHookReceiver(callExpression) {
 	const {callee} = callExpression;
+	const receiver = callee.type === 'MemberExpression'
+		? unwrapTypeScriptExpression(callee.object)
+		: undefined;
+
 	if (
 		callee.type === 'MemberExpression'
 		&& !callee.computed
 		&& callee.property.type === 'Identifier'
 		&& CONTEXT_HOOKS.has(callee.property.name)
-		&& callee.object.type === 'Identifier'
+		&& receiver.type === 'Identifier'
 	) {
-		return callee.object;
+		return receiver;
 	}
 
 	return undefined;
