@@ -1,107 +1,719 @@
-exports[`no-test-return-statement > invalid(1): import {test, it} from 'node:test';\ntest(\"x\", () => { return 42; }); 1`] = `
+exports[`no-test-return-statement > invalid(1): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", () => { return 42; }); 1`] = `
 
 Filename: test/fixtures/inline.ts
 
-  1 | import {test, it} from 'node:test';
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
   2 | test("x", () => { return 42; });
 
 `;
 
-exports[`no-test-return-statement > invalid(1): import {test, it} from 'node:test';\ntest(\"x\", () => { return 42; }); 2`] = `
+exports[`no-test-return-statement > invalid(1): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", () => { return 42; }); 2`] = `
 
 Message:
-  1 | import {test, it} from 'node:test';
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
 > 2 | test("x", () => { return 42; });
-    |                   ^^^^^^^^^^ Do not return a value from a test. Return a Promise to signal async completion, or return nothing.
+    |                   ^^^^^^^^^^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
 
 `;
 
-exports[`no-test-return-statement > invalid(2): import {test, it} from 'node:test';\ntest(\"x\", () => { return {a: 1}; }); 1`] = `
+exports[`no-test-return-statement > invalid(10): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\nit(\"x\", () => { return 1; }); 1`] = `
 
 Filename: test/fixtures/inline.ts
 
-  1 | import {test, it} from 'node:test';
-  2 | test("x", () => { return {a: 1}; });
-
-`;
-
-exports[`no-test-return-statement > invalid(2): import {test, it} from 'node:test';\ntest(\"x\", () => { return {a: 1}; }); 2`] = `
-
-Message:
-  1 | import {test, it} from 'node:test';
-> 2 | test("x", () => { return {a: 1}; });
-    |                   ^^^^^^^^^^^^^^ Do not return a value from a test. Return a Promise to signal async completion, or return nothing.
-
-`;
-
-exports[`no-test-return-statement > invalid(3): import {test, it} from 'node:test';\ntest(\"x\", () => { return [1, 2]; }); 1`] = `
-
-Filename: test/fixtures/inline.ts
-
-  1 | import {test, it} from 'node:test';
-  2 | test("x", () => { return [1, 2]; });
-
-`;
-
-exports[`no-test-return-statement > invalid(3): import {test, it} from 'node:test';\ntest(\"x\", () => { return [1, 2]; }); 2`] = `
-
-Message:
-  1 | import {test, it} from 'node:test';
-> 2 | test("x", () => { return [1, 2]; });
-    |                   ^^^^^^^^^^^^^^ Do not return a value from a test. Return a Promise to signal async completion, or return nothing.
-
-`;
-
-exports[`no-test-return-statement > invalid(4): import {test, it} from 'node:test';\ntest(\"x\", () => { return \"done\"; }); 1`] = `
-
-Filename: test/fixtures/inline.ts
-
-  1 | import {test, it} from 'node:test';
-  2 | test("x", () => { return "done"; });
-
-`;
-
-exports[`no-test-return-statement > invalid(4): import {test, it} from 'node:test';\ntest(\"x\", () => { return \"done\"; }); 2`] = `
-
-Message:
-  1 | import {test, it} from 'node:test';
-> 2 | test("x", () => { return "done"; });
-    |                   ^^^^^^^^^^^^^^ Do not return a value from a test. Return a Promise to signal async completion, or return nothing.
-
-`;
-
-exports[`no-test-return-statement > invalid(5): import {test, it} from 'node:test';\ntest(\"x\", () => { const a = 1, b = 2; return a === b; }); 1`] = `
-
-Filename: test/fixtures/inline.ts
-
-  1 | import {test, it} from 'node:test';
-  2 | test("x", () => { const a = 1, b = 2; return a === b; });
-
-`;
-
-exports[`no-test-return-statement > invalid(5): import {test, it} from 'node:test';\ntest(\"x\", () => { const a = 1, b = 2; return a === b; }); 2`] = `
-
-Message:
-  1 | import {test, it} from 'node:test';
-> 2 | test("x", () => { const a = 1, b = 2; return a === b; });
-    |                                       ^^^^^^^^^^^^^^^ Do not return a value from a test. Return a Promise to signal async completion, or return nothing.
-
-`;
-
-exports[`no-test-return-statement > invalid(6): import {test, it} from 'node:test';\nit(\"x\", () => { return 1; }); 1`] = `
-
-Filename: test/fixtures/inline.ts
-
-  1 | import {test, it} from 'node:test';
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
   2 | it("x", () => { return 1; });
 
 `;
 
-exports[`no-test-return-statement > invalid(6): import {test, it} from 'node:test';\nit(\"x\", () => { return 1; }); 2`] = `
+exports[`no-test-return-statement > invalid(10): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\nit(\"x\", () => { return 1; }); 2`] = `
 
 Message:
-  1 | import {test, it} from 'node:test';
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
 > 2 | it("x", () => { return 1; });
-    |                 ^^^^^^^^^ Do not return a value from a test. Return a Promise to signal async completion, or return nothing.
+    |                 ^^^^^^^^^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(11): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", t => { t.test(\"y\", () => 1); }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | test("x", t => { t.test("y", () => 1); });
+
+`;
+
+exports[`no-test-return-statement > invalid(11): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", t => { t.test(\"y\", () => 1); }); 2`] = `
+
+Message:
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | test("x", t => { t.test("y", () => 1); });
+    |                                    ^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(12): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", t => { t.test(\"y\", {timeout: 1000}, () => 1); }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | test("x", t => { t.test("y", {timeout: 1000}, () => 1); });
+
+`;
+
+exports[`no-test-return-statement > invalid(12): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", t => { t.test(\"y\", {timeout: 1000}, () => 1); }); 2`] = `
+
+Message:
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | test("x", t => { t.test("y", {timeout: 1000}, () => 1); });
+    |                                                     ^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(13): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", t => { t.test.only(\"y\", () => 1); }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | test("x", t => { t.test.only("y", () => 1); });
+
+`;
+
+exports[`no-test-return-statement > invalid(13): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", t => { t.test.only(\"y\", () => 1); }); 2`] = `
+
+Message:
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | test("x", t => { t.test.only("y", () => 1); });
+    |                                         ^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(14): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", t => { t.test.skip(\"y\", () => 1); }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | test("x", t => { t.test.skip("y", () => 1); });
+
+`;
+
+exports[`no-test-return-statement > invalid(14): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", t => { t.test.skip(\"y\", () => 1); }); 2`] = `
+
+Message:
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | test("x", t => { t.test.skip("y", () => 1); });
+    |                                         ^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(15): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", t => { t.test.todo(\"y\", () => 1); }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | test("x", t => { t.test.todo("y", () => 1); });
+
+`;
+
+exports[`no-test-return-statement > invalid(15): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", t => { t.test.todo(\"y\", () => 1); }); 2`] = `
+
+Message:
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | test("x", t => { t.test.todo("y", () => 1); });
+    |                                         ^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(16): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", t => { t.before(() => 1); }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | test("x", t => { t.before(() => 1); });
+
+`;
+
+exports[`no-test-return-statement > invalid(16): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", t => { t.before(() => 1); }); 2`] = `
+
+Message:
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | test("x", t => { t.before(() => 1); });
+    |                                 ^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(17): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", t => { t.beforeEach(() => 1, {timeout: 1000}); }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | test("x", t => { t.beforeEach(() => 1, {timeout: 1000}); });
+
+`;
+
+exports[`no-test-return-statement > invalid(17): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", t => { t.beforeEach(() => 1, {timeout: 1000}); }); 2`] = `
+
+Message:
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | test("x", t => { t.beforeEach(() => 1, {timeout: 1000}); });
+    |                                     ^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(18): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", t => { t.beforeEach(() => ({a: 1})); }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | test("x", t => { t.beforeEach(() => ({a: 1})); });
+
+`;
+
+exports[`no-test-return-statement > invalid(18): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", t => { t.beforeEach(() => ({a: 1})); }); 2`] = `
+
+Message:
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | test("x", t => { t.beforeEach(() => ({a: 1})); });
+    |                                      ^^^^^^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(19): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", t => { t.after(() => \"done\"); }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | test("x", t => { t.after(() => "done"); });
+
+`;
+
+exports[`no-test-return-statement > invalid(19): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", t => { t.after(() => \"done\"); }); 2`] = `
+
+Message:
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | test("x", t => { t.after(() => "done"); });
+    |                                ^^^^^^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(2): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", () => 42); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | test("x", () => 42);
+
+`;
+
+exports[`no-test-return-statement > invalid(2): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", () => 42); 2`] = `
+
+Message:
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | test("x", () => 42);
+    |                 ^^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(20): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", t => { t.afterEach(() => { return {a: 1}; }, {timeout: 1000}); }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | test("x", t => { t.afterEach(() => { return {a: 1}; }, {timeout: 1000}); });
+
+`;
+
+exports[`no-test-return-statement > invalid(20): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", t => { t.afterEach(() => { return {a: 1}; }, {timeout: 1000}); }); 2`] = `
+
+Message:
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | test("x", t => { t.afterEach(() => { return {a: 1}; }, {timeout: 1000}); });
+    |                                      ^^^^^^^^^^^^^^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(21): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", t => { t.afterEach(() => [1, 2]); }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | test("x", t => { t.afterEach(() => [1, 2]); });
+
+`;
+
+exports[`no-test-return-statement > invalid(21): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", t => { t.afterEach(() => [1, 2]); }); 2`] = `
+
+Message:
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | test("x", t => { t.afterEach(() => [1, 2]); });
+    |                                    ^^^^^^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(22): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\nbeforeEach(t => { t.beforeEach(() => ({a: 1})); }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | beforeEach(t => { t.beforeEach(() => ({a: 1})); });
+
+`;
+
+exports[`no-test-return-statement > invalid(22): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\nbeforeEach(t => { t.beforeEach(() => ({a: 1})); }); 2`] = `
+
+Message:
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | beforeEach(t => { t.beforeEach(() => ({a: 1})); });
+    |                                       ^^^^^^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(23): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\nbeforeEach(t => { t.test(\"y\", () => 1); }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | beforeEach(t => { t.test("y", () => 1); });
+
+`;
+
+exports[`no-test-return-statement > invalid(23): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\nbeforeEach(t => { t.test(\"y\", () => 1); }); 2`] = `
+
+Message:
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | beforeEach(t => { t.test("y", () => 1); });
+    |                                     ^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(24): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\nbeforeEach(t => { t.test(\"y\", t => { t.beforeEach(() => ({a: 1})); }); }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | beforeEach(t => { t.test("y", t => { t.beforeEach(() => ({a: 1})); }); });
+
+`;
+
+exports[`no-test-return-statement > invalid(24): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\nbeforeEach(t => { t.test(\"y\", t => { t.beforeEach(() => ({a: 1})); }); }); 2`] = `
+
+Message:
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | beforeEach(t => { t.test("y", t => { t.beforeEach(() => ({a: 1})); }); });
+    |                                                          ^^^^^^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(25): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\nbefore(() => { return 1; }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | before(() => { return 1; });
+
+`;
+
+exports[`no-test-return-statement > invalid(25): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\nbefore(() => { return 1; }); 2`] = `
+
+Message:
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | before(() => { return 1; });
+    |                ^^^^^^^^^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(26): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\nafter(() => { return \"done\"; }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | after(() => { return "done"; });
+
+`;
+
+exports[`no-test-return-statement > invalid(26): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\nafter(() => { return \"done\"; }); 2`] = `
+
+Message:
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | after(() => { return "done"; });
+    |               ^^^^^^^^^^^^^^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(27): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\nbeforeEach(() => { return {a: 1}; }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | beforeEach(() => { return {a: 1}; });
+
+`;
+
+exports[`no-test-return-statement > invalid(27): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\nbeforeEach(() => { return {a: 1}; }); 2`] = `
+
+Message:
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | beforeEach(() => { return {a: 1}; });
+    |                    ^^^^^^^^^^^^^^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(28): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\nafterEach(() => { return [1, 2]; }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | afterEach(() => { return [1, 2]; });
+
+`;
+
+exports[`no-test-return-statement > invalid(28): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\nafterEach(() => { return [1, 2]; }); 2`] = `
+
+Message:
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | afterEach(() => { return [1, 2]; });
+    |                   ^^^^^^^^^^^^^^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(29): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\nbeforeEach(() => { return 1; }, {timeout: 1000}); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | beforeEach(() => { return 1; }, {timeout: 1000});
+
+`;
+
+exports[`no-test-return-statement > invalid(29): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\nbeforeEach(() => { return 1; }, {timeout: 1000}); 2`] = `
+
+Message:
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | beforeEach(() => { return 1; }, {timeout: 1000});
+    |                    ^^^^^^^^^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(3): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest.skip(\"x\", () => 1); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | test.skip("x", () => 1);
+
+`;
+
+exports[`no-test-return-statement > invalid(3): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest.skip(\"x\", () => 1); 2`] = `
+
+Message:
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | test.skip("x", () => 1);
+    |                      ^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(30): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\nbeforeEach(() => ({a: 1})); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | beforeEach(() => ({a: 1}));
+
+`;
+
+exports[`no-test-return-statement > invalid(30): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\nbeforeEach(() => ({a: 1})); 2`] = `
+
+Message:
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | beforeEach(() => ({a: 1}));
+    |                   ^^^^^^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(31): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\nbeforeEach((() => { return 1; }) as () => number); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | beforeEach((() => { return 1; }) as () => number);
+
+`;
+
+exports[`no-test-return-statement > invalid(31): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\nbeforeEach((() => { return 1; }) as () => number); 2`] = `
+
+Message:
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | beforeEach((() => { return 1; }) as () => number);
+    |                     ^^^^^^^^^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(32): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\nbeforeEach(() => { const value: Promise<void> | number = Math.random() > 0.5 ? Promise.resolve() : 1; return value; }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | beforeEach(() => { const value: Promise<void> | number = Math.random() > 0.5 ? Promise.resolve() : 1; return value; });
+
+`;
+
+exports[`no-test-return-statement > invalid(32): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\nbeforeEach(() => { const value: Promise<void> | number = Math.random() > 0.5 ? Promise.resolve() : 1; return value; }); 2`] = `
+
+Message:
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | beforeEach(() => { const value: Promise<void> | number = Math.random() > 0.5 ? Promise.resolve() : 1; return value; });
+    |                                                                                                       ^^^^^^^^^^^^^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(33): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest.beforeEach(() => { return 1; }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | test.beforeEach(() => { return 1; });
+
+`;
+
+exports[`no-test-return-statement > invalid(33): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest.beforeEach(() => { return 1; }); 2`] = `
+
+Message:
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | test.beforeEach(() => { return 1; });
+    |                         ^^^^^^^^^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(34): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest.beforeEach(() => 1); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | test.beforeEach(() => 1);
+
+`;
+
+exports[`no-test-return-statement > invalid(34): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest.beforeEach(() => 1); 2`] = `
+
+Message:
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | test.beforeEach(() => 1);
+    |                       ^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(35): import {test} from 'node:test';\ntest.beforeEach(() => { return 1; }, {timeout: 1000}); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import {test} from 'node:test';
+  2 | test.beforeEach(() => { return 1; }, {timeout: 1000});
+
+`;
+
+exports[`no-test-return-statement > invalid(35): import {test} from 'node:test';\ntest.beforeEach(() => { return 1; }, {timeout: 1000}); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | test.beforeEach(() => { return 1; }, {timeout: 1000});
+    |                         ^^^^^^^^^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(36): import {it} from 'node:test';\nit.beforeEach(() => { return 1; }, {timeout: 1000}); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import {it} from 'node:test';
+  2 | it.beforeEach(() => { return 1; }, {timeout: 1000});
+
+`;
+
+exports[`no-test-return-statement > invalid(36): import {it} from 'node:test';\nit.beforeEach(() => { return 1; }, {timeout: 1000}); 2`] = `
+
+Message:
+  1 | import {it} from 'node:test';
+> 2 | it.beforeEach(() => { return 1; }, {timeout: 1000});
+    |                       ^^^^^^^^^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(37): import * as nodeTest from 'node:test';\nnodeTest.beforeEach(() => { return 1; }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import * as nodeTest from 'node:test';
+  2 | nodeTest.beforeEach(() => { return 1; });
+
+`;
+
+exports[`no-test-return-statement > invalid(37): import * as nodeTest from 'node:test';\nnodeTest.beforeEach(() => { return 1; }); 2`] = `
+
+Message:
+  1 | import * as nodeTest from 'node:test';
+> 2 | nodeTest.beforeEach(() => { return 1; });
+    |                             ^^^^^^^^^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(38): import * as nodeTest from 'node:test';\nnodeTest.test.beforeEach(() => { return 1; }, {timeout: 1000}); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import * as nodeTest from 'node:test';
+  2 | nodeTest.test.beforeEach(() => { return 1; }, {timeout: 1000});
+
+`;
+
+exports[`no-test-return-statement > invalid(38): import * as nodeTest from 'node:test';\nnodeTest.test.beforeEach(() => { return 1; }, {timeout: 1000}); 2`] = `
+
+Message:
+  1 | import * as nodeTest from 'node:test';
+> 2 | nodeTest.test.beforeEach(() => { return 1; }, {timeout: 1000});
+    |                                  ^^^^^^^^^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(39): import {beforeEach as setup} from 'node:test';\nsetup(() => { return 1; }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import {beforeEach as setup} from 'node:test';
+  2 | setup(() => { return 1; });
+
+`;
+
+exports[`no-test-return-statement > invalid(39): import {beforeEach as setup} from 'node:test';\nsetup(() => { return 1; }); 2`] = `
+
+Message:
+  1 | import {beforeEach as setup} from 'node:test';
+> 2 | setup(() => { return 1; });
+    |               ^^^^^^^^^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(4): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", {skip: true}, () => 1); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | test("x", {skip: true}, () => 1);
+
+`;
+
+exports[`no-test-return-statement > invalid(4): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", {skip: true}, () => 1); 2`] = `
+
+Message:
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | test("x", {skip: true}, () => 1);
+    |                               ^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(40): import {beforeEach as setup} from 'node:test';\nsetup(() => { return 1; }, {timeout: 1000}); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import {beforeEach as setup} from 'node:test';
+  2 | setup(() => { return 1; }, {timeout: 1000});
+
+`;
+
+exports[`no-test-return-statement > invalid(40): import {beforeEach as setup} from 'node:test';\nsetup(() => { return 1; }, {timeout: 1000}); 2`] = `
+
+Message:
+  1 | import {beforeEach as setup} from 'node:test';
+> 2 | setup(() => { return 1; }, {timeout: 1000});
+    |               ^^^^^^^^^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(5): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", () => { return {a: 1}; }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | test("x", () => { return {a: 1}; });
+
+`;
+
+exports[`no-test-return-statement > invalid(5): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", () => { return {a: 1}; }); 2`] = `
+
+Message:
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | test("x", () => { return {a: 1}; });
+    |                   ^^^^^^^^^^^^^^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(6): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", () => { return [1, 2]; }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | test("x", () => { return [1, 2]; });
+
+`;
+
+exports[`no-test-return-statement > invalid(6): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", () => { return [1, 2]; }); 2`] = `
+
+Message:
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | test("x", () => { return [1, 2]; });
+    |                   ^^^^^^^^^^^^^^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(7): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", () => { return \"done\"; }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | test("x", () => { return "done"; });
+
+`;
+
+exports[`no-test-return-statement > invalid(7): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", () => { return \"done\"; }); 2`] = `
+
+Message:
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | test("x", () => { return "done"; });
+    |                   ^^^^^^^^^^^^^^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(8): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", () => { const a = 1, b = 2; return a === b; }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | test("x", () => { const a = 1, b = 2; return a === b; });
+
+`;
+
+exports[`no-test-return-statement > invalid(8): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", () => { const a = 1, b = 2; return a === b; }); 2`] = `
+
+Message:
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | test("x", () => { const a = 1, b = 2; return a === b; });
+    |                                       ^^^^^^^^^^^^^^^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
+
+`;
+
+exports[`no-test-return-statement > invalid(9): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", () => { const value: Promise<void> | number = Math.random() > 0.5 ? Promise.resolve() : 1; return value; }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | test("x", () => { const value: Promise<void> | number = Math.random() > 0.5 ? Promise.resolve() : 1; return value; });
+
+`;
+
+exports[`no-test-return-statement > invalid(9): import test, {it, before, after, beforeEach, afterEach} from 'node:test';\ntest(\"x\", () => { const value: Promise<void> | number = Math.random() > 0.5 ? Promise.resolve() : 1; return value; }); 2`] = `
+
+Message:
+  1 | import test, {it, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | test("x", () => { const value: Promise<void> | number = Math.random() > 0.5 ? Promise.resolve() : 1; return value; });
+    |                                                                                                      ^^^^^^^^^^^^^ Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.
 
 `;

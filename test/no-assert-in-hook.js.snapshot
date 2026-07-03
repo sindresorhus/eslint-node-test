@@ -52,7 +52,25 @@ Message:
 
 `;
 
-exports[`no-assert-in-hook > invalid(4): import {describe, it, before, after, beforeEach, afterEach} from 'node:test';\nimport assert from 'node:assert';\nafterEach(() => { assert(value); }); 1`] = `
+exports[`no-assert-in-hook > invalid(4): import {describe, it, before, after, beforeEach, afterEach} from 'node:test';\nimport assert from 'node:assert';\nbeforeEach(() => { assert.ok(value); }, {timeout: 1000}); 1`] = `
+
+  1 | import {describe, it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | beforeEach(() => { assert.ok(value); }, {timeout: 1000});
+
+`;
+
+exports[`no-assert-in-hook > invalid(4): import {describe, it, before, after, beforeEach, afterEach} from 'node:test';\nimport assert from 'node:assert';\nbeforeEach(() => { assert.ok(value); }, {timeout: 1000}); 2`] = `
+
+Message:
+  1 | import {describe, it, before, after, beforeEach, afterEach} from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | beforeEach(() => { assert.ok(value); }, {timeout: 1000});
+    |                    ^^^^^^^^^^^^^^^^ Avoid assertions inside a hook. A hook failure is attributed to every affected test rather than reported as a focused failure. Assert inside a test instead.
+
+`;
+
+exports[`no-assert-in-hook > invalid(5): import {describe, it, before, after, beforeEach, afterEach} from 'node:test';\nimport assert from 'node:assert';\nafterEach(() => { assert(value); }); 1`] = `
 
   1 | import {describe, it, before, after, beforeEach, afterEach} from 'node:test';
   2 | import assert from 'node:assert';
@@ -60,7 +78,7 @@ exports[`no-assert-in-hook > invalid(4): import {describe, it, before, after, be
 
 `;
 
-exports[`no-assert-in-hook > invalid(4): import {describe, it, before, after, beforeEach, afterEach} from 'node:test';\nimport assert from 'node:assert';\nafterEach(() => { assert(value); }); 2`] = `
+exports[`no-assert-in-hook > invalid(5): import {describe, it, before, after, beforeEach, afterEach} from 'node:test';\nimport assert from 'node:assert';\nafterEach(() => { assert(value); }); 2`] = `
 
 Message:
   1 | import {describe, it, before, after, beforeEach, afterEach} from 'node:test';
@@ -70,7 +88,25 @@ Message:
 
 `;
 
-exports[`no-assert-in-hook > invalid(5): import {describe, it, before, after, beforeEach, afterEach} from 'node:test';\nimport assert from 'node:assert';\ndescribe('suite', () => { beforeEach(() => { assert.ok(value); }); }); 1`] = `
+exports[`no-assert-in-hook > invalid(6): import test from 'node:test';\nimport assert from 'node:assert';\ntest.beforeEach(() => { assert.ok(value); }, {timeout: 1000}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test.beforeEach(() => { assert.ok(value); }, {timeout: 1000});
+
+`;
+
+exports[`no-assert-in-hook > invalid(6): import test from 'node:test';\nimport assert from 'node:assert';\ntest.beforeEach(() => { assert.ok(value); }, {timeout: 1000}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | test.beforeEach(() => { assert.ok(value); }, {timeout: 1000});
+    |                         ^^^^^^^^^^^^^^^^ Avoid assertions inside a hook. A hook failure is attributed to every affected test rather than reported as a focused failure. Assert inside a test instead.
+
+`;
+
+exports[`no-assert-in-hook > invalid(7): import {describe, it, before, after, beforeEach, afterEach} from 'node:test';\nimport assert from 'node:assert';\ndescribe('suite', () => { beforeEach(() => { assert.ok(value); }); }); 1`] = `
 
   1 | import {describe, it, before, after, beforeEach, afterEach} from 'node:test';
   2 | import assert from 'node:assert';
@@ -78,7 +114,7 @@ exports[`no-assert-in-hook > invalid(5): import {describe, it, before, after, be
 
 `;
 
-exports[`no-assert-in-hook > invalid(5): import {describe, it, before, after, beforeEach, afterEach} from 'node:test';\nimport assert from 'node:assert';\ndescribe('suite', () => { beforeEach(() => { assert.ok(value); }); }); 2`] = `
+exports[`no-assert-in-hook > invalid(7): import {describe, it, before, after, beforeEach, afterEach} from 'node:test';\nimport assert from 'node:assert';\ndescribe('suite', () => { beforeEach(() => { assert.ok(value); }); }); 2`] = `
 
 Message:
   1 | import {describe, it, before, after, beforeEach, afterEach} from 'node:test';
@@ -88,7 +124,7 @@ Message:
 
 `;
 
-exports[`no-assert-in-hook > invalid(6): import {describe, it, before, after, beforeEach, afterEach} from 'node:test';\nimport assert from 'node:assert';\nbeforeEach(() => { if (x) { assert.ok(value); } }); 1`] = `
+exports[`no-assert-in-hook > invalid(8): import {describe, it, before, after, beforeEach, afterEach} from 'node:test';\nimport assert from 'node:assert';\nbeforeEach(() => { if (x) { assert.ok(value); } }); 1`] = `
 
   1 | import {describe, it, before, after, beforeEach, afterEach} from 'node:test';
   2 | import assert from 'node:assert';
@@ -96,7 +132,7 @@ exports[`no-assert-in-hook > invalid(6): import {describe, it, before, after, be
 
 `;
 
-exports[`no-assert-in-hook > invalid(6): import {describe, it, before, after, beforeEach, afterEach} from 'node:test';\nimport assert from 'node:assert';\nbeforeEach(() => { if (x) { assert.ok(value); } }); 2`] = `
+exports[`no-assert-in-hook > invalid(8): import {describe, it, before, after, beforeEach, afterEach} from 'node:test';\nimport assert from 'node:assert';\nbeforeEach(() => { if (x) { assert.ok(value); } }); 2`] = `
 
 Message:
   1 | import {describe, it, before, after, beforeEach, afterEach} from 'node:test';
@@ -106,14 +142,14 @@ Message:
 
 `;
 
-exports[`no-assert-in-hook > invalid(7): import {beforeEach} from 'node:test';\nbeforeEach(t => { t.assert.ok(value); }); 1`] = `
+exports[`no-assert-in-hook > invalid(9): import {beforeEach} from 'node:test';\nbeforeEach(t => { t.assert.ok(value); }); 1`] = `
 
   1 | import {beforeEach} from 'node:test';
   2 | beforeEach(t => { t.assert.ok(value); });
 
 `;
 
-exports[`no-assert-in-hook > invalid(7): import {beforeEach} from 'node:test';\nbeforeEach(t => { t.assert.ok(value); }); 2`] = `
+exports[`no-assert-in-hook > invalid(9): import {beforeEach} from 'node:test';\nbeforeEach(t => { t.assert.ok(value); }); 2`] = `
 
 Message:
   1 | import {beforeEach} from 'node:test';

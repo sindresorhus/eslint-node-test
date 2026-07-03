@@ -69,8 +69,10 @@ test.snapshot({
 		// Test context `t.assert`
 		withTest('test("t", t => { t.assert.match(value, "foo"); });'),
 		withTest('test.beforeEach(t => { t.assert.match(value, "foo"); });'),
+		withTest('test.beforeEach(t => { t.assert.match(value, "foo"); }, {timeout: 1000});'),
 		withNamedTestImport('beforeEach', 'beforeEach(t => { t.assert.match(value, "foo"); });'),
 		withNamespaceTest('nodeTest.beforeEach(t => { t.assert.match(value, "foo"); });'),
+		withNamespaceTest('nodeTest.test.beforeEach(t => { t.assert.match(value, "foo"); }, {timeout: 1000});'),
 		withTest('test("outer", t => { t.test("inner", () => { t.assert.match(value, "foo"); }); });'),
 
 		// TypeScript

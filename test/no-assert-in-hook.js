@@ -27,7 +27,9 @@ test.snapshot({
 		withSetup('before(() => { assert.ok(value); });'),
 		withSetup('after(() => { assert.ok(value); });'),
 		withSetup('beforeEach(() => { assert.strictEqual(a, b); });'),
+		withSetup('beforeEach(() => { assert.ok(value); }, {timeout: 1000});'),
 		withSetup('afterEach(() => { assert(value); });'),
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest.beforeEach(() => { assert.ok(value); }, {timeout: 1000});',
 
 		// Hook inside a describe
 		withSetup('describe(\'suite\', () => { beforeEach(() => { assert.ok(value); }); });'),
