@@ -71,7 +71,8 @@ test('Every rule has valid meta.type', () => {
 		const name = path.basename(file, '.js');
 		const rule = eslintNodeTest.rules[name];
 
-		assert.ok(rule.meta !== null && rule.meta !== undefined, `${name} has no meta`);
+		assert.notStrictEqual(rule.meta, undefined, `${name} has no meta`);
+		assert.notStrictEqual(rule.meta, null, `${name} has no meta`);
 		assert.strictEqual(typeof rule.meta.type, 'string', `${name} meta.type is not string`);
 		assert.ok(validTypes.includes(rule.meta.type), `${name} meta.type is not one of [${validTypes.join(', ')}]`);
 	}
