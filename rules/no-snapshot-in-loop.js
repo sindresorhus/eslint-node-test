@@ -12,7 +12,7 @@ const messages = {
 	[MESSAGE_ID]: 'Do not use positional snapshots inside loops. Changing the iteration count shifts every following snapshot.',
 };
 
-function isInsideCurrentCallback(node, tracker) {
+function isInCurrentCallback(node, tracker) {
 	const callback = tracker.currentCallback();
 	if (!callback) {
 		return false;
@@ -22,6 +22,10 @@ function isInsideCurrentCallback(node, tracker) {
 	while (current) {
 		if (current === callback) {
 			return true;
+		}
+
+		if (isFunction(current)) {
+			return false;
 		}
 
 		current = current.parent;
@@ -49,7 +53,7 @@ function isCurrentContextSnapshotCall(node, tracker, sourceCode) {
 		chain?.members.length === 2
 		&& chain.members[0].name === 'assert'
 		&& chain.members[1].name === 'snapshot'
-		&& isInsideCurrentCallback(node, tracker)
+		&& isInCurrentCallback(node, tracker)
 		&& isCurrentContextReference(chain.root, tracker, sourceCode)
 	);
 }

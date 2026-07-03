@@ -37,9 +37,12 @@ test.snapshot({
 		withTest('while (t.assert.snapshot(value)) {}'),
 		withTest('do {} while (t.assert.snapshot(value));'),
 
-		// Nested functions inside loops are intentionally ignored by this rule.
+		// Nested functions and callbacks are intentionally ignored by this rule.
 		withTest('for (const item of items) { function check() { t.assert.snapshot(item); } check(); }'),
 		withTest('for (const item of items) { const check = () => { t.assert.snapshot(item); }; check(); }'),
+		withTest('const check = () => { for (const item of items) { t.assert.snapshot(item); } }; check();'),
+		withTest('items.forEach(() => { for (const item of items) { t.assert.snapshot(item); } });'),
+		withTest('for (const item of items) { items.map(() => { t.assert.snapshot(item); }); }'),
 
 		// Generating separate tests or subtests in a loop is fine because each callback gets its own test context.
 		'import test from \'node:test\';\nfor (const item of items) { test(String(item), t => { t.assert.snapshot(item); }); }',
