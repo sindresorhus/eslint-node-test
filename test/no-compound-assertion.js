@@ -9,9 +9,12 @@ const withLegacyAssertStrict = code => `import assert from 'assert/strict';\n${c
 const withAssertNamespace = code => `import * as assert from 'node:assert';\n${code}`;
 const withNamedImport = code => `import {ok} from 'node:assert';\n${code}`;
 const withRenamedImport = code => `import {ok as assertOk} from 'node:assert';\n${code}`;
+const withStrictNamedImport = code => `import {strict as assert} from 'node:assert';\n${code}`;
+const withStrictImport = code => `import {strict} from 'node:assert';\n${code}`;
 const withTest = code => `import test from 'node:test';\n${code}`;
 const withHook = code => `import {beforeEach} from 'node:test';\n${code}`;
 const withTestNamespace = code => `import * as nodeTest from 'node:test';\n${code}`;
+const withRenamedTest = code => `import {test as nodeTest} from 'node:test';\n${code}`;
 
 test.snapshot({
 	valid: [
@@ -53,6 +56,8 @@ test.snapshot({
 		withLegacyAssert('assert.ok(a && b);'),
 		withLegacyAssertStrict('assert.ok(a && b);'),
 		withAssertNamespace('assert.ok(a && b);'),
+		withStrictNamedImport('assert.ok(a && b);'),
+		withStrictImport('strict.ok(a && b);'),
 
 		// Nested chains are split into one assertion per operand.
 		withAssert('assert.ok(a && b && c);'),
@@ -65,6 +70,9 @@ test.snapshot({
 
 		// T.assert.ok.
 		withTest('test(\'t\', t => {\n\tt.assert.ok(a && b);\n});'),
+		withTest('test.only(\'t\', t => {\n\tt.assert.ok(a && b);\n});'),
+		withTestNamespace('nodeTest.test(\'t\', t => {\n\tt.assert.ok(a && b);\n});'),
+		withRenamedTest('nodeTest(\'t\', context => {\n\tcontext.assert.ok(a && b);\n});'),
 		withTest('test(\'parent\', t => {\n\tt.test(\'child\', t => {\n\t\tt.assert.ok(a && b);\n\t});\n});'),
 		withHook('beforeEach(t => {\n\tt.assert.ok(a && b);\n});'),
 		withTestNamespace('nodeTest.beforeEach(t => {\n\tt.assert.ok(a && b);\n});'),

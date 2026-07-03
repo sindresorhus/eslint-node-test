@@ -110,7 +110,11 @@ function collectFromImport(node, bindings) {
 			}
 
 			if (kind === 'assert') {
-				addAssertBinding(bindings, localName, specifier.imported.name, isStrict);
+				if (specifier.imported.name === 'strict') {
+					addAssertBinding(bindings, localName, undefined, true);
+				} else {
+					addAssertBinding(bindings, localName, specifier.imported.name, isStrict);
+				}
 			} else if (ALL_TEST_EXPORTS.has(specifier.imported.name)) {
 				bindings.locals.set(localName, specifier.imported.name);
 			}

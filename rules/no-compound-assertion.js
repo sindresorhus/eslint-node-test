@@ -14,7 +14,6 @@ const messages = {
 	[MESSAGE_ID]: 'Split this compound assertion into separate assertions so the failing operand is clear.',
 };
 
-const ASSERT_MODULES = new Set(['node:assert', 'node:assert/strict', 'assert', 'assert/strict']);
 const TEST_MODULES = new Set(['node:test', 'test']);
 
 function getConjunctionOperands(node) {
@@ -58,24 +57,6 @@ function getContextAssertReceiver(node) {
 	return callee.object.object;
 }
 
-function getAssertionRoot(node) {
-	const {callee} = node;
-
-	if (callee.type === 'Identifier') {
-		return callee;
-	}
-
-	if (
-		callee.type === 'MemberExpression'
-		&& !callee.computed
-		&& callee.object.type === 'Identifier'
-	) {
-		return callee.object;
-	}
-
-	return getContextAssertReceiver(node);
-}
-
 function getCalleeRoot(node) {
 	if (
 		node.type !== 'Identifier'
@@ -94,7 +75,7 @@ function getCalleeRoot(node) {
 	return node.type === 'Identifier' ? node : undefined;
 }
 
-function isImportBinding(identifier, sourceCode, modules) {
+function isImportedTestBinding(identifier, sourceCode) {
 	if (!identifier) {
 		return false;
 	}
@@ -102,15 +83,7 @@ function isImportBinding(identifier, sourceCode, modules) {
 	const variable = findVariable(sourceCode.getScope(identifier), identifier);
 	return variable?.defs.some(definition =>
 		definition.type === 'ImportBinding'
-		&& modules.has(definition.parent.source.value)) ?? false;
-}
-
-function isImportedAssertBinding(identifier, sourceCode) {
-	return isImportBinding(identifier, sourceCode, ASSERT_MODULES);
-}
-
-function isImportedTestBinding(identifier, sourceCode) {
-	return isImportBinding(identifier, sourceCode, TEST_MODULES);
+		&& TEST_MODULES.has(definition.parent.source.value)) ?? false;
 }
 
 function isCurrentContextBinding(identifier, contextTracker, sourceCode) {
@@ -198,11 +171,6 @@ const create = context => {
 
 		const contextAssertReceiver = getContextAssertReceiver(node);
 		if (contextAssertReceiver && !isCurrentContextBinding(contextAssertReceiver, contextTracker, sourceCode)) {
-			return;
-		}
-
-		const assertionRoot = getAssertionRoot(node);
-		if (!contextAssertReceiver && !isImportedAssertBinding(assertionRoot, sourceCode)) {
 			return;
 		}
 
