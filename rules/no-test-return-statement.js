@@ -6,7 +6,7 @@ import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js'
 const MESSAGE_ID = 'no-test-return-statement';
 
 const messages = {
-	[MESSAGE_ID]: 'Do not return a value from a test or hook. Return a Promise to signal async completion, or return nothing.',
+	[MESSAGE_ID]: 'Do not return a concrete value from a test or hook. Return a Promise to signal async completion, or return nothing.',
 };
 
 // "Nothing" types and types we cannot pin down, all fine to return.
@@ -38,6 +38,17 @@ function getHookCallback(callExpression) {
 	return undefined;
 }
 
+function isDisallowedReturnValue(node, parserServices, checker) {
+	let type;
+	try {
+		type = parserServices.getTypeAtLocation(node);
+	} catch {
+		return false;
+	}
+
+	return !isAllowedReturnType(type, checker);
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const imports = resolveImports(context);
@@ -65,6 +76,18 @@ const create = context => {
 		if (callback) {
 			checkedCallbacks.add(callback);
 		}
+
+		if (
+			callback?.type === 'ArrowFunctionExpression'
+			&& callback.body.type !== 'BlockStatement'
+			&& !callback.async
+			&& isDisallowedReturnValue(callback.body, parserServices, checker)
+		) {
+			return {
+				node: callback.body,
+				messageId: MESSAGE_ID,
+			};
+		}
 	});
 
 	context.on('ReturnStatement', node => {
@@ -88,14 +111,7 @@ const create = context => {
 			return;
 		}
 
-		let type;
-		try {
-			type = parserServices.getTypeAtLocation(node.argument);
-		} catch {
-			return;
-		}
-
-		if (isAllowedReturnType(type, checker)) {
+		if (!isDisallowedReturnValue(node.argument, parserServices, checker)) {
 			return;
 		}
 
@@ -112,7 +128,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow returning a non-Promise value from a test or hook.',
+			description: 'Disallow returning a concrete non-Promise value from a test or hook.',
 			recommended: true,
 		},
 		schema: [],

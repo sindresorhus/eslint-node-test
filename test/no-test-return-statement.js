@@ -26,16 +26,20 @@ test.snapshot({
 		typed('test("x", () => { const p: Promise<void> = Promise.resolve(); return p; });'),
 		typed('beforeEach(() => { return Promise.resolve(); });'),
 		typed('beforeEach(() => { return Promise.resolve(); }, {timeout: 1000});'),
+		typed('beforeEach(() => { const value: Promise<void> | undefined = Math.random() > 0.5 ? Promise.resolve() : undefined; return value; });'),
+		typed('beforeEach(() => Promise.resolve());'),
 
 		// An `async` function wraps its return in a Promise, so a plain value is fine
 		typed('test("x", async () => { return 1; });'),
 		typed('test("x", async () => { return computeValue(); });'),
 		typed('afterEach(async () => { return 1; });'),
+		typed('beforeEach(async () => 1);'),
 
 		// Returning nothing
 		typed('test("x", () => { return; });'),
 		typed('test("x", () => {});'),
 		typed('before(() => { return; });'),
+		typed('test("x", () => null);'),
 
 		// Return inside a nested helper, not the test callback
 		typed('test("x", () => { const helper = () => { return 1; }; helper(); });'),
@@ -44,6 +48,7 @@ test.snapshot({
 	invalid: [
 		// Returning a number
 		typed('test("x", () => { return 42; });'),
+		typed('test("x", () => 42);'),
 
 		// Returning an object
 		typed('test("x", () => { return {a: 1}; });'),
@@ -58,7 +63,7 @@ test.snapshot({
 		typed('test("x", () => { const a = 1, b = 2; return a === b; });'),
 
 		// Returning a mixed Promise/non-Promise union
-		typed('test("x", () => { const value: Promise<void> | number = condition ? Promise.resolve() : 1; return value; });'),
+		typed('test("x", () => { const value: Promise<void> | number = Math.random() > 0.5 ? Promise.resolve() : 1; return value; });'),
 
 		// `it` alias
 		typed('it("x", () => { return 1; });'),
@@ -69,8 +74,9 @@ test.snapshot({
 		typed('beforeEach(() => { return {a: 1}; });'),
 		typed('afterEach(() => { return [1, 2]; });'),
 		typed('beforeEach(() => { return 1; }, {timeout: 1000});'),
+		typed('beforeEach(() => ({a: 1}));'),
 		typed('beforeEach((() => { return 1; }) as () => number);'),
-		typed('beforeEach(() => { const value: Promise<void> | number = condition ? Promise.resolve() : 1; return value; });'),
+		typed('beforeEach(() => { const value: Promise<void> | number = Math.random() > 0.5 ? Promise.resolve() : 1; return value; });'),
 
 		// Default import member hook
 		typed('test.beforeEach(() => { return 1; });'),
