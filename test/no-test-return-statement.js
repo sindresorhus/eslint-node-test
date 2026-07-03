@@ -16,7 +16,7 @@ const typed = code => typedCode(withImport(code));
 
 test.snapshot({
 	valid: [
-		// No type information available — the rule does nothing.
+		// No type information available, the rule does nothing.
 		withImport('test("x", () => { return 42; });'),
 		withImport('beforeEach(() => { return 42; });'),
 
@@ -57,6 +57,9 @@ test.snapshot({
 		// Returning a boolean expression
 		typed('test("x", () => { const a = 1, b = 2; return a === b; });'),
 
+		// Returning a mixed Promise/non-Promise union
+		typed('test("x", () => { const value: Promise<void> | number = condition ? Promise.resolve() : 1; return value; });'),
+
 		// `it` alias
 		typed('it("x", () => { return 1; });'),
 
@@ -67,6 +70,7 @@ test.snapshot({
 		typed('afterEach(() => { return [1, 2]; });'),
 		typed('beforeEach(() => { return 1; }, {timeout: 1000});'),
 		typed('beforeEach((() => { return 1; }) as () => number);'),
+		typed('beforeEach(() => { const value: Promise<void> | number = condition ? Promise.resolve() : 1; return value; });'),
 
 		// Default import member hook
 		typed('test.beforeEach(() => { return 1; });'),

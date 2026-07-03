@@ -9,7 +9,7 @@ const messages = {
 	[MESSAGE_ID]: 'Do not return a value from a test or hook. Return a Promise to signal async completion, or return nothing.',
 };
 
-// "Nothing" types and types we cannot pin down — all fine to return.
+// "Nothing" types and types we cannot pin down, all fine to return.
 const ALLOWED_TYPE_STRINGS = new Set(['void', 'undefined', 'null', 'any', 'never', 'unknown']);
 
 /*
@@ -17,13 +17,13 @@ Whether the type is safe to return from a test or hook: a returned Promise (awai
 a "nothing" type, or a type we cannot resolve. Anything else is a concrete value.
 */
 function isAllowedReturnType(type, checker) {
+	if (type.isUnion()) {
+		return type.types.every(member => isAllowedReturnType(member, checker));
+	}
+
 	// `isPromiseType` returns `undefined` when indeterminate; only a definite `false` is a value.
 	if (isPromiseType(type, checker) !== false) {
 		return true;
-	}
-
-	if (type.isUnion()) {
-		return type.types.every(member => isAllowedReturnType(member, checker));
 	}
 
 	return ALLOWED_TYPE_STRINGS.has(checker.typeToString(type));
