@@ -18,12 +18,20 @@ test.snapshot({
 		withImport('test("null", {plan: null}, t => { t.plan(1); });'),
 		withImport('test("undefined", {plan: undefined}, t => { t.plan(1); });'),
 
-		// Dynamic and invalid plan options are handled by runtime validation, not this rule
+		// Dynamic and invalid plan options are not treated as an existing plan
 		withImport('function helper(plan) { test("x", {plan}, t => { t.plan(1); }); }'),
 		withImport('test("true", {plan: true}, t => { t.plan(1); });'),
 		withImport('test("string", {plan: "1"}, t => { t.plan(1); });'),
 		withImport('test("negative", {plan: -1}, t => { t.plan(1); });'),
 		withImport('test("float", {plan: 1.5}, t => { t.plan(1); });'),
+
+		// Skipped test callbacks do not run
+		withImport('test.skip("x", t => { t.plan(1); t.plan(2); });'),
+		withImport('test("x", {skip: true}, t => { t.plan(1); t.plan(2); });'),
+		withImport('test("x", {skip: "reason"}, t => { t.plan(1); t.plan(2); });'),
+		withImport('test("parent", t => { t.test.skip("child", child => { child.plan(1); child.plan(2); }); });'),
+		withImport('test("parent", t => { t.test("child", {skip: true}, child => { child.plan(1); child.plan(2); }); });'),
+		withImport('test("parent", {plan: 1}, t => { t.test.skip("child", () => { t.plan(1); }); });'),
 
 		// Separate tests each get their own plan
 		withImport('test("a", t => { t.plan(1); });\ntest("b", t => { t.plan(1); });'),
@@ -80,8 +88,16 @@ test.snapshot({
 		// Modifier chain
 		withImport('test.only("x", t => { t.plan(1); t.plan(2); });'),
 
+		// Test callbacks marked as incomplete do run
+		withImport('test.todo("x", t => { t.plan(1); t.plan(2); });'),
+		withImport('test("x", {todo: true}, t => { t.plan(1); t.plan(2); });'),
+		withImport('test("x", {todo: "reason"}, t => { t.plan(1); t.plan(2); });'),
+		withImport('test("parent", t => { t.test.todo("child", child => { child.plan(1); child.plan(2); }); });'),
+		withImport('test("parent", t => { t.test("child", {todo: true}, child => { child.plan(1); child.plan(2); }); });'),
+
 		// Options argument
 		withImport('test("x", {skip: false}, t => { t.plan(1); t.plan(2); });'),
+		withImport('function helper(shouldSkip) { test("x", {skip: shouldSkip}, t => { t.plan(1); t.plan(2); }); }'),
 
 		// Plan option plus context plan
 		withImport('test("x", {plan: 1}, t => { t.plan(1); });'),

@@ -58,6 +58,38 @@ function isTestCall(parsed) {
 	return parsed !== undefined && parsed.kind === 'test' && parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name));
 }
 
+function hasSkipModifier(node) {
+	node = unwrapTypeScriptExpression(node);
+
+	while (node.type === 'MemberExpression') {
+		if (
+			!node.computed
+			&& node.property.type === 'Identifier'
+			&& node.property.name === 'skip'
+		) {
+			return true;
+		}
+
+		node = unwrapTypeScriptExpression(node.object);
+	}
+
+	return false;
+}
+
+function hasEnabledStaticOption(node, sourceCode, name) {
+	const property = findOptionsProperty(getTestOptions(node), name);
+	if (property === undefined) {
+		return false;
+	}
+
+	const staticValue = getStaticValue(property.value, sourceCode.getScope(property.value));
+	return staticValue !== null && Boolean(staticValue.value);
+}
+
+function isSkippedTestCall(node, sourceCode) {
+	return hasSkipModifier(node.callee) || hasEnabledStaticOption(node, sourceCode, 'skip');
+}
+
 function hasEnabledPlanOption(node, sourceCode) {
 	const property = findOptionsProperty(getTestOptions(node), 'plan');
 	if (property === undefined) {
@@ -66,6 +98,19 @@ function hasEnabledPlanOption(node, sourceCode) {
 
 	const staticValue = getStaticValue(property.value, sourceCode.getScope(property.value));
 	return typeof staticValue?.value === 'number' && Number.isSafeInteger(staticValue.value) && staticValue.value > 0 && staticValue.value <= MAX_PLAN_COUNT;
+}
+
+function isInsideSkippedCallback(node, skippedCallbacks) {
+	let current = node;
+	while (current) {
+		if (skippedCallbacks.has(current)) {
+			return true;
+		}
+
+		current = current.parent;
+	}
+
+	return false;
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -77,6 +122,7 @@ const create = context => {
 
 	const {sourceCode} = context;
 	const frames = [];
+	const skippedCallbacks = new WeakSet();
 
 	const isSubtestCall = node => {
 		const receiver = getSubtestReceiver(node);
@@ -102,6 +148,15 @@ const create = context => {
 		);
 
 		if (isTest) {
+			if (isSkippedTestCall(node, sourceCode)) {
+				const callback = getTestCallback(node);
+				if (callback) {
+					skippedCallbacks.add(callback);
+				}
+
+				return;
+			}
+
 			const parameter = getTestCallback(node)?.params[0];
 			if (parameter?.type !== 'Identifier') {
 				return;
@@ -120,6 +175,10 @@ const create = context => {
 
 		const contextIdentifier = getPlanContextIdentifier(node);
 		if (contextIdentifier === undefined) {
+			return;
+		}
+
+		if (isInsideSkippedCallback(node, skippedCallbacks)) {
 			return;
 		}
 
