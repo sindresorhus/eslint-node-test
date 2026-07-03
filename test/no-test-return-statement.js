@@ -36,12 +36,16 @@ test.snapshot({
 		typed('test("x", t => { t.beforeEach(async () => 1); });'),
 		typed('beforeEach(t => { t.beforeEach(() => Promise.resolve()); });'),
 		typed('beforeEach(t => { const helper = (t: {beforeEach: (callback: () => {a: number}) => void}) => { t.beforeEach(() => ({a: 1})); }; });'),
+
+		// Unsupported member chains
 		typedCode('import test from \'node:test\';\ntest.each("x", () => 1);'),
 		typedCode('import {test} from \'node:test\';\ntest.each("x", () => 1);'),
 		typedCode('import * as nodeTest from \'node:test\';\nnodeTest.test.each("x", () => 1);'),
 		typedCode('import {beforeEach} from \'node:test\';\nbeforeEach.each(() => { return 1; });'),
 		typedCode('import test from \'node:test\';\ntest.beforeEach.each(() => { return 1; });'),
 		typedCode('import * as nodeTest from \'node:test\';\nnodeTest.beforeEach.each(() => { return 1; });'),
+
+		// Shadowed bindings
 		typedCode('import {test as nodeTest} from \'node:test\';\nconst helper = (nodeTest: (title: string, callback: () => number) => void) => { nodeTest("x", () => 1); };'),
 
 		// An `async` function wraps its return in a Promise, so a plain value is fine
@@ -63,6 +67,8 @@ test.snapshot({
 		// Returning a number
 		typed('test("x", () => { return 42; });'),
 		typed('test("x", () => 42);'),
+		typed('test.skip("x", () => 1);'),
+		typed('test("x", {skip: true}, () => 1);'),
 
 		// Returning an object
 		typed('test("x", () => { return {a: 1}; });'),
@@ -84,10 +90,12 @@ test.snapshot({
 
 		// Test context methods
 		typed('test("x", t => { t.test("y", () => 1); });'),
+		typed('test("x", t => { t.test("y", {timeout: 1000}, () => 1); });'),
 		typed('test("x", t => { t.test.only("y", () => 1); });'),
 		typed('test("x", t => { t.test.skip("y", () => 1); });'),
 		typed('test("x", t => { t.test.todo("y", () => 1); });'),
 		typed('test("x", t => { t.before(() => 1); });'),
+		typed('test("x", t => { t.beforeEach(() => 1, {timeout: 1000}); });'),
 		typed('test("x", t => { t.beforeEach(() => ({a: 1})); });'),
 		typed('test("x", t => { t.after(() => "done"); });'),
 		typed('test("x", t => { t.afterEach(() => [1, 2]); });'),

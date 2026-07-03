@@ -4,12 +4,12 @@ import {
 	MODIFIERS,
 	resolveImports,
 	parseTestCall,
+	getHookCallback,
 	getTestCallback,
 	getSubtestReceiver,
 } from './utils/node-test.js';
 import isFunction from './ast/is-function.js';
 import isPromiseType from './utils/is-promise-type.js';
-import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
 const MESSAGE_ID = 'no-test-return-statement';
 
@@ -35,15 +35,6 @@ function isAllowedReturnType(type, checker) {
 	}
 
 	return ALLOWED_TYPE_STRINGS.has(checker.typeToString(type));
-}
-
-function getHookCallback(callExpression) {
-	const firstArgument = unwrapTypeScriptExpression(callExpression.arguments[0]);
-	if (firstArgument && isFunction(firstArgument)) {
-		return firstArgument;
-	}
-
-	return undefined;
 }
 
 function isDisallowedReturnValue(node, parserServices, checker) {

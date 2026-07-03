@@ -19,7 +19,7 @@ import assert from 'node:assert/strict';
 
 // ❌
 test('title', () => {
-	return computeValue();
+	return 42;
 });
 
 // ✅ Assert instead of returning

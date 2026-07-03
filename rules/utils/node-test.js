@@ -381,7 +381,6 @@ Set `trackHooks` to also track hook context parameters for rules that inspect `t
 	isSubtestCall: (node: import('estree').Node) => boolean,
 	isContextIdentifier: (node: import('estree').Node | undefined) => boolean,
 	isContextName: (name: string | undefined) => boolean,
-	isContextReference: (node: import('estree').Node | undefined) => boolean,
 	current: () => string | undefined,
 	currentCallback: () => import('estree').Node | undefined,
 	update: (node: import('estree').Node) => void,
@@ -427,14 +426,6 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 		isSubtestCall,
 		isContextIdentifier,
 		isContextName: name => name !== undefined && names.includes(name),
-		isContextReference(node) {
-			if (node?.type !== 'Identifier') {
-				return false;
-			}
-
-			const variable = getVariable(node, imports);
-			return variable !== undefined && variables.includes(variable);
-		},
 		// The name of the innermost enclosing tracked context, or `undefined` when its
 		// callback declared no context parameter (or we are not inside a tracked callback).
 		current: () => names.at(-1),
@@ -572,8 +563,20 @@ export function getStaticString(node, context) {
 }
 
 /**
-Get the inline function implementation argument of a test/suite call, if any.
-This also handles hooks only when the callback is the final argument; hooks with trailing options need hook-specific handling.
+Get the inline function implementation argument of a hook call, if any.
+`node:test` hooks take the callback as the first argument, with optional trailing options.
+*/
+export function getHookCallback(callExpression) {
+	const firstArgument = unwrapTypeScriptExpression(callExpression.arguments[0]);
+	if (firstArgument && isFunction(firstArgument)) {
+		return firstArgument;
+	}
+
+	return undefined;
+}
+
+/**
+Get the inline function implementation argument of a test/suite call, or a hook call where the callback is last.
 */
 export function getTestCallback(callExpression) {
 	for (let index = callExpression.arguments.length - 1; index >= 0; index -= 1) {
