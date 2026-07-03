@@ -42,7 +42,7 @@ function getPropertyName(property) {
 	}
 }
 
-function enablesTimerApis(callExpression) {
+function mayEnableTimerApis(callExpression) {
 	const argument = unwrapTypeScriptExpression(callExpression.arguments[0]);
 	if (argument?.type !== 'ObjectExpression') {
 		return true;
@@ -275,7 +275,7 @@ const create = context => {
 			&& getEnclosingFunction(node) === newCurrentScope.callback
 		) {
 			const timersCall = getMockTimersCall(node, imports, sourceCode, getContextVariables(scopeStack));
-			if (timersCall?.method === 'enable' && enablesTimerApis(node)) {
+			if (timersCall?.method === 'enable' && mayEnableTimerApis(node)) {
 				newCurrentScope.pending.push({
 					node,
 					messageId: MESSAGE_ID,

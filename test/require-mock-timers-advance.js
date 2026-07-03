@@ -30,20 +30,18 @@ test.snapshot({
 		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'setImmediate\']}); setImmediate(callback); t.mock.timers.runAll(); });'),
 
 		// Date-only mocks do not need advancement
-		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'Date\'], now: 100}); Date.now(); });'),
-		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'Date\'], now: 100}); Date(); });'),
-		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'Date\'], now: 100}); new Date(); });'),
 		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'Date\'], now: 100}); assert.equal(getCurrentTime(), 100); });'),
 		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'Date\'], now: 100}); });'),
 
 		// Explicitly enabling no APIs is a no-op
 		withImport('test(\'title\', t => { t.mock.timers.enable({apis: []}); });'),
 
-		// Global mock, renamed import, namespace import
+		// Global mock forms
 		withImport('test(\'title\', () => { mock.timers.enable({apis: [\'setTimeout\']}); mock.timers.runAll(); });'),
 		withImport('test(\'title\', () => { mock.timers.enable({apis: [\'setTimeout\']}); test.mock.timers.tick(100); });'),
 		withImport('test(\'title\', () => { test.mock.timers.enable({apis: [\'setTimeout\']}); test.mock.timers.tick(100); });'),
 		'import {test} from \'node:test\';\ntest(\'title\', () => { test.mock.timers.enable({apis: [\'setTimeout\']}); test.mock.timers.tick(100); });',
+		'import {it} from \'node:test\';\nit(\'title\', () => { it.mock.timers.enable({apis: [\'setTimeout\']}); it.mock.timers.tick(100); });',
 		'import {test, mock as tracker} from \'node:test\';\ntest(\'title\', () => { tracker.timers.enable({apis: [\'setTimeout\']}); tracker.timers.tick(100); });',
 		'import * as nodeTest from \'node:test\';\nnodeTest.test(\'title\', () => { nodeTest.mock.timers.enable({apis: [\'setTimeout\']}); nodeTest.mock.timers.runAll(); });',
 
@@ -82,6 +80,7 @@ test.snapshot({
 
 		// Default enable() includes timer APIs
 		withImport('test(\'title\', t => { t.mock.timers.enable(); });'),
+		withImport('test(\'title\', t => { t.mock.timers.enable({now: 100}); });'),
 
 		// Date reads do not satisfy timer APIs
 		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'setTimeout\', \'Date\'], now: 100}); Date.now(); });'),
@@ -100,9 +99,10 @@ test.snapshot({
 		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'Date\'], apis: [\'setTimeout\']}); Date.now(); });'),
 		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'Date\'], ...options}); Date.now(); });'),
 
-		// Global mock, renamed import, namespace import
+		// Global mock forms
 		withImport('test(\'title\', () => { mock.timers.enable({apis: [\'setTimeout\']}); });'),
 		'import {test} from \'node:test\';\ntest(\'title\', () => { test.mock.timers.enable({apis: [\'setTimeout\']}); });',
+		'import {it} from \'node:test\';\nit(\'title\', () => { it.mock.timers.enable({apis: [\'setTimeout\']}); });',
 		'import {test, mock as tracker} from \'node:test\';\ntest(\'title\', () => { tracker.timers.enable({apis: [\'setTimeout\']}); });',
 		'import * as nodeTest from \'node:test\';\nnodeTest.test(\'title\', () => { nodeTest.mock.timers.enable({apis: [\'setTimeout\']}); });',
 

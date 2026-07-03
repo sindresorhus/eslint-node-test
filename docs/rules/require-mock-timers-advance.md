@@ -9,9 +9,13 @@
 
 `mock.timers.enable()` freezes the mocked clock. Timer callbacks scheduled after that point do not run until the test advances the mocked timers with `tick()` or `runAll()`. If a test enables mocked timers and never advances them, the test can pass while the code under test never actually executes its delayed callback.
 
-This rule reports `mock.timers.enable()`, `test.mock.timers.enable()`, and `t.mock.timers.enable()` inside inline tests, hooks, and subtests when timer APIs are enabled but the mocked timers are not advanced later in the same callback. Timer APIs (`setTimeout`, `setInterval`, and `setImmediate`) require a later `tick()` or `runAll()` call on the same mock timers object. `Date`-only mocks are allowed without advancement, since the mocked clock is often read by code under test.
+This rule reports `mock.timers.enable()`, `test.mock.timers.enable()`, `it.mock.timers.enable()`, and `t.mock.timers.enable()` inside inline tests, hooks, and subtests when timer APIs are enabled but the mocked timers are not advanced later in the same callback. Timer APIs (`setTimeout`, `setInterval`, and `setImmediate`) require a later `tick()` or `runAll()` call on the same mock timers object. `Date`-only mocks are allowed without advancement, since the mocked clock is often read by code under test.
+
+Non-static or overridden `apis` values are treated conservatively as timer APIs unless the rule can statically see `apis: ['Date']` or `apis: []`.
 
 The rule intentionally uses simple source-order analysis. It does not try to prove branch reachability, inspect nested helper function bodies, follow helper calls, or match setup in one test or hook with advancement in another.
+
+The rule only checks that the same callback contains a later `tick()` or `runAll()` call. It does not prove that timers were scheduled before that call.
 
 ## Examples
 
