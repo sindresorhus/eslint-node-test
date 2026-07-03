@@ -7,9 +7,9 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-The test context's `plan()` method sets the number of assertions and subtests expected to run in a test. Calling it more than once in the same test fails at runtime with `cannot set plan more than once`, and usually means a previous refactor left a stale plan behind.
+The test context's `plan()` method sets the number of assertions and subtests expected to run in a test. Calling it more than once during the same test run fails at runtime with `cannot set plan more than once`, and usually means a previous refactor left a stale plan behind.
 
-This rule reports the second and later direct `<context>.plan()` calls for the same test context. Plans in separate tests or subtests are independent and not reported.
+This rule reports the second and later direct `<context>.plan()` calls for the same test context. Plans in separate tests or subtests are independent and not reported. To keep the rule simple, it is path-insensitive and does not follow aliases, destructuring, computed properties, optional calls, or the test-level `plan` option.
 
 ## Examples
 

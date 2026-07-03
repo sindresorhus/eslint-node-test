@@ -35,9 +35,14 @@ test.snapshot({
 
 		// A `plan()` call in the title/options arguments is outside the test context parameter's scope
 		withImport('const t = {plan() {}};\ntest(t.plan(1), t => { t.plan(1); });'),
+		withImport('const t = {plan() { return false; }};\ntest("x", {skip: t.plan(1)}, t => { t.plan(1); });'),
 
 		// Shadowed imported test binding
 		withImport('function helper(test) { test("x", t => { t.plan(1); t.plan(2); }); }'),
+
+		// Unknown chained members are not test modifiers
+		withImport('test.unknown("x", t => { t.plan(1); t.plan(2); });'),
+		'import * as nodeTest from \'node:test\';\nnodeTest.test.unknown("x", t => { t.plan(1); t.plan(2); });',
 
 		// Unsupported computed, destructured, aliased, optional receiver, and optional call forms
 		withImport('test("x", t => { t.plan(1); t["plan"](2); });'),
@@ -94,6 +99,10 @@ test.snapshot({
 			code: withImport('test("x", (t: any) => { t.plan(1); t.plan(2); });'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: withImport('(test as any)("x", (t: any) => { t.plan(1); t.plan(2); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
 
 		// TypeScript wrappers around the context receiver
 		{
@@ -110,6 +119,10 @@ test.snapshot({
 		},
 		{
 			code: withImport('test("x", (t: any) => { (<any>t).plan(1); (<any>t).plan(2); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withImport('test("parent", (t: any) => { (t as any).test("child", child => { child.plan(1); child.plan(2); }); });'),
 			languageOptions: {parser: parsers.typescript},
 		},
 	],

@@ -1,5 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {
+	MODIFIERS,
 	resolveImports,
 	parseTestCall,
 	getTestCallback,
@@ -31,8 +32,10 @@ function getPlanContextIdentifier(node) {
 }
 
 function getCalleeRootIdentifier(node) {
+	node = unwrapTypeScriptExpression(node);
+
 	while (node.type === 'MemberExpression') {
-		node = node.object;
+		node = unwrapTypeScriptExpression(node.object);
 	}
 
 	return node.type === 'Identifier' ? node : undefined;
@@ -44,6 +47,10 @@ function getIdentifierVariable(sourceCode, identifier) {
 
 function isImportedIdentifier(sourceCode, identifier) {
 	return getIdentifierVariable(sourceCode, identifier)?.defs.some(({type}) => type === 'ImportBinding') ?? false;
+}
+
+function isTestCall(parsed) {
+	return parsed !== undefined && parsed.kind === 'test' && parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name));
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -68,10 +75,11 @@ const create = context => {
 
 	context.on('CallExpression', node => {
 		const parsed = parseTestCall(node, imports);
-		const rootIdentifier = parsed?.kind === 'test' ? getCalleeRootIdentifier(node.callee) : undefined;
+		const isImportedTestCall = isTestCall(parsed);
+		const rootIdentifier = isImportedTestCall ? getCalleeRootIdentifier(node.callee) : undefined;
 		const isTest = (
 			(
-				parsed?.kind === 'test'
+				isImportedTestCall
 				&& rootIdentifier !== undefined
 				&& isImportedIdentifier(sourceCode, rootIdentifier)
 			)
