@@ -79,13 +79,17 @@ function isBodyOnSameLine(callback, context) {
 
 function canFixExpressionCallback(callback, context) {
 	const {sourceCode} = context;
-	const replacement = getExpressionReplacement(callback.body, context);
+	if (
+		!isBodyOnSameLine(callback, context)
+		|| callback.async
+		|| callback.returnType
+	) {
+		return false;
+	}
 
+	const replacement = getExpressionReplacement(callback.body, context);
 	return (
-		isBodyOnSameLine(callback, context)
-		&& !callback.async
-		&& !callback.returnType
-		&& !hasLineCommentInRange(sourceCode, sourceCode.getRange(replacement))
+		!hasLineCommentInRange(sourceCode, sourceCode.getRange(replacement))
 		&& !hasTrailingComment(sourceCode, callback.body, context)
 	);
 }
@@ -245,7 +249,7 @@ const config = {
 	meta: {
 		type: 'layout',
 		docs: {
-			description: 'Enforce a consistent body style for `assert.throws()` callbacks.',
+			description: 'Enforce a consistent body style for `assert.throws()` arrow callbacks.',
 			recommended: false,
 		},
 		fixable: 'code',
@@ -255,7 +259,7 @@ const config = {
 				properties: {
 					style: {
 						enum: ['block', 'expression'],
-						description: 'Whether `assert.throws()` callbacks should use block bodies or expression bodies.',
+						description: 'Whether `assert.throws()` arrow callbacks should use block bodies or expression bodies.',
 					},
 				},
 				additionalProperties: false,
