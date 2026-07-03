@@ -31,6 +31,9 @@ test.snapshot({
 		withTest('for (const item of items) { t.assert[\'snapshot\'](item); }'),
 		withTest('for (const item of items) { t[\'assert\'].snapshot(item); }'),
 
+		// Destructured assertion references are intentionally ignored.
+		'import test from \'node:test\';\ntest(\'t\', ({assert}) => { for (const item of items) { assert.snapshot(item); } });',
+
 		// Calls in loop condition/update positions are not in the loop body.
 		withTest('for (; t.assert.snapshot(value);) {}'),
 		withTest('for (let index = 0; index < 1; t.assert.snapshot(index)) {}'),
