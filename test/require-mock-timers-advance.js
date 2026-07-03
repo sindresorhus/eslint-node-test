@@ -98,6 +98,7 @@ test.snapshot({
 		// Dynamic or overridden apis are treated as timer APIs
 		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'Date\'], apis: [\'setTimeout\']}); Date.now(); });'),
 		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'Date\'], ...options}); Date.now(); });'),
+		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'Date\'], [apiName]: [\'setTimeout\']}); Date.now(); });'),
 
 		// Global mock forms
 		withImport('test(\'title\', () => { mock.timers.enable({apis: [\'setTimeout\']}); });'),

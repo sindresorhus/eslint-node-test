@@ -42,6 +42,10 @@ function getPropertyName(property) {
 	}
 }
 
+function isDynamicProperty(property) {
+	return property.type === 'Property' && property.computed && property.key.type !== 'Literal';
+}
+
 function mayEnableTimerApis(callExpression) {
 	const argument = unwrapTypeScriptExpression(callExpression.arguments[0]);
 	if (argument?.type !== 'ObjectExpression') {
@@ -60,6 +64,8 @@ function mayEnableTimerApis(callExpression) {
 
 		if (getPropertyName(property) === 'apis') {
 			apisValue = property.value;
+		} else if (apisValue && isDynamicProperty(property)) {
+			return true;
 		}
 	}
 
@@ -146,9 +152,9 @@ function getMockTimersCall(callExpression, imports, sourceCode, contextVariables
 	return {method, receiverKey};
 }
 
-function satisfyPending(scope, predicate) {
+function satisfyPending(scope, receiverKey) {
 	for (const pending of scope.pending) {
-		if (!pending.satisfied && predicate(pending)) {
+		if (!pending.satisfied && pending.receiverKey === receiverKey) {
 			pending.satisfied = true;
 		}
 	}
@@ -252,7 +258,7 @@ const create = context => {
 
 		const timersCall = getMockTimersCall(node, imports, sourceCode, getContextVariables(scopeStack));
 		if (timersCall && ADVANCE_METHODS.has(timersCall.method)) {
-			satisfyPending(currentScope, pending => pending.receiverKey === timersCall.receiverKey);
+			satisfyPending(currentScope, timersCall.receiverKey);
 		}
 	});
 

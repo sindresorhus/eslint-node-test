@@ -40,9 +40,11 @@ Scan a file's top-level imports and resolve the local bindings for
 	assertNamespace: Set<string>,
 	assertNamed: Map<string, string>,
 	strictAssertLocals: Set<string>,
+	mockLocals: Set<string>,
 	sourceCode: import('eslint').SourceCode,
 	isTestFile: boolean,
 	hasAssert: boolean,
+	isAssertOrTestFile: boolean,
 }}
 */
 // Cache the result per AST so the many rules sharing this helper only scan the file once.
