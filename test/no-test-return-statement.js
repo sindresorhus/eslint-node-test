@@ -74,7 +74,10 @@ test.snapshot({
 
 		// Test context methods
 		typed('test("x", t => { t.test("y", () => 1); });'),
+		typed('test("x", t => { t.before(() => 1); });'),
 		typed('test("x", t => { t.beforeEach(() => ({a: 1})); });'),
+		typed('test("x", t => { t.after(() => "done"); });'),
+		typed('test("x", t => { t.afterEach(() => [1, 2]); });'),
 		typed('beforeEach(t => { t.beforeEach(() => ({a: 1})); });'),
 		typed('beforeEach(t => { t.test("y", () => 1); });'),
 		typed('beforeEach(t => { t.test("y", t => { t.beforeEach(() => ({a: 1})); }); });'),

@@ -5,7 +5,6 @@ import {
 	parseTestCall,
 	getTestCallback,
 	getSubtestReceiver,
-	createContextTracker,
 } from './utils/node-test.js';
 import isFunction from './ast/is-function.js';
 import isPromiseType from './utils/is-promise-type.js';
@@ -66,13 +65,13 @@ function getCallbackContextVariable(callback, sourceCode) {
 	return sourceCode.getDeclaredVariables(callback).find(variable => variable.identifiers.includes(parameter));
 }
 
-function isExtraContextReference(node, state) {
+function isContextReference(node, state) {
 	if (node?.type !== 'Identifier') {
 		return false;
 	}
 
 	const variable = findVariable(state.sourceCode.getScope(node), node);
-	return variable !== undefined && state.extraContextVariables.includes(variable);
+	return variable !== undefined && state.contextVariables.includes(variable);
 }
 
 function isContextHookCall(callExpression, state) {
@@ -80,17 +79,14 @@ function isContextHookCall(callExpression, state) {
 	return callee.type === 'MemberExpression'
 		&& !callee.computed
 		&& callee.object.type === 'Identifier'
-		&& (
-			state.tracker.isContextReference(callee.object)
-			|| isExtraContextReference(callee.object, state)
-		)
+		&& isContextReference(callee.object, state)
 		&& callee.property.type === 'Identifier'
 		&& HOOK_FUNCTIONS.has(callee.property.name);
 }
 
-function isExtraContextSubtestCall(callExpression, state) {
+function isContextSubtestCall(callExpression, state) {
 	const receiver = getSubtestReceiver(callExpression);
-	return receiver !== undefined && isExtraContextReference(receiver, state);
+	return receiver !== undefined && isContextReference(receiver, state);
 }
 
 function getCheckedCallback(callExpression, state) {
@@ -103,7 +99,7 @@ function getCheckedCallback(callExpression, state) {
 		return getHookCallback(callExpression);
 	}
 
-	if (state.tracker.isSubtestCall(callExpression) || isExtraContextSubtestCall(callExpression, state)) {
+	if (isContextSubtestCall(callExpression, state)) {
 		return getTestCallback(callExpression);
 	}
 
@@ -112,16 +108,6 @@ function getCheckedCallback(callExpression, state) {
 	}
 
 	return undefined;
-}
-
-function isHookCall(callExpression, state) {
-	return parseTestCall(callExpression, state.imports)?.kind === 'hook'
-		|| isContextHookCall(callExpression, state);
-}
-
-function shouldTrackExtraContext(callExpression, state) {
-	return isHookCall(callExpression, state)
-		|| isExtraContextSubtestCall(callExpression, state);
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -144,25 +130,19 @@ const create = context => {
 	const state = {
 		imports,
 		sourceCode,
-		tracker: createContextTracker(imports),
-		extraContextVariables: [],
+		contextVariables: [],
 	};
-	const extraContextCalls = new Set();
+	const contextCalls = new Set();
 
 	context.on('CallExpression', node => {
 		const callback = getCheckedCallback(node, state);
-		const shouldTrackContext = callback && shouldTrackExtraContext(node, state);
-		state.tracker.update(node);
 		if (!callback) {
 			return;
 		}
 
 		checkedCallbacks.add(callback);
-
-		if (shouldTrackContext) {
-			state.extraContextVariables.push(getCallbackContextVariable(callback, sourceCode));
-			extraContextCalls.add(node);
-		}
+		state.contextVariables.push(getCallbackContextVariable(callback, sourceCode));
+		contextCalls.add(node);
 
 		if (
 			callback.type === 'ArrowFunctionExpression'
@@ -178,14 +158,12 @@ const create = context => {
 	});
 
 	context.onExit('CallExpression', node => {
-		state.tracker.leave(node);
-
-		if (!extraContextCalls.has(node)) {
+		if (!contextCalls.has(node)) {
 			return;
 		}
 
-		extraContextCalls.delete(node);
-		state.extraContextVariables.pop();
+		contextCalls.delete(node);
+		state.contextVariables.pop();
 	});
 
 	context.on('ReturnStatement', node => {
