@@ -82,6 +82,7 @@ test.snapshot({
 		withTest('await new Promise(resolve => {\n\tsetTimeout(resolve, 500);\n});'),
 		withTest('await new Promise(resolve => {\n\treturn setTimeout(resolve, 500);\n});'),
 		withTest('await new Promise(done => setTimeout(done, 500));'),
+		withTest('await new Promise((resolve, reject) => setTimeout(reject, 500));'),
 		withTest('await new Promise(resolve => setTimeout(resolve));'),
 		withTest('await new Promise(resolve => {\n\tconst timeout = setTimeout(resolve, 500);\n\treturn timeout;\n});'),
 		withTest('await new Promise(resolve => setTimeout(() => resolve(), 500));'),
@@ -114,6 +115,16 @@ test.snapshot({
 		withSuitePromiseTimerImport('describe', '{skip: false}, ', 'test(\'waits\', async () => {\n\tawait delay(500);\n});'),
 		{
 			code: 'import test from \'node:test\';\ntest(\'waits\', async () => {\n\tawait new Promise<void>(resolve => setTimeout(resolve, 500));\n});',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: [
+				'import test from \'node:test\';',
+				'import {setTimeout as delay} from \'node:timers/promises\';',
+				'test(\'waits\', {skip: false as boolean}, async () => {',
+				'\tawait delay(500);',
+				'});',
+			].join('\n'),
 			languageOptions: {parser: parsers.typescript},
 		},
 		{

@@ -655,10 +655,11 @@ Find an options property (`only`/`skip`/`todo`) that is set to an *enabled* valu
 */
 export function findEnabledOptionsProperty(optionsObject, name) {
 	const property = findOptionsProperty(optionsObject, name);
+	const value = property && unwrapTypeScriptExpression(property.value);
 	if (
 		property
-		&& !(property.value.type === 'Identifier' && property.value.name === 'undefined')
-		&& (property.value.type !== 'Literal' || property.value.value)
+		&& !(value.type === 'Identifier' && value.name === 'undefined')
+		&& (value.type !== 'Literal' || value.value)
 	) {
 		return property;
 	}

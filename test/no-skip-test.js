@@ -1,4 +1,4 @@
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -11,6 +11,10 @@ test.snapshot({
 		'import test from "node:test";\ntest("title", {skip: ""}, () => {});',
 		'import test from "node:test";\ntest("title", {skip: 0}, () => {});',
 		'import test from "node:test";\ntest("title", {skip: undefined}, () => {});',
+		{
+			code: 'import test from "node:test";\ntest("title", {skip: false as boolean}, () => {});',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'import test from "node:test";\nfoo.skip();',
 	],
 	invalid: [

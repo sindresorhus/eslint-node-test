@@ -1,4 +1,4 @@
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -9,6 +9,11 @@ test.snapshot({
 		'import test from "node:test";\ntest("title", {todo: false}, () => {});',
 		// `node:test` treats the option as falsy, so the test is not actually a todo.
 		'import test from "node:test";\ntest("title", {todo: 0}, () => {});',
+		'import test from "node:test";\ntest("title", {todo: undefined}, () => {});',
+		{
+			code: 'import test from "node:test";\ntest("title", {todo: false as boolean}, () => {});',
+			languageOptions: {parser: parsers.typescript},
+		},
 		// Not a `node:test` binding.
 		'import test from "node:test";\nfoo.todo();',
 	],

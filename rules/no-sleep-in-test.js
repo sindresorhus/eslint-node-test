@@ -252,17 +252,17 @@ function isSleepPromise(node, timerImports) {
 
 	const [executor] = node.arguments;
 	const executorFunction = unwrapExpression(executor);
-	const resolver = isFunction(executorFunction) ? executorFunction.params[0] : undefined;
-	if (resolver?.type !== 'Identifier') {
+	const resolverVariables = isFunction(executorFunction)
+		? executorFunction.params.slice(0, 2)
+			.filter(parameter => parameter.type === 'Identifier')
+			.map(parameter => findVariable(timerImports.sourceCode.getScope(parameter), parameter))
+			.filter(Boolean)
+		: [];
+	if (resolverVariables.length === 0) {
 		return false;
 	}
 
-	const resolverVariable = findVariable(timerImports.sourceCode.getScope(resolver), resolver);
-	if (!resolverVariable) {
-		return false;
-	}
-
-	return bodyContainsExpression(executorFunction.body, expression => isSleepSetTimeoutCall(expression, resolverVariable, timerImports));
+	return bodyContainsExpression(executorFunction.body, expression => resolverVariables.some(resolverVariable => isSleepSetTimeoutCall(expression, resolverVariable, timerImports)));
 }
 
 function isPromiseTimerSleep(node, timerImports) {
