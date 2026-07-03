@@ -1,4 +1,12 @@
-import {resolveImports, parseTestCall, getTestCallback} from './utils/node-test.js';
+import {findVariable} from '@eslint-community/eslint-utils';
+import {
+	HOOK_FUNCTIONS,
+	resolveImports,
+	parseTestCall,
+	getTestCallback,
+	getSubtestReceiver,
+	createContextTracker,
+} from './utils/node-test.js';
 import isFunction from './ast/is-function.js';
 import isPromiseType from './utils/is-promise-type.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
@@ -49,8 +57,76 @@ function isDisallowedReturnValue(node, parserServices, checker) {
 	return !isAllowedReturnType(type, checker);
 }
 
+function getCallbackContextVariable(callback, sourceCode) {
+	const parameter = callback.params[0];
+	if (parameter?.type !== 'Identifier') {
+		return undefined;
+	}
+
+	return sourceCode.getDeclaredVariables(callback).find(variable => variable.identifiers.includes(parameter));
+}
+
+function isExtraContextReference(node, state) {
+	if (node?.type !== 'Identifier') {
+		return false;
+	}
+
+	const variable = findVariable(state.sourceCode.getScope(node), node);
+	return variable !== undefined && state.extraContextVariables.includes(variable);
+}
+
+function isContextHookCall(callExpression, state) {
+	const {callee} = callExpression;
+	return callee.type === 'MemberExpression'
+		&& !callee.computed
+		&& callee.object.type === 'Identifier'
+		&& (
+			state.tracker.isContextReference(callee.object)
+			|| isExtraContextReference(callee.object, state)
+		)
+		&& callee.property.type === 'Identifier'
+		&& HOOK_FUNCTIONS.has(callee.property.name);
+}
+
+function isExtraContextSubtestCall(callExpression, state) {
+	const receiver = getSubtestReceiver(callExpression);
+	return receiver !== undefined && isExtraContextReference(receiver, state);
+}
+
+function getCheckedCallback(callExpression, state) {
+	const parsed = parseTestCall(callExpression, state.imports);
+	if (parsed?.kind === 'test') {
+		return getTestCallback(callExpression);
+	}
+
+	if (parsed?.kind === 'hook') {
+		return getHookCallback(callExpression);
+	}
+
+	if (state.tracker.isSubtestCall(callExpression) || isExtraContextSubtestCall(callExpression, state)) {
+		return getTestCallback(callExpression);
+	}
+
+	if (isContextHookCall(callExpression, state)) {
+		return getHookCallback(callExpression);
+	}
+
+	return undefined;
+}
+
+function isHookCall(callExpression, state) {
+	return parseTestCall(callExpression, state.imports)?.kind === 'hook'
+		|| isContextHookCall(callExpression, state);
+}
+
+function shouldTrackExtraContext(callExpression, state) {
+	return isHookCall(callExpression, state)
+		|| isExtraContextSubtestCall(callExpression, state);
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	const {sourceCode} = context;
 	const imports = resolveImports(context);
 	if (!imports.isTestFile) {
 		return;
@@ -65,20 +141,31 @@ const create = context => {
 
 	const checker = parserServices.program.getTypeChecker();
 	const checkedCallbacks = new Set();
+	const state = {
+		imports,
+		sourceCode,
+		tracker: createContextTracker(imports),
+		extraContextVariables: [],
+	};
+	const extraContextCalls = new Set();
 
 	context.on('CallExpression', node => {
-		const parsed = parseTestCall(node, imports);
-		if (parsed?.kind !== 'test' && parsed?.kind !== 'hook') {
+		const callback = getCheckedCallback(node, state);
+		const shouldTrackContext = callback && shouldTrackExtraContext(node, state);
+		state.tracker.update(node);
+		if (!callback) {
 			return;
 		}
 
-		const callback = parsed.kind === 'hook' ? getHookCallback(node) : getTestCallback(node);
-		if (callback) {
-			checkedCallbacks.add(callback);
+		checkedCallbacks.add(callback);
+
+		if (shouldTrackContext) {
+			state.extraContextVariables.push(getCallbackContextVariable(callback, sourceCode));
+			extraContextCalls.add(node);
 		}
 
 		if (
-			callback?.type === 'ArrowFunctionExpression'
+			callback.type === 'ArrowFunctionExpression'
 			&& callback.body.type !== 'BlockStatement'
 			&& !callback.async
 			&& isDisallowedReturnValue(callback.body, parserServices, checker)
@@ -88,6 +175,17 @@ const create = context => {
 				messageId: MESSAGE_ID,
 			};
 		}
+	});
+
+	context.onExit('CallExpression', node => {
+		state.tracker.leave(node);
+
+		if (!extraContextCalls.has(node)) {
+			return;
+		}
+
+		extraContextCalls.delete(node);
+		state.extraContextVariables.pop();
 	});
 
 	context.on('ReturnStatement', node => {

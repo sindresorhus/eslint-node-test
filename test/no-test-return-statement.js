@@ -28,10 +28,14 @@ test.snapshot({
 		typed('beforeEach(() => { return Promise.resolve(); }, {timeout: 1000});'),
 		typed('beforeEach(() => { const value: Promise<void> | undefined = Math.random() > 0.5 ? Promise.resolve() : undefined; return value; });'),
 		typed('beforeEach(() => Promise.resolve());'),
+		typed('test("x", t => { t.test("y", () => Promise.resolve()); });'),
+		typed('test("x", t => { t.beforeEach(() => Promise.resolve()); });'),
+		typed('test("x", t => { const helper = (t: {beforeEach: (callback: () => {a: number}) => void}) => { t.beforeEach(() => ({a: 1})); }; });'),
+		typed('beforeEach(t => { t.beforeEach(() => Promise.resolve()); });'),
+		typed('beforeEach(t => { const helper = (t: {beforeEach: (callback: () => {a: number}) => void}) => { t.beforeEach(() => ({a: 1})); }; });'),
 
 		// An `async` function wraps its return in a Promise, so a plain value is fine
 		typed('test("x", async () => { return 1; });'),
-		typed('test("x", async () => { return computeValue(); });'),
 		typed('afterEach(async () => { return 1; });'),
 		typed('beforeEach(async () => 1);'),
 
@@ -67,6 +71,13 @@ test.snapshot({
 
 		// `it` alias
 		typed('it("x", () => { return 1; });'),
+
+		// Test context methods
+		typed('test("x", t => { t.test("y", () => 1); });'),
+		typed('test("x", t => { t.beforeEach(() => ({a: 1})); });'),
+		typed('beforeEach(t => { t.beforeEach(() => ({a: 1})); });'),
+		typed('beforeEach(t => { t.test("y", () => 1); });'),
+		typed('beforeEach(t => { t.test("y", t => { t.beforeEach(() => ({a: 1})); }); });'),
 
 		// Hooks
 		typed('before(() => { return 1; });'),

@@ -381,6 +381,7 @@ Set `trackHooks` to also track hook context parameters for rules that inspect `t
 	isSubtestCall: (node: import('estree').Node) => boolean,
 	isContextIdentifier: (node: import('estree').Node | undefined) => boolean,
 	isContextName: (name: string | undefined) => boolean,
+	isContextReference: (node: import('estree').Node | undefined) => boolean,
 	current: () => string | undefined,
 	currentCallback: () => import('estree').Node | undefined,
 	update: (node: import('estree').Node) => void,
@@ -426,6 +427,14 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 		isSubtestCall,
 		isContextIdentifier,
 		isContextName: name => name !== undefined && names.includes(name),
+		isContextReference(node) {
+			if (node?.type !== 'Identifier') {
+				return false;
+			}
+
+			const variable = getVariable(node, imports);
+			return variable !== undefined && variables.includes(variable);
+		},
 		// The name of the innermost enclosing tracked context, or `undefined` when its
 		// callback declared no context parameter (or we are not inside a tracked callback).
 		current: () => names.at(-1),
