@@ -14,10 +14,12 @@ test.snapshot({
 
 		// Shadowed `test` binding is not a node:test call
 		withImport('function wrapper(test) { test(\'parent\', t => { t.test(\'child\', () => { t.mock.fn(); }); }); }'),
+		'import * as nodeTest from \'node:test\';\nfunction wrapper(nodeTest) { nodeTest.test(\'parent\', t => { t.test(\'child\', () => { t.mock.fn(); }); }); }',
 
 		// Subtest uses its own context
 		withImport('test(\'parent\', async t => { await t.test(\'child\', t2 => { t2.mock.method(fs, \'readFileSync\', () => \'{}\'); }); });'),
 		withImport('test(\'parent\', async t => { await t.test(\'child\', t2 => { t2.plan(1); t2.assert.ok(true); }); });'),
+		withImport('test(\'parent\', async t => { await t.test(\'child\', (t2 = fallback) => { t2.mock.fn(); }); });'),
 
 		// Same-name subtest parameter shadows the parent context
 		withImport('test(\'parent\', async t => { await t.test(\'child\', t => { t.mock.fn(); }); });'),
@@ -39,6 +41,8 @@ test.snapshot({
 
 		// Non-inline callbacks are not analyzed
 		withImport('test(\'parent\', async t => { await t.test(\'child\', helper); });\nfunction helper() { t.mock.fn(); }'),
+		withImport('test(\'parent\', parent);\nasync function parent(t) { await t.test(\'child\', () => { t.mock.fn(); }); }'),
+		withImport('test(\'parent\', async t => { await t.test(\'child\', t2 => { test(\'nested\', () => { t.mock.fn(); }); }); });'),
 	],
 	invalid: [
 		// Child callback without a context parameter
@@ -46,14 +50,18 @@ test.snapshot({
 		withImport('test(\'parent\', async t => { await t.test(\'child\', () => { t.plan(1); }); });'),
 		withImport('test(\'parent\', async t => { await t.test(\'child\', () => { t.assert.ok(true); }); });'),
 		withImport('test(\'parent\', async t => { await t.test(\'child\', async () => { await t.test(\'grandchild\', () => {}); }); });'),
+		withImport('test(\'parent\', async t => { await t.test(\'child\', () => { t.test(\'grandchild\'); }); });'),
 
 		// Child callback has its own context, so a suggestion can replace the parent reference
 		withImport('test(\'parent\', async t => { await t.test(\'child\', t2 => { t.mock.method(fs, \'readFileSync\', () => \'{}\'); }); });'),
 		withImport('test(\'parent\', async t => { await t.test(\'child\', t2 => t.mock.fn()); });'),
 		withImport('test(\'parent\', async t => { await t.test.only(\'child\', t2 => { t.mock.fn(); }); });'),
+		withImport('test(\'parent\', async (t = fallback) => { await t.test(\'child\', t2 => { t.mock.fn(); }); });'),
+		withImport('test(\'parent\', async t => { await t.test(\'child\', (t2 = fallback) => { t.mock.fn(); }); });'),
 
 		// Child context name shadowed at the report site has no safe suggestion
 		withImport('test(\'parent\', async t => { await t.test(\'child\', t2 => { { const t2 = other; t.mock.fn(); } }); });'),
+		withImport('test(\'parent\', async t => { await t.test(\'child\', t2 => { function helper(t2) { t.mock.fn(); } helper(); }); });'),
 
 		// Shorthand property suggestions would change the property name, so only report
 		withImport('test(\'parent\', async t => { await t.test(\'child\', t2 => { const value = {t}; }); });'),
@@ -66,6 +74,7 @@ test.snapshot({
 
 		// Named and namespace imports
 		'import {test} from \'node:test\';\ntest(\'parent\', async t => { await t.test(\'child\', t2 => { t.mock.fn(); }); });',
+		'import {it as specify} from \'node:test\';\nspecify(\'parent\', async t => { await t.test(\'child\', t2 => { t.mock.fn(); }); });',
 		'import * as nodeTest from \'node:test\';\nnodeTest.test(\'parent\', async t => { await t.test(\'child\', t2 => { t.mock.fn(); }); });',
 
 		// Renamed parent context
@@ -73,6 +82,8 @@ test.snapshot({
 
 		// Grandchild references the grandparent
 		withImport('test(\'parent\', async t => { await t.test(\'child\', async t2 => { await t2.test(\'grandchild\', t3 => { t.mock.fn(); }); }); });'),
+		withImport('test(\'parent\', async t => { await t.test(\'child\', async t2 => { await t2.test(t.name, t3 => { t3.mock.fn(); }); }); });'),
+		withImport('test(\'parent\', async t => { await t.test(\'child\', t2 => { test(t.name, () => {}); }); });'),
 
 		// Grandchild references the parent
 		withImport('test(\'parent\', async t => { await t.test(\'child\', async t2 => { await t2.test(\'grandchild\', t3 => { t2.mock.fn(); }); }); });'),

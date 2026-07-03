@@ -14,14 +14,82 @@ Message:
 
 `;
 
-exports[`no-parent-test-context > invalid(10): import test from 'node:test';\ntest('parent', async t => { await t.test('child', ({mock}) => { t.mock.fn(); }); }); 1`] = `
+exports[`no-parent-test-context > invalid(10): import test from 'node:test';\ntest('parent', async t => { await t.test('child', (t2 = fallback) => { t.mock.fn(); }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('parent', async t => { await t.test('child', (t2 = fallback) => { t.mock.fn(); }); });
+
+`;
+
+exports[`no-parent-test-context > invalid(10): import test from 'node:test';\ntest('parent', async t => { await t.test('child', (t2 = fallback) => { t.mock.fn(); }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('parent', async t => { await t.test('child', (t2 = fallback) => { t.mock.fn(); }); });
+    |                                                                        ^ Do not use the parent test context \`t\` inside this subtest. Use this subtest's own context instead.
+
+Suggestion 1/1: Replace \`t\` with \`t2\`.:
+  1 | import test from 'node:test';
+  2 | test('parent', async t => { await t.test('child', (t2 = fallback) => { t2.mock.fn(); }); });
+
+`;
+
+exports[`no-parent-test-context > invalid(11): import test from 'node:test';\ntest('parent', async t => { await t.test('child', t2 => { { const t2 = other; t.mock.fn(); } }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('parent', async t => { await t.test('child', t2 => { { const t2 = other; t.mock.fn(); } }); });
+
+`;
+
+exports[`no-parent-test-context > invalid(11): import test from 'node:test';\ntest('parent', async t => { await t.test('child', t2 => { { const t2 = other; t.mock.fn(); } }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('parent', async t => { await t.test('child', t2 => { { const t2 = other; t.mock.fn(); } }); });
+    |                                                                               ^ Do not use the parent test context \`t\` inside this subtest. Use this subtest's own context instead.
+
+`;
+
+exports[`no-parent-test-context > invalid(12): import test from 'node:test';\ntest('parent', async t => { await t.test('child', t2 => { function helper(t2) { t.mock.fn(); } helper(); }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('parent', async t => { await t.test('child', t2 => { function helper(t2) { t.mock.fn(); } helper(); }); });
+
+`;
+
+exports[`no-parent-test-context > invalid(12): import test from 'node:test';\ntest('parent', async t => { await t.test('child', t2 => { function helper(t2) { t.mock.fn(); } helper(); }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('parent', async t => { await t.test('child', t2 => { function helper(t2) { t.mock.fn(); } helper(); }); });
+    |                                                                                 ^ Do not use the parent test context \`t\` inside this subtest. Use this subtest's own context instead.
+
+`;
+
+exports[`no-parent-test-context > invalid(13): import test from 'node:test';\ntest('parent', async t => { await t.test('child', t2 => { const value = {t}; }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('parent', async t => { await t.test('child', t2 => { const value = {t}; }); });
+
+`;
+
+exports[`no-parent-test-context > invalid(13): import test from 'node:test';\ntest('parent', async t => { await t.test('child', t2 => { const value = {t}; }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('parent', async t => { await t.test('child', t2 => { const value = {t}; }); });
+    |                                                                          ^ Do not use the parent test context \`t\` inside this subtest. Use this subtest's own context instead.
+
+`;
+
+exports[`no-parent-test-context > invalid(14): import test from 'node:test';\ntest('parent', async t => { await t.test('child', ({mock}) => { t.mock.fn(); }); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('parent', async t => { await t.test('child', ({mock}) => { t.mock.fn(); }); });
 
 `;
 
-exports[`no-parent-test-context > invalid(10): import test from 'node:test';\ntest('parent', async t => { await t.test('child', ({mock}) => { t.mock.fn(); }); }); 2`] = `
+exports[`no-parent-test-context > invalid(14): import test from 'node:test';\ntest('parent', async t => { await t.test('child', ({mock}) => { t.mock.fn(); }); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -30,14 +98,14 @@ Message:
 
 `;
 
-exports[`no-parent-test-context > invalid(11): import test from 'node:test';\ntest('parent', async t => { await t.test('child', (t2 = t) => {}); }); 1`] = `
+exports[`no-parent-test-context > invalid(15): import test from 'node:test';\ntest('parent', async t => { await t.test('child', (t2 = t) => {}); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('parent', async t => { await t.test('child', (t2 = t) => {}); });
 
 `;
 
-exports[`no-parent-test-context > invalid(11): import test from 'node:test';\ntest('parent', async t => { await t.test('child', (t2 = t) => {}); }); 2`] = `
+exports[`no-parent-test-context > invalid(15): import test from 'node:test';\ntest('parent', async t => { await t.test('child', (t2 = t) => {}); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -46,14 +114,14 @@ Message:
 
 `;
 
-exports[`no-parent-test-context > invalid(12): import {test} from 'node:test';\ntest('parent', async t => { await t.test('child', t2 => { t.mock.fn(); }); }); 1`] = `
+exports[`no-parent-test-context > invalid(16): import {test} from 'node:test';\ntest('parent', async t => { await t.test('child', t2 => { t.mock.fn(); }); }); 1`] = `
 
   1 | import {test} from 'node:test';
   2 | test('parent', async t => { await t.test('child', t2 => { t.mock.fn(); }); });
 
 `;
 
-exports[`no-parent-test-context > invalid(12): import {test} from 'node:test';\ntest('parent', async t => { await t.test('child', t2 => { t.mock.fn(); }); }); 2`] = `
+exports[`no-parent-test-context > invalid(16): import {test} from 'node:test';\ntest('parent', async t => { await t.test('child', t2 => { t.mock.fn(); }); }); 2`] = `
 
 Message:
   1 | import {test} from 'node:test';
@@ -66,14 +134,34 @@ Suggestion 1/1: Replace \`t\` with \`t2\`.:
 
 `;
 
-exports[`no-parent-test-context > invalid(13): import * as nodeTest from 'node:test';\nnodeTest.test('parent', async t => { await t.test('child', t2 => { t.mock.fn(); }); }); 1`] = `
+exports[`no-parent-test-context > invalid(17): import {it as specify} from 'node:test';\nspecify('parent', async t => { await t.test('child', t2 => { t.mock.fn(); }); }); 1`] = `
+
+  1 | import {it as specify} from 'node:test';
+  2 | specify('parent', async t => { await t.test('child', t2 => { t.mock.fn(); }); });
+
+`;
+
+exports[`no-parent-test-context > invalid(17): import {it as specify} from 'node:test';\nspecify('parent', async t => { await t.test('child', t2 => { t.mock.fn(); }); }); 2`] = `
+
+Message:
+  1 | import {it as specify} from 'node:test';
+> 2 | specify('parent', async t => { await t.test('child', t2 => { t.mock.fn(); }); });
+    |                                                              ^ Do not use the parent test context \`t\` inside this subtest. Use this subtest's own context instead.
+
+Suggestion 1/1: Replace \`t\` with \`t2\`.:
+  1 | import {it as specify} from 'node:test';
+  2 | specify('parent', async t => { await t.test('child', t2 => { t2.mock.fn(); }); });
+
+`;
+
+exports[`no-parent-test-context > invalid(18): import * as nodeTest from 'node:test';\nnodeTest.test('parent', async t => { await t.test('child', t2 => { t.mock.fn(); }); }); 1`] = `
 
   1 | import * as nodeTest from 'node:test';
   2 | nodeTest.test('parent', async t => { await t.test('child', t2 => { t.mock.fn(); }); });
 
 `;
 
-exports[`no-parent-test-context > invalid(13): import * as nodeTest from 'node:test';\nnodeTest.test('parent', async t => { await t.test('child', t2 => { t.mock.fn(); }); }); 2`] = `
+exports[`no-parent-test-context > invalid(18): import * as nodeTest from 'node:test';\nnodeTest.test('parent', async t => { await t.test('child', t2 => { t.mock.fn(); }); }); 2`] = `
 
 Message:
   1 | import * as nodeTest from 'node:test';
@@ -86,99 +174,19 @@ Suggestion 1/1: Replace \`t\` with \`t2\`.:
 
 `;
 
-exports[`no-parent-test-context > invalid(14): import test from 'node:test';\ntest('parent', async context => { await context.test('child', () => { context.mock.fn(); }); }); 1`] = `
+exports[`no-parent-test-context > invalid(19): import test from 'node:test';\ntest('parent', async context => { await context.test('child', () => { context.mock.fn(); }); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('parent', async context => { await context.test('child', () => { context.mock.fn(); }); });
 
 `;
 
-exports[`no-parent-test-context > invalid(14): import test from 'node:test';\ntest('parent', async context => { await context.test('child', () => { context.mock.fn(); }); }); 2`] = `
+exports[`no-parent-test-context > invalid(19): import test from 'node:test';\ntest('parent', async context => { await context.test('child', () => { context.mock.fn(); }); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
 > 2 | test('parent', async context => { await context.test('child', () => { context.mock.fn(); }); });
     |                                                                       ^^^^^^^ Do not use the parent test context \`context\` inside this subtest. Use this subtest's own context instead.
-
-`;
-
-exports[`no-parent-test-context > invalid(15): import test from 'node:test';\ntest('parent', async t => { await t.test('child', async t2 => { await t2.test('grandchild', t3 => { t.mock.fn(); }); }); }); 1`] = `
-
-  1 | import test from 'node:test';
-  2 | test('parent', async t => { await t.test('child', async t2 => { await t2.test('grandchild', t3 => { t.mock.fn(); }); }); });
-
-`;
-
-exports[`no-parent-test-context > invalid(15): import test from 'node:test';\ntest('parent', async t => { await t.test('child', async t2 => { await t2.test('grandchild', t3 => { t.mock.fn(); }); }); }); 2`] = `
-
-Message:
-  1 | import test from 'node:test';
-> 2 | test('parent', async t => { await t.test('child', async t2 => { await t2.test('grandchild', t3 => { t.mock.fn(); }); }); });
-    |                                                                                                     ^ Do not use the parent test context \`t\` inside this subtest. Use this subtest's own context instead.
-
-Suggestion 1/1: Replace \`t\` with \`t3\`.:
-  1 | import test from 'node:test';
-  2 | test('parent', async t => { await t.test('child', async t2 => { await t2.test('grandchild', t3 => { t3.mock.fn(); }); }); });
-
-`;
-
-exports[`no-parent-test-context > invalid(16): import test from 'node:test';\ntest('parent', async t => { await t.test('child', async t2 => { await t2.test('grandchild', t3 => { t2.mock.fn(); }); }); }); 1`] = `
-
-  1 | import test from 'node:test';
-  2 | test('parent', async t => { await t.test('child', async t2 => { await t2.test('grandchild', t3 => { t2.mock.fn(); }); }); });
-
-`;
-
-exports[`no-parent-test-context > invalid(16): import test from 'node:test';\ntest('parent', async t => { await t.test('child', async t2 => { await t2.test('grandchild', t3 => { t2.mock.fn(); }); }); }); 2`] = `
-
-Message:
-  1 | import test from 'node:test';
-> 2 | test('parent', async t => { await t.test('child', async t2 => { await t2.test('grandchild', t3 => { t2.mock.fn(); }); }); });
-    |                                                                                                     ^^ Do not use the parent test context \`t2\` inside this subtest. Use this subtest's own context instead.
-
-Suggestion 1/1: Replace \`t2\` with \`t3\`.:
-  1 | import test from 'node:test';
-  2 | test('parent', async t => { await t.test('child', async t2 => { await t2.test('grandchild', t3 => { t3.mock.fn(); }); }); });
-
-`;
-
-exports[`no-parent-test-context > invalid(17): import test from 'node:test';\ntest('parent', async t => { await t.test('child', t2 => { function helper() { t.mock.fn(); } helper(); }); }); 1`] = `
-
-  1 | import test from 'node:test';
-  2 | test('parent', async t => { await t.test('child', t2 => { function helper() { t.mock.fn(); } helper(); }); });
-
-`;
-
-exports[`no-parent-test-context > invalid(17): import test from 'node:test';\ntest('parent', async t => { await t.test('child', t2 => { function helper() { t.mock.fn(); } helper(); }); }); 2`] = `
-
-Message:
-  1 | import test from 'node:test';
-> 2 | test('parent', async t => { await t.test('child', t2 => { function helper() { t.mock.fn(); } helper(); }); });
-    |                                                                               ^ Do not use the parent test context \`t\` inside this subtest. Use this subtest's own context instead.
-
-Suggestion 1/1: Replace \`t\` with \`t2\`.:
-  1 | import test from 'node:test';
-  2 | test('parent', async t => { await t.test('child', t2 => { function helper() { t2.mock.fn(); } helper(); }); });
-
-`;
-
-exports[`no-parent-test-context > invalid(18): import test from 'node:test';\ntest('parent', async (t: any) => { await t.test('child', (t2: any) => { t.mock.fn(); }); }); 1`] = `
-
-  1 | import test from 'node:test';
-  2 | test('parent', async (t: any) => { await t.test('child', (t2: any) => { t.mock.fn(); }); });
-
-`;
-
-exports[`no-parent-test-context > invalid(18): import test from 'node:test';\ntest('parent', async (t: any) => { await t.test('child', (t2: any) => { t.mock.fn(); }); }); 2`] = `
-
-Message:
-  1 | import test from 'node:test';
-> 2 | test('parent', async (t: any) => { await t.test('child', (t2: any) => { t.mock.fn(); }); });
-    |                                                                         ^ Do not use the parent test context \`t\` inside this subtest. Use this subtest's own context instead.
-
-Suggestion 1/1: Replace \`t\` with \`t2\`.:
-  1 | import test from 'node:test';
-  2 | test('parent', async (t: any) => { await t.test('child', (t2: any) => { t2.mock.fn(); }); });
 
 `;
 
@@ -195,6 +203,126 @@ Message:
   1 | import test from 'node:test';
 > 2 | test('parent', async t => { await t.test('child', () => { t.plan(1); }); });
     |                                                           ^ Do not use the parent test context \`t\` inside this subtest. Use this subtest's own context instead.
+
+`;
+
+exports[`no-parent-test-context > invalid(20): import test from 'node:test';\ntest('parent', async t => { await t.test('child', async t2 => { await t2.test('grandchild', t3 => { t.mock.fn(); }); }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('parent', async t => { await t.test('child', async t2 => { await t2.test('grandchild', t3 => { t.mock.fn(); }); }); });
+
+`;
+
+exports[`no-parent-test-context > invalid(20): import test from 'node:test';\ntest('parent', async t => { await t.test('child', async t2 => { await t2.test('grandchild', t3 => { t.mock.fn(); }); }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('parent', async t => { await t.test('child', async t2 => { await t2.test('grandchild', t3 => { t.mock.fn(); }); }); });
+    |                                                                                                     ^ Do not use the parent test context \`t\` inside this subtest. Use this subtest's own context instead.
+
+Suggestion 1/1: Replace \`t\` with \`t3\`.:
+  1 | import test from 'node:test';
+  2 | test('parent', async t => { await t.test('child', async t2 => { await t2.test('grandchild', t3 => { t3.mock.fn(); }); }); });
+
+`;
+
+exports[`no-parent-test-context > invalid(21): import test from 'node:test';\ntest('parent', async t => { await t.test('child', async t2 => { await t2.test(t.name, t3 => { t3.mock.fn(); }); }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('parent', async t => { await t.test('child', async t2 => { await t2.test(t.name, t3 => { t3.mock.fn(); }); }); });
+
+`;
+
+exports[`no-parent-test-context > invalid(21): import test from 'node:test';\ntest('parent', async t => { await t.test('child', async t2 => { await t2.test(t.name, t3 => { t3.mock.fn(); }); }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('parent', async t => { await t.test('child', async t2 => { await t2.test(t.name, t3 => { t3.mock.fn(); }); }); });
+    |                                                                               ^ Do not use the parent test context \`t\` inside this subtest. Use this subtest's own context instead.
+
+Suggestion 1/1: Replace \`t\` with \`t2\`.:
+  1 | import test from 'node:test';
+  2 | test('parent', async t => { await t.test('child', async t2 => { await t2.test(t2.name, t3 => { t3.mock.fn(); }); }); });
+
+`;
+
+exports[`no-parent-test-context > invalid(22): import test from 'node:test';\ntest('parent', async t => { await t.test('child', t2 => { test(t.name, () => {}); }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('parent', async t => { await t.test('child', t2 => { test(t.name, () => {}); }); });
+
+`;
+
+exports[`no-parent-test-context > invalid(22): import test from 'node:test';\ntest('parent', async t => { await t.test('child', t2 => { test(t.name, () => {}); }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('parent', async t => { await t.test('child', t2 => { test(t.name, () => {}); }); });
+    |                                                                ^ Do not use the parent test context \`t\` inside this subtest. Use this subtest's own context instead.
+
+Suggestion 1/1: Replace \`t\` with \`t2\`.:
+  1 | import test from 'node:test';
+  2 | test('parent', async t => { await t.test('child', t2 => { test(t2.name, () => {}); }); });
+
+`;
+
+exports[`no-parent-test-context > invalid(23): import test from 'node:test';\ntest('parent', async t => { await t.test('child', async t2 => { await t2.test('grandchild', t3 => { t2.mock.fn(); }); }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('parent', async t => { await t.test('child', async t2 => { await t2.test('grandchild', t3 => { t2.mock.fn(); }); }); });
+
+`;
+
+exports[`no-parent-test-context > invalid(23): import test from 'node:test';\ntest('parent', async t => { await t.test('child', async t2 => { await t2.test('grandchild', t3 => { t2.mock.fn(); }); }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('parent', async t => { await t.test('child', async t2 => { await t2.test('grandchild', t3 => { t2.mock.fn(); }); }); });
+    |                                                                                                     ^^ Do not use the parent test context \`t2\` inside this subtest. Use this subtest's own context instead.
+
+Suggestion 1/1: Replace \`t2\` with \`t3\`.:
+  1 | import test from 'node:test';
+  2 | test('parent', async t => { await t.test('child', async t2 => { await t2.test('grandchild', t3 => { t3.mock.fn(); }); }); });
+
+`;
+
+exports[`no-parent-test-context > invalid(24): import test from 'node:test';\ntest('parent', async t => { await t.test('child', t2 => { function helper() { t.mock.fn(); } helper(); }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('parent', async t => { await t.test('child', t2 => { function helper() { t.mock.fn(); } helper(); }); });
+
+`;
+
+exports[`no-parent-test-context > invalid(24): import test from 'node:test';\ntest('parent', async t => { await t.test('child', t2 => { function helper() { t.mock.fn(); } helper(); }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('parent', async t => { await t.test('child', t2 => { function helper() { t.mock.fn(); } helper(); }); });
+    |                                                                               ^ Do not use the parent test context \`t\` inside this subtest. Use this subtest's own context instead.
+
+Suggestion 1/1: Replace \`t\` with \`t2\`.:
+  1 | import test from 'node:test';
+  2 | test('parent', async t => { await t.test('child', t2 => { function helper() { t2.mock.fn(); } helper(); }); });
+
+`;
+
+exports[`no-parent-test-context > invalid(25): import test from 'node:test';\ntest('parent', async (t: any) => { await t.test('child', (t2: any) => { t.mock.fn(); }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('parent', async (t: any) => { await t.test('child', (t2: any) => { t.mock.fn(); }); });
+
+`;
+
+exports[`no-parent-test-context > invalid(25): import test from 'node:test';\ntest('parent', async (t: any) => { await t.test('child', (t2: any) => { t.mock.fn(); }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('parent', async (t: any) => { await t.test('child', (t2: any) => { t.mock.fn(); }); });
+    |                                                                         ^ Do not use the parent test context \`t\` inside this subtest. Use this subtest's own context instead.
+
+Suggestion 1/1: Replace \`t\` with \`t2\`.:
+  1 | import test from 'node:test';
+  2 | test('parent', async (t: any) => { await t.test('child', (t2: any) => { t2.mock.fn(); }); });
 
 `;
 
@@ -230,14 +358,30 @@ Message:
 
 `;
 
-exports[`no-parent-test-context > invalid(5): import test from 'node:test';\ntest('parent', async t => { await t.test('child', t2 => { t.mock.method(fs, 'readFileSync', () => '{}'); }); }); 1`] = `
+exports[`no-parent-test-context > invalid(5): import test from 'node:test';\ntest('parent', async t => { await t.test('child', () => { t.test('grandchild'); }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('parent', async t => { await t.test('child', () => { t.test('grandchild'); }); });
+
+`;
+
+exports[`no-parent-test-context > invalid(5): import test from 'node:test';\ntest('parent', async t => { await t.test('child', () => { t.test('grandchild'); }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('parent', async t => { await t.test('child', () => { t.test('grandchild'); }); });
+    |                                                           ^ Do not use the parent test context \`t\` inside this subtest. Use this subtest's own context instead.
+
+`;
+
+exports[`no-parent-test-context > invalid(6): import test from 'node:test';\ntest('parent', async t => { await t.test('child', t2 => { t.mock.method(fs, 'readFileSync', () => '{}'); }); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('parent', async t => { await t.test('child', t2 => { t.mock.method(fs, 'readFileSync', () => '{}'); }); });
 
 `;
 
-exports[`no-parent-test-context > invalid(5): import test from 'node:test';\ntest('parent', async t => { await t.test('child', t2 => { t.mock.method(fs, 'readFileSync', () => '{}'); }); }); 2`] = `
+exports[`no-parent-test-context > invalid(6): import test from 'node:test';\ntest('parent', async t => { await t.test('child', t2 => { t.mock.method(fs, 'readFileSync', () => '{}'); }); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -250,14 +394,14 @@ Suggestion 1/1: Replace \`t\` with \`t2\`.:
 
 `;
 
-exports[`no-parent-test-context > invalid(6): import test from 'node:test';\ntest('parent', async t => { await t.test('child', t2 => t.mock.fn()); }); 1`] = `
+exports[`no-parent-test-context > invalid(7): import test from 'node:test';\ntest('parent', async t => { await t.test('child', t2 => t.mock.fn()); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('parent', async t => { await t.test('child', t2 => t.mock.fn()); });
 
 `;
 
-exports[`no-parent-test-context > invalid(6): import test from 'node:test';\ntest('parent', async t => { await t.test('child', t2 => t.mock.fn()); }); 2`] = `
+exports[`no-parent-test-context > invalid(7): import test from 'node:test';\ntest('parent', async t => { await t.test('child', t2 => t.mock.fn()); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -270,14 +414,14 @@ Suggestion 1/1: Replace \`t\` with \`t2\`.:
 
 `;
 
-exports[`no-parent-test-context > invalid(7): import test from 'node:test';\ntest('parent', async t => { await t.test.only('child', t2 => { t.mock.fn(); }); }); 1`] = `
+exports[`no-parent-test-context > invalid(8): import test from 'node:test';\ntest('parent', async t => { await t.test.only('child', t2 => { t.mock.fn(); }); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('parent', async t => { await t.test.only('child', t2 => { t.mock.fn(); }); });
 
 `;
 
-exports[`no-parent-test-context > invalid(7): import test from 'node:test';\ntest('parent', async t => { await t.test.only('child', t2 => { t.mock.fn(); }); }); 2`] = `
+exports[`no-parent-test-context > invalid(8): import test from 'node:test';\ntest('parent', async t => { await t.test.only('child', t2 => { t.mock.fn(); }); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -290,34 +434,22 @@ Suggestion 1/1: Replace \`t\` with \`t2\`.:
 
 `;
 
-exports[`no-parent-test-context > invalid(8): import test from 'node:test';\ntest('parent', async t => { await t.test('child', t2 => { { const t2 = other; t.mock.fn(); } }); }); 1`] = `
+exports[`no-parent-test-context > invalid(9): import test from 'node:test';\ntest('parent', async (t = fallback) => { await t.test('child', t2 => { t.mock.fn(); }); }); 1`] = `
 
   1 | import test from 'node:test';
-  2 | test('parent', async t => { await t.test('child', t2 => { { const t2 = other; t.mock.fn(); } }); });
+  2 | test('parent', async (t = fallback) => { await t.test('child', t2 => { t.mock.fn(); }); });
 
 `;
 
-exports[`no-parent-test-context > invalid(8): import test from 'node:test';\ntest('parent', async t => { await t.test('child', t2 => { { const t2 = other; t.mock.fn(); } }); }); 2`] = `
+exports[`no-parent-test-context > invalid(9): import test from 'node:test';\ntest('parent', async (t = fallback) => { await t.test('child', t2 => { t.mock.fn(); }); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
-> 2 | test('parent', async t => { await t.test('child', t2 => { { const t2 = other; t.mock.fn(); } }); });
-    |                                                                               ^ Do not use the parent test context \`t\` inside this subtest. Use this subtest's own context instead.
+> 2 | test('parent', async (t = fallback) => { await t.test('child', t2 => { t.mock.fn(); }); });
+    |                                                                        ^ Do not use the parent test context \`t\` inside this subtest. Use this subtest's own context instead.
 
-`;
-
-exports[`no-parent-test-context > invalid(9): import test from 'node:test';\ntest('parent', async t => { await t.test('child', t2 => { const value = {t}; }); }); 1`] = `
-
+Suggestion 1/1: Replace \`t\` with \`t2\`.:
   1 | import test from 'node:test';
-  2 | test('parent', async t => { await t.test('child', t2 => { const value = {t}; }); });
-
-`;
-
-exports[`no-parent-test-context > invalid(9): import test from 'node:test';\ntest('parent', async t => { await t.test('child', t2 => { const value = {t}; }); }); 2`] = `
-
-Message:
-  1 | import test from 'node:test';
-> 2 | test('parent', async t => { await t.test('child', t2 => { const value = {t}; }); });
-    |                                                                          ^ Do not use the parent test context \`t\` inside this subtest. Use this subtest's own context instead.
+  2 | test('parent', async (t = fallback) => { await t.test('child', t2 => { t2.mock.fn(); }); });
 
 `;

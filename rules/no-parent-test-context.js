@@ -44,12 +44,20 @@ function isInsideNode(node, container, sourceCode) {
 	return nodeStart >= containerStart && nodeEnd <= containerEnd;
 }
 
-function getParameterVariable(parameter, sourceCode) {
-	if (parameter?.type !== 'Identifier') {
-		return;
+function getParameterIdentifier(parameter) {
+	if (parameter?.type === 'Identifier') {
+		return parameter;
 	}
 
-	return findVariable(sourceCode.getScope(parameter), parameter) ?? undefined;
+	if (parameter?.type === 'AssignmentPattern' && parameter.left.type === 'Identifier') {
+		return parameter.left;
+	}
+}
+
+function getParameterVariable(parameter, sourceCode) {
+	const identifier = getParameterIdentifier(parameter);
+
+	return identifier ? findVariable(sourceCode.getScope(identifier), identifier) : undefined;
 }
 
 function getResolvedReference(node, sourceCode) {
@@ -60,8 +68,8 @@ function getResolvedReference(node, sourceCode) {
 		?.resolved;
 }
 
-function getParentContextFrame(frames, variable) {
-	for (let index = frames.length - 2; index >= 0; index -= 1) {
+function getParentContextFrame(frames, variable, currentFrameIndex) {
+	for (let index = currentFrameIndex - 1; index >= 0; index -= 1) {
 		const frame = frames[index];
 		if (frame.contextVariable === variable) {
 			return frame;
@@ -87,6 +95,15 @@ function isShorthandPropertyValue(node) {
 	return node.parent.type === 'Property' && node.parent.shorthand;
 }
 
+function isSubtestReceiver(node) {
+	let current = node.parent;
+	while (current?.type === 'MemberExpression') {
+		current = current.parent;
+	}
+
+	return current?.type === 'CallExpression' && getSubtestReceiver(current) === node;
+}
+
 function canSuggestContextReplacement(node, currentFrame, sourceCode) {
 	if (
 		!currentFrame.contextParameter
@@ -99,12 +116,22 @@ function canSuggestContextReplacement(node, currentFrame, sourceCode) {
 	return findVariable(sourceCode.getScope(node), currentFrame.contextParameter.name) === currentFrame.contextVariable;
 }
 
+function getContainingFrameIndex(node, frames, sourceCode) {
+	for (let index = frames.length - 1; index >= 0; index -= 1) {
+		if (isInsideNode(node, frames[index].callback, sourceCode)) {
+			return index;
+		}
+	}
+}
+
 function getParentContextProblem(node, frames, sourceCode) {
-	const currentFrame = frames.at(-1);
-	if (
-		!currentFrame?.isSubtest
-		|| !isInsideNode(node, currentFrame.callback, sourceCode)
-	) {
+	const currentFrameIndex = getContainingFrameIndex(node, frames, sourceCode);
+	if (currentFrameIndex === undefined) {
+		return;
+	}
+
+	const currentFrame = frames[currentFrameIndex];
+	if (!currentFrame.isSubtest) {
 		return;
 	}
 
@@ -113,7 +140,7 @@ function getParentContextProblem(node, frames, sourceCode) {
 		return;
 	}
 
-	const parentFrame = getParentContextFrame(frames, variable);
+	const parentFrame = getParentContextFrame(frames, variable, currentFrameIndex);
 	if (!parentFrame) {
 		return;
 	}
@@ -175,7 +202,7 @@ const create = context => {
 		frames.push({
 			node,
 			callback,
-			contextParameter: contextParameter?.type === 'Identifier' ? contextParameter : undefined,
+			contextParameter: getParameterIdentifier(contextParameter),
 			contextVariable,
 			isSubtest,
 		});
@@ -183,7 +210,13 @@ const create = context => {
 		return receiverProblem;
 	});
 
-	context.on('Identifier', node => getParentContextProblem(node, frames, sourceCode));
+	context.on('Identifier', node => {
+		if (isSubtestReceiver(node)) {
+			return;
+		}
+
+		return getParentContextProblem(node, frames, sourceCode);
+	});
 
 	context.onExit('CallExpression', node => {
 		if (frames.at(-1)?.node === node) {
