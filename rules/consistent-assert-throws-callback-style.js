@@ -11,10 +11,12 @@ import {
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
-const MESSAGE_ID = 'prefer-assert-throws-block';
+const MESSAGE_ID_PREFER_BLOCK = 'consistent-assert-throws-callback-style/prefer-block';
+const MESSAGE_ID_PREFER_EXPRESSION = 'consistent-assert-throws-callback-style/prefer-expression';
 
 const messages = {
-	[MESSAGE_ID]: 'Use a block body for the `assert.throws()` callback.',
+	[MESSAGE_ID_PREFER_BLOCK]: 'Use a block body for the `assert.throws()` callback.',
+	[MESSAGE_ID_PREFER_EXPRESSION]: 'Use an expression body for the `assert.throws()` callback.',
 };
 
 const expressionStatementUnsafeTypes = new Set([
@@ -22,6 +24,11 @@ const expressionStatementUnsafeTypes = new Set([
 	'ClassExpression',
 	'FunctionExpression',
 	'ObjectExpression',
+]);
+
+const arrowExpressionBodyUnsafeTypes = new Set([
+	...expressionStatementUnsafeTypes,
+	'SequenceExpression',
 ]);
 
 function getLineIndentation(sourceCode, node) {
@@ -66,37 +73,49 @@ function hasLineCommentInRange(sourceCode, range) {
 	return sourceCode.getAllComments().some(comment => comment.type === 'Line' && sourceCode.getRange(comment)[0] >= range[0] && sourceCode.getRange(comment)[1] <= range[1]);
 }
 
-function canFixCallback(callback, context) {
+function isBodyOnSameLine(callback, context) {
+	return context.sourceCode.getLoc(callback.body).start.line === context.sourceCode.getLoc(callback).start.line;
+}
+
+function canFixExpressionCallback(callback, context) {
 	const {sourceCode} = context;
 	const replacement = getExpressionReplacement(callback.body, context);
 
 	return (
-		!callback.async
+		isBodyOnSameLine(callback, context)
+		&& !callback.async
 		&& !callback.returnType
 		&& !hasLineCommentInRange(sourceCode, sourceCode.getRange(replacement))
 		&& !hasTrailingComment(sourceCode, callback.body, context)
 	);
 }
 
-function getAssertImportIdentifier(node, imports) {
-	const {callee} = node;
-	if (
-		callee.type === 'Identifier'
-		&& (imports.assertNamed.has(callee.name) || imports.assertNamespace.has(callee.name))
-	) {
-		return callee;
+function getSingleExpressionStatement(callback) {
+	if (callback.body.type !== 'BlockStatement' || callback.body.body.length !== 1) {
+		return undefined;
 	}
 
-	if (
-		callee.type === 'MemberExpression'
-		&& !callee.computed
-		&& callee.object.type === 'Identifier'
-		&& imports.assertNamespace.has(callee.object.name)
-	) {
-		return callee.object;
-	}
+	const [statement] = callback.body.body;
+	return statement.type === 'ExpressionStatement' ? statement : undefined;
+}
 
-	return undefined;
+function getExpressionBodyReplacement(statement, context) {
+	const {sourceCode} = context;
+	const {expression} = statement;
+	const text = sourceCode.getText(expression);
+	const unwrappedExpression = unwrapTypeScriptExpression(expression);
+
+	return arrowExpressionBodyUnsafeTypes.has(unwrappedExpression.type) ? `(${text})` : text;
+}
+
+function canFixBlockCallback(callback, context) {
+	const {sourceCode} = context;
+	return (
+		isBodyOnSameLine(callback, context)
+		&& !callback.async
+		&& !callback.returnType
+		&& sourceCode.getCommentsInside(callback.body).length === 0
+	);
 }
 
 function getContextAssertIdentifier(node) {
@@ -116,11 +135,6 @@ function getContextAssertIdentifier(node) {
 	return undefined;
 }
 
-function isImportBinding(identifier, sourceCode) {
-	const variable = findVariable(sourceCode.getScope(identifier), identifier);
-	return variable?.defs.some(definition => definition.type === 'ImportBinding') ?? false;
-}
-
 function isCurrentTestContextIdentifier(identifier, tracker, sourceCode) {
 	const callback = tracker.currentCallback();
 	if (!callback || !tracker.isContextName(identifier.name)) {
@@ -131,40 +145,24 @@ function isCurrentTestContextIdentifier(identifier, tracker, sourceCode) {
 	return variable?.identifiers.some(identifier => callback.params.includes(identifier)) ?? false;
 }
 
-function isSupportedAssertionCall(node, imports, context, tracker) {
+function isSupportedAssertionCall(node, context, tracker) {
 	const {sourceCode} = context;
-	const assertImportIdentifier = getAssertImportIdentifier(node, imports);
-	if (assertImportIdentifier) {
-		return isImportBinding(assertImportIdentifier, sourceCode);
-	}
-
 	const contextAssertIdentifier = getContextAssertIdentifier(node);
-	return contextAssertIdentifier ? isCurrentTestContextIdentifier(contextAssertIdentifier, tracker, sourceCode) : false;
+	return !contextAssertIdentifier || isCurrentTestContextIdentifier(contextAssertIdentifier, tracker, sourceCode);
 }
 
-function getProblem(node, context, imports, tracker) {
+function getBlockStyleProblem(callback, context) {
+	if (callback.body.type === 'BlockStatement') {
+		return undefined;
+	}
+
 	const {sourceCode} = context;
-	const assertion = parseAssertionCall(node, imports);
-	if (assertion?.method !== 'throws' || !isSupportedAssertionCall(node, imports, context, tracker)) {
-		return undefined;
-	}
-
-	const [firstArgument] = node.arguments;
-	const callback = firstArgument && unwrapTypeScriptExpression(firstArgument);
-	if (
-		!callback
-		|| callback.type !== 'ArrowFunctionExpression'
-		|| callback.body.type === 'BlockStatement'
-	) {
-		return undefined;
-	}
-
 	const problem = {
 		node: callback.body,
-		messageId: MESSAGE_ID,
+		messageId: MESSAGE_ID_PREFER_BLOCK,
 	};
 
-	if (canFixCallback(callback, context)) {
+	if (canFixExpressionCallback(callback, context)) {
 		problem.fix = fixer => {
 			const indentation = getLineIndentation(sourceCode, callback);
 			const replacement = getExpressionReplacement(callback.body, context);
@@ -179,6 +177,46 @@ function getProblem(node, context, imports, tracker) {
 	return problem;
 }
 
+function getExpressionStyleProblem(callback, context) {
+	const statement = getSingleExpressionStatement(callback);
+	if (!statement) {
+		return undefined;
+	}
+
+	const problem = {
+		node: callback.body,
+		messageId: MESSAGE_ID_PREFER_EXPRESSION,
+	};
+
+	if (canFixBlockCallback(callback, context)) {
+		problem.fix = fixer => fixer.replaceText(
+			callback.body,
+			getExpressionBodyReplacement(statement, context),
+		);
+	}
+
+	return problem;
+}
+
+function getProblem(node, context, state) {
+	const {imports, tracker, style} = state;
+	const assertion = parseAssertionCall(node, imports);
+	if (assertion?.method !== 'throws' || !isSupportedAssertionCall(node, context, tracker)) {
+		return undefined;
+	}
+
+	const [firstArgument] = node.arguments;
+	const callback = firstArgument && unwrapTypeScriptExpression(firstArgument);
+	if (
+		!callback
+		|| callback.type !== 'ArrowFunctionExpression'
+	) {
+		return undefined;
+	}
+
+	return style === 'block' ? getBlockStyleProblem(callback, context) : getExpressionStyleProblem(callback, context);
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const imports = resolveImports(context);
@@ -187,9 +225,11 @@ const create = context => {
 	}
 
 	const tracker = createContextTracker(imports);
+	const {style} = context.options[0];
+	const state = {imports, tracker, style};
 
 	context.on('CallExpression', node => {
-		const problem = getProblem(node, context, imports, tracker);
+		const problem = getProblem(node, context, state);
 		tracker.update(node);
 		return problem;
 	});
@@ -205,11 +245,23 @@ const config = {
 	meta: {
 		type: 'layout',
 		docs: {
-			description: 'Prefer block-bodied callbacks in `assert.throws()`.',
+			description: 'Enforce a consistent body style for `assert.throws()` callbacks.',
 			recommended: false,
 		},
 		fixable: 'code',
-		schema: [],
+		schema: [
+			{
+				type: 'object',
+				properties: {
+					style: {
+						enum: ['block', 'expression'],
+						description: 'Whether `assert.throws()` callbacks should use block bodies or expression bodies.',
+					},
+				},
+				additionalProperties: false,
+			},
+		],
+		defaultOptions: [{style: 'block'}],
 		messages,
 		languages: ['js/js'],
 	},

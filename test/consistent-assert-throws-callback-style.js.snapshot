@@ -1,0 +1,1015 @@
+exports[`consistent-assert-throws-callback-style > invalid(1): import assert from 'node:assert';\nassert.throws(() => parse(input)); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => parse(input));
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(1): import assert from 'node:assert';\nassert.throws(() => parse(input)); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws(() => parse(input));
+    |                     ^^^^^^^^^^^^ Use a block body for the \`assert.throws()\` callback.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => {
+  3 | 	parse(input);
+  4 | });
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(10): import {throws} from 'node:assert/strict';\nthrows(() => parse(input)); 1`] = `
+
+  1 | import {throws} from 'node:assert/strict';
+  2 | throws(() => parse(input));
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(10): import {throws} from 'node:assert/strict';\nthrows(() => parse(input)); 2`] = `
+
+Message:
+  1 | import {throws} from 'node:assert/strict';
+> 2 | throws(() => parse(input));
+    |              ^^^^^^^^^^^^ Use a block body for the \`assert.throws()\` callback.
+
+Output:
+  1 | import {throws} from 'node:assert/strict';
+  2 | throws(() => {
+  3 | 	parse(input);
+  4 | });
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(11): import {throws as assertThrows} from 'node:assert';\nassertThrows(() => parse(input)); 1`] = `
+
+  1 | import {throws as assertThrows} from 'node:assert';
+  2 | assertThrows(() => parse(input));
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(11): import {throws as assertThrows} from 'node:assert';\nassertThrows(() => parse(input)); 2`] = `
+
+Message:
+  1 | import {throws as assertThrows} from 'node:assert';
+> 2 | assertThrows(() => parse(input));
+    |                    ^^^^^^^^^^^^ Use a block body for the \`assert.throws()\` callback.
+
+Output:
+  1 | import {throws as assertThrows} from 'node:assert';
+  2 | assertThrows(() => {
+  3 | 	parse(input);
+  4 | });
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(12): import test from 'node:test';\ntest('t', t => {\n\tt.assert.throws(() => parse(input));\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+  3 | 	t.assert.throws(() => parse(input));
+  4 | });
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(12): import test from 'node:test';\ntest('t', t => {\n\tt.assert.throws(() => parse(input));\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+> 3 | 	t.assert.throws(() => parse(input));
+    | 	                      ^^^^^^^^^^^^ Use a block body for the \`assert.throws()\` callback.
+  4 | });
+
+Output:
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+  3 | 	t.assert.throws(() => {
+  4 | 		parse(input);
+  5 | 	});
+  6 | });
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(13): import assert from 'node:assert';\nassert.throws(async () => parseAsync(input)); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.throws(async () => parseAsync(input));
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(13): import assert from 'node:assert';\nassert.throws(async () => parseAsync(input)); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws(async () => parseAsync(input));
+    |                           ^^^^^^^^^^^^^^^^^ Use a block body for the \`assert.throws()\` callback.
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(14): import assert from 'node:assert';\nassert.throws(() => parse?.(input)); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => parse?.(input));
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(14): import assert from 'node:assert';\nassert.throws(() => parse?.(input)); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws(() => parse?.(input));
+    |                     ^^^^^^^^^^^^^^ Use a block body for the \`assert.throws()\` callback.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => {
+  3 | 	parse?.(input);
+  4 | });
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(15): import assert from 'node:assert';\nassert.throws(() => /* comment */ parse(input)); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => /* comment */ parse(input));
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(15): import assert from 'node:assert';\nassert.throws(() => /* comment */ parse(input)); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws(() => /* comment */ parse(input));
+    |                                   ^^^^^^^^^^^^ Use a block body for the \`assert.throws()\` callback.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => {
+  3 | 	/* comment */ parse(input);
+  4 | });
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(16): import assert from 'node:assert';\nassert.throws(() => // comment\nparse(input)); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => // comment
+  3 | parse(input));
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(16): import assert from 'node:assert';\nassert.throws(() => // comment\nparse(input)); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => // comment
+> 3 | parse(input));
+    | ^^^^^^^^^^^^ Use a block body for the \`assert.throws()\` callback.
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(17): import assert from 'node:assert';\nassert.throws(() => (parse(input) // comment\n), SyntaxError); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => (parse(input) // comment
+  3 | ), SyntaxError);
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(17): import assert from 'node:assert';\nassert.throws(() => (parse(input) // comment\n), SyntaxError); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws(() => (parse(input) // comment
+    |                      ^^^^^^^^^^^^ Use a block body for the \`assert.throws()\` callback.
+  3 | ), SyntaxError);
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(18): import assert from 'node:assert';\nassert.throws(() => parse(input) /* comment */, SyntaxError); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => parse(input) /* comment */, SyntaxError);
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(18): import assert from 'node:assert';\nassert.throws(() => parse(input) /* comment */, SyntaxError); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws(() => parse(input) /* comment */, SyntaxError);
+    |                     ^^^^^^^^^^^^ Use a block body for the \`assert.throws()\` callback.
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(19): import assert from 'node:assert';\nassert.throws(() => parse(input) // comment\n, SyntaxError); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => parse(input) // comment
+  3 | , SyntaxError);
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(19): import assert from 'node:assert';\nassert.throws(() => parse(input) // comment\n, SyntaxError); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws(() => parse(input) // comment
+    |                     ^^^^^^^^^^^^ Use a block body for the \`assert.throws()\` callback.
+  3 | , SyntaxError);
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(2): import assert from 'node:assert';\nassert.throws(() => parse(input), SyntaxError); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => parse(input), SyntaxError);
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(2): import assert from 'node:assert';\nassert.throws(() => parse(input), SyntaxError); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws(() => parse(input), SyntaxError);
+    |                     ^^^^^^^^^^^^ Use a block body for the \`assert.throws()\` callback.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => {
+  3 | 	parse(input);
+  4 | }, SyntaxError);
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(20): import assert from 'node:assert';\nassert.throws(() => ({message: \"boom\"})); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => ({message: "boom"}));
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(20): import assert from 'node:assert';\nassert.throws(() => ({message: \"boom\"})); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws(() => ({message: "boom"}));
+    |                      ^^^^^^^^^^^^^^^^^ Use a block body for the \`assert.throws()\` callback.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => {
+  3 | 	({message: "boom"});
+  4 | });
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(21): import assert from 'node:assert';\nassert.throws(() => function () {}); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => function () {});
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(21): import assert from 'node:assert';\nassert.throws(() => function () {}); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws(() => function () {});
+    |                     ^^^^^^^^^^^^^^ Use a block body for the \`assert.throws()\` callback.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => {
+  3 | 	(function () {});
+  4 | });
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(22): import assert from 'node:assert';\nassert.throws(() => class {}); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => class {});
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(22): import assert from 'node:assert';\nassert.throws(() => class {}); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws(() => class {});
+    |                     ^^^^^^^^ Use a block body for the \`assert.throws()\` callback.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => {
+  3 | 	(class {});
+  4 | });
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(23): import assert from 'node:assert';\nassert.throws(() => ({value} = object)); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => ({value} = object));
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(23): import assert from 'node:assert';\nassert.throws(() => ({value} = object)); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws(() => ({value} = object));
+    |                      ^^^^^^^^^^^^^^^^ Use a block body for the \`assert.throws()\` callback.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => {
+  3 | 	({value} = object);
+  4 | });
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(24): import assert from 'node:assert';\nassert.throws((): void => parse(input)); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.throws((): void => parse(input));
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(24): import assert from 'node:assert';\nassert.throws((): void => parse(input)); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws((): void => parse(input));
+    |                           ^^^^^^^^^^^^ Use a block body for the \`assert.throws()\` callback.
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(25): import assert from 'node:assert';\nassert.throws((): string => parse(input)); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.throws((): string => parse(input));
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(25): import assert from 'node:assert';\nassert.throws((): string => parse(input)); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws((): string => parse(input));
+    |                             ^^^^^^^^^^^^ Use a block body for the \`assert.throws()\` callback.
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(26): import assert from 'node:assert';\nassert.throws(<T>() => parse(input)); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.throws(<T>() => parse(input));
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(26): import assert from 'node:assert';\nassert.throws(<T>() => parse(input)); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws(<T>() => parse(input));
+    |                        ^^^^^^^^^^^^ Use a block body for the \`assert.throws()\` callback.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.throws(<T>() => {
+  3 | 	parse(input);
+  4 | });
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(27): import assert from 'node:assert';\nassert.throws(() => parse(input) as never); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => parse(input) as never);
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(27): import assert from 'node:assert';\nassert.throws(() => parse(input) as never); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws(() => parse(input) as never);
+    |                     ^^^^^^^^^^^^^^^^^^^^^ Use a block body for the \`assert.throws()\` callback.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => {
+  3 | 	parse(input) as never;
+  4 | });
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(28): import assert from 'node:assert';\nassert.throws(() => function () {} as Function); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => function () {} as Function);
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(28): import assert from 'node:assert';\nassert.throws(() => function () {} as Function); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws(() => function () {} as Function);
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^ Use a block body for the \`assert.throws()\` callback.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => {
+  3 | 	(function () {} as Function);
+  4 | });
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(29): import assert from 'node:assert';\nassert.throws(() => class {} as typeof Error); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => class {} as typeof Error);
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(29): import assert from 'node:assert';\nassert.throws(() => class {} as typeof Error); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws(() => class {} as typeof Error);
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^ Use a block body for the \`assert.throws()\` callback.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => {
+  3 | 	(class {} as typeof Error);
+  4 | });
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(3): import assert from 'node:assert';\nassert.throws(() =>\n\tparse(input)); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() =>
+  3 | 	parse(input));
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(3): import assert from 'node:assert';\nassert.throws(() =>\n\tparse(input)); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() =>
+> 3 | 	parse(input));
+    | 	^^^^^^^^^^^^ Use a block body for the \`assert.throws()\` callback.
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(30): import assert from 'node:assert';\nassert.throws((() => parse(input)) as () => void); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.throws((() => parse(input)) as () => void);
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(30): import assert from 'node:assert';\nassert.throws((() => parse(input)) as () => void); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws((() => parse(input)) as () => void);
+    |                      ^^^^^^^^^^^^ Use a block body for the \`assert.throws()\` callback.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.throws((() => {
+  3 | 	parse(input);
+  4 | }) as () => void);
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(31): import assert from 'node:assert';\nassert.throws((() => parse(input))!); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.throws((() => parse(input))!);
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(31): import assert from 'node:assert';\nassert.throws((() => parse(input))!); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws((() => parse(input))!);
+    |                      ^^^^^^^^^^^^ Use a block body for the \`assert.throws()\` callback.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.throws((() => {
+  3 | 	parse(input);
+  4 | })!);
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(32): import assert from 'node:assert';\nassert.throws((() => parse(input)) satisfies () => void); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.throws((() => parse(input)) satisfies () => void);
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(32): import assert from 'node:assert';\nassert.throws((() => parse(input)) satisfies () => void); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws((() => parse(input)) satisfies () => void);
+    |                      ^^^^^^^^^^^^ Use a block body for the \`assert.throws()\` callback.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.throws((() => {
+  3 | 	parse(input);
+  4 | }) satisfies () => void);
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(33): import assert from 'node:assert';\nassert.throws(() => {\n\tparse(input);\n}); 1`] = `
+
+Options:
+- style: 'expression'
+
+Code:
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => {
+  3 | 	parse(input);
+  4 | });
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(33): import assert from 'node:assert';\nassert.throws(() => {\n\tparse(input);\n}); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws(() => {
+    |                     ^
+> 3 | 	parse(input);
+    | ^^^^^^^^^^^^^^
+> 4 | });
+    | ^ Use an expression body for the \`assert.throws()\` callback.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => parse(input));
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(34): import assert from 'node:assert';\nassert.throws(() =>\n{\n\tparse(input);\n}); 1`] = `
+
+Options:
+- style: 'expression'
+
+Code:
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() =>
+  3 | {
+  4 | 	parse(input);
+  5 | });
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(34): import assert from 'node:assert';\nassert.throws(() =>\n{\n\tparse(input);\n}); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() =>
+> 3 | {
+    | ^
+> 4 | 	parse(input);
+    | ^^^^^^^^^^^^^^
+> 5 | });
+    | ^ Use an expression body for the \`assert.throws()\` callback.
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(35): import test from 'node:test';\ntest('t', t => {\n\tt.assert.throws(() => {\n\t\tparse(input);\n\t});\n}); 1`] = `
+
+Options:
+- style: 'expression'
+
+Code:
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+  3 | 	t.assert.throws(() => {
+  4 | 		parse(input);
+  5 | 	});
+  6 | });
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(35): import test from 'node:test';\ntest('t', t => {\n\tt.assert.throws(() => {\n\t\tparse(input);\n\t});\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+> 3 | 	t.assert.throws(() => {
+    | 	                      ^
+> 4 | 		parse(input);
+    | ^^^^^^^^^^^^^^^
+> 5 | 	});
+    | ^^ Use an expression body for the \`assert.throws()\` callback.
+  6 | });
+
+Output:
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+  3 | 	t.assert.throws(() => parse(input));
+  4 | });
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(36): import test from 'node:test';\ntest('t', t => {\n\tt.test('nested', t => {\n\t\tt.assert.throws(() => {\n\t\t\tparse(input);\n\t\t});\n\t});\n}); 1`] = `
+
+Options:
+- style: 'expression'
+
+Code:
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+  3 | 	t.test('nested', t => {
+  4 | 		t.assert.throws(() => {
+  5 | 			parse(input);
+  6 | 		});
+  7 | 	});
+  8 | });
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(36): import test from 'node:test';\ntest('t', t => {\n\tt.test('nested', t => {\n\t\tt.assert.throws(() => {\n\t\t\tparse(input);\n\t\t});\n\t});\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+  3 | 	t.test('nested', t => {
+> 4 | 		t.assert.throws(() => {
+    | 		                      ^
+> 5 | 			parse(input);
+    | ^^^^^^^^^^^^^^^^
+> 6 | 		});
+    | ^^^ Use an expression body for the \`assert.throws()\` callback.
+  7 | 	});
+  8 | });
+
+Output:
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+  3 | 	t.test('nested', t => {
+  4 | 		t.assert.throws(() => parse(input));
+  5 | 	});
+  6 | });
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(37): import assert from 'node:assert';\nassert.throws(() => {\n\tparse(input);\n}, SyntaxError); 1`] = `
+
+Options:
+- style: 'expression'
+
+Code:
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => {
+  3 | 	parse(input);
+  4 | }, SyntaxError);
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(37): import assert from 'node:assert';\nassert.throws(() => {\n\tparse(input);\n}, SyntaxError); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws(() => {
+    |                     ^
+> 3 | 	parse(input);
+    | ^^^^^^^^^^^^^^
+> 4 | }, SyntaxError);
+    | ^ Use an expression body for the \`assert.throws()\` callback.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => parse(input), SyntaxError);
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(38): import assert from 'node:assert';\nassert.throws(() => {\n\t({message: \"boom\"});\n}); 1`] = `
+
+Options:
+- style: 'expression'
+
+Code:
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => {
+  3 | 	({message: "boom"});
+  4 | });
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(38): import assert from 'node:assert';\nassert.throws(() => {\n\t({message: \"boom\"});\n}); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws(() => {
+    |                     ^
+> 3 | 	({message: "boom"});
+    | ^^^^^^^^^^^^^^^^^^^^^
+> 4 | });
+    | ^ Use an expression body for the \`assert.throws()\` callback.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => ({message: "boom"}));
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(39): import assert from 'node:assert';\nassert.throws(() => {\n\t(first(), second());\n}, Error); 1`] = `
+
+Options:
+- style: 'expression'
+
+Code:
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => {
+  3 | 	(first(), second());
+  4 | }, Error);
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(39): import assert from 'node:assert';\nassert.throws(() => {\n\t(first(), second());\n}, Error); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws(() => {
+    |                     ^
+> 3 | 	(first(), second());
+    | ^^^^^^^^^^^^^^^^^^^^^
+> 4 | }, Error);
+    | ^ Use an expression body for the \`assert.throws()\` callback.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => (first(), second()), Error);
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(4): import test from 'node:test';\nimport assert from 'node:assert';\ntest('nested', () => {\n\tassert.throws(() => parse(input), SyntaxError);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('nested', () => {
+  4 | 	assert.throws(() => parse(input), SyntaxError);
+  5 | });
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(4): import test from 'node:test';\nimport assert from 'node:assert';\ntest('nested', () => {\n\tassert.throws(() => parse(input), SyntaxError);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('nested', () => {
+> 4 | 	assert.throws(() => parse(input), SyntaxError);
+    | 	                    ^^^^^^^^^^^^ Use a block body for the \`assert.throws()\` callback.
+  5 | });
+
+Output:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('nested', () => {
+  4 | 	assert.throws(() => {
+  5 | 		parse(input);
+  6 | 	}, SyntaxError);
+  7 | });
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(40): import assert from 'node:assert';\nassert.throws(async () => {\n\tparseAsync(input);\n}); 1`] = `
+
+Options:
+- style: 'expression'
+
+Code:
+  1 | import assert from 'node:assert';
+  2 | assert.throws(async () => {
+  3 | 	parseAsync(input);
+  4 | });
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(40): import assert from 'node:assert';\nassert.throws(async () => {\n\tparseAsync(input);\n}); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws(async () => {
+    |                           ^
+> 3 | 	parseAsync(input);
+    | ^^^^^^^^^^^^^^^^^^^
+> 4 | });
+    | ^ Use an expression body for the \`assert.throws()\` callback.
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(41): import assert from 'node:assert';\nassert.throws(() => {\n\t// comment\n\tparse(input);\n}); 1`] = `
+
+Options:
+- style: 'expression'
+
+Code:
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => {
+  3 | 	// comment
+  4 | 	parse(input);
+  5 | });
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(41): import assert from 'node:assert';\nassert.throws(() => {\n\t// comment\n\tparse(input);\n}); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws(() => {
+    |                     ^
+> 3 | 	// comment
+    | ^^^^^^^^^^^
+> 4 | 	parse(input);
+    | ^^^^^^^^^^^^^^
+> 5 | });
+    | ^ Use an expression body for the \`assert.throws()\` callback.
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(42): import assert from 'node:assert';\nassert.throws((): void => {\n\tparse(input);\n}); 1`] = `
+
+Options:
+- style: 'expression'
+
+Code:
+  1 | import assert from 'node:assert';
+  2 | assert.throws((): void => {
+  3 | 	parse(input);
+  4 | });
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(42): import assert from 'node:assert';\nassert.throws((): void => {\n\tparse(input);\n}); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws((): void => {
+    |                           ^
+> 3 | 	parse(input);
+    | ^^^^^^^^^^^^^^
+> 4 | });
+    | ^ Use an expression body for the \`assert.throws()\` callback.
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(43): import assert from 'node:assert';\nassert.throws((() => {\n\tparse(input);\n}) as () => void); 1`] = `
+
+Options:
+- style: 'expression'
+
+Code:
+  1 | import assert from 'node:assert';
+  2 | assert.throws((() => {
+  3 | 	parse(input);
+  4 | }) as () => void);
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(43): import assert from 'node:assert';\nassert.throws((() => {\n\tparse(input);\n}) as () => void); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws((() => {
+    |                      ^
+> 3 | 	parse(input);
+    | ^^^^^^^^^^^^^^
+> 4 | }) as () => void);
+    | ^ Use an expression body for the \`assert.throws()\` callback.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.throws((() => parse(input)) as () => void);
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(5): import assert from 'node:assert/strict';\nassert.throws(() => parse(input)); 1`] = `
+
+  1 | import assert from 'node:assert/strict';
+  2 | assert.throws(() => parse(input));
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(5): import assert from 'node:assert/strict';\nassert.throws(() => parse(input)); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert/strict';
+> 2 | assert.throws(() => parse(input));
+    |                     ^^^^^^^^^^^^ Use a block body for the \`assert.throws()\` callback.
+
+Output:
+  1 | import assert from 'node:assert/strict';
+  2 | assert.throws(() => {
+  3 | 	parse(input);
+  4 | });
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(6): import * as assert from 'node:assert';\nassert.throws(() => parse(input)); 1`] = `
+
+  1 | import * as assert from 'node:assert';
+  2 | assert.throws(() => parse(input));
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(6): import * as assert from 'node:assert';\nassert.throws(() => parse(input)); 2`] = `
+
+Message:
+  1 | import * as assert from 'node:assert';
+> 2 | assert.throws(() => parse(input));
+    |                     ^^^^^^^^^^^^ Use a block body for the \`assert.throws()\` callback.
+
+Output:
+  1 | import * as assert from 'node:assert';
+  2 | assert.throws(() => {
+  3 | 	parse(input);
+  4 | });
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(7): import assert from 'assert';\nassert.throws(() => parse(input)); 1`] = `
+
+  1 | import assert from 'assert';
+  2 | assert.throws(() => parse(input));
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(7): import assert from 'assert';\nassert.throws(() => parse(input)); 2`] = `
+
+Message:
+  1 | import assert from 'assert';
+> 2 | assert.throws(() => parse(input));
+    |                     ^^^^^^^^^^^^ Use a block body for the \`assert.throws()\` callback.
+
+Output:
+  1 | import assert from 'assert';
+  2 | assert.throws(() => {
+  3 | 	parse(input);
+  4 | });
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(8): import assert from 'assert/strict';\nassert.throws(() => parse(input)); 1`] = `
+
+  1 | import assert from 'assert/strict';
+  2 | assert.throws(() => parse(input));
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(8): import assert from 'assert/strict';\nassert.throws(() => parse(input)); 2`] = `
+
+Message:
+  1 | import assert from 'assert/strict';
+> 2 | assert.throws(() => parse(input));
+    |                     ^^^^^^^^^^^^ Use a block body for the \`assert.throws()\` callback.
+
+Output:
+  1 | import assert from 'assert/strict';
+  2 | assert.throws(() => {
+  3 | 	parse(input);
+  4 | });
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(9): import {throws} from 'node:assert';\nthrows(() => parse(input)); 1`] = `
+
+  1 | import {throws} from 'node:assert';
+  2 | throws(() => parse(input));
+
+`;
+
+exports[`consistent-assert-throws-callback-style > invalid(9): import {throws} from 'node:assert';\nthrows(() => parse(input)); 2`] = `
+
+Message:
+  1 | import {throws} from 'node:assert';
+> 2 | throws(() => parse(input));
+    |              ^^^^^^^^^^^^ Use a block body for the \`assert.throws()\` callback.
+
+Output:
+  1 | import {throws} from 'node:assert';
+  2 | throws(() => {
+  3 | 	parse(input);
+  4 | });
+
+`;

@@ -12,6 +12,10 @@ test.snapshot({
 		// Not a node:assert file — ignored
 		'assert.strictEqual(a, b);',
 
+		// Shadowed assert imports are ignored
+		withAssert('function run(assert) {\n\tassert.strictEqual(a);\n}'),
+		withNamedImport('strictEqual', 'function run(strictEqual) {\n\tstrictEqual(a);\n}'),
+
 		// Ok — 1 required arg
 		withAssert('assert.ok(value);'),
 		withAssert('assert(value);'),
