@@ -162,6 +162,7 @@ On rebase, `rules/index.js` and the `readme.md` rules table almost always confli
 
 Use JavaScript syntax for configuration examples, not JSON-style quoted keys and strings, unless the example is specifically JSON.
 For rule configuration examples, put the severity and options on separate lines inside the rule array when the rule has options, and omit trailing commas.
+For rule examples, keep the `## Examples` heading. Prefer pairing each failing example with its passing counterpart in the same code block when feasible, and avoid one large block containing all failing and passing examples.
 
 ## Testing
 

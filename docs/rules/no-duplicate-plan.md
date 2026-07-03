@@ -7,9 +7,9 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-The test context's `plan()` method and the test-level `plan` option set the number of assertions and subtests expected to run in a test. Setting the plan more than once during the same test run fails at runtime with `cannot set plan more than once`, and usually means a previous refactor left a stale plan behind.
+Declare a plan only once per test. Both `t.plan()` and the test-level `plan` option set the expected assertion and subtest count, and setting it again fails at runtime.
 
-This rule reports the second and later direct `<context>.plan()` calls for the same test context, including when a valid positive integer `plan` option has already set the plan. Plans in separate tests or subtests are independent and not reported. Statically skipped test callbacks are ignored because they do not run, while todo test callbacks are still checked. To keep the rule simple, it is path-insensitive and does not follow aliases, destructuring, computed properties, or optional calls.
+Plans in separate tests and subtests are independent. Skipped callbacks are ignored; todo callbacks are checked. To stay simple, this rule is path-insensitive and ignores aliases, destructuring, computed properties, and optional calls.
 
 ## Examples
 
@@ -23,6 +23,16 @@ test('user', t => {
 	t.assert.ok(user.active);
 });
 
+// ✅
+test('user', t => {
+	t.plan(1);
+	t.assert.ok(user.active);
+});
+```
+
+```js
+import test from 'node:test';
+
 // ❌
 test('user', {plan: 1}, t => {
 	t.plan(1);
@@ -30,12 +40,6 @@ test('user', {plan: 1}, t => {
 });
 
 // ✅
-test('user', t => {
-	t.plan(1);
-	t.assert.ok(user.active);
-});
-
-// ✅ (separate subtest plan)
 test('user', t => {
 	t.plan(1);
 	t.test('permissions', t => {
