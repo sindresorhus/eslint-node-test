@@ -36,22 +36,8 @@ function getPlanContextIdentifier(node) {
 	return undefined;
 }
 
-function getCalleeRootIdentifier(node) {
-	node = unwrapTypeScriptExpression(node);
-
-	while (node.type === 'MemberExpression') {
-		node = unwrapTypeScriptExpression(node.object);
-	}
-
-	return node.type === 'Identifier' ? node : undefined;
-}
-
 function getIdentifierVariable(sourceCode, identifier) {
 	return findVariable(sourceCode.getScope(identifier), identifier);
-}
-
-function isImportedIdentifier(sourceCode, identifier) {
-	return getIdentifierVariable(sourceCode, identifier)?.defs.some(({type}) => type === 'ImportBinding') ?? false;
 }
 
 function isTestCall(parsed) {
@@ -137,15 +123,7 @@ const create = context => {
 	context.on('CallExpression', node => {
 		const parsed = parseTestCall(node, imports);
 		const isImportedTestCall = isTestCall(parsed);
-		const rootIdentifier = isImportedTestCall ? getCalleeRootIdentifier(node.callee) : undefined;
-		const isTest = (
-			(
-				isImportedTestCall
-				&& rootIdentifier !== undefined
-				&& isImportedIdentifier(sourceCode, rootIdentifier)
-			)
-			|| isSubtestCall(node)
-		);
+		const isTest = isImportedTestCall || isSubtestCall(node);
 
 		if (isTest) {
 			if (isSkippedTestCall(node, sourceCode)) {

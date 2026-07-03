@@ -28,6 +28,7 @@ test.snapshot({
 		// Skipped test callbacks do not run
 		withImport('test.skip("x", t => { t.plan(1); t.plan(2); });'),
 		withImport('test("x", {skip: true}, t => { t.plan(1); t.plan(2); });'),
+		withImport('test("x", {"skip": true}, t => { t.plan(1); t.plan(2); });'),
 		withImport('test("x", {skip: "reason"}, t => { t.plan(1); t.plan(2); });'),
 		withImport('test("parent", t => { t.test.skip("child", child => { child.plan(1); child.plan(2); }); });'),
 		withImport('test("parent", t => { t.test("child", {skip: true}, child => { child.plan(1); child.plan(2); }); });'),
@@ -101,6 +102,8 @@ test.snapshot({
 
 		// Plan option plus context plan
 		withImport('test("x", {plan: 1}, t => { t.plan(1); });'),
+		withImport('test("x", {"plan": 1}, t => { t.plan(1); });'),
+		withImport('test("x", {plan: 1}, t => { t.plan(1); t.plan(2); });'),
 		withImport('test({plan: 1}, t => { t.plan(1); });'),
 
 		// Duplicate inside a subtest with a plan option
