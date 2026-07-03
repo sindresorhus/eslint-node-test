@@ -14,14 +14,62 @@ Message:
 
 `;
 
-exports[`no-duplicate-plan > invalid(10): import test from 'node:test';\ntest(\"parent\", t => { t.test(\"child\", child => { child.plan(1); child.plan(2); }); }); 1`] = `
+exports[`no-duplicate-plan > invalid(10): import {test} from 'node:test';\ntest(\"x\", t => { t.plan(1); t.plan(2); }); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | test("x", t => { t.plan(1); t.plan(2); });
+
+`;
+
+exports[`no-duplicate-plan > invalid(10): import {test} from 'node:test';\ntest(\"x\", t => { t.plan(1); t.plan(2); }); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | test("x", t => { t.plan(1); t.plan(2); });
+    |                             ^^^^^^^^^ Do not call \`t.plan()\` more than once in the same test.
+
+`;
+
+exports[`no-duplicate-plan > invalid(11): import * as nodeTest from 'node:test';\nnodeTest.test(\"x\", t => { t.plan(1); t.plan(2); }); 1`] = `
+
+  1 | import * as nodeTest from 'node:test';
+  2 | nodeTest.test("x", t => { t.plan(1); t.plan(2); });
+
+`;
+
+exports[`no-duplicate-plan > invalid(11): import * as nodeTest from 'node:test';\nnodeTest.test(\"x\", t => { t.plan(1); t.plan(2); }); 2`] = `
+
+Message:
+  1 | import * as nodeTest from 'node:test';
+> 2 | nodeTest.test("x", t => { t.plan(1); t.plan(2); });
+    |                                      ^^^^^^^^^ Do not call \`t.plan()\` more than once in the same test.
+
+`;
+
+exports[`no-duplicate-plan > invalid(12): import * as nodeTest from 'node:test';\nnodeTest.test.only(\"x\", t => { t.plan(1); t.plan(2); }); 1`] = `
+
+  1 | import * as nodeTest from 'node:test';
+  2 | nodeTest.test.only("x", t => { t.plan(1); t.plan(2); });
+
+`;
+
+exports[`no-duplicate-plan > invalid(12): import * as nodeTest from 'node:test';\nnodeTest.test.only(\"x\", t => { t.plan(1); t.plan(2); }); 2`] = `
+
+Message:
+  1 | import * as nodeTest from 'node:test';
+> 2 | nodeTest.test.only("x", t => { t.plan(1); t.plan(2); });
+    |                                           ^^^^^^^^^ Do not call \`t.plan()\` more than once in the same test.
+
+`;
+
+exports[`no-duplicate-plan > invalid(13): import test from 'node:test';\ntest(\"parent\", t => { t.test(\"child\", child => { child.plan(1); child.plan(2); }); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test("parent", t => { t.test("child", child => { child.plan(1); child.plan(2); }); });
 
 `;
 
-exports[`no-duplicate-plan > invalid(10): import test from 'node:test';\ntest(\"parent\", t => { t.test(\"child\", child => { child.plan(1); child.plan(2); }); }); 2`] = `
+exports[`no-duplicate-plan > invalid(13): import test from 'node:test';\ntest(\"parent\", t => { t.test(\"child\", child => { child.plan(1); child.plan(2); }); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -30,14 +78,14 @@ Message:
 
 `;
 
-exports[`no-duplicate-plan > invalid(11): import test from 'node:test';\ntest(\"parent\", t => { t.test.only(\"child\", child => { child.plan(1); child.plan(2); }); }); 1`] = `
+exports[`no-duplicate-plan > invalid(14): import test from 'node:test';\ntest(\"parent\", t => { t.test.only(\"child\", child => { child.plan(1); child.plan(2); }); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test("parent", t => { t.test.only("child", child => { child.plan(1); child.plan(2); }); });
 
 `;
 
-exports[`no-duplicate-plan > invalid(11): import test from 'node:test';\ntest(\"parent\", t => { t.test.only(\"child\", child => { child.plan(1); child.plan(2); }); }); 2`] = `
+exports[`no-duplicate-plan > invalid(14): import test from 'node:test';\ntest(\"parent\", t => { t.test.only(\"child\", child => { child.plan(1); child.plan(2); }); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -46,14 +94,14 @@ Message:
 
 `;
 
-exports[`no-duplicate-plan > invalid(12): import test from 'node:test';\ntest(\"parent\", t => { t.plan(1); t.test(\"child\", child => { t.plan(2); }); }); 1`] = `
+exports[`no-duplicate-plan > invalid(15): import test from 'node:test';\ntest(\"parent\", t => { t.plan(1); t.test(\"child\", child => { t.plan(2); }); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test("parent", t => { t.plan(1); t.test("child", child => { t.plan(2); }); });
 
 `;
 
-exports[`no-duplicate-plan > invalid(12): import test from 'node:test';\ntest(\"parent\", t => { t.plan(1); t.test(\"child\", child => { t.plan(2); }); }); 2`] = `
+exports[`no-duplicate-plan > invalid(15): import test from 'node:test';\ntest(\"parent\", t => { t.plan(1); t.test(\"child\", child => { t.plan(2); }); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -62,14 +110,14 @@ Message:
 
 `;
 
-exports[`no-duplicate-plan > invalid(13): import test from 'node:test';\ntest(\"x\", (t: any) => { t.plan(1); t.plan(2); }); 1`] = `
+exports[`no-duplicate-plan > invalid(16): import test from 'node:test';\ntest(\"x\", (t: any) => { t.plan(1); t.plan(2); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test("x", (t: any) => { t.plan(1); t.plan(2); });
 
 `;
 
-exports[`no-duplicate-plan > invalid(13): import test from 'node:test';\ntest(\"x\", (t: any) => { t.plan(1); t.plan(2); }); 2`] = `
+exports[`no-duplicate-plan > invalid(16): import test from 'node:test';\ntest(\"x\", (t: any) => { t.plan(1); t.plan(2); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -78,14 +126,14 @@ Message:
 
 `;
 
-exports[`no-duplicate-plan > invalid(14): import test from 'node:test';\n(test as any)(\"x\", (t: any) => { t.plan(1); t.plan(2); }); 1`] = `
+exports[`no-duplicate-plan > invalid(17): import test from 'node:test';\n(test as any)(\"x\", (t: any) => { t.plan(1); t.plan(2); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | (test as any)("x", (t: any) => { t.plan(1); t.plan(2); });
 
 `;
 
-exports[`no-duplicate-plan > invalid(14): import test from 'node:test';\n(test as any)(\"x\", (t: any) => { t.plan(1); t.plan(2); }); 2`] = `
+exports[`no-duplicate-plan > invalid(17): import test from 'node:test';\n(test as any)(\"x\", (t: any) => { t.plan(1); t.plan(2); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -94,14 +142,14 @@ Message:
 
 `;
 
-exports[`no-duplicate-plan > invalid(15): import test from 'node:test';\ntest(\"x\", (t: any) => { (t as any).plan(1); (t as any).plan(2); }); 1`] = `
+exports[`no-duplicate-plan > invalid(18): import test from 'node:test';\ntest(\"x\", (t: any) => { (t as any).plan(1); (t as any).plan(2); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test("x", (t: any) => { (t as any).plan(1); (t as any).plan(2); });
 
 `;
 
-exports[`no-duplicate-plan > invalid(15): import test from 'node:test';\ntest(\"x\", (t: any) => { (t as any).plan(1); (t as any).plan(2); }); 2`] = `
+exports[`no-duplicate-plan > invalid(18): import test from 'node:test';\ntest(\"x\", (t: any) => { (t as any).plan(1); (t as any).plan(2); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -110,67 +158,19 @@ Message:
 
 `;
 
-exports[`no-duplicate-plan > invalid(16): import test from 'node:test';\ntest(\"x\", (t: any) => { t!.plan(1); t!.plan(2); }); 1`] = `
+exports[`no-duplicate-plan > invalid(19): import test from 'node:test';\ntest(\"x\", (t: any) => { t!.plan(1); t!.plan(2); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test("x", (t: any) => { t!.plan(1); t!.plan(2); });
 
 `;
 
-exports[`no-duplicate-plan > invalid(16): import test from 'node:test';\ntest(\"x\", (t: any) => { t!.plan(1); t!.plan(2); }); 2`] = `
+exports[`no-duplicate-plan > invalid(19): import test from 'node:test';\ntest(\"x\", (t: any) => { t!.plan(1); t!.plan(2); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
 > 2 | test("x", (t: any) => { t!.plan(1); t!.plan(2); });
     |                                     ^^^^^^^^^^ Do not call \`t.plan()\` more than once in the same test.
-
-`;
-
-exports[`no-duplicate-plan > invalid(17): import test from 'node:test';\ntest(\"x\", (t: any) => { (t satisfies any).plan(1); (t satisfies any).plan(2); }); 1`] = `
-
-  1 | import test from 'node:test';
-  2 | test("x", (t: any) => { (t satisfies any).plan(1); (t satisfies any).plan(2); });
-
-`;
-
-exports[`no-duplicate-plan > invalid(17): import test from 'node:test';\ntest(\"x\", (t: any) => { (t satisfies any).plan(1); (t satisfies any).plan(2); }); 2`] = `
-
-Message:
-  1 | import test from 'node:test';
-> 2 | test("x", (t: any) => { (t satisfies any).plan(1); (t satisfies any).plan(2); });
-    |                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^ Do not call \`t.plan()\` more than once in the same test.
-
-`;
-
-exports[`no-duplicate-plan > invalid(18): import test from 'node:test';\ntest(\"x\", (t: any) => { (<any>t).plan(1); (<any>t).plan(2); }); 1`] = `
-
-  1 | import test from 'node:test';
-  2 | test("x", (t: any) => { (<any>t).plan(1); (<any>t).plan(2); });
-
-`;
-
-exports[`no-duplicate-plan > invalid(18): import test from 'node:test';\ntest(\"x\", (t: any) => { (<any>t).plan(1); (<any>t).plan(2); }); 2`] = `
-
-Message:
-  1 | import test from 'node:test';
-> 2 | test("x", (t: any) => { (<any>t).plan(1); (<any>t).plan(2); });
-    |                                           ^^^^^^^^^^^^^^^^ Do not call \`t.plan()\` more than once in the same test.
-
-`;
-
-exports[`no-duplicate-plan > invalid(19): import test from 'node:test';\ntest(\"parent\", (t: any) => { (t as any).test(\"child\", child => { child.plan(1); child.plan(2); }); }); 1`] = `
-
-  1 | import test from 'node:test';
-  2 | test("parent", (t: any) => { (t as any).test("child", child => { child.plan(1); child.plan(2); }); });
-
-`;
-
-exports[`no-duplicate-plan > invalid(19): import test from 'node:test';\ntest(\"parent\", (t: any) => { (t as any).test(\"child\", child => { child.plan(1); child.plan(2); }); }); 2`] = `
-
-Message:
-  1 | import test from 'node:test';
-> 2 | test("parent", (t: any) => { (t as any).test("child", child => { child.plan(1); child.plan(2); }); });
-    |                                                                                 ^^^^^^^^^^^^^ Do not call \`child.plan()\` more than once in the same test.
 
 `;
 
@@ -196,6 +196,54 @@ Message:
   1 | import test from 'node:test';
 > 2 | test("x", t => { t.plan(1); t.plan(2); t.plan(3); });
     |                                        ^^^^^^^^^ Do not call \`t.plan()\` more than once in the same test.
+
+`;
+
+exports[`no-duplicate-plan > invalid(20): import test from 'node:test';\ntest(\"x\", (t: any) => { (t satisfies any).plan(1); (t satisfies any).plan(2); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("x", (t: any) => { (t satisfies any).plan(1); (t satisfies any).plan(2); });
+
+`;
+
+exports[`no-duplicate-plan > invalid(20): import test from 'node:test';\ntest(\"x\", (t: any) => { (t satisfies any).plan(1); (t satisfies any).plan(2); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("x", (t: any) => { (t satisfies any).plan(1); (t satisfies any).plan(2); });
+    |                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^ Do not call \`t.plan()\` more than once in the same test.
+
+`;
+
+exports[`no-duplicate-plan > invalid(21): import test from 'node:test';\ntest(\"x\", (t: any) => { (<any>t).plan(1); (<any>t).plan(2); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("x", (t: any) => { (<any>t).plan(1); (<any>t).plan(2); });
+
+`;
+
+exports[`no-duplicate-plan > invalid(21): import test from 'node:test';\ntest(\"x\", (t: any) => { (<any>t).plan(1); (<any>t).plan(2); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("x", (t: any) => { (<any>t).plan(1); (<any>t).plan(2); });
+    |                                           ^^^^^^^^^^^^^^^^ Do not call \`t.plan()\` more than once in the same test.
+
+`;
+
+exports[`no-duplicate-plan > invalid(22): import test from 'node:test';\ntest(\"parent\", (t: any) => { (t as any).test(\"child\", child => { child.plan(1); child.plan(2); }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("parent", (t: any) => { (t as any).test("child", child => { child.plan(1); child.plan(2); }); });
+
+`;
+
+exports[`no-duplicate-plan > invalid(22): import test from 'node:test';\ntest(\"parent\", (t: any) => { (t as any).test(\"child\", child => { child.plan(1); child.plan(2); }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("parent", (t: any) => { (t as any).test("child", child => { child.plan(1); child.plan(2); }); });
+    |                                                                                 ^^^^^^^^^^^^^ Do not call \`child.plan()\` more than once in the same test.
 
 `;
 
@@ -231,14 +279,62 @@ Message:
 
 `;
 
-exports[`no-duplicate-plan > invalid(5): import test from 'node:test';\ntest(\"x\", context => { context.plan(1); context.plan(2); }); 1`] = `
+exports[`no-duplicate-plan > invalid(5): import test from 'node:test';\ntest(\"x\", {plan: 1}, t => { t.plan(1); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("x", {plan: 1}, t => { t.plan(1); });
+
+`;
+
+exports[`no-duplicate-plan > invalid(5): import test from 'node:test';\ntest(\"x\", {plan: 1}, t => { t.plan(1); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("x", {plan: 1}, t => { t.plan(1); });
+    |                             ^^^^^^^^^ Do not call \`t.plan()\` when this test already has a \`plan\` option.
+
+`;
+
+exports[`no-duplicate-plan > invalid(6): import test from 'node:test';\ntest({plan: 1}, t => { t.plan(1); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test({plan: 1}, t => { t.plan(1); });
+
+`;
+
+exports[`no-duplicate-plan > invalid(6): import test from 'node:test';\ntest({plan: 1}, t => { t.plan(1); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test({plan: 1}, t => { t.plan(1); });
+    |                        ^^^^^^^^^ Do not call \`t.plan()\` when this test already has a \`plan\` option.
+
+`;
+
+exports[`no-duplicate-plan > invalid(7): import test from 'node:test';\ntest(\"parent\", t => { t.test(\"child\", {plan: 1}, child => { child.plan(1); }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("parent", t => { t.test("child", {plan: 1}, child => { child.plan(1); }); });
+
+`;
+
+exports[`no-duplicate-plan > invalid(7): import test from 'node:test';\ntest(\"parent\", t => { t.test(\"child\", {plan: 1}, child => { child.plan(1); }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("parent", t => { t.test("child", {plan: 1}, child => { child.plan(1); }); });
+    |                                                             ^^^^^^^^^^^^^ Do not call \`child.plan()\` when this test already has a \`plan\` option.
+
+`;
+
+exports[`no-duplicate-plan > invalid(8): import test from 'node:test';\ntest(\"x\", context => { context.plan(1); context.plan(2); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test("x", context => { context.plan(1); context.plan(2); });
 
 `;
 
-exports[`no-duplicate-plan > invalid(5): import test from 'node:test';\ntest(\"x\", context => { context.plan(1); context.plan(2); }); 2`] = `
+exports[`no-duplicate-plan > invalid(8): import test from 'node:test';\ntest(\"x\", context => { context.plan(1); context.plan(2); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -247,66 +343,18 @@ Message:
 
 `;
 
-exports[`no-duplicate-plan > invalid(6): import {it} from 'node:test';\nit(\"x\", t => { t.plan(1); t.plan(2); }); 1`] = `
+exports[`no-duplicate-plan > invalid(9): import {it} from 'node:test';\nit(\"x\", t => { t.plan(1); t.plan(2); }); 1`] = `
 
   1 | import {it} from 'node:test';
   2 | it("x", t => { t.plan(1); t.plan(2); });
 
 `;
 
-exports[`no-duplicate-plan > invalid(6): import {it} from 'node:test';\nit(\"x\", t => { t.plan(1); t.plan(2); }); 2`] = `
+exports[`no-duplicate-plan > invalid(9): import {it} from 'node:test';\nit(\"x\", t => { t.plan(1); t.plan(2); }); 2`] = `
 
 Message:
   1 | import {it} from 'node:test';
 > 2 | it("x", t => { t.plan(1); t.plan(2); });
     |                           ^^^^^^^^^ Do not call \`t.plan()\` more than once in the same test.
-
-`;
-
-exports[`no-duplicate-plan > invalid(7): import {test} from 'node:test';\ntest(\"x\", t => { t.plan(1); t.plan(2); }); 1`] = `
-
-  1 | import {test} from 'node:test';
-  2 | test("x", t => { t.plan(1); t.plan(2); });
-
-`;
-
-exports[`no-duplicate-plan > invalid(7): import {test} from 'node:test';\ntest(\"x\", t => { t.plan(1); t.plan(2); }); 2`] = `
-
-Message:
-  1 | import {test} from 'node:test';
-> 2 | test("x", t => { t.plan(1); t.plan(2); });
-    |                             ^^^^^^^^^ Do not call \`t.plan()\` more than once in the same test.
-
-`;
-
-exports[`no-duplicate-plan > invalid(8): import * as nodeTest from 'node:test';\nnodeTest.test(\"x\", t => { t.plan(1); t.plan(2); }); 1`] = `
-
-  1 | import * as nodeTest from 'node:test';
-  2 | nodeTest.test("x", t => { t.plan(1); t.plan(2); });
-
-`;
-
-exports[`no-duplicate-plan > invalid(8): import * as nodeTest from 'node:test';\nnodeTest.test(\"x\", t => { t.plan(1); t.plan(2); }); 2`] = `
-
-Message:
-  1 | import * as nodeTest from 'node:test';
-> 2 | nodeTest.test("x", t => { t.plan(1); t.plan(2); });
-    |                                      ^^^^^^^^^ Do not call \`t.plan()\` more than once in the same test.
-
-`;
-
-exports[`no-duplicate-plan > invalid(9): import * as nodeTest from 'node:test';\nnodeTest.test.only(\"x\", t => { t.plan(1); t.plan(2); }); 1`] = `
-
-  1 | import * as nodeTest from 'node:test';
-  2 | nodeTest.test.only("x", t => { t.plan(1); t.plan(2); });
-
-`;
-
-exports[`no-duplicate-plan > invalid(9): import * as nodeTest from 'node:test';\nnodeTest.test.only(\"x\", t => { t.plan(1); t.plan(2); }); 2`] = `
-
-Message:
-  1 | import * as nodeTest from 'node:test';
-> 2 | nodeTest.test.only("x", t => { t.plan(1); t.plan(2); });
-    |                                           ^^^^^^^^^ Do not call \`t.plan()\` more than once in the same test.
 
 `;

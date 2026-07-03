@@ -12,6 +12,19 @@ test.snapshot({
 		// Single plan
 		withImport('test("x", t => { t.plan(1); });'),
 
+		// Falsy plan options do not set a plan
+		withImport('test("zero", {plan: 0}, t => { t.plan(1); });'),
+		withImport('test("false", {plan: false}, t => { t.plan(1); });'),
+		withImport('test("null", {plan: null}, t => { t.plan(1); });'),
+		withImport('test("undefined", {plan: undefined}, t => { t.plan(1); });'),
+
+		// Dynamic and invalid plan options are handled by runtime validation, not this rule
+		withImport('function helper(plan) { test("x", {plan}, t => { t.plan(1); }); }'),
+		withImport('test("true", {plan: true}, t => { t.plan(1); });'),
+		withImport('test("string", {plan: "1"}, t => { t.plan(1); });'),
+		withImport('test("negative", {plan: -1}, t => { t.plan(1); });'),
+		withImport('test("float", {plan: 1.5}, t => { t.plan(1); });'),
+
 		// Separate tests each get their own plan
 		withImport('test("a", t => { t.plan(1); });\ntest("b", t => { t.plan(1); });'),
 
@@ -69,6 +82,13 @@ test.snapshot({
 
 		// Options argument
 		withImport('test("x", {skip: false}, t => { t.plan(1); t.plan(2); });'),
+
+		// Plan option plus context plan
+		withImport('test("x", {plan: 1}, t => { t.plan(1); });'),
+		withImport('test({plan: 1}, t => { t.plan(1); });'),
+
+		// Duplicate inside a subtest with a plan option
+		withImport('test("parent", t => { t.test("child", {plan: 1}, child => { child.plan(1); }); });'),
 
 		// Renamed context parameter
 		withImport('test("x", context => { context.plan(1); context.plan(2); });'),

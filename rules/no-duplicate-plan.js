@@ -1,17 +1,22 @@
-import {findVariable} from '@eslint-community/eslint-utils';
+import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
 import {
 	MODIFIERS,
 	resolveImports,
 	parseTestCall,
 	getTestCallback,
 	getSubtestReceiver,
+	getTestOptions,
+	findOptionsProperty,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
-const MESSAGE_ID = 'no-duplicate-plan';
+const MESSAGE_ID_DUPLICATE_CALL = 'no-duplicate-plan/duplicate-call';
+const MESSAGE_ID_PLAN_OPTION = 'no-duplicate-plan/plan-option';
+const MAX_PLAN_COUNT = 4_294_967_295;
 
 const messages = {
-	[MESSAGE_ID]: 'Do not call `{{context}}.plan()` more than once in the same test.',
+	[MESSAGE_ID_DUPLICATE_CALL]: 'Do not call `{{context}}.plan()` more than once in the same test.',
+	[MESSAGE_ID_PLAN_OPTION]: 'Do not call `{{context}}.plan()` when this test already has a `plan` option.',
 };
 
 function getPlanContextIdentifier(node) {
@@ -53,6 +58,16 @@ function isTestCall(parsed) {
 	return parsed !== undefined && parsed.kind === 'test' && parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name));
 }
 
+function hasEnabledPlanOption(node, sourceCode) {
+	const property = findOptionsProperty(getTestOptions(node), 'plan');
+	if (property === undefined) {
+		return false;
+	}
+
+	const staticValue = getStaticValue(property.value, sourceCode.getScope(property.value));
+	return typeof staticValue?.value === 'number' && Number.isSafeInteger(staticValue.value) && staticValue.value > 0 && staticValue.value <= MAX_PLAN_COUNT;
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const imports = resolveImports(context);
@@ -92,11 +107,13 @@ const create = context => {
 				return;
 			}
 
+			const hasPlanOption = hasEnabledPlanOption(node, sourceCode);
 			frames.push({
 				node,
 				contextName: parameter.name,
 				contextVariable: getIdentifierVariable(sourceCode, parameter),
-				hasPlan: false,
+				hasPlan: hasPlanOption,
+				hasPlanOption,
 			});
 			return;
 		}
@@ -120,7 +137,7 @@ const create = context => {
 			if (frame.hasPlan) {
 				return {
 					node,
-					messageId: MESSAGE_ID,
+					messageId: frame.hasPlanOption ? MESSAGE_ID_PLAN_OPTION : MESSAGE_ID_DUPLICATE_CALL,
 					data: {context: frame.contextName},
 				};
 			}
@@ -143,7 +160,7 @@ const config = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Disallow calling `t.plan()` more than once in the same test.',
+			description: 'Disallow setting a test plan more than once in the same test.',
 			recommended: 'unopinionated',
 		},
 		schema: [],
