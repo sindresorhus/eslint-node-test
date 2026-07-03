@@ -8,6 +8,7 @@ const withStrictAssert = code => `import assert from 'node:assert/strict';\n${co
 const withNamedImport = (methods, code) => `import {${methods}} from 'node:assert';\n${code}`;
 const withNamedTestImport = (methods, code) => `import {${methods}} from 'node:test';\n${code}`;
 const withTest = code => `import test from 'node:test';\n${code}`;
+const withNamespaceTest = code => `import * as nodeTest from 'node:test';\n${code}`;
 
 test.snapshot({
 	valid: [
@@ -65,9 +66,11 @@ test.snapshot({
 		withNamespaceAssert('assert.match(value, "foo");'),
 		withNamedImport('strict as strictAssert', 'strictAssert.match(value, "foo");'),
 
-		// T.assert
+		// Test context `t.assert`
 		withTest('test("t", t => { t.assert.match(value, "foo"); });'),
+		withTest('test.beforeEach(t => { t.assert.match(value, "foo"); });'),
 		withNamedTestImport('beforeEach', 'beforeEach(t => { t.assert.match(value, "foo"); });'),
+		withNamespaceTest('nodeTest.beforeEach(t => { t.assert.match(value, "foo"); });'),
 		withTest('test("outer", t => { t.test("inner", () => { t.assert.match(value, "foo"); }); });'),
 
 		// TypeScript
