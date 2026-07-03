@@ -42,7 +42,9 @@ test.snapshot({
 		withTest('await new Promise(resolve => {\n\tsetTimeout(resolve, 500);\n});'),
 		withTest('await new Promise(resolve => {\n\treturn setTimeout(resolve, 500);\n});'),
 		withTest('await new Promise(done => setTimeout(done, 500));'),
+		withTest('await new Promise(resolve => setTimeout(resolve));'),
 		withTest('await new Promise(resolve => setTimeout(() => resolve(), 500));'),
+		withTest('await new Promise(resolve => setTimeout(() => resolve()));'),
 		withTest('await new Promise(resolve => setTimeout(() => {\n\treturn resolve();\n}, 500));'),
 		withTest('await new Promise(resolve => setTimeout(function () {\n\tresolve();\n}, 500));'),
 		withTest('await new Promise(resolve => globalThis.setTimeout(resolve, 500));'),
@@ -50,6 +52,7 @@ test.snapshot({
 		withTimerImport('await new Promise(resolve => delay(resolve, 500));'),
 		'import test from \'node:test\';\nimport {setTimeout as delay} from \'timers\';\ntest(\'waits\', async () => {\n\tawait new Promise(resolve => delay(resolve, 500));\n});',
 		'import test from \'node:test\';\nimport * as timers from \'node:timers\';\ntest(\'waits\', async () => {\n\tawait new Promise(resolve => timers.setTimeout(resolve, 500));\n});',
+		'import test from \'node:test\';\nimport * as timers from \'timers\';\ntest(\'waits\', async () => {\n\tawait new Promise(resolve => timers.setTimeout(resolve, 500));\n});',
 		{
 			code: 'import test from \'node:test\';\ntest(\'waits\', async () => {\n\tawait new Promise<void>(resolve => setTimeout(resolve, 500));\n});',
 			languageOptions: {parser: parsers.typescript},

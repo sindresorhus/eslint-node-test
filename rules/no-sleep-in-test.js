@@ -127,7 +127,10 @@ function bodyContainsExpression(body, predicate) {
 		return predicate(body);
 	}
 
-	return body.body.some(statement => predicate(getStatementExpression(statement)));
+	return body.body.some(statement => {
+		const expression = getStatementExpression(statement);
+		return expression ? predicate(expression) : false;
+	});
 }
 
 function expressionCallsResolver(node, resolverVariable, sourceCode) {
@@ -153,7 +156,7 @@ function isResolverArgument(node, resolverVariable, sourceCode) {
 function isSleepSetTimeoutCall(node, resolverVariable, timerImports) {
 	node = unwrapExpression(node);
 	return node?.type === 'CallExpression'
-		&& node.arguments.length >= 2
+		&& node.arguments.length > 0
 		&& isSetTimeoutCallee(node.callee, timerImports)
 		&& isResolverArgument(node.arguments[0], resolverVariable, timerImports.sourceCode);
 }
