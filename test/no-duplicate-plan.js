@@ -1,0 +1,116 @@
+import {getTester, parsers} from './utils/test.js';
+
+const {test} = getTester(import.meta);
+
+const withImport = code => `import test from 'node:test';\n${code}`;
+
+test.snapshot({
+	valid: [
+		// Not a test file
+		'test("x", t => { t.plan(1); t.plan(2); });',
+
+		// Single plan
+		withImport('test("x", t => { t.plan(1); });'),
+
+		// Separate tests each get their own plan
+		withImport('test("a", t => { t.plan(1); });\ntest("b", t => { t.plan(1); });'),
+
+		// Parent and child tests each get their own plan
+		withImport('test("parent", t => { t.plan(1); t.test("child", child => { child.plan(1); }); });'),
+
+		// Renamed context parameter
+		withImport('test("x", context => { context.plan(1); });'),
+
+		// Same context name shadowed by a nested subtest
+		withImport('test("parent", t => { t.plan(1); t.test("child", t => { t.plan(1); }); });'),
+
+		// Same context name shadowed by a regular helper parameter
+		withImport('test("x", t => { t.plan(1); function helper(t) { t.plan(2); } });'),
+
+		// No context parameter
+		withImport('test("x", () => { t.plan(1); t.plan(2); });'),
+
+		// Same context name shadowed by a regular helper parameter with a fake subtest method
+		withImport('test("x", t => { function helper(t) { t.test("child", child => { child.plan(1); child.plan(2); }); } });'),
+
+		// A `plan()` call in the title/options arguments is outside the test context parameter's scope
+		withImport('const t = {plan() {}};\ntest(t.plan(1), t => { t.plan(1); });'),
+
+		// Shadowed imported test binding
+		withImport('function helper(test) { test("x", t => { t.plan(1); t.plan(2); }); }'),
+
+		// Unsupported computed, destructured, aliased, optional receiver, and optional call forms
+		withImport('test("x", t => { t.plan(1); t["plan"](2); });'),
+		withImport('test("x", t => { t.plan(1); const {plan} = t; plan(2); });'),
+		withImport('test("x", t => { t.plan(1); const plan = t.plan; plan(2); });'),
+		withImport('test("x", t => { t.plan(1); t?.plan(2); });'),
+		withImport('test("x", t => { t.plan(1); t.plan?.(2); });'),
+
+		// TypeScript
+		{
+			code: withImport('test("x", (t: any) => { t.plan(1); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	invalid: [
+		// Duplicate in one test
+		withImport('test("x", t => { t.plan(1); t.plan(2); });'),
+
+		// Three plans report the second and third
+		withImport('test("x", t => { t.plan(1); t.plan(2); t.plan(3); });'),
+
+		// Modifier chain
+		withImport('test.only("x", t => { t.plan(1); t.plan(2); });'),
+
+		// Options argument
+		withImport('test("x", {skip: false}, t => { t.plan(1); t.plan(2); });'),
+
+		// Renamed context parameter
+		withImport('test("x", context => { context.plan(1); context.plan(2); });'),
+
+		// `it` alias
+		'import {it} from \'node:test\';\nit("x", t => { t.plan(1); t.plan(2); });',
+
+		// Named import
+		'import {test} from \'node:test\';\ntest("x", t => { t.plan(1); t.plan(2); });',
+
+		// Namespace import
+		'import * as nodeTest from \'node:test\';\nnodeTest.test("x", t => { t.plan(1); t.plan(2); });',
+
+		// Namespace import with modifier chain
+		'import * as nodeTest from \'node:test\';\nnodeTest.test.only("x", t => { t.plan(1); t.plan(2); });',
+
+		// Duplicate inside a subtest
+		withImport('test("parent", t => { t.test("child", child => { child.plan(1); child.plan(2); }); });'),
+
+		// Duplicate inside a subtest with a modifier chain
+		withImport('test("parent", t => { t.test.only("child", child => { child.plan(1); child.plan(2); }); });'),
+
+		// Duplicate outer-context plan from inside a nested subtest
+		withImport('test("parent", t => { t.plan(1); t.test("child", child => { t.plan(2); }); });'),
+
+		// TypeScript
+		{
+			code: withImport('test("x", (t: any) => { t.plan(1); t.plan(2); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// TypeScript wrappers around the context receiver
+		{
+			code: withImport('test("x", (t: any) => { (t as any).plan(1); (t as any).plan(2); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withImport('test("x", (t: any) => { t!.plan(1); t!.plan(2); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withImport('test("x", (t: any) => { (t satisfies any).plan(1); (t satisfies any).plan(2); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withImport('test("x", (t: any) => { (<any>t).plan(1); (<any>t).plan(2); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+});
