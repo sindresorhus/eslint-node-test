@@ -12,6 +12,7 @@ import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js'
 const MESSAGE_ID = 'require-mock-timers-apis';
 const CONTEXT_HOOKS = new Set(['before', 'beforeEach', 'after', 'afterEach']);
 const TEST_MODULES = new Set(['node:test', 'test']);
+const STATIC_NON_OPTIONS_VALUE_TYPES = new Set(['ArrayExpression', 'Literal', 'TemplateLiteral']);
 
 const messages = {
 	[MESSAGE_ID]: '`mock.timers.enable()` should explicitly specify the `apis` option to avoid unexpectedly mocking `Date`.',
@@ -31,8 +32,7 @@ function isMissingApisValue(node) {
 }
 
 function isStaticNonOptionsValue(node) {
-	return node.type === 'ArrayExpression'
-		|| node.type === 'Literal';
+	return STATIC_NON_OPTIONS_VALUE_TYPES.has(node.type);
 }
 
 function isApisProperty(property) {

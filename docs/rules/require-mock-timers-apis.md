@@ -29,4 +29,4 @@ test('debounce', t => {
 });
 ```
 
-Variable option objects are ignored, since the rule cannot statically know whether they include `apis`. Object literals must include a visible `apis` property after any spread, and statically missing values or non-options values like `undefined`, `null`, `false`, or `[]` are reported. Aliases and destructuring of `t.mock` are intentionally not followed.
+Variable option objects are ignored, since the rule cannot statically know whether they include `apis`. Object literals must include a visible `apis` property after any spread. Statically missing values like `undefined`, `null`, or `false`, and non-options arguments like `mock.timers.enable([])`, are reported. `{apis: []}` is valid when intentionally mocking no APIs. Aliases and destructuring of `t.mock` are intentionally not followed.

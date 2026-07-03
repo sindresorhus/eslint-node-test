@@ -3,6 +3,7 @@ import {getTester, parsers} from './utils/test.js';
 const {test} = getTester(import.meta);
 
 const head = 'import {test, mock} from \'node:test\';\n';
+const templateInterpolationStart = '$';
 
 test.snapshot({
 	valid: [
@@ -104,6 +105,8 @@ test.snapshot({
 		head + 'mock.timers.enable(["setTimeout"]);',
 		head + 'mock.timers.enable(true);',
 		head + 'mock.timers.enable("setTimeout");',
+		head + 'mock.timers.enable(`setTimeout`);',
+		head + 'const api = "setTimeout";\nmock.timers.enable(`' + templateInterpolationStart + '{api}`);',
 
 		// Options object without apis.
 		head + 'mock.timers.enable({now: 1000});',
@@ -140,6 +143,9 @@ test.snapshot({
 
 		// `it` context mock.
 		'import {it} from \'node:test\';\nit("a", t => { t.mock.timers.enable(); });',
+
+		// Default import context mock.
+		'import test from \'node:test\';\ntest("a", t => { t.mock.timers.enable(); });',
 
 		// Context mock with a modifier.
 		head + 'test.only("a", t => { t.mock.timers.enable(); });',
