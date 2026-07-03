@@ -11,7 +11,7 @@
 
 Keep the callback focused on the single operation expected to fail. Move setup outside the assertion.
 
-This rule reports inline `assert.throws()`, `assert.rejects()`, `assert.strict.throws()`, `assert.strict.rejects()`, `t.assert.throws()`, `t.assert.rejects()`, and named `node:assert` `throws()`/`rejects()` callbacks whose block body contains more than one top-level statement. It intentionally does not inspect callback identifiers or nested blocks.
+This rule reports inline `throws()` and `rejects()` callbacks resolved from `node:assert`, including named imports, strict namespace forms, optional member calls, and `t.assert` from `node:test`. It intentionally does not inspect callback identifiers, computed assertion calls, or nested blocks.
 
 ## Examples
 

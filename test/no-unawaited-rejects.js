@@ -4,6 +4,7 @@ const {test} = getTester(import.meta);
 
 const ASSERT_IMPORT = 'import assert from \'node:assert\';';
 const STRICT_ASSERT_IMPORT = 'import assert from \'node:assert/strict\';';
+const STRICT_NAMED_IMPORT = 'import {strict as strictAssert} from \'node:assert\';';
 const NAMED_IMPORT = 'import {rejects, doesNotReject} from \'node:assert\';';
 
 test.snapshot({
@@ -46,6 +47,7 @@ test.snapshot({
 
 		// Bare assert.rejects at top-level (not in async function) — suggestion only
 		`${ASSERT_IMPORT}\nassert.rejects(fn);`,
+		`${ASSERT_IMPORT}\nassert.strict.rejects(fn);`,
 
 		// Bare assert.doesNotReject at top-level — suggestion only
 		`${ASSERT_IMPORT}\nassert.doesNotReject(fn);`,
@@ -65,6 +67,7 @@ test.snapshot({
 
 		// Assert/strict module
 		`${STRICT_ASSERT_IMPORT}\nasync function test() {\n\tassert.rejects(fn);\n}`,
+		`${STRICT_NAMED_IMPORT}\nasync function test() {\n\tstrictAssert.rejects(fn);\n}`,
 
 		// TypeScript
 		{

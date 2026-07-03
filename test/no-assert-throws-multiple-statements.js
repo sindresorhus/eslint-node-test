@@ -43,6 +43,9 @@ test.snapshot({
 		// Spread arguments are not statically known
 		withAssert('assert.throws(...args);'),
 
+		// Computed assertion calls are intentionally not matched
+		withAssert('assert[\'throws\'](() => { setup(); run(); });'),
+
 		// Other assertions are unaffected
 		withAssert('assert.doesNotThrow(() => { setup(); run(); });'),
 		withAssert('assert.doesNotReject(async () => { setup(); await run(); });'),
@@ -67,8 +70,10 @@ test.snapshot({
 		withNamedImport('throws as assertThrows', 'assertThrows(() => { setup(); run(); });'),
 		withNamedImport('rejects', 'rejects(async () => { setup(); await run(); });'),
 		withNamedImport('strict as strictAssert', 'strictAssert.throws(() => { setup(); run(); });'),
+		withNamedImport('strict as strictAssert', 'strictAssert.rejects(async () => { setup(); await run(); });'),
 		'import {throws} from \'assert/strict\';\nthrows(() => { setup(); run(); });',
 		withNamedStrictImport('throws', 'throws(() => { setup(); run(); });'),
+		withAssert('assert?.throws(() => { setup(); run(); });'),
 		withTest('test(\'t\', t => { t.assert.throws(() => { setup(); run(); }); });'),
 		withTest('test(\'t\', t => { t.assert.rejects(async () => { setup(); await run(); }); });'),
 		withTest('test.only(\'t\', t => { t.assert.throws(() => { setup(); run(); }); });'),

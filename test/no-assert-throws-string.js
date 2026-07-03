@@ -30,6 +30,7 @@ test.snapshot({
 	invalid: [
 		// String literal matcher
 		withAssert('assert.throws(fn, "Wrong value");'),
+		withAssert('assert.strict.throws(fn, "Wrong value");'),
 		withAssert('assert.rejects(asyncFn, "Wrong value");'),
 
 		// Template literal
@@ -42,6 +43,7 @@ test.snapshot({
 
 		// Named import
 		withNamedImport('throws', 'throws(fn, "Wrong value");'),
+		withNamedImport('strict as strictAssert', 'strictAssert.throws(fn, "Wrong value");'),
 
 		// T.assert
 		withTest('test(\'t\', t => { t.assert.throws(fn, "Wrong value"); });'),

@@ -608,23 +608,125 @@ export function nearestTestCallbackKind(node, imports) {
 	return undefined;
 }
 
+function isAssertNamespaceIdentifier(node, imports) {
+	return (
+		node.type === 'Identifier'
+		&& imports.assertNamespace.has(node.name)
+		&& isImportedBindingReference(node, imports)
+	);
+}
+
+function isNamedStrictAssertIdentifier(node, imports) {
+	return (
+		node.type === 'Identifier'
+		&& imports.assertNamed.get(node.name) === 'strict'
+		&& isImportedBindingReference(node, imports)
+	);
+}
+
+function isAssertStrictMember(node, imports) {
+	return (
+		node.type === 'MemberExpression'
+		&& !node.computed
+		&& isAssertNamespaceIdentifier(node.object, imports)
+		&& node.property.type === 'Identifier'
+		&& node.property.name === 'strict'
+	);
+}
+
+function isTestContextAssertMember(node) {
+	return (
+		node.type === 'MemberExpression'
+		&& !node.computed
+		&& node.object.type === 'Identifier'
+		&& node.property.type === 'Identifier'
+		&& node.property.name === 'assert'
+	);
+}
+
+function parseAssertionMemberCall(callee, imports) {
+	if (
+		callee.type !== 'MemberExpression'
+		|| callee.computed
+		|| callee.property.type !== 'Identifier'
+	) {
+		return;
+	}
+
+	const {object} = callee;
+
+	if (callee.property.name === 'strict' && isAssertNamespaceIdentifier(object, imports)) {
+		return {
+			method: 'ok',
+			methodNode: undefined,
+			isStrict: true,
+		};
+	}
+
+	// `assert.strictEqual(…)`
+	if (isAssertNamespaceIdentifier(object, imports)) {
+		return {
+			method: callee.property.name,
+			methodNode: callee.property,
+			isStrict: imports.strictAssertLocals.has(object.name),
+		};
+	}
+
+	// `strictAssert.equal(…)` where `strictAssert` is `import {strict as strictAssert} from 'node:assert'`.
+	if (isNamedStrictAssertIdentifier(object, imports)) {
+		return {
+			method: callee.property.name,
+			methodNode: callee.property,
+			isStrict: true,
+		};
+	}
+
+	// `assert.strict.equal(…)`
+	if (isAssertStrictMember(object, imports)) {
+		return {
+			method: callee.property.name,
+			methodNode: callee.property,
+			isStrict: true,
+		};
+	}
+
+	// `t.assert.strictEqual(…)`: `t.assert` is always loose mode. The receiver must be a plain identifier (a test context parameter); deeper chains like `a.b.assert.equal(…)`, `this.assert`, or `foo().assert` are unrelated objects that merely have an `assert` property.
+	if (isTestContextAssertMember(object)) {
+		return {
+			method: callee.property.name,
+			methodNode: callee.property,
+			isStrict: false,
+		};
+	}
+}
+
 /**
 Classify a `CallExpression` as a `node:assert` assertion call.
 
 Matches:
 - `assert.strictEqual(…)` / `assert(…)` (namespace import)
+- `assert.strict.equal(…)` / `assert.strict(…)` / `strictAssert.equal(…)` / `strictAssert(…)` (strict namespace)
 - `strictEqual(…)` (named import)
 - `t.assert.strictEqual(…)` (`TestContext#assert`)
 
-`methodNode` is the identifier node holding the method name, which fixers rewrite. It is the callee
-itself for a named import, the property for the member forms, and `undefined` for bare `assert(…)`
-(which has no method identifier). `isStrict` is `true` when the binding resolves to a strict-mode
-assert module (`node:assert/strict`), where the legacy methods already behave strictly.
+`methodNode` is the identifier node holding the method name, which fixers rewrite. It is the callee itself for a named import, the property for member method calls, and `undefined` for callable assert forms like `assert(…)`, `assert.strict(…)`, or `strictAssert(…)`. `isStrict` is `true` when the binding resolves to a strict-mode assert API, where the legacy methods already behave strictly.
 
 @returns {{method: string, methodNode: import('estree').Node | undefined, isStrict: boolean}|undefined}
 */
 export const parseAssertionCall = memoizeByNode(parseAssertionCallCache, (callExpression, imports) => {
 	const {callee} = callExpression;
+
+	if (
+		callee.type === 'Identifier'
+		&& imports.assertNamed.get(callee.name) === 'strict'
+		&& isImportedBindingReference(callee, imports)
+	) {
+		return {
+			method: 'ok',
+			methodNode: undefined,
+			isStrict: true,
+		};
+	}
 
 	// `strictEqual(…)` — named import.
 	if (
@@ -652,42 +754,9 @@ export const parseAssertionCall = memoizeByNode(parseAssertionCallCache, (callEx
 		};
 	}
 
-	if (
-		callee.type === 'MemberExpression'
-		&& !callee.computed
-		&& callee.property.type === 'Identifier'
-	) {
-		const {object} = callee;
-
-		// `assert.strictEqual(…)`
-		if (
-			object.type === 'Identifier'
-			&& imports.assertNamespace.has(object.name)
-			&& isImportedBindingReference(object, imports)
-		) {
-			return {
-				method: callee.property.name,
-				methodNode: callee.property,
-				isStrict: imports.strictAssertLocals.has(object.name),
-			};
-		}
-
-		// `t.assert.strictEqual(…)` — `t.assert` is always loose mode. The receiver must be a plain
-		// identifier (a test context parameter); deeper chains like `a.b.assert.equal(…)`, `this.assert`,
-		// or `foo().assert` are unrelated objects that merely have an `assert` property.
-		if (
-			object.type === 'MemberExpression'
-			&& !object.computed
-			&& object.object.type === 'Identifier'
-			&& object.property.type === 'Identifier'
-			&& object.property.name === 'assert'
-		) {
-			return {
-				method: callee.property.name,
-				methodNode: callee.property,
-				isStrict: false,
-			};
-		}
+	const memberAssertionCall = parseAssertionMemberCall(callee, imports);
+	if (memberAssertionCall) {
+		return memberAssertionCall;
 	}
 
 	return undefined;

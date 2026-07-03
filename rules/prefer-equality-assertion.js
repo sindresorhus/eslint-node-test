@@ -38,6 +38,16 @@ const create = context => {
 			return;
 		}
 
+		if (
+			parsed.isStrict
+			&& (
+				argument.operator === '=='
+				|| argument.operator === '!='
+			)
+		) {
+			return;
+		}
+
 		const replacement = OPERATOR_TO_METHOD.get(argument.operator);
 		if (!replacement) {
 			return;

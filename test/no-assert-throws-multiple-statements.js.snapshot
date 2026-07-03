@@ -62,14 +62,30 @@ Message:
 
 `;
 
-exports[`no-assert-throws-multiple-statements > invalid(13): import {throws} from 'assert/strict';\nthrows(() => { setup(); run(); }); 1`] = `
+exports[`no-assert-throws-multiple-statements > invalid(13): import {strict as strictAssert} from 'node:assert';\nstrictAssert.rejects(async () => { setup(); await run(); }); 1`] = `
+
+  1 | import {strict as strictAssert} from 'node:assert';
+  2 | strictAssert.rejects(async () => { setup(); await run(); });
+
+`;
+
+exports[`no-assert-throws-multiple-statements > invalid(13): import {strict as strictAssert} from 'node:assert';\nstrictAssert.rejects(async () => { setup(); await run(); }); 2`] = `
+
+Message:
+  1 | import {strict as strictAssert} from 'node:assert';
+> 2 | strictAssert.rejects(async () => { setup(); await run(); });
+    |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^ Keep the \`rejects()\` callback to one statement so unrelated setup errors cannot satisfy the assertion.
+
+`;
+
+exports[`no-assert-throws-multiple-statements > invalid(14): import {throws} from 'assert/strict';\nthrows(() => { setup(); run(); }); 1`] = `
 
   1 | import {throws} from 'assert/strict';
   2 | throws(() => { setup(); run(); });
 
 `;
 
-exports[`no-assert-throws-multiple-statements > invalid(13): import {throws} from 'assert/strict';\nthrows(() => { setup(); run(); }); 2`] = `
+exports[`no-assert-throws-multiple-statements > invalid(14): import {throws} from 'assert/strict';\nthrows(() => { setup(); run(); }); 2`] = `
 
 Message:
   1 | import {throws} from 'assert/strict';
@@ -78,14 +94,14 @@ Message:
 
 `;
 
-exports[`no-assert-throws-multiple-statements > invalid(14): import {throws} from 'node:assert/strict';\nthrows(() => { setup(); run(); }); 1`] = `
+exports[`no-assert-throws-multiple-statements > invalid(15): import {throws} from 'node:assert/strict';\nthrows(() => { setup(); run(); }); 1`] = `
 
   1 | import {throws} from 'node:assert/strict';
   2 | throws(() => { setup(); run(); });
 
 `;
 
-exports[`no-assert-throws-multiple-statements > invalid(14): import {throws} from 'node:assert/strict';\nthrows(() => { setup(); run(); }); 2`] = `
+exports[`no-assert-throws-multiple-statements > invalid(15): import {throws} from 'node:assert/strict';\nthrows(() => { setup(); run(); }); 2`] = `
 
 Message:
   1 | import {throws} from 'node:assert/strict';
@@ -94,14 +110,30 @@ Message:
 
 `;
 
-exports[`no-assert-throws-multiple-statements > invalid(15): import test from 'node:test';\ntest('t', t => { t.assert.throws(() => { setup(); run(); }); }); 1`] = `
+exports[`no-assert-throws-multiple-statements > invalid(16): import assert from 'node:assert';\nassert?.throws(() => { setup(); run(); }); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert?.throws(() => { setup(); run(); });
+
+`;
+
+exports[`no-assert-throws-multiple-statements > invalid(16): import assert from 'node:assert';\nassert?.throws(() => { setup(); run(); }); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert?.throws(() => { setup(); run(); });
+    |                      ^^^^^^^^^^^^^^^^^^^ Keep the \`throws()\` callback to one statement so unrelated setup errors cannot satisfy the assertion.
+
+`;
+
+exports[`no-assert-throws-multiple-statements > invalid(17): import test from 'node:test';\ntest('t', t => { t.assert.throws(() => { setup(); run(); }); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', t => { t.assert.throws(() => { setup(); run(); }); });
 
 `;
 
-exports[`no-assert-throws-multiple-statements > invalid(15): import test from 'node:test';\ntest('t', t => { t.assert.throws(() => { setup(); run(); }); }); 2`] = `
+exports[`no-assert-throws-multiple-statements > invalid(17): import test from 'node:test';\ntest('t', t => { t.assert.throws(() => { setup(); run(); }); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -110,14 +142,14 @@ Message:
 
 `;
 
-exports[`no-assert-throws-multiple-statements > invalid(16): import test from 'node:test';\ntest('t', t => { t.assert.rejects(async () => { setup(); await run(); }); }); 1`] = `
+exports[`no-assert-throws-multiple-statements > invalid(18): import test from 'node:test';\ntest('t', t => { t.assert.rejects(async () => { setup(); await run(); }); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', t => { t.assert.rejects(async () => { setup(); await run(); }); });
 
 `;
 
-exports[`no-assert-throws-multiple-statements > invalid(16): import test from 'node:test';\ntest('t', t => { t.assert.rejects(async () => { setup(); await run(); }); }); 2`] = `
+exports[`no-assert-throws-multiple-statements > invalid(18): import test from 'node:test';\ntest('t', t => { t.assert.rejects(async () => { setup(); await run(); }); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -126,51 +158,19 @@ Message:
 
 `;
 
-exports[`no-assert-throws-multiple-statements > invalid(17): import test from 'node:test';\ntest.only('t', t => { t.assert.throws(() => { setup(); run(); }); }); 1`] = `
+exports[`no-assert-throws-multiple-statements > invalid(19): import test from 'node:test';\ntest.only('t', t => { t.assert.throws(() => { setup(); run(); }); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test.only('t', t => { t.assert.throws(() => { setup(); run(); }); });
 
 `;
 
-exports[`no-assert-throws-multiple-statements > invalid(17): import test from 'node:test';\ntest.only('t', t => { t.assert.throws(() => { setup(); run(); }); }); 2`] = `
+exports[`no-assert-throws-multiple-statements > invalid(19): import test from 'node:test';\ntest.only('t', t => { t.assert.throws(() => { setup(); run(); }); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
 > 2 | test.only('t', t => { t.assert.throws(() => { setup(); run(); }); });
     |                                             ^^^^^^^^^^^^^^^^^^^ Keep the \`throws()\` callback to one statement so unrelated setup errors cannot satisfy the assertion.
-
-`;
-
-exports[`no-assert-throws-multiple-statements > invalid(18): import * as nodeTest from 'node:test';\nnodeTest.test('t', t => { t.assert.throws(() => { setup(); run(); }); }); 1`] = `
-
-  1 | import * as nodeTest from 'node:test';
-  2 | nodeTest.test('t', t => { t.assert.throws(() => { setup(); run(); }); });
-
-`;
-
-exports[`no-assert-throws-multiple-statements > invalid(18): import * as nodeTest from 'node:test';\nnodeTest.test('t', t => { t.assert.throws(() => { setup(); run(); }); }); 2`] = `
-
-Message:
-  1 | import * as nodeTest from 'node:test';
-> 2 | nodeTest.test('t', t => { t.assert.throws(() => { setup(); run(); }); });
-    |                                                 ^^^^^^^^^^^^^^^^^^^ Keep the \`throws()\` callback to one statement so unrelated setup errors cannot satisfy the assertion.
-
-`;
-
-exports[`no-assert-throws-multiple-statements > invalid(19): import * as nodeTest from 'node:test';\nnodeTest.test.only('t', t => { t.assert.throws(() => { setup(); run(); }); }); 1`] = `
-
-  1 | import * as nodeTest from 'node:test';
-  2 | nodeTest.test.only('t', t => { t.assert.throws(() => { setup(); run(); }); });
-
-`;
-
-exports[`no-assert-throws-multiple-statements > invalid(19): import * as nodeTest from 'node:test';\nnodeTest.test.only('t', t => { t.assert.throws(() => { setup(); run(); }); }); 2`] = `
-
-Message:
-  1 | import * as nodeTest from 'node:test';
-> 2 | nodeTest.test.only('t', t => { t.assert.throws(() => { setup(); run(); }); });
-    |                                                      ^^^^^^^^^^^^^^^^^^^ Keep the \`throws()\` callback to one statement so unrelated setup errors cannot satisfy the assertion.
 
 `;
 
@@ -190,14 +190,46 @@ Message:
 
 `;
 
-exports[`no-assert-throws-multiple-statements > invalid(20): import test from 'node:test';\ntest('outer', t => { t.test('inner', u => { u.assert.throws(() => { setup(); run(); }); }); }); 1`] = `
+exports[`no-assert-throws-multiple-statements > invalid(20): import * as nodeTest from 'node:test';\nnodeTest.test('t', t => { t.assert.throws(() => { setup(); run(); }); }); 1`] = `
+
+  1 | import * as nodeTest from 'node:test';
+  2 | nodeTest.test('t', t => { t.assert.throws(() => { setup(); run(); }); });
+
+`;
+
+exports[`no-assert-throws-multiple-statements > invalid(20): import * as nodeTest from 'node:test';\nnodeTest.test('t', t => { t.assert.throws(() => { setup(); run(); }); }); 2`] = `
+
+Message:
+  1 | import * as nodeTest from 'node:test';
+> 2 | nodeTest.test('t', t => { t.assert.throws(() => { setup(); run(); }); });
+    |                                                 ^^^^^^^^^^^^^^^^^^^ Keep the \`throws()\` callback to one statement so unrelated setup errors cannot satisfy the assertion.
+
+`;
+
+exports[`no-assert-throws-multiple-statements > invalid(21): import * as nodeTest from 'node:test';\nnodeTest.test.only('t', t => { t.assert.throws(() => { setup(); run(); }); }); 1`] = `
+
+  1 | import * as nodeTest from 'node:test';
+  2 | nodeTest.test.only('t', t => { t.assert.throws(() => { setup(); run(); }); });
+
+`;
+
+exports[`no-assert-throws-multiple-statements > invalid(21): import * as nodeTest from 'node:test';\nnodeTest.test.only('t', t => { t.assert.throws(() => { setup(); run(); }); }); 2`] = `
+
+Message:
+  1 | import * as nodeTest from 'node:test';
+> 2 | nodeTest.test.only('t', t => { t.assert.throws(() => { setup(); run(); }); });
+    |                                                      ^^^^^^^^^^^^^^^^^^^ Keep the \`throws()\` callback to one statement so unrelated setup errors cannot satisfy the assertion.
+
+`;
+
+exports[`no-assert-throws-multiple-statements > invalid(22): import test from 'node:test';\ntest('outer', t => { t.test('inner', u => { u.assert.throws(() => { setup(); run(); }); }); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('outer', t => { t.test('inner', u => { u.assert.throws(() => { setup(); run(); }); }); });
 
 `;
 
-exports[`no-assert-throws-multiple-statements > invalid(20): import test from 'node:test';\ntest('outer', t => { t.test('inner', u => { u.assert.throws(() => { setup(); run(); }); }); }); 2`] = `
+exports[`no-assert-throws-multiple-statements > invalid(22): import test from 'node:test';\ntest('outer', t => { t.test('inner', u => { u.assert.throws(() => { setup(); run(); }); }); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -206,14 +238,14 @@ Message:
 
 `;
 
-exports[`no-assert-throws-multiple-statements > invalid(21): import test from 'node:test';\ntest('outer', t => { t.test('inner', u => { u.assert.rejects(async () => { setup(); await run(); }); }); }); 1`] = `
+exports[`no-assert-throws-multiple-statements > invalid(23): import test from 'node:test';\ntest('outer', t => { t.test('inner', u => { u.assert.rejects(async () => { setup(); await run(); }); }); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('outer', t => { t.test('inner', u => { u.assert.rejects(async () => { setup(); await run(); }); }); });
 
 `;
 
-exports[`no-assert-throws-multiple-statements > invalid(21): import test from 'node:test';\ntest('outer', t => { t.test('inner', u => { u.assert.rejects(async () => { setup(); await run(); }); }); }); 2`] = `
+exports[`no-assert-throws-multiple-statements > invalid(23): import test from 'node:test';\ntest('outer', t => { t.test('inner', u => { u.assert.rejects(async () => { setup(); await run(); }); }); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -222,14 +254,14 @@ Message:
 
 `;
 
-exports[`no-assert-throws-multiple-statements > invalid(22): import assert from 'node:assert';\nassert.throws(() => { setup(); /* comment */ run(); }); 1`] = `
+exports[`no-assert-throws-multiple-statements > invalid(24): import assert from 'node:assert';\nassert.throws(() => { setup(); /* comment */ run(); }); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.throws(() => { setup(); /* comment */ run(); });
 
 `;
 
-exports[`no-assert-throws-multiple-statements > invalid(22): import assert from 'node:assert';\nassert.throws(() => { setup(); /* comment */ run(); }); 2`] = `
+exports[`no-assert-throws-multiple-statements > invalid(24): import assert from 'node:assert';\nassert.throws(() => { setup(); /* comment */ run(); }); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
@@ -238,14 +270,14 @@ Message:
 
 `;
 
-exports[`no-assert-throws-multiple-statements > invalid(23): import assert from 'node:assert';\nassert.throws((() => { setup(); run(); }) as () => void); 1`] = `
+exports[`no-assert-throws-multiple-statements > invalid(25): import assert from 'node:assert';\nassert.throws((() => { setup(); run(); }) as () => void); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.throws((() => { setup(); run(); }) as () => void);
 
 `;
 
-exports[`no-assert-throws-multiple-statements > invalid(23): import assert from 'node:assert';\nassert.throws((() => { setup(); run(); }) as () => void); 2`] = `
+exports[`no-assert-throws-multiple-statements > invalid(25): import assert from 'node:assert';\nassert.throws((() => { setup(); run(); }) as () => void); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
@@ -254,14 +286,14 @@ Message:
 
 `;
 
-exports[`no-assert-throws-multiple-statements > invalid(24): import assert from 'node:assert';\nassert.throws((() => { setup(); run(); })!); 1`] = `
+exports[`no-assert-throws-multiple-statements > invalid(26): import assert from 'node:assert';\nassert.throws((() => { setup(); run(); })!); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.throws((() => { setup(); run(); })!);
 
 `;
 
-exports[`no-assert-throws-multiple-statements > invalid(24): import assert from 'node:assert';\nassert.throws((() => { setup(); run(); })!); 2`] = `
+exports[`no-assert-throws-multiple-statements > invalid(26): import assert from 'node:assert';\nassert.throws((() => { setup(); run(); })!); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
@@ -270,14 +302,14 @@ Message:
 
 `;
 
-exports[`no-assert-throws-multiple-statements > invalid(25): import assert from 'node:assert';\nassert.throws((() => { setup(); run(); }) satisfies () => void); 1`] = `
+exports[`no-assert-throws-multiple-statements > invalid(27): import assert from 'node:assert';\nassert.throws((() => { setup(); run(); }) satisfies () => void); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.throws((() => { setup(); run(); }) satisfies () => void);
 
 `;
 
-exports[`no-assert-throws-multiple-statements > invalid(25): import assert from 'node:assert';\nassert.throws((() => { setup(); run(); }) satisfies () => void); 2`] = `
+exports[`no-assert-throws-multiple-statements > invalid(27): import assert from 'node:assert';\nassert.throws((() => { setup(); run(); }) satisfies () => void); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
@@ -286,14 +318,14 @@ Message:
 
 `;
 
-exports[`no-assert-throws-multiple-statements > invalid(26): import assert from 'node:assert';\nassert.throws(<() => void>(() => { setup(); run(); })); 1`] = `
+exports[`no-assert-throws-multiple-statements > invalid(28): import assert from 'node:assert';\nassert.throws(<() => void>(() => { setup(); run(); })); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.throws(<() => void>(() => { setup(); run(); }));
 
 `;
 
-exports[`no-assert-throws-multiple-statements > invalid(26): import assert from 'node:assert';\nassert.throws(<() => void>(() => { setup(); run(); })); 2`] = `
+exports[`no-assert-throws-multiple-statements > invalid(28): import assert from 'node:assert';\nassert.throws(<() => void>(() => { setup(); run(); })); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';

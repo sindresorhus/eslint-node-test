@@ -17,10 +17,6 @@ const messages = {
 
 const TARGET_METHODS = new Set(['throws', 'rejects']);
 
-function getTargetMethod(node) {
-	return node.type === 'Identifier' && TARGET_METHODS.has(node.name) ? node.name : undefined;
-}
-
 function getCalleeRootIdentifier(node) {
 	let current = node;
 	while (current.type === 'MemberExpression' && !current.computed) {
@@ -73,48 +69,25 @@ function getImportedAssertReceiver(callExpression, imports) {
 		callee.type === 'MemberExpression'
 		&& !callee.computed
 		&& callee.object.type === 'Identifier'
-		&& imports.assertNamespace.has(callee.object.name)
+		&& (
+			imports.assertNamespace.has(callee.object.name)
+			|| imports.assertNamed.get(callee.object.name) === 'strict'
+		)
 	) {
 		return callee.object;
 	}
-}
-
-function parseStrictAssertCall(callExpression, imports) {
-	const {callee} = callExpression;
-	if (
-		callee.type !== 'MemberExpression'
-		|| callee.computed
-	) {
-		return;
-	}
-
-	const method = getTargetMethod(callee.property);
-	if (!method) {
-		return;
-	}
 
 	if (
-		callee.object.type === 'Identifier'
-		&& imports.assertNamed.get(callee.object.name) === 'strict'
-	) {
-		return {
-			method,
-			receiver: callee.object,
-		};
-	}
-
-	if (
-		callee.object.type === 'MemberExpression'
+		callee.type === 'MemberExpression'
+		&& !callee.computed
+		&& callee.object.type === 'MemberExpression'
 		&& !callee.object.computed
 		&& callee.object.object.type === 'Identifier'
 		&& callee.object.property.type === 'Identifier'
 		&& callee.object.property.name === 'strict'
 		&& imports.assertNamespace.has(callee.object.object.name)
 	) {
-		return {
-			method,
-			receiver: callee.object.object,
-		};
+		return callee.object.object;
 	}
 }
 
@@ -171,13 +144,11 @@ const create = context => {
 		rememberContextParameter(node);
 
 		const parsed = parseAssertionCall(node, imports);
-		const strictAssertCall = parsed ? undefined : parseStrictAssertCall(node, imports);
-		const method = parsed?.method ?? strictAssertCall?.method;
-		if (!method || !TARGET_METHODS.has(method)) {
+		if (!parsed || !TARGET_METHODS.has(parsed.method)) {
 			return;
 		}
 
-		const importedAssertReceiver = strictAssertCall?.receiver ?? getImportedAssertReceiver(node, imports);
+		const importedAssertReceiver = getImportedAssertReceiver(node, imports);
 		if (importedAssertReceiver && !isImportBinding(importedAssertReceiver, sourceCode)) {
 			return;
 		}
@@ -200,7 +171,7 @@ const create = context => {
 		return {
 			node: callback.body,
 			messageId: MESSAGE_ID,
-			data: {method},
+			data: {method: parsed.method},
 		};
 	});
 };

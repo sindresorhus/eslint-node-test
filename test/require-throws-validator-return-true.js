@@ -6,6 +6,7 @@ const withAssert = code => `import assert from 'node:assert/strict';\n${code}`;
 const withLooseAssert = code => `import assert from 'node:assert';\n${code}`;
 const withAssertNamespace = code => `import * as assert from 'node:assert/strict';\n${code}`;
 const withNamedImport = (methods, code) => `import {${methods}} from 'node:assert/strict';\n${code}`;
+const withLooseNamedImport = (methods, code) => `import {${methods}} from 'node:assert';\n${code}`;
 const withTest = code => `import test from 'node:test';\n${code}`;
 
 test.snapshot({
@@ -51,6 +52,8 @@ test.snapshot({
 		withAssert('assert.throws(fn, error => { assert.match(error.message, /bad/); });'),
 		withAssert('assert.rejects(fn, error => { assert.match(error.message, /bad/); });'),
 		withLooseAssert('assert.throws(fn, error => { assert.match(error.message, /bad/); });'),
+		withLooseAssert('assert.strict.throws(fn, error => { assert.match(error.message, /bad/); });'),
+		withLooseNamedImport('strict as strictAssert', 'strictAssert.throws(fn, error => { assert.match(error.message, /bad/); });'),
 
 		// Empty return
 		withAssert('assert.throws(fn, error => { assert.match(error.message, /bad/); return; });'),

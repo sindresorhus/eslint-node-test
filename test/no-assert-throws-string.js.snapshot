@@ -18,14 +18,54 @@ Suggestion 1/1: Match the error message with \`{message: …}\`.:
 
 `;
 
-exports[`no-assert-throws-string > invalid(2): import assert from 'node:assert';\nassert.rejects(asyncFn, \"Wrong value\"); 1`] = `
+exports[`no-assert-throws-string > invalid(10): import assert from 'node:assert';\nassert.throws(fn, \"Wrong value\" as string); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.throws(fn, "Wrong value" as string);
+
+`;
+
+exports[`no-assert-throws-string > invalid(10): import assert from 'node:assert';\nassert.throws(fn, \"Wrong value\" as string); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws(fn, "Wrong value" as string);
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^ The second argument to \`throws()\` is the failure message, not an error matcher, so the thrown error is not validated.
+
+Suggestion 1/1: Match the error message with \`{message: …}\`.:
+  1 | import assert from 'node:assert';
+  2 | assert.throws(fn, {message: "Wrong value" as string});
+
+`;
+
+exports[`no-assert-throws-string > invalid(2): import assert from 'node:assert';\nassert.strict.throws(fn, \"Wrong value\"); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.strict.throws(fn, "Wrong value");
+
+`;
+
+exports[`no-assert-throws-string > invalid(2): import assert from 'node:assert';\nassert.strict.throws(fn, \"Wrong value\"); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.strict.throws(fn, "Wrong value");
+    |                          ^^^^^^^^^^^^^ The second argument to \`throws()\` is the failure message, not an error matcher, so the thrown error is not validated.
+
+Suggestion 1/1: Match the error message with \`{message: …}\`.:
+  1 | import assert from 'node:assert';
+  2 | assert.strict.throws(fn, {message: "Wrong value"});
+
+`;
+
+exports[`no-assert-throws-string > invalid(3): import assert from 'node:assert';\nassert.rejects(asyncFn, \"Wrong value\"); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.rejects(asyncFn, "Wrong value");
 
 `;
 
-exports[`no-assert-throws-string > invalid(2): import assert from 'node:assert';\nassert.rejects(asyncFn, \"Wrong value\"); 2`] = `
+exports[`no-assert-throws-string > invalid(3): import assert from 'node:assert';\nassert.rejects(asyncFn, \"Wrong value\"); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
@@ -38,14 +78,14 @@ Suggestion 1/1: Match the error message with \`{message: …}\`.:
 
 `;
 
-exports[`no-assert-throws-string > invalid(3): import assert from 'node:assert';\nassert.throws(fn, \`Wrong value\`); 1`] = `
+exports[`no-assert-throws-string > invalid(4): import assert from 'node:assert';\nassert.throws(fn, \`Wrong value\`); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.throws(fn, \`Wrong value\`);
 
 `;
 
-exports[`no-assert-throws-string > invalid(3): import assert from 'node:assert';\nassert.throws(fn, \`Wrong value\`); 2`] = `
+exports[`no-assert-throws-string > invalid(4): import assert from 'node:assert';\nassert.throws(fn, \`Wrong value\`); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
@@ -58,14 +98,14 @@ Suggestion 1/1: Match the error message with \`{message: …}\`.:
 
 `;
 
-exports[`no-assert-throws-string > invalid(4): import assert from 'node:assert';\nassert.throws(fn, \`Wrong \${value}\`); 1`] = `
+exports[`no-assert-throws-string > invalid(5): import assert from 'node:assert';\nassert.throws(fn, \`Wrong \${value}\`); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.throws(fn, \`Wrong \${value}\`);
 
 `;
 
-exports[`no-assert-throws-string > invalid(4): import assert from 'node:assert';\nassert.throws(fn, \`Wrong \${value}\`); 2`] = `
+exports[`no-assert-throws-string > invalid(5): import assert from 'node:assert';\nassert.throws(fn, \`Wrong \${value}\`); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
@@ -78,14 +118,14 @@ Suggestion 1/1: Match the error message with \`{message: …}\`.:
 
 `;
 
-exports[`no-assert-throws-string > invalid(5): import assert from 'node:assert';\nassert.throws(fn, \"Wrong value\", \"failure message\"); 1`] = `
+exports[`no-assert-throws-string > invalid(6): import assert from 'node:assert';\nassert.throws(fn, \"Wrong value\", \"failure message\"); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.throws(fn, "Wrong value", "failure message");
 
 `;
 
-exports[`no-assert-throws-string > invalid(5): import assert from 'node:assert';\nassert.throws(fn, \"Wrong value\", \"failure message\"); 2`] = `
+exports[`no-assert-throws-string > invalid(6): import assert from 'node:assert';\nassert.throws(fn, \"Wrong value\", \"failure message\"); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
@@ -98,14 +138,14 @@ Suggestion 1/1: Match the error message with \`{message: …}\`.:
 
 `;
 
-exports[`no-assert-throws-string > invalid(6): import {throws} from 'node:assert';\nthrows(fn, \"Wrong value\"); 1`] = `
+exports[`no-assert-throws-string > invalid(7): import {throws} from 'node:assert';\nthrows(fn, \"Wrong value\"); 1`] = `
 
   1 | import {throws} from 'node:assert';
   2 | throws(fn, "Wrong value");
 
 `;
 
-exports[`no-assert-throws-string > invalid(6): import {throws} from 'node:assert';\nthrows(fn, \"Wrong value\"); 2`] = `
+exports[`no-assert-throws-string > invalid(7): import {throws} from 'node:assert';\nthrows(fn, \"Wrong value\"); 2`] = `
 
 Message:
   1 | import {throws} from 'node:assert';
@@ -118,14 +158,34 @@ Suggestion 1/1: Match the error message with \`{message: …}\`.:
 
 `;
 
-exports[`no-assert-throws-string > invalid(7): import test from 'node:test';\ntest('t', t => { t.assert.throws(fn, \"Wrong value\"); }); 1`] = `
+exports[`no-assert-throws-string > invalid(8): import {strict as strictAssert} from 'node:assert';\nstrictAssert.throws(fn, \"Wrong value\"); 1`] = `
+
+  1 | import {strict as strictAssert} from 'node:assert';
+  2 | strictAssert.throws(fn, "Wrong value");
+
+`;
+
+exports[`no-assert-throws-string > invalid(8): import {strict as strictAssert} from 'node:assert';\nstrictAssert.throws(fn, \"Wrong value\"); 2`] = `
+
+Message:
+  1 | import {strict as strictAssert} from 'node:assert';
+> 2 | strictAssert.throws(fn, "Wrong value");
+    |                         ^^^^^^^^^^^^^ The second argument to \`throws()\` is the failure message, not an error matcher, so the thrown error is not validated.
+
+Suggestion 1/1: Match the error message with \`{message: …}\`.:
+  1 | import {strict as strictAssert} from 'node:assert';
+  2 | strictAssert.throws(fn, {message: "Wrong value"});
+
+`;
+
+exports[`no-assert-throws-string > invalid(9): import test from 'node:test';\ntest('t', t => { t.assert.throws(fn, \"Wrong value\"); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', t => { t.assert.throws(fn, "Wrong value"); });
 
 `;
 
-exports[`no-assert-throws-string > invalid(7): import test from 'node:test';\ntest('t', t => { t.assert.throws(fn, \"Wrong value\"); }); 2`] = `
+exports[`no-assert-throws-string > invalid(9): import test from 'node:test';\ntest('t', t => { t.assert.throws(fn, \"Wrong value\"); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -135,25 +195,5 @@ Message:
 Suggestion 1/1: Match the error message with \`{message: …}\`.:
   1 | import test from 'node:test';
   2 | test('t', t => { t.assert.throws(fn, {message: "Wrong value"}); });
-
-`;
-
-exports[`no-assert-throws-string > invalid(8): import assert from 'node:assert';\nassert.throws(fn, \"Wrong value\" as string); 1`] = `
-
-  1 | import assert from 'node:assert';
-  2 | assert.throws(fn, "Wrong value" as string);
-
-`;
-
-exports[`no-assert-throws-string > invalid(8): import assert from 'node:assert';\nassert.throws(fn, \"Wrong value\" as string); 2`] = `
-
-Message:
-  1 | import assert from 'node:assert';
-> 2 | assert.throws(fn, "Wrong value" as string);
-    |                   ^^^^^^^^^^^^^^^^^^^^^^^ The second argument to \`throws()\` is the failure message, not an error matcher, so the thrown error is not validated.
-
-Suggestion 1/1: Match the error message with \`{message: …}\`.:
-  1 | import assert from 'node:assert';
-  2 | assert.throws(fn, {message: "Wrong value" as string});
 
 `;
