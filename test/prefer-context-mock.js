@@ -47,6 +47,9 @@ test.snapshot({
 		// Namespace import
 		'import * as nodeTest from \'node:test\';\nnodeTest.mock.fn();',
 
+		// Named test import
+		'import {test} from \'node:test\';\ntest.mock.fn();',
+
 		// TypeScript
 		{
 			code: withImport('mock.method(obj as Target, "fn");'),

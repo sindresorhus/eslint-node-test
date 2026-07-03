@@ -16,10 +16,6 @@ const create = context => {
 		return;
 	}
 
-	if (imports.mockLocals.size === 0 && !imports.namespace) {
-		return;
-	}
-
 	context.on('CallExpression', node => {
 		let member = node.callee;
 		while (member.type === 'MemberExpression') {
