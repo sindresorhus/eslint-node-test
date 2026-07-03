@@ -2,6 +2,7 @@
 
 export {default as 'assertion-arguments'} from './assertion-arguments.js';
 export {default as 'consistent-assert-style'} from './consistent-assert-style.js';
+export {default as 'consistent-assert-throws-callback-style'} from './consistent-assert-throws-callback-style.js';
 export {default as 'consistent-modifier-style'} from './consistent-modifier-style.js';
 export {default as 'consistent-test-context-name'} from './consistent-test-context-name.js';
 export {default as 'consistent-test-filename'} from './consistent-test-filename.js';
