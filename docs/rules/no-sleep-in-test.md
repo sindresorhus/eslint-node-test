@@ -9,7 +9,7 @@
 
 Sleeping in a test waits for time instead of the real condition the test needs. This makes the test slower than necessary and still flaky: the event may happen earlier, later, or not at all.
 
-This rule reports direct Promise sleep wrappers inside tests, subtests, and hooks, such as `new Promise(resolve => setTimeout(resolve, 500))`, and direct `setTimeout()` calls imported from `node:timers/promises` or `timers/promises`. Await the real signal, or use `t.mock.timers` when you are testing timer-driven code.
+This rule reports direct Promise sleep wrappers in test, subtest, and hook callback bodies, such as `new Promise(resolve => setTimeout(resolve, 500))`, and direct `setTimeout()` calls imported from `node:timers/promises` or `timers/promises`. Await the real signal, or use `t.mock.timers` when you are testing timer-driven code.
 
 ## Examples
 
@@ -48,4 +48,4 @@ test('debounces', t => {
 });
 ```
 
-The rule intentionally does not report locally defined `sleep()` or `delay()` helper calls, or bare `setTimeout(fn, ms)` scheduling. It only targets direct imported promise-timer `setTimeout()` calls and direct Promise sleep wrappers.
+The rule intentionally does not report locally defined `sleep()` or `delay()` helper calls, nested helper function bodies, or bare `setTimeout(fn, ms)` scheduling. It only targets direct imported promise-timer `setTimeout()` calls and direct Promise sleep wrappers.

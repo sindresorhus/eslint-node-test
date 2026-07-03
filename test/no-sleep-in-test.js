@@ -7,6 +7,16 @@ const withTimerImport = code => `import test from 'node:test';\nimport {setTimeo
 const withPromiseTimerImport = code => `import test from 'node:test';\nimport {setTimeout as delay} from 'node:timers/promises';\ntest('waits', async () => {\n\t${code}\n});`;
 const withPromiseTimerContextImport = code => `import test from 'node:test';\nimport {setTimeout as delay} from 'node:timers/promises';\ntest('waits', async t => {\n\t${code}\n});`;
 const withPromiseTimerNamespaceImport = code => `import test from 'node:test';\nimport * as timers from 'node:timers/promises';\ntest('waits', async () => {\n\t${code}\n});`;
+const withNodeTestPromiseTimerImport = code => [
+	'import {describe, test} from \'node:test\';',
+	'import {setTimeout as delay} from \'node:timers/promises\';',
+	code,
+].join('\n');
+const withSuitePromiseTimerImport = (callee, options, code) => withNodeTestPromiseTimerImport([
+	`${callee}('suite', ${options}() => {`,
+	code.split('\n').map(line => `\t${line}`).join('\n'),
+	'});',
+].join('\n'));
 
 test.snapshot({
 	valid: [
@@ -38,9 +48,14 @@ test.snapshot({
 		'import test from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\ntest(\'waits\', {skip: true}, async () => {\n\tawait delay(500);\n});',
 		withPromiseTimerContextImport('await t.test.skip(\'child\', async () => {\n\tawait delay(500);\n});'),
 		withPromiseTimerContextImport('await t.test(\'child\', {skip: true}, async () => {\n\tawait delay(500);\n});'),
+		withPromiseTimerContextImport('function registerSubtest() {\n\tt.test(\'child\', async () => {\n\t\tawait delay(500);\n\t});\n}'),
+		withNodeTestPromiseTimerImport('test.skip(\'outer\', () => {\n\ttest(\'inner\', async () => {\n\t\tawait delay(500);\n\t});\n});'),
+		withPromiseTimerContextImport('await t.test.skip(\'outer\', () => {\n\tt.test(\'inner\', async () => {\n\t\tawait delay(500);\n\t});\n});'),
 		'import test from \'node:test\';\nfunction sleep() {\n\treturn new Promise(resolve => setTimeout(resolve, 500));\n}\ntest(\'waits\', async () => {\n\tawait sleep();\n});',
 		'import {describe} from \'node:test\';\ndescribe(\'suite\', () => {\n\tnew Promise(resolve => setTimeout(resolve, 500));\n});',
 		'import {describe} from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\ndescribe(\'suite\', async () => {\n\tawait delay(500);\n});',
+		withSuitePromiseTimerImport('describe.skip', '', 'test(\'waits\', async () => {\n\tawait delay(500);\n});'),
+		withSuitePromiseTimerImport('describe', '{skip: true}, ', 'test(\'waits\', async () => {\n\tawait delay(500);\n});'),
 	],
 	invalid: [
 		withTest('await new Promise(resolve => setTimeout(resolve, 500));'),
@@ -77,8 +92,25 @@ test.snapshot({
 		'import test from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\ntest(\'waits\', {todo: \'later\'}, async () => {\n\tawait delay(500);\n});',
 		withPromiseTimerContextImport('await t.test(\'child\', async () => {\n\tawait delay(500);\n});'),
 		withPromiseTimerContextImport('await t.test.todo(\'child\', async () => {\n\tawait delay(500);\n});'),
+		withSuitePromiseTimerImport('describe', '', 'test(\'waits\', async () => {\n\tawait delay(500);\n});'),
+		withSuitePromiseTimerImport('describe', '{skip: false}, ', 'test(\'waits\', async () => {\n\tawait delay(500);\n});'),
 		{
 			code: 'import test from \'node:test\';\ntest(\'waits\', async () => {\n\tawait new Promise<void>(resolve => setTimeout(resolve, 500));\n});',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: [
+				'import {describe, test} from \'node:test\';',
+				'import {setTimeout as delay} from \'node:timers/promises\';',
+				'describe.skip(\'suite\', (() => {',
+				'\ttest(\'ignored\', async () => {',
+				'\t\tawait delay(500);',
+				'\t});',
+				'}) as () => void);',
+				'test(\'waits\', async () => {',
+				'\tawait delay(500);',
+				'});',
+			].join('\n'),
 			languageOptions: {parser: parsers.typescript},
 		},
 	],

@@ -2,6 +2,7 @@ import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	resolveImports,
 	parseTestCall,
+	getCalleeChain,
 	getTestCallback,
 	getSubtestReceiver,
 	getTestOptions,
@@ -61,21 +62,7 @@ function isGlobalObjectSetTimeout(sourceCode, node) {
 		&& isIdentifierReference(node.property, 'setTimeout');
 }
 
-function getMemberChain(node) {
-	const members = [];
-	while (
-		node?.type === 'MemberExpression'
-		&& !node.computed
-		&& node.property.type === 'Identifier'
-	) {
-		members.unshift(node.property);
-		node = node.object;
-	}
-
-	return node?.type === 'Identifier' ? members : undefined;
-}
-
-function isActiveModifiers(modifiers) {
+function areActiveModifiers(modifiers) {
 	return modifiers.every(modifier => ACTIVE_TEST_MODIFIERS.has(modifier.name));
 }
 
@@ -85,7 +72,7 @@ function hasInactiveTestOptions(node) {
 }
 
 function getSubtestModifiers(node) {
-	const members = getMemberChain(node.callee);
+	const {members = []} = getCalleeChain(node.callee) ?? {};
 	return members?.[0]?.name === 'test' ? members.slice(1) : [];
 }
 
@@ -249,6 +236,7 @@ const create = context => {
 
 	const timerImports = getTimerImportBindings(context.sourceCode);
 	const testStack = [];
+	const inactiveCallbackStack = [];
 	const trackedCalls = new Set();
 	const {sourceCode} = context;
 
@@ -261,24 +249,54 @@ const create = context => {
 		return findVariable(sourceCode.getScope(parameter), parameter);
 	};
 
-	const isActiveSubtestCall = node => {
+	const hasInactiveCallbackAncestor = node => {
+		for (const {callback} of inactiveCallbackStack) {
+			let current = node;
+			while (current) {
+				if (current === callback) {
+					return true;
+				}
+
+				current = current.parent;
+			}
+		}
+
+		return false;
+	};
+
+	const isCurrentTestContextSubtestCall = node => {
 		const receiver = getSubtestReceiver(node);
 		if (receiver?.type !== 'Identifier') {
 			return false;
 		}
 
+		const currentTest = testStack.at(-1);
 		const receiverVariable = findVariable(sourceCode.getScope(receiver), receiver);
-		return testStack.some(test => test.contextVariable && test.contextVariable === receiverVariable)
-			&& isActiveModifiers(getSubtestModifiers(node))
-			&& !hasInactiveTestOptions(node);
+		return currentTest
+			&& getEnclosingFunction(node) === currentTest.callback
+			&& currentTest.contextVariable === receiverVariable;
 	};
 
+	const isActiveSubtestCall = node => isCurrentTestContextSubtestCall(node)
+		&& areActiveModifiers(getSubtestModifiers(node))
+		&& !hasInactiveTestOptions(node);
+
+	const isInactiveSubtestCall = node => isCurrentTestContextSubtestCall(node)
+		&& (
+			!areActiveModifiers(getSubtestModifiers(node))
+			|| hasInactiveTestOptions(node)
+		);
+
 	const getScopeBoundaryCallback = node => {
+		if (hasInactiveCallbackAncestor(node)) {
+			return;
+		}
+
 		const parsed = parseTestCall(node, imports);
 		if (parsed) {
 			return (
 				(parsed.kind === 'test' || parsed.kind === 'hook')
-				&& isActiveModifiers(parsed.modifiers)
+				&& areActiveModifiers(parsed.modifiers)
 				&& !hasInactiveTestOptions(node)
 			)
 				? getTestCallback(node)
@@ -288,12 +306,37 @@ const create = context => {
 		return isActiveSubtestCall(node) ? getTestCallback(node) : undefined;
 	};
 
+	const getInactiveScopeCallback = node => {
+		const parsed = parseTestCall(node, imports);
+		if (parsed) {
+			return (
+				!areActiveModifiers(parsed.modifiers)
+				|| hasInactiveTestOptions(node)
+			)
+				? getTestCallback(node)
+				: undefined;
+		}
+
+		if (!isInactiveSubtestCall(node)) {
+			return;
+		}
+
+		return getTestCallback(node);
+	};
+
 	const isInsideTestCallback = node => {
 		const testCallback = testStack.at(-1)?.callback;
 		return testCallback ? getEnclosingFunction(node) === testCallback : false;
 	};
 
 	context.on('CallExpression', node => {
+		const inactiveScopeCallback = getInactiveScopeCallback(node);
+		if (inactiveScopeCallback) {
+			inactiveCallbackStack.push({node, callback: inactiveScopeCallback});
+			trackedCalls.add(node);
+			return;
+		}
+
 		const boundaryCallback = getScopeBoundaryCallback(node);
 		if (boundaryCallback) {
 			testStack.push({
@@ -310,7 +353,11 @@ const create = context => {
 		}
 
 		trackedCalls.delete(node);
-		testStack.pop();
+		if (inactiveCallbackStack.at(-1)?.node === node) {
+			inactiveCallbackStack.pop();
+		} else {
+			testStack.pop();
+		}
 	});
 
 	context.on('NewExpression', node => {
