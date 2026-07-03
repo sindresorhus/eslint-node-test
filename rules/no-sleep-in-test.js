@@ -12,7 +12,7 @@ import {
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 import {getEnclosingFunction} from './utils/index.js';
-import isFunction from './ast/is-function.js';
+import {isFunction, isLoop} from './ast/index.js';
 
 const MESSAGE_ID = 'no-sleep-in-test';
 
@@ -196,9 +196,38 @@ function getStatementExpression(node) {
 	}
 }
 
+function statementBodyContainsExpression(statement, predicate) {
+	return statement.type === 'BlockStatement'
+		? bodyContainsExpression(statement, predicate)
+		: statementContainsExpression(statement, predicate);
+}
+
 function statementContainsExpression(statement, predicate) {
 	if (statement.type === 'VariableDeclaration') {
 		return statement.declarations.some(declaration => declaration.init && predicate(declaration.init));
+	}
+
+	if (statement.type === 'BlockStatement') {
+		return bodyContainsExpression(statement, predicate);
+	}
+
+	if (statement.type === 'IfStatement') {
+		return statementContainsExpression(statement.consequent, predicate)
+			|| (statement.alternate ? statementContainsExpression(statement.alternate, predicate) : false);
+	}
+
+	if (statement.type === 'TryStatement') {
+		return bodyContainsExpression(statement.block, predicate)
+			|| (statement.handler ? bodyContainsExpression(statement.handler.body, predicate) : false)
+			|| (statement.finalizer ? bodyContainsExpression(statement.finalizer, predicate) : false);
+	}
+
+	if (isLoop(statement)) {
+		return statementBodyContainsExpression(statement.body, predicate);
+	}
+
+	if (statement.type === 'SwitchStatement') {
+		return statement.cases.some(switchCase => switchCase.consequent.some(caseStatement => statementContainsExpression(caseStatement, predicate)));
 	}
 
 	const expression = getStatementExpression(statement);
@@ -236,7 +265,6 @@ function isResolverArgument(node, resolverVariable, sourceCode) {
 function isSleepSetTimeoutCall(node, resolverVariable, timerImports) {
 	node = unwrapExpression(node);
 	return node?.type === 'CallExpression'
-		&& node.arguments.length > 0
 		&& isSetTimeoutCallee(node.callee, timerImports)
 		&& isResolverArgument(node.arguments[0], resolverVariable, timerImports.sourceCode);
 }
@@ -262,7 +290,8 @@ function isSleepPromise(node, timerImports) {
 		return false;
 	}
 
-	const isSleepCall = expression => resolveOrRejectVariables.some(resolveOrRejectVariable => isSleepSetTimeoutCall(expression, resolveOrRejectVariable, timerImports));
+	const isSleepCall = expression => resolveOrRejectVariables.some(resolveOrRejectVariable =>
+		isSleepSetTimeoutCall(expression, resolveOrRejectVariable, timerImports));
 	return bodyContainsExpression(executorFunction.body, isSleepCall);
 }
 
