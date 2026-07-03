@@ -45,6 +45,7 @@ export {default as 'no-standalone-assert'} from './no-standalone-assert.js';
 export {default as 'no-test-inside-hook'} from './no-test-inside-hook.js';
 export {default as 'no-test-return-statement'} from './no-test-return-statement.js';
 export {default as 'no-todo-test'} from './no-todo-test.js';
+export {default as 'no-unawaited-promise-assertion'} from './no-unawaited-promise-assertion.js';
 export {default as 'no-unawaited-rejects'} from './no-unawaited-rejects.js';
 export {default as 'no-unawaited-subtest'} from './no-unawaited-subtest.js';
 export {default as 'no-unknown-test-options'} from './no-unknown-test-options.js';
