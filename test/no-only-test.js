@@ -1,4 +1,4 @@
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -12,6 +12,11 @@ test.snapshot({
 		'import {it} from "node:test";\nit("title", () => {});',
 		'import test from "node:test";\ntest("title", {skip: true}, () => {});',
 		'import test from "node:test";\ntest("title", {only: false}, () => {});',
+		'import test from "node:test";\ntest("title", {only: undefined}, () => {});',
+		{
+			code: 'import test from "node:test";\ntest("title", {only: false as boolean}, () => {});',
+			languageOptions: {parser: parsers.typescript},
+		},
 		// `only` on an unrelated object
 		'import test from "node:test";\nfoo.only();',
 	],
