@@ -136,7 +136,8 @@ function isCurrentContextBinding(identifier, contextTracker, sourceCode) {
 }
 
 function shouldTrackContextCall(node, imports, contextTracker, sourceCode) {
-	if (parseTestCall(node, imports)?.kind === 'test') {
+	const parsed = parseTestCall(node, imports);
+	if (parsed && (parsed.kind === 'test' || parsed.kind === 'hook')) {
 		const root = getCalleeRoot(node.callee);
 		return root ? isImportedTestBinding(root, sourceCode) : false;
 	}
@@ -183,7 +184,7 @@ const create = context => {
 		return;
 	}
 
-	const contextTracker = createContextTracker(imports);
+	const contextTracker = createContextTracker(imports, {trackHooks: true});
 
 	context.on('CallExpression', node => {
 		if (shouldTrackContextCall(node, imports, contextTracker, sourceCode)) {

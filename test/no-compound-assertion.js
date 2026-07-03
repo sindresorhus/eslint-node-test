@@ -10,6 +10,8 @@ const withAssertNamespace = code => `import * as assert from 'node:assert';\n${c
 const withNamedImport = code => `import {ok} from 'node:assert';\n${code}`;
 const withRenamedImport = code => `import {ok as assertOk} from 'node:assert';\n${code}`;
 const withTest = code => `import test from 'node:test';\n${code}`;
+const withHook = code => `import {beforeEach} from 'node:test';\n${code}`;
+const withTestNamespace = code => `import * as nodeTest from 'node:test';\n${code}`;
 
 test.snapshot({
 	valid: [
@@ -39,6 +41,7 @@ test.snapshot({
 		withNamedImport('function helper(ok) {\n\tok(a && b);\n}'),
 		withTest('test(\'t\', t => {\n\tfunction helper(t) {\n\t\tt.assert.ok(a && b);\n\t}\n});'),
 		withTest('function helper(test) {\n\ttest(\'t\', t => {\n\t\tt.assert.ok(a && b);\n\t});\n}'),
+		withHook('function helper(beforeEach) {\n\tbeforeEach(t => {\n\t\tt.assert.ok(a && b);\n\t});\n}'),
 	],
 	invalid: [
 		// Bare assert.
@@ -63,6 +66,8 @@ test.snapshot({
 		// T.assert.ok.
 		withTest('test(\'t\', t => {\n\tt.assert.ok(a && b);\n});'),
 		withTest('test(\'parent\', t => {\n\tt.test(\'child\', t => {\n\t\tt.assert.ok(a && b);\n\t});\n});'),
+		withHook('beforeEach(t => {\n\tt.assert.ok(a && b);\n});'),
+		withTestNamespace('nodeTest.beforeEach(t => {\n\tt.assert.ok(a && b);\n});'),
 
 		// Custom message — reported without a fix.
 		withAssert('assert.ok(a && b, "should match");'),

@@ -348,7 +348,7 @@ export function getSubtestReceiver(callExpression) {
 }
 
 /**
-Track the test-context parameter names (`t`) introduced by enclosing test and subtest callbacks.
+Track the test-context parameter names (`t`) introduced by enclosing test, subtest, and optionally hook callbacks.
 
 Subtests (`t.test(…)`) are method calls, not imported bindings, so recognizing them requires
 knowing the enclosing context name. Drive the tracker from a `CallExpression` visitor: query
@@ -363,7 +363,7 @@ push this call's own context, and `leave(node)` on exit.
 	leave: (node: import('estree').Node) => void,
 }}
 */
-export function createContextTracker(imports) {
+export function createContextTracker(imports, {trackHooks = false} = {}) {
 	const names = [];
 	const variables = [];
 	const callbacks = [];
@@ -386,7 +386,8 @@ export function createContextTracker(imports) {
 		// the traversal reaches before the callback) is not actually within the context's scope.
 		currentCallback: () => callbacks.at(-1),
 		update(node) {
-			if (!(parseTestCall(node, imports)?.kind === 'test' || isSubtestCall(node))) {
+			const parsed = parseTestCall(node, imports);
+			if (!(parsed?.kind === 'test' || (trackHooks && parsed?.kind === 'hook') || isSubtestCall(node))) {
 				return;
 			}
 
