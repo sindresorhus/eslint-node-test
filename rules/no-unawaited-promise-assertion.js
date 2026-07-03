@@ -262,7 +262,19 @@ function getAssertionProblems(chainCalls, state) {
 function getTestBoundaryCallback(node, imports, contextParameters, sourceCode) {
 	const parsed = parseTestCall(node, imports);
 	if (parsed) {
-		return (parsed.kind === 'test' || parsed.kind === 'hook') && hasOnlyTestModifiers(parsed) && isImportedTestCall(node, sourceCode) ? getTestCallback(node) : undefined;
+		if (parsed.kind !== 'test' && parsed.kind !== 'hook') {
+			return undefined;
+		}
+
+		if (!hasOnlyTestModifiers(parsed)) {
+			return undefined;
+		}
+
+		if (!isImportedTestCall(node, sourceCode)) {
+			return undefined;
+		}
+
+		return getTestCallback(node);
 	}
 
 	return isTrackedSubtestCall(node, contextParameters, sourceCode) ? getTestCallback(node) : undefined;

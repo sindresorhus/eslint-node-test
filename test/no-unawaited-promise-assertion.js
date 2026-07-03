@@ -64,6 +64,9 @@ test.snapshot({
 	invalid: [
 		// Imported assert namespace.
 		inAsyncTest('load().then(value => { assert.strictEqual(value, 42); });'),
+		withNamespaceImport('nodeTest.test(\'loads\', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n});'),
+		inAsyncTest('load().then(value => assert.strictEqual(value, 42));'),
+		inAsyncTest('load().then(value => { assert(value); });'),
 
 		// `it` alias.
 		'import {it} from \'node:test\';\nimport assert from \'node:assert\';\nit(\'loads\', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n});',

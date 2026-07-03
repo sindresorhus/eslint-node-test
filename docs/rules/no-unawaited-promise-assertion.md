@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Assertions inside a floating Promise callback run after the test callback has already finished. If the assertion fails, the test runner reports it as asynchronous activity from a completed test instead of as the direct test failure.
+Assertions inside a floating Promise callback are not connected to the Promise returned by the test callback. If the assertion fails, the failure can escape as unhandled asynchronous activity instead of failing the test at the assertion site.
 
 Return or await the Promise chain so `node:test` waits for the assertion.
 
