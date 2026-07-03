@@ -43,23 +43,15 @@ function isCurrentContextReference(node, tracker, sourceCode) {
 	return variable?.defs.some(definition => definition.name === parameter) ?? false;
 }
 
-function isContextSnapshotCall(node, chain, tracker, sourceCode) {
+function isCurrentContextSnapshotCall(node, tracker, sourceCode) {
+	const chain = getCalleeChain(node.callee);
 	return (
-		chain.members.length === 2
+		chain?.members.length === 2
 		&& chain.members[0].name === 'assert'
 		&& chain.members[1].name === 'snapshot'
 		&& isInsideCurrentCallback(node, tracker)
 		&& isCurrentContextReference(chain.root, tracker, sourceCode)
 	);
-}
-
-function isSnapshotCall(node, tracker, sourceCode) {
-	const chain = getCalleeChain(node.callee);
-	if (!chain) {
-		return false;
-	}
-
-	return isContextSnapshotCall(node, chain, tracker, sourceCode);
 }
 
 function isInLoopBody(node) {
@@ -71,8 +63,11 @@ function isInLoopBody(node) {
 			return false;
 		}
 
-		if (isLoop(current)) {
-			return current.body === child;
+		if (
+			isLoop(current)
+			&& current.body === child
+		) {
+			return true;
 		}
 
 		child = current;
@@ -96,7 +91,7 @@ const create = context => {
 		let problem;
 
 		if (
-			isSnapshotCall(node, tracker, sourceCode)
+			isCurrentContextSnapshotCall(node, tracker, sourceCode)
 			&& isInLoopBody(node)
 		) {
 			problem = {
