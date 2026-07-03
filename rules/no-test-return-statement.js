@@ -1,6 +1,7 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	HOOK_FUNCTIONS,
+	MODIFIERS,
 	resolveImports,
 	parseTestCall,
 	getTestCallback,
@@ -89,9 +90,23 @@ function isContextSubtestCall(callExpression, state) {
 	return receiver !== undefined && isContextReference(receiver, state);
 }
 
+function isHookMemberTestCall(parsed) {
+	return parsed?.kind === 'test'
+		&& parsed.modifiers.length === 1
+		&& HOOK_FUNCTIONS.has(parsed.modifiers[0].name);
+}
+
 function getCheckedCallback(callExpression, state) {
 	const parsed = parseTestCall(callExpression, state.imports);
+	if (isHookMemberTestCall(parsed)) {
+		return getHookCallback(callExpression);
+	}
+
 	if (parsed?.kind === 'test') {
+		if (parsed.modifiers.some(modifier => !MODIFIERS.has(modifier.name))) {
+			return undefined;
+		}
+
 		return getTestCallback(callExpression);
 	}
 

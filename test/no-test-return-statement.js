@@ -31,8 +31,14 @@ test.snapshot({
 		typed('test("x", t => { t.test("y", () => Promise.resolve()); });'),
 		typed('test("x", t => { t.beforeEach(() => Promise.resolve()); });'),
 		typed('test("x", t => { const helper = (t: {beforeEach: (callback: () => {a: number}) => void}) => { t.beforeEach(() => ({a: 1})); }; });'),
+		typed('test("x", t => { const helper = (t: {test: (title: string, callback: () => number) => void}) => { t.test("y", () => 1); }; });'),
+		typed('test("x", t => { t.test("y", async () => 1); });'),
+		typed('test("x", t => { t.beforeEach(async () => 1); });'),
 		typed('beforeEach(t => { t.beforeEach(() => Promise.resolve()); });'),
 		typed('beforeEach(t => { const helper = (t: {beforeEach: (callback: () => {a: number}) => void}) => { t.beforeEach(() => ({a: 1})); }; });'),
+		typedCode('import test from \'node:test\';\ntest.each("x", () => 1);'),
+		typedCode('import {test} from \'node:test\';\ntest.each("x", () => 1);'),
+		typedCode('import * as nodeTest from \'node:test\';\nnodeTest.test.each("x", () => 1);'),
 
 		// An `async` function wraps its return in a Promise, so a plain value is fine
 		typed('test("x", async () => { return 1; });'),
@@ -74,6 +80,7 @@ test.snapshot({
 
 		// Test context methods
 		typed('test("x", t => { t.test("y", () => 1); });'),
+		typed('test("x", t => { t.test.only("y", () => 1); });'),
 		typed('test("x", t => { t.before(() => 1); });'),
 		typed('test("x", t => { t.beforeEach(() => ({a: 1})); });'),
 		typed('test("x", t => { t.after(() => "done"); });'),
@@ -95,8 +102,13 @@ test.snapshot({
 		// Default import member hook
 		typed('test.beforeEach(() => { return 1; });'),
 
+		// Named import member hook
+		typedCode('import {test} from \'node:test\';\ntest.beforeEach(() => { return 1; }, {timeout: 1000});'),
+		typedCode('import {it} from \'node:test\';\nit.beforeEach(() => { return 1; }, {timeout: 1000});'),
+
 		// Namespace import hook
 		typedCode('import * as nodeTest from \'node:test\';\nnodeTest.beforeEach(() => { return 1; });'),
+		typedCode('import * as nodeTest from \'node:test\';\nnodeTest.test.beforeEach(() => { return 1; }, {timeout: 1000});'),
 
 		// Renamed hook import
 		typedCode('import {beforeEach as setup} from \'node:test\';\nsetup(() => { return 1; });'),
