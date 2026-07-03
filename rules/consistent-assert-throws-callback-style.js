@@ -1,8 +1,8 @@
-import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	resolveImports,
 	parseAssertionCall,
 	createContextTracker,
+	isAssertionCallWithSupportedContext,
 } from './utils/node-test.js';
 import {
 	isParenthesized,
@@ -122,39 +122,6 @@ function canFixBlockCallback(callback, context) {
 	);
 }
 
-function getContextAssertIdentifier(node) {
-	const {callee} = node;
-	if (
-		callee.type === 'MemberExpression'
-		&& !callee.computed
-		&& callee.object.type === 'MemberExpression'
-		&& !callee.object.computed
-		&& callee.object.object.type === 'Identifier'
-		&& callee.object.property.type === 'Identifier'
-		&& callee.object.property.name === 'assert'
-	) {
-		return callee.object.object;
-	}
-
-	return undefined;
-}
-
-function isCurrentTestContextIdentifier(identifier, tracker, sourceCode) {
-	const callback = tracker.currentCallback();
-	if (!callback || !tracker.isContextName(identifier.name)) {
-		return false;
-	}
-
-	const variable = findVariable(sourceCode.getScope(identifier), identifier);
-	return variable?.identifiers.some(identifier => callback.params.includes(identifier)) ?? false;
-}
-
-function isSupportedAssertionCall(node, context, tracker) {
-	const {sourceCode} = context;
-	const contextAssertIdentifier = getContextAssertIdentifier(node);
-	return !contextAssertIdentifier || isCurrentTestContextIdentifier(contextAssertIdentifier, tracker, sourceCode);
-}
-
 function getBlockStyleProblem(callback, context) {
 	if (callback.body.type === 'BlockStatement') {
 		return undefined;
@@ -205,7 +172,7 @@ function getExpressionStyleProblem(callback, context) {
 function getProblem(node, context, state) {
 	const {imports, tracker, style} = state;
 	const assertion = parseAssertionCall(node, imports);
-	if (assertion?.method !== 'throws' || !isSupportedAssertionCall(node, context, tracker)) {
+	if (assertion?.method !== 'throws' || !isAssertionCallWithSupportedContext(node, tracker)) {
 		return undefined;
 	}
 
@@ -228,7 +195,7 @@ const create = context => {
 		return;
 	}
 
-	const tracker = createContextTracker(imports);
+	const tracker = createContextTracker(imports, {trackHooks: true});
 	const {style} = context.options[0];
 	const state = {imports, tracker, style};
 

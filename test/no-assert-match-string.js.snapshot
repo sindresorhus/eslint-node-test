@@ -1,0 +1,483 @@
+exports[`no-assert-match-string > invalid(1): import assert from 'node:assert';\nassert.match(value, \"foo\"); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.match(value, "foo");
+
+`;
+
+exports[`no-assert-match-string > invalid(1): import assert from 'node:assert';\nassert.match(value, \"foo\"); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.match(value, "foo");
+    |                     ^^^^^ The second argument to \`match()\` must be a \`RegExp\`, not a string.
+
+Suggestion 1/2: Wrap the string in \`new RegExp()\`.:
+  1 | import assert from 'node:assert';
+  2 | assert.match(value, new RegExp("foo"));
+
+Suggestion 2/2: Compare with \`strictEqual()\`.:
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(value, "foo");
+
+`;
+
+exports[`no-assert-match-string > invalid(10): import assert from 'node:assert';\nassert.strict.doesNotMatch(value, \"foo\"); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.strict.doesNotMatch(value, "foo");
+
+`;
+
+exports[`no-assert-match-string > invalid(10): import assert from 'node:assert';\nassert.strict.doesNotMatch(value, \"foo\"); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.strict.doesNotMatch(value, "foo");
+    |                                   ^^^^^ The second argument to \`doesNotMatch()\` must be a \`RegExp\`, not a string.
+
+Suggestion 1/2: Wrap the string in \`new RegExp()\`.:
+  1 | import assert from 'node:assert';
+  2 | assert.strict.doesNotMatch(value, new RegExp("foo"));
+
+Suggestion 2/2: Compare with \`notStrictEqual()\`.:
+  1 | import assert from 'node:assert';
+  2 | assert.notStrictEqual(value, "foo");
+
+`;
+
+exports[`no-assert-match-string > invalid(11): import assert from 'node:assert';\nassert.strict /* comment */ .match(value, \"foo\"); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.strict /* comment */ .match(value, "foo");
+
+`;
+
+exports[`no-assert-match-string > invalid(11): import assert from 'node:assert';\nassert.strict /* comment */ .match(value, \"foo\"); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.strict /* comment */ .match(value, "foo");
+    |                                           ^^^^^ The second argument to \`match()\` must be a \`RegExp\`, not a string.
+
+Suggestion 1/1: Wrap the string in \`new RegExp()\`.:
+  1 | import assert from 'node:assert';
+  2 | assert.strict /* comment */ .match(value, new RegExp("foo"));
+
+`;
+
+exports[`no-assert-match-string > invalid(12): import assert from 'node:assert/strict';\nassert.match(value, \"foo\"); 1`] = `
+
+  1 | import assert from 'node:assert/strict';
+  2 | assert.match(value, "foo");
+
+`;
+
+exports[`no-assert-match-string > invalid(12): import assert from 'node:assert/strict';\nassert.match(value, \"foo\"); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert/strict';
+> 2 | assert.match(value, "foo");
+    |                     ^^^^^ The second argument to \`match()\` must be a \`RegExp\`, not a string.
+
+Suggestion 1/2: Wrap the string in \`new RegExp()\`.:
+  1 | import assert from 'node:assert/strict';
+  2 | assert.match(value, new RegExp("foo"));
+
+Suggestion 2/2: Compare with \`strictEqual()\`.:
+  1 | import assert from 'node:assert/strict';
+  2 | assert.strictEqual(value, "foo");
+
+`;
+
+exports[`no-assert-match-string > invalid(13): import * as assert from 'node:assert';\nassert.match(value, \"foo\"); 1`] = `
+
+  1 | import * as assert from 'node:assert';
+  2 | assert.match(value, "foo");
+
+`;
+
+exports[`no-assert-match-string > invalid(13): import * as assert from 'node:assert';\nassert.match(value, \"foo\"); 2`] = `
+
+Message:
+  1 | import * as assert from 'node:assert';
+> 2 | assert.match(value, "foo");
+    |                     ^^^^^ The second argument to \`match()\` must be a \`RegExp\`, not a string.
+
+Suggestion 1/2: Wrap the string in \`new RegExp()\`.:
+  1 | import * as assert from 'node:assert';
+  2 | assert.match(value, new RegExp("foo"));
+
+Suggestion 2/2: Compare with \`strictEqual()\`.:
+  1 | import * as assert from 'node:assert';
+  2 | assert.strictEqual(value, "foo");
+
+`;
+
+exports[`no-assert-match-string > invalid(14): import {strict as strictAssert} from 'node:assert';\nstrictAssert.match(value, \"foo\"); 1`] = `
+
+  1 | import {strict as strictAssert} from 'node:assert';
+  2 | strictAssert.match(value, "foo");
+
+`;
+
+exports[`no-assert-match-string > invalid(14): import {strict as strictAssert} from 'node:assert';\nstrictAssert.match(value, \"foo\"); 2`] = `
+
+Message:
+  1 | import {strict as strictAssert} from 'node:assert';
+> 2 | strictAssert.match(value, "foo");
+    |                           ^^^^^ The second argument to \`match()\` must be a \`RegExp\`, not a string.
+
+Suggestion 1/2: Wrap the string in \`new RegExp()\`.:
+  1 | import {strict as strictAssert} from 'node:assert';
+  2 | strictAssert.match(value, new RegExp("foo"));
+
+Suggestion 2/2: Compare with \`strictEqual()\`.:
+  1 | import {strict as strictAssert} from 'node:assert';
+  2 | strictAssert.strictEqual(value, "foo");
+
+`;
+
+exports[`no-assert-match-string > invalid(15): import test from 'node:test';\ntest(\"t\", t => { t.assert.match(value, \"foo\"); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("t", t => { t.assert.match(value, "foo"); });
+
+`;
+
+exports[`no-assert-match-string > invalid(15): import test from 'node:test';\ntest(\"t\", t => { t.assert.match(value, \"foo\"); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("t", t => { t.assert.match(value, "foo"); });
+    |                                        ^^^^^ The second argument to \`match()\` must be a \`RegExp\`, not a string.
+
+Suggestion 1/2: Wrap the string in \`new RegExp()\`.:
+  1 | import test from 'node:test';
+  2 | test("t", t => { t.assert.match(value, new RegExp("foo")); });
+
+Suggestion 2/2: Compare with \`strictEqual()\`.:
+  1 | import test from 'node:test';
+  2 | test("t", t => { t.assert.strictEqual(value, "foo"); });
+
+`;
+
+exports[`no-assert-match-string > invalid(16): import {beforeEach} from 'node:test';\nbeforeEach(t => { t.assert.match(value, \"foo\"); }); 1`] = `
+
+  1 | import {beforeEach} from 'node:test';
+  2 | beforeEach(t => { t.assert.match(value, "foo"); });
+
+`;
+
+exports[`no-assert-match-string > invalid(16): import {beforeEach} from 'node:test';\nbeforeEach(t => { t.assert.match(value, \"foo\"); }); 2`] = `
+
+Message:
+  1 | import {beforeEach} from 'node:test';
+> 2 | beforeEach(t => { t.assert.match(value, "foo"); });
+    |                                         ^^^^^ The second argument to \`match()\` must be a \`RegExp\`, not a string.
+
+Suggestion 1/2: Wrap the string in \`new RegExp()\`.:
+  1 | import {beforeEach} from 'node:test';
+  2 | beforeEach(t => { t.assert.match(value, new RegExp("foo")); });
+
+Suggestion 2/2: Compare with \`strictEqual()\`.:
+  1 | import {beforeEach} from 'node:test';
+  2 | beforeEach(t => { t.assert.strictEqual(value, "foo"); });
+
+`;
+
+exports[`no-assert-match-string > invalid(17): import test from 'node:test';\ntest(\"outer\", t => { t.test(\"inner\", () => { t.assert.match(value, \"foo\"); }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("outer", t => { t.test("inner", () => { t.assert.match(value, "foo"); }); });
+
+`;
+
+exports[`no-assert-match-string > invalid(17): import test from 'node:test';\ntest(\"outer\", t => { t.test(\"inner\", () => { t.assert.match(value, \"foo\"); }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("outer", t => { t.test("inner", () => { t.assert.match(value, "foo"); }); });
+    |                                                                    ^^^^^ The second argument to \`match()\` must be a \`RegExp\`, not a string.
+
+Suggestion 1/2: Wrap the string in \`new RegExp()\`.:
+  1 | import test from 'node:test';
+  2 | test("outer", t => { t.test("inner", () => { t.assert.match(value, new RegExp("foo")); }); });
+
+Suggestion 2/2: Compare with \`strictEqual()\`.:
+  1 | import test from 'node:test';
+  2 | test("outer", t => { t.test("inner", () => { t.assert.strictEqual(value, "foo"); }); });
+
+`;
+
+exports[`no-assert-match-string > invalid(18): import assert from 'node:assert';\nassert.match(value, \"foo\" as string); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.match(value, "foo" as string);
+
+`;
+
+exports[`no-assert-match-string > invalid(18): import assert from 'node:assert';\nassert.match(value, \"foo\" as string); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.match(value, "foo" as string);
+    |                     ^^^^^^^^^^^^^^^ The second argument to \`match()\` must be a \`RegExp\`, not a string.
+
+Suggestion 1/2: Wrap the string in \`new RegExp()\`.:
+  1 | import assert from 'node:assert';
+  2 | assert.match(value, new RegExp("foo" as string));
+
+Suggestion 2/2: Compare with \`strictEqual()\`.:
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(value, "foo" as string);
+
+`;
+
+exports[`no-assert-match-string > invalid(19): import assert from 'node:assert';\nassert.match(value, (\"foo\" satisfies string)); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.match(value, ("foo" satisfies string));
+
+`;
+
+exports[`no-assert-match-string > invalid(19): import assert from 'node:assert';\nassert.match(value, (\"foo\" satisfies string)); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.match(value, ("foo" satisfies string));
+    |                      ^^^^^^^^^^^^^^^^^^^^^^ The second argument to \`match()\` must be a \`RegExp\`, not a string.
+
+Suggestion 1/2: Wrap the string in \`new RegExp()\`.:
+  1 | import assert from 'node:assert';
+  2 | assert.match(value, (new RegExp("foo" satisfies string)));
+
+Suggestion 2/2: Compare with \`strictEqual()\`.:
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(value, ("foo" satisfies string));
+
+`;
+
+exports[`no-assert-match-string > invalid(2): import assert from 'node:assert';\nassert.doesNotMatch(value, \"foo\"); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.doesNotMatch(value, "foo");
+
+`;
+
+exports[`no-assert-match-string > invalid(2): import assert from 'node:assert';\nassert.doesNotMatch(value, \"foo\"); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.doesNotMatch(value, "foo");
+    |                            ^^^^^ The second argument to \`doesNotMatch()\` must be a \`RegExp\`, not a string.
+
+Suggestion 1/2: Wrap the string in \`new RegExp()\`.:
+  1 | import assert from 'node:assert';
+  2 | assert.doesNotMatch(value, new RegExp("foo"));
+
+Suggestion 2/2: Compare with \`notStrictEqual()\`.:
+  1 | import assert from 'node:assert';
+  2 | assert.notStrictEqual(value, "foo");
+
+`;
+
+exports[`no-assert-match-string > invalid(20): import assert from 'node:assert';\nassert.match(value, (\"foo\" as string)!); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.match(value, ("foo" as string)!);
+
+`;
+
+exports[`no-assert-match-string > invalid(20): import assert from 'node:assert';\nassert.match(value, (\"foo\" as string)!); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.match(value, ("foo" as string)!);
+    |                     ^^^^^^^^^^^^^^^^^^ The second argument to \`match()\` must be a \`RegExp\`, not a string.
+
+Suggestion 1/2: Wrap the string in \`new RegExp()\`.:
+  1 | import assert from 'node:assert';
+  2 | assert.match(value, new RegExp(("foo" as string)!));
+
+Suggestion 2/2: Compare with \`strictEqual()\`.:
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(value, ("foo" as string)!);
+
+`;
+
+exports[`no-assert-match-string > invalid(21): import assert from 'node:assert';\nassert.match(value, \"[\"); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.match(value, "[");
+
+`;
+
+exports[`no-assert-match-string > invalid(21): import assert from 'node:assert';\nassert.match(value, \"[\"); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.match(value, "[");
+    |                     ^^^ The second argument to \`match()\` must be a \`RegExp\`, not a string.
+
+Suggestion 1/1: Compare with \`strictEqual()\`.:
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(value, "[");
+
+`;
+
+exports[`no-assert-match-string > invalid(3): import assert from 'node:assert';\nassert.match(value, \`foo\`); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.match(value, \`foo\`);
+
+`;
+
+exports[`no-assert-match-string > invalid(3): import assert from 'node:assert';\nassert.match(value, \`foo\`); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.match(value, \`foo\`);
+    |                     ^^^^^ The second argument to \`match()\` must be a \`RegExp\`, not a string.
+
+Suggestion 1/2: Wrap the string in \`new RegExp()\`.:
+  1 | import assert from 'node:assert';
+  2 | assert.match(value, new RegExp(\`foo\`));
+
+Suggestion 2/2: Compare with \`strictEqual()\`.:
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(value, \`foo\`);
+
+`;
+
+exports[`no-assert-match-string > invalid(4): import assert from 'node:assert';\nassert.match(value, \`foo \${bar}\`); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.match(value, \`foo \${bar}\`);
+
+`;
+
+exports[`no-assert-match-string > invalid(4): import assert from 'node:assert';\nassert.match(value, \`foo \${bar}\`); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.match(value, \`foo \${bar}\`);
+    |                     ^^^^^^^^^^^^ The second argument to \`match()\` must be a \`RegExp\`, not a string.
+
+Suggestion 1/1: Compare with \`strictEqual()\`.:
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(value, \`foo \${bar}\`);
+
+`;
+
+exports[`no-assert-match-string > invalid(5): import assert from 'node:assert';\nassert.match(value, \"foo\", \"failure message\"); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.match(value, "foo", "failure message");
+
+`;
+
+exports[`no-assert-match-string > invalid(5): import assert from 'node:assert';\nassert.match(value, \"foo\", \"failure message\"); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.match(value, "foo", "failure message");
+    |                     ^^^^^ The second argument to \`match()\` must be a \`RegExp\`, not a string.
+
+Suggestion 1/2: Wrap the string in \`new RegExp()\`.:
+  1 | import assert from 'node:assert';
+  2 | assert.match(value, new RegExp("foo"), "failure message");
+
+Suggestion 2/2: Compare with \`strictEqual()\`.:
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(value, "foo", "failure message");
+
+`;
+
+exports[`no-assert-match-string > invalid(6): import assert from 'node:assert';\nassert.match(value, /* pattern */ \"foo\"); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.match(value, /* pattern */ "foo");
+
+`;
+
+exports[`no-assert-match-string > invalid(6): import assert from 'node:assert';\nassert.match(value, /* pattern */ \"foo\"); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.match(value, /* pattern */ "foo");
+    |                                   ^^^^^ The second argument to \`match()\` must be a \`RegExp\`, not a string.
+
+Suggestion 1/2: Wrap the string in \`new RegExp()\`.:
+  1 | import assert from 'node:assert';
+  2 | assert.match(value, /* pattern */ new RegExp("foo"));
+
+Suggestion 2/2: Compare with \`strictEqual()\`.:
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(value, /* pattern */ "foo");
+
+`;
+
+exports[`no-assert-match-string > invalid(7): import {match} from 'node:assert';\nmatch(value, \"foo\"); 1`] = `
+
+  1 | import {match} from 'node:assert';
+  2 | match(value, "foo");
+
+`;
+
+exports[`no-assert-match-string > invalid(7): import {match} from 'node:assert';\nmatch(value, \"foo\"); 2`] = `
+
+Message:
+  1 | import {match} from 'node:assert';
+> 2 | match(value, "foo");
+    |              ^^^^^ The second argument to \`match()\` must be a \`RegExp\`, not a string.
+
+Suggestion 1/1: Wrap the string in \`new RegExp()\`.:
+  1 | import {match} from 'node:assert';
+  2 | match(value, new RegExp("foo"));
+
+`;
+
+exports[`no-assert-match-string > invalid(8): import {doesNotMatch} from 'node:assert';\ndoesNotMatch(value, \"foo\"); 1`] = `
+
+  1 | import {doesNotMatch} from 'node:assert';
+  2 | doesNotMatch(value, "foo");
+
+`;
+
+exports[`no-assert-match-string > invalid(8): import {doesNotMatch} from 'node:assert';\ndoesNotMatch(value, \"foo\"); 2`] = `
+
+Message:
+  1 | import {doesNotMatch} from 'node:assert';
+> 2 | doesNotMatch(value, "foo");
+    |                     ^^^^^ The second argument to \`doesNotMatch()\` must be a \`RegExp\`, not a string.
+
+Suggestion 1/1: Wrap the string in \`new RegExp()\`.:
+  1 | import {doesNotMatch} from 'node:assert';
+  2 | doesNotMatch(value, new RegExp("foo"));
+
+`;
+
+exports[`no-assert-match-string > invalid(9): import assert from 'node:assert';\nassert.strict.match(value, \"foo\"); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.strict.match(value, "foo");
+
+`;
+
+exports[`no-assert-match-string > invalid(9): import assert from 'node:assert';\nassert.strict.match(value, \"foo\"); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.strict.match(value, "foo");
+    |                            ^^^^^ The second argument to \`match()\` must be a \`RegExp\`, not a string.
+
+Suggestion 1/2: Wrap the string in \`new RegExp()\`.:
+  1 | import assert from 'node:assert';
+  2 | assert.strict.match(value, new RegExp("foo"));
+
+Suggestion 2/2: Compare with \`strictEqual()\`.:
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(value, "foo");
+
+`;

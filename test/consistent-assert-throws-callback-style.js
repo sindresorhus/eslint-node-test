@@ -81,6 +81,8 @@ test.snapshot({
 		withStrictNamedImport('throws', 'throws(() => parse(input));'),
 		withNamedImport('throws as assertThrows', 'assertThrows(() => parse(input));'),
 		withTest('test(\'t\', t => {\n\tt.assert.throws(() => parse(input));\n});'),
+		'import {beforeEach} from \'node:test\';\nbeforeEach(t => {\n\tt.assert.throws(() => parse(input));\n});',
+		withTest('test(\'outer\', t => {\n\tt.test(\'inner\', () => {\n\t\tt.assert.throws(() => parse(input));\n\t});\n});'),
 		withAssert('assert.throws(async () => parseAsync(input));'),
 		withAssert('assert.throws(() => parse?.(input));'),
 		withAssert('assert.throws(() => /* comment */ parse(input));'),
