@@ -100,6 +100,11 @@ test.snapshot({
 		// `void` is the same as omitting the options object.
 		head + 'mock.timers.enable(void 0);',
 
+		// Static non-options values have no apis property.
+		head + 'mock.timers.enable(["setTimeout"]);',
+		head + 'mock.timers.enable(true);',
+		head + 'mock.timers.enable("setTimeout");',
+
 		// Options object without apis.
 		head + 'mock.timers.enable({now: 1000});',
 
@@ -123,6 +128,12 @@ test.snapshot({
 
 		// Context mock.
 		head + 'test("a", t => { t.mock.timers.enable(); });',
+
+		// Context mock with test options.
+		head + 'test("a", {timeout: 1000}, t => { t.mock.timers.enable(); });',
+
+		// Function expression context callback.
+		head + 'test("a", function (t) { t.mock.timers.enable(); });',
 
 		// Defaulted context parameter.
 		head + 'test("a", (t = fallback) => { t.mock.timers.enable(); });',

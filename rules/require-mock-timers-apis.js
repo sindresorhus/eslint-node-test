@@ -30,6 +30,11 @@ function isMissingApisValue(node) {
 	);
 }
 
+function isStaticNonOptionsValue(node) {
+	return node.type === 'ArrayExpression'
+		|| node.type === 'Literal';
+}
+
 function isApisProperty(property) {
 	return property.type === 'Property'
 		&& !property.computed
@@ -70,7 +75,7 @@ function isMissingApisOption(callExpression) {
 	}
 
 	if (firstArgument.type !== 'ObjectExpression') {
-		return false;
+		return isStaticNonOptionsValue(firstArgument);
 	}
 
 	const apisProperty = getLastVisibleApisProperty(firstArgument);
@@ -100,21 +105,17 @@ function getParameterIdentifier(parameter) {
 
 function getContextHookReceiver(callExpression) {
 	const {callee} = callExpression;
-	const receiver = callee.type === 'MemberExpression'
-		? unwrapTypeScriptExpression(callee.object)
-		: undefined;
-
 	if (
-		callee.type === 'MemberExpression'
-		&& !callee.computed
-		&& callee.property.type === 'Identifier'
-		&& CONTEXT_HOOKS.has(callee.property.name)
-		&& receiver.type === 'Identifier'
+		callee.type !== 'MemberExpression'
+		|| callee.computed
+		|| callee.property.type !== 'Identifier'
+		|| !CONTEXT_HOOKS.has(callee.property.name)
 	) {
-		return receiver;
+		return undefined;
 	}
 
-	return undefined;
+	const receiver = unwrapTypeScriptExpression(callee.object);
+	return receiver.type === 'Identifier' ? receiver : undefined;
 }
 
 function getTestContextImportLocals(sourceCode) {
