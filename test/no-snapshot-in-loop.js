@@ -62,6 +62,9 @@ test.snapshot({
 		// For-of loop body.
 		withTest('for (const item of items) { t.assert.snapshot(item); }'),
 
+		// For-await-of loop body.
+		'import test from \'node:test\';\ntest(\'t\', async t => { for await (const item of items) { t.assert.snapshot(item); } });',
+
 		// Classic for loop body.
 		withTest('for (let index = 0; index < 3; index++) { t.assert.snapshot(items[index]); }'),
 
@@ -74,11 +77,32 @@ test.snapshot({
 		// For-in loop body.
 		withTest('for (const key in object) { t.assert.snapshot(object[key]); }'),
 
-		// TypeScript.
+		// TypeScript syntax.
 		{
 			code: withTest('for (const item of items as string[]) { t.assert.snapshot(item); }'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// TypeScript wrappers.
+		{
+			code: 'import test from \'node:test\';\n(test as typeof test)(\'t\', t => { for (const item of items) { t.assert.snapshot(item); } });',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withTest('for (const item of items) { t!.assert.snapshot(item); }'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withTest('for (const item of items) { (t as TestContext).assert.snapshot(item); }'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withTest('for (const item of items) { t.assert!.snapshot(item); }'),
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// Optional chaining.
+		withTest('for (const item of items) { t.assert?.snapshot(item); }'),
 
 		// Named and renamed imports.
 		'import {it} from \'node:test\';\nit(\'t\', t => { for (const item of items) { t.assert.snapshot(item); } });',
@@ -95,5 +119,9 @@ test.snapshot({
 		// Subtest context.
 		'import test from \'node:test\';\ntest(\'t\', t => { t.test(\'subtest\', t => { for (const item of items) { t.assert.snapshot(item); } }); });',
 		'import test from \'node:test\';\ntest(\'t\', async t => { await t.test.only(\'subtest\', t => { for (const item of items) { t.assert.snapshot(item); } }); });',
+		{
+			code: 'import test from \'node:test\';\ntest(\'t\', t => { t!.test(\'subtest\', t => { for (const item of items) { t.assert.snapshot(item); } }); });',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

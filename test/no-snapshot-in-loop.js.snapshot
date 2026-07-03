@@ -18,14 +18,122 @@ Message:
 
 `;
 
-exports[`no-snapshot-in-loop > invalid(10): import * as nodeTest from 'node:test';\nnodeTest.test.skip('t', t => { for (const item of items) { t.assert.snapshot(item); } }); 1`] = `
+exports[`no-snapshot-in-loop > invalid(10): import test from 'node:test';\ntest('t', t => {\n\tfor (const item of items) { (t as TestContext).assert.snapshot(item); }\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+  3 | 	for (const item of items) { (t as TestContext).assert.snapshot(item); }
+  4 | });
+
+`;
+
+exports[`no-snapshot-in-loop > invalid(10): import test from 'node:test';\ntest('t', t => {\n\tfor (const item of items) { (t as TestContext).assert.snapshot(item); }\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+> 3 | 	for (const item of items) { (t as TestContext).assert.snapshot(item); }
+    | 	                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use positional snapshots inside loops. Changing the iteration count shifts every following snapshot.
+  4 | });
+
+`;
+
+exports[`no-snapshot-in-loop > invalid(11): import test from 'node:test';\ntest('t', t => {\n\tfor (const item of items) { t.assert!.snapshot(item); }\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+  3 | 	for (const item of items) { t.assert!.snapshot(item); }
+  4 | });
+
+`;
+
+exports[`no-snapshot-in-loop > invalid(11): import test from 'node:test';\ntest('t', t => {\n\tfor (const item of items) { t.assert!.snapshot(item); }\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+> 3 | 	for (const item of items) { t.assert!.snapshot(item); }
+    | 	                            ^^^^^^^^^^^^^^^^^^^^^^^^ Do not use positional snapshots inside loops. Changing the iteration count shifts every following snapshot.
+  4 | });
+
+`;
+
+exports[`no-snapshot-in-loop > invalid(12): import test from 'node:test';\ntest('t', t => {\n\tfor (const item of items) { t.assert?.snapshot(item); }\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+  3 | 	for (const item of items) { t.assert?.snapshot(item); }
+  4 | });
+
+`;
+
+exports[`no-snapshot-in-loop > invalid(12): import test from 'node:test';\ntest('t', t => {\n\tfor (const item of items) { t.assert?.snapshot(item); }\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+> 3 | 	for (const item of items) { t.assert?.snapshot(item); }
+    | 	                            ^^^^^^^^^^^^^^^^^^^^^^^^ Do not use positional snapshots inside loops. Changing the iteration count shifts every following snapshot.
+  4 | });
+
+`;
+
+exports[`no-snapshot-in-loop > invalid(13): import {it} from 'node:test';\nit('t', t => { for (const item of items) { t.assert.snapshot(item); } }); 1`] = `
+
+  1 | import {it} from 'node:test';
+  2 | it('t', t => { for (const item of items) { t.assert.snapshot(item); } });
+
+`;
+
+exports[`no-snapshot-in-loop > invalid(13): import {it} from 'node:test';\nit('t', t => { for (const item of items) { t.assert.snapshot(item); } }); 2`] = `
+
+Message:
+  1 | import {it} from 'node:test';
+> 2 | it('t', t => { for (const item of items) { t.assert.snapshot(item); } });
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^ Do not use positional snapshots inside loops. Changing the iteration count shifts every following snapshot.
+
+`;
+
+exports[`no-snapshot-in-loop > invalid(14): import {test as run} from 'node:test';\nrun('t', t => { for (const item of items) { t.assert.snapshot(item); } }); 1`] = `
+
+  1 | import {test as run} from 'node:test';
+  2 | run('t', t => { for (const item of items) { t.assert.snapshot(item); } });
+
+`;
+
+exports[`no-snapshot-in-loop > invalid(14): import {test as run} from 'node:test';\nrun('t', t => { for (const item of items) { t.assert.snapshot(item); } }); 2`] = `
+
+Message:
+  1 | import {test as run} from 'node:test';
+> 2 | run('t', t => { for (const item of items) { t.assert.snapshot(item); } });
+    |                                             ^^^^^^^^^^^^^^^^^^^^^^^ Do not use positional snapshots inside loops. Changing the iteration count shifts every following snapshot.
+
+`;
+
+exports[`no-snapshot-in-loop > invalid(15): import test from 'node:test';\ntest.only('t', t => { for (const item of items) { t.assert.snapshot(item); } }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test.only('t', t => { for (const item of items) { t.assert.snapshot(item); } });
+
+`;
+
+exports[`no-snapshot-in-loop > invalid(15): import test from 'node:test';\ntest.only('t', t => { for (const item of items) { t.assert.snapshot(item); } }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test.only('t', t => { for (const item of items) { t.assert.snapshot(item); } });
+    |                                                   ^^^^^^^^^^^^^^^^^^^^^^^ Do not use positional snapshots inside loops. Changing the iteration count shifts every following snapshot.
+
+`;
+
+exports[`no-snapshot-in-loop > invalid(16): import * as nodeTest from 'node:test';\nnodeTest.test.skip('t', t => { for (const item of items) { t.assert.snapshot(item); } }); 1`] = `
 
   1 | import * as nodeTest from 'node:test';
   2 | nodeTest.test.skip('t', t => { for (const item of items) { t.assert.snapshot(item); } });
 
 `;
 
-exports[`no-snapshot-in-loop > invalid(10): import * as nodeTest from 'node:test';\nnodeTest.test.skip('t', t => { for (const item of items) { t.assert.snapshot(item); } }); 2`] = `
+exports[`no-snapshot-in-loop > invalid(16): import * as nodeTest from 'node:test';\nnodeTest.test.skip('t', t => { for (const item of items) { t.assert.snapshot(item); } }); 2`] = `
 
 Message:
   1 | import * as nodeTest from 'node:test';
@@ -34,14 +142,14 @@ Message:
 
 `;
 
-exports[`no-snapshot-in-loop > invalid(11): import test from 'node:test';\ntest.test('t', t => { for (const item of items) { t.assert.snapshot(item); } }); 1`] = `
+exports[`no-snapshot-in-loop > invalid(17): import test from 'node:test';\ntest.test('t', t => { for (const item of items) { t.assert.snapshot(item); } }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test.test('t', t => { for (const item of items) { t.assert.snapshot(item); } });
 
 `;
 
-exports[`no-snapshot-in-loop > invalid(11): import test from 'node:test';\ntest.test('t', t => { for (const item of items) { t.assert.snapshot(item); } }); 2`] = `
+exports[`no-snapshot-in-loop > invalid(17): import test from 'node:test';\ntest.test('t', t => { for (const item of items) { t.assert.snapshot(item); } }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -50,14 +158,14 @@ Message:
 
 `;
 
-exports[`no-snapshot-in-loop > invalid(12): import * as nodeTest from 'node:test';\nnodeTest.test('t', t => { for (const item of items) { t.assert.snapshot(item); } }); 1`] = `
+exports[`no-snapshot-in-loop > invalid(18): import * as nodeTest from 'node:test';\nnodeTest.test('t', t => { for (const item of items) { t.assert.snapshot(item); } }); 1`] = `
 
   1 | import * as nodeTest from 'node:test';
   2 | nodeTest.test('t', t => { for (const item of items) { t.assert.snapshot(item); } });
 
 `;
 
-exports[`no-snapshot-in-loop > invalid(12): import * as nodeTest from 'node:test';\nnodeTest.test('t', t => { for (const item of items) { t.assert.snapshot(item); } }); 2`] = `
+exports[`no-snapshot-in-loop > invalid(18): import * as nodeTest from 'node:test';\nnodeTest.test('t', t => { for (const item of items) { t.assert.snapshot(item); } }); 2`] = `
 
 Message:
   1 | import * as nodeTest from 'node:test';
@@ -66,14 +174,14 @@ Message:
 
 `;
 
-exports[`no-snapshot-in-loop > invalid(13): import test from 'node:test';\ntest('t', t => { t.test('subtest', t => { for (const item of items) { t.assert.snapshot(item); } }); }); 1`] = `
+exports[`no-snapshot-in-loop > invalid(19): import test from 'node:test';\ntest('t', t => { t.test('subtest', t => { for (const item of items) { t.assert.snapshot(item); } }); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', t => { t.test('subtest', t => { for (const item of items) { t.assert.snapshot(item); } }); });
 
 `;
 
-exports[`no-snapshot-in-loop > invalid(13): import test from 'node:test';\ntest('t', t => { t.test('subtest', t => { for (const item of items) { t.assert.snapshot(item); } }); }); 2`] = `
+exports[`no-snapshot-in-loop > invalid(19): import test from 'node:test';\ntest('t', t => { t.test('subtest', t => { for (const item of items) { t.assert.snapshot(item); } }); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -82,14 +190,30 @@ Message:
 
 `;
 
-exports[`no-snapshot-in-loop > invalid(14): import test from 'node:test';\ntest('t', async t => { await t.test.only('subtest', t => { for (const item of items) { t.assert.snapshot(item); } }); }); 1`] = `
+exports[`no-snapshot-in-loop > invalid(2): import test from 'node:test';\ntest('t', async t => { for await (const item of items) { t.assert.snapshot(item); } }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', async t => { for await (const item of items) { t.assert.snapshot(item); } });
+
+`;
+
+exports[`no-snapshot-in-loop > invalid(2): import test from 'node:test';\ntest('t', async t => { for await (const item of items) { t.assert.snapshot(item); } }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', async t => { for await (const item of items) { t.assert.snapshot(item); } });
+    |                                                          ^^^^^^^^^^^^^^^^^^^^^^^ Do not use positional snapshots inside loops. Changing the iteration count shifts every following snapshot.
+
+`;
+
+exports[`no-snapshot-in-loop > invalid(20): import test from 'node:test';\ntest('t', async t => { await t.test.only('subtest', t => { for (const item of items) { t.assert.snapshot(item); } }); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', async t => { await t.test.only('subtest', t => { for (const item of items) { t.assert.snapshot(item); } }); });
 
 `;
 
-exports[`no-snapshot-in-loop > invalid(14): import test from 'node:test';\ntest('t', async t => { await t.test.only('subtest', t => { for (const item of items) { t.assert.snapshot(item); } }); }); 2`] = `
+exports[`no-snapshot-in-loop > invalid(20): import test from 'node:test';\ntest('t', async t => { await t.test.only('subtest', t => { for (const item of items) { t.assert.snapshot(item); } }); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -98,7 +222,23 @@ Message:
 
 `;
 
-exports[`no-snapshot-in-loop > invalid(2): import test from 'node:test';\ntest('t', t => {\n\tfor (let index = 0; index < 3; index++) { t.assert.snapshot(items[index]); }\n}); 1`] = `
+exports[`no-snapshot-in-loop > invalid(21): import test from 'node:test';\ntest('t', t => { t!.test('subtest', t => { for (const item of items) { t.assert.snapshot(item); } }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', t => { t!.test('subtest', t => { for (const item of items) { t.assert.snapshot(item); } }); });
+
+`;
+
+exports[`no-snapshot-in-loop > invalid(21): import test from 'node:test';\ntest('t', t => { t!.test('subtest', t => { for (const item of items) { t.assert.snapshot(item); } }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', t => { t!.test('subtest', t => { for (const item of items) { t.assert.snapshot(item); } }); });
+    |                                                                        ^^^^^^^^^^^^^^^^^^^^^^^ Do not use positional snapshots inside loops. Changing the iteration count shifts every following snapshot.
+
+`;
+
+exports[`no-snapshot-in-loop > invalid(3): import test from 'node:test';\ntest('t', t => {\n\tfor (let index = 0; index < 3; index++) { t.assert.snapshot(items[index]); }\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', t => {
@@ -107,7 +247,7 @@ exports[`no-snapshot-in-loop > invalid(2): import test from 'node:test';\ntest('
 
 `;
 
-exports[`no-snapshot-in-loop > invalid(2): import test from 'node:test';\ntest('t', t => {\n\tfor (let index = 0; index < 3; index++) { t.assert.snapshot(items[index]); }\n}); 2`] = `
+exports[`no-snapshot-in-loop > invalid(3): import test from 'node:test';\ntest('t', t => {\n\tfor (let index = 0; index < 3; index++) { t.assert.snapshot(items[index]); }\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -118,14 +258,14 @@ Message:
 
 `;
 
-exports[`no-snapshot-in-loop > invalid(3): import test from 'node:test';\ntest('t', context => { while (condition) { context.assert.snapshot(value); } }); 1`] = `
+exports[`no-snapshot-in-loop > invalid(4): import test from 'node:test';\ntest('t', context => { while (condition) { context.assert.snapshot(value); } }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', context => { while (condition) { context.assert.snapshot(value); } });
 
 `;
 
-exports[`no-snapshot-in-loop > invalid(3): import test from 'node:test';\ntest('t', context => { while (condition) { context.assert.snapshot(value); } }); 2`] = `
+exports[`no-snapshot-in-loop > invalid(4): import test from 'node:test';\ntest('t', context => { while (condition) { context.assert.snapshot(value); } }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -134,7 +274,7 @@ Message:
 
 `;
 
-exports[`no-snapshot-in-loop > invalid(4): import test from 'node:test';\ntest('t', t => {\n\tdo { t.assert.snapshot(value); } while (condition);\n}); 1`] = `
+exports[`no-snapshot-in-loop > invalid(5): import test from 'node:test';\ntest('t', t => {\n\tdo { t.assert.snapshot(value); } while (condition);\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', t => {
@@ -143,7 +283,7 @@ exports[`no-snapshot-in-loop > invalid(4): import test from 'node:test';\ntest('
 
 `;
 
-exports[`no-snapshot-in-loop > invalid(4): import test from 'node:test';\ntest('t', t => {\n\tdo { t.assert.snapshot(value); } while (condition);\n}); 2`] = `
+exports[`no-snapshot-in-loop > invalid(5): import test from 'node:test';\ntest('t', t => {\n\tdo { t.assert.snapshot(value); } while (condition);\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -154,7 +294,7 @@ Message:
 
 `;
 
-exports[`no-snapshot-in-loop > invalid(5): import test from 'node:test';\ntest('t', t => {\n\tfor (const key in object) { t.assert.snapshot(object[key]); }\n}); 1`] = `
+exports[`no-snapshot-in-loop > invalid(6): import test from 'node:test';\ntest('t', t => {\n\tfor (const key in object) { t.assert.snapshot(object[key]); }\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', t => {
@@ -163,7 +303,7 @@ exports[`no-snapshot-in-loop > invalid(5): import test from 'node:test';\ntest('
 
 `;
 
-exports[`no-snapshot-in-loop > invalid(5): import test from 'node:test';\ntest('t', t => {\n\tfor (const key in object) { t.assert.snapshot(object[key]); }\n}); 2`] = `
+exports[`no-snapshot-in-loop > invalid(6): import test from 'node:test';\ntest('t', t => {\n\tfor (const key in object) { t.assert.snapshot(object[key]); }\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -174,7 +314,7 @@ Message:
 
 `;
 
-exports[`no-snapshot-in-loop > invalid(6): import test from 'node:test';\ntest('t', t => {\n\tfor (const item of items as string[]) { t.assert.snapshot(item); }\n}); 1`] = `
+exports[`no-snapshot-in-loop > invalid(7): import test from 'node:test';\ntest('t', t => {\n\tfor (const item of items as string[]) { t.assert.snapshot(item); }\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', t => {
@@ -183,7 +323,7 @@ exports[`no-snapshot-in-loop > invalid(6): import test from 'node:test';\ntest('
 
 `;
 
-exports[`no-snapshot-in-loop > invalid(6): import test from 'node:test';\ntest('t', t => {\n\tfor (const item of items as string[]) { t.assert.snapshot(item); }\n}); 2`] = `
+exports[`no-snapshot-in-loop > invalid(7): import test from 'node:test';\ntest('t', t => {\n\tfor (const item of items as string[]) { t.assert.snapshot(item); }\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -194,50 +334,38 @@ Message:
 
 `;
 
-exports[`no-snapshot-in-loop > invalid(7): import {it} from 'node:test';\nit('t', t => { for (const item of items) { t.assert.snapshot(item); } }); 1`] = `
-
-  1 | import {it} from 'node:test';
-  2 | it('t', t => { for (const item of items) { t.assert.snapshot(item); } });
-
-`;
-
-exports[`no-snapshot-in-loop > invalid(7): import {it} from 'node:test';\nit('t', t => { for (const item of items) { t.assert.snapshot(item); } }); 2`] = `
-
-Message:
-  1 | import {it} from 'node:test';
-> 2 | it('t', t => { for (const item of items) { t.assert.snapshot(item); } });
-    |                                            ^^^^^^^^^^^^^^^^^^^^^^^ Do not use positional snapshots inside loops. Changing the iteration count shifts every following snapshot.
-
-`;
-
-exports[`no-snapshot-in-loop > invalid(8): import {test as run} from 'node:test';\nrun('t', t => { for (const item of items) { t.assert.snapshot(item); } }); 1`] = `
-
-  1 | import {test as run} from 'node:test';
-  2 | run('t', t => { for (const item of items) { t.assert.snapshot(item); } });
-
-`;
-
-exports[`no-snapshot-in-loop > invalid(8): import {test as run} from 'node:test';\nrun('t', t => { for (const item of items) { t.assert.snapshot(item); } }); 2`] = `
-
-Message:
-  1 | import {test as run} from 'node:test';
-> 2 | run('t', t => { for (const item of items) { t.assert.snapshot(item); } });
-    |                                             ^^^^^^^^^^^^^^^^^^^^^^^ Do not use positional snapshots inside loops. Changing the iteration count shifts every following snapshot.
-
-`;
-
-exports[`no-snapshot-in-loop > invalid(9): import test from 'node:test';\ntest.only('t', t => { for (const item of items) { t.assert.snapshot(item); } }); 1`] = `
+exports[`no-snapshot-in-loop > invalid(8): import test from 'node:test';\n(test as typeof test)('t', t => { for (const item of items) { t.assert.snapshot(item); } }); 1`] = `
 
   1 | import test from 'node:test';
-  2 | test.only('t', t => { for (const item of items) { t.assert.snapshot(item); } });
+  2 | (test as typeof test)('t', t => { for (const item of items) { t.assert.snapshot(item); } });
 
 `;
 
-exports[`no-snapshot-in-loop > invalid(9): import test from 'node:test';\ntest.only('t', t => { for (const item of items) { t.assert.snapshot(item); } }); 2`] = `
+exports[`no-snapshot-in-loop > invalid(8): import test from 'node:test';\n(test as typeof test)('t', t => { for (const item of items) { t.assert.snapshot(item); } }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
-> 2 | test.only('t', t => { for (const item of items) { t.assert.snapshot(item); } });
-    |                                                   ^^^^^^^^^^^^^^^^^^^^^^^ Do not use positional snapshots inside loops. Changing the iteration count shifts every following snapshot.
+> 2 | (test as typeof test)('t', t => { for (const item of items) { t.assert.snapshot(item); } });
+    |                                                               ^^^^^^^^^^^^^^^^^^^^^^^ Do not use positional snapshots inside loops. Changing the iteration count shifts every following snapshot.
+
+`;
+
+exports[`no-snapshot-in-loop > invalid(9): import test from 'node:test';\ntest('t', t => {\n\tfor (const item of items) { t!.assert.snapshot(item); }\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+  3 | 	for (const item of items) { t!.assert.snapshot(item); }
+  4 | });
+
+`;
+
+exports[`no-snapshot-in-loop > invalid(9): import test from 'node:test';\ntest('t', t => {\n\tfor (const item of items) { t!.assert.snapshot(item); }\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+> 3 | 	for (const item of items) { t!.assert.snapshot(item); }
+    | 	                            ^^^^^^^^^^^^^^^^^^^^^^^^ Do not use positional snapshots inside loops. Changing the iteration count shifts every following snapshot.
+  4 | });
 
 `;

@@ -208,25 +208,36 @@ export function isGlobalMock(node, imports) {
 
 /**
 Walk a callee chain into its root identifier and the member property nodes after it.
+Unwraps TypeScript wrappers and optional chaining while walking.
 
 @returns {{root: import('estree').Identifier, members: import('estree').Identifier[]} | undefined}
 */
-function getCalleeChain(node) {
-	if (node.type === 'Identifier') {
-		return {root: node, members: []};
-	}
+export function getCalleeChain(node) {
+	const members = [];
 
-	if (
-		node.type === 'MemberExpression'
-		&& !node.computed
-		&& node.property.type === 'Identifier'
-	) {
-		const inner = getCalleeChain(node.object);
-		if (!inner) {
-			return undefined;
+	while (node) {
+		node = unwrapTypeScriptExpression(node);
+
+		if (node.type === 'ChainExpression') {
+			node = node.expression;
+			continue;
 		}
 
-		return {root: inner.root, members: [...inner.members, node.property]};
+		if (node.type === 'Identifier') {
+			return {root: node, members};
+		}
+
+		if (
+			node.type === 'MemberExpression'
+			&& !node.computed
+			&& node.property.type === 'Identifier'
+		) {
+			members.unshift(node.property);
+			node = node.object;
+			continue;
+		}
+
+		return undefined;
 	}
 
 	return undefined;
@@ -607,14 +618,7 @@ export function nearestTestCallbackKind(node, imports) {
 					return parsed.kind;
 				}
 
-				// A subtest (`t.test(…)`) is a method call, not an imported binding.
-				const {callee} = call;
-				if (
-					callee.type === 'MemberExpression'
-					&& !callee.computed
-					&& callee.property.type === 'Identifier'
-					&& callee.property.name === 'test'
-				) {
+				if (getSubtestReceiver(call) !== undefined) {
 					return 'test';
 				}
 			}

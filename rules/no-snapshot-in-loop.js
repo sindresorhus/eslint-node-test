@@ -5,6 +5,7 @@ import {
 	MODIFIERS,
 	parseTestCall,
 	getSubtestReceiver,
+	getCalleeChain,
 } from './utils/node-test.js';
 import {isLoop, isFunction} from './ast/index.js';
 
@@ -91,27 +92,6 @@ function isContextSnapshotCall(node, chain, tracker, sourceCode) {
 		&& isInsideCurrentCallback(node, tracker)
 		&& isCurrentContextReference(chain.root, tracker, sourceCode)
 	);
-}
-
-function getCalleeChain(node) {
-	if (node.type === 'Identifier') {
-		return {root: node, members: []};
-	}
-
-	if (
-		node.type === 'MemberExpression'
-		&& !node.computed
-		&& node.property.type === 'Identifier'
-	) {
-		const inner = getCalleeChain(node.object);
-		if (!inner) {
-			return undefined;
-		}
-
-		return {root: inner.root, members: [...inner.members, node.property]};
-	}
-
-	return undefined;
 }
 
 function isSnapshotCall(node, tracker, sourceCode) {
