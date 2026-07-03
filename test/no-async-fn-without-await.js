@@ -31,6 +31,8 @@ test.snapshot({
 		withImport('const fn = async t => { foo(); };\ntest("title", fn);'),
 		// No callback at all
 		withImport('test("title");'),
+		// Shadowed import name
+		withImport('function helper(test) {\n\ttest("local", async () => {});\n}\nhelper(localTest);'),
 		// Async suite callbacks are out of scope (owned by `no-async-describe`)
 		withImport('import {describe} from "node:test";\ndescribe("s", async () => {});'),
 		withImport('import {suite} from "node:test";\nsuite("s", async () => {});'),

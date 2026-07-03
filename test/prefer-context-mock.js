@@ -19,6 +19,9 @@ test.snapshot({
 
 		// `mock` not imported from node:test
 		'import test from \'node:test\';\nimport {mock} from \'./local.js\';\nmock.fn();',
+
+		// Shadowed import name
+		withImport('function helper(mock) {\n\tmock.fn();\n}\nhelper(localMock);'),
 	],
 	invalid: [
 		// Global mock creation methods

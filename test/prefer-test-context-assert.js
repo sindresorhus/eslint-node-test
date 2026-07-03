@@ -25,6 +25,9 @@ test.snapshot({
 		// Inner subtest without a context parameter — outer `t` would assert against the wrong test
 		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'x\', t => { t.test(\'y\', () => { assert.ok(value); }); });',
 
+		// Shadowed import name
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'x\', t => { function helper(assert) { assert.ok(value); } helper(localAssert); });',
+
 		// `assert.strict.equal` namespace form is intentionally not matched
 		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'x\', t => { assert.strict.equal(a, b); });',
 	],
