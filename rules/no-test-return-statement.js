@@ -1,18 +1,19 @@
 import {resolveImports, parseTestCall, getTestCallback} from './utils/node-test.js';
 import isFunction from './ast/is-function.js';
 import isPromiseType from './utils/is-promise-type.js';
+import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
 const MESSAGE_ID = 'no-test-return-statement';
 
 const messages = {
-	[MESSAGE_ID]: 'Do not return a value from a test. Return a Promise to signal async completion, or return nothing.',
+	[MESSAGE_ID]: 'Do not return a value from a test or hook. Return a Promise to signal async completion, or return nothing.',
 };
 
 // "Nothing" types and types we cannot pin down — all fine to return.
 const ALLOWED_TYPE_STRINGS = new Set(['void', 'undefined', 'null', 'any', 'never', 'unknown']);
 
 /*
-Whether the type is safe to return from a test: a returned Promise (awaited by `node:test`),
+Whether the type is safe to return from a test or hook: a returned Promise (awaited by `node:test`),
 a "nothing" type, or a type we cannot resolve. Anything else is a concrete value.
 */
 function isAllowedReturnType(type, checker) {
@@ -26,6 +27,15 @@ function isAllowedReturnType(type, checker) {
 	}
 
 	return ALLOWED_TYPE_STRINGS.has(checker.typeToString(type));
+}
+
+function getHookCallback(callExpression) {
+	const firstArgument = unwrapTypeScriptExpression(callExpression.arguments[0]);
+	if (firstArgument && isFunction(firstArgument)) {
+		return firstArgument;
+	}
+
+	return undefined;
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -43,17 +53,17 @@ const create = context => {
 	}
 
 	const checker = parserServices.program.getTypeChecker();
-	const testCallbacks = new Set();
+	const checkedCallbacks = new Set();
 
 	context.on('CallExpression', node => {
 		const parsed = parseTestCall(node, imports);
-		if (parsed?.kind !== 'test') {
+		if (parsed?.kind !== 'test' && parsed?.kind !== 'hook') {
 			return;
 		}
 
-		const callback = getTestCallback(node);
+		const callback = parsed.kind === 'hook' ? getHookCallback(node) : getTestCallback(node);
 		if (callback) {
-			testCallbacks.add(callback);
+			checkedCallbacks.add(callback);
 		}
 	});
 
@@ -62,13 +72,13 @@ const create = context => {
 			return;
 		}
 
-		// The return must belong to the test callback itself, not a nested helper function.
+		// The return must belong to the test/hook callback itself, not a nested helper function.
 		let enclosing = node.parent;
 		while (enclosing && !isFunction(enclosing)) {
 			enclosing = enclosing.parent;
 		}
 
-		if (!enclosing || !testCallbacks.has(enclosing)) {
+		if (!enclosing || !checkedCallbacks.has(enclosing)) {
 			return;
 		}
 
@@ -102,7 +112,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow returning a non-Promise value from a test.',
+			description: 'Disallow returning a non-Promise value from a test or hook.',
 			recommended: true,
 		},
 		schema: [],
