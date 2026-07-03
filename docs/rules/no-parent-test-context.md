@@ -11,7 +11,7 @@
 
 Each `t.test()` callback receives its own test context. Referencing the parent context inside the child callback attaches lifecycle-scoped work to the wrong test: mocks restore with the parent, `plan()` counts on the parent, `t.assert` assertions are tied to the parent, and nested subtests are created under the parent.
 
-This rule reports references to an outer test context binding from inside an inline subtest callback. Use the child callback's own context parameter instead. Only inline test/subtest callback chains are analyzed; non-inline callbacks such as `test('parent', helper)` or `t.test('child', helper)` are not analyzed.
+This rule reports references to an outer test context binding from inside an inline subtest callback. Use the child callback's own context parameter instead. Only inline test/subtest callback chains are analyzed; non-inline callbacks such as `test('parent', helper)` or `t.test('child', helper)` are not analyzed. References inside nested regular test callbacks are treated as a new test boundary and are not reported.
 
 ## Examples
 

@@ -53,11 +53,17 @@ test.snapshot({
 		withImport('test(\'parent\', async t => { await t.test(\'child\', () => { t.test(\'grandchild\'); }); });'),
 
 		// Child callback has its own context, so a suggestion can replace the parent reference
+		withImport('test.only(\'parent\', async t => { await t.test(\'child\', t2 => { t.mock.fn(); }); });'),
+		withImport('test.skip(\'parent\', async t => { await t.test(\'child\', t2 => { t.mock.fn(); }); });'),
+		withImport('test.todo(\'parent\', async t => { await t.test(\'child\', t2 => { t.mock.fn(); }); });'),
 		withImport('test(\'parent\', async t => { await t.test(\'child\', t2 => { t.mock.method(fs, \'readFileSync\', () => \'{}\'); }); });'),
 		withImport('test(\'parent\', async t => { await t.test(\'child\', t2 => t.mock.fn()); });'),
 		withImport('test(\'parent\', async t => { await t.test.only(\'child\', t2 => { t.mock.fn(); }); });'),
 		withImport('test(\'parent\', async (t = fallback) => { await t.test(\'child\', t2 => { t.mock.fn(); }); });'),
 		withImport('test(\'parent\', async t => { await t.test(\'child\', (t2 = fallback) => { t.mock.fn(); }); });'),
+
+		// Defaulted child context is tracked for nested subtests
+		withImport('test(\'parent\', async t => { await t.test(\'child\', (t2 = fallback) => { t2.test(\'grandchild\', () => { t2.mock.fn(); }); }); });'),
 
 		// Child context name shadowed at the report site has no safe suggestion
 		withImport('test(\'parent\', async t => { await t.test(\'child\', t2 => { { const t2 = other; t.mock.fn(); } }); });'),
