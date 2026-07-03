@@ -145,6 +145,33 @@ function getHookCallback(callExpression) {
 	return isFunction(firstArgument) ? firstArgument : undefined;
 }
 
+function getLocalTestHookCall(callExpression, imports, sourceCode) {
+	const callee = unwrapTypeScriptExpression(callExpression.callee);
+	if (
+		callee.type !== 'MemberExpression'
+		|| callee.computed
+		|| callee.property.type !== 'Identifier'
+		|| !CONTEXT_HOOKS.has(callee.property.name)
+	) {
+		return undefined;
+	}
+
+	const object = unwrapTypeScriptExpression(callee.object);
+	if (
+		object.type !== 'Identifier'
+		|| !['test', 'it'].includes(imports.locals.get(object.name))
+		|| !isImportedReference(object, sourceCode)
+	) {
+		return undefined;
+	}
+
+	return {
+		name: callee.property.name,
+		kind: 'hook',
+		modifiers: [],
+	};
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -163,7 +190,7 @@ const create = context => {
 			return testCall;
 		}
 
-		return undefined;
+		return getLocalTestHookCall(node, imports, sourceCode);
 	};
 
 	const isSubtestCall = node => {
@@ -286,16 +313,17 @@ const create = context => {
 	};
 
 	const isContextMock = node => {
+		const expression = unwrapTypeScriptExpression(node);
 		if (
-			node.type !== 'MemberExpression'
-			|| node.computed
-			|| node.property.type !== 'Identifier'
-			|| node.property.name !== 'mock'
+			expression.type !== 'MemberExpression'
+			|| expression.computed
+			|| expression.property.type !== 'Identifier'
+			|| expression.property.name !== 'mock'
 		) {
 			return false;
 		}
 
-		const object = unwrapTypeScriptExpression(node.object);
+		const object = unwrapTypeScriptExpression(expression.object);
 		return (
 			(object.type === 'Identifier' && isCurrentContextReference(object))
 			|| isGetTestContextCall(object)
@@ -320,7 +348,7 @@ const create = context => {
 	});
 
 	context.on('CallExpression', node => {
-		const {callee} = node;
+		const callee = unwrapTypeScriptExpression(node.callee);
 		if (
 			callee.type === 'MemberExpression'
 			&& !callee.computed

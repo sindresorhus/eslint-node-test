@@ -132,6 +132,12 @@ test.snapshot({
 		// Context mock.
 		head + 'test("a", t => { t.mock.timers.enable(); });',
 
+		// TypeScript-wrapped context mock.
+		{
+			code: head + 'test("a", t => { (t.mock as MockTracker).timers.enable(); });',
+			languageOptions: {parser: parsers.typescript},
+		},
+
 		// Context mock with test options.
 		head + 'test("a", {timeout: 1000}, t => { t.mock.timers.enable(); });',
 
@@ -177,6 +183,9 @@ test.snapshot({
 		// Current test context.
 		'import {test, getTestContext} from \'node:test\';\ntest("a", () => { getTestContext().mock.timers.enable(); });',
 
+		// Current test context outside a callback.
+		'import {getTestContext} from \'node:test\';\ngetTestContext().mock.timers.enable();',
+
 		// Renamed current test context.
 		'import {test, getTestContext as context} from \'node:test\';\ntest("a", () => { context().mock.timers.enable({now: 1000}); });',
 
@@ -198,9 +207,21 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 
+		// TypeScript-wrapped current test context mock.
+		{
+			code: 'import {test, getTestContext} from \'node:test\';\ntest("a", () => { (getTestContext().mock as MockTracker).timers.enable(); });',
+			languageOptions: {parser: parsers.typescript},
+		},
+
 		// TypeScript-wrapped global mock.
 		{
 			code: head + '(mock as typeof mock).timers.enable();',
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// TypeScript-wrapped enable callee.
+		{
+			code: head + '(mock.timers.enable as typeof mock.timers.enable)();',
 			languageOptions: {parser: parsers.typescript},
 		},
 
@@ -227,6 +248,12 @@ test.snapshot({
 
 		// Namespace hook context.
 		'import * as nodeTest from \'node:test\';\nnodeTest.beforeEach(t => { t.mock.timers.enable(); });',
+
+		// Named test import hook context.
+		head + 'test.beforeEach(t => { t.mock.timers.enable(); });',
+
+		// Renamed it import hook context.
+		'import {it as spec} from \'node:test\';\nspec.beforeEach(t => { t.mock.timers.enable(); });',
 
 		// Default import hook context.
 		'import test from \'node:test\';\ntest.beforeEach(t => { t.mock.timers.enable(); });',
@@ -267,6 +294,12 @@ test.snapshot({
 		// TypeScript wrapper.
 		{
 			code: head + 'mock.timers.enable(({} as {now?: number}));',
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// TypeScript satisfies wrapper.
+		{
+			code: head + 'mock.timers.enable(({now: 1000} satisfies {now?: number}));',
 			languageOptions: {parser: parsers.typescript},
 		},
 
