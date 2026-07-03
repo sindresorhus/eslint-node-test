@@ -30,6 +30,7 @@ test.snapshot({
 		typed('beforeEach(() => Promise.resolve());'),
 		typed('test("x", t => { t.test("y", () => Promise.resolve()); });'),
 		typed('test("x", t => { t.beforeEach(() => Promise.resolve()); });'),
+		typed('test("x", t => { t.beforeEach(() => Promise.resolve(), {timeout: 1000}); });'),
 		typed('test("x", t => { const helper = (t: {beforeEach: (callback: () => {a: number}) => void}) => { t.beforeEach(() => ({a: 1})); }; });'),
 		typed('test("x", t => { const helper = (t: {test: (title: string, callback: () => number) => void}) => { t.test("y", () => 1); }; });'),
 		typed('test("x", t => { t.test("y", async () => 1); });'),
@@ -62,6 +63,7 @@ test.snapshot({
 		// Return inside a nested helper, not the test callback
 		typed('test("x", () => { const helper = () => { return 1; }; helper(); });'),
 		typed('after(() => { const helper = () => { return 1; }; helper(); });'),
+		typed('test("x", t => { t.afterEach(() => { const helper = () => { return 1; }; helper(); }, {timeout: 1000}); });'),
 	],
 	invalid: [
 		// Returning a number
@@ -98,6 +100,7 @@ test.snapshot({
 		typed('test("x", t => { t.beforeEach(() => 1, {timeout: 1000}); });'),
 		typed('test("x", t => { t.beforeEach(() => ({a: 1})); });'),
 		typed('test("x", t => { t.after(() => "done"); });'),
+		typed('test("x", t => { t.afterEach(() => { return {a: 1}; }, {timeout: 1000}); });'),
 		typed('test("x", t => { t.afterEach(() => [1, 2]); });'),
 		typed('beforeEach(t => { t.beforeEach(() => ({a: 1})); });'),
 		typed('beforeEach(t => { t.test("y", () => 1); });'),
@@ -127,5 +130,6 @@ test.snapshot({
 
 		// Renamed hook import
 		typedCode('import {beforeEach as setup} from \'node:test\';\nsetup(() => { return 1; });'),
+		typedCode('import {beforeEach as setup} from \'node:test\';\nsetup(() => { return 1; }, {timeout: 1000});'),
 	],
 });

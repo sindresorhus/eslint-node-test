@@ -346,6 +346,12 @@ export const parseTestCall = memoizeByNode(parseTestCallCache, (callExpression, 
 /** Get the modifier identifier node with the given name (`only`/`skip`/`todo`), or `undefined`. */
 export const findModifier = (modifiers, name) => modifiers.find(modifier => modifier.name === name);
 
+function isHookMemberTestCall(parsed) {
+	return parsed?.kind === 'test'
+		&& parsed.modifiers.length === 1
+		&& HOOK_FUNCTIONS.has(parsed.modifiers[0].name);
+}
+
 /**
 For a subtest-shaped call (`receiver.test(…)`, optionally with chained `.only`/`.skip`/`.todo`
 modifiers), return the receiver identifier node. Otherwise `undefined`.
@@ -407,6 +413,14 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 		return isContextIdentifier(receiver);
 	};
 
+	const isTrackedHookCall = parsed => trackHooks && (
+		(
+			parsed?.kind === 'hook'
+			&& parsed.modifiers.length === 0
+		)
+		|| isHookMemberTestCall(parsed)
+	);
+
 	const isTrackedCallbackCall = node => {
 		const parsed = parseTestCall(node, imports);
 		return (
@@ -414,11 +428,7 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 				parsed?.kind === 'test'
 				&& parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name))
 			)
-			|| (
-				trackHooks
-				&& parsed?.kind === 'hook'
-				&& parsed.modifiers.length === 0
-			)
+			|| isTrackedHookCall(parsed)
 		);
 	};
 
@@ -438,7 +448,8 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 				return;
 			}
 
-			const callback = getTestCallback(node);
+			const parsed = parseTestCall(node, imports);
+			const callback = isTrackedHookCall(parsed) ? getHookCallback(node) : getTestCallback(node);
 			if (callback) {
 				const parameter = callback.params[0];
 
@@ -666,13 +677,25 @@ export function nearestTestCallbackKind(node, imports) {
 	while (current) {
 		if (isFunction(current)) {
 			const call = current.parent;
-			if (call?.type === 'CallExpression' && getTestCallback(call) === current) {
+			if (call?.type === 'CallExpression') {
 				const parsed = parseTestCall(call, imports);
-				if (parsed) {
+				if (
+					parsed?.kind === 'hook'
+					&& parsed.modifiers.length === 0
+					&& getHookCallback(call) === current
+				) {
+					return 'hook';
+				}
+
+				if (isHookMemberTestCall(parsed) && getHookCallback(call) === current) {
+					return 'hook';
+				}
+
+				if (parsed && getTestCallback(call) === current) {
 					return parsed.kind;
 				}
 
-				if (getSubtestReceiver(call) !== undefined) {
+				if (getSubtestReceiver(call) !== undefined && getTestCallback(call) === current) {
 					return 'test';
 				}
 			}
