@@ -12,6 +12,7 @@ export {default as 'max-assertions'} from './max-assertions.js';
 export {default as 'max-nested-describe'} from './max-nested-describe.js';
 export {default as 'no-assert-in-describe'} from './no-assert-in-describe.js';
 export {default as 'no-assert-in-hook'} from './no-assert-in-hook.js';
+export {default as 'no-assert-match-string'} from './no-assert-match-string.js';
 export {default as 'no-assert-throws-async'} from './no-assert-throws-async.js';
 export {default as 'no-assert-throws-call'} from './no-assert-throws-call.js';
 export {default as 'no-assert-throws-multiple-statements'} from './no-assert-throws-multiple-statements.js';

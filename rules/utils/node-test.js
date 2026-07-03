@@ -375,6 +375,8 @@ knowing the enclosing context name. Drive the tracker from a `CallExpression` vi
 `isSubtestCall`/`isContextName` first (against the current stack), then call `update(node)` to
 push this call's own context, and `leave(node)` on exit.
 
+Set `trackHooks` to also track hook context parameters for rules that inspect `t.assert.*()`.
+
 @returns {{
 	isSubtestCall: (node: import('estree').Node) => boolean,
 	isContextIdentifier: (node: import('estree').Node | undefined) => boolean,
@@ -425,9 +427,9 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 		isContextIdentifier,
 		isContextName: name => name !== undefined && names.includes(name),
 		// The name of the innermost enclosing tracked context, or `undefined` when its
-		// callback declared no context parameter (or we are not inside a test).
+		// callback declared no context parameter (or we are not inside a tracked callback).
 		current: () => names.at(-1),
-		// The callback function node of the innermost enclosing tracked context. The context parameter is
+		// The callback function node of the innermost enclosing tracked callback. The context parameter is
 		// only in scope inside this node, so a node visited in the call's title/options arguments (which
 		// the traversal reaches before the callback) is not actually within the context's scope.
 		currentCallback: () => callbacks.at(-1),
@@ -457,6 +459,31 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 			callbacks.pop();
 		},
 	};
+}
+
+function getContextAssertIdentifier(node) {
+	const {callee} = node;
+	if (
+		callee.type === 'MemberExpression'
+		&& !callee.computed
+		&& callee.object.type === 'MemberExpression'
+		&& !callee.object.computed
+		&& callee.object.object.type === 'Identifier'
+		&& callee.object.property.type === 'Identifier'
+		&& callee.object.property.name === 'assert'
+	) {
+		return callee.object.object;
+	}
+
+	return undefined;
+}
+
+/**
+Check whether a `t.assert.*()` call belongs to a tracked test context.
+*/
+export function isAssertionCallWithSupportedContext(node, tracker) {
+	const contextAssertIdentifier = getContextAssertIdentifier(node);
+	return contextAssertIdentifier === undefined || tracker.isContextIdentifier(contextAssertIdentifier);
 }
 
 /**
