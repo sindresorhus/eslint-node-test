@@ -400,6 +400,21 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 		return isContextIdentifier(receiver);
 	};
 
+	const isTrackedCallbackCall = node => {
+		const parsed = parseTestCall(node, imports);
+		return (
+			(
+				parsed?.kind === 'test'
+				&& parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name))
+			)
+			|| (
+				trackHooks
+				&& parsed?.kind === 'hook'
+				&& parsed.modifiers.length === 0
+			)
+		);
+	};
+
 	return {
 		isSubtestCall,
 		isContextIdentifier,
@@ -412,12 +427,7 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 		// the traversal reaches before the callback) is not actually within the context's scope.
 		currentCallback: () => callbacks.at(-1),
 		update(node) {
-			const parsed = parseTestCall(node, imports);
-			if (!(
-				(parsed?.kind === 'test' && parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name)))
-				|| (trackHooks && parsed?.kind === 'hook' && parsed.modifiers.length === 0)
-				|| isSubtestCall(node)
-			)) {
+			if (!(isTrackedCallbackCall(node) || isSubtestCall(node))) {
 				return;
 			}
 

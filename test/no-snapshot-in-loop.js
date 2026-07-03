@@ -61,6 +61,7 @@ test.snapshot({
 	invalid: [
 		// For-of loop body.
 		withTest('for (const item of items) { t.assert.snapshot(item); }'),
+		withTest('for (const item of items) t.assert.snapshot(item);'),
 
 		// For-await-of loop body.
 		'import test from \'node:test\';\ntest(\'t\', async t => { for await (const item of items) { t.assert.snapshot(item); } });',
