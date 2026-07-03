@@ -9,17 +9,15 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-`assert.throws()` arrow callbacks can be written with a block body or an expression body. Mixing both styles in a codebase is inconsistent. This rule enforces one.
+Enforces block or expression bodies for `assert.throws()` arrow callbacks.
 
-It is off by default. Enable it with the `style` you prefer.
+It is off by default. Set your preferred `style`.
 
-Under the default `block` style, expression-body arrow callbacks are fixed to block-bodied callbacks. The original expression is evaluated as an expression statement and intentionally not returned.
+The default `block` style fixes expression bodies to block bodies. The original expression is evaluated as a non-returned expression statement.
 
-Under the `expression` style, only block-bodied arrow callbacks with a single expression statement are reported, since multi-statement blocks and statements like `throw` have no expression-body equivalent.
+The `expression` style reports only single-expression block bodies. Multi-statement blocks and `throw` cannot be converted.
 
-Autofix is skipped for `async` callbacks and callbacks with an explicit return type, where changing the callback body form could change behavior or break the declared type.
-
-Autofix is also skipped when comments would be unsafe to preserve while moving the expression, and for split-line arrow callbacks instead of reformatting them.
+Autofix is skipped for `async` callbacks, explicit return types, unsafe comment moves, and split-line arrows.
 
 ## Options
 
