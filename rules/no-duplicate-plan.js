@@ -62,8 +62,8 @@ function hasSkipModifier(node) {
 	return false;
 }
 
-function hasEnabledStaticOption(node, sourceCode, name) {
-	const property = findOptionsProperty(getTestOptions(node), name);
+function hasEnabledSkipOption(node, sourceCode) {
+	const property = findOptionsProperty(getTestOptions(node), 'skip');
 	if (property === undefined) {
 		return false;
 	}
@@ -73,7 +73,7 @@ function hasEnabledStaticOption(node, sourceCode, name) {
 }
 
 function isSkippedTestCall(node, sourceCode) {
-	return hasSkipModifier(node.callee) || hasEnabledStaticOption(node, sourceCode, 'skip');
+	return hasSkipModifier(node.callee) || hasEnabledSkipOption(node, sourceCode);
 }
 
 function hasEnabledPlanOption(node, sourceCode) {
