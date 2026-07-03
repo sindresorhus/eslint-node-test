@@ -45,6 +45,7 @@ export {default as 'no-process-exit-in-test'} from './no-process-exit-in-test.js
 export {default as 'no-skip-test'} from './no-skip-test.js';
 export {default as 'no-skip-without-reason'} from './no-skip-without-reason.js';
 export {default as 'no-skip-without-return'} from './no-skip-without-return.js';
+export {default as 'no-snapshot-in-loop'} from './no-snapshot-in-loop.js';
 export {default as 'no-standalone-assert'} from './no-standalone-assert.js';
 export {default as 'no-test-inside-hook'} from './no-test-inside-hook.js';
 export {default as 'no-test-return-statement'} from './no-test-return-statement.js';
