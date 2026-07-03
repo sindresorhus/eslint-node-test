@@ -302,7 +302,6 @@ export const parseTestCall = memoizeByNode(parseTestCallCache, (callExpression, 
 	if (
 		imports.namespace
 		&& root.name === imports.namespace
-		&& isImportedIdentifier(root, imports)
 		&& members.length > 0
 		&& ALL_TEST_EXPORTS.has(members[0].name)
 	) {
@@ -310,7 +309,7 @@ export const parseTestCall = memoizeByNode(parseTestCallCache, (callExpression, 
 		const [first, ...rest] = members;
 		name = first.name;
 		modifiers = rest;
-	} else if (imports.locals.has(root.name) && isImportedIdentifier(root, imports)) {
+	} else if (imports.locals.has(root.name)) {
 		// `test.only(…)` / bare `test(…)` — a callable test binding. A binding that is both a local and
 		// the namespace (`import test from 'node:test'`) reaches here for member chains whose first
 		// segment is not a known export, e.g. `test.only(…)`.
