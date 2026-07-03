@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-`mock.timers.enable()` defaults to mocking all timer APIs, including the global `Date` object. That can break unrelated code in the same test that expects real wall-clock time, such as logging, cache TTLs, or timestamp comparisons.
+`mock.timers.enable()` defaults to mocking all timer APIs, including the global `Date` object. That can break unrelated code in the same test or hook that expects real wall-clock time, such as logging, cache TTLs, or timestamp comparisons.
 
 This rule requires an explicit `apis` property so the test states exactly which timer APIs it intends to mock.
 
@@ -29,4 +29,4 @@ test('debounce', t => {
 });
 ```
 
-Variable option objects are ignored, since the rule cannot statically know whether they include `apis`. Object literals must include a visible `apis` property.
+Variable option objects are ignored, since the rule cannot statically know whether they include `apis`. Object literals must include a visible `apis` property after any spread, and statically missing values like `undefined`, `null`, or `false` are reported.

@@ -1,6 +1,5 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {
-	findOptionsProperty,
 	getSubtestReceiver,
 	getTestCallback,
 	MODIFIERS,
@@ -15,9 +14,41 @@ const messages = {
 	[MESSAGE_ID]: '`mock.timers.enable()` should explicitly specify the `apis` option to avoid unexpectedly mocking `Date`.',
 };
 
-function isUndefinedExpression(node) {
+function isMissingApisValue(node) {
 	const expression = unwrapTypeScriptExpression(node);
-	return expression?.type === 'Identifier' && expression.name === 'undefined';
+	if (!expression) {
+		return true;
+	}
+
+	return (
+		(expression.type === 'Identifier' && expression.name === 'undefined')
+		|| (expression.type === 'UnaryExpression' && expression.operator === 'void')
+		|| (expression.type === 'Literal' && !expression.value)
+	);
+}
+
+function isApisProperty(property) {
+	return property.type === 'Property'
+		&& !property.computed
+		&& (
+			(property.key.type === 'Identifier' && property.key.name === 'apis')
+			|| (property.key.type === 'Literal' && property.key.value === 'apis')
+		);
+}
+
+function getLastVisibleApisProperty(optionsObject) {
+	for (let index = optionsObject.properties.length - 1; index >= 0; index -= 1) {
+		const property = optionsObject.properties[index];
+		if (property.type === 'SpreadElement') {
+			return undefined;
+		}
+
+		if (isApisProperty(property)) {
+			return property;
+		}
+	}
+
+	return undefined;
 }
 
 function isImportedReference(node, sourceCode) {
@@ -41,7 +72,7 @@ function isMissingApisOption(callExpression) {
 		return true;
 	}
 
-	if (isUndefinedExpression(firstArgument)) {
+	if (isMissingApisValue(firstArgument)) {
 		return true;
 	}
 
@@ -49,11 +80,18 @@ function isMissingApisOption(callExpression) {
 		return false;
 	}
 
-	const apisProperty = findOptionsProperty(firstArgument, 'apis');
-	return !apisProperty || isUndefinedExpression(apisProperty.value);
+	const apisProperty = getLastVisibleApisProperty(firstArgument);
+	return !apisProperty || isMissingApisValue(apisProperty.value);
 }
 
-const hasOnlyTestModifiers = ({modifiers}) => modifiers.every(modifier => MODIFIERS.has(modifier.name));
+function isContextProvidingCall(testCall) {
+	if (testCall.kind === 'hook') {
+		return testCall.modifiers.length === 0;
+	}
+
+	return testCall.kind === 'test'
+		&& testCall.modifiers.every(modifier => MODIFIERS.has(modifier.name));
+}
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -66,13 +104,13 @@ const create = context => {
 	const contextVariables = [];
 	const pushedCalls = new Set();
 
-	const isImportedTestCall = node => {
+	const isImportedContextCall = node => {
 		const root = getCalleeRoot(node.callee);
 		const testCall = parseTestCall(node, imports);
 		return root !== undefined
 			&& isImportedReference(root, sourceCode)
-			&& testCall?.kind === 'test'
-			&& hasOnlyTestModifiers(testCall);
+			&& testCall !== undefined
+			&& isContextProvidingCall(testCall);
 	};
 
 	const isSubtestCall = node => {
@@ -86,7 +124,7 @@ const create = context => {
 	};
 
 	const updateContext = node => {
-		if (!isImportedTestCall(node) && !isSubtestCall(node)) {
+		if (!isImportedContextCall(node) && !isSubtestCall(node)) {
 			return;
 		}
 
@@ -134,8 +172,8 @@ const create = context => {
 		);
 
 	const isCurrentContextReference = node => {
-		const variable = contextVariables.at(-1);
-		return variable !== undefined && findVariable(sourceCode.getScope(node), node) === variable;
+		const variable = findVariable(sourceCode.getScope(node), node);
+		return variable !== undefined && contextVariables.includes(variable);
 	};
 
 	const isContextMock = node =>
