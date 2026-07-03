@@ -47,7 +47,7 @@ function isSameReference(sourceCode, node, variable) {
 		&& findVariable(sourceCode.getScope(node), node) === variable;
 }
 
-function isGlobalThisSetTimeout(sourceCode, node) {
+function isGlobalObjectSetTimeout(sourceCode, node) {
 	node = unwrapExpression(node);
 	return node?.type === 'MemberExpression'
 		&& !node.computed
@@ -108,7 +108,7 @@ function isImportedTimerSetTimeout(node, timerImports) {
 function isSetTimeoutCallee(node, timerImports) {
 	node = unwrapExpression(node);
 	return isGlobalReference(timerImports.sourceCode, node, 'setTimeout')
-		|| isGlobalThisSetTimeout(timerImports.sourceCode, node)
+		|| isGlobalObjectSetTimeout(timerImports.sourceCode, node)
 		|| isImportedTimerSetTimeout(node, timerImports);
 }
 

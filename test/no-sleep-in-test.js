@@ -33,6 +33,7 @@ test.snapshot({
 	],
 	invalid: [
 		withTest('await new Promise(resolve => setTimeout(resolve, 500));'),
+		'import test from \'node:test\';\ntest(\'waits\', {timeout: 1000}, async () => {\n\tawait new Promise(resolve => setTimeout(resolve, 500));\n});',
 		'import test from \'node:test\';\ntest.only(\'waits\', async () => {\n\tawait new Promise(resolve => setTimeout(resolve, 500));\n});',
 		'import {it} from \'node:test\';\nit(\'waits\', async () => {\n\tawait new Promise(resolve => setTimeout(resolve, 500));\n});',
 		'import * as nodeTest from \'node:test\';\nnodeTest.test(\'waits\', async () => {\n\tawait new Promise(resolve => setTimeout(resolve, 500));\n});',
