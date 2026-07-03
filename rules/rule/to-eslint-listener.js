@@ -1,4 +1,3 @@
-import {iterateFixOrProblems} from './utilities.js';
 import toEslintProblem from './to-eslint-problem.js';
 
 /**
@@ -15,26 +14,39 @@ import toEslintProblem from './to-eslint-problem.js';
 */
 
 /**
-@param {UnicornContext} context
-@param {UnicornRuleListen} listener
-@returns {Listener}
+Report a listener's return value: `undefined` (the common case), a single problem object, or an array/iterable of problems (possibly nested). Kept generator-free — this runs for every visited node of every rule, and the overwhelming majority of calls report nothing.
+
+@param {ESLint.Rule.RuleContext} context
+@param {UnicornProblems} problems
 */
-export default function toEslintListener(context, listener) {
-	// Listener arguments can be `codePath, node` or `node`
+function reportProblems(context, problems) {
+	if (!problems) {
+		return;
+	}
 
-	/**
-	@type {UnicornRuleListen}
-	*/
-	return (...listenerArguments) => {
-		const unicornProblems = listener(...listenerArguments);
+	// A single problem object is a plain object (not iterable), so report it directly.
+	if (typeof problems[Symbol.iterator] !== 'function') {
+		context.report(toEslintProblem(problems));
+		return;
+	}
 
-		for (const unicornProblem of iterateFixOrProblems(unicornProblems)) {
-			if (!unicornProblem) {
-				continue;
-			}
+	for (const problem of problems) {
+		reportProblems(context, problem);
+	}
+}
 
-			const eslintProblem = toEslintProblem(unicornProblem);
-			context.report(eslintProblem);
+/**
+@param {UnicornContext} context
+@param {UnicornRuleListen[]} listeners
+@returns {EslintListener}
+*/
+export default function toEslintListener(context, listeners) {
+	// Forward positional arguments explicitly instead of a rest array, since this runs for every
+	// visited node and a rest/spread would allocate on each call. ESLint passes at most three
+	// arguments to a listener (`onCodePathSegmentLoop`); node listeners get a single `node`.
+	return (argument0, argument1, argument2) => {
+		for (const listener of listeners) {
+			reportProblems(context, listener(argument0, argument1, argument2));
 		}
 	};
 }

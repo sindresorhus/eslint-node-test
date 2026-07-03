@@ -211,13 +211,7 @@ export function isGlobalMock(node, imports) {
 	);
 }
 
-/**
-Walk a callee chain into its root identifier and the member property nodes after it.
-Unwraps TypeScript wrappers and optional chaining while walking.
-
-@returns {{root: import('estree').Identifier, members: import('estree').Identifier[]} | undefined}
-*/
-export function getCalleeChain(node) {
+function computeCalleeChain(node) {
 	const members = [];
 
 	while (node) {
@@ -246,6 +240,38 @@ export function getCalleeChain(node) {
 	}
 
 	return undefined;
+}
+
+/*
+Cache the chain per callee node. It is a pure function of the node, and both `parseTestCall` and
+`getSubtestReceiver` (used by ~30 rules) walk the same callee on every `CallExpression`, so the
+first walk is reused across all of them. The returned object is shared, so callers must treat it
+(and its `members` array) as read-only.
+*/
+const calleeChainCache = new WeakMap();
+// Sentinel stored for callees with no chain, so a cache hit is a single `get` even when the
+// computed result is `undefined` (the common case for non-matching callees).
+const NO_CHAIN = Symbol('no chain');
+
+/**
+Walk a callee chain into its root identifier and the member property nodes after it.
+Unwraps TypeScript wrappers and optional chaining while walking.
+
+@returns {{root: import('estree').Identifier, members: import('estree').Identifier[]} | undefined}
+*/
+export function getCalleeChain(node) {
+	if (!node) {
+		return undefined;
+	}
+
+	const cached = calleeChainCache.get(node);
+	if (cached !== undefined) {
+		return cached === NO_CHAIN ? undefined : cached;
+	}
+
+	const result = computeCalleeChain(node);
+	calleeChainCache.set(node, result ?? NO_CHAIN);
+	return result;
 }
 
 /** Classify a canonical export name as a test, suite, or hook (or `undefined`). */
