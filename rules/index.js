@@ -20,6 +20,7 @@ export {default as 'no-async-describe'} from './no-async-describe.js';
 export {default as 'no-async-fn-without-await'} from './no-async-fn-without-await.js';
 export {default as 'no-callback-and-promise'} from './no-callback-and-promise.js';
 export {default as 'no-commented-tests'} from './no-commented-tests.js';
+export {default as 'no-compound-assertion'} from './no-compound-assertion.js';
 export {default as 'no-conditional-assertion'} from './no-conditional-assertion.js';
 export {default as 'no-conditional-in-test'} from './no-conditional-in-test.js';
 export {default as 'no-conditional-tests'} from './no-conditional-tests.js';

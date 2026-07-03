@@ -25,6 +25,9 @@ test.snapshot({
 
 		// Assertions in a `describe` body but outside any `test` are not counted
 		`import {describe, test} from 'node:test';\nimport assert from 'node:assert';\ndescribe('s', () => { ${asserts(6)} test('x', () => {}); });`,
+
+		// Shadowed test binding
+		`${head}function helper(test) { test('x', () => { ${asserts(6)} }); }`,
 	],
 	invalid: [
 		// One past the default limit

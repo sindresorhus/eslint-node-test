@@ -112,6 +112,10 @@ Message:
 > 2 | strictAssert(a === b);
     | ^^^^^^^^^^^^^^^^^^^^^ Prefer \`strictEqual\` over \`ok\` with a \`===\` comparison for a clearer failure message.
 
+Output:
+  1 | import {strict as strictAssert} from 'node:assert';
+  2 | strictAssert.strictEqual(a, b);
+
 `;
 
 exports[`prefer-equality-assertion > invalid(15): import assert from 'node:assert';\nassert.ok((a === b)); 1`] = `

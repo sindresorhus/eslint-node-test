@@ -110,7 +110,11 @@ function collectFromImport(node, bindings) {
 			}
 
 			if (kind === 'assert') {
-				addAssertBinding(bindings, localName, specifier.imported.name, isStrict);
+				if (specifier.imported.name === 'strict') {
+					addAssertBinding(bindings, localName, undefined, true);
+				} else {
+					addAssertBinding(bindings, localName, specifier.imported.name, isStrict);
+				}
 			} else if (ALL_TEST_EXPORTS.has(specifier.imported.name)) {
 				bindings.locals.set(localName, specifier.imported.name);
 			}
@@ -348,7 +352,7 @@ export function getSubtestReceiver(callExpression) {
 }
 
 /**
-Track the test-context parameter names (`t`) introduced by enclosing test and subtest callbacks.
+Track the test-context parameter names (`t`) introduced by enclosing test, subtest, and optionally hook callbacks.
 
 Subtests (`t.test(…)`) are method calls, not imported bindings, so recognizing them requires
 knowing the enclosing context name. Drive the tracker from a `CallExpression` visitor: query
@@ -357,42 +361,59 @@ push this call's own context, and `leave(node)` on exit.
 
 @returns {{
 	isSubtestCall: (node: import('estree').Node) => boolean,
+	isContextIdentifier: (node: import('estree').Node | undefined) => boolean,
 	isContextName: (name: string | undefined) => boolean,
 	current: () => string | undefined,
+	currentCallback: () => import('estree').Node | undefined,
 	update: (node: import('estree').Node) => void,
 	leave: (node: import('estree').Node) => void,
 }}
 */
-export function createContextTracker(imports) {
+export function createContextTracker(imports, {trackHooks = false} = {}) {
 	const names = [];
 	const variables = [];
 	const callbacks = [];
 	const pushedCalls = new Set();
 
+	const isContextIdentifier = node => {
+		if (node?.type !== 'Identifier') {
+			return false;
+		}
+
+		const variable = getVariable(node, imports);
+		return variable !== undefined && variables.includes(variable);
+	};
+
 	const isSubtestCall = node => {
 		const receiver = getSubtestReceiver(node);
-		const variable = receiver && getVariable(receiver, imports);
-		return variable !== undefined && variables.includes(variable);
+		return isContextIdentifier(receiver);
 	};
 
 	return {
 		isSubtestCall,
+		isContextIdentifier,
 		isContextName: name => name !== undefined && names.includes(name),
-		// The name of the innermost enclosing test/subtest context, or `undefined` when its
+		// The name of the innermost enclosing tracked context, or `undefined` when its
 		// callback declared no context parameter (or we are not inside a test).
 		current: () => names.at(-1),
-		// The callback function node of the innermost enclosing test/subtest. The context parameter is
+		// The callback function node of the innermost enclosing tracked context. The context parameter is
 		// only in scope inside this node, so a node visited in the call's title/options arguments (which
 		// the traversal reaches before the callback) is not actually within the context's scope.
 		currentCallback: () => callbacks.at(-1),
 		update(node) {
-			if (!(parseTestCall(node, imports)?.kind === 'test' || isSubtestCall(node))) {
+			const parsed = parseTestCall(node, imports);
+			if (!(
+				(parsed?.kind === 'test' && parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name)))
+				|| (trackHooks && parsed?.kind === 'hook' && parsed.modifiers.length === 0)
+				|| isSubtestCall(node)
+			)) {
 				return;
 			}
 
 			const callback = getTestCallback(node);
 			if (callback) {
 				const parameter = callback.params[0];
+
 				names.push(parameter?.type === 'Identifier' ? parameter.name : undefined);
 				variables.push(parameter?.type === 'Identifier' ? getDeclaredVariable(parameter, callback, imports) : undefined);
 				callbacks.push(callback);
@@ -696,6 +717,7 @@ function parseAssertionMemberCall(callee, imports) {
 			method: callee.property.name,
 			methodNode: callee.property,
 			isStrict: false,
+			contextReceiver: object.object,
 		};
 	}
 }
@@ -711,7 +733,7 @@ Matches:
 
 `methodNode` is the identifier node holding the method name, which fixers rewrite. It is the callee itself for a named import, the property for member method calls, and `undefined` for callable assert forms like `assert(…)`, `assert.strict(…)`, or `strictAssert(…)`. `isStrict` is `true` when the binding resolves to a strict-mode assert API, where the legacy methods already behave strictly.
 
-@returns {{method: string, methodNode: import('estree').Node | undefined, isStrict: boolean}|undefined}
+@returns {{method: string, methodNode: import('estree').Node | undefined, isStrict: boolean, contextReceiver?: import('estree').Identifier}|undefined}
 */
 export const parseAssertionCall = memoizeByNode(parseAssertionCallCache, (callExpression, imports) => {
 	const {callee} = callExpression;

@@ -19,6 +19,9 @@ test.snapshot({
 		'import test from \'node:test\';\ntest(console.log(\'title\'), t => {});',
 		'import test from \'node:test\';\ntest(\'t\', {timeout: console.log(\'x\')}, t => {});',
 
+		// Shadowed test binding
+		'import test from \'node:test\';\nfunction helper(test) { test(\'t\', t => { console.log(\'value\'); }); }',
+
 		// `console.error`/`console.warn` are not targeted
 		inTest('console.error(\'real error\');'),
 		inTest('console.warn(\'warning\');'),
