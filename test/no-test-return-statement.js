@@ -39,6 +39,10 @@ test.snapshot({
 		typedCode('import test from \'node:test\';\ntest.each("x", () => 1);'),
 		typedCode('import {test} from \'node:test\';\ntest.each("x", () => 1);'),
 		typedCode('import * as nodeTest from \'node:test\';\nnodeTest.test.each("x", () => 1);'),
+		typedCode('import {beforeEach} from \'node:test\';\nbeforeEach.each(() => { return 1; });'),
+		typedCode('import test from \'node:test\';\ntest.beforeEach.each(() => { return 1; });'),
+		typedCode('import * as nodeTest from \'node:test\';\nnodeTest.beforeEach.each(() => { return 1; });'),
+		typedCode('import {test as nodeTest} from \'node:test\';\nconst helper = (nodeTest: (title: string, callback: () => number) => void) => { nodeTest("x", () => 1); };'),
 
 		// An `async` function wraps its return in a Promise, so a plain value is fine
 		typed('test("x", async () => { return 1; });'),
@@ -81,6 +85,8 @@ test.snapshot({
 		// Test context methods
 		typed('test("x", t => { t.test("y", () => 1); });'),
 		typed('test("x", t => { t.test.only("y", () => 1); });'),
+		typed('test("x", t => { t.test.skip("y", () => 1); });'),
+		typed('test("x", t => { t.test.todo("y", () => 1); });'),
 		typed('test("x", t => { t.before(() => 1); });'),
 		typed('test("x", t => { t.beforeEach(() => ({a: 1})); });'),
 		typed('test("x", t => { t.after(() => "done"); });'),
@@ -101,6 +107,7 @@ test.snapshot({
 
 		// Default import member hook
 		typed('test.beforeEach(() => { return 1; });'),
+		typed('test.beforeEach(() => 1);'),
 
 		// Named import member hook
 		typedCode('import {test} from \'node:test\';\ntest.beforeEach(() => { return 1; }, {timeout: 1000});'),

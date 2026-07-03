@@ -110,7 +110,7 @@ function getCheckedCallback(callExpression, state) {
 		return getTestCallback(callExpression);
 	}
 
-	if (parsed?.kind === 'hook') {
+	if (parsed?.kind === 'hook' && parsed.modifiers.length === 0) {
 		return getHookCallback(callExpression);
 	}
 
