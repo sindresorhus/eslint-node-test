@@ -11,11 +11,11 @@
 
 A compound truthiness assertion like `assert.ok(a && b)` hides which operand failed. Splitting it into separate assertions gives a focused failure location and keeps the assertion output useful.
 
-This rule reports `assert()`/`assert.ok()`/named `ok()`/test-context `t.assert.ok()` calls whose asserted value is a top-level `&&` chain. It autofixes standalone single-argument assertions by splitting the chain into one assertion per operand. Assertions with a custom message, comments inside the call, same-line code/comment text before or after the statement, or a braceless control-flow parent are reported without a fix, since rewriting them safely would require changing or relocating surrounding code.
+This rule reports `assert()`/`assert.ok()`/named `ok()`/test-context `t.assert.ok()` calls whose asserted value is a top-level `&&` chain.
+
+It autofixes standalone single-argument assertions into one assertion per operand. It does not fix assertions with custom messages, comments, same-line surrounding code/comments, braceless control-flow parents, or `t.plan()` counts.
 
 Test-context assertions are recognized in tests, subtests, and hooks.
-
-The fixer intentionally does not update `t.plan()` counts. If a test uses assertion planning, update the plan manually after applying the fix.
 
 ## Examples
 
