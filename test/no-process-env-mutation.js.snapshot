@@ -1,0 +1,977 @@
+exports[`no-process-env-mutation > invalid(1): import test from 'node:test';\ntest('reads config', t => {\n\tprocess.env.NODE_ENV = 'production';\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+  3 | 	process.env.NODE_ENV = 'production';
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(1): import test from 'node:test';\ntest('reads config', t => {\n\tprocess.env.NODE_ENV = 'production';\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+> 3 | 	process.env.NODE_ENV = 'production';
+    | 	^^^^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(10): import test from 'node:test';\ntest('reads config', t => {\n\tprocess.env[name] = 'production';\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+  3 | 	process.env[name] = 'production';
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(10): import test from 'node:test';\ntest('reads config', t => {\n\tprocess.env[name] = 'production';\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+> 3 | 	process.env[name] = 'production';
+    | 	^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(11): import test from 'node:test';\ntest('reads config', t => {\n\tprocess['env'].NODE_ENV = 'production';\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+  3 | 	process['env'].NODE_ENV = 'production';
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(11): import test from 'node:test';\ntest('reads config', t => {\n\tprocess['env'].NODE_ENV = 'production';\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+> 3 | 	process['env'].NODE_ENV = 'production';
+    | 	^^^^^^^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(12): import test from 'node:test';\ntest('reads config', t => {\n\t[process.env.NODE_ENV] = ['production'];\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+  3 | 	[process.env.NODE_ENV] = ['production'];
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(12): import test from 'node:test';\ntest('reads config', t => {\n\t[process.env.NODE_ENV] = ['production'];\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+> 3 | 	[process.env.NODE_ENV] = ['production'];
+    | 	 ^^^^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(13): import test from 'node:test';\ntest('reads config', t => {\n\t({nodeEnvironment: process.env.NODE_ENV} = values);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+  3 | 	({nodeEnvironment: process.env.NODE_ENV} = values);
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(13): import test from 'node:test';\ntest('reads config', t => {\n\t({nodeEnvironment: process.env.NODE_ENV} = values);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+> 3 | 	({nodeEnvironment: process.env.NODE_ENV} = values);
+    | 	                   ^^^^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(14): import test from 'node:test';\ntest('reads config', t => {\n\tfor (process.env.NODE_ENV of values) {}\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+  3 | 	for (process.env.NODE_ENV of values) {}
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(14): import test from 'node:test';\ntest('reads config', t => {\n\tfor (process.env.NODE_ENV of values) {}\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+> 3 | 	for (process.env.NODE_ENV of values) {}
+    | 	     ^^^^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(15): import test from 'node:test';\ntest('reads config', async t => {\n\tfor await (process.env.NODE_ENV of values) {}\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('reads config', async t => {
+  3 | 	for await (process.env.NODE_ENV of values) {}
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(15): import test from 'node:test';\ntest('reads config', async t => {\n\tfor await (process.env.NODE_ENV of values) {}\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('reads config', async t => {
+> 3 | 	for await (process.env.NODE_ENV of values) {}
+    | 	           ^^^^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(16): import test from 'node:test';\ntest('reads config', t => {\n\tfor (process.env.NODE_ENV in values) {}\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+  3 | 	for (process.env.NODE_ENV in values) {}
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(16): import test from 'node:test';\ntest('reads config', t => {\n\tfor (process.env.NODE_ENV in values) {}\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+> 3 | 	for (process.env.NODE_ENV in values) {}
+    | 	     ^^^^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(17): import test from 'node:test';\ntest('reads config', t => {\n\tfor ({nodeEnvironment: process.env.NODE_ENV} of values) {}\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+  3 | 	for ({nodeEnvironment: process.env.NODE_ENV} of values) {}
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(17): import test from 'node:test';\ntest('reads config', t => {\n\tfor ({nodeEnvironment: process.env.NODE_ENV} of values) {}\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+> 3 | 	for ({nodeEnvironment: process.env.NODE_ENV} of values) {}
+    | 	                       ^^^^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(18): import test from 'node:test';\ntest.only('reads config', () => {\n\tprocess.env.NODE_ENV = 'production';\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test.only('reads config', () => {
+  3 | 	process.env.NODE_ENV = 'production';
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(18): import test from 'node:test';\ntest.only('reads config', () => {\n\tprocess.env.NODE_ENV = 'production';\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test.only('reads config', () => {
+> 3 | 	process.env.NODE_ENV = 'production';
+    | 	^^^^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(19): import * as nodeTest from 'node:test';\nnodeTest.test('reads config', () => {\n\tprocess.env.NODE_ENV = 'production';\n}); 1`] = `
+
+  1 | import * as nodeTest from 'node:test';
+  2 | nodeTest.test('reads config', () => {
+  3 | 	process.env.NODE_ENV = 'production';
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(19): import * as nodeTest from 'node:test';\nnodeTest.test('reads config', () => {\n\tprocess.env.NODE_ENV = 'production';\n}); 2`] = `
+
+Message:
+  1 | import * as nodeTest from 'node:test';
+  2 | nodeTest.test('reads config', () => {
+> 3 | 	process.env.NODE_ENV = 'production';
+    | 	^^^^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(2): import test from 'node:test';\ntest('reads config', t => {\n\tprocess.env['NODE_ENV'] = 'production';\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+  3 | 	process.env['NODE_ENV'] = 'production';
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(2): import test from 'node:test';\ntest('reads config', t => {\n\tprocess.env['NODE_ENV'] = 'production';\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+> 3 | 	process.env['NODE_ENV'] = 'production';
+    | 	^^^^^^^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(20): import {test as nodeTest} from 'node:test';\nnodeTest('reads config', () => {\n\tprocess.env.NODE_ENV = 'production';\n}); 1`] = `
+
+  1 | import {test as nodeTest} from 'node:test';
+  2 | nodeTest('reads config', () => {
+  3 | 	process.env.NODE_ENV = 'production';
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(20): import {test as nodeTest} from 'node:test';\nnodeTest('reads config', () => {\n\tprocess.env.NODE_ENV = 'production';\n}); 2`] = `
+
+Message:
+  1 | import {test as nodeTest} from 'node:test';
+  2 | nodeTest('reads config', () => {
+> 3 | 	process.env.NODE_ENV = 'production';
+    | 	^^^^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(21): import {it} from 'node:test';\nit('reads config', () => {\n\tprocess.env.NODE_ENV = 'production';\n}); 1`] = `
+
+  1 | import {it} from 'node:test';
+  2 | it('reads config', () => {
+  3 | 	process.env.NODE_ENV = 'production';
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(21): import {it} from 'node:test';\nit('reads config', () => {\n\tprocess.env.NODE_ENV = 'production';\n}); 2`] = `
+
+Message:
+  1 | import {it} from 'node:test';
+  2 | it('reads config', () => {
+> 3 | 	process.env.NODE_ENV = 'production';
+    | 	^^^^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(22): import test from 'node:test';\ntest('reads config', t => {\n\tprocess.env = {};\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+  3 | 	process.env = {};
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(22): import test from 'node:test';\ntest('reads config', t => {\n\tprocess.env = {};\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+> 3 | 	process.env = {};
+    | 	^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(23): import test from 'node:test';\ntest('reads config', t => {\n\tdelete process.env;\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+  3 | 	delete process.env;
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(23): import test from 'node:test';\ntest('reads config', t => {\n\tdelete process.env;\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+> 3 | 	delete process.env;
+    | 	       ^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(24): import process from 'node:process';\nimport test from 'node:test';\ntest('reads config', () => {\n\tprocess.env.NODE_ENV = 'production';\n}); 1`] = `
+
+  1 | import process from 'node:process';
+  2 | import test from 'node:test';
+  3 | test('reads config', () => {
+  4 | 	process.env.NODE_ENV = 'production';
+  5 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(24): import process from 'node:process';\nimport test from 'node:test';\ntest('reads config', () => {\n\tprocess.env.NODE_ENV = 'production';\n}); 2`] = `
+
+Message:
+  1 | import process from 'node:process';
+  2 | import test from 'node:test';
+  3 | test('reads config', () => {
+> 4 | 	process.env.NODE_ENV = 'production';
+    | 	^^^^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  5 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(25): import process from 'process';\nimport test from 'node:test';\ntest('reads config', () => {\n\tprocess.env.NODE_ENV = 'production';\n}); 1`] = `
+
+  1 | import process from 'process';
+  2 | import test from 'node:test';
+  3 | test('reads config', () => {
+  4 | 	process.env.NODE_ENV = 'production';
+  5 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(25): import process from 'process';\nimport test from 'node:test';\ntest('reads config', () => {\n\tprocess.env.NODE_ENV = 'production';\n}); 2`] = `
+
+Message:
+  1 | import process from 'process';
+  2 | import test from 'node:test';
+  3 | test('reads config', () => {
+> 4 | 	process.env.NODE_ENV = 'production';
+    | 	^^^^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  5 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(26): import * as nodeProcess from 'node:process';\nimport test from 'node:test';\ntest('reads config', () => {\n\tnodeProcess.env.NODE_ENV = 'production';\n}); 1`] = `
+
+  1 | import * as nodeProcess from 'node:process';
+  2 | import test from 'node:test';
+  3 | test('reads config', () => {
+  4 | 	nodeProcess.env.NODE_ENV = 'production';
+  5 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(26): import * as nodeProcess from 'node:process';\nimport test from 'node:test';\ntest('reads config', () => {\n\tnodeProcess.env.NODE_ENV = 'production';\n}); 2`] = `
+
+Message:
+  1 | import * as nodeProcess from 'node:process';
+  2 | import test from 'node:test';
+  3 | test('reads config', () => {
+> 4 | 	nodeProcess.env.NODE_ENV = 'production';
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  5 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(27): import * as nodeProcess from 'process';\nimport test from 'node:test';\ntest('reads config', () => {\n\tnodeProcess.env.NODE_ENV = 'production';\n}); 1`] = `
+
+  1 | import * as nodeProcess from 'process';
+  2 | import test from 'node:test';
+  3 | test('reads config', () => {
+  4 | 	nodeProcess.env.NODE_ENV = 'production';
+  5 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(27): import * as nodeProcess from 'process';\nimport test from 'node:test';\ntest('reads config', () => {\n\tnodeProcess.env.NODE_ENV = 'production';\n}); 2`] = `
+
+Message:
+  1 | import * as nodeProcess from 'process';
+  2 | import test from 'node:test';
+  3 | test('reads config', () => {
+> 4 | 	nodeProcess.env.NODE_ENV = 'production';
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  5 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(28): import {default as nodeProcess} from 'node:process';\nimport test from 'node:test';\ntest('reads config', () => {\n\tnodeProcess.env.NODE_ENV = 'production';\n}); 1`] = `
+
+  1 | import {default as nodeProcess} from 'node:process';
+  2 | import test from 'node:test';
+  3 | test('reads config', () => {
+  4 | 	nodeProcess.env.NODE_ENV = 'production';
+  5 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(28): import {default as nodeProcess} from 'node:process';\nimport test from 'node:test';\ntest('reads config', () => {\n\tnodeProcess.env.NODE_ENV = 'production';\n}); 2`] = `
+
+Message:
+  1 | import {default as nodeProcess} from 'node:process';
+  2 | import test from 'node:test';
+  3 | test('reads config', () => {
+> 4 | 	nodeProcess.env.NODE_ENV = 'production';
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  5 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(29): import {env} from 'node:process';\nimport test from 'node:test';\ntest('reads config', () => {\n\tenv.NODE_ENV = 'production';\n}); 1`] = `
+
+  1 | import {env} from 'node:process';
+  2 | import test from 'node:test';
+  3 | test('reads config', () => {
+  4 | 	env.NODE_ENV = 'production';
+  5 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(29): import {env} from 'node:process';\nimport test from 'node:test';\ntest('reads config', () => {\n\tenv.NODE_ENV = 'production';\n}); 2`] = `
+
+Message:
+  1 | import {env} from 'node:process';
+  2 | import test from 'node:test';
+  3 | test('reads config', () => {
+> 4 | 	env.NODE_ENV = 'production';
+    | 	^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  5 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(3): import test from 'node:test';\ntest('reads config', t => {\n\tprocess.env.NODE_ENV = value;\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+  3 | 	process.env.NODE_ENV = value;
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(3): import test from 'node:test';\ntest('reads config', t => {\n\tprocess.env.NODE_ENV = value;\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+> 3 | 	process.env.NODE_ENV = value;
+    | 	^^^^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(30): import {env as environment} from 'node:process';\nimport test from 'node:test';\ntest('reads config', () => {\n\tenvironment.NODE_ENV = 'production';\n}); 1`] = `
+
+  1 | import {env as environment} from 'node:process';
+  2 | import test from 'node:test';
+  3 | test('reads config', () => {
+  4 | 	environment.NODE_ENV = 'production';
+  5 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(30): import {env as environment} from 'node:process';\nimport test from 'node:test';\ntest('reads config', () => {\n\tenvironment.NODE_ENV = 'production';\n}); 2`] = `
+
+Message:
+  1 | import {env as environment} from 'node:process';
+  2 | import test from 'node:test';
+  3 | test('reads config', () => {
+> 4 | 	environment.NODE_ENV = 'production';
+    | 	^^^^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  5 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(31): import {env as environment} from 'process';\nimport test from 'node:test';\ntest('reads config', () => {\n\tenvironment.NODE_ENV = 'production';\n}); 1`] = `
+
+  1 | import {env as environment} from 'process';
+  2 | import test from 'node:test';
+  3 | test('reads config', () => {
+  4 | 	environment.NODE_ENV = 'production';
+  5 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(31): import {env as environment} from 'process';\nimport test from 'node:test';\ntest('reads config', () => {\n\tenvironment.NODE_ENV = 'production';\n}); 2`] = `
+
+Message:
+  1 | import {env as environment} from 'process';
+  2 | import test from 'node:test';
+  3 | test('reads config', () => {
+> 4 | 	environment.NODE_ENV = 'production';
+    | 	^^^^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  5 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(32): import {'env' as environment} from 'node:process';\nimport test from 'node:test';\ntest('reads config', () => {\n\tenvironment.NODE_ENV = 'production';\n}); 1`] = `
+
+  1 | import {'env' as environment} from 'node:process';
+  2 | import test from 'node:test';
+  3 | test('reads config', () => {
+  4 | 	environment.NODE_ENV = 'production';
+  5 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(32): import {'env' as environment} from 'node:process';\nimport test from 'node:test';\ntest('reads config', () => {\n\tenvironment.NODE_ENV = 'production';\n}); 2`] = `
+
+Message:
+  1 | import {'env' as environment} from 'node:process';
+  2 | import test from 'node:test';
+  3 | test('reads config', () => {
+> 4 | 	environment.NODE_ENV = 'production';
+    | 	^^^^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  5 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(33): import test from 'node:test';\ntest('reads config', t => {\n\tconst environment = process.env;\nenvironment.NODE_ENV = 'production';\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+  3 | 	const environment = process.env;
+  4 | environment.NODE_ENV = 'production';
+  5 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(33): import test from 'node:test';\ntest('reads config', t => {\n\tconst environment = process.env;\nenvironment.NODE_ENV = 'production';\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+  3 | 	const environment = process.env;
+> 4 | environment.NODE_ENV = 'production';
+    | ^^^^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  5 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(34): import test from 'node:test';\ntest('reads config', t => {\n\tconst {env: environment} = process;\nenvironment.NODE_ENV = 'production';\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+  3 | 	const {env: environment} = process;
+  4 | environment.NODE_ENV = 'production';
+  5 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(34): import test from 'node:test';\ntest('reads config', t => {\n\tconst {env: environment} = process;\nenvironment.NODE_ENV = 'production';\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+  3 | 	const {env: environment} = process;
+> 4 | environment.NODE_ENV = 'production';
+    | ^^^^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  5 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(35): import test from 'node:test';\ntest('parent', async t => {\n\tawait t.test('child', () => {\n\t\tprocess.env.NODE_ENV = 'production';\n\t});\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('parent', async t => {
+  3 | 	await t.test('child', () => {
+  4 | 		process.env.NODE_ENV = 'production';
+  5 | 	});
+  6 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(35): import test from 'node:test';\ntest('parent', async t => {\n\tawait t.test('child', () => {\n\t\tprocess.env.NODE_ENV = 'production';\n\t});\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('parent', async t => {
+  3 | 	await t.test('child', () => {
+> 4 | 		process.env.NODE_ENV = 'production';
+    | 		^^^^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  5 | 	});
+  6 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(36): import test from 'node:test';\ntest('parent', async t => {\n\tawait t.test.only('child', () => {\n\t\tprocess.env.NODE_ENV = 'production';\n\t});\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('parent', async t => {
+  3 | 	await t.test.only('child', () => {
+  4 | 		process.env.NODE_ENV = 'production';
+  5 | 	});
+  6 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(36): import test from 'node:test';\ntest('parent', async t => {\n\tawait t.test.only('child', () => {\n\t\tprocess.env.NODE_ENV = 'production';\n\t});\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('parent', async t => {
+  3 | 	await t.test.only('child', () => {
+> 4 | 		process.env.NODE_ENV = 'production';
+    | 		^^^^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  5 | 	});
+  6 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(37): import test from 'node:test';\ntest('reads config', t => {\n\tObject.assign(process.env, values);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+  3 | 	Object.assign(process.env, values);
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(37): import test from 'node:test';\ntest('reads config', t => {\n\tObject.assign(process.env, values);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+> 3 | 	Object.assign(process.env, values);
+    | 	              ^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(38): import test from 'node:test';\ntest('reads config', t => {\n\tObject['assign'](process.env, values);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+  3 | 	Object['assign'](process.env, values);
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(38): import test from 'node:test';\ntest('reads config', t => {\n\tObject['assign'](process.env, values);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+> 3 | 	Object['assign'](process.env, values);
+    | 	                 ^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(39): import test from 'node:test';\ntest('reads config', t => {\n\tObject.defineProperty(process.env, 'NODE_ENV', {value: 'production'});\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+  3 | 	Object.defineProperty(process.env, 'NODE_ENV', {value: 'production'});
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(39): import test from 'node:test';\ntest('reads config', t => {\n\tObject.defineProperty(process.env, 'NODE_ENV', {value: 'production'});\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+> 3 | 	Object.defineProperty(process.env, 'NODE_ENV', {value: 'production'});
+    | 	                      ^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(4): import test from 'node:test';\ntest('reads config', t => {\n\t{\n\tconst t = {mock: {property() {}}};\n\tprocess.env.NODE_ENV = 'production';\n}\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+  3 | 	{
+  4 | 	const t = {mock: {property() {}}};
+  5 | 	process.env.NODE_ENV = 'production';
+  6 | }
+  7 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(4): import test from 'node:test';\ntest('reads config', t => {\n\t{\n\tconst t = {mock: {property() {}}};\n\tprocess.env.NODE_ENV = 'production';\n}\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+  3 | 	{
+  4 | 	const t = {mock: {property() {}}};
+> 5 | 	process.env.NODE_ENV = 'production';
+    | 	^^^^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  6 | }
+  7 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(40): import test from 'node:test';\ntest('reads config', t => {\n\tObject.defineProperties(process.env, {NODE_ENV: {value: 'production'}});\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+  3 | 	Object.defineProperties(process.env, {NODE_ENV: {value: 'production'}});
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(40): import test from 'node:test';\ntest('reads config', t => {\n\tObject.defineProperties(process.env, {NODE_ENV: {value: 'production'}});\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+> 3 | 	Object.defineProperties(process.env, {NODE_ENV: {value: 'production'}});
+    | 	                        ^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(41): import test from 'node:test';\ntest('reads config', t => {\n\tReflect.set(process.env, 'NODE_ENV', 'production');\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+  3 | 	Reflect.set(process.env, 'NODE_ENV', 'production');
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(41): import test from 'node:test';\ntest('reads config', t => {\n\tReflect.set(process.env, 'NODE_ENV', 'production');\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+> 3 | 	Reflect.set(process.env, 'NODE_ENV', 'production');
+    | 	            ^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(42): import test from 'node:test';\ntest('reads config', t => {\n\tReflect['set'](process.env, 'NODE_ENV', 'production');\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+  3 | 	Reflect['set'](process.env, 'NODE_ENV', 'production');
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(42): import test from 'node:test';\ntest('reads config', t => {\n\tReflect['set'](process.env, 'NODE_ENV', 'production');\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+> 3 | 	Reflect['set'](process.env, 'NODE_ENV', 'production');
+    | 	               ^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(43): import test from 'node:test';\ntest('reads config', t => {\n\tReflect.deleteProperty(process.env, 'NODE_ENV');\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+  3 | 	Reflect.deleteProperty(process.env, 'NODE_ENV');
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(43): import test from 'node:test';\ntest('reads config', t => {\n\tReflect.deleteProperty(process.env, 'NODE_ENV');\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+> 3 | 	Reflect.deleteProperty(process.env, 'NODE_ENV');
+    | 	                       ^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(44): import test from 'node:test';\ntest('reads config', t => {\n\tReflect.defineProperty(process.env, 'NODE_ENV', {value: 'production'});\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+  3 | 	Reflect.defineProperty(process.env, 'NODE_ENV', {value: 'production'});
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(44): import test from 'node:test';\ntest('reads config', t => {\n\tReflect.defineProperty(process.env, 'NODE_ENV', {value: 'production'});\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+> 3 | 	Reflect.defineProperty(process.env, 'NODE_ENV', {value: 'production'});
+    | 	                       ^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(45): import {env} from 'node:process';\nimport test from 'node:test';\ntest('reads config', () => {\n\tObject.assign(env, values);\n}); 1`] = `
+
+  1 | import {env} from 'node:process';
+  2 | import test from 'node:test';
+  3 | test('reads config', () => {
+  4 | 	Object.assign(env, values);
+  5 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(45): import {env} from 'node:process';\nimport test from 'node:test';\ntest('reads config', () => {\n\tObject.assign(env, values);\n}); 2`] = `
+
+Message:
+  1 | import {env} from 'node:process';
+  2 | import test from 'node:test';
+  3 | test('reads config', () => {
+> 4 | 	Object.assign(env, values);
+    | 	              ^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  5 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(46): import test from 'node:test';\ntest('reads config', t => {\n\t(process.env as NodeJS.ProcessEnv).NODE_ENV = 'production';\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+  3 | 	(process.env as NodeJS.ProcessEnv).NODE_ENV = 'production';
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(46): import test from 'node:test';\ntest('reads config', t => {\n\t(process.env as NodeJS.ProcessEnv).NODE_ENV = 'production';\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+> 3 | 	(process.env as NodeJS.ProcessEnv).NODE_ENV = 'production';
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(47): import test from 'node:test';\ntest('reads config', t => {\n\t(process as NodeJS.Process).env.NODE_ENV = 'production';\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+  3 | 	(process as NodeJS.Process).env.NODE_ENV = 'production';
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(47): import test from 'node:test';\ntest('reads config', t => {\n\t(process as NodeJS.Process).env.NODE_ENV = 'production';\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+> 3 | 	(process as NodeJS.Process).env.NODE_ENV = 'production';
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(5): import test from 'node:test';\ntest('reads config', t => {\n\tconst result = (process.env.NODE_ENV = 'production');\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+  3 | 	const result = (process.env.NODE_ENV = 'production');
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(5): import test from 'node:test';\ntest('reads config', t => {\n\tconst result = (process.env.NODE_ENV = 'production');\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+> 3 | 	const result = (process.env.NODE_ENV = 'production');
+    | 	                ^^^^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(6): import test from 'node:test';\ntest('reads config', t => {\n\tprocess.env.NODE_ENV += '-test';\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+  3 | 	process.env.NODE_ENV += '-test';
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(6): import test from 'node:test';\ntest('reads config', t => {\n\tprocess.env.NODE_ENV += '-test';\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+> 3 | 	process.env.NODE_ENV += '-test';
+    | 	^^^^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(7): import test from 'node:test';\ntest('reads config', t => {\n\tprocess.env.COUNT++;\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+  3 | 	process.env.COUNT++;
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(7): import test from 'node:test';\ntest('reads config', t => {\n\tprocess.env.COUNT++;\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+> 3 | 	process.env.COUNT++;
+    | 	^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(8): import test from 'node:test';\ntest('reads config', t => {\n\t++process.env.COUNT;\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+  3 | 	++process.env.COUNT;
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(8): import test from 'node:test';\ntest('reads config', t => {\n\t++process.env.COUNT;\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+> 3 | 	++process.env.COUNT;
+    | 	  ^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(9): import test from 'node:test';\ntest('reads config', t => {\n\tdelete process.env.NODE_ENV;\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+  3 | 	delete process.env.NODE_ENV;
+  4 | });
+
+`;
+
+exports[`no-process-env-mutation > invalid(9): import test from 'node:test';\ntest('reads config', t => {\n\tdelete process.env.NODE_ENV;\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('reads config', t => {
+> 3 | 	delete process.env.NODE_ENV;
+    | 	       ^^^^^^^^^^^^^^^^^^^^ Do not mutate \`process.env\` inside a test. Use a hook that restores the original value.
+  4 | });
+
+`;
