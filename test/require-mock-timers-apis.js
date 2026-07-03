@@ -27,6 +27,9 @@ test.snapshot({
 		// Visible apis with a spread.
 		head + 'mock.timers.enable({...timerOptions, apis: ["setTimeout"]});',
 
+		// Named test import as namespace with explicit apis.
+		head + 'test.mock.timers.enable({apis: ["setTimeout"]});',
+
 		// Context mock with explicit apis.
 		head + 'test("a", t => { t.mock.timers.enable({apis: ["setTimeout"]}); });',
 
@@ -40,7 +43,7 @@ test.snapshot({
 		head + 'test("a", () => { const fn = mock => { mock.timers.enable(); }; });',
 
 		// Shadowed namespace import.
-		'import * as nodeTest from \'node:test\';\ntest("a", () => { const fn = nodeTest => { nodeTest.mock.timers.enable(); }; });',
+		'import * as nodeTest from \'node:test\';\nnodeTest.test("a", () => { const fn = nodeTest => { nodeTest.mock.timers.enable(); }; });',
 
 		// Shadowed test import.
 		head + 'const fn = test => { test("a", t => { t.mock.timers.enable(); }); };',
@@ -60,6 +63,9 @@ test.snapshot({
 		// Unrelated mock-looking object outside a tracked test context.
 		head + 'helper.mock.timers.enable();',
 
+		// Unrelated test member call is not a test context.
+		head + 'test.foo("a", t => { t.mock.timers.enable(); });',
+
 		// Computed property is ignored.
 		head + 'mock.timers[enable]();',
 	],
@@ -76,17 +82,32 @@ test.snapshot({
 		// Options object without apis.
 		head + 'mock.timers.enable({now: 1000});',
 
+		// Undefined apis value.
+		head + 'mock.timers.enable({apis: undefined});',
+
 		// Spread without an explicit apis property.
 		head + 'mock.timers.enable({...timerOptions});',
 
 		// Context mock.
 		head + 'test("a", t => { t.mock.timers.enable(); });',
 
+		// Context mock with a modifier.
+		head + 'test.only("a", t => { t.mock.timers.enable(); });',
+
 		// Context mock inside a nested closure.
 		head + 'test("a", t => { const fn = () => { t.mock.timers.enable(); }; fn(); });',
 
 		// Subtest context.
 		head + 'test("a", t => { t.test("b", subtest => { subtest.mock.timers.enable({now: 1000}); }); });',
+
+		// Namespace test call context.
+		'import * as nodeTest from \'node:test\';\nnodeTest.test("a", t => { t.mock.timers.enable(); });',
+
+		// Named test import as namespace.
+		head + 'test.mock.timers.enable();',
+
+		// Renamed it import as namespace.
+		'import {it as spec} from \'node:test\';\nspec.mock.timers.enable({now: 1000});',
 
 		// Namespace import.
 		'import * as nodeTest from \'node:test\';\nnodeTest.mock.timers.enable();',
@@ -100,6 +121,12 @@ test.snapshot({
 		// TypeScript wrapper.
 		{
 			code: head + 'mock.timers.enable(({} as {now?: number}));',
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// TypeScript-wrapped undefined apis value.
+		{
+			code: head + 'mock.timers.enable({apis: (undefined as string[] | undefined)});',
 			languageOptions: {parser: parsers.typescript},
 		},
 	],

@@ -3,6 +3,7 @@ import {
 	findOptionsProperty,
 	getSubtestReceiver,
 	getTestCallback,
+	MODIFIERS,
 	parseTestCall,
 	resolveImports,
 } from './utils/node-test.js';
@@ -13,6 +14,11 @@ const MESSAGE_ID = 'require-mock-timers-apis';
 const messages = {
 	[MESSAGE_ID]: '`mock.timers.enable()` should explicitly specify the `apis` option to avoid unexpectedly mocking `Date`.',
 };
+
+function isUndefinedExpression(node) {
+	const expression = unwrapTypeScriptExpression(node);
+	return expression?.type === 'Identifier' && expression.name === 'undefined';
+}
 
 function isImportedReference(node, sourceCode) {
 	const variable = findVariable(sourceCode.getScope(node), node);
@@ -35,7 +41,7 @@ function isMissingApisOption(callExpression) {
 		return true;
 	}
 
-	if (firstArgument.type === 'Identifier' && firstArgument.name === 'undefined') {
+	if (isUndefinedExpression(firstArgument)) {
 		return true;
 	}
 
@@ -43,8 +49,11 @@ function isMissingApisOption(callExpression) {
 		return false;
 	}
 
-	return !findOptionsProperty(firstArgument, 'apis');
+	const apisProperty = findOptionsProperty(firstArgument, 'apis');
+	return !apisProperty || isUndefinedExpression(apisProperty.value);
 }
+
+const hasOnlyTestModifiers = ({modifiers}) => modifiers.every(modifier => MODIFIERS.has(modifier.name));
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -59,9 +68,11 @@ const create = context => {
 
 	const isImportedTestCall = node => {
 		const root = getCalleeRoot(node.callee);
+		const testCall = parseTestCall(node, imports);
 		return root !== undefined
 			&& isImportedReference(root, sourceCode)
-			&& parseTestCall(node, imports)?.kind === 'test';
+			&& testCall?.kind === 'test'
+			&& hasOnlyTestModifiers(testCall);
 	};
 
 	const isSubtestCall = node => {
@@ -114,7 +125,11 @@ const create = context => {
 			&& node.property.type === 'Identifier'
 			&& node.property.name === 'mock'
 			&& node.object.type === 'Identifier'
-			&& node.object.name === imports.namespace
+			&& (
+				node.object.name === imports.namespace
+				|| imports.locals.get(node.object.name) === 'test'
+				|| imports.locals.get(node.object.name) === 'it'
+			)
 			&& isImportedReference(node.object, sourceCode)
 		);
 
