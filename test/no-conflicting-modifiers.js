@@ -22,6 +22,7 @@ test.snapshot({
 
 		// Explicitly inactive modifier does not conflict
 		withImport('test("x", {skip: false, only: true}, () => {});'),
+		withImport('test("x", {skip: undefined, only: true}, () => {});'),
 
 		// No modifiers
 		withImport('test("x", () => {});'),

@@ -10,6 +10,7 @@ test.snapshot({
 		// `node:test` treats the option as falsy, so the test is not actually skipped.
 		'import test from "node:test";\ntest("title", {skip: ""}, () => {});',
 		'import test from "node:test";\ntest("title", {skip: 0}, () => {});',
+		'import test from "node:test";\ntest("title", {skip: undefined}, () => {});',
 		'import test from "node:test";\nfoo.skip();',
 	],
 	invalid: [

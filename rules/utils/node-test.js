@@ -651,14 +651,15 @@ export function findOptionsProperty(optionsObject, name) {
 }
 
 /**
-Find an options property (`only`/`skip`/`todo`) that is set to an *enabled* value, i.e. present
-and not a statically-falsy literal. `node:test` checks these options for truthiness, so `false`,
-`null`, `0`, and `''` all mean disabled; a truthy literal (`true`), a skip/todo reason string, or
-a dynamic value all count as enabled. Returns the property node, or `undefined`.
+Find an options property (`only`/`skip`/`todo`) that is set to an *enabled* value, i.e. present and not a statically-falsy value. `node:test` checks these options for truthiness, so `false`, `null`, `0`, `''`, and `undefined` all mean disabled; a truthy literal (`true`), a skip/todo reason string, or a dynamic value all count as enabled. Returns the property node, or `undefined`.
 */
 export function findEnabledOptionsProperty(optionsObject, name) {
 	const property = findOptionsProperty(optionsObject, name);
-	if (property && (property.value.type !== 'Literal' || property.value.value)) {
+	if (
+		property
+		&& !(property.value.type === 'Identifier' && property.value.name === 'undefined')
+		&& (property.value.type !== 'Literal' || property.value.value)
+	) {
 		return property;
 	}
 

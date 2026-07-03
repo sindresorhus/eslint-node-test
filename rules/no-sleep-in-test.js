@@ -196,15 +196,21 @@ function getStatementExpression(node) {
 	}
 }
 
+function statementContainsExpression(statement, predicate) {
+	if (statement.type === 'VariableDeclaration') {
+		return statement.declarations.some(declaration => declaration.init && predicate(declaration.init));
+	}
+
+	const expression = getStatementExpression(statement);
+	return expression ? predicate(expression) : false;
+}
+
 function bodyContainsExpression(body, predicate) {
 	if (body.type !== 'BlockStatement') {
 		return predicate(body);
 	}
 
-	return body.body.some(statement => {
-		const expression = getStatementExpression(statement);
-		return expression ? predicate(expression) : false;
-	});
+	return body.body.some(statement => statementContainsExpression(statement, predicate));
 }
 
 function expressionCallsResolver(node, resolverVariable, sourceCode) {
