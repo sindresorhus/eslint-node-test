@@ -113,6 +113,9 @@ test.snapshot({
 		// Context mock.
 		head + 'test("a", t => { t.mock.timers.enable(); });',
 
+		// Defaulted context parameter.
+		head + 'test("a", (t = fallback) => { t.mock.timers.enable(); });',
+
 		// `it` context mock.
 		'import {it} from \'node:test\';\nit("a", t => { t.mock.timers.enable(); });',
 
@@ -125,17 +128,35 @@ test.snapshot({
 		// Subtest context.
 		head + 'test("a", t => { t.test("b", subtest => { subtest.mock.timers.enable({now: 1000}); }); });',
 
+		// Defaulted subtest context parameter.
+		head + 'test("a", t => { t.test("b", (subtest = fallback) => { subtest.mock.timers.enable(); }); });',
+
 		// Outer context used inside a subtest.
 		head + 'test("a", t => { t.test("b", subtest => { t.mock.timers.enable(); }); });',
 
 		// Hook context.
 		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { t.mock.timers.enable(); });',
 
+		// Hook context with options.
+		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { t.mock.timers.enable(); }, {timeout: 1000});',
+
+		// Defaulted hook context parameter.
+		'import {beforeEach} from \'node:test\';\nbeforeEach((t = fallback) => { t.mock.timers.enable(); });',
+
 		// Namespace hook context.
 		'import * as nodeTest from \'node:test\';\nnodeTest.beforeEach(t => { t.mock.timers.enable(); });',
 
 		// Default import hook context.
 		'import test from \'node:test\';\ntest.beforeEach(t => { t.mock.timers.enable(); });',
+
+		// Context hook.
+		head + 'test("a", t => { t.beforeEach(hookContext => { hookContext.mock.timers.enable(); }); });',
+
+		// Context hook with options.
+		head + 'test("a", t => { t.beforeEach(hookContext => { hookContext.mock.timers.enable(); }, {timeout: 1000}); });',
+
+		// Subtest context hook.
+		head + 'test("a", t => { t.test("b", subtest => { subtest.beforeEach(hookContext => { hookContext.mock.timers.enable(); }); }); });',
 
 		// Namespace test call context.
 		'import * as nodeTest from \'node:test\';\nnodeTest.test("a", t => { t.mock.timers.enable(); });',

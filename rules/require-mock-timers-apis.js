@@ -1,4 +1,5 @@
 import {findVariable} from '@eslint-community/eslint-utils';
+import {isFunction} from './ast/index.js';
 import {
 	getSubtestReceiver,
 	getTestCallback,
@@ -9,6 +10,7 @@ import {
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
 const MESSAGE_ID = 'require-mock-timers-apis';
+const CONTEXT_HOOKS = new Set(['before', 'beforeEach', 'after', 'afterEach']);
 
 const messages = {
 	[MESSAGE_ID]: '`mock.timers.enable()` should explicitly specify the `apis` option to avoid unexpectedly mocking `Date`.',
@@ -93,6 +95,38 @@ function isContextProvidingCall(testCall) {
 		&& testCall.modifiers.every(modifier => MODIFIERS.has(modifier.name));
 }
 
+function getParameterIdentifier(parameter) {
+	if (parameter?.type === 'Identifier') {
+		return parameter;
+	}
+
+	if (parameter?.type === 'AssignmentPattern' && parameter.left.type === 'Identifier') {
+		return parameter.left;
+	}
+
+	return undefined;
+}
+
+function getContextHookReceiver(callExpression) {
+	const {callee} = callExpression;
+	if (
+		callee.type === 'MemberExpression'
+		&& !callee.computed
+		&& callee.property.type === 'Identifier'
+		&& CONTEXT_HOOKS.has(callee.property.name)
+		&& callee.object.type === 'Identifier'
+	) {
+		return callee.object;
+	}
+
+	return undefined;
+}
+
+function getHookCallback(callExpression) {
+	const firstArgument = unwrapTypeScriptExpression(callExpression.arguments[0]);
+	return isFunction(firstArgument) ? firstArgument : undefined;
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -104,13 +138,19 @@ const create = context => {
 	const contextVariables = [];
 	const pushedCalls = new Set();
 
-	const isImportedContextCall = node => {
+	const getImportedContextCall = node => {
 		const root = getCalleeRoot(node.callee);
 		const testCall = parseTestCall(node, imports);
-		return root !== undefined
+		if (
+			root !== undefined
 			&& isImportedReference(root, sourceCode)
 			&& testCall !== undefined
-			&& isContextProvidingCall(testCall);
+			&& isContextProvidingCall(testCall)
+		) {
+			return testCall;
+		}
+
+		return undefined;
 	};
 
 	const isSubtestCall = node => {
@@ -123,18 +163,32 @@ const create = context => {
 		return variable !== undefined && contextVariables.includes(variable);
 	};
 
+	const isContextHookCall = node => {
+		const receiver = getContextHookReceiver(node);
+		if (!receiver) {
+			return false;
+		}
+
+		const variable = findVariable(sourceCode.getScope(receiver), receiver);
+		return variable !== undefined && contextVariables.includes(variable);
+	};
+
 	const updateContext = node => {
-		if (!isImportedContextCall(node) && !isSubtestCall(node)) {
+		const importedContextCall = getImportedContextCall(node);
+		const isContextHook = isContextHookCall(node);
+		if (!importedContextCall && !isSubtestCall(node) && !isContextHook) {
 			return;
 		}
 
-		const callback = getTestCallback(node);
+		const callback = importedContextCall?.kind === 'hook' || isContextHook
+			? getHookCallback(node)
+			: getTestCallback(node);
 		if (!callback) {
 			return;
 		}
 
-		const parameter = callback.params[0];
-		const variable = parameter?.type === 'Identifier'
+		const parameter = getParameterIdentifier(callback.params[0]);
+		const variable = parameter
 			? findVariable(sourceCode.getScope(parameter), parameter)
 			: undefined;
 
