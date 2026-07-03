@@ -1,0 +1,58 @@
+import {getTester, parsers} from './utils/test.js';
+
+const {test} = getTester(import.meta);
+
+const withTest = code => `import test from 'node:test';\ntest('waits', async t => {\n\t${code}\n});`;
+const withTimerImport = code => `import test from 'node:test';\nimport {setTimeout as delay} from 'node:timers';\ntest('waits', async () => {\n\t${code}\n});`;
+
+test.snapshot({
+	valid: [
+		// Not a test file.
+		'await new Promise(resolve => setTimeout(resolve, 500));',
+
+		withTest('await once(emitter, \'done\');'),
+		withTest('await new Promise(resolve => emitter.once(\'done\', resolve));'),
+		withTest('setTimeout(tick, 500);'),
+		withTest('t.mock.timers.enable({apis: [\'setTimeout\']});\nsetTimeout(tick, 500);\nt.mock.timers.tick(500);'),
+		withTest('await new Promise(resolve => setImmediate(resolve));'),
+		withTest('await new Promise(resolve => setTimeout(otherFunction, 500));'),
+		withTest('const setTimeout = callback => callback();\nawait new Promise(resolve => setTimeout(resolve, 500));'),
+		withTest('const globalThis = {setTimeout(callback) {\n\tcallback();\n}};\nawait new Promise(resolve => globalThis.setTimeout(resolve, 500));'),
+		withTest('const global = {setTimeout(callback) {\n\tcallback();\n}};\nawait new Promise(resolve => global.setTimeout(resolve, 500));'),
+		'import {setTimeout} from \'node:timers/promises\';\nimport test from \'node:test\';\ntest(\'waits\', async () => {\n\tawait new Promise(resolve => setTimeout(resolve, 500));\n});',
+		'import Promise from \'some-promise\';\nimport test from \'node:test\';\ntest(\'waits\', async () => {\n\tawait new Promise(resolve => setTimeout(resolve, 500));\n});',
+		withTest('await new Promise(resolve => setTimeout(resolve => resolve(), 500));'),
+		withTest('function sleep() {\n\treturn new Promise(resolve => setTimeout(resolve, 500));\n}\nawait sleep();'),
+		withTest('library.test(\'child\', () => {\n\tnew Promise(resolve => setTimeout(resolve, 500));\n});'),
+		withTest('{\n\tconst t = library;\n\tt.test(\'child\', () => {\n\t\tnew Promise(resolve => setTimeout(resolve, 500));\n\t});\n}'),
+		withTest('{\n\tconst test = library.test;\n\ttest(\'child\', () => {\n\t\tnew Promise(resolve => setTimeout(resolve, 500));\n\t});\n}'),
+		withTest('test.mock.fn(() => {\n\tnew Promise(resolve => setTimeout(resolve, 500));\n});'),
+		withTimerImport('const delay = callback => callback();\nawait new Promise(resolve => delay(resolve, 500));'),
+		'import test from \'node:test\';\nfunction sleep() {\n\treturn new Promise(resolve => setTimeout(resolve, 500));\n}\ntest(\'waits\', async () => {\n\tawait sleep();\n});',
+		'import {describe} from \'node:test\';\ndescribe(\'suite\', () => {\n\tnew Promise(resolve => setTimeout(resolve, 500));\n});',
+	],
+	invalid: [
+		withTest('await new Promise(resolve => setTimeout(resolve, 500));'),
+		'import test from \'node:test\';\ntest.only(\'waits\', async () => {\n\tawait new Promise(resolve => setTimeout(resolve, 500));\n});',
+		'import {it} from \'node:test\';\nit(\'waits\', async () => {\n\tawait new Promise(resolve => setTimeout(resolve, 500));\n});',
+		'import * as nodeTest from \'node:test\';\nnodeTest.test(\'waits\', async () => {\n\tawait new Promise(resolve => setTimeout(resolve, 500));\n});',
+		'import {beforeEach} from \'node:test\';\nbeforeEach(async () => {\n\tawait new Promise(resolve => setTimeout(resolve, 500));\n});',
+		withTest('await t.test(\'child\', async () => {\n\tawait new Promise(resolve => setTimeout(resolve, 500));\n});'),
+		'import test from \'node:test\';\ntest(\'waits\', async context => {\n\tawait context.test(\'child\', async () => {\n\t\tawait new Promise(resolve => setTimeout(resolve, 500));\n\t});\n});',
+		withTest('await new Promise(resolve => {\n\tsetTimeout(resolve, 500);\n});'),
+		withTest('await new Promise(resolve => {\n\treturn setTimeout(resolve, 500);\n});'),
+		withTest('await new Promise(done => setTimeout(done, 500));'),
+		withTest('await new Promise(resolve => setTimeout(() => resolve(), 500));'),
+		withTest('await new Promise(resolve => setTimeout(() => {\n\treturn resolve();\n}, 500));'),
+		withTest('await new Promise(resolve => setTimeout(function () {\n\tresolve();\n}, 500));'),
+		withTest('await new Promise(resolve => globalThis.setTimeout(resolve, 500));'),
+		withTest('await new Promise(resolve => global.setTimeout(resolve, 500));'),
+		withTimerImport('await new Promise(resolve => delay(resolve, 500));'),
+		'import test from \'node:test\';\nimport {setTimeout as delay} from \'timers\';\ntest(\'waits\', async () => {\n\tawait new Promise(resolve => delay(resolve, 500));\n});',
+		'import test from \'node:test\';\nimport * as timers from \'node:timers\';\ntest(\'waits\', async () => {\n\tawait new Promise(resolve => timers.setTimeout(resolve, 500));\n});',
+		{
+			code: 'import test from \'node:test\';\ntest(\'waits\', async () => {\n\tawait new Promise<void>(resolve => setTimeout(resolve, 500));\n});',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+});
