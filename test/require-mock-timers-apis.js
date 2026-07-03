@@ -39,6 +39,9 @@ test.snapshot({
 		// Context mock with explicit apis.
 		head + 'test("a", t => { t.mock.timers.enable({apis: ["setTimeout"]}); });',
 
+		// Current test context with explicit apis.
+		'import {getTestContext} from \'node:test\';\ngetTestContext().mock.timers.enable({apis: ["setTimeout"]});',
+
 		// The test context parameter is not in scope before the callback body.
 		head + 'test(t.mock.timers.enable(), t => {});',
 
@@ -53,6 +56,9 @@ test.snapshot({
 
 		// Shadowed test import.
 		head + 'const fn = test => { test("a", t => { t.mock.timers.enable(); }); };',
+
+		// Shadowed getTestContext import.
+		'import {getTestContext} from \'node:test\';\nconst fn = getTestContext => { getTestContext().mock.timers.enable(); };',
 
 		// Shadowed subtest receiver.
 		head + 'test("a", t => { const fn = t => { t.test("b", subtest => { subtest.mock.timers.enable(); }); }; });',
@@ -133,6 +139,18 @@ test.snapshot({
 
 		// Outer context used inside a subtest.
 		head + 'test("a", t => { t.test("b", subtest => { t.mock.timers.enable(); }); });',
+
+		// Current test context.
+		'import {getTestContext} from \'node:test\';\ngetTestContext().mock.timers.enable();',
+
+		// Renamed current test context.
+		'import {getTestContext as context} from \'node:test\';\ncontext().mock.timers.enable({now: 1000});',
+
+		// Namespace current test context.
+		'import * as nodeTest from \'node:test\';\nnodeTest.getTestContext().mock.timers.enable();',
+
+		// Default import current test context.
+		'import test from \'node:test\';\ntest.getTestContext().mock.timers.enable();',
 
 		// Hook context.
 		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { t.mock.timers.enable(); });',

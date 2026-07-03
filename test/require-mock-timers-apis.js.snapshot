@@ -190,14 +190,78 @@ Message:
 
 `;
 
-exports[`require-mock-timers-apis > invalid(20): import {beforeEach} from 'node:test';\nbeforeEach(t => { t.mock.timers.enable(); }); 1`] = `
+exports[`require-mock-timers-apis > invalid(20): import {getTestContext} from 'node:test';\ngetTestContext().mock.timers.enable(); 1`] = `
+
+  1 | import {getTestContext} from 'node:test';
+  2 | getTestContext().mock.timers.enable();
+
+`;
+
+exports[`require-mock-timers-apis > invalid(20): import {getTestContext} from 'node:test';\ngetTestContext().mock.timers.enable(); 2`] = `
+
+Message:
+  1 | import {getTestContext} from 'node:test';
+> 2 | getTestContext().mock.timers.enable();
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` should explicitly specify the \`apis\` option to avoid unexpectedly mocking \`Date\`.
+
+`;
+
+exports[`require-mock-timers-apis > invalid(21): import {getTestContext as context} from 'node:test';\ncontext().mock.timers.enable({now: 1000}); 1`] = `
+
+  1 | import {getTestContext as context} from 'node:test';
+  2 | context().mock.timers.enable({now: 1000});
+
+`;
+
+exports[`require-mock-timers-apis > invalid(21): import {getTestContext as context} from 'node:test';\ncontext().mock.timers.enable({now: 1000}); 2`] = `
+
+Message:
+  1 | import {getTestContext as context} from 'node:test';
+> 2 | context().mock.timers.enable({now: 1000});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` should explicitly specify the \`apis\` option to avoid unexpectedly mocking \`Date\`.
+
+`;
+
+exports[`require-mock-timers-apis > invalid(22): import * as nodeTest from 'node:test';\nnodeTest.getTestContext().mock.timers.enable(); 1`] = `
+
+  1 | import * as nodeTest from 'node:test';
+  2 | nodeTest.getTestContext().mock.timers.enable();
+
+`;
+
+exports[`require-mock-timers-apis > invalid(22): import * as nodeTest from 'node:test';\nnodeTest.getTestContext().mock.timers.enable(); 2`] = `
+
+Message:
+  1 | import * as nodeTest from 'node:test';
+> 2 | nodeTest.getTestContext().mock.timers.enable();
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` should explicitly specify the \`apis\` option to avoid unexpectedly mocking \`Date\`.
+
+`;
+
+exports[`require-mock-timers-apis > invalid(23): import test from 'node:test';\ntest.getTestContext().mock.timers.enable(); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test.getTestContext().mock.timers.enable();
+
+`;
+
+exports[`require-mock-timers-apis > invalid(23): import test from 'node:test';\ntest.getTestContext().mock.timers.enable(); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test.getTestContext().mock.timers.enable();
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` should explicitly specify the \`apis\` option to avoid unexpectedly mocking \`Date\`.
+
+`;
+
+exports[`require-mock-timers-apis > invalid(24): import {beforeEach} from 'node:test';\nbeforeEach(t => { t.mock.timers.enable(); }); 1`] = `
 
   1 | import {beforeEach} from 'node:test';
   2 | beforeEach(t => { t.mock.timers.enable(); });
 
 `;
 
-exports[`require-mock-timers-apis > invalid(20): import {beforeEach} from 'node:test';\nbeforeEach(t => { t.mock.timers.enable(); }); 2`] = `
+exports[`require-mock-timers-apis > invalid(24): import {beforeEach} from 'node:test';\nbeforeEach(t => { t.mock.timers.enable(); }); 2`] = `
 
 Message:
   1 | import {beforeEach} from 'node:test';
@@ -206,14 +270,14 @@ Message:
 
 `;
 
-exports[`require-mock-timers-apis > invalid(21): import {beforeEach} from 'node:test';\nbeforeEach(t => { t.mock.timers.enable(); }, {timeout: 1000}); 1`] = `
+exports[`require-mock-timers-apis > invalid(25): import {beforeEach} from 'node:test';\nbeforeEach(t => { t.mock.timers.enable(); }, {timeout: 1000}); 1`] = `
 
   1 | import {beforeEach} from 'node:test';
   2 | beforeEach(t => { t.mock.timers.enable(); }, {timeout: 1000});
 
 `;
 
-exports[`require-mock-timers-apis > invalid(21): import {beforeEach} from 'node:test';\nbeforeEach(t => { t.mock.timers.enable(); }, {timeout: 1000}); 2`] = `
+exports[`require-mock-timers-apis > invalid(25): import {beforeEach} from 'node:test';\nbeforeEach(t => { t.mock.timers.enable(); }, {timeout: 1000}); 2`] = `
 
 Message:
   1 | import {beforeEach} from 'node:test';
@@ -222,14 +286,14 @@ Message:
 
 `;
 
-exports[`require-mock-timers-apis > invalid(22): import {beforeEach} from 'node:test';\nbeforeEach((t = fallback) => { t.mock.timers.enable(); }); 1`] = `
+exports[`require-mock-timers-apis > invalid(26): import {beforeEach} from 'node:test';\nbeforeEach((t = fallback) => { t.mock.timers.enable(); }); 1`] = `
 
   1 | import {beforeEach} from 'node:test';
   2 | beforeEach((t = fallback) => { t.mock.timers.enable(); });
 
 `;
 
-exports[`require-mock-timers-apis > invalid(22): import {beforeEach} from 'node:test';\nbeforeEach((t = fallback) => { t.mock.timers.enable(); }); 2`] = `
+exports[`require-mock-timers-apis > invalid(26): import {beforeEach} from 'node:test';\nbeforeEach((t = fallback) => { t.mock.timers.enable(); }); 2`] = `
 
 Message:
   1 | import {beforeEach} from 'node:test';
@@ -238,14 +302,14 @@ Message:
 
 `;
 
-exports[`require-mock-timers-apis > invalid(23): import * as nodeTest from 'node:test';\nnodeTest.beforeEach(t => { t.mock.timers.enable(); }); 1`] = `
+exports[`require-mock-timers-apis > invalid(27): import * as nodeTest from 'node:test';\nnodeTest.beforeEach(t => { t.mock.timers.enable(); }); 1`] = `
 
   1 | import * as nodeTest from 'node:test';
   2 | nodeTest.beforeEach(t => { t.mock.timers.enable(); });
 
 `;
 
-exports[`require-mock-timers-apis > invalid(23): import * as nodeTest from 'node:test';\nnodeTest.beforeEach(t => { t.mock.timers.enable(); }); 2`] = `
+exports[`require-mock-timers-apis > invalid(27): import * as nodeTest from 'node:test';\nnodeTest.beforeEach(t => { t.mock.timers.enable(); }); 2`] = `
 
 Message:
   1 | import * as nodeTest from 'node:test';
@@ -254,14 +318,14 @@ Message:
 
 `;
 
-exports[`require-mock-timers-apis > invalid(24): import test from 'node:test';\ntest.beforeEach(t => { t.mock.timers.enable(); }); 1`] = `
+exports[`require-mock-timers-apis > invalid(28): import test from 'node:test';\ntest.beforeEach(t => { t.mock.timers.enable(); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test.beforeEach(t => { t.mock.timers.enable(); });
 
 `;
 
-exports[`require-mock-timers-apis > invalid(24): import test from 'node:test';\ntest.beforeEach(t => { t.mock.timers.enable(); }); 2`] = `
+exports[`require-mock-timers-apis > invalid(28): import test from 'node:test';\ntest.beforeEach(t => { t.mock.timers.enable(); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -270,83 +334,19 @@ Message:
 
 `;
 
-exports[`require-mock-timers-apis > invalid(25): import {test, mock} from 'node:test';\ntest(\"a\", t => { t.beforeEach(hookContext => { hookContext.mock.timers.enable(); }); }); 1`] = `
+exports[`require-mock-timers-apis > invalid(29): import {test, mock} from 'node:test';\ntest(\"a\", t => { t.beforeEach(hookContext => { hookContext.mock.timers.enable(); }); }); 1`] = `
 
   1 | import {test, mock} from 'node:test';
   2 | test("a", t => { t.beforeEach(hookContext => { hookContext.mock.timers.enable(); }); });
 
 `;
 
-exports[`require-mock-timers-apis > invalid(25): import {test, mock} from 'node:test';\ntest(\"a\", t => { t.beforeEach(hookContext => { hookContext.mock.timers.enable(); }); }); 2`] = `
+exports[`require-mock-timers-apis > invalid(29): import {test, mock} from 'node:test';\ntest(\"a\", t => { t.beforeEach(hookContext => { hookContext.mock.timers.enable(); }); }); 2`] = `
 
 Message:
   1 | import {test, mock} from 'node:test';
 > 2 | test("a", t => { t.beforeEach(hookContext => { hookContext.mock.timers.enable(); }); });
     |                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` should explicitly specify the \`apis\` option to avoid unexpectedly mocking \`Date\`.
-
-`;
-
-exports[`require-mock-timers-apis > invalid(26): import {test, mock} from 'node:test';\ntest(\"a\", t => { t.beforeEach(hookContext => { hookContext.mock.timers.enable(); }, {timeout: 1000}); }); 1`] = `
-
-  1 | import {test, mock} from 'node:test';
-  2 | test("a", t => { t.beforeEach(hookContext => { hookContext.mock.timers.enable(); }, {timeout: 1000}); });
-
-`;
-
-exports[`require-mock-timers-apis > invalid(26): import {test, mock} from 'node:test';\ntest(\"a\", t => { t.beforeEach(hookContext => { hookContext.mock.timers.enable(); }, {timeout: 1000}); }); 2`] = `
-
-Message:
-  1 | import {test, mock} from 'node:test';
-> 2 | test("a", t => { t.beforeEach(hookContext => { hookContext.mock.timers.enable(); }, {timeout: 1000}); });
-    |                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` should explicitly specify the \`apis\` option to avoid unexpectedly mocking \`Date\`.
-
-`;
-
-exports[`require-mock-timers-apis > invalid(27): import {test, mock} from 'node:test';\ntest(\"a\", t => { t.test(\"b\", subtest => { subtest.beforeEach(hookContext => { hookContext.mock.timers.enable(); }); }); }); 1`] = `
-
-  1 | import {test, mock} from 'node:test';
-  2 | test("a", t => { t.test("b", subtest => { subtest.beforeEach(hookContext => { hookContext.mock.timers.enable(); }); }); });
-
-`;
-
-exports[`require-mock-timers-apis > invalid(27): import {test, mock} from 'node:test';\ntest(\"a\", t => { t.test(\"b\", subtest => { subtest.beforeEach(hookContext => { hookContext.mock.timers.enable(); }); }); }); 2`] = `
-
-Message:
-  1 | import {test, mock} from 'node:test';
-> 2 | test("a", t => { t.test("b", subtest => { subtest.beforeEach(hookContext => { hookContext.mock.timers.enable(); }); }); });
-    |                                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` should explicitly specify the \`apis\` option to avoid unexpectedly mocking \`Date\`.
-
-`;
-
-exports[`require-mock-timers-apis > invalid(28): import * as nodeTest from 'node:test';\nnodeTest.test(\"a\", t => { t.mock.timers.enable(); }); 1`] = `
-
-  1 | import * as nodeTest from 'node:test';
-  2 | nodeTest.test("a", t => { t.mock.timers.enable(); });
-
-`;
-
-exports[`require-mock-timers-apis > invalid(28): import * as nodeTest from 'node:test';\nnodeTest.test(\"a\", t => { t.mock.timers.enable(); }); 2`] = `
-
-Message:
-  1 | import * as nodeTest from 'node:test';
-> 2 | nodeTest.test("a", t => { t.mock.timers.enable(); });
-    |                           ^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` should explicitly specify the \`apis\` option to avoid unexpectedly mocking \`Date\`.
-
-`;
-
-exports[`require-mock-timers-apis > invalid(29): import {test, mock} from 'node:test';\ntest.mock.timers.enable(); 1`] = `
-
-  1 | import {test, mock} from 'node:test';
-  2 | test.mock.timers.enable();
-
-`;
-
-exports[`require-mock-timers-apis > invalid(29): import {test, mock} from 'node:test';\ntest.mock.timers.enable(); 2`] = `
-
-Message:
-  1 | import {test, mock} from 'node:test';
-> 2 | test.mock.timers.enable();
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` should explicitly specify the \`apis\` option to avoid unexpectedly mocking \`Date\`.
 
 `;
 
@@ -366,14 +366,78 @@ Message:
 
 `;
 
-exports[`require-mock-timers-apis > invalid(30): import {it as spec} from 'node:test';\nspec.mock.timers.enable({now: 1000}); 1`] = `
+exports[`require-mock-timers-apis > invalid(30): import {test, mock} from 'node:test';\ntest(\"a\", t => { t.beforeEach(hookContext => { hookContext.mock.timers.enable(); }, {timeout: 1000}); }); 1`] = `
+
+  1 | import {test, mock} from 'node:test';
+  2 | test("a", t => { t.beforeEach(hookContext => { hookContext.mock.timers.enable(); }, {timeout: 1000}); });
+
+`;
+
+exports[`require-mock-timers-apis > invalid(30): import {test, mock} from 'node:test';\ntest(\"a\", t => { t.beforeEach(hookContext => { hookContext.mock.timers.enable(); }, {timeout: 1000}); }); 2`] = `
+
+Message:
+  1 | import {test, mock} from 'node:test';
+> 2 | test("a", t => { t.beforeEach(hookContext => { hookContext.mock.timers.enable(); }, {timeout: 1000}); });
+    |                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` should explicitly specify the \`apis\` option to avoid unexpectedly mocking \`Date\`.
+
+`;
+
+exports[`require-mock-timers-apis > invalid(31): import {test, mock} from 'node:test';\ntest(\"a\", t => { t.test(\"b\", subtest => { subtest.beforeEach(hookContext => { hookContext.mock.timers.enable(); }); }); }); 1`] = `
+
+  1 | import {test, mock} from 'node:test';
+  2 | test("a", t => { t.test("b", subtest => { subtest.beforeEach(hookContext => { hookContext.mock.timers.enable(); }); }); });
+
+`;
+
+exports[`require-mock-timers-apis > invalid(31): import {test, mock} from 'node:test';\ntest(\"a\", t => { t.test(\"b\", subtest => { subtest.beforeEach(hookContext => { hookContext.mock.timers.enable(); }); }); }); 2`] = `
+
+Message:
+  1 | import {test, mock} from 'node:test';
+> 2 | test("a", t => { t.test("b", subtest => { subtest.beforeEach(hookContext => { hookContext.mock.timers.enable(); }); }); });
+    |                                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` should explicitly specify the \`apis\` option to avoid unexpectedly mocking \`Date\`.
+
+`;
+
+exports[`require-mock-timers-apis > invalid(32): import * as nodeTest from 'node:test';\nnodeTest.test(\"a\", t => { t.mock.timers.enable(); }); 1`] = `
+
+  1 | import * as nodeTest from 'node:test';
+  2 | nodeTest.test("a", t => { t.mock.timers.enable(); });
+
+`;
+
+exports[`require-mock-timers-apis > invalid(32): import * as nodeTest from 'node:test';\nnodeTest.test(\"a\", t => { t.mock.timers.enable(); }); 2`] = `
+
+Message:
+  1 | import * as nodeTest from 'node:test';
+> 2 | nodeTest.test("a", t => { t.mock.timers.enable(); });
+    |                           ^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` should explicitly specify the \`apis\` option to avoid unexpectedly mocking \`Date\`.
+
+`;
+
+exports[`require-mock-timers-apis > invalid(33): import {test, mock} from 'node:test';\ntest.mock.timers.enable(); 1`] = `
+
+  1 | import {test, mock} from 'node:test';
+  2 | test.mock.timers.enable();
+
+`;
+
+exports[`require-mock-timers-apis > invalid(33): import {test, mock} from 'node:test';\ntest.mock.timers.enable(); 2`] = `
+
+Message:
+  1 | import {test, mock} from 'node:test';
+> 2 | test.mock.timers.enable();
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` should explicitly specify the \`apis\` option to avoid unexpectedly mocking \`Date\`.
+
+`;
+
+exports[`require-mock-timers-apis > invalid(34): import {it as spec} from 'node:test';\nspec.mock.timers.enable({now: 1000}); 1`] = `
 
   1 | import {it as spec} from 'node:test';
   2 | spec.mock.timers.enable({now: 1000});
 
 `;
 
-exports[`require-mock-timers-apis > invalid(30): import {it as spec} from 'node:test';\nspec.mock.timers.enable({now: 1000}); 2`] = `
+exports[`require-mock-timers-apis > invalid(34): import {it as spec} from 'node:test';\nspec.mock.timers.enable({now: 1000}); 2`] = `
 
 Message:
   1 | import {it as spec} from 'node:test';
@@ -382,14 +446,14 @@ Message:
 
 `;
 
-exports[`require-mock-timers-apis > invalid(31): import * as nodeTest from 'node:test';\nnodeTest.mock.timers.enable(); 1`] = `
+exports[`require-mock-timers-apis > invalid(35): import * as nodeTest from 'node:test';\nnodeTest.mock.timers.enable(); 1`] = `
 
   1 | import * as nodeTest from 'node:test';
   2 | nodeTest.mock.timers.enable();
 
 `;
 
-exports[`require-mock-timers-apis > invalid(31): import * as nodeTest from 'node:test';\nnodeTest.mock.timers.enable(); 2`] = `
+exports[`require-mock-timers-apis > invalid(35): import * as nodeTest from 'node:test';\nnodeTest.mock.timers.enable(); 2`] = `
 
 Message:
   1 | import * as nodeTest from 'node:test';
@@ -398,14 +462,14 @@ Message:
 
 `;
 
-exports[`require-mock-timers-apis > invalid(32): import test from 'node:test';\ntest.mock.timers.enable({now: 1000}); 1`] = `
+exports[`require-mock-timers-apis > invalid(36): import test from 'node:test';\ntest.mock.timers.enable({now: 1000}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test.mock.timers.enable({now: 1000});
 
 `;
 
-exports[`require-mock-timers-apis > invalid(32): import test from 'node:test';\ntest.mock.timers.enable({now: 1000}); 2`] = `
+exports[`require-mock-timers-apis > invalid(36): import test from 'node:test';\ntest.mock.timers.enable({now: 1000}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -414,14 +478,14 @@ Message:
 
 `;
 
-exports[`require-mock-timers-apis > invalid(33): import {test, mock as testMock} from 'node:test';\ntestMock.timers.enable(); 1`] = `
+exports[`require-mock-timers-apis > invalid(37): import {test, mock as testMock} from 'node:test';\ntestMock.timers.enable(); 1`] = `
 
   1 | import {test, mock as testMock} from 'node:test';
   2 | testMock.timers.enable();
 
 `;
 
-exports[`require-mock-timers-apis > invalid(33): import {test, mock as testMock} from 'node:test';\ntestMock.timers.enable(); 2`] = `
+exports[`require-mock-timers-apis > invalid(37): import {test, mock as testMock} from 'node:test';\ntestMock.timers.enable(); 2`] = `
 
 Message:
   1 | import {test, mock as testMock} from 'node:test';
@@ -430,14 +494,14 @@ Message:
 
 `;
 
-exports[`require-mock-timers-apis > invalid(34): import {test, mock} from 'node:test';\nmock.timers.enable(({} as {now?: number})); 1`] = `
+exports[`require-mock-timers-apis > invalid(38): import {test, mock} from 'node:test';\nmock.timers.enable(({} as {now?: number})); 1`] = `
 
   1 | import {test, mock} from 'node:test';
   2 | mock.timers.enable(({} as {now?: number}));
 
 `;
 
-exports[`require-mock-timers-apis > invalid(34): import {test, mock} from 'node:test';\nmock.timers.enable(({} as {now?: number})); 2`] = `
+exports[`require-mock-timers-apis > invalid(38): import {test, mock} from 'node:test';\nmock.timers.enable(({} as {now?: number})); 2`] = `
 
 Message:
   1 | import {test, mock} from 'node:test';
@@ -446,14 +510,14 @@ Message:
 
 `;
 
-exports[`require-mock-timers-apis > invalid(35): import {test, mock} from 'node:test';\nmock.timers.enable({apis: (undefined as string[] | undefined)}); 1`] = `
+exports[`require-mock-timers-apis > invalid(39): import {test, mock} from 'node:test';\nmock.timers.enable({apis: (undefined as string[] | undefined)}); 1`] = `
 
   1 | import {test, mock} from 'node:test';
   2 | mock.timers.enable({apis: (undefined as string[] | undefined)});
 
 `;
 
-exports[`require-mock-timers-apis > invalid(35): import {test, mock} from 'node:test';\nmock.timers.enable({apis: (undefined as string[] | undefined)}); 2`] = `
+exports[`require-mock-timers-apis > invalid(39): import {test, mock} from 'node:test';\nmock.timers.enable({apis: (undefined as string[] | undefined)}); 2`] = `
 
 Message:
   1 | import {test, mock} from 'node:test';

@@ -11,6 +11,7 @@ import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js'
 
 const MESSAGE_ID = 'require-mock-timers-apis';
 const CONTEXT_HOOKS = new Set(['before', 'beforeEach', 'after', 'afterEach']);
+const TEST_MODULES = new Set(['node:test', 'test']);
 
 const messages = {
 	[MESSAGE_ID]: '`mock.timers.enable()` should explicitly specify the `apis` option to avoid unexpectedly mocking `Date`.',
@@ -56,16 +57,6 @@ function getLastVisibleApisProperty(optionsObject) {
 function isImportedReference(node, sourceCode) {
 	const variable = findVariable(sourceCode.getScope(node), node);
 	return variable?.defs.some(({type}) => type === 'ImportBinding') ?? false;
-}
-
-function getCalleeRoot(node) {
-	let current = node;
-
-	while (current.type === 'MemberExpression') {
-		current = current.object;
-	}
-
-	return current.type === 'Identifier' ? current : undefined;
 }
 
 function isMissingApisOption(callExpression) {
@@ -122,6 +113,28 @@ function getContextHookReceiver(callExpression) {
 	return undefined;
 }
 
+function getGetTestContextLocals(sourceCode) {
+	const locals = new Set();
+
+	for (const node of sourceCode.ast.body) {
+		if (node.type !== 'ImportDeclaration' || !TEST_MODULES.has(node.source.value)) {
+			continue;
+		}
+
+		for (const specifier of node.specifiers) {
+			if (
+				specifier.type === 'ImportSpecifier'
+				&& specifier.imported.type === 'Identifier'
+				&& specifier.imported.name === 'getTestContext'
+			) {
+				locals.add(specifier.local.name);
+			}
+		}
+	}
+
+	return locals;
+}
+
 function getHookCallback(callExpression) {
 	const firstArgument = unwrapTypeScriptExpression(callExpression.arguments[0]);
 	return isFunction(firstArgument) ? firstArgument : undefined;
@@ -131,7 +144,8 @@ function getHookCallback(callExpression) {
 const create = context => {
 	const {sourceCode} = context;
 	const imports = resolveImports(context);
-	if (!imports.isTestFile) {
+	const getTestContextLocals = getGetTestContextLocals(sourceCode);
+	if (!imports.isTestFile && getTestContextLocals.size === 0) {
 		return;
 	}
 
@@ -139,14 +153,8 @@ const create = context => {
 	const pushedCalls = new Set();
 
 	const getImportedContextCall = node => {
-		const root = getCalleeRoot(node.callee);
 		const testCall = parseTestCall(node, imports);
-		if (
-			root !== undefined
-			&& isImportedReference(root, sourceCode)
-			&& testCall !== undefined
-			&& isContextProvidingCall(testCall)
-		) {
+		if (testCall !== undefined && isContextProvidingCall(testCall)) {
 			return testCall;
 		}
 
@@ -230,13 +238,41 @@ const create = context => {
 		return variable !== undefined && contextVariables.includes(variable);
 	};
 
+	const isGetTestContextCall = node => {
+		if (node.type !== 'CallExpression') {
+			return false;
+		}
+
+		const {callee} = node;
+		return (
+			callee.type === 'Identifier'
+			&& getTestContextLocals.has(callee.name)
+			&& isImportedReference(callee, sourceCode)
+		)
+		|| (
+			callee.type === 'MemberExpression'
+			&& !callee.computed
+			&& callee.property.type === 'Identifier'
+			&& callee.property.name === 'getTestContext'
+			&& callee.object.type === 'Identifier'
+			&& (
+				callee.object.name === imports.namespace
+				|| imports.locals.get(callee.object.name) === 'test'
+				|| imports.locals.get(callee.object.name) === 'it'
+			)
+			&& isImportedReference(callee.object, sourceCode)
+		);
+	};
+
 	const isContextMock = node =>
 		node.type === 'MemberExpression'
 		&& !node.computed
 		&& node.property.type === 'Identifier'
 		&& node.property.name === 'mock'
-		&& node.object.type === 'Identifier'
-		&& isCurrentContextReference(node.object);
+		&& (
+			(node.object.type === 'Identifier' && isCurrentContextReference(node.object))
+			|| isGetTestContextCall(node.object)
+		);
 
 	const isMockTimers = node =>
 		node.type === 'MemberExpression'
