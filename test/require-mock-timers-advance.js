@@ -29,20 +29,21 @@ test.snapshot({
 		// Context mock advanced with runAll()
 		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'setImmediate\']}); setImmediate(callback); t.mock.timers.runAll(); });'),
 
-		// Date-only mock used by reading Date
+		// Date-only mocks do not need advancement
 		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'Date\'], now: 100}); Date.now(); });'),
 		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'Date\'], now: 100}); Date(); });'),
 		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'Date\'], now: 100}); new Date(); });'),
-
-		// Date-only mock can also be advanced
-		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'Date\'], now: 100}); t.mock.timers.tick(1); });'),
+		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'Date\'], now: 100}); assert.equal(getCurrentTime(), 100); });'),
+		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'Date\'], now: 100}); });'),
 
 		// Explicitly enabling no APIs is a no-op
 		withImport('test(\'title\', t => { t.mock.timers.enable({apis: []}); });'),
 
 		// Global mock, renamed import, namespace import
 		withImport('test(\'title\', () => { mock.timers.enable({apis: [\'setTimeout\']}); mock.timers.runAll(); });'),
+		withImport('test(\'title\', () => { mock.timers.enable({apis: [\'setTimeout\']}); test.mock.timers.tick(100); });'),
 		withImport('test(\'title\', () => { test.mock.timers.enable({apis: [\'setTimeout\']}); test.mock.timers.tick(100); });'),
+		'import {test} from \'node:test\';\ntest(\'title\', () => { test.mock.timers.enable({apis: [\'setTimeout\']}); test.mock.timers.tick(100); });',
 		'import {test, mock as tracker} from \'node:test\';\ntest(\'title\', () => { tracker.timers.enable({apis: [\'setTimeout\']}); tracker.timers.tick(100); });',
 		'import * as nodeTest from \'node:test\';\nnodeTest.test(\'title\', () => { nodeTest.mock.timers.enable({apis: [\'setTimeout\']}); nodeTest.mock.timers.runAll(); });',
 
@@ -53,6 +54,7 @@ test.snapshot({
 
 		// Nested helper function bodies are intentionally ignored
 		withImport('test(\'title\', t => { function helper() { t.mock.timers.enable({apis: [\'setTimeout\']}); } });'),
+		'import {test} from \'node:test\';\ntest(\'title\', () => { test.mock.fn(() => { test.mock.timers.enable({apis: [\'setTimeout\']}); }); });',
 
 		// Shadowed context receivers are not subtest scopes
 		withImport('test(\'title\', t => { { const t = {test() {}}; t.test(\'inner\', t => { t.mock.timers.enable({apis: [\'setTimeout\']}); }); } });'),
@@ -81,17 +83,16 @@ test.snapshot({
 		// Default enable() includes timer APIs
 		withImport('test(\'title\', t => { t.mock.timers.enable(); });'),
 
-		// Date-only mock never read or advanced
-		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'Date\'], now: 100}); });'),
-
-		// Date reads only satisfy Date-only mocks
+		// Date reads do not satisfy timer APIs
 		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'setTimeout\', \'Date\'], now: 100}); Date.now(); });'),
 
 		// Calling setTime() does not run pending timers
 		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'setTimeout\']}); t.mock.timers.setTime(100); });'),
 
+		// Only later advancement satisfies the rule
+		withImport('test(\'title\', t => { t.mock.timers.tick(100); t.mock.timers.enable({apis: [\'setTimeout\']}); });'),
+
 		// Calls inside enable() arguments do not count as later usage
-		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'Date\'], now: Date.now()}); });'),
 		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'setTimeout\'], now: t.mock.timers.tick(1)}); });'),
 		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'setTimeout\'], now: t.mock.timers.runAll()}); });'),
 
@@ -101,12 +102,14 @@ test.snapshot({
 
 		// Global mock, renamed import, namespace import
 		withImport('test(\'title\', () => { mock.timers.enable({apis: [\'setTimeout\']}); });'),
+		'import {test} from \'node:test\';\ntest(\'title\', () => { test.mock.timers.enable({apis: [\'setTimeout\']}); });',
 		'import {test, mock as tracker} from \'node:test\';\ntest(\'title\', () => { tracker.timers.enable({apis: [\'setTimeout\']}); });',
 		'import * as nodeTest from \'node:test\';\nnodeTest.test(\'title\', () => { nodeTest.mock.timers.enable({apis: [\'setTimeout\']}); });',
 
 		// Shadowed receivers do not satisfy imported/context mock timers
 		withImport('test(\'title\', () => { mock.timers.enable({apis: [\'setTimeout\']}); { const mock = {timers: {tick() {}}}; mock.timers.tick(100); } });'),
 		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'setTimeout\']}); { const t = {mock: {timers: {tick() {}}}}; t.mock.timers.tick(100); } });'),
+		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'setTimeout\']}); mock.timers.tick(100); });'),
 
 		// Hook and subtest scopes
 		withImport('beforeEach(t => { t.mock.timers.enable({apis: [\'setTimeout\']}); });'),
@@ -115,9 +118,6 @@ test.snapshot({
 
 		// Nested helper function bodies do not satisfy the enclosing test
 		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'setTimeout\']}); function helper() { t.mock.timers.tick(100); } });'),
-
-		// Shadowed Date does not count as a mocked Date read
-		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'Date\'], now: 100}); const Date = {now() {}}; Date.now(); });'),
 
 		// TypeScript
 		{

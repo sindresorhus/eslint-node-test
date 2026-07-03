@@ -62,14 +62,30 @@ Message:
 
 `;
 
-exports[`prefer-context-mock > invalid(13): import {test, mock} from 'node:test';\nmock.method(obj as Target, \"fn\"); 1`] = `
+exports[`prefer-context-mock > invalid(13): import {test} from 'node:test';\ntest.mock.fn(); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | test.mock.fn();
+
+`;
+
+exports[`prefer-context-mock > invalid(13): import {test} from 'node:test';\ntest.mock.fn(); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | test.mock.fn();
+    | ^^^^^^^^^^^^^^ Prefer \`t.mock.fn\` over the global \`mock.fn\`, which is not automatically restored between tests.
+
+`;
+
+exports[`prefer-context-mock > invalid(14): import {test, mock} from 'node:test';\nmock.method(obj as Target, \"fn\"); 1`] = `
 
   1 | import {test, mock} from 'node:test';
   2 | mock.method(obj as Target, "fn");
 
 `;
 
-exports[`prefer-context-mock > invalid(13): import {test, mock} from 'node:test';\nmock.method(obj as Target, \"fn\"); 2`] = `
+exports[`prefer-context-mock > invalid(14): import {test, mock} from 'node:test';\nmock.method(obj as Target, \"fn\"); 2`] = `
 
 Message:
   1 | import {test, mock} from 'node:test';

@@ -5,18 +5,17 @@ import {
 	getTestCallback,
 	getSubtestReceiver,
 	HOOK_FUNCTIONS,
+	isGlobalMock,
+	MODIFIERS,
 } from './utils/node-test.js';
 import {getEnclosingFunction} from './utils/index.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
-const MESSAGE_ID_TIMERS = 'require-mock-timers-advance/timers';
-const MESSAGE_ID_DATE = 'require-mock-timers-advance/date';
+const MESSAGE_ID = 'require-mock-timers-advance';
 const messages = {
-	[MESSAGE_ID_TIMERS]: '`mock.timers.enable()` must be followed by `tick()` or `runAll()` so mocked timer callbacks can run.',
-	[MESSAGE_ID_DATE]: '`mock.timers.enable()` with only `Date` must be followed by a `Date` read, `tick()`, or `runAll()` so the mocked clock is used.',
+	[MESSAGE_ID]: '`mock.timers.enable()` must be followed by `tick()` or `runAll()` so mocked timer callbacks can run.',
 };
 
-const TIMER_APIS = new Set(['setTimeout', 'setInterval', 'setImmediate']);
 const ADVANCE_METHODS = new Set(['tick', 'runAll']);
 
 function getStaticPropertyName(node) {
@@ -43,17 +42,17 @@ function getPropertyName(property) {
 	}
 }
 
-function getEnabledApiKind(callExpression) {
+function enablesTimerApis(callExpression) {
 	const argument = unwrapTypeScriptExpression(callExpression.arguments[0]);
 	if (argument?.type !== 'ObjectExpression') {
-		return 'timers';
+		return true;
 	}
 
 	let apisValue;
 	for (const property of argument.properties) {
 		if (property.type === 'SpreadElement') {
 			if (apisValue) {
-				return 'timers';
+				return true;
 			}
 
 			continue;
@@ -65,16 +64,13 @@ function getEnabledApiKind(callExpression) {
 	}
 
 	if (!apisValue) {
-		return 'timers';
+		return true;
 	}
 
 	const unwrappedApisValue = unwrapTypeScriptExpression(apisValue);
 	if (unwrappedApisValue.type !== 'ArrayExpression') {
-		return 'timers';
+		return true;
 	}
-
-	let hasDateApi = false;
-	let hasApi = false;
 
 	for (const rawElement of unwrappedApisValue.elements) {
 		const element = rawElement && unwrapTypeScriptExpression(rawElement);
@@ -83,52 +79,22 @@ function getEnabledApiKind(callExpression) {
 		}
 
 		if (element.type !== 'Literal' || typeof element.value !== 'string') {
-			return 'timers';
-		}
-
-		hasApi = true;
-
-		if (TIMER_APIS.has(element.value)) {
-			return 'timers';
+			return true;
 		}
 
 		if (element.value === 'Date') {
-			hasDateApi = true;
 			continue;
 		}
 
-		return 'timers';
+		return true;
 	}
 
-	if (!hasApi) {
-		return 'none';
-	}
-
-	return hasDateApi ? 'date' : 'none';
+	return false;
 }
 
 function isImportedIdentifier(node, sourceCode) {
 	const variable = findVariable(sourceCode.getScope(node), node);
 	return variable?.defs.some(({type}) => type === 'ImportBinding') ?? false;
-}
-
-function isGlobalMockReference(node, imports, sourceCode) {
-	return (
-		(
-			node.type === 'Identifier'
-			&& imports.mockLocals.has(node.name)
-			&& isImportedIdentifier(node, sourceCode)
-		)
-		|| (
-			node.type === 'MemberExpression'
-			&& !node.computed
-			&& !node.optional
-			&& getStaticPropertyName(node.property) === 'mock'
-			&& node.object.type === 'Identifier'
-			&& node.object.name === imports.namespace
-			&& isImportedIdentifier(node.object, sourceCode)
-		)
-	);
 }
 
 function getMockTimersReceiverKey(node, imports, sourceCode, contextVariables) {
@@ -141,7 +107,7 @@ function getMockTimersReceiverKey(node, imports, sourceCode, contextVariables) {
 		return;
 	}
 
-	if (isGlobalMockReference(node.object, imports, sourceCode)) {
+	if (isGlobalMock(node.object, imports)) {
 		return 'global';
 	}
 
@@ -178,41 +144,6 @@ function getMockTimersCall(callExpression, imports, sourceCode, contextVariables
 	}
 
 	return {method, receiverKey};
-}
-
-function isUnshadowedGlobalIdentifier(node, sourceCode) {
-	const variable = findVariable(sourceCode.getScope(node), node);
-	return !variable || variable.defs.length === 0;
-}
-
-function isDateReadCall(node, sourceCode) {
-	const {callee} = node;
-	if (
-		callee.type === 'Identifier'
-		&& callee.name === 'Date'
-		&& node.arguments.length === 0
-	) {
-		return isUnshadowedGlobalIdentifier(callee, sourceCode);
-	}
-
-	if (
-		callee.type === 'MemberExpression'
-		&& !callee.computed
-		&& getStaticPropertyName(callee.property) === 'now'
-		&& callee.object.type === 'Identifier'
-		&& callee.object.name === 'Date'
-	) {
-		return isUnshadowedGlobalIdentifier(callee.object, sourceCode);
-	}
-
-	return false;
-}
-
-function isDateReadNewExpression(node, sourceCode) {
-	return node.callee.type === 'Identifier'
-		&& node.callee.name === 'Date'
-		&& node.arguments.length === 0
-		&& isUnshadowedGlobalIdentifier(node.callee, sourceCode);
 }
 
 function satisfyPending(scope, predicate) {
@@ -277,6 +208,7 @@ function getScopeCallback(node, imports, sourceCode, contextVariables) {
 	const root = getCalleeRootIdentifier(node.callee);
 	if (
 		(parsed?.kind === 'test' || parsed?.kind === 'hook')
+		&& parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name))
 		&& root
 		&& isImportedIdentifier(root, sourceCode)
 	) {
@@ -321,11 +253,6 @@ const create = context => {
 		const timersCall = getMockTimersCall(node, imports, sourceCode, getContextVariables(scopeStack));
 		if (timersCall && ADVANCE_METHODS.has(timersCall.method)) {
 			satisfyPending(currentScope, pending => pending.receiverKey === timersCall.receiverKey);
-			return;
-		}
-
-		if (isDateReadCall(node, sourceCode)) {
-			satisfyPending(currentScope, pending => pending.apiKind === 'date');
 		}
 	});
 
@@ -348,34 +275,17 @@ const create = context => {
 			&& getEnclosingFunction(node) === newCurrentScope.callback
 		) {
 			const timersCall = getMockTimersCall(node, imports, sourceCode, getContextVariables(scopeStack));
-			if (timersCall?.method === 'enable') {
-				const apiKind = getEnabledApiKind(node);
-				if (apiKind !== 'none') {
-					newCurrentScope.pending.push({
-						node,
-						apiKind,
-						messageId: apiKind === 'date' ? MESSAGE_ID_DATE : MESSAGE_ID_TIMERS,
-						receiverKey: timersCall.receiverKey,
-						satisfied: false,
-					});
-				}
+			if (timersCall?.method === 'enable' && enablesTimerApis(node)) {
+				newCurrentScope.pending.push({
+					node,
+					messageId: MESSAGE_ID,
+					receiverKey: timersCall.receiverKey,
+					satisfied: false,
+				});
 			}
 		}
 
 		return problems;
-	});
-
-	context.on('NewExpression', node => {
-		const currentScope = scopeStack.at(-1);
-		if (
-			!currentScope
-			|| getEnclosingFunction(node) !== currentScope.callback
-			|| !isDateReadNewExpression(node, sourceCode)
-		) {
-			return;
-		}
-
-		satisfyPending(currentScope, pending => pending.apiKind === 'date');
 	});
 };
 

@@ -186,7 +186,7 @@ function isImportedBindingReference(identifier, imports) {
 	return getVariable(identifier, imports)?.defs.some(definition => definition.type === 'ImportBinding') ?? false;
 }
 
-/** Whether a node references the global `mock` — a named/renamed import or `namespace.mock`. */
+/** Whether a node references the global `mock` — a named/renamed import, `namespace.mock`, or `test.mock`/`it.mock`. */
 export function isGlobalMock(node, imports) {
 	return (
 		(
@@ -200,7 +200,10 @@ export function isGlobalMock(node, imports) {
 			&& node.property.type === 'Identifier'
 			&& node.property.name === 'mock'
 			&& node.object.type === 'Identifier'
-			&& node.object.name === imports.namespace
+			&& (
+				node.object.name === imports.namespace
+				|| TEST_FUNCTIONS.has(imports.locals.get(node.object.name))
+			)
 			&& isImportedBindingReference(node.object, imports)
 		)
 	);

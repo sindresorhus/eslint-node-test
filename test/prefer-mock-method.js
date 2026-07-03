@@ -48,6 +48,9 @@ test.snapshot({
 		// Context mock with implementation
 		inTest('object.method = t.mock.fn(() => 42);'),
 
+		// Named test import
+		'import {test} from \'node:test\';\nobject.method = test.mock.fn();',
+
 		// Renamed mock import
 		'import {mock as m} from \'node:test\';\nobject.method = m.fn();',
 
