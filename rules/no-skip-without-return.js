@@ -65,7 +65,7 @@ const create = context => {
 			&& callee.property.type === 'Identifier'
 			&& SKIP_METHODS.has(callee.property.name)
 			&& callee.object.type === 'Identifier'
-			&& tracker.isContextName(callee.object.name)
+			&& tracker.isContextIdentifier(callee.object)
 			&& hasCodeAfter(parent)
 		) {
 			const {name} = callee.object;

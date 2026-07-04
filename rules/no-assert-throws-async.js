@@ -1,5 +1,11 @@
-import {resolveImports, parseAssertionCall} from './utils/node-test.js';
+import {
+	resolveImports,
+	parseAssertionCall,
+	createContextTracker,
+	isAssertionCallWithSupportedContext,
+} from './utils/node-test.js';
 import isFunction from './ast/is-function.js';
+import {getEnclosingFunction} from './utils/index.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
 const MESSAGE_ID_ERROR = 'no-assert-throws-async/error';
@@ -15,21 +21,6 @@ const SYNC_TO_ASYNC = new Map([
 	['doesNotThrow', 'doesNotReject'],
 ]);
 
-/*
-Walk up the ancestor chain to find the nearest enclosing function node.
-Returns `undefined` if we hit the program root first.
-*/
-function findEnclosingFunction(node) {
-	let current = node.parent;
-	while (current) {
-		if (isFunction(current)) {
-			return current;
-		}
-
-		current = current.parent;
-	}
-}
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const imports = resolveImports(context);
@@ -37,9 +28,13 @@ const create = context => {
 		return;
 	}
 
+	const tracker = createContextTracker(imports, {trackHooks: true});
+
 	context.on('CallExpression', node => {
+		tracker.update(node);
+
 		const assertion = parseAssertionCall(node, imports);
-		if (!assertion) {
+		if (!assertion || !isAssertionCallWithSupportedContext(node, tracker)) {
 			return;
 		}
 
@@ -70,7 +65,7 @@ const create = context => {
 		// import (`throws`) would reference an unimported `rejects`, so leave it reported but unfixed.
 		if (callee.type === 'MemberExpression') {
 			const isAwaited = node.parent?.type === 'AwaitExpression';
-			const enclosingFunction = findEnclosingFunction(node);
+			const enclosingFunction = getEnclosingFunction(node);
 			// Prepend `await` only where it is both valid and needed: a bare call statement inside an
 			// async function. Otherwise just switch the method and let `no-unawaited-rejects` guide the await.
 			const shouldAwait = !isAwaited
@@ -92,6 +87,10 @@ const create = context => {
 		}
 
 		return problem;
+	});
+
+	context.onExit('CallExpression', node => {
+		tracker.leave(node);
 	});
 };
 

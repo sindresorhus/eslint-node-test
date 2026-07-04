@@ -49,6 +49,9 @@ test.snapshot({
 		// Unconditional assertion inside a subtest whose call is wrapped in an outer conditional —
 		// the assertion is scoped to the subtest, not the outer conditional
 		'import test from "node:test";\nimport assert from "node:assert";\ntest("t1", async t => { if (x) { await t.test("inner", () => { assert.ok(1); }); } });',
+
+		// `.assert.*` on a non-context object inside a conditional — not a test context
+		'import test from "node:test";\ntest("t1", () => { const db = makeDb(); if (x) { db.assert.ok(a); } });',
 	],
 	invalid: [
 		// If without else

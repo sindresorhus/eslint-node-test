@@ -2,6 +2,8 @@ import {
 	resolveImports,
 	parseAssertionCall,
 	nearestTestCallbackKind,
+	createContextTracker,
+	isAssertionCallWithSupportedContext,
 } from './utils/node-test.js';
 
 const MESSAGE_ID = 'no-assert-in-describe';
@@ -17,8 +19,12 @@ const create = context => {
 		return;
 	}
 
+	const tracker = createContextTracker(imports);
+
 	context.on('CallExpression', node => {
-		if (!parseAssertionCall(node, imports)) {
+		tracker.update(node);
+
+		if (!parseAssertionCall(node, imports) || !isAssertionCallWithSupportedContext(node, tracker)) {
 			return;
 		}
 
@@ -30,6 +36,10 @@ const create = context => {
 			node,
 			messageId: MESSAGE_ID,
 		};
+	});
+
+	context.onExit('CallExpression', node => {
+		tracker.leave(node);
 	});
 };
 

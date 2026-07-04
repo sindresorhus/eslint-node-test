@@ -43,6 +43,9 @@ test.snapshot({
 		withAssert('a.b.assert.equal(x, y);'),
 		withAssert('foo().assert.equal(x, y);'),
 		withAssert('this.assert.equal(x, y);'),
+
+		// `.assert.*` on a non-context identifier — not a test context, so not rewritten
+		'import test from \'node:test\';\ntest(\'t\', () => { const db = makeDb(); db.assert.equal(a, b); });',
 	],
 	invalid: [
 		// Namespace import

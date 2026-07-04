@@ -54,6 +54,9 @@ test.snapshot({
 
 		// Unsupported CommonJS import shape
 		withTestImport('const {env} = require(\'node:process\');\ntest(\'reads config\', () => {\n\tenv.NODE_ENV = \'production\';\n});'),
+
+		// Suite (`describe`) bodies are not flagged — only test and subtest callbacks
+		'import {describe} from \'node:test\';\ndescribe(\'s\', () => { process.env.NODE_ENV = \'test\'; });',
 	],
 	invalid: [
 		// Direct member mutations

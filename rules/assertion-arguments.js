@@ -1,4 +1,9 @@
-import {resolveImports, parseAssertionCall} from './utils/node-test.js';
+import {
+	resolveImports,
+	parseAssertionCall,
+	createContextTracker,
+	isAssertionCallWithSupportedContext,
+} from './utils/node-test.js';
 import {isFunction} from './ast/index.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
@@ -59,9 +64,13 @@ const create = context => {
 		return;
 	}
 
+	const tracker = createContextTracker(imports, {trackHooks: true});
+
 	context.on('CallExpression', node => {
+		tracker.update(node);
+
 		const assertion = parseAssertionCall(node, imports);
-		if (!assertion) {
+		if (!assertion || !isAssertionCallWithSupportedContext(node, tracker)) {
 			return;
 		}
 
@@ -109,6 +118,10 @@ const create = context => {
 			}
 		}
 	});
+
+	context.onExit('CallExpression', node => {
+		tracker.leave(node);
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
@@ -125,7 +138,7 @@ const config = {
 		messages: {
 			[MESSAGE_ID_TOO_FEW]: 'Not enough arguments. Expected at least {{min}}.',
 			[MESSAGE_ID_TOO_MANY]: 'Too many arguments. Expected at most {{max}}.',
-			[MESSAGE_ID_NOT_STRING]: 'Assertion message must be a string.',
+			[MESSAGE_ID_NOT_STRING]: 'Assertion message must be a string or an `Error`.',
 		},
 		languages: ['js/js'],
 	},

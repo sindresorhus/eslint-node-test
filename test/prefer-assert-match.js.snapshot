@@ -349,6 +349,22 @@ Output:
 
 `;
 
+exports[`prefer-assert-match > invalid(26): import assert from 'node:assert';\nassert.strictEqual(/\\d+/.test('foo'), (true)); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(/\\d+/.test('foo'), (true));
+
+`;
+
+exports[`prefer-assert-match > invalid(26): import assert from 'node:assert';\nassert.strictEqual(/\\d+/.test('foo'), (true)); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.strictEqual(/\\d+/.test('foo'), (true));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`assert.match()\` over asserting \`test()\` results.
+
+`;
+
 exports[`prefer-assert-match > invalid(3): import assert from 'node:assert';\nassert.strictEqual((/\\d+/.test('foo')), true); 1`] = `
 
   1 | import assert from 'node:assert';

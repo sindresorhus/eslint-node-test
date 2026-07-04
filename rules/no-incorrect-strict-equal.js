@@ -1,4 +1,9 @@
-import {resolveImports, parseAssertionCall} from './utils/node-test.js';
+import {
+	resolveImports,
+	parseAssertionCall,
+	createContextTracker,
+	isAssertionCallWithSupportedContext,
+} from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
 const MESSAGE_ID = 'no-incorrect-strict-equal';
@@ -27,9 +32,13 @@ const create = context => {
 		return;
 	}
 
+	const tracker = createContextTracker(imports, {trackHooks: true});
+
 	context.on('CallExpression', node => {
+		tracker.update(node);
+
 		const assertion = parseAssertionCall(node, imports);
-		if (!assertion) {
+		if (!assertion || !isAssertionCallWithSupportedContext(node, tracker)) {
 			return;
 		}
 
@@ -62,6 +71,10 @@ const create = context => {
 		}
 
 		return problem;
+	});
+
+	context.onExit('CallExpression', node => {
+		tracker.leave(node);
 	});
 };
 

@@ -45,6 +45,10 @@ test.snapshot({
 		'import {test as myTest} from "node:test";\nmyTest("a", () => {});\nmyTest("a", () => {});',
 		// Namespace import
 		'import * as nodeTest from "node:test";\nnodeTest.test("a", () => {});\nnodeTest.test("a", () => {});',
+		// A chained modifier (`test.only`) still shares the title namespace with a plain `test`
+		'import test from "node:test";\ntest.only("a", () => {});\ntest("a", () => {});',
+		// `suite` alias duplicates a `describe` title
+		'import {describe, suite} from "node:test";\ndescribe("a", () => {});\nsuite("a", () => {});',
 		// TypeScript
 		{
 			code: 'import test from "node:test";\ntest("a", () => {});\ntest("a", () => {});',

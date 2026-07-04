@@ -11,6 +11,9 @@ The `concurrency` option controls how many of a suite's tests, or a test's *subt
 
 This rule reports the `concurrency` option on a `test`/`it` (or a subtest) whose callback creates no subtests. Use it on a `describe`/`suite`, or on a test that creates subtests with `t.test()`.
 
+> [!NOTE]
+> Only subtests created by an inline `t.test(…)` call in the test callback are detected. A test that creates its subtests indirectly, for example through a helper function it calls, is still reported.
+
 ## Examples
 
 ```js

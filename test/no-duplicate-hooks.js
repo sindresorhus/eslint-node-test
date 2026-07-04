@@ -37,6 +37,9 @@ test.snapshot({
 		// Namespace import
 		'import * as nodeTest from \'node:test\';\nnodeTest.before(() => {});\nnodeTest.before(() => {});',
 
+		// Renamed import — canonicalised back to `before`
+		'import {before as setup} from \'node:test\';\nsetup(() => {});\nsetup(() => {});',
+
 		// TypeScript
 		{
 			code: withImport('before((): void => {});\nbefore((): void => {});'),

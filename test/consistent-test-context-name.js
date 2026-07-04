@@ -27,6 +27,9 @@ test.snapshot({
 
 		// Not a test file
 		'test(\'t\', context => {});',
+
+		// Hook callbacks also receive a context but are intentionally excluded
+		'import {beforeEach} from \'node:test\';\nbeforeEach(ctx => {});',
 	],
 	invalid: [
 		// Non-`t` parameter

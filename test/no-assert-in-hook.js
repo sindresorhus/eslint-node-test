@@ -21,6 +21,9 @@ test.snapshot({
 
 		// Not a test file
 		'assert.ok(value);',
+
+		// `.assert.*` on a non-context object inside a hook — not a test context
+		withSetup('beforeEach(() => { const obj = {assert: {ok() {}}}; obj.assert.ok(value); });'),
 	],
 	invalid: [
 		// Assertion directly in each hook type

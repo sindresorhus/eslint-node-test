@@ -41,6 +41,9 @@ test.snapshot({
 		withAssert('assert.strict(a == b);'),
 		withNamedImport('strict as strictAssert', 'strictAssert.ok(a != b);'),
 		withNamedImport('strict as strictAssert', 'strictAssert(a == b);'),
+
+		// `.assert.ok` on a non-context object — not a test context, so not rewritten
+		'import test from \'node:test\';\ntest(\'t\', () => { const db = makeDb(); db.assert.ok(a === b); });',
 	],
 	invalid: [
 		// Bare assert

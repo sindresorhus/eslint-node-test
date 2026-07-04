@@ -95,3 +95,21 @@ Message:
     |            ^^^^^^^^^^^^^^^^^ The \`concurrency\` option has no effect on a test without subtests. It only controls how a suite or a test's subtests run concurrently.
 
 `;
+
+exports[`no-misused-concurrency > invalid(7): import test from 'node:test';\nfunction addSubtests(t) { t.test('a', () => {}); }\ntest('t', {concurrency: true}, async t => { addSubtests(t); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | function addSubtests(t) { t.test('a', () => {}); }
+  3 | test('t', {concurrency: true}, async t => { addSubtests(t); });
+
+`;
+
+exports[`no-misused-concurrency > invalid(7): import test from 'node:test';\nfunction addSubtests(t) { t.test('a', () => {}); }\ntest('t', {concurrency: true}, async t => { addSubtests(t); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | function addSubtests(t) { t.test('a', () => {}); }
+> 3 | test('t', {concurrency: true}, async t => { addSubtests(t); });
+    |            ^^^^^^^^^^^^^^^^^ The \`concurrency\` option has no effect on a test without subtests. It only controls how a suite or a test's subtests run concurrently.
+
+`;

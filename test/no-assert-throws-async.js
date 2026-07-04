@@ -31,6 +31,9 @@ test.snapshot({
 
 		// Other methods
 		withAssert('assert.ok(async () => {});'),
+
+		// `.assert.throws` on a non-context object — not a test context
+		withAssert('const custom = {assert: {throws() {}}};\ncustom.assert.throws(async () => {});'),
 	],
 	invalid: [
 		// Async arrow passed to `throws`, bare statement in async function (await added)

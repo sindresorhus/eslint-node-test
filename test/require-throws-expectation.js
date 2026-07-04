@@ -24,6 +24,9 @@ test.snapshot({
 
 		// Other assertions
 		withAssert('assert.ok(value);'),
+
+		// `.assert.throws` on a non-context object — not a test context
+		'import test from \'node:test\';\ntest(\'t\', () => { const db = makeDb(); db.assert.throws(fn); });',
 	],
 	invalid: [
 		// No matcher

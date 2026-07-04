@@ -131,5 +131,11 @@ test.snapshot({
 			code: inAsyncTest('(load().then(value => { assert.strictEqual(value, 42); }) as Promise<void>);'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// TypeScript wrapper around the test callee itself still marks the test boundary.
+		{
+			code: 'import test from \'node:test\';\nimport assert from \'node:assert\';\n(test as typeof test)(\'loads\', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n});',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

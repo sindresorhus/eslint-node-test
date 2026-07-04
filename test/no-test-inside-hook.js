@@ -41,5 +41,8 @@ test.snapshot({
 
 		// Nested in a conditional inside the hook body
 		withSetup('beforeEach(() => { if (x) { it(\'a\', () => {}); } });'),
+
+		// Hook with a trailing options argument — the callback is the first argument
+		withSetup('beforeEach(() => { it(\'a\', () => {}); }, {timeout: 1000});'),
 	],
 });

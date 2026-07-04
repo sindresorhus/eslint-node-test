@@ -46,5 +46,8 @@ test.snapshot({
 
 		// Test with an assertion but no subtests
 		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'t\', {concurrency: true}, t => { t.assert.ok(1); });',
+
+		// Best-effort limitation: subtests created via a helper are not detected, so this is still reported
+		withTest('function addSubtests(t) { t.test(\'a\', () => {}); }\ntest(\'t\', {concurrency: true}, async t => { addSubtests(t); });'),
 	],
 });

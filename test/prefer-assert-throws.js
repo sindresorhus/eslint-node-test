@@ -34,6 +34,9 @@ test.snapshot({
 
 		// Named-import `fail()` in catch — same exclusion
 		'import {fail} from \'node:assert\';\ntry {\n\tfn();\n} catch (err) {\n\tfail();\n}',
+
+		// Assertion inside a nested function in catch — not executed by the catch itself
+		`${ASSERT_IMPORT}\ntry { fn(); } catch (err) { setTimeout(() => { assert.ok(err); }, 0); }`,
 	],
 	invalid: [
 		// Basic sync: try with assertion in catch

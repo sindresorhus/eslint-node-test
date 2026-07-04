@@ -30,6 +30,9 @@ test.snapshot({
 
 		// Not a test file
 		'for (const x of xs) { it(\'static\', () => {}); }',
+
+		// Non-iteration array methods (`find`) are not treated as loops
+		withSetup('xs.find(x => { it(\'static\', () => {}); });'),
 	],
 	invalid: [
 		// For-of with a static string title

@@ -3,6 +3,7 @@ import {
 	parseTestCall,
 	parseAssertionCall,
 	createContextTracker,
+	isAssertionCallWithSupportedContext,
 } from './utils/node-test.js';
 
 const MESSAGE_ID = 'max-assertions';
@@ -33,7 +34,7 @@ const create = context => {
 			return;
 		}
 
-		if (frames.length > 0 && parseAssertionCall(node, imports)) {
+		if (frames.length > 0 && parseAssertionCall(node, imports) && isAssertionCallWithSupportedContext(node, tracker)) {
 			frames.at(-1).count += 1;
 		}
 	});

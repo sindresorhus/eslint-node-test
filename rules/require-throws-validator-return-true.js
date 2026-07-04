@@ -1,5 +1,10 @@
 import {getStaticValue} from '@eslint-community/eslint-utils';
-import {resolveImports, parseAssertionCall} from './utils/node-test.js';
+import {
+	resolveImports,
+	parseAssertionCall,
+	createContextTracker,
+	isAssertionCallWithSupportedContext,
+} from './utils/node-test.js';
 import isFunction from './ast/is-function.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
@@ -54,15 +59,8 @@ function canReturnTrue(node, context, imports) {
 		return staticValue.value === true;
 	}
 
-	if (NON_TRUE_NODE_TYPES.has(node.type)) {
-		return false;
-	}
-
-	if (node.type === 'Literal') {
-		return node.value === true;
-	}
-
-	return true;
+	// Any other expression (identifier, call, member access, conditional, …) could resolve to `true`.
+	return !NON_TRUE_NODE_TYPES.has(node.type);
 }
 
 function hasReturnTrue(functionBody, context, imports) {
@@ -109,9 +107,13 @@ const create = context => {
 		return;
 	}
 
+	const tracker = createContextTracker(imports, {trackHooks: true});
+
 	context.on('CallExpression', node => {
+		tracker.update(node);
+
 		const parsed = parseAssertionCall(node, imports);
-		if (!parsed || !THROWS_METHODS.has(parsed.method)) {
+		if (!parsed || !THROWS_METHODS.has(parsed.method) || !isAssertionCallWithSupportedContext(node, tracker)) {
 			return;
 		}
 
@@ -129,6 +131,10 @@ const create = context => {
 			messageId: MESSAGE_ID,
 			data: {method: parsed.method},
 		};
+	});
+
+	context.onExit('CallExpression', node => {
+		tracker.leave(node);
 	});
 };
 

@@ -1,4 +1,4 @@
-import {resolveImports, parseTestCall, getTestCallback} from './utils/node-test.js';
+import {resolveImports, parseTestCall, getHookCallback} from './utils/node-test.js';
 
 const MESSAGE_ID = 'no-test-inside-hook';
 
@@ -30,7 +30,7 @@ const create = context => {
 		}
 
 		if (parsed.kind === 'hook') {
-			const callback = getTestCallback(node);
+			const callback = getHookCallback(node);
 			if (callback) {
 				hookCallbackStack.push(callback);
 			}
@@ -43,7 +43,7 @@ const create = context => {
 			return;
 		}
 
-		const callback = getTestCallback(node);
+		const callback = getHookCallback(node);
 		if (callback && hookCallbackStack.at(-1) === callback) {
 			hookCallbackStack.pop();
 		}

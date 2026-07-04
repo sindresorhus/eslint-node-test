@@ -176,8 +176,8 @@ function getLocalTestHookCall(callExpression, imports, sourceCode) {
 const create = context => {
 	const {sourceCode} = context;
 	const imports = resolveImports(context);
-	const getTestContextLocals = getTestContextImportLocals(sourceCode);
-	if (!imports.isTestFile && getTestContextLocals.size === 0) {
+	const testContextLocals = getTestContextImportLocals(sourceCode);
+	if (!imports.isTestFile && testContextLocals.size === 0) {
 		return;
 	}
 
@@ -287,7 +287,7 @@ const create = context => {
 		const callee = unwrapTypeScriptExpression(node.callee);
 		if (
 			callee.type === 'Identifier'
-			&& getTestContextLocals.has(callee.name)
+			&& testContextLocals.has(callee.name)
 			&& isImportedReference(callee, sourceCode)
 		) {
 			return true;

@@ -22,6 +22,9 @@ test.snapshot({
 		// Assertion in a hook (no test context in scope)
 		'import test, {beforeEach} from \'node:test\';\nimport assert from \'node:assert\';\nbeforeEach(() => { assert.ok(value); });',
 
+		// Assertion in a hook whose callback has a context parameter — still left alone (hooks are excluded)
+		'import test, {beforeEach} from \'node:test\';\nimport assert from \'node:assert\';\nbeforeEach(t => { assert.ok(value); });',
+
 		// Inner subtest without a context parameter — outer `t` would assert against the wrong test
 		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'x\', t => { t.test(\'y\', () => { assert.ok(value); }); });',
 

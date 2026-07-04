@@ -1,4 +1,9 @@
-import {resolveImports, parseAssertionCall} from './utils/node-test.js';
+import {
+	resolveImports,
+	parseAssertionCall,
+	createContextTracker,
+	isAssertionCallWithSupportedContext,
+} from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
 const MESSAGE_ID_ERROR = 'no-assert-throws-call/error';
@@ -44,9 +49,13 @@ const create = context => {
 		return;
 	}
 
+	const tracker = createContextTracker(imports, {trackHooks: true});
+
 	context.on('CallExpression', node => {
+		tracker.update(node);
+
 		const assertion = parseAssertionCall(node, imports);
-		if (!assertion || assertion.method !== 'throws') {
+		if (!assertion || assertion.method !== 'throws' || !isAssertionCallWithSupportedContext(node, tracker)) {
 			return;
 		}
 
@@ -71,6 +80,10 @@ const create = context => {
 				},
 			],
 		};
+	});
+
+	context.onExit('CallExpression', node => {
+		tracker.leave(node);
 	});
 };
 

@@ -37,6 +37,9 @@ test.snapshot({
 
 		// `t.assert.rejects` properly awaited in a test file (no `node:assert` import)
 		'import test from \'node:test\';\ntest(\'t\', async t => {\n\tawait t.assert.rejects(fn);\n});',
+
+		// `.assert.rejects` on a non-context object — not a test context, so not this rule's concern
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\nasync function run() {\n\tdb.assert.rejects(fn);\n}',
 	],
 	invalid: [
 		// Bare assert.rejects in async function — autofix available
@@ -59,8 +62,8 @@ test.snapshot({
 		`${NAMED_IMPORT}\nasync function test() {\n\trejects(fn);\n}`,
 		`${NAMED_IMPORT}\nasync function test() {\n\tdoesNotReject(fn);\n}`,
 
-		// T.assert.rejects form
-		'import test from \'node:test\';\nimport assert from \'node:assert\';\nasync function run() {\n\tt.assert.rejects(fn);\n}',
+		// `t.assert.rejects` form (with a `node:assert` import also present)
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'t\', async t => {\n\tt.assert.rejects(fn);\n});',
 
 		// `t.assert.rejects` in a test file WITHOUT a `node:assert` import — caught via the test-file activation
 		'import test from \'node:test\';\ntest(\'t\', async t => {\n\tt.assert.rejects(fn);\n});',

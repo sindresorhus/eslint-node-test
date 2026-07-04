@@ -26,6 +26,9 @@ test.snapshot({
 
 		// Non-assertion calls in the body are not this rule's concern
 		withImport('describe("s", () => { setup(); it("a", () => {}); });'),
+
+		// `.assert.*` on a non-context object — not a test context
+		withImport('describe("s", () => { const f = {assert: {ok() {}}}; f.assert.ok(x); });'),
 	],
 	invalid: [
 		// Assertion directly in a describe body

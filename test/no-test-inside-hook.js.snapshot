@@ -109,3 +109,19 @@ Message:
     |                             ^^^^^^^^^^^^^^^^^ Do not define a test or suite inside a hook. Define it at the top level or inside a \`describe\`.
 
 `;
+
+exports[`no-test-inside-hook > invalid(8): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nbeforeEach(() => { it('a', () => {}); }, {timeout: 1000}); 1`] = `
+
+  1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
+  2 | beforeEach(() => { it('a', () => {}); }, {timeout: 1000});
+
+`;
+
+exports[`no-test-inside-hook > invalid(8): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nbeforeEach(() => { it('a', () => {}); }, {timeout: 1000}); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | beforeEach(() => { it('a', () => {}); }, {timeout: 1000});
+    |                    ^^^^^^^^^^^^^^^^^ Do not define a test or suite inside a hook. Define it at the top level or inside a \`describe\`.
+
+`;

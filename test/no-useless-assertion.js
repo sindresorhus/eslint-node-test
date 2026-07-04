@@ -14,6 +14,9 @@ test.snapshot({
 		withAssert('assert.throws(fn);'),
 		withAssert('assert.rejects(fn);'),
 		withAssert('assert.ok(value);'),
+
+		// `.assert.doesNotThrow` on a non-context object — not a test context
+		'import test from \'node:test\';\ntest(\'t\', () => { const db = makeDb(); db.assert.doesNotThrow(() => foo()); });',
 	],
 	invalid: [
 		// DoesNotThrow

@@ -22,6 +22,9 @@ test.snapshot({
 		// `skip` on something that is not a test context
 		withImport('test("x", () => { other.skip(); doStuff(); });'),
 
+		// A local variable shadowing the context name is not the test context
+		withImport('test("x", t => { function helper() { const t = {skip() {}}; t.skip(); doStuff(); } });'),
+
 		// The skip option object form is unaffected
 		withImport('test("x", {skip: true}, t => { doStuff(); });'),
 

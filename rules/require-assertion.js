@@ -3,6 +3,8 @@ import {
 	parseTestCall,
 	getTestCallback,
 	parseAssertionCall,
+	createContextTracker,
+	isAssertionCallWithSupportedContext,
 } from './utils/node-test.js';
 
 const MESSAGE_ID = 'require-assertion/error';
@@ -23,8 +25,11 @@ const create = context => {
 	We push when we enter a test call with an inline callback, and pop (and possibly report) on exit.
 	*/
 	const testStack = [];
+	const tracker = createContextTracker(imports);
 
 	context.on('CallExpression', node => {
+		tracker.update(node);
+
 		const parsed = parseTestCall(node, imports);
 
 		// Track nested test calls as their own scope (don't let their assertions count for parent).
@@ -46,12 +51,14 @@ const create = context => {
 		}
 
 		// Check if this call is an assertion.
-		if (testStack.length > 0 && parseAssertionCall(node, imports)) {
+		if (testStack.length > 0 && parseAssertionCall(node, imports) && isAssertionCallWithSupportedContext(node, tracker)) {
 			testStack.at(-1).hasAssertion = true;
 		}
 	});
 
 	context.onExit('CallExpression', node => {
+		tracker.leave(node);
+
 		if (testStack.length === 0) {
 			return;
 		}

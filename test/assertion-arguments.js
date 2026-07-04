@@ -112,6 +112,9 @@ test.snapshot({
 			code: withAssert('assert.ok(value, error as Error);'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// `.assert.*` on a non-context object — not a node:assert binding
+		'import test from \'node:test\';\nconst obj = {assert: {strictEqual() {}}};\ntest(\'t\', () => { obj.assert.strictEqual(a); });',
 	],
 	invalid: [
 		// Ok — too few

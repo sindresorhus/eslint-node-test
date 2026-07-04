@@ -46,6 +46,9 @@ test.snapshot({
 			code: withAssert('assert.throws(fn, (error => { return true; }) as (error: Error) => boolean);'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// `.assert.throws` on a non-context object — not a test context
+		withTest('const foo = {assert: {throws() {}}};\nfoo.assert.throws(fn, e => {});'),
 	],
 	invalid: [
 		// Missing return

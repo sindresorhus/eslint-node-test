@@ -37,6 +37,9 @@ test.snapshot({
 			code: withAssert('assert.throws((() => parse(input)) as () => void);'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// `.assert.throws` on a non-context object — not a test context
+		withAssert('const custom = {assert: {throws() {}}};\ncustom.assert.throws(parse(input));'),
 	],
 	invalid: [
 		withAssert('assert.throws(parse(input));'),

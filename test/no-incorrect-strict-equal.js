@@ -38,6 +38,9 @@ test.snapshot({
 
 		// Missing args — nothing to compare
 		withAssert('assert.strictEqual(a);'),
+
+		// `.assert.*` on a non-context object — not a test context, so not rewritten
+		'import test from \'node:test\';\ntest(\'t\', () => { const db = makeDb(); db.assert.strictEqual(a, {}); });',
 	],
 	invalid: [
 		// Object literal as expected

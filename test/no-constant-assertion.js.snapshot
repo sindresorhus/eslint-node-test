@@ -462,6 +462,22 @@ Message:
 
 `;
 
+exports[`no-constant-assertion > invalid(36): import test from 'node:test';\n(test as any)('t', t => { t.assert.ok(1); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | (test as any)('t', t => { t.assert.ok(1); });
+
+`;
+
+exports[`no-constant-assertion > invalid(36): import test from 'node:test';\n(test as any)('t', t => { t.assert.ok(1); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | (test as any)('t', t => { t.assert.ok(1); });
+    |                           ^^^^^^^^^^^^^^ This assertion has a constant outcome, so it does not test code behavior.
+
+`;
+
 exports[`no-constant-assertion > invalid(4): import assert from 'node:assert';\nassert.ok(1 === 1); 1`] = `
 
   1 | import assert from 'node:assert';

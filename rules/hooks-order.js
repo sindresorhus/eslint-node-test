@@ -32,6 +32,14 @@ function getReorderFix(block, hooks, sourceCode) {
 		}
 	}
 
+	// A trailing comment on the last hook's line would stay put while the statement text moves,
+	// misattributing it to whichever hook ends up last. The reorder replaces statement text only.
+	const lastHook = block.body[max];
+	const [trailingComment] = sourceCode.getCommentsAfter(lastHook);
+	if (trailingComment && sourceCode.getLoc(trailingComment).start.line === sourceCode.getLoc(lastHook).end.line) {
+		return undefined;
+	}
+
 	// Stable sort preserves the original order of same-named hooks.
 	const sorted = hooks.toSorted((a, b) => HOOK_ORDER_INDEX[a.name] - HOOK_ORDER_INDEX[b.name]);
 

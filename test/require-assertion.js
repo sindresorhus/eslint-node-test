@@ -61,6 +61,9 @@ test.snapshot({
 		// No assertion at all
 		'import test from "node:test";\ntest("t1", () => { doSomething(); });',
 
+		// `.assert.*` on a non-context object does not count as an assertion
+		'import test from "node:test";\ntest("t1", () => { myFakeService.assert.ok(1); });',
+
 		// Empty test body
 		'import test from "node:test";\ntest("t1", () => {});',
 

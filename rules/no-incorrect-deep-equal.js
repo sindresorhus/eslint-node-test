@@ -1,4 +1,9 @@
-import {resolveImports, parseAssertionCall} from './utils/node-test.js';
+import {
+	resolveImports,
+	parseAssertionCall,
+	createContextTracker,
+	isAssertionCallWithSupportedContext,
+} from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
 const MESSAGE_ID = 'no-deep-equal-with-primitive';
@@ -40,9 +45,13 @@ const create = context => {
 		return;
 	}
 
+	const tracker = createContextTracker(imports, {trackHooks: true});
+
 	context.on('CallExpression', node => {
+		tracker.update(node);
+
 		const assertion = parseAssertionCall(node, imports);
-		if (!assertion) {
+		if (!assertion || !isAssertionCallWithSupportedContext(node, tracker)) {
 			return;
 		}
 
@@ -77,6 +86,10 @@ const create = context => {
 
 		return problem;
 	});
+
+	context.onExit('CallExpression', node => {
+		tracker.leave(node);
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
@@ -91,7 +104,7 @@ const config = {
 		fixable: 'code',
 		schema: [],
 		messages: {
-			[MESSAGE_ID]: 'Avoid using `{{method}}` with a primitive. Use the strict equality equivalent instead.',
+			[MESSAGE_ID]: 'Avoid using `{{method}}` with a primitive. Use the non-deep equality equivalent instead.',
 		},
 		languages: ['js/js'],
 	},

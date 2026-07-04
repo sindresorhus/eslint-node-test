@@ -26,6 +26,9 @@ test.snapshot({
 		// Other assertions are unaffected
 		withAssert('assert.strictEqual(a, "b");'),
 		withAssert('assert.doesNotThrow(fn, "message");'),
+
+		// `.assert.throws` on a non-context object — not a test context
+		withAssert('const custom = {assert: {throws() {}}};\ncustom.assert.throws(fn, "Wrong value");'),
 	],
 	invalid: [
 		// String literal matcher

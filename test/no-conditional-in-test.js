@@ -49,6 +49,9 @@ test.snapshot({
 		// `it` alias
 		'import {it} from \'node:test\';\nit("x", () => { if (a) { f(); } });',
 
+		// Namespace import
+		'import * as nodeTest from \'node:test\';\nnodeTest.test("x", () => { if (a) { f(); } });',
+
 		// TypeScript
 		{
 			code: withImport('test("x", () => { if (a as boolean) { f(); } });'),

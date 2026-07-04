@@ -243,18 +243,17 @@ function computeCalleeChain(node) {
 }
 
 /*
-Cache the chain per callee node. It is a pure function of the node, and both `parseTestCall` and
-`getSubtestReceiver` (used by ~30 rules) walk the same callee on every `CallExpression`, so the
-first walk is reused across all of them. The returned object is shared, so callers must treat it
-(and its `members` array) as read-only.
+Cache the chain per callee node. It is a pure function of the node, and both `parseTestCall` and `getSubtestReceiver` (used by ~30 rules) walk the same callee on every `CallExpression`, so the first walk is reused across all of them. The returned object is shared, so callers must treat it (and its `members` array) as read-only.
 */
 const calleeChainCache = new WeakMap();
+
 // Sentinel stored for callees with no chain, so a cache hit is a single `get` even when the
 // computed result is `undefined` (the common case for non-matching callees).
 const NO_CHAIN = Symbol('no chain');
 
 /**
 Walk a callee chain into its root identifier and the member property nodes after it.
+
 Unwraps TypeScript wrappers and optional chaining while walking.
 
 @returns {{root: import('estree').Identifier, members: import('estree').Identifier[]} | undefined}
@@ -292,13 +291,9 @@ function getCallKind(name) {
 }
 
 /*
-Memoize the `parse*Call` classifiers by node. The same `CallExpression` is parsed by many rules
-during one lint run (34 rules call `parseTestCall`, 21 call `parseAssertionCall`), and `imports`
-is stable per file (it is itself cached per AST), so the first parse can be reused across all of
-them. Keyed by node with an `imports` guard for safety.
+Memoize the `parse*Call` classifiers by node. The same `CallExpression` is parsed by many rules during one lint run (34 rules call `parseTestCall`, 21 call `parseAssertionCall`), and `imports` is stable per file (it is itself cached per AST), so the first parse can be reused across all of them. Keyed by node with an `imports` guard for safety.
 
-The cached result object is shared between callers, so treat it as read-only — never mutate the
-returned `modifiers` array or reassign its fields.
+The cached result object is shared between callers, so treat it as read-only — never mutate the returned `modifiers` array or reassign its fields.
 */
 const parseTestCallCache = new WeakMap();
 const parseAssertionCallCache = new WeakMap();
@@ -379,8 +374,7 @@ export function isHookMemberTestCall(parsed) {
 }
 
 /**
-For a subtest-shaped call (`receiver.test(…)`, optionally with chained `.only`/`.skip`/`.todo`
-modifiers), return the receiver identifier node. Otherwise `undefined`.
+For a subtest-shaped call (`receiver.test(…)`, optionally with chained `.only`/`.skip`/`.todo` modifiers), return the receiver identifier node. Otherwise `undefined`.
 */
 export function getSubtestReceiver(callExpression) {
 	if (callExpression.type !== 'CallExpression') {
@@ -402,10 +396,7 @@ export function getSubtestReceiver(callExpression) {
 /**
 Track the test-context parameter names (`t`) introduced by enclosing test, subtest, and optionally hook callbacks.
 
-Subtests (`t.test(…)`) are method calls, not imported bindings, so recognizing them requires
-knowing the enclosing context name. Drive the tracker from a `CallExpression` visitor: query
-`isSubtestCall`/`isContextName` first (against the current stack), then call `update(node)` to
-push this call's own context, and `leave(node)` on exit.
+Subtests (`t.test(…)`) are method calls, not imported bindings, so recognizing them requires knowing the enclosing context name. Drive the tracker from a `CallExpression` visitor: query `isSubtestCall`/`isContextName` first (against the current stack), then call `update(node)` to push this call's own context, and `leave(node)` on exit.
 
 Set `trackHooks` to also track hook context parameters for rules that inspect `t.assert.*()`.
 
@@ -526,10 +517,7 @@ export function isAssertionCallWithSupportedContext(node, tracker) {
 /**
 Track the nesting depth of enclosing `describe`/`suite` blocks across a `CallExpression` visitor.
 
-`depth` reflects the suites currently on the stack. Call `enterSuite(node)` once a call has been
-classified as a suite, and `exitSuite(node)` from the matching `CallExpression:exit` listener (it
-ignores nodes that were never entered, so it is safe to call for every exit). Reading `depth` before
-`enterSuite` gives the enclosing depth; reading it after includes the just-entered suite.
+`depth` reflects the suites currently on the stack. Call `enterSuite(node)` once a call has been classified as a suite, and `exitSuite(node)` from the matching `CallExpression:exit` listener (it ignores nodes that were never entered, so it is safe to call for every exit). Reading `depth` before `enterSuite` gives the enclosing depth; reading it after includes the just-entered suite.
 
 @returns {{depth: number, enterSuite: (node: import('estree').Node) => void, exitSuite: (node: import('estree').Node) => void}}
 */
@@ -601,6 +589,7 @@ export function getStaticString(node, context) {
 
 /**
 Get the inline function implementation argument of a hook call, if any.
+
 `node:test` hooks take the callback as the first argument, with optional trailing options.
 */
 export function getHookCallback(callExpression) {
@@ -632,9 +621,7 @@ export function getTestCallback(callExpression) {
 }
 
 /*
-The number of parameters before the first default or rest parameter — the same value as
-`Function.prototype.length`. `node:test` uses this arity to decide whether to pass a `done`
-callback, so a declared second parameter means the function opted into callback style.
+The number of parameters before the first default or rest parameter — the same value as `Function.prototype.length`. `node:test` uses this arity to decide whether to pass a `done` callback, so a declared second parameter means the function opted into callback style.
 */
 export function getEffectiveArity(parameters) {
 	let count = 0;
@@ -649,7 +636,9 @@ export function getEffectiveArity(parameters) {
 	return count;
 }
 
-/** Get the options `ObjectExpression` argument of a test/suite/hook call, if any. */
+/**
+Get the options `ObjectExpression` argument of a test/suite/hook call, if any.
+*/
 export function getTestOptions(callExpression) {
 	for (const argument of callExpression.arguments) {
 		const unwrapped = unwrapTypeScriptExpression(argument);
@@ -661,7 +650,9 @@ export function getTestOptions(callExpression) {
 	return undefined;
 }
 
-/** Find a boolean-ish property (`only`/`skip`/`todo`) in an options object. */
+/**
+Find a boolean-ish property (`only`/`skip`/`todo`) in an options object.
+*/
 export function findOptionsProperty(optionsObject, name) {
 	if (optionsObject?.type !== 'ObjectExpression') {
 		return undefined;
@@ -696,9 +687,7 @@ export function findEnabledOptionsProperty(optionsObject, name) {
 /**
 Determine the kind (`test`/`suite`/`hook`) of the nearest enclosing test-related callback.
 
-Returns `undefined` when the nearest enclosing function is a regular function (e.g. a helper),
-or there is none. Subtests (`t.test(…)`) are method calls rather than imported bindings, so they
-are recognized structurally and classified as `'test'`.
+Returns `undefined` when the nearest enclosing function is a regular function (e.g. a helper), or there is none. Subtests (`t.test(…)`) are method calls rather than imported bindings, so they are recognized structurally and classified as `'test'`.
 */
 export function nearestTestCallbackKind(node, imports) {
 	let current = node.parent;

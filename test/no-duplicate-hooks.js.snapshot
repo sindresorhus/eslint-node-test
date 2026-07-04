@@ -129,7 +129,25 @@ Message:
 
 `;
 
-exports[`no-duplicate-hooks > invalid(7): import {describe, before, after, beforeEach, afterEach} from 'node:test';\nbefore((): void => {});\nbefore((): void => {}); 1`] = `
+exports[`no-duplicate-hooks > invalid(7): import {before as setup} from 'node:test';\nsetup(() => {});\nsetup(() => {}); 1`] = `
+
+  1 | import {before as setup} from 'node:test';
+  2 | setup(() => {});
+  3 | setup(() => {});
+
+`;
+
+exports[`no-duplicate-hooks > invalid(7): import {before as setup} from 'node:test';\nsetup(() => {});\nsetup(() => {}); 2`] = `
+
+Message:
+  1 | import {before as setup} from 'node:test';
+  2 | setup(() => {});
+> 3 | setup(() => {});
+    | ^^^^^^^^^^^^^^^ Duplicate \`before\` hook in the same scope.
+
+`;
+
+exports[`no-duplicate-hooks > invalid(8): import {describe, before, after, beforeEach, afterEach} from 'node:test';\nbefore((): void => {});\nbefore((): void => {}); 1`] = `
 
   1 | import {describe, before, after, beforeEach, afterEach} from 'node:test';
   2 | before((): void => {});
@@ -137,7 +155,7 @@ exports[`no-duplicate-hooks > invalid(7): import {describe, before, after, befor
 
 `;
 
-exports[`no-duplicate-hooks > invalid(7): import {describe, before, after, beforeEach, afterEach} from 'node:test';\nbefore((): void => {});\nbefore((): void => {}); 2`] = `
+exports[`no-duplicate-hooks > invalid(8): import {describe, before, after, beforeEach, afterEach} from 'node:test';\nbefore((): void => {});\nbefore((): void => {}); 2`] = `
 
 Message:
   1 | import {describe, before, after, beforeEach, afterEach} from 'node:test';

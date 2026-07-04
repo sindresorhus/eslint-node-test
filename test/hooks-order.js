@@ -47,10 +47,14 @@ test.snapshot({
 		withImport('before, beforeEach, after', 'before(() => {});\nafter(() => {});\nbeforeEach(() => {});\ntest("a", () => {});'),
 		// Renamed import
 		'import {before as b, after as a} from "node:test";\na(() => {});\nb(() => {});',
+		// Namespace import out of order — reordered by rewriting each member call
+		'import * as nodeTest from "node:test";\nnodeTest.after(() => {});\nnodeTest.before(() => {});',
 		// Out-of-order hooks with intervening non-hook code — reported but no fix applied
 		withImport('before, after', 'after(() => {});\nconsole.log("side effect");\nbefore(() => {});'),
 		// Out-of-order hooks with a comment between them — reported but no fix (comment must not move)
 		withImport('before, after', 'after(() => {});\n// setup\nbefore(() => {});'),
+		// Trailing comment on the last hook — reported but no fix (comment would be misattributed)
+		withImport('before, after', 'after(() => {});\nbefore(() => {}); // comment'),
 		// Out-of-order hooks indented inside a `describe` (fix must preserve indentation)
 		withImport('describe, before, after', 'describe("s", () => {\n\tafter(() => {});\n\tbefore(() => {});\n});'),
 		// Fully reversed four hooks — the fix sorts the whole block in one pass

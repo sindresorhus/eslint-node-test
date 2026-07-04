@@ -1,4 +1,4 @@
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -20,6 +20,9 @@ test.snapshot({
 
 		// Not a test file
 		'test(\'t\', {skip: true}, () => {});',
+
+		// A local variable shadowing the context name is not the test context
+		withTest('test(\'outer\', t => { function helper() { const t = {skip() {}}; t.skip(); } });'),
 	],
 	invalid: [
 		// `{skip: true}` / `{todo: true}`
@@ -32,5 +35,11 @@ test.snapshot({
 
 		// Suite with `{skip: true}`
 		'import {describe} from \'node:test\';\ndescribe(\'s\', {skip: true}, () => {});',
+
+		// A TypeScript-wrapped `true` still counts as `true`
+		{
+			code: withTest('test(\'t\', {skip: true as boolean}, () => {});'),
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

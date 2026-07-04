@@ -5,6 +5,7 @@ import {
 	getTestOptions,
 	findOptionsProperty,
 } from './utils/node-test.js';
+import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
 const MESSAGE_ID_OPTION = 'no-skip-without-reason/option';
 const MESSAGE_ID_CALL = 'no-skip-without-reason/call';
@@ -33,7 +34,8 @@ const create = context => {
 			const options = getTestOptions(node);
 			for (const modifier of REASON_MODIFIERS) {
 				const property = findOptionsProperty(options, modifier);
-				if (property?.value.type === 'Literal' && property.value.value === true) {
+				const value = property && unwrapTypeScriptExpression(property.value);
+				if (value?.type === 'Literal' && value.value === true) {
 					problems.push({
 						node: property,
 						messageId: MESSAGE_ID_OPTION,
@@ -52,7 +54,7 @@ const create = context => {
 			&& callee.property.type === 'Identifier'
 			&& REASON_MODIFIERS.has(callee.property.name)
 			&& callee.object.type === 'Identifier'
-			&& tracker.isContextName(callee.object.name)
+			&& tracker.isContextIdentifier(callee.object)
 		) {
 			problems.push({
 				node,

@@ -34,6 +34,9 @@ test.snapshot({
 		// Regex literal — not a primitive
 		withAssert('assert.deepEqual(a, /re/);'),
 		withAssert('assert.deepStrictEqual(/re/, b);'),
+
+		// `.assert.*` on a non-context object — not a test context, so not rewritten
+		'import test from \'node:test\';\ntest(\'t\', () => { const db = makeDb(); db.assert.deepEqual(a, 1); });',
 	],
 	invalid: [
 		// DeepEqual with primitive actual

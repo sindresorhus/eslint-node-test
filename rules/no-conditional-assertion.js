@@ -4,6 +4,8 @@ import {
 	getTestCallback,
 	getSubtestReceiver,
 	parseAssertionCall,
+	createContextTracker,
+	isAssertionCallWithSupportedContext,
 } from './utils/node-test.js';
 import isConditionalBranch from './utils/is-conditional-branch.js';
 
@@ -38,8 +40,11 @@ const create = context => {
 	// is checked against the conditionals up to its nearest enclosing scope, so a subtest's body is
 	// scoped to the subtest, not to a conditional wrapping the subtest call in the outer test.
 	const testCallbackStack = [];
+	const tracker = createContextTracker(imports, {trackHooks: true});
 
 	context.on('CallExpression', node => {
+		tracker.update(node);
+
 		const boundaryCallback = getScopeBoundaryCallback(node, imports);
 		if (boundaryCallback) {
 			testCallbackStack.push(boundaryCallback);
@@ -51,7 +56,7 @@ const create = context => {
 			return;
 		}
 
-		if (!parseAssertionCall(node, imports)) {
+		if (!parseAssertionCall(node, imports) || !isAssertionCallWithSupportedContext(node, tracker)) {
 			return;
 		}
 
@@ -76,6 +81,8 @@ const create = context => {
 	});
 
 	context.onExit('CallExpression', node => {
+		tracker.leave(node);
+
 		const boundaryCallback = getScopeBoundaryCallback(node, imports);
 		if (boundaryCallback && testCallbackStack.at(-1) === boundaryCallback) {
 			testCallbackStack.pop();

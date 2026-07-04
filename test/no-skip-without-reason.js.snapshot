@@ -77,3 +77,19 @@ Message:
     |                ^^^^^^^^^^ Give \`skip\` a reason string instead of \`true\` explaining why.
 
 `;
+
+exports[`no-skip-without-reason > invalid(6): import test from 'node:test';\ntest('t', {skip: true as boolean}, () => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', {skip: true as boolean}, () => {});
+
+`;
+
+exports[`no-skip-without-reason > invalid(6): import test from 'node:test';\ntest('t', {skip: true as boolean}, () => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', {skip: true as boolean}, () => {});
+    |            ^^^^^^^^^^^^^^^^^^^^^ Give \`skip\` a reason string instead of \`true\` explaining why.
+
+`;

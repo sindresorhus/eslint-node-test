@@ -1,4 +1,9 @@
-import {resolveImports, parseAssertionCall} from './utils/node-test.js';
+import {
+	resolveImports,
+	parseAssertionCall,
+	createContextTracker,
+	isAssertionCallWithSupportedContext,
+} from './utils/node-test.js';
 import {isRegexLiteral, isBooleanLiteral} from './ast/index.js';
 import {isParenthesized} from './utils/index.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
@@ -110,13 +115,14 @@ function buildFix({node, method, regexNode, stringNode, extraArgsToRemove, sourc
 /*
 Whether the call can be safely rewritten: a member-expression callee (a named import can't be
 renamed without knowing the local name), no comments inside the call that the argument
-rewrite/removal could drop, and a non-parenthesized first argument (the rewrite replaces the inner
-node, so surrounding parentheses would be left wrapping the `str, re` pair as a comma expression).
+rewrite/removal could drop, and no parenthesized arguments. The rewrite replaces the first
+argument's inner node and removes the boolean argument up to its own inner node, so surrounding
+parentheses on either would be left behind as stray tokens.
 */
 function canAutofix(node, context) {
 	return node.callee.type === 'MemberExpression'
 		&& context.sourceCode.getCommentsInside(node).length === 0
-		&& !isParenthesized(node.arguments[0], context);
+		&& node.arguments.every(argument => !isParenthesized(argument, context));
 }
 
 /** Build the problem object for a detected regex-result assertion. */
@@ -178,9 +184,13 @@ const create = context => {
 		return;
 	}
 
+	const tracker = createContextTracker(imports, {trackHooks: true});
+
 	context.on('CallExpression', node => {
+		tracker.update(node);
+
 		const parsed = parseAssertionCall(node, imports);
-		if (!parsed) {
+		if (!parsed || !isAssertionCallWithSupportedContext(node, tracker)) {
 			return;
 		}
 
@@ -217,6 +227,10 @@ const create = context => {
 		if (['strictEqual', 'equal', 'notStrictEqual', 'notEqual'].includes(method)) {
 			return getEqualityProblem(node, method, context);
 		}
+	});
+
+	context.onExit('CallExpression', node => {
+		tracker.leave(node);
 	});
 };
 

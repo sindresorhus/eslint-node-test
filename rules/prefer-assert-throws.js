@@ -1,5 +1,6 @@
 import {resolveImports, parseAssertionCall} from './utils/node-test.js';
 import containsSuspensionPoint from './utils/contains-suspension-point.js';
+import isFunction from './ast/is-function.js';
 
 const MESSAGE_ID_SYNC = 'prefer-assert-throws/sync';
 const MESSAGE_ID_ASYNC = 'prefer-assert-throws/async';
@@ -16,6 +17,12 @@ opposite of the `assert.throws()` pattern this rule suggests.
 */
 function catchHasAssertion(catchClause, imports, visitorKeys) {
 	function walk(node) {
+		// Do not descend into nested functions — an assertion defined there is not executed by the
+		// catch itself, so it does not make this try/catch the `assert.throws()` pattern.
+		if (isFunction(node)) {
+			return false;
+		}
+
 		const assertion = node.type === 'CallExpression' ? parseAssertionCall(node, imports) : undefined;
 		if (assertion && assertion.method !== 'fail') {
 			return true;

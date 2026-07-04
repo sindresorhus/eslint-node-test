@@ -5,6 +5,7 @@ import {
 	getTestCallback,
 	parseAssertionCall,
 	getSubtestReceiver,
+	getCalleeChain,
 	MODIFIERS,
 } from './utils/node-test.js';
 import {isFunction} from './ast/index.js';
@@ -21,17 +22,6 @@ const messages = {
 function unwrapChainExpression(node) {
 	node = unwrapTypeScriptExpression(node);
 	return node?.type === 'ChainExpression' ? node.expression : node;
-}
-
-function getCalleeRoot(node) {
-	while (
-		node.type === 'MemberExpression'
-		&& !node.computed
-	) {
-		node = node.object;
-	}
-
-	return node.type === 'Identifier' ? node : undefined;
 }
 
 function getFloatingExpression(node) {
@@ -159,8 +149,8 @@ function isImportBinding(identifier, sourceCode) {
 }
 
 function isImportedTestCall(node, sourceCode) {
-	const root = getCalleeRoot(node.callee);
-	return root && isImportBinding(root, sourceCode);
+	const root = getCalleeChain(node.callee)?.root;
+	return Boolean(root) && isImportBinding(root, sourceCode);
 }
 
 function hasOnlyTestModifiers(parsed) {

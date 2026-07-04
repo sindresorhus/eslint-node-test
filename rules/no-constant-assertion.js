@@ -54,40 +54,15 @@ function isStaticRegexLiteral(node) {
 	return isRegexLiteral(unwrapTypeScriptExpression(node));
 }
 
-function isImportBindingVariable(variable) {
-	return variable?.defs.some(({type}) => type === 'ImportBinding') ?? false;
-}
-
-function getCalleeRootIdentifier(node) {
-	let {callee} = node;
-	while (
-		callee.type === 'MemberExpression'
-		&& !callee.computed
-	) {
-		callee = callee.object;
-	}
-
-	return callee.type === 'Identifier' ? callee : undefined;
-}
-
-function isNodeTestCall(node, imports, sourceCode) {
+// `parseTestCall` already guarantees the callee root is an imported `node:test` binding, so no
+// separate binding check is needed here (and doing one on the raw callee would miss TypeScript
+// wrappers like `(test as any)(…)`).
+function isNodeTestCall(node, imports) {
 	const parsed = parseTestCall(node, imports);
-	if (
-		!parsed
-		|| (parsed.kind !== 'test' && parsed.kind !== 'hook')
-		|| (parsed.kind === 'hook' && parsed.modifiers.length > 0)
-		|| parsed.modifiers.some(modifier => !MODIFIERS.has(modifier.name))
-	) {
-		return false;
-	}
-
-	const root = getCalleeRootIdentifier(node);
-	if (!root) {
-		return false;
-	}
-
-	const variable = findVariable(sourceCode.getScope(root), root);
-	return isImportBindingVariable(variable);
+	return Boolean(parsed)
+		&& (parsed.kind === 'test' || parsed.kind === 'hook')
+		&& !(parsed.kind === 'hook' && parsed.modifiers.length > 0)
+		&& parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name));
 }
 
 function getContextAssertReceiver(node) {
@@ -142,7 +117,7 @@ function isSubtestCall(node, activeContexts, sourceCode) {
 }
 
 function getTestContextCallback(node, imports, activeContexts, sourceCode) {
-	if (isNodeTestCall(node, imports, sourceCode) || isSubtestCall(node, activeContexts, sourceCode)) {
+	if (isNodeTestCall(node, imports) || isSubtestCall(node, activeContexts, sourceCode)) {
 		return getTestCallback(node);
 	}
 }

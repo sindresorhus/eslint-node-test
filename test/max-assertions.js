@@ -28,6 +28,9 @@ test.snapshot({
 
 		// Shadowed test binding
 		`${head}function helper(test) { test('x', () => { ${asserts(6)} }); }`,
+
+		// `.assert.*` on a non-context object is not counted
+		`${head}const fixture = {assert: {ok: () => {}}};\ntest('t', () => { fixture.assert.ok(1); fixture.assert.ok(2); fixture.assert.ok(3); fixture.assert.ok(4); fixture.assert.ok(5); fixture.assert.ok(6); });`,
 	],
 	invalid: [
 		// One past the default limit

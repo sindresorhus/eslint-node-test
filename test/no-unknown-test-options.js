@@ -46,6 +46,9 @@ test.snapshot({
 		// `only` is a test option but not a hook option
 		withImport('beforeEach({only: true}, () => {});'),
 
+		// Renamed import — the option set still applies
+		'import {test as myTest} from \'node:test\';\nmyTest("x", {skp: true}, () => {});',
+
 		// `describe`
 		'import {describe} from \'node:test\';\ndescribe("s", {foo: 1}, () => {});',
 

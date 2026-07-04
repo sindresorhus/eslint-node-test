@@ -87,14 +87,30 @@ Message:
 
 `;
 
-exports[`no-unknown-test-options > invalid(6): import {describe} from 'node:test';\ndescribe(\"s\", {foo: 1}, () => {}); 1`] = `
+exports[`no-unknown-test-options > invalid(6): import {test as myTest} from 'node:test';\nmyTest(\"x\", {skp: true}, () => {}); 1`] = `
+
+  1 | import {test as myTest} from 'node:test';
+  2 | myTest("x", {skp: true}, () => {});
+
+`;
+
+exports[`no-unknown-test-options > invalid(6): import {test as myTest} from 'node:test';\nmyTest(\"x\", {skp: true}, () => {}); 2`] = `
+
+Message:
+  1 | import {test as myTest} from 'node:test';
+> 2 | myTest("x", {skp: true}, () => {});
+    |              ^^^ \`skp\` is not a recognized test option.
+
+`;
+
+exports[`no-unknown-test-options > invalid(7): import {describe} from 'node:test';\ndescribe(\"s\", {foo: 1}, () => {}); 1`] = `
 
   1 | import {describe} from 'node:test';
   2 | describe("s", {foo: 1}, () => {});
 
 `;
 
-exports[`no-unknown-test-options > invalid(6): import {describe} from 'node:test';\ndescribe(\"s\", {foo: 1}, () => {}); 2`] = `
+exports[`no-unknown-test-options > invalid(7): import {describe} from 'node:test';\ndescribe(\"s\", {foo: 1}, () => {}); 2`] = `
 
 Message:
   1 | import {describe} from 'node:test';
@@ -103,14 +119,14 @@ Message:
 
 `;
 
-exports[`no-unknown-test-options > invalid(7): import {suite} from 'node:test';\nsuite(\"s\", {foo: 1}, () => {}); 1`] = `
+exports[`no-unknown-test-options > invalid(8): import {suite} from 'node:test';\nsuite(\"s\", {foo: 1}, () => {}); 1`] = `
 
   1 | import {suite} from 'node:test';
   2 | suite("s", {foo: 1}, () => {});
 
 `;
 
-exports[`no-unknown-test-options > invalid(7): import {suite} from 'node:test';\nsuite(\"s\", {foo: 1}, () => {}); 2`] = `
+exports[`no-unknown-test-options > invalid(8): import {suite} from 'node:test';\nsuite(\"s\", {foo: 1}, () => {}); 2`] = `
 
 Message:
   1 | import {suite} from 'node:test';
@@ -119,14 +135,14 @@ Message:
 
 `;
 
-exports[`no-unknown-test-options > invalid(8): import {test, beforeEach} from 'node:test';\ntest(\"x\", {retry: 3}, () => {}); 1`] = `
+exports[`no-unknown-test-options > invalid(9): import {test, beforeEach} from 'node:test';\ntest(\"x\", {retry: 3}, () => {}); 1`] = `
 
   1 | import {test, beforeEach} from 'node:test';
   2 | test("x", {retry: 3}, () => {});
 
 `;
 
-exports[`no-unknown-test-options > invalid(8): import {test, beforeEach} from 'node:test';\ntest(\"x\", {retry: 3}, () => {}); 2`] = `
+exports[`no-unknown-test-options > invalid(9): import {test, beforeEach} from 'node:test';\ntest(\"x\", {retry: 3}, () => {}); 2`] = `
 
 Message:
   1 | import {test, beforeEach} from 'node:test';

@@ -1,4 +1,9 @@
-import {resolveImports, parseAssertionCall} from './utils/node-test.js';
+import {
+	resolveImports,
+	parseAssertionCall,
+	createContextTracker,
+	isAssertionCallWithSupportedContext,
+} from './utils/node-test.js';
 import {isParenthesized, getParenthesizedRange} from './utils/index.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
@@ -24,10 +29,14 @@ const create = context => {
 		return;
 	}
 
+	const tracker = createContextTracker(imports, {trackHooks: true});
+
 	context.on('CallExpression', node => {
+		tracker.update(node);
+
 		const parsed = parseAssertionCall(node, imports);
 		// Only the truthiness assertions (`assert(…)` / `assert.ok(…)`) benefit.
-		if (parsed?.method !== 'ok') {
+		if (parsed?.method !== 'ok' || !isAssertionCallWithSupportedContext(node, tracker)) {
 			return;
 		}
 
@@ -89,6 +98,10 @@ const create = context => {
 		};
 
 		return problem;
+	});
+
+	context.onExit('CallExpression', node => {
+		tracker.leave(node);
 	});
 };
 

@@ -23,6 +23,9 @@ test.snapshot({
 
 		// Different members of the same object
 		withImport('assert.strictEqual(obj.a, obj.b);'),
+
+		// `.assert.*` on a non-context object — not a test context
+		'import test from \'node:test\';\ntest(\'t\', () => { const db = makeDb(); db.assert.equal(x, x); });',
 	],
 	invalid: [
 		// Identical identifiers — always passes

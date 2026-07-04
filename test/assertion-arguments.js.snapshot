@@ -330,7 +330,7 @@ exports[`assertion-arguments > invalid(28): import assert from 'node:assert';\na
 Message:
   1 | import assert from 'node:assert';
 > 2 | assert.ok(value, 123);
-    |                  ^^^ Assertion message must be a string.
+    |                  ^^^ Assertion message must be a string or an \`Error\`.
 
 `;
 
@@ -346,7 +346,7 @@ exports[`assertion-arguments > invalid(29): import assert from 'node:assert';\na
 Message:
   1 | import assert from 'node:assert';
 > 2 | assert.strictEqual(a, b, false);
-    |                          ^^^^^ Assertion message must be a string.
+    |                          ^^^^^ Assertion message must be a string or an \`Error\`.
 
 `;
 
@@ -378,7 +378,7 @@ exports[`assertion-arguments > invalid(30): import assert from 'node:assert';\na
 Message:
   1 | import assert from 'node:assert';
 > 2 | assert.ok(value, null);
-    |                  ^^^^ Assertion message must be a string.
+    |                  ^^^^ Assertion message must be a string or an \`Error\`.
 
 `;
 
@@ -394,7 +394,7 @@ exports[`assertion-arguments > invalid(31): import assert from 'node:assert';\na
 Message:
   1 | import assert from 'node:assert';
 > 2 | assert.ok(value, {message: "x"});
-    |                  ^^^^^^^^^^^^^^ Assertion message must be a string.
+    |                  ^^^^^^^^^^^^^^ Assertion message must be a string or an \`Error\`.
 
 `;
 
@@ -410,7 +410,7 @@ exports[`assertion-arguments > invalid(32): import assert from 'node:assert';\na
 Message:
   1 | import assert from 'node:assert';
 > 2 | assert.ok(value, [1, 2]);
-    |                  ^^^^^^ Assertion message must be a string.
+    |                  ^^^^^^ Assertion message must be a string or an \`Error\`.
 
 `;
 
@@ -426,7 +426,7 @@ exports[`assertion-arguments > invalid(33): import assert from 'node:assert';\na
 Message:
   1 | import assert from 'node:assert';
 > 2 | assert.ok(value, () => "x");
-    |                  ^^^^^^^^^ Assertion message must be a string.
+    |                  ^^^^^^^^^ Assertion message must be a string or an \`Error\`.
 
 `;
 

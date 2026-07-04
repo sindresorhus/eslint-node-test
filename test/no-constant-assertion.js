@@ -109,5 +109,11 @@ test.snapshot({
 			code: withAssert('assert.ok(("x" satisfies string));'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// A TypeScript-wrapped test callee still tracks the context parameter
+		{
+			code: 'import test from \'node:test\';\n(test as any)(\'t\', t => { t.assert.ok(1); });',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

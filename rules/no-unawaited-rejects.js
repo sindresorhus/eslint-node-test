@@ -1,4 +1,9 @@
-import {resolveImports, parseAssertionCall} from './utils/node-test.js';
+import {
+	resolveImports,
+	parseAssertionCall,
+	createContextTracker,
+	isAssertionCallWithSupportedContext,
+} from './utils/node-test.js';
 import {getEnclosingFunction} from './utils/index.js';
 
 const MESSAGE_ID = 'no-unawaited-rejects/error';
@@ -17,9 +22,13 @@ const create = context => {
 		return;
 	}
 
+	const tracker = createContextTracker(imports, {trackHooks: true});
+
 	context.on('CallExpression', node => {
+		tracker.update(node);
+
 		const parsed = parseAssertionCall(node, imports);
-		if (!parsed) {
+		if (!parsed || !isAssertionCallWithSupportedContext(node, tracker)) {
 			return;
 		}
 
@@ -52,6 +61,10 @@ const create = context => {
 			messageId: MESSAGE_ID,
 			data: {method: parsed.method},
 		};
+	});
+
+	context.onExit('CallExpression', node => {
+		tracker.leave(node);
 	});
 };
 

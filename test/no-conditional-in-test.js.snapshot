@@ -110,14 +110,30 @@ Message:
 
 `;
 
-exports[`no-conditional-in-test > invalid(8): import {test, describe, beforeEach} from 'node:test';\ntest(\"x\", () => { if (a as boolean) { f(); } }); 1`] = `
+exports[`no-conditional-in-test > invalid(8): import * as nodeTest from 'node:test';\nnodeTest.test(\"x\", () => { if (a) { f(); } }); 1`] = `
+
+  1 | import * as nodeTest from 'node:test';
+  2 | nodeTest.test("x", () => { if (a) { f(); } });
+
+`;
+
+exports[`no-conditional-in-test > invalid(8): import * as nodeTest from 'node:test';\nnodeTest.test(\"x\", () => { if (a) { f(); } }); 2`] = `
+
+Message:
+  1 | import * as nodeTest from 'node:test';
+> 2 | nodeTest.test("x", () => { if (a) { f(); } });
+    |                            ^^^^^^^^^^^^^^^ Avoid conditional logic in a test; a test should run the same way every time.
+
+`;
+
+exports[`no-conditional-in-test > invalid(9): import {test, describe, beforeEach} from 'node:test';\ntest(\"x\", () => { if (a as boolean) { f(); } }); 1`] = `
 
   1 | import {test, describe, beforeEach} from 'node:test';
   2 | test("x", () => { if (a as boolean) { f(); } });
 
 `;
 
-exports[`no-conditional-in-test > invalid(8): import {test, describe, beforeEach} from 'node:test';\ntest(\"x\", () => { if (a as boolean) { f(); } }); 2`] = `
+exports[`no-conditional-in-test > invalid(9): import {test, describe, beforeEach} from 'node:test';\ntest(\"x\", () => { if (a as boolean) { f(); } }); 2`] = `
 
 Message:
   1 | import {test, describe, beforeEach} from 'node:test';

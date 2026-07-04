@@ -49,6 +49,9 @@ test.snapshot({
 		// Named import: named `ok` used — it's matched, but we cover that below in invalid
 		// Intentionally valid: `assert.notEqual` when comparing non-boolean
 		`${ASSERT_IMPORT}\nassert.notStrictEqual(/\\d+/.test(str), 1);`,
+
+		// `.assert.ok` on a non-context object — not a test context, so not rewritten
+		'import test from \'node:test\';\ntest(\'t\', () => { const db = makeDb(); db.assert.ok(/re/.test(s)); });',
 	],
 	invalid: [
 		// Comment inside the call — reported but not autofixed (the fix would drop the comment)
@@ -114,5 +117,9 @@ test.snapshot({
 		// RegExp constructor
 		`${ASSERT_IMPORT}\nassert.ok(new RegExp('^foo').test('foobar'));`,
 		`${ASSERT_IMPORT}\nassert.ok(RegExp('^foo').test('foobar'));`,
+
+		// Parenthesized boolean argument — reported but not autofixed (parens would be left behind)
+		String.raw`${ASSERT_IMPORT}
+assert.strictEqual(/\d+/.test('foo'), (true));`,
 	],
 });
