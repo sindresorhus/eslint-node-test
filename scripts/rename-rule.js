@@ -3,9 +3,9 @@ import fs, {promises as fsAsync} from 'node:fs';
 import process from 'node:process';
 import {pathToFileURL} from 'node:url';
 import enquirer from 'enquirer';
-import unicorn from '../index.js';
+import plugin from '../index.js';
 
-const rules = Object.keys(unicorn.rules);
+const rules = Object.keys(plugin.rules);
 const resolveFile = file => new URL(`../${file}`, import.meta.url);
 
 function checkFiles(ruleId) {

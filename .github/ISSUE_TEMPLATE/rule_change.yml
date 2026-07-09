@@ -9,8 +9,8 @@ body:
     attributes:
       value: |
         Before opening a new issue:
-        - Look for existing [open or closed rule proposals](https://github.com/sindresorhus/eslint-plugin-node-test/issues?q=is:issue+label%25enhancement)
-        - [Report a bug](https://github.com/sindresorhus/eslint-plugin-node-test/issues/new?assignees=&labels=&projects=&template=bug_report.md) instead if it's a false positive
+        - Look for existing [open or closed rule proposals](https://github.com/sindresorhus/eslint-node-test/issues?q=is:issue+label%25enhancement)
+        - [Report a bug](https://github.com/sindresorhus/eslint-node-test/issues/new?assignees=&labels=&projects=&template=bug_report.md) instead if it's a false positive
   - type: textarea
     validations:
       required: true
@@ -22,27 +22,14 @@ body:
       required: true
     attributes:
       label: Examples
-      description: Provide examples of code to detect and the acceptable alternatives.
+      description: Provide examples of test code to detect and the acceptable alternatives.
       value: |
         ```js
         // ❌
-        var replace = 'me';
+        test.skip('does something', () => {});
 
         // ✅
-        const replace = 'me';
-        ```
-
-        ```js
-        // ❌
-        function foo() {
-        	var replace = 'me';
-        	return replace;
-        }
-
-        // ✅
-        function foo() {
-        	return 'me';
-        }
+        test('does something', () => {});
         ```
   - type: textarea
     attributes:

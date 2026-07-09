@@ -19,7 +19,7 @@ test('replaceRuleIdInRulesIndex only rewrites the exact export', () => {
 
 test('sortReadmeRuleRows keeps the renamed row inside the rules table', () => {
 	const input = [
-		'# eslint-plugin-unicorn',
+		'# eslint-node-test',
 		'',
 		'<!-- begin auto-generated rules list -->',
 		'',
@@ -35,7 +35,7 @@ test('sortReadmeRuleRows keeps the renamed row inside the rules table', () => {
 	assert.strictEqual(
 		sortReadmeRuleRows(input, 'zzz-rule'),
 		[
-			'# eslint-plugin-unicorn',
+			'# eslint-node-test',
 			'',
 			'<!-- begin auto-generated rules list -->',
 			'',

@@ -13,5 +13,5 @@ labels: bug
 <!-- 3️⃣ Add some examples where the issue appears -->
 
 ```js
-const code = 'that should be ok';
+test('this should not trigger the rule', () => {});
 ```

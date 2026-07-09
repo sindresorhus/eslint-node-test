@@ -2,7 +2,7 @@
 
 ## I have an idea for a new rule
 
-Open an issue with your proposal. Make sure you elaborate on what problem it solves and include fail/pass examples. [(Example)](https://github.com/sindresorhus/eslint-plugin-node-test/issues/166)
+Open an issue with your proposal. Make sure you elaborate on what problem it solves and include fail/pass examples.
 
 ## I have an idea for a new rule and I also want to implement it
 

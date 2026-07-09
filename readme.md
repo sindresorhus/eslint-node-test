@@ -163,5 +163,6 @@ export default defineConfig([
 ## Related
 
 - [eslint-plugin-unicorn](https://github.com/sindresorhus/eslint-plugin-unicorn) — Lots of awesome ESLint rules.
+- [eslint-package-json](https://github.com/sindresorhus/eslint-package-json) — Powerful ESLint rules for `package.json`.
 - [eslint-plugin-ava](https://github.com/avajs/eslint-plugin-ava) — ESLint rules for AVA.
 - [test-extras](https://github.com/sindresorhus/test-extras) — Assertions and utilities that make `node:test` better.
