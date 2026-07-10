@@ -92,12 +92,14 @@ const create = context => {
 		}
 
 		const mockText = sourceCode.getText(mock);
+		const replacement = `${mockText}.callCount()`;
+		const isNewExpressionCallee = node.parent.type === 'NewExpression' && node.parent.callee === node;
 		return {
 			node,
 			messageId: MESSAGE_ID,
 			data: {mock: mockText},
 			fix: sourceCode.getCommentsInside(node).length === 0
-				? fixer => fixer.replaceText(node, `${mockText}.callCount()`)
+				? fixer => fixer.replaceText(node, isNewExpressionCallee ? `(${replacement})` : replacement)
 				: undefined,
 		};
 	});

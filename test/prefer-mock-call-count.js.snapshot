@@ -21,67 +21,7 @@ Output:
 
 `;
 
-exports[`prefer-mock-call-count > invalid(2): import test from 'node:test';\nobject.method.mock.calls.length; 1`] = `
-
-  1 | import test from 'node:test';
-  2 | object.method.mock.calls.length;
-
-`;
-
-exports[`prefer-mock-call-count > invalid(2): import test from 'node:test';\nobject.method.mock.calls.length; 2`] = `
-
-Message:
-  1 | import test from 'node:test';
-> 2 | object.method.mock.calls.length;
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`object.method.mock.callCount()\` over \`object.method.mock.calls.length\`, which creates a copy of the call history.
-
-Output:
-  1 | import test from 'node:test';
-  2 | object.method.mock.callCount();
-
-`;
-
-exports[`prefer-mock-call-count > invalid(3): import test from 'node:test';\nString(spy.mock.calls.length); 1`] = `
-
-  1 | import test from 'node:test';
-  2 | String(spy.mock.calls.length);
-
-`;
-
-exports[`prefer-mock-call-count > invalid(3): import test from 'node:test';\nString(spy.mock.calls.length); 2`] = `
-
-Message:
-  1 | import test from 'node:test';
-> 2 | String(spy.mock.calls.length);
-    |        ^^^^^^^^^^^^^^^^^^^^^ Prefer \`spy.mock.callCount()\` over \`spy.mock.calls.length\`, which creates a copy of the call history.
-
-Output:
-  1 | import test from 'node:test';
-  2 | String(spy.mock.callCount());
-
-`;
-
-exports[`prefer-mock-call-count > invalid(4): import test from 'node:test';\n(spy.mock.calls).length; 1`] = `
-
-  1 | import test from 'node:test';
-  2 | (spy.mock.calls).length;
-
-`;
-
-exports[`prefer-mock-call-count > invalid(4): import test from 'node:test';\n(spy.mock.calls).length; 2`] = `
-
-Message:
-  1 | import test from 'node:test';
-> 2 | (spy.mock.calls).length;
-    | ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`spy.mock.callCount()\` over \`spy.mock.calls.length\`, which creates a copy of the call history.
-
-Output:
-  1 | import test from 'node:test';
-  2 | spy.mock.callCount();
-
-`;
-
-exports[`prefer-mock-call-count > invalid(5): import test from 'node:test';\nconst fake = {mock: {calls: []}};\nfake.mock.calls.length; 1`] = `
+exports[`prefer-mock-call-count > invalid(10): import test from 'node:test';\nconst fake = {mock: {calls: []}};\nfake.mock.calls.length; 1`] = `
 
   1 | import test from 'node:test';
   2 | const fake = {mock: {calls: []}};
@@ -89,7 +29,7 @@ exports[`prefer-mock-call-count > invalid(5): import test from 'node:test';\ncon
 
 `;
 
-exports[`prefer-mock-call-count > invalid(5): import test from 'node:test';\nconst fake = {mock: {calls: []}};\nfake.mock.calls.length; 2`] = `
+exports[`prefer-mock-call-count > invalid(10): import test from 'node:test';\nconst fake = {mock: {calls: []}};\nfake.mock.calls.length; 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -104,18 +44,184 @@ Output:
 
 `;
 
-exports[`prefer-mock-call-count > invalid(6): import test from 'node:test';\nspy.mock /* comment */ .calls.length; 1`] = `
+exports[`prefer-mock-call-count > invalid(11): import test from 'node:test';\nspy.mock /* comment */ .calls.length; 1`] = `
 
   1 | import test from 'node:test';
   2 | spy.mock /* comment */ .calls.length;
 
 `;
 
-exports[`prefer-mock-call-count > invalid(6): import test from 'node:test';\nspy.mock /* comment */ .calls.length; 2`] = `
+exports[`prefer-mock-call-count > invalid(11): import test from 'node:test';\nspy.mock /* comment */ .calls.length; 2`] = `
 
 Message:
   1 | import test from 'node:test';
 > 2 | spy.mock /* comment */ .calls.length;
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`spy.mock.callCount()\` over \`spy.mock.calls.length\`, which creates a copy of the call history.
+
+`;
+
+exports[`prefer-mock-call-count > invalid(2): import {mock} from 'node:test';\nconst spy = mock.fn();\nspy.mock.calls.length; 1`] = `
+
+  1 | import {mock} from 'node:test';
+  2 | const spy = mock.fn();
+  3 | spy.mock.calls.length;
+
+`;
+
+exports[`prefer-mock-call-count > invalid(2): import {mock} from 'node:test';\nconst spy = mock.fn();\nspy.mock.calls.length; 2`] = `
+
+Message:
+  1 | import {mock} from 'node:test';
+  2 | const spy = mock.fn();
+> 3 | spy.mock.calls.length;
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer \`spy.mock.callCount()\` over \`spy.mock.calls.length\`, which creates a copy of the call history.
+
+Output:
+  1 | import {mock} from 'node:test';
+  2 | const spy = mock.fn();
+  3 | spy.mock.callCount();
+
+`;
+
+exports[`prefer-mock-call-count > invalid(3): import * as nodeTest from 'node:test';\nconst spy = nodeTest.mock.fn();\nspy.mock.calls.length; 1`] = `
+
+  1 | import * as nodeTest from 'node:test';
+  2 | const spy = nodeTest.mock.fn();
+  3 | spy.mock.calls.length;
+
+`;
+
+exports[`prefer-mock-call-count > invalid(3): import * as nodeTest from 'node:test';\nconst spy = nodeTest.mock.fn();\nspy.mock.calls.length; 2`] = `
+
+Message:
+  1 | import * as nodeTest from 'node:test';
+  2 | const spy = nodeTest.mock.fn();
+> 3 | spy.mock.calls.length;
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer \`spy.mock.callCount()\` over \`spy.mock.calls.length\`, which creates a copy of the call history.
+
+Output:
+  1 | import * as nodeTest from 'node:test';
+  2 | const spy = nodeTest.mock.fn();
+  3 | spy.mock.callCount();
+
+`;
+
+exports[`prefer-mock-call-count > invalid(4): import test from 'node:test';\ntest.mock.fn().mock.calls.length; 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test.mock.fn().mock.calls.length;
+
+`;
+
+exports[`prefer-mock-call-count > invalid(4): import test from 'node:test';\ntest.mock.fn().mock.calls.length; 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test.mock.fn().mock.calls.length;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`test.mock.fn().mock.callCount()\` over \`test.mock.fn().mock.calls.length\`, which creates a copy of the call history.
+
+Output:
+  1 | import test from 'node:test';
+  2 | test.mock.fn().mock.callCount();
+
+`;
+
+exports[`prefer-mock-call-count > invalid(5): import test from 'node:test';\nnew spy.mock.calls.length(); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | new spy.mock.calls.length();
+
+`;
+
+exports[`prefer-mock-call-count > invalid(5): import test from 'node:test';\nnew spy.mock.calls.length(); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | new spy.mock.calls.length();
+    |     ^^^^^^^^^^^^^^^^^^^^^ Prefer \`spy.mock.callCount()\` over \`spy.mock.calls.length\`, which creates a copy of the call history.
+
+Output:
+  1 | import test from 'node:test';
+  2 | new (spy.mock.callCount())();
+
+`;
+
+exports[`prefer-mock-call-count > invalid(6): import test from 'node:test';\nobject.method.mock.calls.length; 1`] = `
+
+  1 | import test from 'node:test';
+  2 | object.method.mock.calls.length;
+
+`;
+
+exports[`prefer-mock-call-count > invalid(6): import test from 'node:test';\nobject.method.mock.calls.length; 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | object.method.mock.calls.length;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`object.method.mock.callCount()\` over \`object.method.mock.calls.length\`, which creates a copy of the call history.
+
+Output:
+  1 | import test from 'node:test';
+  2 | object.method.mock.callCount();
+
+`;
+
+exports[`prefer-mock-call-count > invalid(7): import test from 'node:test';\nString(spy.mock.calls.length); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | String(spy.mock.calls.length);
+
+`;
+
+exports[`prefer-mock-call-count > invalid(7): import test from 'node:test';\nString(spy.mock.calls.length); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | String(spy.mock.calls.length);
+    |        ^^^^^^^^^^^^^^^^^^^^^ Prefer \`spy.mock.callCount()\` over \`spy.mock.calls.length\`, which creates a copy of the call history.
+
+Output:
+  1 | import test from 'node:test';
+  2 | String(spy.mock.callCount());
+
+`;
+
+exports[`prefer-mock-call-count > invalid(8): import test from 'node:test';\n(spy.mock.calls).length; 1`] = `
+
+  1 | import test from 'node:test';
+  2 | (spy.mock.calls).length;
+
+`;
+
+exports[`prefer-mock-call-count > invalid(8): import test from 'node:test';\n(spy.mock.calls).length; 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | (spy.mock.calls).length;
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`spy.mock.callCount()\` over \`spy.mock.calls.length\`, which creates a copy of the call history.
+
+Output:
+  1 | import test from 'node:test';
+  2 | spy.mock.callCount();
+
+`;
+
+exports[`prefer-mock-call-count > invalid(9): import test from 'node:test';\n(spy.mock.calls.length as number); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | (spy.mock.calls.length as number);
+
+`;
+
+exports[`prefer-mock-call-count > invalid(9): import test from 'node:test';\n(spy.mock.calls.length as number); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | (spy.mock.calls.length as number);
+    |  ^^^^^^^^^^^^^^^^^^^^^ Prefer \`spy.mock.callCount()\` over \`spy.mock.calls.length\`, which creates a copy of the call history.
+
+Output:
+  1 | import test from 'node:test';
+  2 | (spy.mock.callCount() as number);
 
 `;

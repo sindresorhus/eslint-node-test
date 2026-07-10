@@ -3,6 +3,8 @@ import {getTester, parsers} from './utils/test.js';
 const {test} = getTester(import.meta);
 
 const withNodeTest = code => `import test from 'node:test';\n${code}`;
+const withNamedMock = code => `import {mock} from 'node:test';\n${code}`;
+const withNodeTestNamespace = code => `import * as nodeTest from 'node:test';\n${code}`;
 
 test.snapshot({
 	valid: [
@@ -65,6 +67,12 @@ test.snapshot({
 	invalid: [
 		// Mock function.
 		withNodeTest('const spy = test.mock.fn();\nassert.equal(spy.mock.calls.length, 1);'),
+		withNamedMock('const spy = mock.fn();\nspy.mock.calls.length;'),
+		withNodeTestNamespace('const spy = nodeTest.mock.fn();\nspy.mock.calls.length;'),
+
+		// Direct mock creation.
+		withNodeTest('test.mock.fn().mock.calls.length;'),
+		withNodeTest('new spy.mock.calls.length();'),
 
 		// Mocked object method.
 		withNodeTest('object.method.mock.calls.length;'),
@@ -74,6 +82,10 @@ test.snapshot({
 
 		// Parentheses around the calls collection are supported.
 		withNodeTest('(spy.mock.calls).length;'),
+		{
+			code: withNodeTest('(spy.mock.calls.length as number);'),
+			languageOptions: {parser: parsers.typescript},
+		},
 
 		// This rule intentionally uses the structural match in `node:test` files.
 		withNodeTest('const fake = {mock: {calls: []}};\nfake.mock.calls.length;'),
