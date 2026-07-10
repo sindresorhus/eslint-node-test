@@ -3,6 +3,7 @@ import {getStaticStringValue} from './ast/index.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
 const MESSAGE_ID = 'no-import-test-files';
+const IS_CASE_INSENSITIVE_FILE_SYSTEM = process.platform === 'darwin' || process.platform === 'win32';
 
 const messages = {
 	[MESSAGE_ID]: 'Do not import a test file. The Node.js test runner may execute it twice.',
@@ -24,18 +25,28 @@ function isTypeOnlyExport(node) {
 		);
 }
 
-function isRelativeSpecifier(specifier) {
-	return specifier.startsWith('./') || specifier.startsWith('../');
+function getSpecifierPath(specifier) {
+	specifier = specifier.split(/[#?]/, 1)[0];
+	if (
+		(
+			!specifier.startsWith('./')
+			&& !specifier.startsWith('../')
+		)
+		|| /%2f|%5c/i.test(specifier)
+	) {
+		return;
+	}
+
+	specifier = specifier.replaceAll('\\', '/');
+
+	try {
+		return path.posix.normalize(decodeURIComponent(specifier));
+	} catch {}
 }
 
 function isTestFileSpecifier(specifier, extensions) {
-	if (!isRelativeSpecifier(specifier)) {
-		return false;
-	}
-
-	const filePath = path.posix.normalize(specifier.replaceAll('\\', '/').split(/[#?]/, 1)[0]);
-	const extension = path.posix.extname(filePath).slice(1);
-	if (!extensions.includes(extension)) {
+	const filePath = getSpecifierPath(specifier);
+	if (!filePath) {
 		return false;
 	}
 
@@ -44,9 +55,22 @@ function isTestFileSpecifier(specifier, extensions) {
 		return false;
 	}
 
-	const name = path.posix.basename(filePath, `.${extension}`);
+	for (const segment of pathSegments) {
+		if (segment !== '..' && segment.startsWith('.')) {
+			return false;
+		}
+	}
+
+	const testFilePath = IS_CASE_INSENSITIVE_FILE_SYSTEM ? filePath.toLowerCase() : filePath;
+	const extension = path.posix.extname(testFilePath).slice(1);
+	if (!extensions.includes(extension)) {
+		return false;
+	}
+
+	const name = path.posix.basename(testFilePath, `.${extension}`);
 	return (
-		pathSegments.has('test')
+		testFilePath.startsWith('test/')
+		|| testFilePath.includes('/test/')
 		|| name === 'test'
 		|| name.startsWith('test-')
 		|| name.endsWith('.test')

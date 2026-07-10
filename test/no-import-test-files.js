@@ -1,6 +1,10 @@
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+const isCaseInsensitiveFileSystem = process.platform === 'darwin' || process.platform === 'win32';
+const caseSensitiveTestFile = 'import \'./EXAMPLE.TEST.JS\';';
+const validCaseSensitiveTestFiles = isCaseInsensitiveFileSystem ? [] : [caseSensitiveTestFile];
+const invalidCaseInsensitiveTestFiles = isCaseInsensitiveFileSystem ? [caseSensitiveTestFile] : [];
 
 test.snapshot({
 	valid: [
@@ -9,6 +13,12 @@ test.snapshot({
 		'import value from \'package-test\';',
 		'import value from \'package/test.js\';',
 		'import value from \'./node_modules/package/test/helpers.js\';',
+		'import value from \'./.test.js\';',
+		'import value from \'./test/.helper.js\';',
+		'import value from \'./.fixtures/test/helper.js\';',
+		'import value from \'./test/%2e%2e/value.js\';',
+		String.raw`import '.\\test\\helpers.js';`,
+		String.raw`import '..\\example.test.js';`,
 		'import value from \'/project/test/value.js\';',
 		'import value from \'file:///project/test/value.js\';',
 		'import \'./test/../value.js\';',
@@ -40,6 +50,7 @@ test.snapshot({
 			options: [{extensions: ['js', 'mjs', 'cjs', 'ts', 'mts', 'cts']}],
 			languageOptions: {parser: parsers.typescript},
 		},
+		...validCaseSensitiveTestFiles,
 	],
 	invalid: [
 		'import \'./test.js\';',
@@ -50,6 +61,9 @@ test.snapshot({
 		'import \'./test/helpers.js\';',
 		String.raw`import './test\\helpers.js';`,
 		String.raw`import './example\\thing.test.js';`,
+		'import \'./%74est/helpers.js\';',
+		'import \'./example.%74est.js\';',
+		'import \'./node_modules/%2e%2e/test/helpers.js\';',
 		'import \'./test/helpers.js?direct#source\';',
 		'import(`./example.test.js`);',
 		'import(`./example_test.js`);',
@@ -75,5 +89,6 @@ test.snapshot({
 			options: [{extensions: ['js', 'mjs', 'cjs', 'ts', 'mts', 'cts']}],
 			languageOptions: {parser: parsers.typescript},
 		},
+		...invalidCaseInsensitiveTestFiles,
 	],
 });
