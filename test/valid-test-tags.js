@@ -19,6 +19,10 @@ test.snapshot({
 		withImport('test("title", {tags: ["UPPER"], ...{tags: ["unit"]}}, () => {});'),
 		withImport('test("title", {tags: ["unit"], ...{tags: ["UPPER"]}}, () => {});'),
 		withImport('test("title", {tags: ["UPPER"], ["tags"]: ["unit"]}, () => {});'),
+		withImport('test("title", {get tags() { return ["UPPER"]; }}, () => {});'),
+		withImport('test("title", {tags: ["UPPER"], get tags() { return ["unit"]; }}, () => {});'),
+		withImport('test.foo("title", {tags: ["UPPER"]}, () => {});'),
+		'import * as nodeTest from \'node:test\';\nnodeTest.test.foo("title", {tags: ["UPPER"]}, () => {});',
 		withImport('it("title", {tags: ["unit"]}, () => {});'),
 		withImport('describe("title", {tags: ["unit"]}, () => {});'),
 		withImport('suite("title", {tags: ["unit"]}, () => {});'),
@@ -46,21 +50,27 @@ test.snapshot({
 	invalid: [
 		// Non-array values
 		withImport('test("title", {tags: "unit"}, () => {});'),
+		withImport('test("title", {tags: `unit`}, () => {});'),
 		withImport('test("title", {tags: null}, () => {});'),
 		withImport('test("title", {tags: {}}, () => {});'),
 		withImport('test("title", {tags: -1}, () => {});'),
 		withImport('test("title", {tags: +1}, () => {});'),
 		withImport('test("title", {tags: -1n}, () => {});'),
+		withImport('test("title", {tags: () => {}}, () => {});'),
 
 		// Invalid array values
 		withImport('test("title", {tags: ["unit", 1, true, {}, null]}, () => {});'),
 		withImport('test("title", {tags: ["unit", -1, -1n]}, () => {});'),
+		withImport('test("title", {tags: [function () {}, class {}]}, () => {});'),
 		withImport('test("title", {tags: ["unit", , "slow"]}, () => {});'),
 		withImport('test("title", {tags: [""]}, () => {});'),
 		withImport('test("title", {tags: [``]}, () => {});'),
 
 		// Lowercase canonical form
 		withImport('test("title", {tags: ["UNIT"]}, () => {});'),
+		withImport('test.only("title", {tags: ["UPPER"]}, () => {});'),
+		withImport('describe.skip("title", {tags: ["UPPER"]}, () => {});'),
+		'import * as nodeTest from \'node:test\';\nnodeTest.test.only("title", {tags: ["UPPER"]}, () => {});',
 		withImport('test("title", {tags: ["unit"], tags: ["UPPER"]}, () => {});'),
 		withImport('test("title", {...options, tags: ["UPPER"]}, () => {});'),
 		withImport('test("title", {["tags"]: ["unit"], tags: ["UPPER"]}, () => {});'),
@@ -80,6 +90,10 @@ test.snapshot({
 		},
 		{
 			code: withImport('test("title", {tags: ["UPPER" satisfies string]!}, () => {});'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withImport('test("title", {tags: <string[]>["UPPER"]}, () => {});'),
 			languageOptions: {parser: parsers.typescript},
 		},
 		{

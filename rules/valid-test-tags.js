@@ -1,5 +1,10 @@
 import quoteJsString from 'quote-js-string';
-import {resolveImports, parseTestCall, getTestOptions} from './utils/node-test.js';
+import {
+	resolveImports,
+	parseTestCall,
+	getTestOptions,
+	MODIFIERS,
+} from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
 const MESSAGE_ID_NOT_ARRAY = 'valid-test-tags/not-array';
@@ -33,7 +38,7 @@ function getTagsProperty(options) {
 	for (let index = options.properties.length - 1; index >= 0; index -= 1) {
 		const property = options.properties[index];
 		if (isTagsProperty(property)) {
-			return property;
+			return property.kind === 'init' ? property : undefined;
 		}
 
 		if (property.type === 'SpreadElement' || property.computed) {
@@ -56,13 +61,16 @@ function getStaticString(node) {
 	}
 }
 
-function isStaticNonString(node) {
+function isStaticValue(node) {
 	node = unwrapTypeScriptExpression(node);
 	return (
 		node.type === 'Literal'
 		|| (node.type === 'TemplateLiteral' && node.expressions.length === 0)
 		|| node.type === 'ArrayExpression'
 		|| node.type === 'ObjectExpression'
+		|| node.type === 'FunctionExpression'
+		|| node.type === 'ArrowFunctionExpression'
+		|| node.type === 'ClassExpression'
 		|| (
 			node.type === 'UnaryExpression'
 			&& (node.operator === '+' || node.operator === '-')
@@ -85,7 +93,10 @@ const create = context => {
 
 	context.on('CallExpression', function * (node) {
 		const parsed = parseTestCall(node, imports);
-		if (parsed?.kind !== 'test' && parsed?.kind !== 'suite') {
+		if (
+			(parsed?.kind !== 'test' && parsed?.kind !== 'suite')
+			|| parsed.modifiers.some(modifier => !MODIFIERS.has(modifier.name))
+		) {
 			return;
 		}
 
@@ -97,7 +108,7 @@ const create = context => {
 
 		const tags = unwrapTypeScriptExpression(tagsProperty.value);
 		if (tags.type !== 'ArrayExpression') {
-			if (isStaticNonString(tags)) {
+			if (isStaticValue(tags)) {
 				yield {
 					node: tags,
 					messageId: MESSAGE_ID_NOT_ARRAY,
@@ -123,7 +134,7 @@ const create = context => {
 
 			const tag = getStaticString(rawElement);
 			if (!tag) {
-				if (isStaticNonString(rawElement)) {
+				if (isStaticValue(rawElement)) {
 					yield {
 						node: rawElement,
 						messageId: MESSAGE_ID_NOT_STRING,
