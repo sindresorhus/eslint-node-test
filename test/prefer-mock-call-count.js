@@ -8,9 +8,18 @@ const withNodeTestNamespace = code => `import * as nodeTest from 'node:test';\n$
 
 test.snapshot({
 	valid: [
-		// Not a `node:test` file.
+		// No runtime `node:test` binding.
 		'spy.mock.calls.length;',
 		'import test from \'test\';\nspy.mock.calls.length;',
+		'import \'node:test\';\nspy.mock.calls.length;',
+		{
+			code: 'import type {mock} from \'node:test\';\nconst fake = {mock: {calls: []}};\nfake.mock.calls.length;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import {type mock} from \'node:test\';\nconst fake = {mock: {calls: []}};\nfake.mock.calls.length;',
+			languageOptions: {parser: parsers.typescript},
+		},
 
 		// Already using `callCount()`.
 		withNodeTest('spy.mock.callCount();'),
@@ -41,6 +50,7 @@ test.snapshot({
 		withNodeTest('([spy.mock.calls.length] = values);'),
 		withNodeTest('([spy.mock.calls.length = 1] = values);'),
 		withNodeTest('({length: spy.mock.calls.length} = value);'),
+		withNodeTest('({value: {length: spy.mock.calls.length}} = source);'),
 		withNodeTest('({...spy.mock.calls.length} = value);'),
 		withNodeTest('for (spy.mock.calls.length in object) {}'),
 		withNodeTest('for (spy.mock.calls.length of values) {}'),
