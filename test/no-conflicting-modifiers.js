@@ -16,6 +16,11 @@ test.snapshot({
 		// A single modifier (options)
 		withImport('test("x", {skip: true}, () => {});'),
 
+		// Expected failures can run as `only` tests or suites.
+		withImport('test("x", {expectFailure: true, only: true}, () => {});'),
+		withImport('test.expectFailure("x", {only: true}, () => {});'),
+		withImport('describe("x", {expectFailure: true, only: true}, () => {});'),
+
 		// Same modifier twice is redundant, not conflicting
 		withImport('test.skip("x", {skip: true}, () => {});'),
 		withImport('test.skip.skip("x", () => {});'),

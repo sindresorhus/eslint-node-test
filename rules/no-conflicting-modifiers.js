@@ -49,7 +49,14 @@ const create = context => {
 			active.add('expectFailure');
 		}
 
-		if (active.size < 2) {
+		if (
+			active.size < 2
+			|| (
+				active.size === 2
+				&& active.has('expectFailure')
+				&& active.has('only')
+			)
+		) {
 			return;
 		}
 
