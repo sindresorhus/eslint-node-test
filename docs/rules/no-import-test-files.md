@@ -18,7 +18,7 @@ This rule reports relative static imports, re-exports, and literal dynamic impor
 Type: `string[]`\
 Default: `['js', 'mjs', 'cjs']`
 
-File extensions that Node.js is configured to discover. The default stays JavaScript-only for the Node 22 baseline. Add `ts`, `mts`, and `cts` when running Node with TypeScript type stripping enabled, including versions where it is enabled by default.
+File extensions that Node.js is configured to discover. The default stays JavaScript-only for compatibility across supported Node versions. Add `ts`, `mts`, and `cts` whenever the configured test runner discovers TypeScript files.
 
 ## Examples
 
