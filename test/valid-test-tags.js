@@ -68,9 +68,11 @@ test.snapshot({
 
 		// Lowercase canonical form
 		withImport('test("title", {tags: ["UNIT"]}, () => {});'),
+		withImport('test.expectFailure("title", {tags: ["UPPER"]}, () => {});'),
 		withImport('test.only("title", {tags: ["UPPER"]}, () => {});'),
 		withImport('describe.skip("title", {tags: ["UPPER"]}, () => {});'),
 		'import * as nodeTest from \'node:test\';\nnodeTest.test.only("title", {tags: ["UPPER"]}, () => {});',
+		'import * as nodeTest from \'node:test\';\nnodeTest.test.expectFailure("title", {tags: ["UPPER"]}, () => {});',
 		withImport('test("title", {tags: ["unit"], tags: ["UPPER"]}, () => {});'),
 		withImport('test("title", {...options, tags: ["UPPER"]}, () => {});'),
 		withImport('test("title", {["tags"]: ["unit"], tags: ["UPPER"]}, () => {});'),

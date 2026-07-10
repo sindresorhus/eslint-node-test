@@ -13,6 +13,7 @@ const MESSAGE_ID_NOT_STRING = 'valid-test-tags/not-string';
 const MESSAGE_ID_EMPTY = 'valid-test-tags/empty';
 const MESSAGE_ID_LOWERCASE = 'valid-test-tags/lowercase';
 const MESSAGE_ID_DUPLICATE = 'valid-test-tags/duplicate';
+const TEST_MODIFIERS = new Set(['expectFailure', ...MODIFIERS]);
 
 const messages = {
 	[MESSAGE_ID_NOT_ARRAY]: '`tags` must be an array.',
@@ -93,9 +94,10 @@ const create = context => {
 
 	context.on('CallExpression', function * (node) {
 		const parsed = parseTestCall(node, imports);
+		const supportedModifiers = parsed?.kind === 'test' ? TEST_MODIFIERS : MODIFIERS;
 		if (
 			(parsed?.kind !== 'test' && parsed?.kind !== 'suite')
-			|| parsed.modifiers.some(modifier => !MODIFIERS.has(modifier.name))
+			|| parsed.modifiers.some(modifier => !supportedModifiers.has(modifier.name))
 		) {
 			return;
 		}
