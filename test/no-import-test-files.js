@@ -19,6 +19,10 @@ test.snapshot({
 		'import value from \'./test/%2e%2e/value.js\';',
 		String.raw`import '.\\test\\helpers.js';`,
 		String.raw`import '..\\example.test.js';`,
+		{
+			code: 'import \'./example.test.ts\';',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'import value from \'/project/test/value.js\';',
 		'import value from \'file:///project/test/value.js\';',
 		'import \'./test/../value.js\';',
