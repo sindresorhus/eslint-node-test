@@ -11,6 +11,8 @@ test.snapshot({
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {todo: true}, () => {}); });'),
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {skip: false}, () => {}); });'),
 		withTest('const shouldSkip = false;\ntest(\'parent\', async t => { t.afterEach(() => {}); await t.test(\'child\', {skip: shouldSkip}, () => {}); });'),
+		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\'); });'),
+		withTest('test(\'parent\', async t => { t?.afterEach(() => {}); await t.test(\'child\', () => {}); });'),
 		{
 			code: withTest('test(\'parent\', async t => { t.afterEach(() => {}); await (t as object).test(\'child\', () => {}); });'),
 			languageOptions: {parser: parsers.typescript},
@@ -27,6 +29,8 @@ test.snapshot({
 		// Lookalikes and shadowed bindings are ignored.
 		withTest('test(\'leaf\', t => { const hooks = {beforeEach() {}}; hooks.beforeEach(); });'),
 		withTest('test(\'leaf\', t => { { const t = {afterEach() {}}; t.afterEach(); } });'),
+		withTest('test(\'leaf\', t => { function configure() { t.beforeEach(() => {}); } });'),
+		withTest('test(\'leaf\', t => { t.before(() => { t.afterEach(() => {}); }); });'),
 		'test(\'leaf\', t => { t.beforeEach(() => {}); });',
 
 		// TypeScript wrappers around the context still resolve correctly.
@@ -39,6 +43,7 @@ test.snapshot({
 		// Leaf test context hooks.
 		withTest('test(\'leaf\', t => { t.beforeEach(() => {}); });'),
 		withTest('test(\'leaf\', t => { t.afterEach(() => {}); });'),
+		withTest('test(\'leaf\', t => { t?.beforeEach(() => {}); });'),
 		withTest('test(\'leaf\', t => { t.beforeEach(() => {}); t.afterEach(() => {}); });'),
 
 		// A skipped subtest does not invoke the parent hooks.

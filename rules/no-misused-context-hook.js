@@ -4,7 +4,6 @@ import {
 	parseTestCall,
 	createContextTracker,
 	getCalleeChain,
-	getSubtestReceiver,
 	getTestCallback,
 	getTestOptions,
 	findOptionsProperty,
@@ -24,6 +23,19 @@ function getContextHookReceiver(callExpression) {
 		!chain
 		|| chain.members.length !== 1
 		|| !CONTEXT_HOOKS.has(chain.members[0].name)
+	) {
+		return undefined;
+	}
+
+	return chain.root;
+}
+
+function getSubtestReceiver(callExpression) {
+	const chain = getCalleeChain(callExpression.callee);
+	if (
+		!chain
+		|| chain.members.length !== 1
+		|| chain.members[0].name !== 'test'
 	) {
 		return undefined;
 	}
@@ -66,7 +78,7 @@ const create = context => {
 
 	context.on('CallExpression', node => {
 		const subtestReceiver = getSubtestReceiver(node);
-		const isSubtest = tracker.isSubtestCall(node);
+		const isSubtest = tracker.isContextIdentifier(subtestReceiver);
 		if (isSubtest && !isStaticallySkipped(node, sourceCode)) {
 			const frame = getFrame(subtestReceiver);
 			if (frame && getEnclosingFunction(node) === frame.callback) {
@@ -77,7 +89,7 @@ const create = context => {
 		const hookReceiver = getContextHookReceiver(node);
 		if (tracker.isContextIdentifier(hookReceiver)) {
 			const frame = getFrame(hookReceiver);
-			if (frame) {
+			if (frame && getEnclosingFunction(node) === frame.callback) {
 				frame.hooks.push(node);
 			}
 		}
