@@ -11,6 +11,7 @@ test.snapshot({
 		withTest('test(\'t\', {expectFailure: /expected error/}, () => {});'),
 		withTest('test(\'t\', {expectFailure: error => error.code === \'ERR_EXPECTED\'}, () => {});'),
 		withTest('test(\'t\', {expectFailure: new Error(\'expected error\')}, () => {});'),
+		withTest('test(\'t\', {expectFailure: {code: \'ERR_EXPECTED\'}}, () => {});'),
 		withTest('test(\'t\', {expectFailure: {label: \'tracked in #123\', match: /expected error/}}, () => {});'),
 
 		// Disabled, dynamic, and empty-string values are out of scope.
@@ -18,6 +19,11 @@ test.snapshot({
 		withTest('test(\'t\', {expectFailure: undefined}, () => {});'),
 		withTest('test(\'t\', {expectFailure: shouldExpectFailure}, () => {});'),
 		withTest('test(\'t\', {expectFailure: \'\'}, () => {});'),
+
+		// The last option property determines the effective value.
+		withTest('test(\'t\', {expectFailure: true, expectFailure: \'tracked in #123\'}, () => {});'),
+		withTest('test(\'t\', {expectFailure: true, ...options}, () => {});'),
+		withTest('test(\'t\', {expectFailure: true, [key]: value}, () => {});'),
 
 		// The chained form has no inline reason mechanism, so it is out of scope.
 		withTest('test.expectFailure(\'t\', () => {});'),
@@ -36,6 +42,10 @@ test.snapshot({
 	invalid: [
 		// Default import.
 		withTest('test(\'t\', {expectFailure: true}, () => {});'),
+		withTest('test(\'t\', {expectFailure: \'tracked in #123\', expectFailure: true}, () => {});'),
+		withTest('test(\'t\', {...options, expectFailure: true}, () => {});'),
+		withTest('test(\'t\', {expectFailure: true, timeout: 1000}, () => {});'),
+		withTest('test.only(\'t\', {expectFailure: true}, () => {});'),
 
 		// Named/renamed import.
 		'import {it as check} from \'node:test\';\ncheck(\'t\', {expectFailure: true}, () => {});',
