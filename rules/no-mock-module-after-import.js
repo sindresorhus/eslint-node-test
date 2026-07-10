@@ -1,6 +1,7 @@
 import {
 	createContextTracker,
 	getStaticString,
+	isGetTestContextCall,
 	isGlobalMock,
 	resolveImports,
 } from './utils/node-test.js';
@@ -46,12 +47,18 @@ const create = context => {
 	const tracker = createContextTracker(imports, {trackHooks: true});
 
 	const isContextMock = node => {
-		node = unwrapTypeScriptExpression(node);
-		return node?.type === 'MemberExpression'
-			&& !node.computed
-			&& node.property.type === 'Identifier'
-			&& node.property.name === 'mock'
-			&& tracker.isContextIdentifier(unwrapTypeScriptExpression(node.object));
+		const mock = unwrapTypeScriptExpression(node);
+		if (
+			mock?.type !== 'MemberExpression'
+			|| mock.computed
+			|| mock.property.type !== 'Identifier'
+			|| mock.property.name !== 'mock'
+		) {
+			return false;
+		}
+
+		const context = unwrapTypeScriptExpression(mock.object);
+		return tracker.isContextIdentifier(context) || isGetTestContextCall(context, imports);
 	};
 
 	context.on('CallExpression', node => {
