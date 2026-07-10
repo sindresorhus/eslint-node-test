@@ -22,6 +22,7 @@ test.snapshot({
 		withImport('test("title", {get tags() { return ["UPPER"]; }}, () => {});'),
 		withImport('test("title", {tags: ["UPPER"], get tags() { return ["unit"]; }}, () => {});'),
 		withImport('test.foo("title", {tags: ["UPPER"]}, () => {});'),
+		withImport('test.only.skip("title", {tags: ["UPPER"]}, () => {});'),
 		'import * as nodeTest from \'node:test\';\nnodeTest.test.foo("title", {tags: ["UPPER"]}, () => {});',
 		withImport('it("title", {tags: ["unit"]}, () => {});'),
 		withImport('describe("title", {tags: ["unit"]}, () => {});'),
