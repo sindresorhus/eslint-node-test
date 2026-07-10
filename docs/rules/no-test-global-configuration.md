@@ -6,7 +6,7 @@
 
 <!-- end auto-generated rule header -->
 
-`snapshot.setDefaultSnapshotSerializers()`, `snapshot.setResolveSnapshotPath()`, and `assert.register()` configure `node:test` process-wide state. Calling them from a test or subtest makes later tests depend on execution order, especially when tests run concurrently.
+`snapshot.setDefaultSnapshotSerializers()`, `snapshot.setResolveSnapshotPath()`, and `assert.register()` configure `node:test` process-wide state. Calling them from a test, subtest, or suite-local hook makes later tests depend on execution order, especially when tests run concurrently.
 
 Prefer configuring these APIs before test registration in a setup module preloaded with `--import` or `--require`.
 
@@ -27,5 +27,23 @@ snapshot.setDefaultSnapshotSerializers([serialize]);
 
 test('formats output', () => {
 	// Test code.
+});
+```
+
+Suite-local hooks run during their suite's test execution. Although preloaded configuration remains preferred, this rule permits top-level hooks as deliberate file-level setup:
+
+```js
+import {beforeEach, describe, snapshot} from 'node:test';
+
+// ❌
+describe('formats output', () => {
+	beforeEach(() => {
+		snapshot.setResolveSnapshotPath(path => path);
+	});
+});
+
+// ✅
+beforeEach(() => {
+	snapshot.setResolveSnapshotPath(path => path);
 });
 ```

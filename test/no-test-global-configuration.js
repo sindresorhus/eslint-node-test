@@ -49,6 +49,7 @@ test.snapshot({
 
 		// Shadowed bindings are unrelated objects.
 		'import test, {snapshot} from \'node:test\';\ntest(\'t\', () => { { const snapshot = custom; snapshot.setDefaultSnapshotSerializers([]); } });',
+		'import * as nodeTest from \'node:test\';\nnodeTest.test(\'t\', () => { const nodeTest = custom; nodeTest.snapshot.setResolveSnapshotPath(path => path); });',
 	],
 	invalid: [
 		// Named imports.
@@ -68,6 +69,7 @@ test.snapshot({
 
 		// Test modifiers and subtests.
 		'import test, {snapshot} from \'node:test\';\ntest.only(\'t\', () => { snapshot.setResolveSnapshotPath(path => path); });',
+		'import test, {snapshot} from \'node:test\';\ntest?.(\'t\', () => { snapshot.setResolveSnapshotPath(path => path); });',
 		'import test, {assert} from \'node:test\';\ntest(\'parent\', t => { t.test(\'child\', () => { assert.register(\'custom\', () => {}); }); });',
 		'import test, {snapshot} from \'node:test\';\ntest(\'parent\', t => { t.test.only(\'child\', () => { snapshot.setDefaultSnapshotSerializers([]); }); });',
 
