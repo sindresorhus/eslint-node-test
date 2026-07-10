@@ -18,6 +18,9 @@ test.snapshot({
 		// Already a `.todo`
 		'import {test} from \'node:test\';\ntest.todo("x");',
 
+		// Expected failures are intentional placeholders, not todos.
+		'import {expectFailure} from \'node:test\';\nexpectFailure("x", () => {});',
+
 		// Intentional stub via options object
 		withImport('test("x", {skip: true});'),
 

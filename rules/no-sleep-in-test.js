@@ -8,6 +8,7 @@ import {
 	getTestOptions,
 	findEnabledOptionsProperty,
 	isHookMemberTestCall,
+	MODIFIERS,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 import {getEnclosingFunction} from './utils/index.js';
@@ -21,8 +22,7 @@ const messages = {
 
 const CALLBACK_TIMER_MODULES = new Set(['node:timers', 'timers']);
 const PROMISE_TIMER_MODULES = new Set(['node:timers/promises', 'timers/promises']);
-const TEST_MODIFIERS = new Set(['expectFailure', 'only', 'skip', 'todo']);
-const ACTIVE_TEST_MODIFIERS = new Set(['expectFailure', 'only', 'todo']);
+const ACTIVE_TEST_MODIFIERS = new Set(['only', 'todo']);
 const CONTEXT_HOOKS = new Set(['before', 'beforeEach', 'after', 'afterEach']);
 
 const unwrapExpression = node => {
@@ -84,7 +84,7 @@ function getSupportedSubtestReceiver(node) {
 	if (
 		chain
 		&& chain.members[0]?.name === 'test'
-		&& chain.members.slice(1).every(member => TEST_MODIFIERS.has(member.name))
+		&& chain.members.slice(1).every(member => MODIFIERS.has(member.name))
 	) {
 		return chain.root;
 	}

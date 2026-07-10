@@ -15,11 +15,13 @@ import {strictEqual} from 'node:assert';
 ```
 */
 
-/** Canonical test/suite/hook function names exported from `node:test`. */
+/** Canonical test functions that expose static `node:test` APIs. */
 const TEST_FUNCTIONS = new Set(['test', 'it']);
+/** Canonical test exports, including the standalone `expectFailure` function. */
+const TEST_EXPORTS = new Set([...TEST_FUNCTIONS, 'expectFailure']);
 const SUITE_FUNCTIONS = new Set(['describe', 'suite']);
 const HOOK_FUNCTIONS = new Set(['before', 'after', 'beforeEach', 'afterEach']);
-const ALL_TEST_EXPORTS = new Set([...TEST_FUNCTIONS, ...SUITE_FUNCTIONS, ...HOOK_FUNCTIONS, 'mock']);
+const ALL_TEST_EXPORTS = new Set([...TEST_EXPORTS, ...SUITE_FUNCTIONS, ...HOOK_FUNCTIONS, 'mock']);
 const CONFIGURATION_EXPORTS = new Set(['assert', 'snapshot']);
 
 export {TEST_FUNCTIONS, SUITE_FUNCTIONS, HOOK_FUNCTIONS};
@@ -322,6 +324,59 @@ function getCallKind(name) {
 	return undefined;
 }
 
+function getStaticExportCall(testFunctionName, members) {
+	const [first, ...rest] = members;
+	if (first && ALL_TEST_EXPORTS.has(first.name)) {
+		const hasExpectedFailure = first.name === 'expectFailure' || rest[0]?.name === 'expectFailure';
+		return {
+			name: first.name === 'expectFailure' ? testFunctionName : first.name,
+			modifiers: hasExpectedFailure && first.name !== 'expectFailure' ? rest.slice(1) : rest,
+			hasExpectedFailure,
+		};
+	}
+
+	return {
+		name: testFunctionName,
+		modifiers: members,
+		hasExpectedFailure: false,
+	};
+}
+
+function getStaticTestFunctionName(root, firstMember, imports) {
+	if (root.name === imports.namespace && !imports.locals.has(root.name) && firstMember?.name === 'default') {
+		return 'test';
+	}
+
+	if (
+		TEST_FUNCTIONS.has(firstMember?.name)
+		&& (
+			root.name === imports.namespace
+			|| TEST_FUNCTIONS.has(imports.locals.get(root.name))
+		)
+	) {
+		return firstMember.name;
+	}
+}
+
+function getStaticTestCall(root, members, imports) {
+	const firstMember = members[0];
+	const testFunctionName = getStaticTestFunctionName(root, firstMember, imports);
+	if (testFunctionName) {
+		return getStaticExportCall(testFunctionName, members.slice(1));
+	}
+
+	if (
+		firstMember
+		&& ALL_TEST_EXPORTS.has(firstMember.name)
+		&& (
+			root.name === imports.namespace
+			|| TEST_FUNCTIONS.has(imports.locals.get(root.name))
+		)
+	) {
+		return getStaticExportCall(imports.locals.get(root.name) ?? 'test', members);
+	}
+}
+
 /*
 Memoize the `parse*Call` classifiers by node. The same `CallExpression` is parsed by many rules during one lint run (34 rules call `parseTestCall`, 21 call `parseAssertionCall`), and `imports` is stable per file (it is itself cached per AST), so the first parse can be reused across all of them. Keyed by node with an `imports` guard for safety.
 
@@ -352,6 +407,7 @@ Classify a `CallExpression` as a `node:test` test/suite/hook call.
 	name: string,
 	kind: 'test' | 'suite' | 'hook',
 	modifiers: import('estree').Identifier[],
+	hasExpectedFailure: boolean,
 } | undefined}
 */
 export const parseTestCall = memoizeByNode(parseTestCallCache, (callExpression, imports) => {
@@ -365,43 +421,35 @@ export const parseTestCall = memoizeByNode(parseTestCallCache, (callExpression, 
 		return undefined;
 	}
 
-	let name;
-	let modifiers;
-
-	const firstMember = members[0];
-	const isNamespaceDefault = root.name === imports.namespace && !imports.locals.has(root.name) && firstMember?.name === 'default';
-	if (
-		firstMember
-		&& (ALL_TEST_EXPORTS.has(firstMember.name) || isNamespaceDefault)
-		&& (
-			root.name === imports.namespace
-			|| TEST_FUNCTIONS.has(imports.locals.get(root.name))
-		)
-	) {
-		// `nodeTest.test.only(…)` — namespace member access into a known export.
-		const [first, ...rest] = members;
-		name = isNamespaceDefault ? 'test' : first.name;
-		modifiers = rest;
-	} else if (imports.locals.has(root.name)) {
+	let parsed = getStaticTestCall(root, members, imports);
+	if (!parsed && imports.locals.has(root.name)) {
 		// `test.only(…)` / bare `test(…)` — a callable test binding. A binding that is both a local and
 		// the namespace (`import test from 'node:test'`) reaches here for member chains whose first
 		// segment is not a known export, e.g. `test.only(…)`.
-		name = imports.locals.get(root.name);
-		modifiers = members;
-	} else {
+		const importedName = imports.locals.get(root.name);
+		parsed = importedName === 'expectFailure'
+			? {name: 'test', modifiers: members, hasExpectedFailure: true}
+			: {
+				name: importedName,
+				modifiers: members[0]?.name === 'expectFailure' ? members.slice(1) : members,
+				hasExpectedFailure: members[0]?.name === 'expectFailure',
+			};
+	}
+
+	if (!parsed) {
 		return undefined;
 	}
 
-	if (modifiers.some(modifier => CONFIGURATION_EXPORTS.has(modifier.name))) {
+	if (parsed.modifiers.some(modifier => CONFIGURATION_EXPORTS.has(modifier.name))) {
 		return undefined;
 	}
 
-	const kind = getCallKind(name);
+	const kind = getCallKind(parsed.name);
 	if (!kind) {
 		return undefined;
 	}
 
-	return {name, kind, modifiers};
+	return {...parsed, kind};
 });
 
 /** Get the modifier identifier node with the given name (`only`/`skip`/`todo`), or `undefined`. */

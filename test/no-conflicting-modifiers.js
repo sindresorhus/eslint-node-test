@@ -38,6 +38,9 @@ test.snapshot({
 
 		// Options conflict
 		withImport('test("x", {skip: true, only: true}, () => {});'),
+		'import {expectFailure} from \'node:test\';\nexpectFailure("x", {skip: true}, () => {});',
+		withImport('test("x", {expectFailure: true, skip: true}, () => {});'),
+		withImport('test.expectFailure("x", {todo: true}, () => {});'),
 
 		// A skip *reason* string still counts as an active skip, so it conflicts
 		withImport('test("x", {skip: "later", only: true}, () => {});'),

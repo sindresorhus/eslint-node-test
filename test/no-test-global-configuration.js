@@ -50,6 +50,7 @@ test.snapshot({
 		// Shadowed bindings are unrelated objects.
 		'import test, {snapshot} from \'node:test\';\ntest(\'t\', () => { { const snapshot = custom; snapshot.setDefaultSnapshotSerializers([]); } });',
 		'import * as nodeTest from \'node:test\';\nnodeTest.test(\'t\', () => { const nodeTest = custom; nodeTest.snapshot.setResolveSnapshotPath(path => path); });',
+		'import test, {snapshot} from \'node:test\';\nfunction register(test) { test(\'fake\', () => { snapshot.setDefaultSnapshotSerializers([]); }); }',
 	],
 	invalid: [
 		// Named imports.
@@ -70,6 +71,10 @@ test.snapshot({
 		// Test modifiers and subtests.
 		'import test, {snapshot} from \'node:test\';\ntest.only(\'t\', () => { snapshot.setResolveSnapshotPath(path => path); });',
 		'import test, {snapshot} from \'node:test\';\ntest?.(\'t\', () => { snapshot.setResolveSnapshotPath(path => path); });',
+		'import test, {snapshot} from \'node:test\';\ntest.expectFailure(\'t\', () => { snapshot.setResolveSnapshotPath(path => path); });',
+		'import {expectFailure, snapshot} from \'node:test\';\nexpectFailure(\'t\', () => { snapshot.setResolveSnapshotPath(path => path); });',
+		'import {expectFailure as expectedFailure, snapshot} from \'node:test\';\nexpectedFailure(\'t\', () => { snapshot.setResolveSnapshotPath(path => path); });',
+		'import * as nodeTest from \'node:test\';\nnodeTest.expectFailure(\'t\', () => { nodeTest.snapshot.setResolveSnapshotPath(path => path); });',
 		'import test, {assert} from \'node:test\';\ntest(\'parent\', t => { t.test(\'child\', () => { assert.register(\'custom\', () => {}); }); });',
 		'import test, {snapshot} from \'node:test\';\ntest(\'parent\', t => { t.test.only(\'child\', () => { snapshot.setDefaultSnapshotSerializers([]); }); });',
 
@@ -83,8 +88,10 @@ test.snapshot({
 
 		// Suite-local hooks run while tests execute.
 		'import {beforeEach, describe, snapshot} from \'node:test\';\ndescribe(\'suite\', () => { beforeEach(() => { snapshot.setResolveSnapshotPath(path => path); }); });',
+		'import {beforeEach, describe, snapshot} from \'node:test\';\ndescribe.expectFailure(\'suite\', () => { beforeEach(() => { snapshot.setResolveSnapshotPath(path => path); }); });',
 		'import test, {describe, snapshot} from \'node:test\';\ndescribe(\'suite\', () => { test.beforeEach(() => { snapshot.setResolveSnapshotPath(path => path); }); });',
 		'import * as nodeTest from \'node:test\';\nnodeTest.describe(\'suite\', () => { nodeTest.test.beforeEach(() => { nodeTest.snapshot.setResolveSnapshotPath(path => path); }); });',
+		'import * as nodeTest from \'node:test\';\nnodeTest.test.describe(\'suite\', () => { nodeTest.test.beforeEach(() => { nodeTest.test.snapshot.setResolveSnapshotPath(path => path); }); });',
 		[
 			'import * as nodeTest from \'node:test\';',
 			'nodeTest.default(\'default\', () => { nodeTest.default.snapshot.setResolveSnapshotPath(path => path); });',

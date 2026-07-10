@@ -28,6 +28,9 @@ test.snapshot({
 
 		// Namespace import — `test` at top level is already correct
 		'import * as nodeTest from \'node:test\';\nnodeTest.test("a", () => {});',
+
+		// The standalone expected-failure export is still a `test`.
+		'import {expectFailure} from \'node:test\';\nexpectFailure("a", () => {});',
 	],
 	invalid: [
 		// `it` at the top level (default wants `test`)
@@ -50,6 +53,7 @@ test.snapshot({
 
 		// Namespace import — `it` at top level (default wants `test`)
 		'import * as nodeTest from \'node:test\';\nnodeTest.it("a", () => {});',
+		'import {it} from \'node:test\';\nit.expectFailure("a", () => {});',
 
 		// TypeScript
 		{

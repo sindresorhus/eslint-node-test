@@ -26,6 +26,9 @@ const create = context => {
 		}
 
 		const active = new Set();
+		if (parsed.hasExpectedFailure) {
+			active.add('expectFailure');
+		}
 
 		// Chained form: `test.skip.only(…)`.
 		for (const modifier of parsed.modifiers) {
@@ -40,6 +43,10 @@ const create = context => {
 			if (findEnabledOptionsProperty(options, name)) {
 				active.add(name);
 			}
+		}
+
+		if (findEnabledOptionsProperty(options, 'expectFailure')) {
+			active.add('expectFailure');
 		}
 
 		if (active.size < 2) {
@@ -61,7 +68,7 @@ const config = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Disallow conflicting `only`/`skip`/`todo` modifiers.',
+			description: 'Disallow conflicting test modifiers.',
 			recommended: 'unopinionated',
 		},
 		schema: [],
