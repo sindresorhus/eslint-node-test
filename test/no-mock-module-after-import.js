@@ -51,6 +51,7 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		'import {getTestContext} from \'node:test\';\nimport \'module.js\';\nfunction helper(getTestContext) {\n\tgetTestContext().mock.module(\'module.js\');\n}',
+		'import * as nodeTest from \'node:test\';\nimport \'module.js\';\nfunction helper(nodeTest) {\n\tnodeTest.getTestContext().mock.module(\'module.js\');\n}',
 
 		// Context mock aliases and shadowed context names are intentionally ignored.
 		head + 'import \'module.js\';\ntest(\'mock\', t => {\n\tconst moduleMock = t.mock;\n\tmoduleMock.module(\'module.js\');\n});',
@@ -73,14 +74,21 @@ test.snapshot({
 		'import * as nodeTest from \'node:test\';\nimport \'module.js\';\nnodeTest.mock.module(\'module.js\');',
 		'import test from \'node:test\';\nimport \'module.js\';\ntest.mock.module(\'module.js\');',
 		'import {test} from \'node:test\';\nimport \'module.js\';\ntest.mock.module(\'module.js\');',
+		'import {it} from \'node:test\';\nimport \'module.js\';\nit.mock.module(\'module.js\');',
 
 		// Context-only mocks.
 		'import {test} from \'node:test\';\nimport \'module.js\';\ntest(\'mock\', t => {\n\tt.mock.module(\'module.js\');\n});',
+		'import {test} from \'node:test\';\nimport \'module.js\';\ntest(\'mock\', (t = fallback) => {\n\tt.mock.module(\'module.js\');\n});',
 		'import {getTestContext} from \'node:test\';\nimport \'module.js\';\ngetTestContext().mock.module(\'module.js\');',
 		'import {getTestContext as context} from \'node:test\';\nimport \'module.js\';\ncontext().mock.module(\'module.js\');',
 		'import * as nodeTest from \'node:test\';\nimport \'module.js\';\nnodeTest.getTestContext().mock.module(\'module.js\');',
+		'import * as nodeTest from \'node:test\';\nimport \'module.js\';\nnodeTest.test(\'mock\', context => {\n\tcontext.mock.module(\'module.js\');\n});',
 		{
 			code: 'import {getTestContext} from \'node:test\';\nimport \'module.js\';\n(getTestContext() as TestContext).mock.module(\'module.js\');',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import {getTestContext} from \'node:test\';\nimport \'module.js\';\ngetTestContext()!.mock.module(\'module.js\');',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{

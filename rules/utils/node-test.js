@@ -827,6 +827,18 @@ export function getTestCallback(callExpression) {
 	return undefined;
 }
 
+function getParameterIdentifier(parameter) {
+	if (parameter?.type === 'Identifier') {
+		return parameter;
+	}
+
+	if (parameter?.type === 'AssignmentPattern' && parameter.left.type === 'Identifier') {
+		return parameter.left;
+	}
+
+	return undefined;
+}
+
 /*
 The number of parameters before the first default or rest parameter — the same value as `Function.prototype.length`. `node:test` uses this arity to decide whether to pass a `done` callback, so a declared second parameter means the function opted into callback style.
 */

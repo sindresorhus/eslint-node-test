@@ -52,7 +52,25 @@ Message:
 
 `;
 
-exports[`no-mock-module-after-import > invalid(12): import {test} from 'node:test';\nimport 'module.js';\ntest('mock', t => {\n\tt.mock.module('module.js');\n}); 1`] = `
+exports[`no-mock-module-after-import > invalid(12): import {it} from 'node:test';\nimport 'module.js';\nit.mock.module('module.js'); 1`] = `
+
+  1 | import {it} from 'node:test';
+  2 | import 'module.js';
+  3 | it.mock.module('module.js');
+
+`;
+
+exports[`no-mock-module-after-import > invalid(12): import {it} from 'node:test';\nimport 'module.js';\nit.mock.module('module.js'); 2`] = `
+
+Message:
+  1 | import {it} from 'node:test';
+  2 | import 'module.js';
+> 3 | it.mock.module('module.js');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.module()\` cannot affect \`module.js\` because it was already imported statically.
+
+`;
+
+exports[`no-mock-module-after-import > invalid(13): import {test} from 'node:test';\nimport 'module.js';\ntest('mock', t => {\n\tt.mock.module('module.js');\n}); 1`] = `
 
   1 | import {test} from 'node:test';
   2 | import 'module.js';
@@ -62,7 +80,7 @@ exports[`no-mock-module-after-import > invalid(12): import {test} from 'node:tes
 
 `;
 
-exports[`no-mock-module-after-import > invalid(12): import {test} from 'node:test';\nimport 'module.js';\ntest('mock', t => {\n\tt.mock.module('module.js');\n}); 2`] = `
+exports[`no-mock-module-after-import > invalid(13): import {test} from 'node:test';\nimport 'module.js';\ntest('mock', t => {\n\tt.mock.module('module.js');\n}); 2`] = `
 
 Message:
   1 | import {test} from 'node:test';
@@ -74,7 +92,29 @@ Message:
 
 `;
 
-exports[`no-mock-module-after-import > invalid(13): import {getTestContext} from 'node:test';\nimport 'module.js';\ngetTestContext().mock.module('module.js'); 1`] = `
+exports[`no-mock-module-after-import > invalid(14): import {test} from 'node:test';\nimport 'module.js';\ntest('mock', (t = fallback) => {\n\tt.mock.module('module.js');\n}); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | import 'module.js';
+  3 | test('mock', (t = fallback) => {
+  4 | 	t.mock.module('module.js');
+  5 | });
+
+`;
+
+exports[`no-mock-module-after-import > invalid(14): import {test} from 'node:test';\nimport 'module.js';\ntest('mock', (t = fallback) => {\n\tt.mock.module('module.js');\n}); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+  2 | import 'module.js';
+  3 | test('mock', (t = fallback) => {
+> 4 | 	t.mock.module('module.js');
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.module()\` cannot affect \`module.js\` because it was already imported statically.
+  5 | });
+
+`;
+
+exports[`no-mock-module-after-import > invalid(15): import {getTestContext} from 'node:test';\nimport 'module.js';\ngetTestContext().mock.module('module.js'); 1`] = `
 
   1 | import {getTestContext} from 'node:test';
   2 | import 'module.js';
@@ -82,7 +122,7 @@ exports[`no-mock-module-after-import > invalid(13): import {getTestContext} from
 
 `;
 
-exports[`no-mock-module-after-import > invalid(13): import {getTestContext} from 'node:test';\nimport 'module.js';\ngetTestContext().mock.module('module.js'); 2`] = `
+exports[`no-mock-module-after-import > invalid(15): import {getTestContext} from 'node:test';\nimport 'module.js';\ngetTestContext().mock.module('module.js'); 2`] = `
 
 Message:
   1 | import {getTestContext} from 'node:test';
@@ -92,7 +132,7 @@ Message:
 
 `;
 
-exports[`no-mock-module-after-import > invalid(14): import {getTestContext as context} from 'node:test';\nimport 'module.js';\ncontext().mock.module('module.js'); 1`] = `
+exports[`no-mock-module-after-import > invalid(16): import {getTestContext as context} from 'node:test';\nimport 'module.js';\ncontext().mock.module('module.js'); 1`] = `
 
   1 | import {getTestContext as context} from 'node:test';
   2 | import 'module.js';
@@ -100,7 +140,7 @@ exports[`no-mock-module-after-import > invalid(14): import {getTestContext as co
 
 `;
 
-exports[`no-mock-module-after-import > invalid(14): import {getTestContext as context} from 'node:test';\nimport 'module.js';\ncontext().mock.module('module.js'); 2`] = `
+exports[`no-mock-module-after-import > invalid(16): import {getTestContext as context} from 'node:test';\nimport 'module.js';\ncontext().mock.module('module.js'); 2`] = `
 
 Message:
   1 | import {getTestContext as context} from 'node:test';
@@ -110,7 +150,7 @@ Message:
 
 `;
 
-exports[`no-mock-module-after-import > invalid(15): import * as nodeTest from 'node:test';\nimport 'module.js';\nnodeTest.getTestContext().mock.module('module.js'); 1`] = `
+exports[`no-mock-module-after-import > invalid(17): import * as nodeTest from 'node:test';\nimport 'module.js';\nnodeTest.getTestContext().mock.module('module.js'); 1`] = `
 
   1 | import * as nodeTest from 'node:test';
   2 | import 'module.js';
@@ -118,7 +158,7 @@ exports[`no-mock-module-after-import > invalid(15): import * as nodeTest from 'n
 
 `;
 
-exports[`no-mock-module-after-import > invalid(15): import * as nodeTest from 'node:test';\nimport 'module.js';\nnodeTest.getTestContext().mock.module('module.js'); 2`] = `
+exports[`no-mock-module-after-import > invalid(17): import * as nodeTest from 'node:test';\nimport 'module.js';\nnodeTest.getTestContext().mock.module('module.js'); 2`] = `
 
 Message:
   1 | import * as nodeTest from 'node:test';
@@ -128,7 +168,29 @@ Message:
 
 `;
 
-exports[`no-mock-module-after-import > invalid(16): import {getTestContext} from 'node:test';\nimport 'module.js';\n(getTestContext() as TestContext).mock.module('module.js'); 1`] = `
+exports[`no-mock-module-after-import > invalid(18): import * as nodeTest from 'node:test';\nimport 'module.js';\nnodeTest.test('mock', context => {\n\tcontext.mock.module('module.js');\n}); 1`] = `
+
+  1 | import * as nodeTest from 'node:test';
+  2 | import 'module.js';
+  3 | nodeTest.test('mock', context => {
+  4 | 	context.mock.module('module.js');
+  5 | });
+
+`;
+
+exports[`no-mock-module-after-import > invalid(18): import * as nodeTest from 'node:test';\nimport 'module.js';\nnodeTest.test('mock', context => {\n\tcontext.mock.module('module.js');\n}); 2`] = `
+
+Message:
+  1 | import * as nodeTest from 'node:test';
+  2 | import 'module.js';
+  3 | nodeTest.test('mock', context => {
+> 4 | 	context.mock.module('module.js');
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.module()\` cannot affect \`module.js\` because it was already imported statically.
+  5 | });
+
+`;
+
+exports[`no-mock-module-after-import > invalid(19): import {getTestContext} from 'node:test';\nimport 'module.js';\n(getTestContext() as TestContext).mock.module('module.js'); 1`] = `
 
   1 | import {getTestContext} from 'node:test';
   2 | import 'module.js';
@@ -136,79 +198,13 @@ exports[`no-mock-module-after-import > invalid(16): import {getTestContext} from
 
 `;
 
-exports[`no-mock-module-after-import > invalid(16): import {getTestContext} from 'node:test';\nimport 'module.js';\n(getTestContext() as TestContext).mock.module('module.js'); 2`] = `
+exports[`no-mock-module-after-import > invalid(19): import {getTestContext} from 'node:test';\nimport 'module.js';\n(getTestContext() as TestContext).mock.module('module.js'); 2`] = `
 
 Message:
   1 | import {getTestContext} from 'node:test';
   2 | import 'module.js';
 > 3 | (getTestContext() as TestContext).mock.module('module.js');
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.module()\` cannot affect \`module.js\` because it was already imported statically.
-
-`;
-
-exports[`no-mock-module-after-import > invalid(17): import {getTestContext} from 'node:test';\nimport 'module.js';\n(getTestContext as typeof getTestContext)().mock.module('module.js'); 1`] = `
-
-  1 | import {getTestContext} from 'node:test';
-  2 | import 'module.js';
-  3 | (getTestContext as typeof getTestContext)().mock.module('module.js');
-
-`;
-
-exports[`no-mock-module-after-import > invalid(17): import {getTestContext} from 'node:test';\nimport 'module.js';\n(getTestContext as typeof getTestContext)().mock.module('module.js'); 2`] = `
-
-Message:
-  1 | import {getTestContext} from 'node:test';
-  2 | import 'module.js';
-> 3 | (getTestContext as typeof getTestContext)().mock.module('module.js');
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.module()\` cannot affect \`module.js\` because it was already imported statically.
-
-`;
-
-exports[`no-mock-module-after-import > invalid(18): import {test, mock} from 'node:test';\nimport 'module.js';\ntest('outer', t => {\n\tt.test('inner', context => {\n\t\tcontext.mock.module('module.js');\n\t});\n}); 1`] = `
-
-  1 | import {test, mock} from 'node:test';
-  2 | import 'module.js';
-  3 | test('outer', t => {
-  4 | 	t.test('inner', context => {
-  5 | 		context.mock.module('module.js');
-  6 | 	});
-  7 | });
-
-`;
-
-exports[`no-mock-module-after-import > invalid(18): import {test, mock} from 'node:test';\nimport 'module.js';\ntest('outer', t => {\n\tt.test('inner', context => {\n\t\tcontext.mock.module('module.js');\n\t});\n}); 2`] = `
-
-Message:
-  1 | import {test, mock} from 'node:test';
-  2 | import 'module.js';
-  3 | test('outer', t => {
-  4 | 	t.test('inner', context => {
-> 5 | 		context.mock.module('module.js');
-    | 		^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.module()\` cannot affect \`module.js\` because it was already imported statically.
-  6 | 	});
-  7 | });
-
-`;
-
-exports[`no-mock-module-after-import > invalid(19): import {beforeEach} from 'node:test';\nimport 'module.js';\nbeforeEach(t => {\n\tt.mock.module('module.js');\n}); 1`] = `
-
-  1 | import {beforeEach} from 'node:test';
-  2 | import 'module.js';
-  3 | beforeEach(t => {
-  4 | 	t.mock.module('module.js');
-  5 | });
-
-`;
-
-exports[`no-mock-module-after-import > invalid(19): import {beforeEach} from 'node:test';\nimport 'module.js';\nbeforeEach(t => {\n\tt.mock.module('module.js');\n}); 2`] = `
-
-Message:
-  1 | import {beforeEach} from 'node:test';
-  2 | import 'module.js';
-  3 | beforeEach(t => {
-> 4 | 	t.mock.module('module.js');
-    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.module()\` cannot affect \`module.js\` because it was already imported statically.
-  5 | });
 
 `;
 
@@ -230,7 +226,91 @@ Message:
 
 `;
 
-exports[`no-mock-module-after-import > invalid(20): import {test, mock} from 'node:test';\nimport 'module.js';\ntest('outer', t => {\n\tt.beforeEach(context => {\n\t\tcontext.mock.module('module.js');\n\t});\n}); 1`] = `
+exports[`no-mock-module-after-import > invalid(20): import {getTestContext} from 'node:test';\nimport 'module.js';\ngetTestContext()!.mock.module('module.js'); 1`] = `
+
+  1 | import {getTestContext} from 'node:test';
+  2 | import 'module.js';
+  3 | getTestContext()!.mock.module('module.js');
+
+`;
+
+exports[`no-mock-module-after-import > invalid(20): import {getTestContext} from 'node:test';\nimport 'module.js';\ngetTestContext()!.mock.module('module.js'); 2`] = `
+
+Message:
+  1 | import {getTestContext} from 'node:test';
+  2 | import 'module.js';
+> 3 | getTestContext()!.mock.module('module.js');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.module()\` cannot affect \`module.js\` because it was already imported statically.
+
+`;
+
+exports[`no-mock-module-after-import > invalid(21): import {getTestContext} from 'node:test';\nimport 'module.js';\n(getTestContext as typeof getTestContext)().mock.module('module.js'); 1`] = `
+
+  1 | import {getTestContext} from 'node:test';
+  2 | import 'module.js';
+  3 | (getTestContext as typeof getTestContext)().mock.module('module.js');
+
+`;
+
+exports[`no-mock-module-after-import > invalid(21): import {getTestContext} from 'node:test';\nimport 'module.js';\n(getTestContext as typeof getTestContext)().mock.module('module.js'); 2`] = `
+
+Message:
+  1 | import {getTestContext} from 'node:test';
+  2 | import 'module.js';
+> 3 | (getTestContext as typeof getTestContext)().mock.module('module.js');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.module()\` cannot affect \`module.js\` because it was already imported statically.
+
+`;
+
+exports[`no-mock-module-after-import > invalid(22): import {test, mock} from 'node:test';\nimport 'module.js';\ntest('outer', t => {\n\tt.test('inner', context => {\n\t\tcontext.mock.module('module.js');\n\t});\n}); 1`] = `
+
+  1 | import {test, mock} from 'node:test';
+  2 | import 'module.js';
+  3 | test('outer', t => {
+  4 | 	t.test('inner', context => {
+  5 | 		context.mock.module('module.js');
+  6 | 	});
+  7 | });
+
+`;
+
+exports[`no-mock-module-after-import > invalid(22): import {test, mock} from 'node:test';\nimport 'module.js';\ntest('outer', t => {\n\tt.test('inner', context => {\n\t\tcontext.mock.module('module.js');\n\t});\n}); 2`] = `
+
+Message:
+  1 | import {test, mock} from 'node:test';
+  2 | import 'module.js';
+  3 | test('outer', t => {
+  4 | 	t.test('inner', context => {
+> 5 | 		context.mock.module('module.js');
+    | 		^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.module()\` cannot affect \`module.js\` because it was already imported statically.
+  6 | 	});
+  7 | });
+
+`;
+
+exports[`no-mock-module-after-import > invalid(23): import {beforeEach} from 'node:test';\nimport 'module.js';\nbeforeEach(t => {\n\tt.mock.module('module.js');\n}); 1`] = `
+
+  1 | import {beforeEach} from 'node:test';
+  2 | import 'module.js';
+  3 | beforeEach(t => {
+  4 | 	t.mock.module('module.js');
+  5 | });
+
+`;
+
+exports[`no-mock-module-after-import > invalid(23): import {beforeEach} from 'node:test';\nimport 'module.js';\nbeforeEach(t => {\n\tt.mock.module('module.js');\n}); 2`] = `
+
+Message:
+  1 | import {beforeEach} from 'node:test';
+  2 | import 'module.js';
+  3 | beforeEach(t => {
+> 4 | 	t.mock.module('module.js');
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.module()\` cannot affect \`module.js\` because it was already imported statically.
+  5 | });
+
+`;
+
+exports[`no-mock-module-after-import > invalid(24): import {test, mock} from 'node:test';\nimport 'module.js';\ntest('outer', t => {\n\tt.beforeEach(context => {\n\t\tcontext.mock.module('module.js');\n\t});\n}); 1`] = `
 
   1 | import {test, mock} from 'node:test';
   2 | import 'module.js';
@@ -242,7 +322,7 @@ exports[`no-mock-module-after-import > invalid(20): import {test, mock} from 'no
 
 `;
 
-exports[`no-mock-module-after-import > invalid(20): import {test, mock} from 'node:test';\nimport 'module.js';\ntest('outer', t => {\n\tt.beforeEach(context => {\n\t\tcontext.mock.module('module.js');\n\t});\n}); 2`] = `
+exports[`no-mock-module-after-import > invalid(24): import {test, mock} from 'node:test';\nimport 'module.js';\ntest('outer', t => {\n\tt.beforeEach(context => {\n\t\tcontext.mock.module('module.js');\n\t});\n}); 2`] = `
 
 Message:
   1 | import {test, mock} from 'node:test';
@@ -256,7 +336,7 @@ Message:
 
 `;
 
-exports[`no-mock-module-after-import > invalid(21): import {test, mock} from 'node:test';\nimport {type Type, value} from 'module.js';\nmock.module('module.js' as string); 1`] = `
+exports[`no-mock-module-after-import > invalid(25): import {test, mock} from 'node:test';\nimport {type Type, value} from 'module.js';\nmock.module('module.js' as string); 1`] = `
 
   1 | import {test, mock} from 'node:test';
   2 | import {type Type, value} from 'module.js';
@@ -264,7 +344,7 @@ exports[`no-mock-module-after-import > invalid(21): import {test, mock} from 'no
 
 `;
 
-exports[`no-mock-module-after-import > invalid(21): import {test, mock} from 'node:test';\nimport {type Type, value} from 'module.js';\nmock.module('module.js' as string); 2`] = `
+exports[`no-mock-module-after-import > invalid(25): import {test, mock} from 'node:test';\nimport {type Type, value} from 'module.js';\nmock.module('module.js' as string); 2`] = `
 
 Message:
   1 | import {test, mock} from 'node:test';
@@ -274,7 +354,7 @@ Message:
 
 `;
 
-exports[`no-mock-module-after-import > invalid(22): import {test, mock} from 'node:test';\nimport 'module.js';\n(mock as typeof mock).module('module.js'); 1`] = `
+exports[`no-mock-module-after-import > invalid(26): import {test, mock} from 'node:test';\nimport 'module.js';\n(mock as typeof mock).module('module.js'); 1`] = `
 
   1 | import {test, mock} from 'node:test';
   2 | import 'module.js';
@@ -282,7 +362,7 @@ exports[`no-mock-module-after-import > invalid(22): import {test, mock} from 'no
 
 `;
 
-exports[`no-mock-module-after-import > invalid(22): import {test, mock} from 'node:test';\nimport 'module.js';\n(mock as typeof mock).module('module.js'); 2`] = `
+exports[`no-mock-module-after-import > invalid(26): import {test, mock} from 'node:test';\nimport 'module.js';\n(mock as typeof mock).module('module.js'); 2`] = `
 
 Message:
   1 | import {test, mock} from 'node:test';
@@ -292,7 +372,7 @@ Message:
 
 `;
 
-exports[`no-mock-module-after-import > invalid(23): import {test, mock} from 'node:test';\nimport 'module.js';\ntest('mock', t => {\n\t(t as TestContext).mock.module('module.js');\n}); 1`] = `
+exports[`no-mock-module-after-import > invalid(27): import {test, mock} from 'node:test';\nimport 'module.js';\ntest('mock', t => {\n\t(t as TestContext).mock.module('module.js');\n}); 1`] = `
 
   1 | import {test, mock} from 'node:test';
   2 | import 'module.js';
@@ -302,7 +382,7 @@ exports[`no-mock-module-after-import > invalid(23): import {test, mock} from 'no
 
 `;
 
-exports[`no-mock-module-after-import > invalid(23): import {test, mock} from 'node:test';\nimport 'module.js';\ntest('mock', t => {\n\t(t as TestContext).mock.module('module.js');\n}); 2`] = `
+exports[`no-mock-module-after-import > invalid(27): import {test, mock} from 'node:test';\nimport 'module.js';\ntest('mock', t => {\n\t(t as TestContext).mock.module('module.js');\n}); 2`] = `
 
 Message:
   1 | import {test, mock} from 'node:test';
