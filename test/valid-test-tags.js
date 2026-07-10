@@ -48,9 +48,11 @@ test.snapshot({
 		withImport('test("title", {tags: "unit"}, () => {});'),
 		withImport('test("title", {tags: null}, () => {});'),
 		withImport('test("title", {tags: {}}, () => {});'),
+		withImport('test("title", {tags: -1}, () => {});'),
 
 		// Invalid array values
 		withImport('test("title", {tags: ["unit", 1, true, {}, null]}, () => {});'),
+		withImport('test("title", {tags: ["unit", -1]}, () => {});'),
 		withImport('test("title", {tags: ["unit", , "slow"]}, () => {});'),
 		withImport('test("title", {tags: [""]}, () => {});'),
 		withImport('test("title", {tags: [``]}, () => {});'),

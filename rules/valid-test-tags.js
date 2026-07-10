@@ -63,6 +63,12 @@ function isStaticNonString(node) {
 		|| (node.type === 'TemplateLiteral' && node.expressions.length === 0)
 		|| node.type === 'ArrayExpression'
 		|| node.type === 'ObjectExpression'
+		|| (
+			node.type === 'UnaryExpression'
+			&& (node.operator === '+' || node.operator === '-')
+			&& node.argument.type === 'Literal'
+			&& typeof node.argument.value === 'number'
+		)
 	);
 }
 
