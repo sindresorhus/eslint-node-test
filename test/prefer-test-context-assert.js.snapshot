@@ -223,6 +223,29 @@ Suggestion 1/1: Replace with \`t.assert.ok()\`.:
 
 `;
 
+exports[`prefer-test-context-assert > invalid(19): import test from 'node:test';\nimport assert from 'node:assert';\ntest('x', (t = undefined) => { assert.ok(value); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('x', (t = undefined) => { assert.ok(value); });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(19): import test from 'node:test';\nimport assert from 'node:assert';\ntest('x', (t = undefined) => { assert.ok(value); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | test('x', (t = undefined) => { assert.ok(value); });
+    |                                ^^^^^^^^^ Prefer the test context \`t.assert.ok()\` over the imported \`node:assert\`, so the runner ties the assertion to this test.
+
+Suggestion 1/1: Replace with \`t.assert.ok()\`.:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('x', (t = undefined) => { t.assert.ok(value); });
+
+`;
+
 exports[`prefer-test-context-assert > invalid(2): import test from 'node:test';\nimport assert from 'node:assert';\ntest('x', t => { assert(value); }); 1`] = `
 
   1 | import test from 'node:test';

@@ -4,6 +4,7 @@ import {
 	parseTestCall,
 	getTestCallback,
 	getSubtestReceiver,
+	getContextParameterIdentifier,
 } from './utils/node-test.js';
 
 /**
@@ -44,18 +45,8 @@ function isInsideNode(node, container, sourceCode) {
 	return nodeStart >= containerStart && nodeEnd <= containerEnd;
 }
 
-function getParameterIdentifier(parameter) {
-	if (parameter?.type === 'Identifier') {
-		return parameter;
-	}
-
-	if (parameter?.type === 'AssignmentPattern' && parameter.left.type === 'Identifier') {
-		return parameter.left;
-	}
-}
-
 function getParameterVariable(parameter, sourceCode) {
-	const identifier = getParameterIdentifier(parameter);
+	const identifier = getContextParameterIdentifier(parameter);
 
 	return identifier ? findVariable(sourceCode.getScope(identifier), identifier) : undefined;
 }
@@ -202,7 +193,7 @@ const create = context => {
 		frames.push({
 			node,
 			callback,
-			contextParameter: getParameterIdentifier(contextParameter),
+			contextParameter: getContextParameterIdentifier(contextParameter),
 			contextVariable,
 			isSubtest,
 		});

@@ -5,6 +5,7 @@ import {
 	createContextTracker,
 	MODIFIERS,
 	getCalleeChain,
+	getContextParameterIdentifier,
 	getTestCallback,
 	getTestOptions,
 	findOptionsProperty,
@@ -67,10 +68,8 @@ const create = context => {
 	const skippedCallbacks = new WeakSet();
 
 	const getContextVariable = callback => {
-		const parameter = callback.params[0]?.type === 'AssignmentPattern'
-			? callback.params[0].left
-			: callback.params[0];
-		return parameter?.type === 'Identifier'
+		const parameter = getContextParameterIdentifier(callback.params[0]);
+		return parameter
 			? findVariable(sourceCode.getScope(parameter), parameter)
 			: undefined;
 	};

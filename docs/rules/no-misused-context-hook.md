@@ -11,7 +11,7 @@
 
 A statically skipped child, such as one with `{skip: true}`, does not count as runnable.
 
-This rule recognizes only direct calls to context hooks, `t.test()`, and imported test functions in inline test callbacks. It does not trace helper calls, nested suites, runtime conditions, or whether a hook was registered before a subtest ran.
+This rule recognizes only direct calls to context hooks, `t.test()`, and imported test functions made directly in inline test callback bodies. It does not trace helper calls, nested suites, runtime conditions, or whether a hook was registered before a subtest ran.
 
 > [!NOTE]
 > `t.before()` and `t.after()` are not reported because they run for the current test, including a test without subtests.

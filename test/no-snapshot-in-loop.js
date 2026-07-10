@@ -132,5 +132,8 @@ test.snapshot({
 			code: 'import test from \'node:test\';\ntest(\'t\', t => { t!.test(\'subtest\', t => { for (const item of items) { t.assert.snapshot(item); } }); });',
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// Defaulted context parameter.
+		'import test from \'node:test\';\ntest(\'t\', (t = undefined) => { for (const item of items) { t.assert.snapshot(item); } });',
 	],
 });

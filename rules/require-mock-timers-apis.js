@@ -6,6 +6,7 @@ import {
 	MODIFIERS,
 	parseTestCall,
 	resolveImports,
+	getContextParameterIdentifier,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
@@ -89,18 +90,6 @@ function isContextProvidingCall(testCall) {
 
 	return testCall.kind === 'test'
 		&& testCall.modifiers.every(modifier => MODIFIERS.has(modifier.name));
-}
-
-function getParameterIdentifier(parameter) {
-	if (parameter?.type === 'Identifier') {
-		return parameter;
-	}
-
-	if (parameter?.type === 'AssignmentPattern' && parameter.left.type === 'Identifier') {
-		return parameter.left;
-	}
-
-	return undefined;
 }
 
 function getContextHookReceiver(callExpression) {
@@ -227,7 +216,7 @@ const create = context => {
 			return;
 		}
 
-		const parameter = getParameterIdentifier(callback.params[0]);
+		const parameter = getContextParameterIdentifier(callback.params[0]);
 		const variable = parameter
 			? findVariable(sourceCode.getScope(parameter), parameter)
 			: undefined;

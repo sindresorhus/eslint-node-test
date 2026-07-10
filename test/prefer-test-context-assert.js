@@ -93,5 +93,8 @@ test.snapshot({
 			code: 'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'x\', (t: TestContext) => { assert.ok(value); });',
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// Defaulted context parameter.
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'x\', (t = undefined) => { assert.ok(value); });',
 	],
 });

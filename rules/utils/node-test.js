@@ -539,6 +539,24 @@ function getParentCallExpression(node) {
 }
 
 /**
+Get the identifier for a simple test-context callback parameter, including a defaulted parameter.
+*/
+export function getContextParameterIdentifier(parameter) {
+	if (parameter?.type === 'Identifier') {
+		return parameter;
+	}
+
+	if (
+		parameter?.type === 'AssignmentPattern'
+		&& parameter.left.type === 'Identifier'
+	) {
+		return parameter.left;
+	}
+
+	return undefined;
+}
+
+/**
 Track the test-context parameter names (`t`) introduced by enclosing test, subtest, and optionally hook callbacks, including hooks declared from a test context.
 
 Subtests (`t.test(…)`) are method calls, not imported bindings, so recognizing them requires knowing the enclosing context name. Drive the tracker from a `CallExpression` visitor: query `isSubtestCall`/`isContextName` first (against the current stack), then call `update(node)` to push this call's own context, and `leave(node)` on exit.
@@ -615,12 +633,10 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 			const parsed = parseTestCall(node, imports);
 			const callback = isTrackedHookCall(parsed) || isTrackedContextHookCall(node) ? getHookCallback(node) : getTestCallback(node);
 			if (callback) {
-				const parameter = callback.params[0]?.type === 'AssignmentPattern'
-					? callback.params[0].left
-					: callback.params[0];
+				const parameter = getContextParameterIdentifier(callback.params[0]);
 
-				names.push(parameter?.type === 'Identifier' ? parameter.name : undefined);
-				variables.push(parameter?.type === 'Identifier' ? getDeclaredVariable(parameter, callback, imports) : undefined);
+				names.push(parameter?.name);
+				variables.push(parameter ? getDeclaredVariable(parameter, callback, imports) : undefined);
 				callbacks.push(callback);
 				pushedCalls.add(node);
 			}
