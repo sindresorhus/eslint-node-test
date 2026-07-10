@@ -35,6 +35,7 @@ export {default as 'no-duplicate-plan'} from './no-duplicate-plan.js';
 export {default as 'no-export'} from './no-export.js';
 export {default as 'no-identical-assertion-arguments'} from './no-identical-assertion-arguments.js';
 export {default as 'no-identical-title'} from './no-identical-title.js';
+export {default as 'no-import-test-files'} from './no-import-test-files.js';
 export {default as 'no-incorrect-deep-equal'} from './no-incorrect-deep-equal.js';
 export {default as 'no-incorrect-strict-equal'} from './no-incorrect-strict-equal.js';
 export {default as 'no-late-test-activity'} from './no-late-test-activity.js';

@@ -1,0 +1,281 @@
+exports[`no-import-test-files > invalid(1): import './test.js'; 1`] = `
+
+  1 | import './test.js';
+
+`;
+
+exports[`no-import-test-files > invalid(1): import './test.js'; 2`] = `
+
+Message:
+> 1 | import './test.js';
+    | ^^^^^^^^^^^^^^^^^^^ Do not import a test file. The Node.js test runner may execute it twice.
+
+`;
+
+exports[`no-import-test-files > invalid(10): import(\`./example.test.js\`); 1`] = `
+
+  1 | import(\`./example.test.js\`);
+
+`;
+
+exports[`no-import-test-files > invalid(10): import(\`./example.test.js\`); 2`] = `
+
+Message:
+> 1 | import(\`./example.test.js\`);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not import a test file. The Node.js test runner may execute it twice.
+
+`;
+
+exports[`no-import-test-files > invalid(11): import(\`./example_test.js\`); 1`] = `
+
+  1 | import(\`./example_test.js\`);
+
+`;
+
+exports[`no-import-test-files > invalid(11): import(\`./example_test.js\`); 2`] = `
+
+Message:
+> 1 | import(\`./example_test.js\`);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not import a test file. The Node.js test runner may execute it twice.
+
+`;
+
+exports[`no-import-test-files > invalid(12): import(\`./example-test.js\`); 1`] = `
+
+  1 | import(\`./example-test.js\`);
+
+`;
+
+exports[`no-import-test-files > invalid(12): import(\`./example-test.js\`); 2`] = `
+
+Message:
+> 1 | import(\`./example-test.js\`);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not import a test file. The Node.js test runner may execute it twice.
+
+`;
+
+exports[`no-import-test-files > invalid(13): export {value} from './example.test.js'; 1`] = `
+
+  1 | export {value} from './example.test.js';
+
+`;
+
+exports[`no-import-test-files > invalid(13): export {value} from './example.test.js'; 2`] = `
+
+Message:
+> 1 | export {value} from './example.test.js';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not import a test file. The Node.js test runner may execute it twice.
+
+`;
+
+exports[`no-import-test-files > invalid(14): export * from './example.test.js'; 1`] = `
+
+  1 | export * from './example.test.js';
+
+`;
+
+exports[`no-import-test-files > invalid(14): export * from './example.test.js'; 2`] = `
+
+Message:
+> 1 | export * from './example.test.js';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not import a test file. The Node.js test runner may execute it twice.
+
+`;
+
+exports[`no-import-test-files > invalid(15): import './example.test.ts'; 1`] = `
+
+Options:
+- extensions:
+    - 'js'
+    - 'mjs'
+    - 'cjs'
+    - 'ts'
+    - 'mts'
+    - 'cts'
+
+Code:
+  1 | import './example.test.ts';
+
+`;
+
+exports[`no-import-test-files > invalid(15): import './example.test.ts'; 2`] = `
+
+Message:
+> 1 | import './example.test.ts';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not import a test file. The Node.js test runner may execute it twice.
+
+`;
+
+exports[`no-import-test-files > invalid(16): import('./example.test.js' as string); 1`] = `
+
+  1 | import('./example.test.js' as string);
+
+`;
+
+exports[`no-import-test-files > invalid(16): import('./example.test.js' as string); 2`] = `
+
+Message:
+> 1 | import('./example.test.js' as string);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not import a test file. The Node.js test runner may execute it twice.
+
+`;
+
+exports[`no-import-test-files > invalid(17): import {type Value, value} from './example.test.ts'; 1`] = `
+
+Options:
+- extensions:
+    - 'js'
+    - 'mjs'
+    - 'cjs'
+    - 'ts'
+    - 'mts'
+    - 'cts'
+
+Code:
+  1 | import {type Value, value} from './example.test.ts';
+
+`;
+
+exports[`no-import-test-files > invalid(17): import {type Value, value} from './example.test.ts'; 2`] = `
+
+Message:
+> 1 | import {type Value, value} from './example.test.ts';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not import a test file. The Node.js test runner may execute it twice.
+
+`;
+
+exports[`no-import-test-files > invalid(18): export {type Value, value} from './example.test.ts'; 1`] = `
+
+Options:
+- extensions:
+    - 'js'
+    - 'mjs'
+    - 'cjs'
+    - 'ts'
+    - 'mts'
+    - 'cts'
+
+Code:
+  1 | export {type Value, value} from './example.test.ts';
+
+`;
+
+exports[`no-import-test-files > invalid(18): export {type Value, value} from './example.test.ts'; 2`] = `
+
+Message:
+> 1 | export {type Value, value} from './example.test.ts';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not import a test file. The Node.js test runner may execute it twice.
+
+`;
+
+exports[`no-import-test-files > invalid(2): import './test-example.cjs'; 1`] = `
+
+  1 | import './test-example.cjs';
+
+`;
+
+exports[`no-import-test-files > invalid(2): import './test-example.cjs'; 2`] = `
+
+Message:
+> 1 | import './test-example.cjs';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not import a test file. The Node.js test runner may execute it twice.
+
+`;
+
+exports[`no-import-test-files > invalid(3): import './example.test.mjs'; 1`] = `
+
+  1 | import './example.test.mjs';
+
+`;
+
+exports[`no-import-test-files > invalid(3): import './example.test.mjs'; 2`] = `
+
+Message:
+> 1 | import './example.test.mjs';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not import a test file. The Node.js test runner may execute it twice.
+
+`;
+
+exports[`no-import-test-files > invalid(4): import './example_test.js'; 1`] = `
+
+  1 | import './example_test.js';
+
+`;
+
+exports[`no-import-test-files > invalid(4): import './example_test.js'; 2`] = `
+
+Message:
+> 1 | import './example_test.js';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not import a test file. The Node.js test runner may execute it twice.
+
+`;
+
+exports[`no-import-test-files > invalid(5): import './example-test.js'; 1`] = `
+
+  1 | import './example-test.js';
+
+`;
+
+exports[`no-import-test-files > invalid(5): import './example-test.js'; 2`] = `
+
+Message:
+> 1 | import './example-test.js';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not import a test file. The Node.js test runner may execute it twice.
+
+`;
+
+exports[`no-import-test-files > invalid(6): import './test/helpers.js'; 1`] = `
+
+  1 | import './test/helpers.js';
+
+`;
+
+exports[`no-import-test-files > invalid(6): import './test/helpers.js'; 2`] = `
+
+Message:
+> 1 | import './test/helpers.js';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not import a test file. The Node.js test runner may execute it twice.
+
+`;
+
+exports[`no-import-test-files > invalid(7): import './test\\\\helpers.js'; 1`] = `
+
+  1 | import './test\\\\helpers.js';
+
+`;
+
+exports[`no-import-test-files > invalid(7): import './test\\\\helpers.js'; 2`] = `
+
+Message:
+> 1 | import './test\\\\helpers.js';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not import a test file. The Node.js test runner may execute it twice.
+
+`;
+
+exports[`no-import-test-files > invalid(8): import './example\\\\thing.test.js'; 1`] = `
+
+  1 | import './example\\\\thing.test.js';
+
+`;
+
+exports[`no-import-test-files > invalid(8): import './example\\\\thing.test.js'; 2`] = `
+
+Message:
+> 1 | import './example\\\\thing.test.js';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not import a test file. The Node.js test runner may execute it twice.
+
+`;
+
+exports[`no-import-test-files > invalid(9): import './test/helpers.js?direct#source'; 1`] = `
+
+  1 | import './test/helpers.js?direct#source';
+
+`;
+
+exports[`no-import-test-files > invalid(9): import './test/helpers.js?direct#source'; 2`] = `
+
+Message:
+> 1 | import './test/helpers.js?direct#source';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not import a test file. The Node.js test runner may execute it twice.
+
+`;
