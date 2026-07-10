@@ -39,6 +39,7 @@ export {default as 'no-incorrect-strict-equal'} from './no-incorrect-strict-equa
 export {default as 'no-late-test-activity'} from './no-late-test-activity.js';
 export {default as 'no-loop-static-title'} from './no-loop-static-title.js';
 export {default as 'no-misused-concurrency'} from './no-misused-concurrency.js';
+export {default as 'no-misused-context-hook'} from './no-misused-context-hook.js';
 export {default as 'no-mock-timers-destructured-import'} from './no-mock-timers-destructured-import.js';
 export {default as 'no-nested-tests'} from './no-nested-tests.js';
 export {default as 'no-only-test'} from './no-only-test.js';

@@ -1,0 +1,202 @@
+exports[`no-misused-context-hook > invalid(1): import test from 'node:test';\ntest('leaf', t => { t.beforeEach(() => {}); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('leaf', t => { t.beforeEach(() => {}); });
+
+`;
+
+exports[`no-misused-context-hook > invalid(1): import test from 'node:test';\ntest('leaf', t => { t.beforeEach(() => {}); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('leaf', t => { t.beforeEach(() => {}); });
+    |                     ^^^^^^^^^^^^^^^^^^^^^^ \`beforeEach()\` has no effect on a test without runnable subtests. It only runs around the test's subtests.
+
+`;
+
+exports[`no-misused-context-hook > invalid(10): import test from 'node:test';\ntest('leaf', t => { t.afterEach(() => { t.test('child', () => {}); }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('leaf', t => { t.afterEach(() => { t.test('child', () => {}); }); });
+
+`;
+
+exports[`no-misused-context-hook > invalid(10): import test from 'node:test';\ntest('leaf', t => { t.afterEach(() => { t.test('child', () => {}); }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('leaf', t => { t.afterEach(() => { t.test('child', () => {}); }); });
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`afterEach()\` has no effect on a test without runnable subtests. It only runs around the test's subtests.
+
+`;
+
+exports[`no-misused-context-hook > invalid(11): import test from 'node:test';\ntest('leaf', t => { (t as object).afterEach(() => {}); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('leaf', t => { (t as object).afterEach(() => {}); });
+
+`;
+
+exports[`no-misused-context-hook > invalid(11): import test from 'node:test';\ntest('leaf', t => { (t as object).afterEach(() => {}); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('leaf', t => { (t as object).afterEach(() => {}); });
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`afterEach()\` has no effect on a test without runnable subtests. It only runs around the test's subtests.
+
+`;
+
+exports[`no-misused-context-hook > invalid(12): import test from 'node:test';\ntest('parent', async t => { t.beforeEach(() => {}); await t.test('child', {skip: true as boolean}, () => {}); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('parent', async t => { t.beforeEach(() => {}); await t.test('child', {skip: true as boolean}, () => {}); });
+
+`;
+
+exports[`no-misused-context-hook > invalid(12): import test from 'node:test';\ntest('parent', async t => { t.beforeEach(() => {}); await t.test('child', {skip: true as boolean}, () => {}); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('parent', async t => { t.beforeEach(() => {}); await t.test('child', {skip: true as boolean}, () => {}); });
+    |                             ^^^^^^^^^^^^^^^^^^^^^^ \`beforeEach()\` has no effect on a test without runnable subtests. It only runs around the test's subtests.
+
+`;
+
+exports[`no-misused-context-hook > invalid(2): import test from 'node:test';\ntest('leaf', t => { t.afterEach(() => {}); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('leaf', t => { t.afterEach(() => {}); });
+
+`;
+
+exports[`no-misused-context-hook > invalid(2): import test from 'node:test';\ntest('leaf', t => { t.afterEach(() => {}); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('leaf', t => { t.afterEach(() => {}); });
+    |                     ^^^^^^^^^^^^^^^^^^^^^ \`afterEach()\` has no effect on a test without runnable subtests. It only runs around the test's subtests.
+
+`;
+
+exports[`no-misused-context-hook > invalid(3): import test from 'node:test';\ntest('leaf', t => { t.beforeEach(() => {}); t.afterEach(() => {}); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('leaf', t => { t.beforeEach(() => {}); t.afterEach(() => {}); });
+
+`;
+
+exports[`no-misused-context-hook > invalid(3): import test from 'node:test';\ntest('leaf', t => { t.beforeEach(() => {}); t.afterEach(() => {}); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('leaf', t => { t.beforeEach(() => {}); t.afterEach(() => {}); });
+    |                     ^^^^^^^^^^^^^^^^^^^^^^ \`beforeEach()\` has no effect on a test without runnable subtests. It only runs around the test's subtests.
+
+`;
+
+exports[`no-misused-context-hook > invalid(3): import test from 'node:test';\ntest('leaf', t => { t.beforeEach(() => {}); t.afterEach(() => {}); }); 3`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('leaf', t => { t.beforeEach(() => {}); t.afterEach(() => {}); });
+    |                                             ^^^^^^^^^^^^^^^^^^^^^ \`afterEach()\` has no effect on a test without runnable subtests. It only runs around the test's subtests.
+
+`;
+
+exports[`no-misused-context-hook > invalid(4): import test from 'node:test';\ntest('parent', async t => { t.beforeEach(() => {}); await t.test('child', {skip: true}, () => {}); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('parent', async t => { t.beforeEach(() => {}); await t.test('child', {skip: true}, () => {}); });
+
+`;
+
+exports[`no-misused-context-hook > invalid(4): import test from 'node:test';\ntest('parent', async t => { t.beforeEach(() => {}); await t.test('child', {skip: true}, () => {}); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('parent', async t => { t.beforeEach(() => {}); await t.test('child', {skip: true}, () => {}); });
+    |                             ^^^^^^^^^^^^^^^^^^^^^^ \`beforeEach()\` has no effect on a test without runnable subtests. It only runs around the test's subtests.
+
+`;
+
+exports[`no-misused-context-hook > invalid(5): import test from 'node:test';\ntest('parent', async t => { t.afterEach(() => {}); await t.test('child', {skip: 'not ready'}, () => {}); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('parent', async t => { t.afterEach(() => {}); await t.test('child', {skip: 'not ready'}, () => {}); });
+
+`;
+
+exports[`no-misused-context-hook > invalid(5): import test from 'node:test';\ntest('parent', async t => { t.afterEach(() => {}); await t.test('child', {skip: 'not ready'}, () => {}); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('parent', async t => { t.afterEach(() => {}); await t.test('child', {skip: 'not ready'}, () => {}); });
+    |                             ^^^^^^^^^^^^^^^^^^^^^ \`afterEach()\` has no effect on a test without runnable subtests. It only runs around the test's subtests.
+
+`;
+
+exports[`no-misused-context-hook > invalid(6): import test from 'node:test';\nconst shouldSkip = true;\ntest('parent', async t => { t.beforeEach(() => {}); await t.test('child', {skip: shouldSkip}, () => {}); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | const shouldSkip = true;
+  3 | test('parent', async t => { t.beforeEach(() => {}); await t.test('child', {skip: shouldSkip}, () => {}); });
+
+`;
+
+exports[`no-misused-context-hook > invalid(6): import test from 'node:test';\nconst shouldSkip = true;\ntest('parent', async t => { t.beforeEach(() => {}); await t.test('child', {skip: shouldSkip}, () => {}); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | const shouldSkip = true;
+> 3 | test('parent', async t => { t.beforeEach(() => {}); await t.test('child', {skip: shouldSkip}, () => {}); });
+    |                             ^^^^^^^^^^^^^^^^^^^^^^ \`beforeEach()\` has no effect on a test without runnable subtests. It only runs around the test's subtests.
+
+`;
+
+exports[`no-misused-context-hook > invalid(7): import test from 'node:test';\ntest('parent', async t => { await t.test('child', child => { child.afterEach(() => {}); }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('parent', async t => { await t.test('child', child => { child.afterEach(() => {}); }); });
+
+`;
+
+exports[`no-misused-context-hook > invalid(7): import test from 'node:test';\ntest('parent', async t => { await t.test('child', child => { child.afterEach(() => {}); }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('parent', async t => { await t.test('child', child => { child.afterEach(() => {}); }); });
+    |                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^ \`afterEach()\` has no effect on a test without runnable subtests. It only runs around the test's subtests.
+
+`;
+
+exports[`no-misused-context-hook > invalid(8): import test from 'node:test';\ntest('parent', async t => { t.beforeEach(() => {}); await t.test('child', t => { t.beforeEach(() => {}); }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('parent', async t => { t.beforeEach(() => {}); await t.test('child', t => { t.beforeEach(() => {}); }); });
+
+`;
+
+exports[`no-misused-context-hook > invalid(8): import test from 'node:test';\ntest('parent', async t => { t.beforeEach(() => {}); await t.test('child', t => { t.beforeEach(() => {}); }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('parent', async t => { t.beforeEach(() => {}); await t.test('child', t => { t.beforeEach(() => {}); }); });
+    |                                                                                  ^^^^^^^^^^^^^^^^^^^^^^ \`beforeEach()\` has no effect on a test without runnable subtests. It only runs around the test's subtests.
+
+`;
+
+exports[`no-misused-context-hook > invalid(9): import test from 'node:test';\ntest('leaf', t => { t.beforeEach(() => { t.test('child', () => {}); }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('leaf', t => { t.beforeEach(() => { t.test('child', () => {}); }); });
+
+`;
+
+exports[`no-misused-context-hook > invalid(9): import test from 'node:test';\ntest('leaf', t => { t.beforeEach(() => { t.test('child', () => {}); }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('leaf', t => { t.beforeEach(() => { t.test('child', () => {}); }); });
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`beforeEach()\` has no effect on a test without runnable subtests. It only runs around the test's subtests.
+
+`;
