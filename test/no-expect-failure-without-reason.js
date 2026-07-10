@@ -38,6 +38,9 @@ test.snapshot({
 
 		// Not a test file.
 		'test(\'t\', {expectFailure: true}, () => {});',
+
+		// Not a `node:test` test/suite modifier.
+		withTest('test.foo(\'t\', {expectFailure: true}, () => {});'),
 	],
 	invalid: [
 		// Default import.

@@ -3,6 +3,7 @@ import {
 	parseTestCall,
 	getTestOptions,
 	findOptionsProperty,
+	MODIFIERS,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
@@ -24,7 +25,7 @@ const create = context => {
 		if (
 			!parsed
 			|| parsed.kind === 'hook'
-			|| parsed.modifiers.some(modifier => modifier.name === 'expectFailure')
+			|| parsed.modifiers.some(modifier => !MODIFIERS.has(modifier.name))
 		) {
 			return;
 		}
