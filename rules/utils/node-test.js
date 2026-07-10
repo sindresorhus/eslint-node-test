@@ -615,7 +615,9 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 			const parsed = parseTestCall(node, imports);
 			const callback = isTrackedHookCall(parsed) || isTrackedContextHookCall(node) ? getHookCallback(node) : getTestCallback(node);
 			if (callback) {
-				const parameter = callback.params[0];
+				const parameter = callback.params[0]?.type === 'AssignmentPattern'
+					? callback.params[0].left
+					: callback.params[0];
 
 				names.push(parameter?.type === 'Identifier' ? parameter.name : undefined);
 				variables.push(parameter?.type === 'Identifier' ? getDeclaredVariable(parameter, callback, imports) : undefined);
@@ -807,7 +809,7 @@ export function findOptionsProperty(optionsObject, name) {
 		return undefined;
 	}
 
-	return optionsObject.properties.find(property =>
+	return optionsObject.properties.findLast(property =>
 		property.type === 'Property'
 		&& !property.computed
 		&& (

@@ -11,6 +11,7 @@ test.snapshot({
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {todo: true}, () => {}); });'),
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {skip: false}, () => {}); });'),
 		withTest('const shouldSkip = false;\ntest(\'parent\', async t => { t.afterEach(() => {}); await t.test(\'child\', {skip: shouldSkip}, () => {}); });'),
+		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {skip: true, skip: false}, () => {}); });'),
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\'); });'),
 		withTest('test(\'parent\', async t => { t?.afterEach(() => {}); await t.test(\'child\', () => {}); });'),
 		withTest('test(\'parent\', t => { t.beforeEach(() => {}); test(\'child\', () => {}); });'),
@@ -54,11 +55,13 @@ test.snapshot({
 		withTest('test(\'leaf\', t => { t.afterEach(() => {}); });'),
 		withTest('test(\'leaf\', t => { t?.beforeEach(() => {}); });'),
 		withTest('test(\'leaf\', t => { t.beforeEach(() => {}); t.afterEach(() => {}); });'),
+		withTest('test(\'leaf\', (t = undefined) => { t.beforeEach(() => {}); });'),
 
 		// A skipped subtest does not invoke the parent hooks.
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {skip: true}, () => {}); });'),
 		withTest('test(\'parent\', async t => { t.afterEach(() => {}); await t.test(\'child\', {skip: \'not ready\'}, () => {}); });'),
 		withTest('const shouldSkip = true;\ntest(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {skip: shouldSkip}, () => {}); });'),
+		withTest('test(\'parent\', async t => { t.afterEach(() => {}); await t.test(\'child\', {skip: false, skip: true}, () => {}); });'),
 		withTest('test(\'parent\', t => { t.beforeEach(() => {}); test.skip(\'child\', () => {}); });'),
 		withTest('test(\'parent\', t => { t.afterEach(() => {}); test(\'child\', {skip: true}, () => {}); });'),
 		withTest('test(\'parent\', t => { t.beforeEach(() => {}); test(\'child\', {skip: true, todo: true}, () => {}); });'),

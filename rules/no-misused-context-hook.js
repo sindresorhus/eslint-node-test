@@ -67,7 +67,9 @@ const create = context => {
 	const skippedCallbacks = new WeakSet();
 
 	const getContextVariable = callback => {
-		const parameter = callback.params[0];
+		const parameter = callback.params[0]?.type === 'AssignmentPattern'
+			? callback.params[0].left
+			: callback.params[0];
 		return parameter?.type === 'Identifier'
 			? findVariable(sourceCode.getScope(parameter), parameter)
 			: undefined;
