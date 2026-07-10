@@ -134,13 +134,11 @@ const create = context => {
 		}
 
 		const mockText = sourceCode.getText(mock);
-		const [, mockEnd] = sourceCode.getRange(mock);
-		const canFix = sourceCode.getCommentsInside(node).every(comment => sourceCode.getRange(comment)[1] <= mockEnd);
 		return {
 			node,
 			messageId: MESSAGE_ID,
 			data: {mock: mockText},
-			fix: canFix
+			fix: sourceCode.getCommentsInside(node).length === 0
 				? fixer => fixer.replaceText(node, `${mockText}.callCount()`)
 				: undefined,
 		};

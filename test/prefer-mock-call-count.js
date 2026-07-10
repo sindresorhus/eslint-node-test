@@ -122,6 +122,7 @@ test.snapshot({
 
 		// The expression can be part of a longer chain.
 		withNodeTest('String(spy.mock.calls.length);'),
+		withNodeTest('spy.mock.calls.length?.toString();'),
 
 		// Parentheses around the calls collection are supported.
 		withNodeTest('(spy.mock.calls).length;'),
@@ -139,8 +140,7 @@ test.snapshot({
 
 		// Report without removing comments.
 		withNodeTest('spy.mock /* comment */ .calls.length;'),
-
-		// Preserve comments inside the retained mock expression.
 		withNodeTest('spy /* comment */ .mock.calls.length;'),
+		withNodeTest('(/* before */ spy.mock).calls.length;'),
 	],
 });
