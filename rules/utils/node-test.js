@@ -115,7 +115,7 @@ function collectFromImport(node, bindings) {
 
 	const {value: source} = node.source;
 	const kind = moduleKind(source);
-	if (!kind) {
+	if (!kind || node.importKind === 'type') {
 		return;
 	}
 
@@ -594,12 +594,24 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 		return isContextIdentifier(receiver);
 	};
 
-	const isTrackedHookCall = parsed => trackHooks && (
+	const isContextHookCall = node => {
+		if (!trackHooks) {
+			return false;
+		}
+
+		const chain = getCalleeChain(node.callee);
+		return chain?.members.length === 1
+			&& HOOK_FUNCTIONS.has(chain.members[0].name)
+			&& isContextIdentifier(chain.root);
+	};
+
+	const isTrackedHookCall = (node, parsed) => trackHooks && (
 		(
 			parsed?.kind === 'hook'
 			&& parsed.modifiers.length === 0
 		)
 		|| isHookMemberTestCall(parsed)
+		|| isContextHookCall(node)
 	);
 
 	const isTrackedContextHookCall = node => trackHooks && isContextHookCall(node, isContextIdentifier);
@@ -611,7 +623,7 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 				parsed?.kind === 'test'
 				&& parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name))
 			)
-			|| isTrackedHookCall(parsed)
+			|| isTrackedHookCall(node, parsed)
 		);
 	};
 
