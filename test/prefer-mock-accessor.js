@@ -15,6 +15,11 @@ test.snapshot({
 		withMock('mock.method(object, \'value\', {setter: false});'),
 		withMock('mock.method(object, \'value\', {getter: enabled});'),
 
+		// A four-argument call is only unambiguous when the implementation is an inline function.
+		withMock('mock.method(object, \'value\', {setter: true}, {getter: true});'),
+		withMock('const implementation = {setter: true};\nmock.method(object, \'value\', implementation, {getter: true});'),
+		withMock('mock.method(object, \'value\', ...[{setter: true}], {getter: true});'),
+
 		// Incompatible accessor options are invalid in node:test.
 		withMock('mock.method(object, \'value\', {getter: true, setter: true});'),
 		withMock('mock.method(object, \'value\', {setter: true, getter: true});'),
@@ -36,6 +41,12 @@ test.snapshot({
 
 		// The context identifier is scoped to the test callback.
 		inTest('const fn = t => t.mock.method(object, \'value\', {getter: true});'),
+
+		// A TypeScript-wrapped third object argument is still the effective options object.
+		{
+			code: withMock('mock.method(object, \'value\', ({setter: true} as const), {getter: true});'),
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		// Global mock getter.
@@ -50,6 +61,10 @@ test.snapshot({
 
 		// An implementation and other options are preserved.
 		withMock('mock.method(object, \'value\', () => 42, {getter: true, times: 2});'),
+		{
+			code: withMock('mock.method(object, \'value\', (() => 42) as () => number, {getter: true});'),
+			languageOptions: {parser: parsers.typescript},
+		},
 
 		// The options object can be the third argument.
 		withMock('mock.method(object, \'value\', {setter: true});'),
@@ -66,6 +81,10 @@ test.snapshot({
 		// Test context mock.
 		inTest('t.mock.method(object, \'value\', {setter: true});'),
 		inTest('t.test(\'child\', child => child.mock.method(object, \'value\', {getter: true}));'),
+		{
+			code: 'import test from \'node:test\';\ntest(\'t\', (t => { t.mock.method(object, \'value\', {getter: true}); }) as (t: unknown) => void);',
+			languageOptions: {parser: parsers.typescript},
+		},
 
 		// Imported hook context mock.
 		'import {beforeEach} from \'node:test\';\nbeforeEach(t => t.mock.method(object, \'value\', {getter: true}));',

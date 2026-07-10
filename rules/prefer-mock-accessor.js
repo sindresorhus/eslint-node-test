@@ -1,4 +1,5 @@
 import {resolveImports, createContextTracker, isGlobalMock} from './utils/node-test.js';
+import {isFunction} from './ast/index.js';
 import {unwrapTypeScriptExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-mock-accessor';
@@ -65,6 +66,10 @@ function getEnabledAccessor(options) {
 
 function getOptions(callExpression) {
 	if (callExpression.arguments.length !== 3 && callExpression.arguments.length !== 4) {
+		return undefined;
+	}
+
+	if (callExpression.arguments.length === 4 && !isFunction(unwrapTypeScriptExpression(callExpression.arguments[2]))) {
 		return undefined;
 	}
 

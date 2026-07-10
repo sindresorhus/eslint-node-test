@@ -18,14 +18,34 @@ Output:
 
 `;
 
-exports[`prefer-mock-accessor > invalid(10): import * as nodeTest from 'node:test';\nnodeTest.mock.method(object, 'value', {setter: true}); 1`] = `
+exports[`prefer-mock-accessor > invalid(10): import {mock as tracker} from 'node:test';\ntracker.method(object, 'value', {getter: true}); 1`] = `
+
+  1 | import {mock as tracker} from 'node:test';
+  2 | tracker.method(object, 'value', {getter: true});
+
+`;
+
+exports[`prefer-mock-accessor > invalid(10): import {mock as tracker} from 'node:test';\ntracker.method(object, 'value', {getter: true}); 2`] = `
+
+Message:
+  1 | import {mock as tracker} from 'node:test';
+> 2 | tracker.method(object, 'value', {getter: true});
+    |         ^^^^^^ Prefer \`mock.getter()\` over \`mock.method()\` with \`getter: true\`.
+
+Output:
+  1 | import {mock as tracker} from 'node:test';
+  2 | tracker.getter(object, 'value', {getter: true});
+
+`;
+
+exports[`prefer-mock-accessor > invalid(11): import * as nodeTest from 'node:test';\nnodeTest.mock.method(object, 'value', {setter: true}); 1`] = `
 
   1 | import * as nodeTest from 'node:test';
   2 | nodeTest.mock.method(object, 'value', {setter: true});
 
 `;
 
-exports[`prefer-mock-accessor > invalid(10): import * as nodeTest from 'node:test';\nnodeTest.mock.method(object, 'value', {setter: true}); 2`] = `
+exports[`prefer-mock-accessor > invalid(11): import * as nodeTest from 'node:test';\nnodeTest.mock.method(object, 'value', {setter: true}); 2`] = `
 
 Message:
   1 | import * as nodeTest from 'node:test';
@@ -38,14 +58,14 @@ Output:
 
 `;
 
-exports[`prefer-mock-accessor > invalid(11): import test from 'node:test';\ntest.mock.method(object, 'value', {getter: true}); 1`] = `
+exports[`prefer-mock-accessor > invalid(12): import test from 'node:test';\ntest.mock.method(object, 'value', {getter: true}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test.mock.method(object, 'value', {getter: true});
 
 `;
 
-exports[`prefer-mock-accessor > invalid(11): import test from 'node:test';\ntest.mock.method(object, 'value', {getter: true}); 2`] = `
+exports[`prefer-mock-accessor > invalid(12): import test from 'node:test';\ntest.mock.method(object, 'value', {getter: true}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -58,7 +78,7 @@ Output:
 
 `;
 
-exports[`prefer-mock-accessor > invalid(12): import test from 'node:test';\ntest('t', t => {\n\tt.mock.method(object, 'value', {setter: true});\n}); 1`] = `
+exports[`prefer-mock-accessor > invalid(13): import test from 'node:test';\ntest('t', t => {\n\tt.mock.method(object, 'value', {setter: true});\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', t => {
@@ -67,7 +87,7 @@ exports[`prefer-mock-accessor > invalid(12): import test from 'node:test';\ntest
 
 `;
 
-exports[`prefer-mock-accessor > invalid(12): import test from 'node:test';\ntest('t', t => {\n\tt.mock.method(object, 'value', {setter: true});\n}); 2`] = `
+exports[`prefer-mock-accessor > invalid(13): import test from 'node:test';\ntest('t', t => {\n\tt.mock.method(object, 'value', {setter: true});\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -84,7 +104,7 @@ Output:
 
 `;
 
-exports[`prefer-mock-accessor > invalid(13): import test from 'node:test';\ntest('t', t => {\n\tt.test('child', child => child.mock.method(object, 'value', {getter: true}));\n}); 1`] = `
+exports[`prefer-mock-accessor > invalid(14): import test from 'node:test';\ntest('t', t => {\n\tt.test('child', child => child.mock.method(object, 'value', {getter: true}));\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', t => {
@@ -93,7 +113,7 @@ exports[`prefer-mock-accessor > invalid(13): import test from 'node:test';\ntest
 
 `;
 
-exports[`prefer-mock-accessor > invalid(13): import test from 'node:test';\ntest('t', t => {\n\tt.test('child', child => child.mock.method(object, 'value', {getter: true}));\n}); 2`] = `
+exports[`prefer-mock-accessor > invalid(14): import test from 'node:test';\ntest('t', t => {\n\tt.test('child', child => child.mock.method(object, 'value', {getter: true}));\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -110,14 +130,34 @@ Output:
 
 `;
 
-exports[`prefer-mock-accessor > invalid(14): import {beforeEach} from 'node:test';\nbeforeEach(t => t.mock.method(object, 'value', {getter: true})); 1`] = `
+exports[`prefer-mock-accessor > invalid(15): import test from 'node:test';\ntest('t', (t => { t.mock.method(object, 'value', {getter: true}); }) as (t: unknown) => void); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', (t => { t.mock.method(object, 'value', {getter: true}); }) as (t: unknown) => void);
+
+`;
+
+exports[`prefer-mock-accessor > invalid(15): import test from 'node:test';\ntest('t', (t => { t.mock.method(object, 'value', {getter: true}); }) as (t: unknown) => void); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', (t => { t.mock.method(object, 'value', {getter: true}); }) as (t: unknown) => void);
+    |                          ^^^^^^ Prefer \`mock.getter()\` over \`mock.method()\` with \`getter: true\`.
+
+Output:
+  1 | import test from 'node:test';
+  2 | test('t', (t => { t.mock.getter(object, 'value', {getter: true}); }) as (t: unknown) => void);
+
+`;
+
+exports[`prefer-mock-accessor > invalid(16): import {beforeEach} from 'node:test';\nbeforeEach(t => t.mock.method(object, 'value', {getter: true})); 1`] = `
 
   1 | import {beforeEach} from 'node:test';
   2 | beforeEach(t => t.mock.method(object, 'value', {getter: true}));
 
 `;
 
-exports[`prefer-mock-accessor > invalid(14): import {beforeEach} from 'node:test';\nbeforeEach(t => t.mock.method(object, 'value', {getter: true})); 2`] = `
+exports[`prefer-mock-accessor > invalid(16): import {beforeEach} from 'node:test';\nbeforeEach(t => t.mock.method(object, 'value', {getter: true})); 2`] = `
 
 Message:
   1 | import {beforeEach} from 'node:test';
@@ -130,7 +170,7 @@ Output:
 
 `;
 
-exports[`prefer-mock-accessor > invalid(15): import test from 'node:test';\ntest('t', t => {\n\tt.beforeEach(hookContext => hookContext.mock.method(object, 'value', {setter: true}));\n}); 1`] = `
+exports[`prefer-mock-accessor > invalid(17): import test from 'node:test';\ntest('t', t => {\n\tt.beforeEach(hookContext => hookContext.mock.method(object, 'value', {setter: true}));\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', t => {
@@ -139,7 +179,7 @@ exports[`prefer-mock-accessor > invalid(15): import test from 'node:test';\ntest
 
 `;
 
-exports[`prefer-mock-accessor > invalid(15): import test from 'node:test';\ntest('t', t => {\n\tt.beforeEach(hookContext => hookContext.mock.method(object, 'value', {setter: true}));\n}); 2`] = `
+exports[`prefer-mock-accessor > invalid(17): import test from 'node:test';\ntest('t', t => {\n\tt.beforeEach(hookContext => hookContext.mock.method(object, 'value', {setter: true}));\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -156,7 +196,7 @@ Output:
 
 `;
 
-exports[`prefer-mock-accessor > invalid(16): import {mock} from 'node:test';\nmock.method(object, 'value', {\n\t/* Accessor */\n\tgetter: true,\n}); 1`] = `
+exports[`prefer-mock-accessor > invalid(18): import {mock} from 'node:test';\nmock.method(object, 'value', {\n\t/* Accessor */\n\tgetter: true,\n}); 1`] = `
 
   1 | import {mock} from 'node:test';
   2 | mock.method(object, 'value', {
@@ -166,7 +206,7 @@ exports[`prefer-mock-accessor > invalid(16): import {mock} from 'node:test';\nmo
 
 `;
 
-exports[`prefer-mock-accessor > invalid(16): import {mock} from 'node:test';\nmock.method(object, 'value', {\n\t/* Accessor */\n\tgetter: true,\n}); 2`] = `
+exports[`prefer-mock-accessor > invalid(18): import {mock} from 'node:test';\nmock.method(object, 'value', {\n\t/* Accessor */\n\tgetter: true,\n}); 2`] = `
 
 Message:
   1 | import {mock} from 'node:test';
@@ -185,14 +225,14 @@ Output:
 
 `;
 
-exports[`prefer-mock-accessor > invalid(17): import {mock} from 'node:test';\nmock.method(object, 'value', ({getter: true} as const)); 1`] = `
+exports[`prefer-mock-accessor > invalid(19): import {mock} from 'node:test';\nmock.method(object, 'value', ({getter: true} as const)); 1`] = `
 
   1 | import {mock} from 'node:test';
   2 | mock.method(object, 'value', ({getter: true} as const));
 
 `;
 
-exports[`prefer-mock-accessor > invalid(17): import {mock} from 'node:test';\nmock.method(object, 'value', ({getter: true} as const)); 2`] = `
+exports[`prefer-mock-accessor > invalid(19): import {mock} from 'node:test';\nmock.method(object, 'value', ({getter: true} as const)); 2`] = `
 
 Message:
   1 | import {mock} from 'node:test';
@@ -202,26 +242,6 @@ Message:
 Output:
   1 | import {mock} from 'node:test';
   2 | mock.getter(object, 'value', ({getter: true} as const));
-
-`;
-
-exports[`prefer-mock-accessor > invalid(18): import {mock} from 'node:test';\nmock.method(object, 'value', {setter: true as const}); 1`] = `
-
-  1 | import {mock} from 'node:test';
-  2 | mock.method(object, 'value', {setter: true as const});
-
-`;
-
-exports[`prefer-mock-accessor > invalid(18): import {mock} from 'node:test';\nmock.method(object, 'value', {setter: true as const}); 2`] = `
-
-Message:
-  1 | import {mock} from 'node:test';
-> 2 | mock.method(object, 'value', {setter: true as const});
-    |      ^^^^^^ Prefer \`mock.setter()\` over \`mock.method()\` with \`setter: true\`.
-
-Output:
-  1 | import {mock} from 'node:test';
-  2 | mock.setter(object, 'value', {setter: true as const});
 
 `;
 
@@ -242,6 +262,26 @@ Message:
 Output:
   1 | import {mock} from 'node:test';
   2 | mock.getter(object, 'value', {getter: false, getter: true});
+
+`;
+
+exports[`prefer-mock-accessor > invalid(20): import {mock} from 'node:test';\nmock.method(object, 'value', {setter: true as const}); 1`] = `
+
+  1 | import {mock} from 'node:test';
+  2 | mock.method(object, 'value', {setter: true as const});
+
+`;
+
+exports[`prefer-mock-accessor > invalid(20): import {mock} from 'node:test';\nmock.method(object, 'value', {setter: true as const}); 2`] = `
+
+Message:
+  1 | import {mock} from 'node:test';
+> 2 | mock.method(object, 'value', {setter: true as const});
+    |      ^^^^^^ Prefer \`mock.setter()\` over \`mock.method()\` with \`setter: true\`.
+
+Output:
+  1 | import {mock} from 'node:test';
+  2 | mock.setter(object, 'value', {setter: true as const});
 
 `;
 
@@ -345,14 +385,34 @@ Output:
 
 `;
 
-exports[`prefer-mock-accessor > invalid(8): import {mock} from 'node:test';\nmock.method(object, 'value', {setter: true}); 1`] = `
+exports[`prefer-mock-accessor > invalid(8): import {mock} from 'node:test';\nmock.method(object, 'value', (() => 42) as () => number, {getter: true}); 1`] = `
+
+  1 | import {mock} from 'node:test';
+  2 | mock.method(object, 'value', (() => 42) as () => number, {getter: true});
+
+`;
+
+exports[`prefer-mock-accessor > invalid(8): import {mock} from 'node:test';\nmock.method(object, 'value', (() => 42) as () => number, {getter: true}); 2`] = `
+
+Message:
+  1 | import {mock} from 'node:test';
+> 2 | mock.method(object, 'value', (() => 42) as () => number, {getter: true});
+    |      ^^^^^^ Prefer \`mock.getter()\` over \`mock.method()\` with \`getter: true\`.
+
+Output:
+  1 | import {mock} from 'node:test';
+  2 | mock.getter(object, 'value', (() => 42) as () => number, {getter: true});
+
+`;
+
+exports[`prefer-mock-accessor > invalid(9): import {mock} from 'node:test';\nmock.method(object, 'value', {setter: true}); 1`] = `
 
   1 | import {mock} from 'node:test';
   2 | mock.method(object, 'value', {setter: true});
 
 `;
 
-exports[`prefer-mock-accessor > invalid(8): import {mock} from 'node:test';\nmock.method(object, 'value', {setter: true}); 2`] = `
+exports[`prefer-mock-accessor > invalid(9): import {mock} from 'node:test';\nmock.method(object, 'value', {setter: true}); 2`] = `
 
 Message:
   1 | import {mock} from 'node:test';
@@ -362,25 +422,5 @@ Message:
 Output:
   1 | import {mock} from 'node:test';
   2 | mock.setter(object, 'value', {setter: true});
-
-`;
-
-exports[`prefer-mock-accessor > invalid(9): import {mock as tracker} from 'node:test';\ntracker.method(object, 'value', {getter: true}); 1`] = `
-
-  1 | import {mock as tracker} from 'node:test';
-  2 | tracker.method(object, 'value', {getter: true});
-
-`;
-
-exports[`prefer-mock-accessor > invalid(9): import {mock as tracker} from 'node:test';\ntracker.method(object, 'value', {getter: true}); 2`] = `
-
-Message:
-  1 | import {mock as tracker} from 'node:test';
-> 2 | tracker.method(object, 'value', {getter: true});
-    |         ^^^^^^ Prefer \`mock.getter()\` over \`mock.method()\` with \`getter: true\`.
-
-Output:
-  1 | import {mock as tracker} from 'node:test';
-  2 | tracker.getter(object, 'value', {getter: true});
 
 `;
