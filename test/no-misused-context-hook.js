@@ -13,6 +13,12 @@ test.snapshot({
 		withTest('const shouldSkip = false;\ntest(\'parent\', async t => { t.afterEach(() => {}); await t.test(\'child\', {skip: shouldSkip}, () => {}); });'),
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\'); });'),
 		withTest('test(\'parent\', async t => { t?.afterEach(() => {}); await t.test(\'child\', () => {}); });'),
+		withTest('test(\'parent\', t => { t.beforeEach(() => {}); test(\'child\', () => {}); });'),
+		withTest('test(\'parent\', t => { t.afterEach(() => {}); test.todo(\'child\', () => {}); });'),
+		withTest('test(\'parent\', () => { test.skip(\'child\', t => { t.afterEach(() => {}); }); });'),
+		withTest('test(\'parent\', () => { test(\'child\', {skip: true}, t => { t.beforeEach(() => {}); }); });'),
+		withTest('test.skip(\'skipped\', () => { test(\'child\', t => { t.afterEach(() => {}); }); });'),
+		withTest('test(\'skipped\', {skip: true}, () => { test(\'child\', t => { t.beforeEach(() => {}); }); });'),
 		{
 			code: withTest('test(\'parent\', async t => { t.afterEach(() => {}); await (t as object).test(\'child\', () => {}); });'),
 			languageOptions: {parser: parsers.typescript},
@@ -50,6 +56,8 @@ test.snapshot({
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {skip: true}, () => {}); });'),
 		withTest('test(\'parent\', async t => { t.afterEach(() => {}); await t.test(\'child\', {skip: \'not ready\'}, () => {}); });'),
 		withTest('const shouldSkip = true;\ntest(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {skip: shouldSkip}, () => {}); });'),
+		withTest('test(\'parent\', t => { t.beforeEach(() => {}); test.skip(\'child\', () => {}); });'),
+		withTest('test(\'parent\', t => { t.afterEach(() => {}); test(\'child\', {skip: true}, () => {}); });'),
 
 		// A leaf subtest has no child subtests of its own.
 		withTest('test(\'parent\', async t => { await t.test(\'child\', child => { child.afterEach(() => {}); }); });'),

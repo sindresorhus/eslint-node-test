@@ -3,6 +3,7 @@ import {
 	resolveImports,
 	parseTestCall,
 	createContextTracker,
+	MODIFIERS,
 	getCalleeChain,
 	getTestCallback,
 	getTestOptions,
@@ -63,6 +64,7 @@ const create = context => {
 
 	const tracker = createContextTracker(imports);
 	const frames = [];
+	const skippedCallbacks = new WeakSet();
 
 	const getContextVariable = callback => {
 		const parameter = callback.params[0];
@@ -76,15 +78,47 @@ const create = context => {
 		return frames.findLast(frame => frame.contextVariable === variable);
 	};
 
+	const isInsideSkippedCallback = node => {
+		for (let current = node.parent; current; current = current.parent) {
+			if (skippedCallbacks.has(current)) {
+				return true;
+			}
+		}
+
+		return false;
+	};
+
+	const getRunnableSubtestFrame = (node, enclosingFunction) => {
+		const receiver = getDirectSubtestReceiver(node);
+		if (!tracker.isContextIdentifier(receiver)) {
+			return undefined;
+		}
+
+		const frame = getFrame(receiver);
+		if (
+			!frame
+			|| enclosingFunction !== frame.callback
+			|| isInsideSkippedCallback(node)
+			|| isStaticallySkipped(node, sourceCode)
+		) {
+			return undefined;
+		}
+
+		return frame;
+	};
+
+	const isRunnableTest = (node, parsed, enclosingFunction, parentFrame) => parsed?.kind === 'test'
+		&& parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name))
+		&& (frames.length === 0 || parentFrame !== undefined)
+		&& !isInsideSkippedCallback(node)
+		&& parsed.modifiers.every(modifier => modifier.name !== 'skip')
+		&& !isStaticallySkipped(node, sourceCode);
+
 	context.on('CallExpression', node => {
-		const subtestReceiver = getDirectSubtestReceiver(node);
-		const isSubtest = tracker.isContextIdentifier(subtestReceiver);
-		const frame = isSubtest ? getFrame(subtestReceiver) : undefined;
-		const isRunnableSubtest = frame !== undefined
-			&& getEnclosingFunction(node) === frame.callback
-			&& !isStaticallySkipped(node, sourceCode);
-		if (isRunnableSubtest) {
-			frame.hasSubtest = true;
+		const enclosingFunction = getEnclosingFunction(node);
+		const runnableSubtestFrame = getRunnableSubtestFrame(node, enclosingFunction);
+		if (runnableSubtestFrame) {
+			runnableSubtestFrame.hasSubtest = true;
 		}
 
 		const hookReceiver = getContextHookReceiver(node);
@@ -95,25 +129,43 @@ const create = context => {
 			}
 		}
 
-		const isTest = parseTestCall(node, imports)?.kind === 'test';
-		if (isTest || isRunnableSubtest) {
-			tracker.update(node);
-		}
-
-		if (isTest || isRunnableSubtest) {
+		const parsed = parseTestCall(node, imports);
+		const isSkippedTest = parsed?.kind === 'test'
+			&& parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name))
+			&& (
+				parsed.modifiers.some(modifier => modifier.name === 'skip')
+				|| isStaticallySkipped(node, sourceCode)
+			);
+		if (isSkippedTest) {
 			const callback = getTestCallback(node);
-			if (!callback) {
-				return;
+			if (callback) {
+				skippedCallbacks.add(callback);
 			}
-
-			frames.push({
-				node,
-				callback,
-				contextVariable: getContextVariable(callback),
-				hasSubtest: false,
-				hooks: [],
-			});
 		}
+
+		const parentTestFrame = frames.findLast(frame => frame.callback === enclosingFunction);
+		const runnableTest = isRunnableTest(node, parsed, enclosingFunction, parentTestFrame);
+		if (runnableTest && parentTestFrame) {
+			parentTestFrame.hasSubtest = true;
+		}
+
+		if (!runnableTest && !runnableSubtestFrame) {
+			return;
+		}
+
+		tracker.update(node);
+		const callback = getTestCallback(node);
+		if (!callback) {
+			return;
+		}
+
+		frames.push({
+			node,
+			callback,
+			contextVariable: getContextVariable(callback),
+			hasSubtest: false,
+			hooks: [],
+		});
 	});
 
 	context.onExit('CallExpression', function * (node) {
