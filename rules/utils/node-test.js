@@ -20,6 +20,7 @@ const TEST_FUNCTIONS = new Set(['test', 'it']);
 const SUITE_FUNCTIONS = new Set(['describe', 'suite']);
 const HOOK_FUNCTIONS = new Set(['before', 'after', 'beforeEach', 'afterEach']);
 const ALL_TEST_EXPORTS = new Set([...TEST_FUNCTIONS, ...SUITE_FUNCTIONS, ...HOOK_FUNCTIONS, 'mock']);
+const CONFIGURATION_EXPORTS = new Set(['assert', 'snapshot']);
 
 export {TEST_FUNCTIONS, SUITE_FUNCTIONS, HOOK_FUNCTIONS};
 
@@ -37,6 +38,7 @@ Scan a file's top-level imports and resolve the local bindings for
 @returns {{
 	locals: Map<string, string>,
 	namespace: string | undefined,
+	configurationLocals: Map<string, string>,
 	assertNamespace: Set<string>,
 	assertNamed: Map<string, string>,
 	strictAssertLocals: Set<string>,
@@ -117,8 +119,13 @@ function collectFromImport(node, bindings) {
 				} else {
 					addAssertBinding(bindings, localName, specifier.imported.name, isStrict);
 				}
-			} else if (ALL_TEST_EXPORTS.has(specifier.imported.name)) {
-				bindings.locals.set(localName, specifier.imported.name);
+			} else {
+				const {name} = specifier.imported;
+				if (ALL_TEST_EXPORTS.has(name)) {
+					bindings.locals.set(localName, name);
+				} else if (CONFIGURATION_EXPORTS.has(name)) {
+					bindings.configurationLocals.set(localName, name);
+				}
 			}
 		} else if (kind === 'assert') {
 			// Default or namespace import of the whole assert module.
@@ -143,6 +150,8 @@ function scanImports(context) {
 		locals: new Map(),
 		// `import * as nodeTest from 'node:test'` -> namespace local name.
 		namespace: undefined,
+		// Map of local identifier name -> process-wide `node:test` configuration object.
+		configurationLocals: new Map(),
 		// Local names bound to the whole `node:assert` module (`import assert from …`).
 		assertNamespace: new Set(),
 		// Map of local name -> canonical `node:assert` method name (named imports).
