@@ -35,6 +35,16 @@ test.snapshot({
 		'import nodeProcess from \'node:process\';\nimport test from \'node:test\';\ntest(\'changes directory\', nodeProcess => { nodeProcess.chdir(\'fixtures\'); });',
 		withTestImport('test(\'parent\', t => {\n\tfunction helper(t) {\n\t\tt.test(\'not a subtest\', () => { process.chdir(\'fixtures\'); });\n\t}\n});'),
 
+		// Type-only test imports do not create test files
+		{
+			code: 'import type test from \'node:test\';\ntest(\'changes directory\', () => { process.chdir(\'fixtures\'); });',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import {type test} from \'node:test\';\ntest(\'changes directory\', () => { process.chdir(\'fixtures\'); });',
+			languageOptions: {parser: parsers.typescript},
+		},
+
 		// Type-only imports do not create value bindings
 		{
 			code: 'import type process from \'node:process\';\nimport test from \'node:test\';\ntest(\'changes directory\', () => { process.chdir(\'fixtures\'); });',

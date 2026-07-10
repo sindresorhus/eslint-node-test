@@ -35,7 +35,7 @@ const addProcessImport = (specifier, sourceCode, processBindings, chdirBindings)
 		return;
 	}
 
-	const variable = findVariable(sourceCode.getScope(specifier.local), specifier.local);
+	const [variable] = sourceCode.getDeclaredVariables(specifier);
 	if (!variable) {
 		return;
 	}
