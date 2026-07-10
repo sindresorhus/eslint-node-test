@@ -94,6 +94,14 @@ function addAssertBinding(bindings, localName, importedName, isStrict) {
 	}
 }
 
+function getImportSpecifierName(specifier) {
+	if (specifier.imported.type === 'Identifier') {
+		return specifier.imported.name;
+	}
+
+	return typeof specifier.imported.value === 'string' ? specifier.imported.value : undefined;
+}
+
 /** Collect bindings from an ESM `import` declaration. */
 function collectFromImport(node, bindings) {
 	const {value: source} = node.source;
@@ -109,23 +117,30 @@ function collectFromImport(node, bindings) {
 
 		// Named import: `import {describe} from 'node:test'` / `import {strictEqual} from 'node:assert'`.
 		if (specifier.type === 'ImportSpecifier') {
-			if (specifier.imported.type !== 'Identifier') {
+			const importedName = getImportSpecifierName(specifier);
+			if (!importedName) {
 				continue;
 			}
 
 			if (kind === 'assert') {
-				if (specifier.imported.name === 'strict') {
+				if (importedName === 'strict') {
 					addAssertBinding(bindings, localName, undefined, true);
+				} else if (importedName === 'default') {
+					addAssertBinding(bindings, localName, undefined, isStrict);
 				} else {
-					addAssertBinding(bindings, localName, specifier.imported.name, isStrict);
+					addAssertBinding(bindings, localName, importedName, isStrict);
 				}
-			} else {
-				const {name} = specifier.imported;
-				if (ALL_TEST_EXPORTS.has(name)) {
-					bindings.locals.set(localName, name);
-				} else if (CONFIGURATION_EXPORTS.has(name)) {
-					bindings.configurationLocals.set(localName, name);
-				}
+
+				continue;
+			}
+
+			if (importedName === 'default') {
+				bindings.locals.set(localName, 'test');
+				bindings.namespace = localName;
+			} else if (ALL_TEST_EXPORTS.has(importedName)) {
+				bindings.locals.set(localName, importedName);
+			} else if (CONFIGURATION_EXPORTS.has(importedName)) {
+				bindings.configurationLocals.set(localName, importedName);
 			}
 		} else if (kind === 'assert') {
 			// Default or namespace import of the whole assert module.
@@ -346,10 +361,12 @@ export const parseTestCall = memoizeByNode(parseTestCallCache, (callExpression, 
 	let modifiers;
 
 	if (
-		imports.namespace
-		&& root.name === imports.namespace
-		&& members.length > 0
+		members.length > 0
 		&& ALL_TEST_EXPORTS.has(members[0].name)
+		&& (
+			root.name === imports.namespace
+			|| TEST_FUNCTIONS.has(imports.locals.get(root.name))
+		)
 	) {
 		// `nodeTest.test.only(…)` — namespace member access into a known export.
 		const [first, ...rest] = members;
@@ -362,6 +379,10 @@ export const parseTestCall = memoizeByNode(parseTestCallCache, (callExpression, 
 		name = imports.locals.get(root.name);
 		modifiers = members;
 	} else {
+		return undefined;
+	}
+
+	if (modifiers.some(modifier => CONFIGURATION_EXPORTS.has(modifier.name))) {
 		return undefined;
 	}
 

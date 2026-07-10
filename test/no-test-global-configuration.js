@@ -13,6 +13,7 @@ test.snapshot({
 		'import {describe, snapshot} from \'node:test\';\ndescribe(\'suite\', () => { snapshot.setDefaultSnapshotSerializers([]); });',
 		'import {beforeEach, snapshot} from \'node:test\';\nbeforeEach(() => { snapshot.setResolveSnapshotPath(path => path); });',
 		'import test, {snapshot} from \'node:test\';\ntest.beforeEach(() => { snapshot.setResolveSnapshotPath(path => path); });',
+		'import {snapshot, test} from \'node:test\';\ntest.beforeEach(() => { snapshot.setResolveSnapshotPath(path => path); });',
 		'import {beforeEach, describe, snapshot} from \'node:test\';\ndescribe(\'suite\', {timeout: beforeEach(() => { snapshot.setResolveSnapshotPath(path => path); })}, () => {});',
 
 		// Configuration expressions in test registration arguments are not inside the callback.
@@ -64,6 +65,10 @@ test.snapshot({
 		// Renamed test imports.
 		'import {test as run, snapshot} from \'node:test\';\nrun(\'t\', () => { snapshot.setDefaultSnapshotSerializers([]); });',
 		'import {assert, it as specify} from \'node:test\';\nspecify(\'t\', () => { assert.register(\'custom\', () => {}); });',
+		'import {snapshot, test} from \'node:test\';\ntest.describe(\'suite\', () => { test.beforeEach(() => { snapshot.setResolveSnapshotPath(path => path); }); });',
+		'import {assert, it as specify} from \'node:test\';\nspecify.suite(\'suite\', () => { specify.beforeEach(() => { assert.register(\'custom\', () => {}); }); });',
+		'import {default as run, snapshot} from \'node:test\';\nrun(\'t\', () => { run.snapshot.setResolveSnapshotPath(path => path); snapshot.setDefaultSnapshotSerializers([]); });',
+		'import {\'snapshot\' as snapshots, \'test\' as run} from \'node:test\';\nrun(\'t\', () => { snapshots.setDefaultSnapshotSerializers([]); });',
 
 		// Suite-local hooks run while tests execute.
 		'import {beforeEach, describe, snapshot} from \'node:test\';\ndescribe(\'suite\', () => { beforeEach(() => { snapshot.setResolveSnapshotPath(path => path); }); });',

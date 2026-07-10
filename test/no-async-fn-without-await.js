@@ -36,6 +36,8 @@ test.snapshot({
 		// Async suite callbacks are out of scope (owned by `no-async-describe`)
 		withImport('import {describe} from "node:test";\ndescribe("s", async () => {});'),
 		withImport('import {suite} from "node:test";\nsuite("s", async () => {});'),
+		// Global assertion configuration is not a test registration.
+		withImport('test.assert.register("custom", async () => {});'),
 	],
 	invalid: [
 		// Basic async arrow with no await

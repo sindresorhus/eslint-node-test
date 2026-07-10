@@ -124,6 +124,7 @@ test.snapshot({
 
 		// Bare assert — too few
 		withAssert('assert();'),
+		withNamedImport('default as assert', 'assert.strictEqual(a);'),
 		withAssert('assert.strict();'),
 		withNamedImport('strict as strictAssert', 'strictAssert();'),
 
