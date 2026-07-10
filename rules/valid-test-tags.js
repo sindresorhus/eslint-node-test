@@ -66,8 +66,7 @@ function isStaticNonString(node) {
 		|| (
 			node.type === 'UnaryExpression'
 			&& (node.operator === '+' || node.operator === '-')
-			&& node.argument.type === 'Literal'
-			&& typeof node.argument.value === 'number'
+			&& unwrapTypeScriptExpression(node.argument).type === 'Literal'
 		)
 	);
 }

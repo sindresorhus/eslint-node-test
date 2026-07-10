@@ -49,10 +49,12 @@ test.snapshot({
 		withImport('test("title", {tags: null}, () => {});'),
 		withImport('test("title", {tags: {}}, () => {});'),
 		withImport('test("title", {tags: -1}, () => {});'),
+		withImport('test("title", {tags: +1}, () => {});'),
+		withImport('test("title", {tags: -1n}, () => {});'),
 
 		// Invalid array values
 		withImport('test("title", {tags: ["unit", 1, true, {}, null]}, () => {});'),
-		withImport('test("title", {tags: ["unit", -1]}, () => {});'),
+		withImport('test("title", {tags: ["unit", -1, -1n]}, () => {});'),
 		withImport('test("title", {tags: ["unit", , "slow"]}, () => {});'),
 		withImport('test("title", {tags: [""]}, () => {});'),
 		withImport('test("title", {tags: [``]}, () => {});'),
@@ -78,6 +80,10 @@ test.snapshot({
 		},
 		{
 			code: withImport('test("title", {tags: ["UPPER" satisfies string]!}, () => {});'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withImport('test("title", {tags: -(1 as number)}, () => {});'),
 			languageOptions: {parser: parsers.typescript},
 		},
 	],
