@@ -42,5 +42,9 @@ test.snapshot({
 
 		// Context assert inside a hook (hook receives a context)
 		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { t.assert.ok(value); });',
+		'import test from \'node:test\';\ntest(\'t\', t => { t.beforeEach(hook => { hook.assert.ok(value); }); });',
+
+		// Imported assertions inside a context hook.
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'t\', t => { t.beforeEach(() => { assert.ok(value); }); });',
 	],
 });

@@ -40,6 +40,7 @@ test.snapshot({
 	invalid: [
 		// Global mock getter.
 		withMock('mock.method(object, \'value\', {getter: true});'),
+		withMock('mock.method(object, \'value\', {getter: false, getter: true});'),
 		withMock('mock?.method?.(object, \'value\', {getter: true});'),
 		withMock('mock.method(object, \'value\', {getter: true, setter: false});'),
 		withMock('mock.method(object, \'value\', {getter: false, setter: true});'),

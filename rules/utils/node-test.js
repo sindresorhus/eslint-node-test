@@ -393,6 +393,15 @@ export function getSubtestReceiver(callExpression) {
 	return undefined;
 }
 
+function isContextHookCall(callExpression, isContextIdentifier) {
+	const callee = unwrapTypeScriptExpression(callExpression.callee);
+	return callee.type === 'MemberExpression'
+		&& !callee.computed
+		&& callee.property.type === 'Identifier'
+		&& HOOK_FUNCTIONS.has(callee.property.name)
+		&& isContextIdentifier(unwrapTypeScriptExpression(callee.object));
+}
+
 /**
 Track the test-context parameter names (`t`) introduced by enclosing test, subtest, and optionally hook callbacks, including hooks declared from a test context.
 
@@ -438,22 +447,11 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 		|| isHookMemberTestCall(parsed)
 	);
 
-	const isContextHookCall = node => {
-		if (!trackHooks) {
-			return false;
-		}
-
-		const callee = unwrapTypeScriptExpression(node.callee);
-		return callee.type === 'MemberExpression'
-			&& !callee.computed
-			&& callee.property.type === 'Identifier'
-			&& HOOK_FUNCTIONS.has(callee.property.name)
-			&& isContextIdentifier(unwrapTypeScriptExpression(callee.object));
-	};
+	const isTrackedContextHookCall = node => trackHooks && isContextHookCall(node, isContextIdentifier);
 
 	const isTrackedCallbackCall = node => {
 		const parsed = parseTestCall(node, imports);
-		return isContextHookCall(node) || (
+		return isTrackedContextHookCall(node) || (
 			(
 				parsed?.kind === 'test'
 				&& parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name))
@@ -479,7 +477,7 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 			}
 
 			const parsed = parseTestCall(node, imports);
-			const callback = isTrackedHookCall(parsed) || isContextHookCall(node) ? getHookCallback(node) : getTestCallback(node);
+			const callback = isTrackedHookCall(parsed) || isTrackedContextHookCall(node) ? getHookCallback(node) : getTestCallback(node);
 			if (callback) {
 				const parameter = callback.params[0];
 
@@ -702,7 +700,7 @@ Determine the kind (`test`/`suite`/`hook`) of the nearest enclosing test-related
 
 Returns `undefined` when the nearest enclosing function is a regular function (e.g. a helper), or there is none. Subtests (`t.test(…)`) are method calls rather than imported bindings, so they are recognized structurally and classified as `'test'`.
 */
-export function nearestTestCallbackKind(node, imports) {
+export function nearestTestCallbackKind(node, imports, isContextIdentifier) {
 	let current = node.parent;
 	while (current) {
 		if (isFunction(current)) {
@@ -718,6 +716,10 @@ export function nearestTestCallbackKind(node, imports) {
 				}
 
 				if (isHookMemberTestCall(parsed) && getHookCallback(call) === current) {
+					return 'hook';
+				}
+
+				if (isContextIdentifier && isContextHookCall(call, isContextIdentifier) && getHookCallback(call) === current) {
 					return 'hook';
 				}
 

@@ -11,7 +11,7 @@
 
 `mock.getter()` and `mock.setter()` are the dedicated forms of `mock.method()` for accessor properties. They make the kind of property being mocked clear at the call site.
 
-This rule reports `mock.method()` and `t.mock.method()` calls whose unspread options object enables `getter` or `setter` with a literal `true` value. It ignores object-literal getters and `__proto__` properties because the dedicated APIs rebuild the options object. The autofix changes only `.method`, preserving the options object exactly. You can remove the now-redundant accessor option separately if desired.
+This rule reports `mock.method()` and `t.mock.method()` calls whose options are an unspread object literal that enables `getter` or `setter` with a literal `true` value. It ignores object-literal getters and `__proto__` properties because the dedicated APIs rebuild the options object. The autofix changes only `.method`, preserving the options object exactly. You can remove the now-redundant accessor option separately if desired.
 
 See also [`prefer-context-mock`](./prefer-context-mock.md), which prefers the automatically restored test context tracker over the global `mock` tracker.
 
