@@ -11,7 +11,7 @@
 
 `mock.calls` creates a copy of the mock's internal call history. [`mock.callCount()`](https://nodejs.org/api/test.html#ctxcallcount) returns the same count without allocating that copy.
 
-This rule reports direct `mock.calls.length` reads in files with a runtime `node:test` binding and replaces them with `mock.callCount()`. It matches this syntax structurally instead of tracing the receiver to a Node mock. It ignores write targets and counts that are invoked, constructed, or used as a tag. It does not handle optional or computed access in the matched member chain, TypeScript wrappers around `mock.calls`, or property mocks, which use `accessCount()` instead.
+This rule reports direct `mock.calls.length` reads in files with a runtime `node:test` binding and replaces them with `mock.callCount()` when doing so preserves comments. It matches this syntax structurally instead of tracing the receiver to a Node mock. It ignores write targets and counts that are invoked, constructed, or used as a tag. It does not handle optional or computed access in the matched member chain, TypeScript wrappers around `mock.calls`, or property mocks, which use `accessCount()` instead.
 
 ## Examples
 
