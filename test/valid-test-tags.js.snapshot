@@ -192,23 +192,23 @@ Output:
 
 `;
 
-exports[`valid-test-tags > invalid(19): import * as nodeTest from 'node:test';\nnodeTest.test.only(\"title\", {tags: [\"UPPER\"]}, () => {}); 1`] = `
+exports[`valid-test-tags > invalid(19): import {test, it, describe, suite, before} from 'node:test';\ndescribe.expectFailure(\"title\", {tags: [\"UPPER\"]}, () => {}); 1`] = `
 
-  1 | import * as nodeTest from 'node:test';
-  2 | nodeTest.test.only("title", {tags: ["UPPER"]}, () => {});
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | describe.expectFailure("title", {tags: ["UPPER"]}, () => {});
 
 `;
 
-exports[`valid-test-tags > invalid(19): import * as nodeTest from 'node:test';\nnodeTest.test.only(\"title\", {tags: [\"UPPER\"]}, () => {}); 2`] = `
+exports[`valid-test-tags > invalid(19): import {test, it, describe, suite, before} from 'node:test';\ndescribe.expectFailure(\"title\", {tags: [\"UPPER\"]}, () => {}); 2`] = `
 
 Message:
-  1 | import * as nodeTest from 'node:test';
-> 2 | nodeTest.test.only("title", {tags: ["UPPER"]}, () => {});
-    |                                     ^^^^^^^ Tag \`UPPER\` must use its lowercase canonical form.
+  1 | import {test, it, describe, suite, before} from 'node:test';
+> 2 | describe.expectFailure("title", {tags: ["UPPER"]}, () => {});
+    |                                         ^^^^^^^ Tag \`UPPER\` must use its lowercase canonical form.
 
 Output:
-  1 | import * as nodeTest from 'node:test';
-  2 | nodeTest.test.only("title", {tags: ["upper"]}, () => {});
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | describe.expectFailure("title", {tags: ["upper"]}, () => {});
 
 `;
 
@@ -228,14 +228,34 @@ Message:
 
 `;
 
-exports[`valid-test-tags > invalid(20): import * as nodeTest from 'node:test';\nnodeTest.test.expectFailure(\"title\", {tags: [\"UPPER\"]}, () => {}); 1`] = `
+exports[`valid-test-tags > invalid(20): import * as nodeTest from 'node:test';\nnodeTest.test.only(\"title\", {tags: [\"UPPER\"]}, () => {}); 1`] = `
+
+  1 | import * as nodeTest from 'node:test';
+  2 | nodeTest.test.only("title", {tags: ["UPPER"]}, () => {});
+
+`;
+
+exports[`valid-test-tags > invalid(20): import * as nodeTest from 'node:test';\nnodeTest.test.only(\"title\", {tags: [\"UPPER\"]}, () => {}); 2`] = `
+
+Message:
+  1 | import * as nodeTest from 'node:test';
+> 2 | nodeTest.test.only("title", {tags: ["UPPER"]}, () => {});
+    |                                     ^^^^^^^ Tag \`UPPER\` must use its lowercase canonical form.
+
+Output:
+  1 | import * as nodeTest from 'node:test';
+  2 | nodeTest.test.only("title", {tags: ["upper"]}, () => {});
+
+`;
+
+exports[`valid-test-tags > invalid(21): import * as nodeTest from 'node:test';\nnodeTest.test.expectFailure(\"title\", {tags: [\"UPPER\"]}, () => {}); 1`] = `
 
   1 | import * as nodeTest from 'node:test';
   2 | nodeTest.test.expectFailure("title", {tags: ["UPPER"]}, () => {});
 
 `;
 
-exports[`valid-test-tags > invalid(20): import * as nodeTest from 'node:test';\nnodeTest.test.expectFailure(\"title\", {tags: [\"UPPER\"]}, () => {}); 2`] = `
+exports[`valid-test-tags > invalid(21): import * as nodeTest from 'node:test';\nnodeTest.test.expectFailure(\"title\", {tags: [\"UPPER\"]}, () => {}); 2`] = `
 
 Message:
   1 | import * as nodeTest from 'node:test';
@@ -248,14 +268,34 @@ Output:
 
 `;
 
-exports[`valid-test-tags > invalid(21): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"unit\"], tags: [\"UPPER\"]}, () => {}); 1`] = `
+exports[`valid-test-tags > invalid(22): import * as nodeTest from 'node:test';\nnodeTest.suite.expectFailure(\"title\", {tags: [\"UPPER\"]}, () => {}); 1`] = `
+
+  1 | import * as nodeTest from 'node:test';
+  2 | nodeTest.suite.expectFailure("title", {tags: ["UPPER"]}, () => {});
+
+`;
+
+exports[`valid-test-tags > invalid(22): import * as nodeTest from 'node:test';\nnodeTest.suite.expectFailure(\"title\", {tags: [\"UPPER\"]}, () => {}); 2`] = `
+
+Message:
+  1 | import * as nodeTest from 'node:test';
+> 2 | nodeTest.suite.expectFailure("title", {tags: ["UPPER"]}, () => {});
+    |                                               ^^^^^^^ Tag \`UPPER\` must use its lowercase canonical form.
+
+Output:
+  1 | import * as nodeTest from 'node:test';
+  2 | nodeTest.suite.expectFailure("title", {tags: ["upper"]}, () => {});
+
+`;
+
+exports[`valid-test-tags > invalid(23): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"unit\"], tags: [\"UPPER\"]}, () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';
   2 | test("title", {tags: ["unit"], tags: ["UPPER"]}, () => {});
 
 `;
 
-exports[`valid-test-tags > invalid(21): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"unit\"], tags: [\"UPPER\"]}, () => {}); 2`] = `
+exports[`valid-test-tags > invalid(23): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"unit\"], tags: [\"UPPER\"]}, () => {}); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before} from 'node:test';
@@ -268,14 +308,14 @@ Output:
 
 `;
 
-exports[`valid-test-tags > invalid(22): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {...options, tags: [\"UPPER\"]}, () => {}); 1`] = `
+exports[`valid-test-tags > invalid(24): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {...options, tags: [\"UPPER\"]}, () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';
   2 | test("title", {...options, tags: ["UPPER"]}, () => {});
 
 `;
 
-exports[`valid-test-tags > invalid(22): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {...options, tags: [\"UPPER\"]}, () => {}); 2`] = `
+exports[`valid-test-tags > invalid(24): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {...options, tags: [\"UPPER\"]}, () => {}); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before} from 'node:test';
@@ -288,14 +328,14 @@ Output:
 
 `;
 
-exports[`valid-test-tags > invalid(23): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {[\"tags\"]: [\"unit\"], tags: [\"UPPER\"]}, () => {}); 1`] = `
+exports[`valid-test-tags > invalid(25): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {[\"tags\"]: [\"unit\"], tags: [\"UPPER\"]}, () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';
   2 | test("title", {["tags"]: ["unit"], tags: ["UPPER"]}, () => {});
 
 `;
 
-exports[`valid-test-tags > invalid(23): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {[\"tags\"]: [\"unit\"], tags: [\"UPPER\"]}, () => {}); 2`] = `
+exports[`valid-test-tags > invalid(25): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {[\"tags\"]: [\"unit\"], tags: [\"UPPER\"]}, () => {}); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before} from 'node:test';
@@ -308,14 +348,14 @@ Output:
 
 `;
 
-exports[`valid-test-tags > invalid(24): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {\"tags\": [\"UPPER\"]}, () => {}); 1`] = `
+exports[`valid-test-tags > invalid(26): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {\"tags\": [\"UPPER\"]}, () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';
   2 | test("title", {"tags": ["UPPER"]}, () => {});
 
 `;
 
-exports[`valid-test-tags > invalid(24): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {\"tags\": [\"UPPER\"]}, () => {}); 2`] = `
+exports[`valid-test-tags > invalid(26): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {\"tags\": [\"UPPER\"]}, () => {}); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before} from 'node:test';
@@ -328,14 +368,14 @@ Output:
 
 `;
 
-exports[`valid-test-tags > invalid(25): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\`SLOW\`]}, () => {}); 1`] = `
+exports[`valid-test-tags > invalid(27): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\`SLOW\`]}, () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';
   2 | test("title", {tags: [\`SLOW\`]}, () => {});
 
 `;
 
-exports[`valid-test-tags > invalid(25): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\`SLOW\`]}, () => {}); 2`] = `
+exports[`valid-test-tags > invalid(27): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\`SLOW\`]}, () => {}); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before} from 'node:test';
@@ -348,14 +388,14 @@ Output:
 
 `;
 
-exports[`valid-test-tags > invalid(26): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"ÜNICODE\"]}, () => {}); 1`] = `
+exports[`valid-test-tags > invalid(28): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"ÜNICODE\"]}, () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';
   2 | test("title", {tags: ["ÜNICODE"]}, () => {});
 
 `;
 
-exports[`valid-test-tags > invalid(26): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"ÜNICODE\"]}, () => {}); 2`] = `
+exports[`valid-test-tags > invalid(28): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"ÜNICODE\"]}, () => {}); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before} from 'node:test';
@@ -368,14 +408,14 @@ Output:
 
 `;
 
-exports[`valid-test-tags > invalid(27): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [/* tag */ \"UPPER\"]}, () => {}); 1`] = `
+exports[`valid-test-tags > invalid(29): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [/* tag */ \"UPPER\"]}, () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';
   2 | test("title", {tags: [/* tag */ "UPPER"]}, () => {});
 
 `;
 
-exports[`valid-test-tags > invalid(27): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [/* tag */ \"UPPER\"]}, () => {}); 2`] = `
+exports[`valid-test-tags > invalid(29): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [/* tag */ \"UPPER\"]}, () => {}); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before} from 'node:test';
@@ -385,51 +425,6 @@ Message:
 Output:
   1 | import {test, it, describe, suite, before} from 'node:test';
   2 | test("title", {tags: [/* tag */ "upper"]}, () => {});
-
-`;
-
-exports[`valid-test-tags > invalid(28): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"unit\", \"unit\"]}, () => {}); 1`] = `
-
-  1 | import {test, it, describe, suite, before} from 'node:test';
-  2 | test("title", {tags: ["unit", "unit"]}, () => {});
-
-`;
-
-exports[`valid-test-tags > invalid(28): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"unit\", \"unit\"]}, () => {}); 2`] = `
-
-Message:
-  1 | import {test, it, describe, suite, before} from 'node:test';
-> 2 | test("title", {tags: ["unit", "unit"]}, () => {});
-    |                               ^^^^^^ Duplicate tag \`unit\`.
-
-`;
-
-exports[`valid-test-tags > invalid(29): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"UNIT\", \"unit\"]}, () => {}); 1`] = `
-
-  1 | import {test, it, describe, suite, before} from 'node:test';
-  2 | test("title", {tags: ["UNIT", "unit"]}, () => {});
-
-`;
-
-exports[`valid-test-tags > invalid(29): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"UNIT\", \"unit\"]}, () => {}); 2`] = `
-
-Message:
-  1 | import {test, it, describe, suite, before} from 'node:test';
-> 2 | test("title", {tags: ["UNIT", "unit"]}, () => {});
-    |                       ^^^^^^ Tag \`UNIT\` must use its lowercase canonical form.
-
-Output:
-  1 | import {test, it, describe, suite, before} from 'node:test';
-  2 | test("title", {tags: ["unit", "unit"]}, () => {});
-
-`;
-
-exports[`valid-test-tags > invalid(29): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"UNIT\", \"unit\"]}, () => {}); 3`] = `
-
-Message:
-  1 | import {test, it, describe, suite, before} from 'node:test';
-> 2 | test("title", {tags: ["UNIT", "unit"]}, () => {});
-    |                               ^^^^^^ Duplicate tag \`unit\`.
 
 `;
 
@@ -449,14 +444,59 @@ Message:
 
 `;
 
-exports[`valid-test-tags > invalid(30): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"UNIT\" as string] as string[]}, () => {}); 1`] = `
+exports[`valid-test-tags > invalid(30): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"unit\", \"unit\"]}, () => {}); 1`] = `
+
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | test("title", {tags: ["unit", "unit"]}, () => {});
+
+`;
+
+exports[`valid-test-tags > invalid(30): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"unit\", \"unit\"]}, () => {}); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+> 2 | test("title", {tags: ["unit", "unit"]}, () => {});
+    |                               ^^^^^^ Duplicate tag \`unit\`.
+
+`;
+
+exports[`valid-test-tags > invalid(31): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"UNIT\", \"unit\"]}, () => {}); 1`] = `
+
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | test("title", {tags: ["UNIT", "unit"]}, () => {});
+
+`;
+
+exports[`valid-test-tags > invalid(31): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"UNIT\", \"unit\"]}, () => {}); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+> 2 | test("title", {tags: ["UNIT", "unit"]}, () => {});
+    |                       ^^^^^^ Tag \`UNIT\` must use its lowercase canonical form.
+
+Output:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | test("title", {tags: ["unit", "unit"]}, () => {});
+
+`;
+
+exports[`valid-test-tags > invalid(31): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"UNIT\", \"unit\"]}, () => {}); 3`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+> 2 | test("title", {tags: ["UNIT", "unit"]}, () => {});
+    |                               ^^^^^^ Duplicate tag \`unit\`.
+
+`;
+
+exports[`valid-test-tags > invalid(32): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"UNIT\" as string] as string[]}, () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';
   2 | test("title", {tags: ["UNIT" as string] as string[]}, () => {});
 
 `;
 
-exports[`valid-test-tags > invalid(30): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"UNIT\" as string] as string[]}, () => {}); 2`] = `
+exports[`valid-test-tags > invalid(32): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"UNIT\" as string] as string[]}, () => {}); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before} from 'node:test';
@@ -469,14 +509,14 @@ Output:
 
 `;
 
-exports[`valid-test-tags > invalid(31): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"UPPER\" satisfies string]!}, () => {}); 1`] = `
+exports[`valid-test-tags > invalid(33): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"UPPER\" satisfies string]!}, () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';
   2 | test("title", {tags: ["UPPER" satisfies string]!}, () => {});
 
 `;
 
-exports[`valid-test-tags > invalid(31): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"UPPER\" satisfies string]!}, () => {}); 2`] = `
+exports[`valid-test-tags > invalid(33): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"UPPER\" satisfies string]!}, () => {}); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before} from 'node:test';
@@ -489,14 +529,14 @@ Output:
 
 `;
 
-exports[`valid-test-tags > invalid(32): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: <string[]>[\"UPPER\"]}, () => {}); 1`] = `
+exports[`valid-test-tags > invalid(34): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: <string[]>[\"UPPER\"]}, () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';
   2 | test("title", {tags: <string[]>["UPPER"]}, () => {});
 
 `;
 
-exports[`valid-test-tags > invalid(32): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: <string[]>[\"UPPER\"]}, () => {}); 2`] = `
+exports[`valid-test-tags > invalid(34): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: <string[]>[\"UPPER\"]}, () => {}); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before} from 'node:test';
@@ -509,14 +549,14 @@ Output:
 
 `;
 
-exports[`valid-test-tags > invalid(33): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: -(1 as number)}, () => {}); 1`] = `
+exports[`valid-test-tags > invalid(35): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: -(1 as number)}, () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';
   2 | test("title", {tags: -(1 as number)}, () => {});
 
 `;
 
-exports[`valid-test-tags > invalid(33): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: -(1 as number)}, () => {}); 2`] = `
+exports[`valid-test-tags > invalid(35): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: -(1 as number)}, () => {}); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before} from 'node:test';
