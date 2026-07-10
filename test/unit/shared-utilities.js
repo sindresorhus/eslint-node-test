@@ -76,8 +76,11 @@ test('unwrapTypeScriptExpression unwraps TypeScript expression wrappers', () => 
 			expression: {
 				type: 'TSNonNullExpression',
 				expression: {
-					type: 'TSTypeAssertion',
-					expression: identifier,
+					type: 'TSInstantiationExpression',
+					expression: {
+						type: 'TSTypeAssertion',
+						expression: identifier,
+					},
 				},
 			},
 		},

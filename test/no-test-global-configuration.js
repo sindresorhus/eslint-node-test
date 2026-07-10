@@ -12,6 +12,8 @@ test.snapshot({
 		// Suites and top-level hooks run as setup, not as a test.
 		'import {describe, snapshot} from \'node:test\';\ndescribe(\'suite\', () => { snapshot.setDefaultSnapshotSerializers([]); });',
 		'import {beforeEach, snapshot} from \'node:test\';\nbeforeEach(() => { snapshot.setResolveSnapshotPath(path => path); });',
+		'import test, {snapshot} from \'node:test\';\ntest.beforeEach(() => { snapshot.setResolveSnapshotPath(path => path); });',
+		'import {beforeEach, describe, snapshot} from \'node:test\';\ndescribe(\'suite\', {timeout: beforeEach(() => { snapshot.setResolveSnapshotPath(path => path); })}, () => {});',
 
 		// Configuration expressions in test registration arguments are not inside the callback.
 		'import test, {snapshot} from \'node:test\';\ntest(\'t\', {skip: snapshot.setResolveSnapshotPath(path => path)}, () => {});',
@@ -65,6 +67,8 @@ test.snapshot({
 
 		// Suite-local hooks run while tests execute.
 		'import {beforeEach, describe, snapshot} from \'node:test\';\ndescribe(\'suite\', () => { beforeEach(() => { snapshot.setResolveSnapshotPath(path => path); }); });',
+		'import test, {describe, snapshot} from \'node:test\';\ndescribe(\'suite\', () => { test.beforeEach(() => { snapshot.setResolveSnapshotPath(path => path); }); });',
+		'import * as nodeTest from \'node:test\';\nnodeTest.describe(\'suite\', () => { nodeTest.test.beforeEach(() => { nodeTest.snapshot.setResolveSnapshotPath(path => path); }); });',
 
 		// Nested functions and callbacks are still lexically inside the test.
 		withTest('function configure() { snapshot.setDefaultSnapshotSerializers([]); } configure();'),
@@ -81,6 +85,10 @@ test.snapshot({
 		},
 		{
 			code: 'import test from \'node:test\';\n(test as typeof test)(\'t\', () => { (test.assert as typeof test.assert).register(\'custom\', () => {}); });',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import test, {snapshot} from \'node:test\';\n(test<string>)(\'t\', () => { (snapshot.setDefaultSnapshotSerializers<unknown>)([]); });',
 			languageOptions: {parser: parsers.typescript},
 		},
 	],

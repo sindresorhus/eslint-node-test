@@ -8,7 +8,7 @@
 
 `snapshot.setDefaultSnapshotSerializers()`, `snapshot.setResolveSnapshotPath()`, and `assert.register()` configure `node:test` process-wide state. Calling them from a test or subtest makes later tests depend on execution order, especially when tests run concurrently.
 
-Configure these APIs before test registration, preferably in a setup module preloaded with `--import` or `--require`.
+Prefer configuring these APIs before test registration in a setup module preloaded with `--import` or `--require`.
 
 This rule reports direct calls on `node:test` configuration objects in inline test, subtest, and suite-local hook callbacks, including nested helper functions and callbacks. It allows top-level configuration, suite callbacks, top-level hook setup, computed properties, and destructured method aliases.
 
