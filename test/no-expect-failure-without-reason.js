@@ -14,7 +14,7 @@ test.snapshot({
 		withTest('test(\'t\', {expectFailure: {code: \'ERR_EXPECTED\'}}, () => {});'),
 		withTest('test(\'t\', {expectFailure: {label: \'tracked in #123\', match: /expected error/}}, () => {});'),
 
-		// Disabled, dynamic, and empty-string values are out of scope.
+		// Values other than literal `true` are out of scope.
 		withTest('test(\'t\', {expectFailure: false}, () => {});'),
 		withTest('test(\'t\', {expectFailure: undefined}, () => {});'),
 		withTest('test(\'t\', {expectFailure: shouldExpectFailure}, () => {});'),
@@ -42,6 +42,7 @@ test.snapshot({
 	invalid: [
 		// Default import.
 		withTest('test(\'t\', {expectFailure: true}, () => {});'),
+		withTest('test({expectFailure: true}, () => {});'),
 		withTest('test(\'t\', {expectFailure: \'tracked in #123\', expectFailure: true}, () => {});'),
 		withTest('test(\'t\', {...options, expectFailure: true}, () => {});'),
 		withTest('test(\'t\', {expectFailure: true, timeout: 1000}, () => {});'),
@@ -62,6 +63,10 @@ test.snapshot({
 		// A TypeScript-wrapped `true` still needs a reason.
 		{
 			code: withTest('test(\'t\', {expectFailure: true as boolean}, () => {});'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withTest('test(\'t\', ({expectFailure: true} as object), () => {});'),
 			languageOptions: {parser: parsers.typescript},
 		},
 	],
