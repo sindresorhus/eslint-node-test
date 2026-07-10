@@ -45,7 +45,23 @@ function isGlobalConfigurationCall(node, imports, sourceCode) {
 		return false;
 	}
 
-	const {root, members} = chain;
+	const {root} = chain;
+	const firstMember = chain.members[0];
+	let {members} = chain;
+	if (
+		(
+			root.name === imports.namespace
+			&& !imports.locals.has(root.name)
+			&& firstMember?.name === 'default'
+		)
+		|| (
+			isNodeTestObjectReference(root, imports, sourceCode)
+			&& TEST_FUNCTIONS.has(firstMember?.name)
+		)
+	) {
+		members = chain.members.slice(1);
+	}
+
 	const configuration = imports.configurationLocals.get(root.name);
 	if (
 		configuration

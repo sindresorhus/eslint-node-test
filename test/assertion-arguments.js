@@ -112,6 +112,14 @@ test.snapshot({
 			code: withAssert('assert.ok(value, error as Error);'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'import type assert from \'node:assert\';\nassert.strictEqual(a);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import {type strictEqual} from \'node:assert\';\nstrictEqual(a);',
+			languageOptions: {parser: parsers.typescript},
+		},
 
 		// `.assert.*` on a non-context object — not a node:assert binding
 		'import test from \'node:test\';\nconst obj = {assert: {strictEqual() {}}};\ntest(\'t\', () => { obj.assert.strictEqual(a); });',
@@ -135,6 +143,22 @@ test.snapshot({
 
 		// StrictEqual — too few
 		withAssert('assert.strictEqual(a);'),
+		{
+			code: withAssert('(assert as typeof assert).strictEqual(a);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withNamedImport('strictEqual', '(strictEqual as typeof strictEqual)(a);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withAssert('(assert as typeof assert).strict.equal(a);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import test from \'node:test\';\ntest(\'t\', t => { (t as TestContext).assert.strictEqual(a); });',
+			languageOptions: {parser: parsers.typescript},
+		},
 		// StrictEqual — too many
 		withAssert('assert.strictEqual(a, b, "message", extra);'),
 

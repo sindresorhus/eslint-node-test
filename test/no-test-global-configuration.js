@@ -37,6 +37,15 @@ test.snapshot({
 		// Nested functions in a suite remain outside every test callback.
 		'import {describe, snapshot} from \'node:test\';\ndescribe(\'suite\', () => { function configure() { snapshot.setDefaultSnapshotSerializers([]); } configure(); });',
 		'import {beforeEach, describe, snapshot} from \'node:test\';\ndescribe.foo(\'suite\', () => { beforeEach(() => { snapshot.setResolveSnapshotPath(path => path); }); });',
+		'import test from \'node:test\';\ntest.default(\'not a test\', () => { test.default.snapshot.setResolveSnapshotPath(path => path); });',
+		{
+			code: 'import type {snapshot, test} from \'node:test\';\ntest(\'t\', () => { snapshot.setDefaultSnapshotSerializers([]); });',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import {type snapshot, test} from \'node:test\';\ntest(\'t\', () => { snapshot.setDefaultSnapshotSerializers([]); });',
+			languageOptions: {parser: parsers.typescript},
+		},
 
 		// Shadowed bindings are unrelated objects.
 		'import test, {snapshot} from \'node:test\';\ntest(\'t\', () => { { const snapshot = custom; snapshot.setDefaultSnapshotSerializers([]); } });',
@@ -74,6 +83,13 @@ test.snapshot({
 		'import {beforeEach, describe, snapshot} from \'node:test\';\ndescribe(\'suite\', () => { beforeEach(() => { snapshot.setResolveSnapshotPath(path => path); }); });',
 		'import test, {describe, snapshot} from \'node:test\';\ndescribe(\'suite\', () => { test.beforeEach(() => { snapshot.setResolveSnapshotPath(path => path); }); });',
 		'import * as nodeTest from \'node:test\';\nnodeTest.describe(\'suite\', () => { nodeTest.test.beforeEach(() => { nodeTest.snapshot.setResolveSnapshotPath(path => path); }); });',
+		[
+			'import * as nodeTest from \'node:test\';',
+			'nodeTest.default(\'default\', () => { nodeTest.default.snapshot.setResolveSnapshotPath(path => path); });',
+			'nodeTest.test(\'test\', () => { nodeTest.test.assert.register(\'custom\', () => {}); });',
+			'nodeTest.it(\'it\', () => { nodeTest.it.assert.register(\'custom\', () => {}); });',
+		].join('\n'),
+		'import {test} from \'node:test\';\ntest.test(\'static test\', () => { test.test.snapshot.setResolveSnapshotPath(path => path); });',
 
 		// Nested functions and callbacks are still lexically inside the test.
 		withTest('function configure() { snapshot.setDefaultSnapshotSerializers([]); } configure();'),

@@ -104,6 +104,10 @@ function getImportSpecifierName(specifier) {
 
 /** Collect bindings from an ESM `import` declaration. */
 function collectFromImport(node, bindings) {
+	if (node.importKind === 'type') {
+		return;
+	}
+
 	const {value: source} = node.source;
 	const kind = moduleKind(source);
 	if (!kind) {
@@ -113,6 +117,10 @@ function collectFromImport(node, bindings) {
 	const isStrict = source.endsWith('/strict');
 
 	for (const specifier of node.specifiers) {
+		if (specifier.importKind === 'type') {
+			continue;
+		}
+
 		const localName = specifier.local.name;
 
 		// Named import: `import {describe} from 'node:test'` / `import {strictEqual} from 'node:assert'`.
@@ -360,9 +368,11 @@ export const parseTestCall = memoizeByNode(parseTestCallCache, (callExpression, 
 	let name;
 	let modifiers;
 
+	const firstMember = members[0];
+	const isNamespaceDefault = root.name === imports.namespace && !imports.locals.has(root.name) && firstMember?.name === 'default';
 	if (
-		members.length > 0
-		&& ALL_TEST_EXPORTS.has(members[0].name)
+		firstMember
+		&& (ALL_TEST_EXPORTS.has(firstMember.name) || isNamespaceDefault)
 		&& (
 			root.name === imports.namespace
 			|| TEST_FUNCTIONS.has(imports.locals.get(root.name))
@@ -370,7 +380,7 @@ export const parseTestCall = memoizeByNode(parseTestCallCache, (callExpression, 
 	) {
 		// `nodeTest.test.only(…)` — namespace member access into a known export.
 		const [first, ...rest] = members;
-		name = first.name;
+		name = isNamespaceDefault ? 'test' : first.name;
 		modifiers = rest;
 	} else if (imports.locals.has(root.name)) {
 		// `test.only(…)` / bare `test(…)` — a callable test binding. A binding that is both a local and
@@ -520,17 +530,19 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 }
 
 function getContextAssertIdentifier(node) {
-	const {callee} = node;
+	const callee = unwrapTypeScriptExpression(node.callee);
+	const object = callee.type === 'MemberExpression' ? unwrapTypeScriptExpression(callee.object) : undefined;
+	const contextReceiver = object?.type === 'MemberExpression' ? unwrapTypeScriptExpression(object.object) : undefined;
 	if (
 		callee.type === 'MemberExpression'
 		&& !callee.computed
-		&& callee.object.type === 'MemberExpression'
-		&& !callee.object.computed
-		&& callee.object.object.type === 'Identifier'
-		&& callee.object.property.type === 'Identifier'
-		&& callee.object.property.name === 'assert'
+		&& object?.type === 'MemberExpression'
+		&& !object.computed
+		&& contextReceiver?.type === 'Identifier'
+		&& object.property.type === 'Identifier'
+		&& object.property.name === 'assert'
 	) {
-		return callee.object.object;
+		return contextReceiver;
 	}
 
 	return undefined;
@@ -774,26 +786,32 @@ function isNamedStrictAssertIdentifier(node, imports) {
 }
 
 function isAssertStrictMember(node, imports) {
+	node = unwrapTypeScriptExpression(node);
+	const object = node.type === 'MemberExpression' ? unwrapTypeScriptExpression(node.object) : undefined;
 	return (
 		node.type === 'MemberExpression'
 		&& !node.computed
-		&& isAssertNamespaceIdentifier(node.object, imports)
+		&& object?.type === 'Identifier'
+		&& isAssertNamespaceIdentifier(object, imports)
 		&& node.property.type === 'Identifier'
 		&& node.property.name === 'strict'
 	);
 }
 
 function isTestContextAssertMember(node) {
+	node = unwrapTypeScriptExpression(node);
+	const object = node.type === 'MemberExpression' ? unwrapTypeScriptExpression(node.object) : undefined;
 	return (
 		node.type === 'MemberExpression'
 		&& !node.computed
-		&& node.object.type === 'Identifier'
+		&& object?.type === 'Identifier'
 		&& node.property.type === 'Identifier'
 		&& node.property.name === 'assert'
 	);
 }
 
 function parseAssertionMemberCall(callee, imports) {
+	callee = unwrapTypeScriptExpression(callee);
 	if (
 		callee.type !== 'MemberExpression'
 		|| callee.computed
@@ -802,7 +820,7 @@ function parseAssertionMemberCall(callee, imports) {
 		return;
 	}
 
-	const {object} = callee;
+	const object = unwrapTypeScriptExpression(callee.object);
 
 	if (callee.property.name === 'strict' && isAssertNamespaceIdentifier(object, imports)) {
 		return {
@@ -845,7 +863,7 @@ function parseAssertionMemberCall(callee, imports) {
 			method: callee.property.name,
 			methodNode: callee.property,
 			isStrict: false,
-			contextReceiver: object.object,
+			contextReceiver: unwrapTypeScriptExpression(object.object),
 		};
 	}
 }
@@ -864,7 +882,7 @@ Matches:
 @returns {{method: string, methodNode: import('estree').Node | undefined, isStrict: boolean, contextReceiver?: import('estree').Identifier}|undefined}
 */
 export const parseAssertionCall = memoizeByNode(parseAssertionCallCache, (callExpression, imports) => {
-	const {callee} = callExpression;
+	const callee = unwrapTypeScriptExpression(callExpression.callee);
 
 	if (
 		callee.type === 'Identifier'
