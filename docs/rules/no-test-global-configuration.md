@@ -10,7 +10,7 @@
 
 Configure these APIs before test registration, preferably in a setup module preloaded with `--import` or `--require`.
 
-This rule reports direct calls on `node:test` configuration objects in inline test and subtest callbacks, including nested helper functions and callbacks. It allows top-level configuration, suite and top-level-hook setup, computed properties, and destructured method aliases.
+This rule reports direct calls on `node:test` configuration objects in inline test, subtest, and suite-local hook callbacks, including nested helper functions and callbacks. It allows top-level configuration, suite callbacks, top-level hook setup, computed properties, and destructured method aliases.
 
 ## Examples
 

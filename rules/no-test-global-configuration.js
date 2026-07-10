@@ -1,7 +1,9 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	createContextTracker,
+	createSuiteDepthTracker,
 	getCalleeChain,
+	getHookCallback,
 	getTestCallback,
 	MODIFIERS,
 	parseTestCall,
@@ -60,18 +62,28 @@ function isGlobalConfigurationCall(node, imports, sourceCode) {
 	);
 }
 
-function isTestCallbackCall(node, imports) {
-	const parsed = parseTestCall(node, imports);
+function isTestCallbackCall(parsed) {
 	return (
 		parsed?.kind === 'test'
 		&& parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name))
 	);
 }
 
-function isInsideTestCallback(node, testCallbacks, testCalls) {
+function isSuiteCall(parsed) {
+	return (
+		parsed?.kind === 'suite'
+		&& parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name))
+	);
+}
+
+function isNestedHookCall(parsed, suiteDepth) {
+	return parsed?.kind === 'hook' && parsed.modifiers.length === 0 && suiteDepth > 0;
+}
+
+function isInsideConfigurationCallback(node, configurationCallbacks, testCalls) {
 	let current = node.parent;
 	while (current) {
-		if (testCallbacks.has(current)) {
+		if (configurationCallbacks.has(current)) {
 			return true;
 		}
 
@@ -93,24 +105,35 @@ const create = context => {
 	}
 
 	const {sourceCode} = context;
-	const testCallbacks = new Set();
+	const configurationCallbacks = new Set();
 	const testCalls = new Set();
 	const tracker = createContextTracker(imports);
+	const suiteDepthTracker = createSuiteDepthTracker();
 
 	context.on('CallExpression', node => {
-		if (isTestCallbackCall(node, imports) || tracker.isSubtestCall(node)) {
+		const parsed = parseTestCall(node, imports);
+		if (isSuiteCall(parsed)) {
+			suiteDepthTracker.enterSuite(node);
+		}
+
+		if (isTestCallbackCall(parsed) || tracker.isSubtestCall(node)) {
 			testCalls.add(node);
 
 			const callback = getTestCallback(node);
 			if (callback) {
-				testCallbacks.add(callback);
+				configurationCallbacks.add(callback);
+			}
+		} else if (isNestedHookCall(parsed, suiteDepthTracker.depth)) {
+			const callback = getHookCallback(node);
+			if (callback) {
+				configurationCallbacks.add(callback);
 			}
 		}
 
 		tracker.update(node);
 
 		if (
-			isInsideTestCallback(node, testCallbacks, testCalls)
+			isInsideConfigurationCallback(node, configurationCallbacks, testCalls)
 			&& isGlobalConfigurationCall(node, imports, sourceCode)
 		) {
 			return {
@@ -122,6 +145,7 @@ const create = context => {
 
 	context.onExit('CallExpression', node => {
 		tracker.leave(node);
+		suiteDepthTracker.exitSuite(node);
 	});
 };
 

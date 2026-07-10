@@ -33,6 +33,7 @@ test.snapshot({
 
 		// Nested functions in a suite remain outside every test callback.
 		'import {describe, snapshot} from \'node:test\';\ndescribe(\'suite\', () => { function configure() { snapshot.setDefaultSnapshotSerializers([]); } configure(); });',
+		'import {beforeEach, describe, snapshot} from \'node:test\';\ndescribe.foo(\'suite\', () => { beforeEach(() => { snapshot.setResolveSnapshotPath(path => path); }); });',
 
 		// Shadowed bindings are unrelated objects.
 		'import test, {snapshot} from \'node:test\';\ntest(\'t\', () => { { const snapshot = custom; snapshot.setDefaultSnapshotSerializers([]); } });',
@@ -56,6 +57,14 @@ test.snapshot({
 		// Test modifiers and subtests.
 		'import test, {snapshot} from \'node:test\';\ntest.only(\'t\', () => { snapshot.setResolveSnapshotPath(path => path); });',
 		'import test, {assert} from \'node:test\';\ntest(\'parent\', t => { t.test(\'child\', () => { assert.register(\'custom\', () => {}); }); });',
+		'import test, {snapshot} from \'node:test\';\ntest(\'parent\', t => { t.test.only(\'child\', () => { snapshot.setDefaultSnapshotSerializers([]); }); });',
+
+		// Renamed test imports.
+		'import {test as run, snapshot} from \'node:test\';\nrun(\'t\', () => { snapshot.setDefaultSnapshotSerializers([]); });',
+		'import {assert, it as specify} from \'node:test\';\nspecify(\'t\', () => { assert.register(\'custom\', () => {}); });',
+
+		// Suite-local hooks run while tests execute.
+		'import {beforeEach, describe, snapshot} from \'node:test\';\ndescribe(\'suite\', () => { beforeEach(() => { snapshot.setResolveSnapshotPath(path => path); }); });',
 
 		// Nested functions and callbacks are still lexically inside the test.
 		withTest('function configure() { snapshot.setDefaultSnapshotSerializers([]); } configure();'),

@@ -50,7 +50,71 @@ Message:
 
 `;
 
-exports[`no-test-global-configuration > invalid(12): import test, {assert, snapshot} from 'node:test';\ntest('t', () => {\n\tfunction configure() { snapshot.setDefaultSnapshotSerializers([]); } configure();\n}); 1`] = `
+exports[`no-test-global-configuration > invalid(12): import test, {snapshot} from 'node:test';\ntest('parent', t => { t.test.only('child', () => { snapshot.setDefaultSnapshotSerializers([]); }); }); 1`] = `
+
+  1 | import test, {snapshot} from 'node:test';
+  2 | test('parent', t => { t.test.only('child', () => { snapshot.setDefaultSnapshotSerializers([]); }); });
+
+`;
+
+exports[`no-test-global-configuration > invalid(12): import test, {snapshot} from 'node:test';\ntest('parent', t => { t.test.only('child', () => { snapshot.setDefaultSnapshotSerializers([]); }); }); 2`] = `
+
+Message:
+  1 | import test, {snapshot} from 'node:test';
+> 2 | test('parent', t => { t.test.only('child', () => { snapshot.setDefaultSnapshotSerializers([]); }); });
+    |                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not configure \`node:test\` inside a test. This changes process-wide state.
+
+`;
+
+exports[`no-test-global-configuration > invalid(13): import {test as run, snapshot} from 'node:test';\nrun('t', () => { snapshot.setDefaultSnapshotSerializers([]); }); 1`] = `
+
+  1 | import {test as run, snapshot} from 'node:test';
+  2 | run('t', () => { snapshot.setDefaultSnapshotSerializers([]); });
+
+`;
+
+exports[`no-test-global-configuration > invalid(13): import {test as run, snapshot} from 'node:test';\nrun('t', () => { snapshot.setDefaultSnapshotSerializers([]); }); 2`] = `
+
+Message:
+  1 | import {test as run, snapshot} from 'node:test';
+> 2 | run('t', () => { snapshot.setDefaultSnapshotSerializers([]); });
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not configure \`node:test\` inside a test. This changes process-wide state.
+
+`;
+
+exports[`no-test-global-configuration > invalid(14): import {assert, it as specify} from 'node:test';\nspecify('t', () => { assert.register('custom', () => {}); }); 1`] = `
+
+  1 | import {assert, it as specify} from 'node:test';
+  2 | specify('t', () => { assert.register('custom', () => {}); });
+
+`;
+
+exports[`no-test-global-configuration > invalid(14): import {assert, it as specify} from 'node:test';\nspecify('t', () => { assert.register('custom', () => {}); }); 2`] = `
+
+Message:
+  1 | import {assert, it as specify} from 'node:test';
+> 2 | specify('t', () => { assert.register('custom', () => {}); });
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not configure \`node:test\` inside a test. This changes process-wide state.
+
+`;
+
+exports[`no-test-global-configuration > invalid(15): import {beforeEach, describe, snapshot} from 'node:test';\ndescribe('suite', () => { beforeEach(() => { snapshot.setResolveSnapshotPath(path => path); }); }); 1`] = `
+
+  1 | import {beforeEach, describe, snapshot} from 'node:test';
+  2 | describe('suite', () => { beforeEach(() => { snapshot.setResolveSnapshotPath(path => path); }); });
+
+`;
+
+exports[`no-test-global-configuration > invalid(15): import {beforeEach, describe, snapshot} from 'node:test';\ndescribe('suite', () => { beforeEach(() => { snapshot.setResolveSnapshotPath(path => path); }); }); 2`] = `
+
+Message:
+  1 | import {beforeEach, describe, snapshot} from 'node:test';
+> 2 | describe('suite', () => { beforeEach(() => { snapshot.setResolveSnapshotPath(path => path); }); });
+    |                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not configure \`node:test\` inside a test. This changes process-wide state.
+
+`;
+
+exports[`no-test-global-configuration > invalid(16): import test, {assert, snapshot} from 'node:test';\ntest('t', () => {\n\tfunction configure() { snapshot.setDefaultSnapshotSerializers([]); } configure();\n}); 1`] = `
 
   1 | import test, {assert, snapshot} from 'node:test';
   2 | test('t', () => {
@@ -59,7 +123,7 @@ exports[`no-test-global-configuration > invalid(12): import test, {assert, snaps
 
 `;
 
-exports[`no-test-global-configuration > invalid(12): import test, {assert, snapshot} from 'node:test';\ntest('t', () => {\n\tfunction configure() { snapshot.setDefaultSnapshotSerializers([]); } configure();\n}); 2`] = `
+exports[`no-test-global-configuration > invalid(16): import test, {assert, snapshot} from 'node:test';\ntest('t', () => {\n\tfunction configure() { snapshot.setDefaultSnapshotSerializers([]); } configure();\n}); 2`] = `
 
 Message:
   1 | import test, {assert, snapshot} from 'node:test';
@@ -70,7 +134,7 @@ Message:
 
 `;
 
-exports[`no-test-global-configuration > invalid(13): import test, {assert, snapshot} from 'node:test';\ntest('t', () => {\n\tsetImmediate(() => { assert.register('custom', () => {}); });\n}); 1`] = `
+exports[`no-test-global-configuration > invalid(17): import test, {assert, snapshot} from 'node:test';\ntest('t', () => {\n\tsetImmediate(() => { assert.register('custom', () => {}); });\n}); 1`] = `
 
   1 | import test, {assert, snapshot} from 'node:test';
   2 | test('t', () => {
@@ -79,7 +143,7 @@ exports[`no-test-global-configuration > invalid(13): import test, {assert, snaps
 
 `;
 
-exports[`no-test-global-configuration > invalid(13): import test, {assert, snapshot} from 'node:test';\ntest('t', () => {\n\tsetImmediate(() => { assert.register('custom', () => {}); });\n}); 2`] = `
+exports[`no-test-global-configuration > invalid(17): import test, {assert, snapshot} from 'node:test';\ntest('t', () => {\n\tsetImmediate(() => { assert.register('custom', () => {}); });\n}); 2`] = `
 
 Message:
   1 | import test, {assert, snapshot} from 'node:test';
@@ -90,7 +154,7 @@ Message:
 
 `;
 
-exports[`no-test-global-configuration > invalid(14): import test, {assert, snapshot} from 'node:test';\ntest('t', () => {\n\tsnapshot?.setDefaultSnapshotSerializers([]);\n}); 1`] = `
+exports[`no-test-global-configuration > invalid(18): import test, {assert, snapshot} from 'node:test';\ntest('t', () => {\n\tsnapshot?.setDefaultSnapshotSerializers([]);\n}); 1`] = `
 
   1 | import test, {assert, snapshot} from 'node:test';
   2 | test('t', () => {
@@ -99,7 +163,7 @@ exports[`no-test-global-configuration > invalid(14): import test, {assert, snaps
 
 `;
 
-exports[`no-test-global-configuration > invalid(14): import test, {assert, snapshot} from 'node:test';\ntest('t', () => {\n\tsnapshot?.setDefaultSnapshotSerializers([]);\n}); 2`] = `
+exports[`no-test-global-configuration > invalid(18): import test, {assert, snapshot} from 'node:test';\ntest('t', () => {\n\tsnapshot?.setDefaultSnapshotSerializers([]);\n}); 2`] = `
 
 Message:
   1 | import test, {assert, snapshot} from 'node:test';
@@ -110,7 +174,7 @@ Message:
 
 `;
 
-exports[`no-test-global-configuration > invalid(15): import test, {assert, snapshot} from 'node:test';\ntest('t', () => {\n\tassert.register?.('custom', () => {});\n}); 1`] = `
+exports[`no-test-global-configuration > invalid(19): import test, {assert, snapshot} from 'node:test';\ntest('t', () => {\n\tassert.register?.('custom', () => {});\n}); 1`] = `
 
   1 | import test, {assert, snapshot} from 'node:test';
   2 | test('t', () => {
@@ -119,7 +183,7 @@ exports[`no-test-global-configuration > invalid(15): import test, {assert, snaps
 
 `;
 
-exports[`no-test-global-configuration > invalid(15): import test, {assert, snapshot} from 'node:test';\ntest('t', () => {\n\tassert.register?.('custom', () => {});\n}); 2`] = `
+exports[`no-test-global-configuration > invalid(19): import test, {assert, snapshot} from 'node:test';\ntest('t', () => {\n\tassert.register?.('custom', () => {});\n}); 2`] = `
 
 Message:
   1 | import test, {assert, snapshot} from 'node:test';
@@ -127,42 +191,6 @@ Message:
 > 3 | 	assert.register?.('custom', () => {});
     | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not configure \`node:test\` inside a test. This changes process-wide state.
   4 | });
-
-`;
-
-exports[`no-test-global-configuration > invalid(16): import test, {assert, snapshot} from 'node:test';\ntest('t', () => {\n\t(snapshot as typeof snapshot).setResolveSnapshotPath(path => path);\n}); 1`] = `
-
-  1 | import test, {assert, snapshot} from 'node:test';
-  2 | test('t', () => {
-  3 | 	(snapshot as typeof snapshot).setResolveSnapshotPath(path => path);
-  4 | });
-
-`;
-
-exports[`no-test-global-configuration > invalid(16): import test, {assert, snapshot} from 'node:test';\ntest('t', () => {\n\t(snapshot as typeof snapshot).setResolveSnapshotPath(path => path);\n}); 2`] = `
-
-Message:
-  1 | import test, {assert, snapshot} from 'node:test';
-  2 | test('t', () => {
-> 3 | 	(snapshot as typeof snapshot).setResolveSnapshotPath(path => path);
-    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not configure \`node:test\` inside a test. This changes process-wide state.
-  4 | });
-
-`;
-
-exports[`no-test-global-configuration > invalid(17): import test from 'node:test';\n(test as typeof test)('t', () => { (test.assert as typeof test.assert).register('custom', () => {}); }); 1`] = `
-
-  1 | import test from 'node:test';
-  2 | (test as typeof test)('t', () => { (test.assert as typeof test.assert).register('custom', () => {}); });
-
-`;
-
-exports[`no-test-global-configuration > invalid(17): import test from 'node:test';\n(test as typeof test)('t', () => { (test.assert as typeof test.assert).register('custom', () => {}); }); 2`] = `
-
-Message:
-  1 | import test from 'node:test';
-> 2 | (test as typeof test)('t', () => { (test.assert as typeof test.assert).register('custom', () => {}); });
-    |                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not configure \`node:test\` inside a test. This changes process-wide state.
 
 `;
 
@@ -183,6 +211,42 @@ Message:
 > 3 | 	snapshot.setResolveSnapshotPath(path => path);
     | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not configure \`node:test\` inside a test. This changes process-wide state.
   4 | });
+
+`;
+
+exports[`no-test-global-configuration > invalid(20): import test, {assert, snapshot} from 'node:test';\ntest('t', () => {\n\t(snapshot as typeof snapshot).setResolveSnapshotPath(path => path);\n}); 1`] = `
+
+  1 | import test, {assert, snapshot} from 'node:test';
+  2 | test('t', () => {
+  3 | 	(snapshot as typeof snapshot).setResolveSnapshotPath(path => path);
+  4 | });
+
+`;
+
+exports[`no-test-global-configuration > invalid(20): import test, {assert, snapshot} from 'node:test';\ntest('t', () => {\n\t(snapshot as typeof snapshot).setResolveSnapshotPath(path => path);\n}); 2`] = `
+
+Message:
+  1 | import test, {assert, snapshot} from 'node:test';
+  2 | test('t', () => {
+> 3 | 	(snapshot as typeof snapshot).setResolveSnapshotPath(path => path);
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not configure \`node:test\` inside a test. This changes process-wide state.
+  4 | });
+
+`;
+
+exports[`no-test-global-configuration > invalid(21): import test from 'node:test';\n(test as typeof test)('t', () => { (test.assert as typeof test.assert).register('custom', () => {}); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | (test as typeof test)('t', () => { (test.assert as typeof test.assert).register('custom', () => {}); });
+
+`;
+
+exports[`no-test-global-configuration > invalid(21): import test from 'node:test';\n(test as typeof test)('t', () => { (test.assert as typeof test.assert).register('custom', () => {}); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | (test as typeof test)('t', () => { (test.assert as typeof test.assert).register('custom', () => {}); });
+    |                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not configure \`node:test\` inside a test. This changes process-wide state.
 
 `;
 
