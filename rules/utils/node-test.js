@@ -1,6 +1,6 @@
 import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
 import isFunction from '../ast/is-function.js';
-import unwrapTypeScriptExpression from './unwrap-typescript-expression.js';
+import unwrapTypeScriptExpression, {isTypeScriptExpressionWrapper} from './unwrap-typescript-expression.js';
 
 /*
 Detection helpers for Node.js's built-in test runner (`node:test`).
@@ -402,12 +402,22 @@ function isContextHookCall(callExpression, isContextIdentifier) {
 		&& isContextIdentifier(unwrapTypeScriptExpression(callee.object));
 }
 
+function getParentCallExpression(node) {
+	let {parent} = node;
+	while (isTypeScriptExpressionWrapper(parent)) {
+		const {parent: nextParent} = parent;
+		parent = nextParent;
+	}
+
+	return parent?.type === 'CallExpression' ? parent : undefined;
+}
+
 /**
 Track the test-context parameter names (`t`) introduced by enclosing test, subtest, and optionally hook callbacks, including hooks declared from a test context.
 
 Subtests (`t.test(…)`) are method calls, not imported bindings, so recognizing them requires knowing the enclosing context name. Drive the tracker from a `CallExpression` visitor: query `isSubtestCall`/`isContextName` first (against the current stack), then call `update(node)` to push this call's own context, and `leave(node)` on exit.
 
-Set `trackHooks` to also track hook context parameters for rules that inspect `t.assert.*()`.
+Set `trackHooks` to also track hook context parameters.
 
 @returns {{
 	isSubtestCall: (node: import('estree').Node) => boolean,
@@ -704,8 +714,8 @@ export function nearestTestCallbackKind(node, imports, isContextIdentifier) {
 	let current = node.parent;
 	while (current) {
 		if (isFunction(current)) {
-			const call = current.parent;
-			if (call?.type === 'CallExpression') {
+			const call = getParentCallExpression(current);
+			if (call) {
 				const parsed = parseTestCall(call, imports);
 				if (
 					parsed?.kind === 'hook'

@@ -1,4 +1,4 @@
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -46,5 +46,15 @@ test.snapshot({
 
 		// Imported assertions inside a context hook.
 		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'t\', t => { t.beforeEach(() => { assert.ok(value); }); });',
+
+		// TypeScript-wrapped hook callbacks.
+		{
+			code: 'import {beforeEach} from \'node:test\';\nimport assert from \'node:assert\';\nbeforeEach((() => { assert.ok(value); }) as () => void);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import test from \'node:test\';\ntest(\'t\', t => { t.beforeEach((hook => { hook.assert.ok(value); }) as () => void); });',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
