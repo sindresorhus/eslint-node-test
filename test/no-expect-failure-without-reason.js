@@ -48,8 +48,10 @@ test.snapshot({
 		withTest('test({expectFailure: true}, () => {});'),
 		withTest('test(\'t\', {expectFailure: \'tracked in #123\', expectFailure: true}, () => {});'),
 		withTest('test(\'t\', {...options, expectFailure: true}, () => {});'),
+		withTest('test(\'t\', {[key]: value, expectFailure: true}, () => {});'),
 		withTest('test(\'t\', {expectFailure: true, timeout: 1000}, () => {});'),
 		withTest('test.only(\'t\', {expectFailure: true}, () => {});'),
+		withTest('test.describe(\'s\', {expectFailure: true}, () => {});'),
 
 		// Named/renamed import.
 		'import {it as check} from \'node:test\';\ncheck(\'t\', {expectFailure: true}, () => {});',
