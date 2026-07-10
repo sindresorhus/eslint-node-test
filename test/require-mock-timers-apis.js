@@ -9,6 +9,8 @@ test.snapshot({
 	valid: [
 		// Not a test file.
 		'mock.timers.enable();',
+		// A bare `test` package is not Node's test runner.
+		'import {getTestContext} from \'test\';\ngetTestContext().mock.timers.enable();',
 
 		// Explicit apis.
 		head + 'mock.timers.enable({apis: ["setTimeout"]});',

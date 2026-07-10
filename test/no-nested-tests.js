@@ -22,6 +22,8 @@ test.snapshot({
 		'import test from "node:test";\ntest("a");',
 		// Hook inside a test body is not flagged by this rule
 		'import test, {before} from "node:test";\ntest("a", () => {\n  before(() => {});\n});',
+		// A bare `test` package is not Node's test runner.
+		'import test from "test";\ntest("outer", () => {\n  test("inner", () => {});\n});',
 	],
 	invalid: [
 		// Basic nesting: test inside test
@@ -38,7 +40,5 @@ test.snapshot({
 		'import {test as myTest} from "node:test";\nmyTest("outer", () => {\n  myTest("inner", () => {});\n});',
 		// Namespace import
 		'import * as nodeTest from "node:test";\nnodeTest.test("outer", () => {\n  nodeTest.test("inner", () => {});\n});',
-		// Bare "test" module
-		'import test from "test";\ntest("outer", () => {\n  test("inner", () => {});\n});',
 	],
 });

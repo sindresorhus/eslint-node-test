@@ -12,7 +12,7 @@ import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js'
 
 const MESSAGE_ID = 'require-mock-timers-apis';
 const CONTEXT_HOOKS = new Set(['before', 'beforeEach', 'after', 'afterEach']);
-const TEST_MODULES = new Set(['node:test', 'test']);
+const TEST_MODULE = 'node:test';
 const STATIC_NON_OPTIONS_VALUE_TYPES = new Set(['ArrayExpression', 'Literal', 'TemplateLiteral']);
 
 const messages = {
@@ -111,7 +111,7 @@ function getTestContextImportLocals(sourceCode) {
 	const locals = new Set();
 
 	for (const node of sourceCode.ast.body) {
-		if (node.type !== 'ImportDeclaration' || !TEST_MODULES.has(node.source.value)) {
+		if (node.type !== 'ImportDeclaration' || node.source.value !== TEST_MODULE) {
 			continue;
 		}
 

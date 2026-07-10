@@ -28,6 +28,11 @@ test.snapshot({
 		withSetup('({exitCode: process.exitCode} = result);'),
 		withSetup('import {exit} from \'node:process\';\nexit(1);'),
 		withSetup('new process.exit(1);'),
+
+		// A bare `test` package is not Node's test runner.
+		'import test from \'test\';\nprocess.exit(0);',
+		'import {test as bareTest} from \'test\';\nprocess.exitCode = 1;',
+		'import * as bareTest from \'test\';\nprocess.exit(0);',
 	],
 	invalid: [
 		// `process.exit()` anywhere in a test file
@@ -49,9 +54,6 @@ test.snapshot({
 		'import test from \'node:test\';\nprocess.exit(0);',
 		'import * as nodeTest from \'node:test\';\nprocess.exit(0);',
 		'import {test as nodeTest} from \'node:test\';\nprocess.exit(0);',
-		'import test from \'test\';\nprocess.exit(0);',
-		'import {test as bareTest} from \'test\';\nprocess.exitCode = 1;',
-		'import * as bareTest from \'test\';\nprocess.exit(0);',
 
 		// `process.exitCode` writes anywhere in a test file
 		withSetup('process.exitCode = 1;'),

@@ -22,6 +22,8 @@ test.snapshot({
 		// `expectFailure` does not have test modifiers.
 		'import {expectFailure} from "node:test";\nexpectFailure.only("title", () => {});',
 		'import test from "node:test";\ntest.expectFailure.only("title", () => {});',
+		// A bare `test` package is not Node's test runner.
+		'import test from "test";\ntest.only("title", () => {});',
 	],
 	invalid: [
 		'import test from "node:test";\ntest.only("title", () => {});',
@@ -39,7 +41,5 @@ test.snapshot({
 		// Namespace import
 		'import * as nodeTest from "node:test";\nnodeTest.test.only("title", () => {});',
 		'import * as nodeTest from "node:test";\nnodeTest.only("title", () => {});',
-		// Bare "test" module
-		'import test from "test";\ntest.only("title", () => {});',
 	],
 });

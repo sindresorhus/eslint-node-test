@@ -56,6 +56,8 @@ test.snapshot({
 		'import test from "node:test";\nimport assert from "node:assert";\ntest("outer", t => { assert.ok(1); t.test("inner", () => {}); });',
 		// T.test() subtests are not tracked as import-based test boundaries, so assertions inside them are seen by the outer scope (intentional false negative — keep simple)
 		'import test from "node:test";\nimport assert from "node:assert";\ntest("outer", t => { t.test("inner", () => { assert.ok(1); }); });',
+		// A bare `test` package is not Node's test runner.
+		'import test from "test";\ntest("t1", () => { doSomething(); });',
 	],
 	invalid: [
 		// No assertion at all
@@ -75,10 +77,6 @@ test.snapshot({
 
 		// Namespace import, no assertion
 		'import * as nodeTest from "node:test";\nnodeTest.test("t1", () => { doSomething(); });',
-
-		// Bare "test" module
-		'import test from "test";\ntest("t1", () => { doSomething(); });',
-
 		// TypeScript
 		{
 			code: 'import test from "node:test";\nimport assert from "node:assert";\ntest("t1", (): void => { doSomething(); });',

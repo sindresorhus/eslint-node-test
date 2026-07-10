@@ -10,6 +10,7 @@ test.snapshot({
 	valid: [
 		// Not a `node:test` file.
 		'spy.mock.calls.length;',
+		'import test from \'test\';\nspy.mock.calls.length;',
 
 		// Already using `callCount()`.
 		withNodeTest('spy.mock.callCount();'),
@@ -21,7 +22,9 @@ test.snapshot({
 		withNodeTest('spy.mock.accesses.length;'),
 
 		// Computed and optional access are deliberately unsupported.
+		withNodeTest('spy[\'mock\'].calls.length;'),
 		withNodeTest('spy.mock[\'calls\'].length;'),
+		withNodeTest('spy.mock.calls[\'length\'];'),
 		withNodeTest('spy.mock.calls?.length;'),
 		withNodeTest('spy.mock?.calls.length;'),
 		withNodeTest('spy?.mock.calls.length;'),

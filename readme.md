@@ -44,7 +44,7 @@ export default defineConfig([
 ]);
 ```
 
-Most rules only activate in files that import from `node:test`/`test` (and, for assertion rules, `node:assert`), so you can safely apply the plugin across your whole project.
+The rules only activate in files that import from `node:test` (and assertion rules also activate for Node's built-in `assert` module), so you can safely apply the plugin across your whole project.
 
 ## Rules
 

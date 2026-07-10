@@ -94,23 +94,7 @@ Message:
 
 `;
 
-exports[`require-assertion > invalid(7): import test from \"test\";\ntest(\"t1\", () => { doSomething(); }); 1`] = `
-
-  1 | import test from "test";
-  2 | test("t1", () => { doSomething(); });
-
-`;
-
-exports[`require-assertion > invalid(7): import test from \"test\";\ntest(\"t1\", () => { doSomething(); }); 2`] = `
-
-Message:
-  1 | import test from "test";
-> 2 | test("t1", () => { doSomething(); });
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
-
-`;
-
-exports[`require-assertion > invalid(8): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", (): void => { doSomething(); }); 1`] = `
+exports[`require-assertion > invalid(7): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", (): void => { doSomething(); }); 1`] = `
 
   1 | import test from "node:test";
   2 | import assert from "node:assert";
@@ -118,7 +102,7 @@ exports[`require-assertion > invalid(8): import test from \"node:test\";\nimport
 
 `;
 
-exports[`require-assertion > invalid(8): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", (): void => { doSomething(); }); 2`] = `
+exports[`require-assertion > invalid(7): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", (): void => { doSomething(); }); 2`] = `
 
 Message:
   1 | import test from "node:test";
