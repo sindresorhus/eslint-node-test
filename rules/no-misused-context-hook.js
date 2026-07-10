@@ -30,7 +30,7 @@ function getContextHookReceiver(callExpression) {
 	return chain.root;
 }
 
-function getSubtestReceiver(callExpression) {
+function getDirectSubtestReceiver(callExpression) {
 	const chain = getCalleeChain(callExpression.callee);
 	if (
 		!chain
@@ -77,13 +77,14 @@ const create = context => {
 	};
 
 	context.on('CallExpression', node => {
-		const subtestReceiver = getSubtestReceiver(node);
+		const subtestReceiver = getDirectSubtestReceiver(node);
 		const isSubtest = tracker.isContextIdentifier(subtestReceiver);
-		if (isSubtest && !isStaticallySkipped(node, sourceCode)) {
-			const frame = getFrame(subtestReceiver);
-			if (frame && getEnclosingFunction(node) === frame.callback) {
-				frame.hasSubtest = true;
-			}
+		const frame = isSubtest ? getFrame(subtestReceiver) : undefined;
+		const isRunnableSubtest = frame !== undefined
+			&& getEnclosingFunction(node) === frame.callback
+			&& !isStaticallySkipped(node, sourceCode);
+		if (isRunnableSubtest) {
+			frame.hasSubtest = true;
 		}
 
 		const hookReceiver = getContextHookReceiver(node);
@@ -95,9 +96,11 @@ const create = context => {
 		}
 
 		const isTest = parseTestCall(node, imports)?.kind === 'test';
-		tracker.update(node);
+		if (isTest || isRunnableSubtest) {
+			tracker.update(node);
+		}
 
-		if (isTest || isSubtest) {
+		if (isTest || isRunnableSubtest) {
 			const callback = getTestCallback(node);
 			if (!callback) {
 				return;

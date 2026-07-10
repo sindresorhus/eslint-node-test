@@ -60,6 +60,8 @@ test.snapshot({
 		// Subtests inside hooks are never registered for a leaf test.
 		withTest('test(\'leaf\', t => { t.beforeEach(() => { t.test(\'child\', () => {}); }); });'),
 		withTest('test(\'leaf\', t => { t.afterEach(() => { t.test(\'child\', () => {}); }); });'),
+		withTest('test(\'leaf\', t => { t.beforeEach(() => { t.test(\'child\', child => { child.afterEach(() => {}); }); }); });'),
+		withTest('test(\'leaf\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {skip: true}, child => { child.afterEach(() => {}); }); });'),
 
 		{
 			code: withTest('test(\'leaf\', t => { (t as object).afterEach(() => {}); });'),
