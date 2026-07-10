@@ -9,7 +9,7 @@
 
 `mock.module()` does not change [references that were imported before the mock was created](https://nodejs.org/api/test.html#mockmodulespecifier-options). Static ESM imports are evaluated before any code in the test file runs, so a matching static import in the same file keeps pointing at the original module.
 
-This rule reports `mock.module()` when the module is already imported statically in the same file, including calls through `t.mock` and `getTestContext().mock`. Use a dynamic `import()` after creating the mock instead.
+This rule reports `mock.module()` when the module is already imported statically in the same file, including calls through `t.mock` and `getTestContext().mock`. Specifiers are compared exactly, without resolving paths or normalizing `node:` prefixes. Use a dynamic `import()` after creating the mock instead.
 
 ## Examples
 

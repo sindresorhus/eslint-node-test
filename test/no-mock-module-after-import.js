@@ -11,6 +11,7 @@ test.snapshot({
 
 		// Different module
 		head + 'import value from \'module.js\';\nmock.module(\'other-module.js\');',
+		'import {mock} from \'node:test\';\nimport \'node:fs\';\nmock.module(\'fs\');',
 
 		// Dynamic imports happen after the mock is installed.
 		head + 'test(\'mock\', async t => {\n\tt.mock.module(\'module.js\');\n\tawait import(\'module.js\');\n});',
@@ -63,6 +64,7 @@ test.snapshot({
 		head + 'import {value} from \'module.js\';\nmock.module(\'module.js\');',
 		head + 'import * as module from \'module.js\';\nmock.module(\'module.js\');',
 		head + 'import \'module.js\';\nmock.module(\'module.js\');',
+		head + 'import {} from \'module.js\';\nmock.module(\'module.js\');',
 		head + 'mock.module(\'module.js\');\nimport \'module.js\';',
 
 		// Static mock specifiers.
@@ -70,6 +72,7 @@ test.snapshot({
 		head + 'import \'module.js\';\nconst moduleName = \'module.js\';\nmock.module(moduleName);',
 
 		// Global mock aliases.
+		'import {mock} from \'test\';\nimport \'module.js\';\nmock.module(\'module.js\');',
 		'import {mock as moduleMock} from \'node:test\';\nimport \'module.js\';\nmoduleMock.module(\'module.js\');',
 		'import * as nodeTest from \'node:test\';\nimport \'module.js\';\nnodeTest.mock.module(\'module.js\');',
 		'import test from \'node:test\';\nimport \'module.js\';\ntest.mock.module(\'module.js\');',
@@ -107,6 +110,10 @@ test.snapshot({
 		},
 		{
 			code: head + 'import \'module.js\';\n(mock as typeof mock).module(\'module.js\');',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import test from \'node:test\';\nimport \'module.js\';\n(test as typeof test).mock.module(\'module.js\');',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{

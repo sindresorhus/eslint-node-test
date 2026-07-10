@@ -1,18 +1,12 @@
-import {findVariable} from '@eslint-community/eslint-utils';
-import {isFunction} from './ast/index.js';
 import {
-	getContextParameterIdentifier,
-	getSubtestReceiver,
-	getTestCallback,
+	createContextTracker,
 	isGetTestContextCall,
-	MODIFIERS,
-	parseTestCall,
+	isGlobalMock,
 	resolveImports,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
 const MESSAGE_ID = 'require-mock-timers-apis';
-const CONTEXT_HOOKS = new Set(['before', 'beforeEach', 'after', 'afterEach']);
 const STATIC_NON_OPTIONS_VALUE_TYPES = new Set(['ArrayExpression', 'Literal', 'TemplateLiteral']);
 
 const messages = {
@@ -60,11 +54,6 @@ function getLastVisibleApisProperty(optionsObject) {
 	return undefined;
 }
 
-function isImportedReference(node, sourceCode) {
-	const variable = findVariable(sourceCode.getScope(node), node);
-	return variable?.defs.some(({type}) => type === 'ImportBinding') ?? false;
-}
-
 function isMissingApisOption(callExpression) {
 	const firstArgument = unwrapTypeScriptExpression(callExpression.arguments[0]);
 	if (!firstArgument) {
@@ -83,167 +72,14 @@ function isMissingApisOption(callExpression) {
 	return !apisProperty || isMissingApisValue(apisProperty.value);
 }
 
-function isContextProvidingCall(testCall) {
-	if (testCall.kind === 'hook') {
-		return testCall.modifiers.length === 0;
-	}
-
-	return testCall.kind === 'test'
-		&& testCall.modifiers.every(modifier => MODIFIERS.has(modifier.name));
-}
-
-function getContextHookReceiver(callExpression) {
-	const {callee} = callExpression;
-	if (
-		callee.type !== 'MemberExpression'
-		|| callee.computed
-		|| callee.property.type !== 'Identifier'
-		|| !CONTEXT_HOOKS.has(callee.property.name)
-	) {
-		return undefined;
-	}
-
-	const receiver = unwrapTypeScriptExpression(callee.object);
-	return receiver.type === 'Identifier' ? receiver : undefined;
-}
-
-function getHookCallback(callExpression) {
-	const firstArgument = unwrapTypeScriptExpression(callExpression.arguments[0]);
-	return isFunction(firstArgument) ? firstArgument : undefined;
-}
-
-function getLocalTestHookCall(callExpression, imports, sourceCode) {
-	const callee = unwrapTypeScriptExpression(callExpression.callee);
-	if (
-		callee.type !== 'MemberExpression'
-		|| callee.computed
-		|| callee.property.type !== 'Identifier'
-		|| !CONTEXT_HOOKS.has(callee.property.name)
-	) {
-		return undefined;
-	}
-
-	const object = unwrapTypeScriptExpression(callee.object);
-	if (
-		object.type !== 'Identifier'
-		|| !['test', 'it'].includes(imports.locals.get(object.name))
-		|| !isImportedReference(object, sourceCode)
-	) {
-		return undefined;
-	}
-
-	return {
-		name: callee.property.name,
-		kind: 'hook',
-		modifiers: [],
-	};
-}
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {sourceCode} = context;
 	const imports = resolveImports(context);
 	if (!imports.isTestFile) {
 		return;
 	}
 
-	const contextVariables = [];
-	const pushedCalls = new Set();
-
-	const getImportedContextCall = node => {
-		const testCall = parseTestCall(node, imports);
-		if (testCall !== undefined && isContextProvidingCall(testCall)) {
-			return testCall;
-		}
-
-		return getLocalTestHookCall(node, imports, sourceCode);
-	};
-
-	const isSubtestCall = node => {
-		const receiver = getSubtestReceiver(node);
-		if (!receiver) {
-			return false;
-		}
-
-		const variable = findVariable(sourceCode.getScope(receiver), receiver);
-		return variable !== undefined && contextVariables.includes(variable);
-	};
-
-	const isContextHookCall = node => {
-		const receiver = getContextHookReceiver(node);
-		if (!receiver) {
-			return false;
-		}
-
-		const variable = findVariable(sourceCode.getScope(receiver), receiver);
-		return variable !== undefined && contextVariables.includes(variable);
-	};
-
-	const updateContext = node => {
-		const importedContextCall = getImportedContextCall(node);
-		const isContextHook = isContextHookCall(node);
-		if (!importedContextCall && !isSubtestCall(node) && !isContextHook) {
-			return;
-		}
-
-		const callback = importedContextCall?.kind === 'hook' || isContextHook
-			? getHookCallback(node)
-			: getTestCallback(node);
-		if (!callback) {
-			return;
-		}
-
-		const parameter = getContextParameterIdentifier(callback.params[0]);
-		const variable = parameter
-			? findVariable(sourceCode.getScope(parameter), parameter)
-			: undefined;
-
-		contextVariables.push(variable);
-		pushedCalls.add(node);
-	};
-
-	const leaveContext = node => {
-		if (!pushedCalls.has(node)) {
-			return;
-		}
-
-		pushedCalls.delete(node);
-		contextVariables.pop();
-	};
-
-	const isGlobalMock = node => {
-		const expression = unwrapTypeScriptExpression(node);
-		if (
-			expression.type === 'Identifier'
-			&& imports.mockLocals.has(expression.name)
-			&& isImportedReference(expression, sourceCode)
-		) {
-			return true;
-		}
-
-		if (
-			expression.type !== 'MemberExpression'
-			|| expression.computed
-			|| expression.property.type !== 'Identifier'
-			|| expression.property.name !== 'mock'
-		) {
-			return false;
-		}
-
-		const object = unwrapTypeScriptExpression(expression.object);
-		return object.type === 'Identifier'
-			&& (
-				object.name === imports.namespace
-				|| imports.locals.get(object.name) === 'test'
-				|| imports.locals.get(object.name) === 'it'
-			)
-			&& isImportedReference(object, sourceCode);
-	};
-
-	const isCurrentContextReference = node => {
-		const variable = findVariable(sourceCode.getScope(node), node);
-		return variable !== undefined && contextVariables.includes(variable);
-	};
+	const tracker = createContextTracker(imports, {trackHooks: true});
 
 	const isContextMock = node => {
 		const expression = unwrapTypeScriptExpression(node);
@@ -258,7 +94,7 @@ const create = context => {
 
 		const object = unwrapTypeScriptExpression(expression.object);
 		return (
-			(object.type === 'Identifier' && isCurrentContextReference(object))
+			tracker.isContextIdentifier(object)
 			|| isGetTestContextCall(object, imports)
 		);
 	};
@@ -269,15 +105,15 @@ const create = context => {
 			&& !expression.computed
 			&& expression.property.type === 'Identifier'
 			&& expression.property.name === 'timers'
-			&& (isGlobalMock(expression.object) || isContextMock(expression.object));
+			&& (isGlobalMock(unwrapTypeScriptExpression(expression.object), imports) || isContextMock(expression.object));
 	};
 
 	context.on('CallExpression', node => {
-		updateContext(node);
+		tracker.update(node);
 	});
 
 	context.onExit('CallExpression', node => {
-		leaveContext(node);
+		tracker.leave(node);
 	});
 
 	context.on('CallExpression', node => {
