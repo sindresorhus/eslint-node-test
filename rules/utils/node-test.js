@@ -394,7 +394,7 @@ export function getSubtestReceiver(callExpression) {
 }
 
 /**
-Track the test-context parameter names (`t`) introduced by enclosing test, subtest, and optionally hook callbacks.
+Track the test-context parameter names (`t`) introduced by enclosing test, subtest, and optionally hook callbacks, including hooks declared from a test context.
 
 Subtests (`t.test(…)`) are method calls, not imported bindings, so recognizing them requires knowing the enclosing context name. Drive the tracker from a `CallExpression` visitor: query `isSubtestCall`/`isContextName` first (against the current stack), then call `update(node)` to push this call's own context, and `leave(node)` on exit.
 
@@ -438,9 +438,22 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 		|| isHookMemberTestCall(parsed)
 	);
 
+	const isContextHookCall = node => {
+		if (!trackHooks) {
+			return false;
+		}
+
+		const callee = unwrapTypeScriptExpression(node.callee);
+		return callee.type === 'MemberExpression'
+			&& !callee.computed
+			&& callee.property.type === 'Identifier'
+			&& HOOK_FUNCTIONS.has(callee.property.name)
+			&& isContextIdentifier(unwrapTypeScriptExpression(callee.object));
+	};
+
 	const isTrackedCallbackCall = node => {
 		const parsed = parseTestCall(node, imports);
-		return (
+		return isContextHookCall(node) || (
 			(
 				parsed?.kind === 'test'
 				&& parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name))
@@ -466,7 +479,7 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 			}
 
 			const parsed = parseTestCall(node, imports);
-			const callback = isTrackedHookCall(parsed) ? getHookCallback(node) : getTestCallback(node);
+			const callback = isTrackedHookCall(parsed) || isContextHookCall(node) ? getHookCallback(node) : getTestCallback(node);
 			if (callback) {
 				const parameter = callback.params[0];
 

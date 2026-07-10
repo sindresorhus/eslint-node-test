@@ -1,0 +1,366 @@
+exports[`prefer-mock-accessor > invalid(1): import {mock} from 'node:test';\nmock.method(object, 'value', {getter: true}); 1`] = `
+
+  1 | import {mock} from 'node:test';
+  2 | mock.method(object, 'value', {getter: true});
+
+`;
+
+exports[`prefer-mock-accessor > invalid(1): import {mock} from 'node:test';\nmock.method(object, 'value', {getter: true}); 2`] = `
+
+Message:
+  1 | import {mock} from 'node:test';
+> 2 | mock.method(object, 'value', {getter: true});
+    |      ^^^^^^ Prefer \`mock.getter()\` over \`mock.method()\` with \`getter: true\`.
+
+Output:
+  1 | import {mock} from 'node:test';
+  2 | mock.getter(object, 'value', {getter: true});
+
+`;
+
+exports[`prefer-mock-accessor > invalid(10): import test from 'node:test';\ntest.mock.method(object, 'value', {getter: true}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test.mock.method(object, 'value', {getter: true});
+
+`;
+
+exports[`prefer-mock-accessor > invalid(10): import test from 'node:test';\ntest.mock.method(object, 'value', {getter: true}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test.mock.method(object, 'value', {getter: true});
+    |           ^^^^^^ Prefer \`mock.getter()\` over \`mock.method()\` with \`getter: true\`.
+
+Output:
+  1 | import test from 'node:test';
+  2 | test.mock.getter(object, 'value', {getter: true});
+
+`;
+
+exports[`prefer-mock-accessor > invalid(11): import test from 'node:test';\ntest('t', t => {\n\tt.mock.method(object, 'value', {setter: true});\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+  3 | 	t.mock.method(object, 'value', {setter: true});
+  4 | });
+
+`;
+
+exports[`prefer-mock-accessor > invalid(11): import test from 'node:test';\ntest('t', t => {\n\tt.mock.method(object, 'value', {setter: true});\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+> 3 | 	t.mock.method(object, 'value', {setter: true});
+    | 	       ^^^^^^ Prefer \`mock.setter()\` over \`mock.method()\` with \`setter: true\`.
+  4 | });
+
+Output:
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+  3 | 	t.mock.setter(object, 'value', {setter: true});
+  4 | });
+
+`;
+
+exports[`prefer-mock-accessor > invalid(12): import test from 'node:test';\ntest('t', t => {\n\tt.test('child', child => child.mock.method(object, 'value', {getter: true}));\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+  3 | 	t.test('child', child => child.mock.method(object, 'value', {getter: true}));
+  4 | });
+
+`;
+
+exports[`prefer-mock-accessor > invalid(12): import test from 'node:test';\ntest('t', t => {\n\tt.test('child', child => child.mock.method(object, 'value', {getter: true}));\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+> 3 | 	t.test('child', child => child.mock.method(object, 'value', {getter: true}));
+    | 	                                    ^^^^^^ Prefer \`mock.getter()\` over \`mock.method()\` with \`getter: true\`.
+  4 | });
+
+Output:
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+  3 | 	t.test('child', child => child.mock.getter(object, 'value', {getter: true}));
+  4 | });
+
+`;
+
+exports[`prefer-mock-accessor > invalid(13): import {beforeEach} from 'node:test';\nbeforeEach(t => t.mock.method(object, 'value', {getter: true})); 1`] = `
+
+  1 | import {beforeEach} from 'node:test';
+  2 | beforeEach(t => t.mock.method(object, 'value', {getter: true}));
+
+`;
+
+exports[`prefer-mock-accessor > invalid(13): import {beforeEach} from 'node:test';\nbeforeEach(t => t.mock.method(object, 'value', {getter: true})); 2`] = `
+
+Message:
+  1 | import {beforeEach} from 'node:test';
+> 2 | beforeEach(t => t.mock.method(object, 'value', {getter: true}));
+    |                        ^^^^^^ Prefer \`mock.getter()\` over \`mock.method()\` with \`getter: true\`.
+
+Output:
+  1 | import {beforeEach} from 'node:test';
+  2 | beforeEach(t => t.mock.getter(object, 'value', {getter: true}));
+
+`;
+
+exports[`prefer-mock-accessor > invalid(14): import test from 'node:test';\ntest('t', t => {\n\tt.beforeEach(hookContext => hookContext.mock.method(object, 'value', {setter: true}));\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+  3 | 	t.beforeEach(hookContext => hookContext.mock.method(object, 'value', {setter: true}));
+  4 | });
+
+`;
+
+exports[`prefer-mock-accessor > invalid(14): import test from 'node:test';\ntest('t', t => {\n\tt.beforeEach(hookContext => hookContext.mock.method(object, 'value', {setter: true}));\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+> 3 | 	t.beforeEach(hookContext => hookContext.mock.method(object, 'value', {setter: true}));
+    | 	                                             ^^^^^^ Prefer \`mock.setter()\` over \`mock.method()\` with \`setter: true\`.
+  4 | });
+
+Output:
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+  3 | 	t.beforeEach(hookContext => hookContext.mock.setter(object, 'value', {setter: true}));
+  4 | });
+
+`;
+
+exports[`prefer-mock-accessor > invalid(15): import {mock} from 'node:test';\nmock.method(object, 'value', {\n\t/* Accessor */\n\tgetter: true,\n}); 1`] = `
+
+  1 | import {mock} from 'node:test';
+  2 | mock.method(object, 'value', {
+  3 | 	/* Accessor */
+  4 | 	getter: true,
+  5 | });
+
+`;
+
+exports[`prefer-mock-accessor > invalid(15): import {mock} from 'node:test';\nmock.method(object, 'value', {\n\t/* Accessor */\n\tgetter: true,\n}); 2`] = `
+
+Message:
+  1 | import {mock} from 'node:test';
+> 2 | mock.method(object, 'value', {
+    |      ^^^^^^ Prefer \`mock.getter()\` over \`mock.method()\` with \`getter: true\`.
+  3 | 	/* Accessor */
+  4 | 	getter: true,
+  5 | });
+
+Output:
+  1 | import {mock} from 'node:test';
+  2 | mock.getter(object, 'value', {
+  3 | 	/* Accessor */
+  4 | 	getter: true,
+  5 | });
+
+`;
+
+exports[`prefer-mock-accessor > invalid(16): import {mock} from 'node:test';\nmock.method(object, 'value', ({getter: true} as const)); 1`] = `
+
+  1 | import {mock} from 'node:test';
+  2 | mock.method(object, 'value', ({getter: true} as const));
+
+`;
+
+exports[`prefer-mock-accessor > invalid(16): import {mock} from 'node:test';\nmock.method(object, 'value', ({getter: true} as const)); 2`] = `
+
+Message:
+  1 | import {mock} from 'node:test';
+> 2 | mock.method(object, 'value', ({getter: true} as const));
+    |      ^^^^^^ Prefer \`mock.getter()\` over \`mock.method()\` with \`getter: true\`.
+
+Output:
+  1 | import {mock} from 'node:test';
+  2 | mock.getter(object, 'value', ({getter: true} as const));
+
+`;
+
+exports[`prefer-mock-accessor > invalid(17): import {mock} from 'node:test';\nmock.method(object, 'value', {setter: true as const}); 1`] = `
+
+  1 | import {mock} from 'node:test';
+  2 | mock.method(object, 'value', {setter: true as const});
+
+`;
+
+exports[`prefer-mock-accessor > invalid(17): import {mock} from 'node:test';\nmock.method(object, 'value', {setter: true as const}); 2`] = `
+
+Message:
+  1 | import {mock} from 'node:test';
+> 2 | mock.method(object, 'value', {setter: true as const});
+    |      ^^^^^^ Prefer \`mock.setter()\` over \`mock.method()\` with \`setter: true\`.
+
+Output:
+  1 | import {mock} from 'node:test';
+  2 | mock.setter(object, 'value', {setter: true as const});
+
+`;
+
+exports[`prefer-mock-accessor > invalid(2): import {mock} from 'node:test';\nmock?.method?.(object, 'value', {getter: true}); 1`] = `
+
+  1 | import {mock} from 'node:test';
+  2 | mock?.method?.(object, 'value', {getter: true});
+
+`;
+
+exports[`prefer-mock-accessor > invalid(2): import {mock} from 'node:test';\nmock?.method?.(object, 'value', {getter: true}); 2`] = `
+
+Message:
+  1 | import {mock} from 'node:test';
+> 2 | mock?.method?.(object, 'value', {getter: true});
+    |       ^^^^^^ Prefer \`mock.getter()\` over \`mock.method()\` with \`getter: true\`.
+
+Output:
+  1 | import {mock} from 'node:test';
+  2 | mock?.getter?.(object, 'value', {getter: true});
+
+`;
+
+exports[`prefer-mock-accessor > invalid(3): import {mock} from 'node:test';\nmock.method(object, 'value', {getter: true, setter: false}); 1`] = `
+
+  1 | import {mock} from 'node:test';
+  2 | mock.method(object, 'value', {getter: true, setter: false});
+
+`;
+
+exports[`prefer-mock-accessor > invalid(3): import {mock} from 'node:test';\nmock.method(object, 'value', {getter: true, setter: false}); 2`] = `
+
+Message:
+  1 | import {mock} from 'node:test';
+> 2 | mock.method(object, 'value', {getter: true, setter: false});
+    |      ^^^^^^ Prefer \`mock.getter()\` over \`mock.method()\` with \`getter: true\`.
+
+Output:
+  1 | import {mock} from 'node:test';
+  2 | mock.getter(object, 'value', {getter: true, setter: false});
+
+`;
+
+exports[`prefer-mock-accessor > invalid(4): import {mock} from 'node:test';\nmock.method(object, 'value', {getter: false, setter: true}); 1`] = `
+
+  1 | import {mock} from 'node:test';
+  2 | mock.method(object, 'value', {getter: false, setter: true});
+
+`;
+
+exports[`prefer-mock-accessor > invalid(4): import {mock} from 'node:test';\nmock.method(object, 'value', {getter: false, setter: true}); 2`] = `
+
+Message:
+  1 | import {mock} from 'node:test';
+> 2 | mock.method(object, 'value', {getter: false, setter: true});
+    |      ^^^^^^ Prefer \`mock.setter()\` over \`mock.method()\` with \`setter: true\`.
+
+Output:
+  1 | import {mock} from 'node:test';
+  2 | mock.setter(object, 'value', {getter: false, setter: true});
+
+`;
+
+exports[`prefer-mock-accessor > invalid(5): import {mock} from 'node:test';\nmock.method(object, 'value', {'setter': true}); 1`] = `
+
+  1 | import {mock} from 'node:test';
+  2 | mock.method(object, 'value', {'setter': true});
+
+`;
+
+exports[`prefer-mock-accessor > invalid(5): import {mock} from 'node:test';\nmock.method(object, 'value', {'setter': true}); 2`] = `
+
+Message:
+  1 | import {mock} from 'node:test';
+> 2 | mock.method(object, 'value', {'setter': true});
+    |      ^^^^^^ Prefer \`mock.setter()\` over \`mock.method()\` with \`setter: true\`.
+
+Output:
+  1 | import {mock} from 'node:test';
+  2 | mock.setter(object, 'value', {'setter': true});
+
+`;
+
+exports[`prefer-mock-accessor > invalid(6): import {mock} from 'node:test';\nmock.method(object, 'value', () => 42, {getter: true, times: 2}); 1`] = `
+
+  1 | import {mock} from 'node:test';
+  2 | mock.method(object, 'value', () => 42, {getter: true, times: 2});
+
+`;
+
+exports[`prefer-mock-accessor > invalid(6): import {mock} from 'node:test';\nmock.method(object, 'value', () => 42, {getter: true, times: 2}); 2`] = `
+
+Message:
+  1 | import {mock} from 'node:test';
+> 2 | mock.method(object, 'value', () => 42, {getter: true, times: 2});
+    |      ^^^^^^ Prefer \`mock.getter()\` over \`mock.method()\` with \`getter: true\`.
+
+Output:
+  1 | import {mock} from 'node:test';
+  2 | mock.getter(object, 'value', () => 42, {getter: true, times: 2});
+
+`;
+
+exports[`prefer-mock-accessor > invalid(7): import {mock} from 'node:test';\nmock.method(object, 'value', {setter: true}); 1`] = `
+
+  1 | import {mock} from 'node:test';
+  2 | mock.method(object, 'value', {setter: true});
+
+`;
+
+exports[`prefer-mock-accessor > invalid(7): import {mock} from 'node:test';\nmock.method(object, 'value', {setter: true}); 2`] = `
+
+Message:
+  1 | import {mock} from 'node:test';
+> 2 | mock.method(object, 'value', {setter: true});
+    |      ^^^^^^ Prefer \`mock.setter()\` over \`mock.method()\` with \`setter: true\`.
+
+Output:
+  1 | import {mock} from 'node:test';
+  2 | mock.setter(object, 'value', {setter: true});
+
+`;
+
+exports[`prefer-mock-accessor > invalid(8): import {mock as tracker} from 'node:test';\ntracker.method(object, 'value', {getter: true}); 1`] = `
+
+  1 | import {mock as tracker} from 'node:test';
+  2 | tracker.method(object, 'value', {getter: true});
+
+`;
+
+exports[`prefer-mock-accessor > invalid(8): import {mock as tracker} from 'node:test';\ntracker.method(object, 'value', {getter: true}); 2`] = `
+
+Message:
+  1 | import {mock as tracker} from 'node:test';
+> 2 | tracker.method(object, 'value', {getter: true});
+    |         ^^^^^^ Prefer \`mock.getter()\` over \`mock.method()\` with \`getter: true\`.
+
+Output:
+  1 | import {mock as tracker} from 'node:test';
+  2 | tracker.getter(object, 'value', {getter: true});
+
+`;
+
+exports[`prefer-mock-accessor > invalid(9): import * as nodeTest from 'node:test';\nnodeTest.mock.method(object, 'value', {setter: true}); 1`] = `
+
+  1 | import * as nodeTest from 'node:test';
+  2 | nodeTest.mock.method(object, 'value', {setter: true});
+
+`;
+
+exports[`prefer-mock-accessor > invalid(9): import * as nodeTest from 'node:test';\nnodeTest.mock.method(object, 'value', {setter: true}); 2`] = `
+
+Message:
+  1 | import * as nodeTest from 'node:test';
+> 2 | nodeTest.mock.method(object, 'value', {setter: true});
+    |               ^^^^^^ Prefer \`mock.setter()\` over \`mock.method()\` with \`setter: true\`.
+
+Output:
+  1 | import * as nodeTest from 'node:test';
+  2 | nodeTest.mock.setter(object, 'value', {setter: true});
+
+`;
