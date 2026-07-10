@@ -32,7 +32,18 @@ test.snapshot({
 		inTest('const {chdir} = process;\nchdir(\'fixtures\');'),
 		inTest('const {chdir} = require(\'node:process\');\nchdir(\'fixtures\');'),
 		'import {chdir as changeDirectory} from \'node:process\';\nimport test from \'node:test\';\ntest(\'changes directory\', changeDirectory => { changeDirectory(\'fixtures\'); });',
+		'import nodeProcess from \'node:process\';\nimport test from \'node:test\';\ntest(\'changes directory\', nodeProcess => { nodeProcess.chdir(\'fixtures\'); });',
 		withTestImport('test(\'parent\', t => {\n\tfunction helper(t) {\n\t\tt.test(\'not a subtest\', () => { process.chdir(\'fixtures\'); });\n\t}\n});'),
+
+		// Type-only imports do not create value bindings
+		{
+			code: 'import type process from \'node:process\';\nimport test from \'node:test\';\ntest(\'changes directory\', () => { process.chdir(\'fixtures\'); });',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import {type chdir} from \'node:process\';\nimport test from \'node:test\';\ntest(\'changes directory\', () => { chdir(\'fixtures\'); });',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		// Direct calls in test callbacks
@@ -46,6 +57,7 @@ test.snapshot({
 		'import * as nodeProcess from \'process\';\nimport test from \'node:test\';\ntest(\'changes directory\', () => { nodeProcess.chdir(\'fixtures\'); });',
 		'import {default as nodeProcess} from \'node:process\';\nimport test from \'node:test\';\ntest(\'changes directory\', () => { nodeProcess.chdir(\'fixtures\'); });',
 		'import {chdir as changeDirectory} from \'node:process\';\nimport test from \'node:test\';\ntest(\'changes directory\', () => { changeDirectory(\'fixtures\'); });',
+		'import {chdir as changeDirectory} from \'process\';\nimport test from \'node:test\';\ntest(\'changes directory\', () => { changeDirectory(\'fixtures\'); });',
 
 		// Subtests
 		withTestImport('test(\'parent\', async t => {\n\tawait t.test(\'changes directory\', () => {\n\t\tprocess.chdir(\'fixtures\');\n\t});\n});'),

@@ -11,6 +11,8 @@ const messages = {
 
 const PROCESS_MODULES = new Set(['node:process', 'process']);
 
+const isValueImport = node => node.importKind === undefined || node.importKind === 'value';
+
 const unwrapExpression = node => {
 	let unwrapped = node && unwrapTypeScriptExpression(node);
 	while (unwrapped?.type === 'ChainExpression') {
@@ -29,6 +31,10 @@ const getImportSpecifierName = specifier => {
 };
 
 const addProcessImport = (specifier, sourceCode, processBindings, chdirBindings) => {
+	if (!isValueImport(specifier)) {
+		return;
+	}
+
 	const variable = findVariable(sourceCode.getScope(specifier.local), specifier.local);
 	if (!variable) {
 		return;
@@ -52,7 +58,11 @@ const getProcessImports = sourceCode => {
 	const chdirBindings = new Set();
 
 	for (const node of sourceCode.ast.body) {
-		if (node.type === 'ImportDeclaration' && PROCESS_MODULES.has(node.source.value)) {
+		if (
+			node.type === 'ImportDeclaration'
+			&& PROCESS_MODULES.has(node.source.value)
+			&& isValueImport(node)
+		) {
 			for (const specifier of node.specifiers) {
 				addProcessImport(specifier, sourceCode, processBindings, chdirBindings);
 			}
