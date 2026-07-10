@@ -17,6 +17,7 @@ const isDirectWriteTarget = (node, parent) => (
 const getPatternParent = (node, parent) => {
 	if (
 		parent.type === 'ArrayPattern'
+		|| parent.type === 'ObjectPattern'
 		|| (parent.type === 'AssignmentPattern' && parent.left === node)
 		|| (parent.type === 'RestElement' && parent.argument === node)
 		|| isTypeScriptExpressionWrapper(parent)
@@ -102,6 +103,7 @@ const create = context => {
 		if (
 			node.computed
 			|| node.optional
+			|| unwrapParentTypeScriptExpression(node).parent.type === 'TSInstantiationExpression'
 			|| node.property.type !== 'Identifier'
 			|| node.property.name !== 'length'
 			|| isWritableReference(node)

@@ -38,11 +38,13 @@ test.snapshot({
 		withNodeTest('([spy.mock.calls.length] = values);'),
 		withNodeTest('([spy.mock.calls.length = 1] = values);'),
 		withNodeTest('({length: spy.mock.calls.length} = value);'),
+		withNodeTest('({...spy.mock.calls.length} = value);'),
 		withNodeTest('for (spy.mock.calls.length in object) {}'),
 		withNodeTest('for (spy.mock.calls.length of values) {}'),
 		withNodeTest('for (spy.mock.calls.length.foo in object) {}'),
 		withNodeTest('for ([spy.mock.calls.length] of values) {}'),
 		withNodeTest('for ({length: spy.mock.calls.length} of values) {}'),
+		withNodeTest('for ({...spy.mock.calls.length} of values) {}'),
 		withNodeTest('({value: spy.mock.calls.length.foo} = source);'),
 
 		// Invoking, constructing, or tagging a count is outside this rule's read-only scope.
@@ -107,6 +109,22 @@ test.snapshot({
 			code: withNodeTest('(spy.mock.calls.length as unknown)?.foo = 1;'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: withNodeTest('(spy.mock.calls.length<number>).foo = 1;'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withNodeTest('(spy.mock.calls.length<number>)();'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withNodeTest('new (spy.mock.calls.length<number>).foo;'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withNodeTest('(spy.mock.calls.length!<number>);'),
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		// Mock function.
@@ -126,6 +144,7 @@ test.snapshot({
 
 		// Parentheses around the calls collection are supported.
 		withNodeTest('(spy.mock.calls).length;'),
+		withNodeTest('spy.mock.calls.length /* trailing comment */;'),
 		{
 			code: withNodeTest('(spy.mock.calls.length as number);'),
 			languageOptions: {parser: parsers.typescript},
