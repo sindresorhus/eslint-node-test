@@ -9,6 +9,8 @@
 
 `t.beforeEach()` and `t.afterEach()` run around the current test's subtests. On a test without runnable subtests, there is nothing for them to run around, so their callbacks do nothing. Put the setup or cleanup directly in the test, or create subtests.
 
+A statically skipped child, such as one with `{skip: true}`, does not count as runnable.
+
 This rule only detects direct inline context-hook, `t.test()`, and imported `test()` calls. It does not trace helper calls, nested suites, runtime conditions, or whether a hook was registered before a subtest ran.
 
 > [!NOTE]
