@@ -42,10 +42,50 @@ const isWritableReference = initialNode => {
 			return true;
 		}
 
+		if (
+			(parent.type === 'MemberExpression' && parent.object === node)
+			|| parent.type === 'ChainExpression'
+		) {
+			node = parent;
+			continue;
+		}
+
 		node = getPatternParent(node, parent);
 		if (!node) {
 			return false;
 		}
+	}
+};
+
+const unwrapParentTypeScriptExpression = node => {
+	while (isTypeScriptExpressionWrapper(node.parent)) {
+		node = node.parent;
+	}
+
+	return node;
+};
+
+const isDirectlyCalledOrTagged = initialNode => {
+	const node = unwrapParentTypeScriptExpression(initialNode);
+	return (
+		(node.parent.type === 'CallExpression' && node.parent.callee === node)
+		|| (node.parent.type === 'TaggedTemplateExpression' && node.parent.tag === node)
+	);
+};
+
+const isInNewExpressionCallee = node => {
+	while (true) {
+		node = unwrapParentTypeScriptExpression(node);
+		const {parent} = node;
+		if (
+			(parent.type === 'MemberExpression' && parent.object === node)
+			|| parent.type === 'ChainExpression'
+		) {
+			node = parent;
+			continue;
+		}
+
+		return parent.type === 'NewExpression' && parent.callee === node;
 	}
 };
 
@@ -65,6 +105,8 @@ const create = context => {
 			|| node.property.type !== 'Identifier'
 			|| node.property.name !== 'length'
 			|| isWritableReference(node)
+			|| isDirectlyCalledOrTagged(node)
+			|| isInNewExpressionCallee(node)
 		) {
 			return;
 		}
@@ -92,14 +134,14 @@ const create = context => {
 		}
 
 		const mockText = sourceCode.getText(mock);
-		const replacement = `${mockText}.callCount()`;
-		const isNewExpressionCallee = node.parent.type === 'NewExpression' && node.parent.callee === node;
+		const [, mockEnd] = sourceCode.getRange(mock);
+		const canFix = sourceCode.getCommentsInside(node).every(comment => sourceCode.getRange(comment)[1] <= mockEnd);
 		return {
 			node,
 			messageId: MESSAGE_ID,
 			data: {mock: mockText},
-			fix: sourceCode.getCommentsInside(node).length === 0
-				? fixer => fixer.replaceText(node, isNewExpressionCallee ? `(${replacement})` : replacement)
+			fix: canFix
+				? fixer => fixer.replaceText(node, `${mockText}.callCount()`)
 				: undefined,
 		};
 	});

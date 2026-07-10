@@ -30,13 +30,29 @@ test.snapshot({
 		withNodeTest('spy.mock.calls.length = 1;'),
 		withNodeTest('spy.mock.calls.length++;'),
 		withNodeTest('delete spy.mock.calls.length;'),
+		withNodeTest('spy.mock.calls.length.foo = 1;'),
+		withNodeTest('spy.mock.calls.length.foo++;'),
+		withNodeTest('delete spy.mock.calls.length.foo;'),
+		withNodeTest('delete spy.mock.calls.length?.foo;'),
+		withNodeTest('delete (spy.mock.calls.length?.[foo]);'),
 		withNodeTest('([spy.mock.calls.length] = values);'),
 		withNodeTest('([spy.mock.calls.length = 1] = values);'),
 		withNodeTest('({length: spy.mock.calls.length} = value);'),
 		withNodeTest('for (spy.mock.calls.length in object) {}'),
 		withNodeTest('for (spy.mock.calls.length of values) {}'),
+		withNodeTest('for (spy.mock.calls.length.foo in object) {}'),
 		withNodeTest('for ([spy.mock.calls.length] of values) {}'),
 		withNodeTest('for ({length: spy.mock.calls.length} of values) {}'),
+		withNodeTest('({value: spy.mock.calls.length.foo} = source);'),
+
+		// Invoking, constructing, or tagging a count is outside this rule's read-only scope.
+		withNodeTest('spy.mock.calls.length();'),
+		withNodeTest('spy.mock.calls.length?.();'),
+		withNodeTest('new spy.mock.calls.length;'),
+		withNodeTest('new spy.mock.calls.length();'),
+		withNodeTest('new spy.mock.calls.length.foo;'),
+		withNodeTest('new (spy.mock.calls.length?.foo);'),
+		withNodeTest('spy.mock.calls.length`tag`;'),
 
 		// TypeScript wrappers are outside the direct member-chain match.
 		{
@@ -63,6 +79,34 @@ test.snapshot({
 			code: withNodeTest('(spy.mock.calls.length as number) = 1;'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: withNodeTest('(spy.mock.calls.length as Function)();'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withNodeTest('(spy.mock.calls.length)!();'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withNodeTest('(spy.mock.calls.length satisfies Function)`tag`;'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withNodeTest('new (spy.mock.calls.length as Function).foo;'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withNodeTest('new (spy.mock.calls.length as Function);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withNodeTest('delete (spy.mock.calls.length as unknown)?.foo;'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withNodeTest('(spy.mock.calls.length as unknown)?.foo = 1;'),
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		// Mock function.
@@ -72,7 +116,6 @@ test.snapshot({
 
 		// Direct mock creation.
 		withNodeTest('test.mock.fn().mock.calls.length;'),
-		withNodeTest('new spy.mock.calls.length();'),
 
 		// Mocked object method.
 		withNodeTest('object.method.mock.calls.length;'),
@@ -87,10 +130,17 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 
+		// Expressions in destructuring patterns can still be reads.
+		withNodeTest('({[spy.mock.calls.length]: value} = source);'),
+		withNodeTest('({value = spy.mock.calls.length} = source);'),
+
 		// This rule intentionally uses the structural match in `node:test` files.
 		withNodeTest('const fake = {mock: {calls: []}};\nfake.mock.calls.length;'),
 
 		// Report without removing comments.
 		withNodeTest('spy.mock /* comment */ .calls.length;'),
+
+		// Preserve comments inside the retained mock expression.
+		withNodeTest('spy /* comment */ .mock.calls.length;'),
 	],
 });
