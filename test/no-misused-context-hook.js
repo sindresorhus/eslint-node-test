@@ -15,6 +15,7 @@ test.snapshot({
 		withTest('test(\'parent\', async t => { t?.afterEach(() => {}); await t.test(\'child\', () => {}); });'),
 		withTest('test(\'parent\', t => { t.beforeEach(() => {}); test(\'child\', () => {}); });'),
 		withTest('test(\'parent\', t => { t.afterEach(() => {}); test.todo(\'child\', () => {}); });'),
+		'import test, {it} from \'node:test\';\ntest(\'parent\', t => { t.beforeEach(() => {}); it(\'child\', () => {}); });',
 		'import test, {test as specify} from \'node:test\';\ntest(\'parent\', t => { t.beforeEach(() => {}); specify(\'child\', () => {}); });',
 		'import test, * as nodeTest from \'node:test\';\ntest(\'parent\', t => { t.afterEach(() => {}); nodeTest.test(\'child\', () => {}); });',
 		withTest('test(\'parent\', () => { test.skip(\'child\', t => { t.afterEach(() => {}); }); });'),

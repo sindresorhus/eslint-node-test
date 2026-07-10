@@ -124,7 +124,7 @@ const create = context => {
 		const hookReceiver = getContextHookReceiver(node);
 		if (tracker.isContextIdentifier(hookReceiver)) {
 			const frame = getFrame(hookReceiver);
-			if (frame && getEnclosingFunction(node) === frame.callback) {
+			if (frame && enclosingFunction === frame.callback) {
 				frame.hooks.push(node);
 			}
 		}
