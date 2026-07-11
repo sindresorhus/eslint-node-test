@@ -16,7 +16,207 @@ Message:
 
 `;
 
-exports[`no-duplicate-mock-timers-enable > invalid(10): import test, {mock} from 'node:test';\nmock.timers.enable();\nmock.restoreAll();\nmock.timers.enable(); 1`] = `
+exports[`no-duplicate-mock-timers-enable > invalid(10): import test, {mock} from 'node:test';\nfoo.skip(() => { test(\"title\", () => { mock.timers.enable(); mock.timers.enable(); }); }); 1`] = `
+
+  1 | import test, {mock} from 'node:test';
+  2 | foo.skip(() => { test("title", () => { mock.timers.enable(); mock.timers.enable(); }); });
+
+`;
+
+exports[`no-duplicate-mock-timers-enable > invalid(10): import test, {mock} from 'node:test';\nfoo.skip(() => { test(\"title\", () => { mock.timers.enable(); mock.timers.enable(); }); }); 2`] = `
+
+Message:
+  1 | import test, {mock} from 'node:test';
+> 2 | foo.skip(() => { test("title", () => { mock.timers.enable(); mock.timers.enable(); }); });
+    |                                                              ^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` is already active on this mock tracker. Call \`reset()\` before enabling mock timers again.
+
+`;
+
+exports[`no-duplicate-mock-timers-enable > invalid(11): import test, {mock} from 'node:test';\ntest(\"title\", t => { t.mock.timers.enable(); t.mock.timers.enable(); }); 1`] = `
+
+  1 | import test, {mock} from 'node:test';
+  2 | test("title", t => { t.mock.timers.enable(); t.mock.timers.enable(); });
+
+`;
+
+exports[`no-duplicate-mock-timers-enable > invalid(11): import test, {mock} from 'node:test';\ntest(\"title\", t => { t.mock.timers.enable(); t.mock.timers.enable(); }); 2`] = `
+
+Message:
+  1 | import test, {mock} from 'node:test';
+> 2 | test("title", t => { t.mock.timers.enable(); t.mock.timers.enable(); });
+    |                                              ^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` is already active on this mock tracker. Call \`reset()\` before enabling mock timers again.
+
+`;
+
+exports[`no-duplicate-mock-timers-enable > invalid(12): import test, {mock} from 'node:test';\ntest(\"parent\", t => { t.test(\"child\", child => { child.mock.timers.enable(); child.mock.timers.enable(); }); }); 1`] = `
+
+  1 | import test, {mock} from 'node:test';
+  2 | test("parent", t => { t.test("child", child => { child.mock.timers.enable(); child.mock.timers.enable(); }); });
+
+`;
+
+exports[`no-duplicate-mock-timers-enable > invalid(12): import test, {mock} from 'node:test';\ntest(\"parent\", t => { t.test(\"child\", child => { child.mock.timers.enable(); child.mock.timers.enable(); }); }); 2`] = `
+
+Message:
+  1 | import test, {mock} from 'node:test';
+> 2 | test("parent", t => { t.test("child", child => { child.mock.timers.enable(); child.mock.timers.enable(); }); });
+    |                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` is already active on this mock tracker. Call \`reset()\` before enabling mock timers again.
+
+`;
+
+exports[`no-duplicate-mock-timers-enable > invalid(13): import test, {mock} from 'node:test';\ntest(\"title\", (t = undefined) => { t.mock.timers.enable(); t.mock.timers.enable(); }); 1`] = `
+
+  1 | import test, {mock} from 'node:test';
+  2 | test("title", (t = undefined) => { t.mock.timers.enable(); t.mock.timers.enable(); });
+
+`;
+
+exports[`no-duplicate-mock-timers-enable > invalid(13): import test, {mock} from 'node:test';\ntest(\"title\", (t = undefined) => { t.mock.timers.enable(); t.mock.timers.enable(); }); 2`] = `
+
+Message:
+  1 | import test, {mock} from 'node:test';
+> 2 | test("title", (t = undefined) => { t.mock.timers.enable(); t.mock.timers.enable(); });
+    |                                                            ^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` is already active on this mock tracker. Call \`reset()\` before enabling mock timers again.
+
+`;
+
+exports[`no-duplicate-mock-timers-enable > invalid(14): import {beforeEach} from 'node:test';\nbeforeEach(t => { t.mock.timers.enable(); t.mock.timers.enable(); }); 1`] = `
+
+  1 | import {beforeEach} from 'node:test';
+  2 | beforeEach(t => { t.mock.timers.enable(); t.mock.timers.enable(); });
+
+`;
+
+exports[`no-duplicate-mock-timers-enable > invalid(14): import {beforeEach} from 'node:test';\nbeforeEach(t => { t.mock.timers.enable(); t.mock.timers.enable(); }); 2`] = `
+
+Message:
+  1 | import {beforeEach} from 'node:test';
+> 2 | beforeEach(t => { t.mock.timers.enable(); t.mock.timers.enable(); });
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` is already active on this mock tracker. Call \`reset()\` before enabling mock timers again.
+
+`;
+
+exports[`no-duplicate-mock-timers-enable > invalid(15): import {beforeEach} from 'node:test';\nbeforeEach((t = undefined) => { t.mock.timers.enable(); t.mock.timers.enable(); }); 1`] = `
+
+  1 | import {beforeEach} from 'node:test';
+  2 | beforeEach((t = undefined) => { t.mock.timers.enable(); t.mock.timers.enable(); });
+
+`;
+
+exports[`no-duplicate-mock-timers-enable > invalid(15): import {beforeEach} from 'node:test';\nbeforeEach((t = undefined) => { t.mock.timers.enable(); t.mock.timers.enable(); }); 2`] = `
+
+Message:
+  1 | import {beforeEach} from 'node:test';
+> 2 | beforeEach((t = undefined) => { t.mock.timers.enable(); t.mock.timers.enable(); });
+    |                                                         ^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` is already active on this mock tracker. Call \`reset()\` before enabling mock timers again.
+
+`;
+
+exports[`no-duplicate-mock-timers-enable > invalid(16): import test, {mock} from 'node:test';\ntest(\"title\", t => { t.beforeEach(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); }); 1`] = `
+
+  1 | import test, {mock} from 'node:test';
+  2 | test("title", t => { t.beforeEach(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); });
+
+`;
+
+exports[`no-duplicate-mock-timers-enable > invalid(16): import test, {mock} from 'node:test';\ntest(\"title\", t => { t.beforeEach(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); }); 2`] = `
+
+Message:
+  1 | import test, {mock} from 'node:test';
+> 2 | test("title", t => { t.beforeEach(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); });
+    |                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` is already active on this mock tracker. Call \`reset()\` before enabling mock timers again.
+
+`;
+
+exports[`no-duplicate-mock-timers-enable > invalid(17): import test, {mock} from 'node:test';\ntest(\"title\", t => { t.beforeEach((hookContext = undefined) => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); }); 1`] = `
+
+  1 | import test, {mock} from 'node:test';
+  2 | test("title", t => { t.beforeEach((hookContext = undefined) => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); });
+
+`;
+
+exports[`no-duplicate-mock-timers-enable > invalid(17): import test, {mock} from 'node:test';\ntest(\"title\", t => { t.beforeEach((hookContext = undefined) => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); }); 2`] = `
+
+Message:
+  1 | import test, {mock} from 'node:test';
+> 2 | test("title", t => { t.beforeEach((hookContext = undefined) => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); });
+    |                                                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` is already active on this mock tracker. Call \`reset()\` before enabling mock timers again.
+
+`;
+
+exports[`no-duplicate-mock-timers-enable > invalid(18): import test, {mock} from 'node:test';\ntest(\"title\", t => { t.before(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); t.after(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); t.afterEach(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); }); 1`] = `
+
+  1 | import test, {mock} from 'node:test';
+  2 | test("title", t => { t.before(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); t.after(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); t.afterEach(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); });
+
+`;
+
+exports[`no-duplicate-mock-timers-enable > invalid(18): import test, {mock} from 'node:test';\ntest(\"title\", t => { t.before(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); t.after(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); t.afterEach(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); }); 2`] = `
+
+Message:
+  1 | import test, {mock} from 'node:test';
+> 2 | test("title", t => { t.before(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); t.after(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); t.afterEach(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); });
+    |                                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` is already active on this mock tracker. Call \`reset()\` before enabling mock timers again.
+
+`;
+
+exports[`no-duplicate-mock-timers-enable > invalid(18): import test, {mock} from 'node:test';\ntest(\"title\", t => { t.before(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); t.after(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); t.afterEach(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); }); 3`] = `
+
+Message:
+  1 | import test, {mock} from 'node:test';
+> 2 | test("title", t => { t.before(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); t.after(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); t.afterEach(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); });
+    |                                                                                                                                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` is already active on this mock tracker. Call \`reset()\` before enabling mock timers again.
+
+`;
+
+exports[`no-duplicate-mock-timers-enable > invalid(18): import test, {mock} from 'node:test';\ntest(\"title\", t => { t.before(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); t.after(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); t.afterEach(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); }); 4`] = `
+
+Message:
+  1 | import test, {mock} from 'node:test';
+> 2 | test("title", t => { t.before(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); t.after(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); t.afterEach(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); });
+    |                                                                                                                                                                                                                                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` is already active on this mock tracker. Call \`reset()\` before enabling mock timers again.
+
+`;
+
+exports[`no-duplicate-mock-timers-enable > invalid(19): import test, {mock} from 'node:test';\nmock.timers.enable();\nif (condition) { mock.timers.reset(); }\nmock.timers.enable(); 1`] = `
+
+  1 | import test, {mock} from 'node:test';
+  2 | mock.timers.enable();
+  3 | if (condition) { mock.timers.reset(); }
+  4 | mock.timers.enable();
+
+`;
+
+exports[`no-duplicate-mock-timers-enable > invalid(19): import test, {mock} from 'node:test';\nmock.timers.enable();\nif (condition) { mock.timers.reset(); }\nmock.timers.enable(); 2`] = `
+
+Message:
+  1 | import test, {mock} from 'node:test';
+  2 | mock.timers.enable();
+  3 | if (condition) { mock.timers.reset(); }
+> 4 | mock.timers.enable();
+    | ^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` is already active on this mock tracker. Call \`reset()\` before enabling mock timers again.
+
+`;
+
+exports[`no-duplicate-mock-timers-enable > invalid(2): import test, {mock} from 'node:test';\nmock.timers.enable();\ntest.mock.timers.enable(); 1`] = `
+
+  1 | import test, {mock} from 'node:test';
+  2 | mock.timers.enable();
+  3 | test.mock.timers.enable();
+
+`;
+
+exports[`no-duplicate-mock-timers-enable > invalid(2): import test, {mock} from 'node:test';\nmock.timers.enable();\ntest.mock.timers.enable(); 2`] = `
+
+Message:
+  1 | import test, {mock} from 'node:test';
+  2 | mock.timers.enable();
+> 3 | test.mock.timers.enable();
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` is already active on this mock tracker. Call \`reset()\` before enabling mock timers again.
+
+`;
+
+exports[`no-duplicate-mock-timers-enable > invalid(20): import test, {mock} from 'node:test';\nmock.timers.enable();\nmock.restoreAll();\nmock.timers.enable(); 1`] = `
 
   1 | import test, {mock} from 'node:test';
   2 | mock.timers.enable();
@@ -25,7 +225,7 @@ exports[`no-duplicate-mock-timers-enable > invalid(10): import test, {mock} from
 
 `;
 
-exports[`no-duplicate-mock-timers-enable > invalid(10): import test, {mock} from 'node:test';\nmock.timers.enable();\nmock.restoreAll();\nmock.timers.enable(); 2`] = `
+exports[`no-duplicate-mock-timers-enable > invalid(20): import test, {mock} from 'node:test';\nmock.timers.enable();\nmock.restoreAll();\nmock.timers.enable(); 2`] = `
 
 Message:
   1 | import test, {mock} from 'node:test';
@@ -36,14 +236,14 @@ Message:
 
 `;
 
-exports[`no-duplicate-mock-timers-enable > invalid(11): import test, {mock} from 'node:test';\ntest(\"title\", (t: any) => { (t.mock as any).timers.enable(); (t.mock as any).timers.enable(); }); 1`] = `
+exports[`no-duplicate-mock-timers-enable > invalid(21): import test, {mock} from 'node:test';\ntest(\"title\", (t: any) => { (t.mock as any).timers.enable(); (t.mock as any).timers.enable(); }); 1`] = `
 
   1 | import test, {mock} from 'node:test';
   2 | test("title", (t: any) => { (t.mock as any).timers.enable(); (t.mock as any).timers.enable(); });
 
 `;
 
-exports[`no-duplicate-mock-timers-enable > invalid(11): import test, {mock} from 'node:test';\ntest(\"title\", (t: any) => { (t.mock as any).timers.enable(); (t.mock as any).timers.enable(); }); 2`] = `
+exports[`no-duplicate-mock-timers-enable > invalid(21): import test, {mock} from 'node:test';\ntest(\"title\", (t: any) => { (t.mock as any).timers.enable(); (t.mock as any).timers.enable(); }); 2`] = `
 
 Message:
   1 | import test, {mock} from 'node:test';
@@ -52,7 +252,38 @@ Message:
 
 `;
 
-exports[`no-duplicate-mock-timers-enable > invalid(2): import test from 'node:test';\ntest.mock.timers.enable();\ntest.mock.timers.enable(); 1`] = `
+exports[`no-duplicate-mock-timers-enable > invalid(3): import test, {mock} from 'node:test';\nmock.timers.enable();\nmock.timers.enable();\nmock.timers.enable(); 1`] = `
+
+  1 | import test, {mock} from 'node:test';
+  2 | mock.timers.enable();
+  3 | mock.timers.enable();
+  4 | mock.timers.enable();
+
+`;
+
+exports[`no-duplicate-mock-timers-enable > invalid(3): import test, {mock} from 'node:test';\nmock.timers.enable();\nmock.timers.enable();\nmock.timers.enable(); 2`] = `
+
+Message:
+  1 | import test, {mock} from 'node:test';
+  2 | mock.timers.enable();
+> 3 | mock.timers.enable();
+    | ^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` is already active on this mock tracker. Call \`reset()\` before enabling mock timers again.
+  4 | mock.timers.enable();
+
+`;
+
+exports[`no-duplicate-mock-timers-enable > invalid(3): import test, {mock} from 'node:test';\nmock.timers.enable();\nmock.timers.enable();\nmock.timers.enable(); 3`] = `
+
+Message:
+  1 | import test, {mock} from 'node:test';
+  2 | mock.timers.enable();
+  3 | mock.timers.enable();
+> 4 | mock.timers.enable();
+    | ^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` is already active on this mock tracker. Call \`reset()\` before enabling mock timers again.
+
+`;
+
+exports[`no-duplicate-mock-timers-enable > invalid(4): import test from 'node:test';\ntest.mock.timers.enable();\ntest.mock.timers.enable(); 1`] = `
 
   1 | import test from 'node:test';
   2 | test.mock.timers.enable();
@@ -60,7 +291,7 @@ exports[`no-duplicate-mock-timers-enable > invalid(2): import test from 'node:te
 
 `;
 
-exports[`no-duplicate-mock-timers-enable > invalid(2): import test from 'node:test';\ntest.mock.timers.enable();\ntest.mock.timers.enable(); 2`] = `
+exports[`no-duplicate-mock-timers-enable > invalid(4): import test from 'node:test';\ntest.mock.timers.enable();\ntest.mock.timers.enable(); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -70,7 +301,7 @@ Message:
 
 `;
 
-exports[`no-duplicate-mock-timers-enable > invalid(3): import * as nodeTest from 'node:test';\nnodeTest.mock.timers.enable();\nnodeTest.mock.timers.enable(); 1`] = `
+exports[`no-duplicate-mock-timers-enable > invalid(5): import * as nodeTest from 'node:test';\nnodeTest.mock.timers.enable();\nnodeTest.mock.timers.enable(); 1`] = `
 
   1 | import * as nodeTest from 'node:test';
   2 | nodeTest.mock.timers.enable();
@@ -78,7 +309,7 @@ exports[`no-duplicate-mock-timers-enable > invalid(3): import * as nodeTest from
 
 `;
 
-exports[`no-duplicate-mock-timers-enable > invalid(3): import * as nodeTest from 'node:test';\nnodeTest.mock.timers.enable();\nnodeTest.mock.timers.enable(); 2`] = `
+exports[`no-duplicate-mock-timers-enable > invalid(5): import * as nodeTest from 'node:test';\nnodeTest.mock.timers.enable();\nnodeTest.mock.timers.enable(); 2`] = `
 
 Message:
   1 | import * as nodeTest from 'node:test';
@@ -88,7 +319,7 @@ Message:
 
 `;
 
-exports[`no-duplicate-mock-timers-enable > invalid(4): import {mock as tracker} from 'node:test';\ntracker.timers.enable();\ntracker.timers.enable(); 1`] = `
+exports[`no-duplicate-mock-timers-enable > invalid(6): import {mock as tracker} from 'node:test';\ntracker.timers.enable();\ntracker.timers.enable(); 1`] = `
 
   1 | import {mock as tracker} from 'node:test';
   2 | tracker.timers.enable();
@@ -96,7 +327,7 @@ exports[`no-duplicate-mock-timers-enable > invalid(4): import {mock as tracker} 
 
 `;
 
-exports[`no-duplicate-mock-timers-enable > invalid(4): import {mock as tracker} from 'node:test';\ntracker.timers.enable();\ntracker.timers.enable(); 2`] = `
+exports[`no-duplicate-mock-timers-enable > invalid(6): import {mock as tracker} from 'node:test';\ntracker.timers.enable();\ntracker.timers.enable(); 2`] = `
 
 Message:
   1 | import {mock as tracker} from 'node:test';
@@ -106,86 +337,50 @@ Message:
 
 `;
 
-exports[`no-duplicate-mock-timers-enable > invalid(5): import test, {mock} from 'node:test';\ntest(\"title\", t => { t.mock.timers.enable(); t.mock.timers.enable(); }); 1`] = `
+exports[`no-duplicate-mock-timers-enable > invalid(7): import {describe, mock} from 'node:test';\ndescribe(\"title\", () => { mock.timers.enable(); mock.timers.enable(); }); 1`] = `
 
-  1 | import test, {mock} from 'node:test';
-  2 | test("title", t => { t.mock.timers.enable(); t.mock.timers.enable(); });
+  1 | import {describe, mock} from 'node:test';
+  2 | describe("title", () => { mock.timers.enable(); mock.timers.enable(); });
 
 `;
 
-exports[`no-duplicate-mock-timers-enable > invalid(5): import test, {mock} from 'node:test';\ntest(\"title\", t => { t.mock.timers.enable(); t.mock.timers.enable(); }); 2`] = `
+exports[`no-duplicate-mock-timers-enable > invalid(7): import {describe, mock} from 'node:test';\ndescribe(\"title\", () => { mock.timers.enable(); mock.timers.enable(); }); 2`] = `
 
 Message:
-  1 | import test, {mock} from 'node:test';
-> 2 | test("title", t => { t.mock.timers.enable(); t.mock.timers.enable(); });
-    |                                              ^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` is already active on this mock tracker. Call \`reset()\` before enabling mock timers again.
+  1 | import {describe, mock} from 'node:test';
+> 2 | describe("title", () => { mock.timers.enable(); mock.timers.enable(); });
+    |                                                 ^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` is already active on this mock tracker. Call \`reset()\` before enabling mock timers again.
 
 `;
 
-exports[`no-duplicate-mock-timers-enable > invalid(6): import test, {mock} from 'node:test';\ntest(\"parent\", t => { t.test(\"child\", child => { child.mock.timers.enable(); child.mock.timers.enable(); }); }); 1`] = `
+exports[`no-duplicate-mock-timers-enable > invalid(8): import {describe, mock} from 'node:test';\ndescribe.todo(\"title\", () => { mock.timers.enable(); mock.timers.enable(); }); 1`] = `
 
-  1 | import test, {mock} from 'node:test';
-  2 | test("parent", t => { t.test("child", child => { child.mock.timers.enable(); child.mock.timers.enable(); }); });
+  1 | import {describe, mock} from 'node:test';
+  2 | describe.todo("title", () => { mock.timers.enable(); mock.timers.enable(); });
 
 `;
 
-exports[`no-duplicate-mock-timers-enable > invalid(6): import test, {mock} from 'node:test';\ntest(\"parent\", t => { t.test(\"child\", child => { child.mock.timers.enable(); child.mock.timers.enable(); }); }); 2`] = `
+exports[`no-duplicate-mock-timers-enable > invalid(8): import {describe, mock} from 'node:test';\ndescribe.todo(\"title\", () => { mock.timers.enable(); mock.timers.enable(); }); 2`] = `
 
 Message:
-  1 | import test, {mock} from 'node:test';
-> 2 | test("parent", t => { t.test("child", child => { child.mock.timers.enable(); child.mock.timers.enable(); }); });
-    |                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` is already active on this mock tracker. Call \`reset()\` before enabling mock timers again.
+  1 | import {describe, mock} from 'node:test';
+> 2 | describe.todo("title", () => { mock.timers.enable(); mock.timers.enable(); });
+    |                                                      ^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` is already active on this mock tracker. Call \`reset()\` before enabling mock timers again.
 
 `;
 
-exports[`no-duplicate-mock-timers-enable > invalid(7): import {beforeEach} from 'node:test';\nbeforeEach(t => { t.mock.timers.enable(); t.mock.timers.enable(); }); 1`] = `
+exports[`no-duplicate-mock-timers-enable > invalid(9): import {suite, mock} from 'node:test';\nsuite(\"title\", () => { mock.timers.enable(); mock.timers.enable(); }); 1`] = `
 
-  1 | import {beforeEach} from 'node:test';
-  2 | beforeEach(t => { t.mock.timers.enable(); t.mock.timers.enable(); });
+  1 | import {suite, mock} from 'node:test';
+  2 | suite("title", () => { mock.timers.enable(); mock.timers.enable(); });
 
 `;
 
-exports[`no-duplicate-mock-timers-enable > invalid(7): import {beforeEach} from 'node:test';\nbeforeEach(t => { t.mock.timers.enable(); t.mock.timers.enable(); }); 2`] = `
+exports[`no-duplicate-mock-timers-enable > invalid(9): import {suite, mock} from 'node:test';\nsuite(\"title\", () => { mock.timers.enable(); mock.timers.enable(); }); 2`] = `
 
 Message:
-  1 | import {beforeEach} from 'node:test';
-> 2 | beforeEach(t => { t.mock.timers.enable(); t.mock.timers.enable(); });
-    |                                           ^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` is already active on this mock tracker. Call \`reset()\` before enabling mock timers again.
-
-`;
-
-exports[`no-duplicate-mock-timers-enable > invalid(8): import test, {mock} from 'node:test';\ntest(\"title\", t => { t.beforeEach(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); }); 1`] = `
-
-  1 | import test, {mock} from 'node:test';
-  2 | test("title", t => { t.beforeEach(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); });
-
-`;
-
-exports[`no-duplicate-mock-timers-enable > invalid(8): import test, {mock} from 'node:test';\ntest(\"title\", t => { t.beforeEach(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); }); 2`] = `
-
-Message:
-  1 | import test, {mock} from 'node:test';
-> 2 | test("title", t => { t.beforeEach(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); });
-    |                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` is already active on this mock tracker. Call \`reset()\` before enabling mock timers again.
-
-`;
-
-exports[`no-duplicate-mock-timers-enable > invalid(9): import test, {mock} from 'node:test';\nmock.timers.enable();\nif (condition) { mock.timers.reset(); }\nmock.timers.enable(); 1`] = `
-
-  1 | import test, {mock} from 'node:test';
-  2 | mock.timers.enable();
-  3 | if (condition) { mock.timers.reset(); }
-  4 | mock.timers.enable();
-
-`;
-
-exports[`no-duplicate-mock-timers-enable > invalid(9): import test, {mock} from 'node:test';\nmock.timers.enable();\nif (condition) { mock.timers.reset(); }\nmock.timers.enable(); 2`] = `
-
-Message:
-  1 | import test, {mock} from 'node:test';
-  2 | mock.timers.enable();
-  3 | if (condition) { mock.timers.reset(); }
-> 4 | mock.timers.enable();
-    | ^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` is already active on this mock tracker. Call \`reset()\` before enabling mock timers again.
+  1 | import {suite, mock} from 'node:test';
+> 2 | suite("title", () => { mock.timers.enable(); mock.timers.enable(); });
+    |                                              ^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` is already active on this mock tracker. Call \`reset()\` before enabling mock timers again.
 
 `;

@@ -1,6 +1,7 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isFunction} from './ast/index.js';
 import {
+	getContextParameterIdentifier,
 	getSubtestReceiver,
 	getTestCallback,
 	MODIFIERS,

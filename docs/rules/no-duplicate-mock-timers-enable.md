@@ -9,7 +9,7 @@
 
 `mock.timers.enable()` throws `ERR_INVALID_STATE` when mock timers are already enabled on that tracker. Call `mock.timers.reset()` or `mock.reset()` before enabling them again.
 
-This rule follows direct `mock.timers` calls on imported global mocks and inline test or hook context parameters. It is control-flow-aware, so a reset must execute on every path before another `enable()` is allowed. To stay simple, aliases, destructuring, computed or optional calls, helper functions, and state shared across separate callbacks are ignored.
+This rule follows direct `mock.timers` calls on imported global mocks, including suite callbacks, and inline test or hook context parameters. It is control-flow-aware, so a reset must execute on every path before another `enable()` is allowed. To stay simple, aliases, destructuring, computed or optional calls, helper functions, repeated loop iterations, and state shared across separate callbacks are ignored.
 
 ## Examples
 

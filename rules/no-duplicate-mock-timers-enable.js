@@ -2,10 +2,15 @@ import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
 import {
 	createContextTracker,
 	findOptionsProperty,
+	getContextParameterIdentifier,
 	getHookCallback,
+	getSubtestReceiver,
 	getTestCallback,
 	getTestOptions,
+	HOOK_FUNCTIONS,
 	isGlobalMock,
+	MODIFIERS,
+	parseTestCall,
 	resolveImports,
 } from './utils/node-test.js';
 import {getEnclosingFunction} from './utils/index.js';
@@ -17,7 +22,6 @@ const messages = {
 };
 
 const GLOBAL_RECEIVER = Symbol('global receiver');
-const CONTEXT_HOOKS = new Set(['before', 'after', 'beforeEach', 'afterEach']);
 
 function getStaticPropertyName(node) {
 	if (node.type === 'Identifier') {
@@ -108,12 +112,12 @@ function getMockAction(callExpression, contextTracker, contextHookVariables, imp
 
 function getContextHookCallback(callExpression, contextTracker) {
 	const callee = unwrapTypeScriptExpression(callExpression.callee);
+	const method = callee.type === 'MemberExpression' && !callee.computed && !callee.optional
+		? getStaticPropertyName(callee.property)
+		: undefined;
 	if (
-		callee.type !== 'MemberExpression'
-		|| callee.computed
-		|| callee.optional
-		|| getStaticPropertyName(callee.property) === undefined
-		|| !CONTEXT_HOOKS.has(getStaticPropertyName(callee.property))
+		!method
+		|| !HOOK_FUNCTIONS.has(method)
 	) {
 		return undefined;
 	}
@@ -144,7 +148,7 @@ function isSkippedTestCall(node, sourceCode) {
 
 	const skipOption = findOptionsProperty(getTestOptions(node), 'skip');
 	const staticValue = skipOption && getStaticValue(skipOption.value, sourceCode.getScope(skipOption.value));
-	return staticValue !== null && Boolean(staticValue?.value);
+	return Boolean(staticValue?.value);
 }
 
 function isInsideSkippedCallback(node, skippedCallbacks) {
@@ -181,28 +185,56 @@ const create = context => {
 	const skippedCallbacks = new WeakSet();
 	const contextHookVariables = new Set();
 	const codePathStack = [];
-	const trackCallbacks = node => {
-		const callback = getTestCallback(node);
-		if (callback && isSkippedTestCall(node, sourceCode)) {
+	const markSkippedCallback = (node, parsed, isSubtest, callback) => {
+		const isTestOrSuite = (parsed?.kind === 'test' || parsed?.kind === 'suite')
+			&& parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name));
+		if (
+			callback
+			&& (isTestOrSuite || isSubtest)
+			&& isSkippedTestCall(node, sourceCode)
+		) {
 			skippedCallbacks.add(callback);
 		}
+	};
 
-		const isInSkippedCallback = isInsideSkippedCallback(node, skippedCallbacks);
-		const contextHookCallback = getContextHookCallback(node, contextTracker);
+	const trackContextHookCallback = (node, isInSkippedCallback) => {
+		const callback = getContextHookCallback(node, contextTracker);
 		if (
-			contextHookCallback
-			&& !isInSkippedCallback
-			&& getEnclosingFunction(node) === contextTracker.currentCallback()
+			!callback
+			|| isInSkippedCallback
+			|| getEnclosingFunction(node) !== contextTracker.currentCallback()
 		) {
-			const parameter = contextHookCallback.params[0];
-			if (parameter?.type === 'Identifier') {
-				const variable = findVariable(sourceCode.getScope(parameter), parameter);
-				if (variable) {
-					contextHookVariables.add(variable);
-				}
-			}
+			return;
+		}
 
-			trackedCallbacks.add(contextHookCallback);
+		const identifier = getContextParameterIdentifier(callback.params[0]);
+		if (identifier?.type === 'Identifier') {
+			const variable = findVariable(sourceCode.getScope(identifier), identifier);
+			if (variable) {
+				contextHookVariables.add(variable);
+			}
+		}
+
+		trackedCallbacks.add(callback);
+	};
+
+	const trackCallbacks = node => {
+		const parsed = parseTestCall(node, imports);
+		const subtestReceiver = getSubtestReceiver(node);
+		const isSubtest = contextTracker.isContextIdentifier(subtestReceiver);
+		const callback = getTestCallback(node);
+		markSkippedCallback(node, parsed, isSubtest, callback);
+		const isInSkippedCallback = isInsideSkippedCallback(node, skippedCallbacks);
+		trackContextHookCallback(node, isInSkippedCallback);
+
+		if (
+			callback
+			&& parsed?.kind === 'suite'
+			&& parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name))
+			&& !isInSkippedCallback
+			&& !skippedCallbacks.has(callback)
+		) {
+			trackedCallbacks.add(callback);
 		}
 
 		contextTracker.update(node);
@@ -214,8 +246,6 @@ const create = context => {
 		) {
 			trackedCallbacks.add(currentCallback);
 		}
-
-		return isInSkippedCallback;
 	};
 
 	context.on('onCodePathStart', (codePath, node) => {
