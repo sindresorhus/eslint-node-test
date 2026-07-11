@@ -53,6 +53,7 @@ test.snapshot({
 		withMock('mock.method(object, \'value\', {getter: true});'),
 		withMock('mock.method(object, \'value\', {getter: false, getter: true});'),
 		withMock('mock?.method?.(object, \'value\', {getter: true});'),
+		withMock('(mock?.method)?.(object, \'value\', {getter: true});'),
 		withMock('mock.method(object, \'value\', {getter: true, setter: false});'),
 		withMock('mock.method(object, \'value\', {getter: false, setter: true});'),
 
@@ -63,6 +64,10 @@ test.snapshot({
 		withMock('mock.method(object, \'value\', () => 42, {getter: true, times: 2});'),
 		{
 			code: withMock('mock.method(object, \'value\', (() => 42) as () => number, {getter: true});'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withMock('((mock as any)?.method)?.(object, \'value\', {getter: true});'),
 			languageOptions: {parser: parsers.typescript},
 		},
 

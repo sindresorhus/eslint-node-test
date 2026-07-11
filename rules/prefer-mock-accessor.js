@@ -8,6 +8,15 @@ const messages = {
 	[MESSAGE_ID]: 'Prefer `mock.{{accessor}}()` over `mock.method()` with `{{accessor}}: true`.',
 };
 
+function unwrapCallee(node) {
+	node = unwrapTypeScriptExpression(node);
+	while (node.type === 'ChainExpression') {
+		node = unwrapTypeScriptExpression(node.expression);
+	}
+
+	return node;
+}
+
 function getPropertyName(property) {
 	if (property.type !== 'Property' || property.computed) {
 		return undefined;
@@ -103,7 +112,7 @@ const create = context => {
 	});
 
 	context.on('CallExpression', node => {
-		const callee = unwrapTypeScriptExpression(node.callee);
+		const callee = unwrapCallee(node.callee);
 		if (
 			callee.type !== 'MemberExpression'
 			|| callee.computed
