@@ -40,11 +40,29 @@ function getFloatingExpression(node) {
 		parent = parent.parent;
 	}
 
+	let container = expression;
+	while (parent?.type === 'SequenceExpression') {
+		if (parent.expressions.at(-1) !== container) {
+			return {expression, canFix: false};
+		}
+
+		container = parent;
+		parent = parent.parent;
+		while (parent?.type === 'ChainExpression' || isTypeScriptExpressionWrapper(parent)) {
+			container = parent;
+			parent = parent.parent;
+		}
+	}
+
 	if (parent?.type === 'UnaryExpression' && parent.operator === 'void') {
-		return {
-			expression: parent.argument,
-			canFix: false,
-		};
+		return {expression, canFix: false};
+	}
+
+	if (
+		parent?.type === 'ForStatement'
+		&& (parent.init === container || parent.update === container)
+	) {
+		return {expression, canFix: false};
 	}
 
 	if (parent?.type !== 'ExpressionStatement') {
@@ -93,18 +111,26 @@ function getPromiseChainCalls(node) {
 	return calls;
 }
 
+function isInlineCallback(node) {
+	return Boolean(node) && isFunction(node);
+}
+
 function getPromiseCallbackArguments(call) {
 	const {method} = call;
 	const argumentIndexes = method === 'then' ? [0, 1] : [0];
 
 	return argumentIndexes
 		.map(index => unwrapTypeScriptExpression(call.node.arguments[index]))
-		.filter(argument => argument && isFunction(argument));
+		.filter(argument => isInlineCallback(argument));
 }
 
 function getContextParameter(callback) {
 	const parameter = callback.params[0];
-	return parameter?.type === 'Identifier' ? parameter : undefined;
+	if (parameter?.type === 'Identifier') {
+		return parameter;
+	}
+
+	return parameter?.type === 'AssignmentPattern' && parameter.left.type === 'Identifier' ? parameter.left : undefined;
 }
 
 function getContextAssertReceiver(node) {
@@ -287,7 +313,7 @@ function findActivities(node, state) {
 function findCallbackActivities(callback, state) {
 	return [
 		...callback.params.flatMap(parameter => findActivities(parameter, {...state, boundary: parameter})),
-		...findActivities(callback.body, {...state, boundary: callback.body}),
+		...(callback.generator ? [] : findActivities(callback.body, {...state, boundary: callback.body})),
 	];
 }
 
@@ -398,8 +424,7 @@ function getDetachedScheduler(node, activeCallback, timerImports, sourceCode) {
 	const callback = unwrapTypeScriptExpression(node.arguments[0]);
 	if (
 		!scheduler
-		|| !callback
-		|| !isFunction(callback)
+		|| !isInlineCallback(callback)
 		|| hasUnevaluatedClassFieldBetween(node, activeCallback)
 	) {
 		return undefined;
@@ -515,7 +540,7 @@ function getTestBoundaryCallback(node, imports, contextParameters, sourceCode) {
 		}
 
 		const callback = isHook ? getHookCallback(node) : getTestCallback(node);
-		return callback && getEffectiveArity(callback.params) < 2 ? callback : undefined;
+		return isInlineCallback(callback) && getEffectiveArity(callback.params) < 2 ? callback : undefined;
 	}
 
 	if (!isTrackedSubtestCall(node, contextParameters, sourceCode)) {
@@ -523,7 +548,46 @@ function getTestBoundaryCallback(node, imports, contextParameters, sourceCode) {
 	}
 
 	const callback = getTestCallback(node);
-	return callback && getEffectiveArity(callback.params) < 2 ? callback : undefined;
+	return isInlineCallback(callback) && getEffectiveArity(callback.params) < 2 ? callback : undefined;
+}
+
+function isInsideGeneratorBody(node, callback) {
+	if (!callback.generator) {
+		return false;
+	}
+
+	for (let current = node.parent; current && current !== callback; current = current.parent) {
+		if (current === callback.body) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+function isInsideSuppliedContextDefault(node, callback) {
+	const parameter = callback.params[0];
+	if (parameter?.type !== 'AssignmentPattern') {
+		return false;
+	}
+
+	for (let current = node; current && current !== callback; current = current.parent) {
+		if (current === parameter.right) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+function isInsideUnevaluatedCallbackRegion(node, callback) {
+	return hasUnevaluatedClassFieldBetween(node, callback)
+		|| isInsideGeneratorBody(node, callback)
+		|| isInsideSuppliedContextDefault(node, callback);
+}
+
+function isDirectlyEvaluatedByCallback(node, callback) {
+	return getEnclosingFunction(node) === callback && !isInsideUnevaluatedCallbackRegion(node, callback);
 }
 
 function hasStaticBlockBetween(node, boundary) {
@@ -544,8 +608,11 @@ export function trackDetachedCallbacks(context) {
 	const callbackStack = [];
 
 	context.on('CallExpression', node => {
+		const activeFrame = callbackStack.at(-1);
 		const contextParameters = callbackStack.map(frame => frame.contextParameter).filter(Boolean);
-		const boundaryCallback = getTestBoundaryCallback(node, imports, contextParameters, sourceCode);
+		const boundaryCallback = !activeFrame || isDirectlyEvaluatedByCallback(node, activeFrame.callback)
+			? getTestBoundaryCallback(node, imports, contextParameters, sourceCode)
+			: undefined;
 		if (boundaryCallback) {
 			const contextParameter = getContextParameter(boundaryCallback);
 			callbackStack.push({
@@ -557,8 +624,11 @@ export function trackDetachedCallbacks(context) {
 			return;
 		}
 
-		const activeFrame = callbackStack.at(-1);
 		if (!activeFrame || activeFrame.hasWaitPlan) {
+			return;
+		}
+
+		if (isInsideUnevaluatedCallbackRegion(node, activeFrame.callback)) {
 			return;
 		}
 
@@ -600,8 +670,11 @@ export function createLateTestActivity(context, {assertionsOnly = false, message
 	const callbackStack = [];
 
 	context.on('CallExpression', node => {
+		const activeFrame = callbackStack.at(-1);
 		const contextParameters = callbackStack.map(frame => frame.contextParameter).filter(Boolean);
-		const boundaryCallback = getTestBoundaryCallback(node, imports, contextParameters, sourceCode);
+		const boundaryCallback = !activeFrame || isDirectlyEvaluatedByCallback(node, activeFrame.callback)
+			? getTestBoundaryCallback(node, imports, contextParameters, sourceCode)
+			: undefined;
 
 		if (boundaryCallback) {
 			const contextParameter = getContextParameter(boundaryCallback);
@@ -614,9 +687,12 @@ export function createLateTestActivity(context, {assertionsOnly = false, message
 			return;
 		}
 
-		const activeFrame = callbackStack.at(-1);
 		const activeCallback = activeFrame?.callback;
 		if (!activeCallback) {
+			return;
+		}
+
+		if (isInsideUnevaluatedCallbackRegion(node, activeCallback)) {
 			return;
 		}
 
