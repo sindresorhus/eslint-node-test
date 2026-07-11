@@ -18,14 +18,34 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(10): import * as assert from 'node:assert';\nassert.strict.rejects(async () => await operation()); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(10): import assert from 'node:assert';\nassert.strict.rejects(async () => await operation()); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.strict.rejects(async () => await operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(10): import assert from 'node:assert';\nassert.strict.rejects(async () => await operation()); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.strict.rejects(async () => await operation());
+    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | import assert from 'node:assert';
+  2 | assert.strict.rejects(() => operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(11): import * as assert from 'node:assert';\nassert.strict.rejects(async () => await operation()); 1`] = `
 
   1 | import * as assert from 'node:assert';
   2 | assert.strict.rejects(async () => await operation());
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(10): import * as assert from 'node:assert';\nassert.strict.rejects(async () => await operation()); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(11): import * as assert from 'node:assert';\nassert.strict.rejects(async () => await operation()); 2`] = `
 
 Message:
   1 | import * as assert from 'node:assert';
@@ -38,14 +58,14 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(11): import {rejects} from 'node:assert';\nrejects(async () => await operation()); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(12): import {rejects} from 'node:assert';\nrejects(async () => await operation()); 1`] = `
 
   1 | import {rejects} from 'node:assert';
   2 | rejects(async () => await operation());
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(11): import {rejects} from 'node:assert';\nrejects(async () => await operation()); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(12): import {rejects} from 'node:assert';\nrejects(async () => await operation()); 2`] = `
 
 Message:
   1 | import {rejects} from 'node:assert';
@@ -58,14 +78,14 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(12): import {rejects as assertRejects} from 'node:assert';\nassertRejects(async () => await operation()); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(13): import {rejects as assertRejects} from 'node:assert';\nassertRejects(async () => await operation()); 1`] = `
 
   1 | import {rejects as assertRejects} from 'node:assert';
   2 | assertRejects(async () => await operation());
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(12): import {rejects as assertRejects} from 'node:assert';\nassertRejects(async () => await operation()); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(13): import {rejects as assertRejects} from 'node:assert';\nassertRejects(async () => await operation()); 2`] = `
 
 Message:
   1 | import {rejects as assertRejects} from 'node:assert';
@@ -78,14 +98,14 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(13): import {strict as strictAssert} from 'node:assert';\nstrictAssert.rejects(async () => await operation()); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(14): import {strict as strictAssert} from 'node:assert';\nstrictAssert.rejects(async () => await operation()); 1`] = `
 
   1 | import {strict as strictAssert} from 'node:assert';
   2 | strictAssert.rejects(async () => await operation());
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(13): import {strict as strictAssert} from 'node:assert';\nstrictAssert.rejects(async () => await operation()); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(14): import {strict as strictAssert} from 'node:assert';\nstrictAssert.rejects(async () => await operation()); 2`] = `
 
 Message:
   1 | import {strict as strictAssert} from 'node:assert';
@@ -98,14 +118,14 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(14): import {rejects} from 'node:assert/strict';\nrejects(async () => await operation()); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(15): import {rejects} from 'node:assert/strict';\nrejects(async () => await operation()); 1`] = `
 
   1 | import {rejects} from 'node:assert/strict';
   2 | rejects(async () => await operation());
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(14): import {rejects} from 'node:assert/strict';\nrejects(async () => await operation()); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(15): import {rejects} from 'node:assert/strict';\nrejects(async () => await operation()); 2`] = `
 
 Message:
   1 | import {rejects} from 'node:assert/strict';
@@ -118,14 +138,14 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(15): import {rejects} from 'assert';\nrejects(async () => await operation()); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(16): import {rejects} from 'assert';\nrejects(async () => await operation()); 1`] = `
 
   1 | import {rejects} from 'assert';
   2 | rejects(async () => await operation());
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(15): import {rejects} from 'assert';\nrejects(async () => await operation()); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(16): import {rejects} from 'assert';\nrejects(async () => await operation()); 2`] = `
 
 Message:
   1 | import {rejects} from 'assert';
@@ -138,14 +158,14 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(16): import assert from 'assert/strict';\nassert.rejects(async () => await operation()); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(17): import assert from 'assert/strict';\nassert.rejects(async () => await operation()); 1`] = `
 
   1 | import assert from 'assert/strict';
   2 | assert.rejects(async () => await operation());
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(16): import assert from 'assert/strict';\nassert.rejects(async () => await operation()); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(17): import assert from 'assert/strict';\nassert.rejects(async () => await operation()); 2`] = `
 
 Message:
   1 | import assert from 'assert/strict';
@@ -158,14 +178,14 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(17): import assert from 'node:assert';\nassert?.rejects(async () => await operation()); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(18): import assert from 'node:assert';\nassert?.rejects(async () => await operation()); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert?.rejects(async () => await operation());
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(17): import assert from 'node:assert';\nassert?.rejects(async () => await operation()); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(18): import assert from 'node:assert';\nassert?.rejects(async () => await operation()); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
@@ -178,14 +198,14 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(18): import assert from 'node:assert';\nassert.rejects?.(async () => await operation()); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(19): import assert from 'node:assert';\nassert.rejects?.(async () => await operation()); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.rejects?.(async () => await operation());
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(18): import assert from 'node:assert';\nassert.rejects?.(async () => await operation()); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(19): import assert from 'node:assert';\nassert.rejects?.(async () => await operation()); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
@@ -195,26 +215,6 @@ Message:
 Suggestion 1/1: Replace it with a plain Promise-returning callback.:
   1 | import assert from 'node:assert';
   2 | assert.rejects?.(() => operation());
-
-`;
-
-exports[`no-unneeded-async-rejects-callback > invalid(19): import assert from 'node:assert';\nassert.rejects(async () => await operation()?.result); 1`] = `
-
-  1 | import assert from 'node:assert';
-  2 | assert.rejects(async () => await operation()?.result);
-
-`;
-
-exports[`no-unneeded-async-rejects-callback > invalid(19): import assert from 'node:assert';\nassert.rejects(async () => await operation()?.result); 2`] = `
-
-Message:
-  1 | import assert from 'node:assert';
-> 2 | assert.rejects(async () => await operation()?.result);
-    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
-
-Suggestion 1/1: Replace it with a plain Promise-returning callback.:
-  1 | import assert from 'node:assert';
-  2 | assert.rejects(() => operation()?.result);
 
 `;
 
@@ -238,14 +238,34 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(20): import assert from 'node:assert';\nassert.rejects(async () => await (operation())); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(20): import assert from 'node:assert';\nassert.rejects(async () => await operation()?.result); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.rejects(async () => await operation()?.result);
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(20): import assert from 'node:assert';\nassert.rejects(async () => await operation()?.result); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.rejects(async () => await operation()?.result);
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | import assert from 'node:assert';
+  2 | assert.rejects(() => operation()?.result);
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(21): import assert from 'node:assert';\nassert.rejects(async () => await (operation())); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.rejects(async () => await (operation()));
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(20): import assert from 'node:assert';\nassert.rejects(async () => await (operation())); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(21): import assert from 'node:assert';\nassert.rejects(async () => await (operation())); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
@@ -258,14 +278,14 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(21): import assert from 'node:assert';\nassert.rejects(async () => await operation().then(value => value)); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(22): import assert from 'node:assert';\nassert.rejects(async () => await operation().then(value => value)); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.rejects(async () => await operation().then(value => value));
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(21): import assert from 'node:assert';\nassert.rejects(async () => await operation().then(value => value)); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(22): import assert from 'node:assert';\nassert.rejects(async () => await operation().then(value => value)); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
@@ -278,14 +298,14 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(22): import assert from 'node:assert';\nassert.rejects(async () => await (async () => await operation())()); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(23): import assert from 'node:assert';\nassert.rejects(async () => await (async () => await operation())()); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.rejects(async () => await (async () => await operation())());
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(22): import assert from 'node:assert';\nassert.rejects(async () => await (async () => await operation())()); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(23): import assert from 'node:assert';\nassert.rejects(async () => await (async () => await operation())()); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
@@ -298,14 +318,14 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(23): import test from 'node:test';\ntest('test', context => { context.assert.rejects(async () => await operation()); }); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(24): import test from 'node:test';\ntest('test', context => { context.assert.rejects(async () => await operation()); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('test', context => { context.assert.rejects(async () => await operation()); });
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(23): import test from 'node:test';\ntest('test', context => { context.assert.rejects(async () => await operation()); }); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(24): import test from 'node:test';\ntest('test', context => { context.assert.rejects(async () => await operation()); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -318,14 +338,14 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(24): import test from 'node:test';\ntest.only('test', context => { context.assert.rejects(async () => await operation()); }); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(25): import test from 'node:test';\ntest.only('test', context => { context.assert.rejects(async () => await operation()); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test.only('test', context => { context.assert.rejects(async () => await operation()); });
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(24): import test from 'node:test';\ntest.only('test', context => { context.assert.rejects(async () => await operation()); }); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(25): import test from 'node:test';\ntest.only('test', context => { context.assert.rejects(async () => await operation()); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -338,14 +358,14 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(25): import * as nodeTest from 'node:test';\nnodeTest.test('test', context => { context.assert.rejects(async () => await operation()); }); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(26): import * as nodeTest from 'node:test';\nnodeTest.test('test', context => { context.assert.rejects(async () => await operation()); }); 1`] = `
 
   1 | import * as nodeTest from 'node:test';
   2 | nodeTest.test('test', context => { context.assert.rejects(async () => await operation()); });
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(25): import * as nodeTest from 'node:test';\nnodeTest.test('test', context => { context.assert.rejects(async () => await operation()); }); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(26): import * as nodeTest from 'node:test';\nnodeTest.test('test', context => { context.assert.rejects(async () => await operation()); }); 2`] = `
 
 Message:
   1 | import * as nodeTest from 'node:test';
@@ -358,14 +378,14 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(26): import test from 'node:test';\ntest('outer', context => { context.test('inner', nestedContext => { nestedContext.assert.rejects(async () => await operation()); }); }); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(27): import test from 'node:test';\ntest('outer', context => { context.test('inner', nestedContext => { nestedContext.assert.rejects(async () => await operation()); }); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('outer', context => { context.test('inner', nestedContext => { nestedContext.assert.rejects(async () => await operation()); }); });
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(26): import test from 'node:test';\ntest('outer', context => { context.test('inner', nestedContext => { nestedContext.assert.rejects(async () => await operation()); }); }); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(27): import test from 'node:test';\ntest('outer', context => { context.test('inner', nestedContext => { nestedContext.assert.rejects(async () => await operation()); }); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -378,14 +398,14 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(27): import {beforeEach} from 'node:test';\nbeforeEach(context => { context.assert.rejects(async () => await operation()); }); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(28): import {beforeEach} from 'node:test';\nbeforeEach(context => { context.assert.rejects(async () => await operation()); }); 1`] = `
 
   1 | import {beforeEach} from 'node:test';
   2 | beforeEach(context => { context.assert.rejects(async () => await operation()); });
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(27): import {beforeEach} from 'node:test';\nbeforeEach(context => { context.assert.rejects(async () => await operation()); }); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(28): import {beforeEach} from 'node:test';\nbeforeEach(context => { context.assert.rejects(async () => await operation()); }); 2`] = `
 
 Message:
   1 | import {beforeEach} from 'node:test';
@@ -398,14 +418,14 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(28): import test from 'node:test';\ntest.beforeEach(context => { context.assert.rejects(async () => await operation()); }); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(29): import test from 'node:test';\ntest.beforeEach(context => { context.assert.rejects(async () => await operation()); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test.beforeEach(context => { context.assert.rejects(async () => await operation()); });
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(28): import test from 'node:test';\ntest.beforeEach(context => { context.assert.rejects(async () => await operation()); }); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(29): import test from 'node:test';\ntest.beforeEach(context => { context.assert.rejects(async () => await operation()); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -415,22 +435,6 @@ Message:
 Suggestion 1/1: Replace it with a plain Promise-returning callback.:
   1 | import test from 'node:test';
   2 | test.beforeEach(context => { context.assert.rejects(() => operation()); });
-
-`;
-
-exports[`no-unneeded-async-rejects-callback > invalid(29): import assert from 'node:assert';\nassert.rejects(async /* keep */ () => await operation()); 1`] = `
-
-  1 | import assert from 'node:assert';
-  2 | assert.rejects(async /* keep */ () => await operation());
-
-`;
-
-exports[`no-unneeded-async-rejects-callback > invalid(29): import assert from 'node:assert';\nassert.rejects(async /* keep */ () => await operation()); 2`] = `
-
-Message:
-  1 | import assert from 'node:assert';
-> 2 | assert.rejects(async /* keep */ () => await operation());
-    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
 
 `;
 
@@ -454,14 +458,30 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(30): import assert from 'node:assert';\nassert.rejects(async () => await /* keep */ operation()); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(30): import assert from 'node:assert';\nassert.rejects(async /* keep */ () => await operation()); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.rejects(async /* keep */ () => await operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(30): import assert from 'node:assert';\nassert.rejects(async /* keep */ () => await operation()); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.rejects(async /* keep */ () => await operation());
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(31): import assert from 'node:assert';\nassert.rejects(async () => await /* keep */ operation()); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.rejects(async () => await /* keep */ operation());
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(30): import assert from 'node:assert';\nassert.rejects(async () => await /* keep */ operation()); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(31): import assert from 'node:assert';\nassert.rejects(async () => await /* keep */ operation()); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
@@ -470,14 +490,14 @@ Message:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(31): import assert from 'node:assert';\nassert.rejects(async () => await operation(/* keep */)); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(32): import assert from 'node:assert';\nassert.rejects(async () => await operation(/* keep */)); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.rejects(async () => await operation(/* keep */));
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(31): import assert from 'node:assert';\nassert.rejects(async () => await operation(/* keep */)); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(32): import assert from 'node:assert';\nassert.rejects(async () => await operation(/* keep */)); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
@@ -490,14 +510,14 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(32): import assert from 'node:assert';\nassert.rejects(async () => { await /* keep */ operation(); }); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(33): import assert from 'node:assert';\nassert.rejects(async () => { await /* keep */ operation(); }); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.rejects(async () => { await /* keep */ operation(); });
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(32): import assert from 'node:assert';\nassert.rejects(async () => { await /* keep */ operation(); }); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(33): import assert from 'node:assert';\nassert.rejects(async () => { await /* keep */ operation(); }); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
@@ -506,7 +526,7 @@ Message:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(33): import assert from 'node:assert';\nassert.rejects(async () => { await\noperation(); }); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(34): import assert from 'node:assert';\nassert.rejects(async () => { await\noperation(); }); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.rejects(async () => { await
@@ -514,7 +534,7 @@ exports[`no-unneeded-async-rejects-callback > invalid(33): import assert from 'n
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(33): import assert from 'node:assert';\nassert.rejects(async () => { await\noperation(); }); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(34): import assert from 'node:assert';\nassert.rejects(async () => { await\noperation(); }); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
@@ -529,7 +549,7 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(34): import assert from 'node:assert';\nassert.rejects(async () => { await // Keep this comment.\noperation(); }); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(35): import assert from 'node:assert';\nassert.rejects(async () => { await // Keep this comment.\noperation(); }); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.rejects(async () => { await // Keep this comment.
@@ -537,7 +557,7 @@ exports[`no-unneeded-async-rejects-callback > invalid(34): import assert from 'n
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(34): import assert from 'node:assert';\nassert.rejects(async () => { await // Keep this comment.\noperation(); }); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(35): import assert from 'node:assert';\nassert.rejects(async () => { await // Keep this comment.\noperation(); }); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
@@ -548,14 +568,14 @@ Message:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(35): import assert from 'node:assert';\nassert.rejects(async () => { ((await operation())); }); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(36): import assert from 'node:assert';\nassert.rejects(async () => { ((await operation())); }); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.rejects(async () => { ((await operation())); });
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(35): import assert from 'node:assert';\nassert.rejects(async () => { ((await operation())); }); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(36): import assert from 'node:assert';\nassert.rejects(async () => { ((await operation())); }); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
@@ -564,14 +584,14 @@ Message:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(36): import assert from 'node:assert';\nassert.rejects(async () => { return (await operation()); }); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(37): import assert from 'node:assert';\nassert.rejects(async () => { return (await operation()); }); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.rejects(async () => { return (await operation()); });
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(36): import assert from 'node:assert';\nassert.rejects(async () => { return (await operation()); }); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(37): import assert from 'node:assert';\nassert.rejects(async () => { return (await operation()); }); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
@@ -584,14 +604,14 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(37): import assert from 'node:assert';\nassert.rejects(async () => { return /* keep */ await operation(); }); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(38): import assert from 'node:assert';\nassert.rejects(async () => { return /* keep */ await operation(); }); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.rejects(async () => { return /* keep */ await operation(); });
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(37): import assert from 'node:assert';\nassert.rejects(async () => { return /* keep */ await operation(); }); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(38): import assert from 'node:assert';\nassert.rejects(async () => { return /* keep */ await operation(); }); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
@@ -604,14 +624,14 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(38): import assert from 'node:assert';\nassert.rejects(async () => await (operation() as Promise<void>)); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(39): import assert from 'node:assert';\nassert.rejects(async () => await (operation() as Promise<void>)); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.rejects(async () => await (operation() as Promise<void>));
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(38): import assert from 'node:assert';\nassert.rejects(async () => await (operation() as Promise<void>)); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(39): import assert from 'node:assert';\nassert.rejects(async () => await (operation() as Promise<void>)); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
@@ -621,26 +641,6 @@ Message:
 Suggestion 1/1: Replace it with a plain Promise-returning callback.:
   1 | import assert from 'node:assert';
   2 | assert.rejects(() => (operation() as Promise<void>));
-
-`;
-
-exports[`no-unneeded-async-rejects-callback > invalid(39): import assert from 'node:assert';\nassert.rejects(async () => await operation()!); 1`] = `
-
-  1 | import assert from 'node:assert';
-  2 | assert.rejects(async () => await operation()!);
-
-`;
-
-exports[`no-unneeded-async-rejects-callback > invalid(39): import assert from 'node:assert';\nassert.rejects(async () => await operation()!); 2`] = `
-
-Message:
-  1 | import assert from 'node:assert';
-> 2 | assert.rejects(async () => await operation()!);
-    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
-
-Suggestion 1/1: Replace it with a plain Promise-returning callback.:
-  1 | import assert from 'node:assert';
-  2 | assert.rejects(() => operation()!);
 
 `;
 
@@ -664,14 +664,34 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(40): import assert from 'node:assert';\nassert.rejects(async () => await (operation() satisfies Promise<void>)); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(40): import assert from 'node:assert';\nassert.rejects(async () => await operation()!); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.rejects(async () => await operation()!);
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(40): import assert from 'node:assert';\nassert.rejects(async () => await operation()!); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.rejects(async () => await operation()!);
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | import assert from 'node:assert';
+  2 | assert.rejects(() => operation()!);
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(41): import assert from 'node:assert';\nassert.rejects(async () => await (operation() satisfies Promise<void>)); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.rejects(async () => await (operation() satisfies Promise<void>));
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(40): import assert from 'node:assert';\nassert.rejects(async () => await (operation() satisfies Promise<void>)); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(41): import assert from 'node:assert';\nassert.rejects(async () => await (operation() satisfies Promise<void>)); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
@@ -684,14 +704,14 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(41): import assert from 'node:assert';\nassert.rejects(async () => (await operation()) as Promise<void>); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(42): import assert from 'node:assert';\nassert.rejects(async () => (await operation()) as Promise<void>); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.rejects(async () => (await operation()) as Promise<void>);
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(41): import assert from 'node:assert';\nassert.rejects(async () => (await operation()) as Promise<void>); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(42): import assert from 'node:assert';\nassert.rejects(async () => (await operation()) as Promise<void>); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
@@ -704,14 +724,14 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(42): import assert from 'node:assert';\nassert.rejects(async () => (await operation())!); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(43): import assert from 'node:assert';\nassert.rejects(async () => (await operation())!); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.rejects(async () => (await operation())!);
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(42): import assert from 'node:assert';\nassert.rejects(async () => (await operation())!); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(43): import assert from 'node:assert';\nassert.rejects(async () => (await operation())!); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
@@ -724,14 +744,14 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(43): import assert from 'node:assert';\nassert.rejects(async () => (await operation()) satisfies Promise<void>); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(44): import assert from 'node:assert';\nassert.rejects(async () => (await operation()) satisfies Promise<void>); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.rejects(async () => (await operation()) satisfies Promise<void>);
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(43): import assert from 'node:assert';\nassert.rejects(async () => (await operation()) satisfies Promise<void>); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(44): import assert from 'node:assert';\nassert.rejects(async () => (await operation()) satisfies Promise<void>); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
@@ -744,14 +764,14 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(44): import assert from 'node:assert';\nassert.rejects(async () => { return (await operation()) as Promise<void>; }); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(45): import assert from 'node:assert';\nassert.rejects(async () => { return (await operation()) as Promise<void>; }); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.rejects(async () => { return (await operation()) as Promise<void>; });
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(44): import assert from 'node:assert';\nassert.rejects(async () => { return (await operation()) as Promise<void>; }); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(45): import assert from 'node:assert';\nassert.rejects(async () => { return (await operation()) as Promise<void>; }); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
@@ -764,14 +784,14 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(45): import assert from 'node:assert';\nassert.rejects(async () => { await operation() as Promise<void>; }); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(46): import assert from 'node:assert';\nassert.rejects(async () => { await operation() as Promise<void>; }); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.rejects(async () => { await operation() as Promise<void>; });
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(45): import assert from 'node:assert';\nassert.rejects(async () => { await operation() as Promise<void>; }); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(46): import assert from 'node:assert';\nassert.rejects(async () => { await operation() as Promise<void>; }); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
@@ -784,14 +804,14 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(46): import assert from 'node:assert';\nassert.rejects(async (): Promise<void> => await operation()); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(47): import assert from 'node:assert';\nassert.rejects(async (): Promise<void> => await operation()); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.rejects(async (): Promise<void> => await operation());
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(46): import assert from 'node:assert';\nassert.rejects(async (): Promise<void> => await operation()); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(47): import assert from 'node:assert';\nassert.rejects(async (): Promise<void> => await operation()); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
@@ -804,14 +824,14 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(47): import assert from 'node:assert';\nassert.rejects(async () => await (<Promise<void>>operation())); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(48): import assert from 'node:assert';\nassert.rejects(async () => await (<Promise<void>>operation())); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.rejects(async () => await (<Promise<void>>operation()));
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(47): import assert from 'node:assert';\nassert.rejects(async () => await (<Promise<void>>operation())); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(48): import assert from 'node:assert';\nassert.rejects(async () => await (<Promise<void>>operation())); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
@@ -821,6 +841,26 @@ Message:
 Suggestion 1/1: Replace it with a plain Promise-returning callback.:
   1 | import assert from 'node:assert';
   2 | assert.rejects(() => (<Promise<void>>operation()));
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(49): import assert from 'node:assert';\nassert.rejects(((async () => await operation()) as () => Promise<void>)!); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.rejects(((async () => await operation()) as () => Promise<void>)!);
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(49): import assert from 'node:assert';\nassert.rejects(((async () => await operation()) as () => Promise<void>)!); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.rejects(((async () => await operation()) as () => Promise<void>)!);
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | import assert from 'node:assert';
+  2 | assert.rejects(((() => operation()) as () => Promise<void>)!);
 
 `;
 
@@ -844,6 +884,46 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
+exports[`no-unneeded-async-rejects-callback > invalid(50): import assert from 'node:assert';\nassert.rejects((async () => await operation()) satisfies () => Promise<void>); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.rejects((async () => await operation()) satisfies () => Promise<void>);
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(50): import assert from 'node:assert';\nassert.rejects((async () => await operation()) satisfies () => Promise<void>); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.rejects((async () => await operation()) satisfies () => Promise<void>);
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | import assert from 'node:assert';
+  2 | assert.rejects((() => operation()) satisfies () => Promise<void>);
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(51): import assert from 'node:assert';\nassert.rejects(async function (): Promise<void> { return await operation(); }); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.rejects(async function (): Promise<void> { return await operation(); });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(51): import assert from 'node:assert';\nassert.rejects(async function (): Promise<void> { return await operation(); }); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.rejects(async function (): Promise<void> { return await operation(); });
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | import assert from 'node:assert';
+  2 | assert.rejects(function (): Promise<void> { return operation(); });
+
+`;
+
 exports[`no-unneeded-async-rejects-callback > invalid(6): import assert from 'node:assert';\nassert.rejects(async function operationCallback() { return await operation(); }); 1`] = `
 
   1 | import assert from 'node:assert';
@@ -864,14 +944,34 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(7): import assert from 'node:assert/strict';\nassert.rejects(async () => await operation()); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(7): import assert from 'node:assert';\nassert.rejects((async () => await operation())); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.rejects((async () => await operation()));
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(7): import assert from 'node:assert';\nassert.rejects((async () => await operation())); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.rejects((async () => await operation()));
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | import assert from 'node:assert';
+  2 | assert.rejects((() => operation()));
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(8): import assert from 'node:assert/strict';\nassert.rejects(async () => await operation()); 1`] = `
 
   1 | import assert from 'node:assert/strict';
   2 | assert.rejects(async () => await operation());
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(7): import assert from 'node:assert/strict';\nassert.rejects(async () => await operation()); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(8): import assert from 'node:assert/strict';\nassert.rejects(async () => await operation()); 2`] = `
 
 Message:
   1 | import assert from 'node:assert/strict';
@@ -884,14 +984,14 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(8): import * as assert from 'node:assert';\nassert.rejects(async () => await operation()); 1`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(9): import * as assert from 'node:assert';\nassert.rejects(async () => await operation()); 1`] = `
 
   1 | import * as assert from 'node:assert';
   2 | assert.rejects(async () => await operation());
 
 `;
 
-exports[`no-unneeded-async-rejects-callback > invalid(8): import * as assert from 'node:assert';\nassert.rejects(async () => await operation()); 2`] = `
+exports[`no-unneeded-async-rejects-callback > invalid(9): import * as assert from 'node:assert';\nassert.rejects(async () => await operation()); 2`] = `
 
 Message:
   1 | import * as assert from 'node:assert';
@@ -901,25 +1001,5 @@ Message:
 Suggestion 1/1: Replace it with a plain Promise-returning callback.:
   1 | import * as assert from 'node:assert';
   2 | assert.rejects(() => operation());
-
-`;
-
-exports[`no-unneeded-async-rejects-callback > invalid(9): import assert from 'node:assert';\nassert.strict.rejects(async () => await operation()); 1`] = `
-
-  1 | import assert from 'node:assert';
-  2 | assert.strict.rejects(async () => await operation());
-
-`;
-
-exports[`no-unneeded-async-rejects-callback > invalid(9): import assert from 'node:assert';\nassert.strict.rejects(async () => await operation()); 2`] = `
-
-Message:
-  1 | import assert from 'node:assert';
-> 2 | assert.strict.rejects(async () => await operation());
-    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
-
-Suggestion 1/1: Replace it with a plain Promise-returning callback.:
-  1 | import assert from 'node:assert';
-  2 | assert.strict.rejects(() => operation());
 
 `;

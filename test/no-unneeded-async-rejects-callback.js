@@ -55,6 +55,7 @@ test.snapshot({
 		withAssert('assert.rejects(async function () { await operation(); });'),
 		withAssert('assert.rejects(async function () { return await operation(); });'),
 		withAssert('assert.rejects(async function operationCallback() { return await operation(); });'),
+		withAssert('assert.rejects((async () => await operation()));'),
 		withStrictAssert('assert.rejects(async () => await operation());'),
 		withNamespaceAssert('assert.rejects(async () => await operation());'),
 		withAssert('assert.strict.rejects(async () => await operation());'),
@@ -124,6 +125,18 @@ test.snapshot({
 		},
 		{
 			code: withAssert('assert.rejects(async () => await (<Promise<void>>operation()));'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withAssert('assert.rejects(((async () => await operation()) as () => Promise<void>)!);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withAssert('assert.rejects((async () => await operation()) satisfies () => Promise<void>);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withAssert('assert.rejects(async function (): Promise<void> { return await operation(); });'),
 			languageOptions: {parser: parsers.typescript},
 		},
 	],
