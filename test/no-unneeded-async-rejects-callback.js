@@ -36,13 +36,15 @@ const typedOperation = testCase => {
 
 test.snapshot({
 	valid: [
-		// Unknown operations require type information
+		// Operations outside the conservative fallback require type information
 		withAssert('assert.rejects(async () => await operation());'),
 		{
 			code: withAssert('assert.rejects(async () => await operation());'),
 			languageOptions: {parser: parsers.typescript},
 		},
 		withAssert('async function operation() {}\noperation = () => {};\nassert.rejects(async () => await operation());'),
+		withAssert('async function operation() {}\noperation ||= async () => {};\nassert.rejects(async () => await operation());'),
+		withAssert('async function operation() {}\nfunction helper(operation) { assert.rejects(async () => await operation()); }'),
 		withAssert('async function * operation() {}\nassert.rejects(async () => await operation());'),
 		withAssert('const operation = async () => {};\nassert.rejects(async () => await operation?.());'),
 		withAssert('const operation = async () => {};\nassert.rejects(async () => await operation());'),
@@ -96,6 +98,13 @@ test.snapshot({
 		withAssert('assert[\'rejects\'](async () => await operation());'),
 	],
 	invalid: [
+		{
+			code: withAssert('declare const promise: Promise<void>;\nassert.rejects(async () => await promise);'),
+		},
+		{
+			code: withAssert('type Result = Promise<void>;\nassert.rejects(async () => await operation());'),
+			operationType: 'Result',
+		},
 		{
 			code: withAssert('async function operation() {}\nassert.rejects(async () => await operation());'),
 			withoutTypes: true,

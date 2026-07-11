@@ -11,9 +11,9 @@
 
 `assert.rejects()` accepts a Promise or a Promise-returning function. This rule finds parameterless async callbacks that only await a built-in `Promise` and suggests removing `async` and `await`. It keeps the callback so the operation remains lazy.
 
-With [typed linting](https://typescript-eslint.io/getting-started/typed-linting/), the rule verifies that the awaited value is a built-in `Promise`. Without type information, it only reports zero-argument calls to local async function declarations or inline async functions. It ignores `PromiseLike`, other non-Promise values, and callbacks with parameters, additional statements, or control flow.
+With [typed linting](https://typescript-eslint.io/getting-started/typed-linting/), the rule verifies that the awaited value is a built-in `Promise`. Without type information, it only reports zero-argument calls to unreassigned local async function declarations or inline async functions. It ignores `PromiseLike`, other non-Promise values, and callbacks with parameters, additional statements, or control flow.
 
-Review the suggestion before applying it. TypeScript can verify the Promise return type but cannot prove that the operation will not throw synchronously. Without the async wrapper, a synchronous error bypasses the `assert.rejects()` matcher, so the rule remains opt-in.
+Review the suggestion before applying it. TypeScript can verify the Promise type but cannot prove that evaluating the awaited expression will not throw synchronously. Without the async wrapper, a synchronous error bypasses the `assert.rejects()` matcher, so the rule remains opt-in.
 
 ## Examples
 
