@@ -108,7 +108,7 @@ const create = context => {
 		return frame;
 	};
 
-	const isRunnableTest = (node, parsed, enclosingFunction, parentFrame) => parsed?.kind === 'test'
+	const isRunnableTest = (node, parsed, parentFrame) => parsed?.kind === 'test'
 		&& parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name))
 		&& (frames.length === 0 || parentFrame !== undefined)
 		&& !isInsideSkippedCallback(node)
@@ -145,7 +145,7 @@ const create = context => {
 		}
 
 		const parentTestFrame = frames.findLast(frame => frame.callback === enclosingFunction);
-		const runnableTest = isRunnableTest(node, parsed, enclosingFunction, parentTestFrame);
+		const runnableTest = isRunnableTest(node, parsed, parentTestFrame);
 		if (runnableTest && parentTestFrame) {
 			parentTestFrame.hasSubtest = true;
 		}
