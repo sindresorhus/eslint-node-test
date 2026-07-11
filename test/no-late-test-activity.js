@@ -54,6 +54,7 @@ test.snapshot({
 		inTest('setTimeout(() => { try { assert.ok(value); } catch {} });'),
 		inTest('load().then(() => { try { assert.ok(value); } catch {} });'),
 		inTest('load().then(() => assert.fail()).catch(() => {});'),
+		inTest('load().then(() => assert.fail()).catch(handleError);'),
 		inTest('load().then(() => { throw error; }).then(undefined, () => {});'),
 		inTest('setTimeout(() => { assert.rejects(load()).catch(() => {}); });'),
 		inTest('setTimeout(async () => { try { await assert.rejects(load()); } catch {} });'),

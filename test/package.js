@@ -176,3 +176,23 @@ test('overlapping rules should not report a detached subtest twice', async () =>
 	assert.strictEqual(lateActivityMessages.length, 1);
 	assert.ok(result.messages.every(message => message.ruleId !== 'node-test/no-unawaited-subtest'));
 });
+
+test('overlapping rules should not report a detached Promise subtest twice', async () => {
+	const eslint = new ESLint({
+		baseConfig: eslintNodeTest.configs.recommended,
+		overrideConfigFile: true,
+	});
+	const source = [
+		'import test from \'node:test\';',
+		'test(\'parent\', testContext => {',
+		'\tload().then(() => {',
+		'\t\ttestContext.test(\'child\', () => {});',
+		'\t});',
+		'});',
+	].join('\n');
+	const [result] = await eslint.lintText(source);
+	const lateActivityMessages = result.messages.filter(message => message.ruleId === 'node-test/no-late-test-activity');
+
+	assert.strictEqual(lateActivityMessages.length, 1);
+	assert.ok(result.messages.every(message => message.ruleId !== 'node-test/no-unawaited-subtest'));
+});
