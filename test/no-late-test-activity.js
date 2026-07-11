@@ -42,6 +42,7 @@ test.snapshot({
 		inTest('load().then(() => { try { throw error; } catch {} });'),
 		inTest('setTimeout(() => { try { assert.ok(value); } catch {} });'),
 		inTest('load().then(() => { try { assert.ok(value); } catch {} });'),
+		inTest('setTimeout(async () => { try { await assert.rejects(load()); } catch {} });'),
 		inTest('class Example { value = setTimeout(() => assert.ok(value)); }'),
 		inTest('class Example { value = load().then(() => assert.ok(value)); }'),
 		inTest('setTimeout(() => { class Example { value = assert.ok(value); } });'),
@@ -71,12 +72,17 @@ test.snapshot({
 		'import {beforeEach} from \'node:test\';\nimport assert from \'node:assert/strict\';\nbeforeEach(() => { setTimeout(() => assert.ok(value), 10); });',
 		'import test from \'node:test\';\nimport assert from \'node:assert/strict\';\ntest.beforeEach(() => { setTimeout(() => assert.ok(value), 10); });',
 		'import * as nodeTest from \'node:test\';\nimport assert from \'node:assert/strict\';\nnodeTest.afterEach(() => { setImmediate(() => assert.ok(value)); });',
+		'import {afterEach} from \'node:test\';\nimport assert from \'node:assert/strict\';\nafterEach(() => { load().then(() => assert.ok(value)); });',
 		'import test from \'node:test\';\nimport assert from \'node:assert/strict\';\nimport {setTimeout as delay} from \'node:timers\';\ntest(\'example\', () => { delay(() => assert.ok(value), 10); });',
 		'import test from \'node:test\';\nimport assert from \'node:assert/strict\';\nimport * as timers from \'node:timers\';\ntest(\'example\', () => { timers.setImmediate(() => { throw error; }); });',
 		'import test from \'node:test\';\nimport assert from \'node:assert/strict\';\nimport {setTimeout as delay} from \'timers\';\ntest(\'example\', () => { delay(() => assert.ok(value), 10); });',
 		'import test from \'node:test\';\nimport {strictEqual as equal} from \'node:assert/strict\';\ntest(\'example\', () => { setTimeout(() => equal(value, 1)); });',
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'example\', () => { setTimeout(() => assert.strict.equal(actual, expected)); });',
 		inAsyncTest('load().then(value => assert.ok(value));'),
+		inAsyncTest('load()?.then(value => assert.ok(value));'),
 		inTest('load().catch(error => { throw error; });'),
+		withImport('test(\'example\', t => { setTimeout((unused = t.assert.ok(value)) => {}, 10); });'),
+		inTest('load().finally((unused = assert.ok(value)) => {});'),
 		inAsyncTest('return void load().then(() => assert.ok(value));'),
 		inTest('class Example { static value = setTimeout(() => assert.ok(value)); }'),
 		inTest('class Example { [setTimeout(() => assert.ok(value))] = value; }'),
@@ -98,6 +104,22 @@ test.snapshot({
 		},
 		{
 			code: withTimerNamespaceImport('test(\'example\', () => { (timers.setImmediate as typeof timers.setImmediate)(() => { throw error; }); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withTimerNamespaceImport('test(\'example\', () => { (timers as typeof timers).setTimeout(() => assert.ok(value)); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: inTest('setTimeout(() => (assert as typeof assert).ok(value));'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withImport('test(\'example\', t => { setTimeout(() => (t as typeof t).assert.ok(value)); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import test from \'node:test\';\nimport {strictEqual as equal} from \'node:assert/strict\';\ntest(\'example\', () => { setTimeout(() => (equal as typeof equal)(value, 1)); });',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{

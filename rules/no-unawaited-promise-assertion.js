@@ -123,6 +123,21 @@ function getContextAssertReceiver(node) {
 	return undefined;
 }
 
+function unwrapAssertionCallee(node) {
+	node = unwrapChainExpression(node);
+	if (node?.type !== 'MemberExpression') {
+		return node;
+	}
+
+	const object = unwrapAssertionCallee(node.object);
+	return object === node.object ? node : {...node, object};
+}
+
+function getUnwrappedAssertionCall(node) {
+	const callee = unwrapAssertionCallee(node.callee);
+	return callee === node.callee ? node : {...node, callee};
+}
+
 function isTrackedContextAssertCall(node, contextParameters, sourceCode) {
 	const receiver = getContextAssertReceiver(node);
 	if (!receiver) {
@@ -158,7 +173,10 @@ function hasOnlyTestModifiers(parsed) {
 }
 
 function getImportedAssertReference(node, imports) {
-	const {callee} = node;
+	let {callee} = node;
+	while (callee.type === 'MemberExpression') {
+		callee = callee.object;
+	}
 
 	if (
 		callee.type === 'Identifier'
@@ -170,28 +188,21 @@ function getImportedAssertReference(node, imports) {
 		return callee;
 	}
 
-	if (
-		callee.type === 'MemberExpression'
-		&& callee.object.type === 'Identifier'
-		&& imports.assertNamespace.has(callee.object.name)
-	) {
-		return callee.object;
-	}
-
 	return undefined;
 }
 
 function parseScopedAssertionCall(node, imports, contextParameters, sourceCode) {
-	const parsed = parseAssertionCall(node, imports);
+	const assertionCall = getUnwrappedAssertionCall(node);
+	const parsed = parseAssertionCall(assertionCall, imports);
 	if (!parsed) {
 		return undefined;
 	}
 
-	if (getContextAssertReceiver(node)) {
-		return isTrackedContextAssertCall(node, contextParameters, sourceCode) ? parsed : undefined;
+	if (getContextAssertReceiver(assertionCall)) {
+		return isTrackedContextAssertCall(assertionCall, contextParameters, sourceCode) ? parsed : undefined;
 	}
 
-	const importedAssertReference = getImportedAssertReference(node, imports);
+	const importedAssertReference = getImportedAssertReference(assertionCall, imports);
 	return importedAssertReference && isImportBinding(importedAssertReference, sourceCode) ? parsed : undefined;
 }
 
@@ -208,6 +219,14 @@ function isInsideHandledTryBlock(node, boundary) {
 	}
 
 	return false;
+}
+
+function isAwaited(node) {
+	while (node.parent?.type === 'ChainExpression' || isTypeScriptExpressionWrapper(node.parent)) {
+		node = node.parent;
+	}
+
+	return node.parent?.type === 'AwaitExpression';
 }
 
 function findActivities(node, state) {
@@ -232,7 +251,7 @@ function findActivities(node, state) {
 		if (
 			assertion
 			&& (
-				PROMISE_ASSERTION_METHODS.has(assertion.method)
+				(PROMISE_ASSERTION_METHODS.has(assertion.method) && !isAwaited(node))
 				|| !isInsideHandledTryBlock(node, state.boundary)
 			)
 		) {
@@ -265,15 +284,22 @@ function findActivities(node, state) {
 	return activities;
 }
 
+function findCallbackActivities(callback, state) {
+	return [
+		...callback.params.flatMap(parameter => findActivities(parameter, {...state, boundary: parameter})),
+		...findActivities(callback.body, {...state, boundary: callback.body}),
+	];
+}
+
 function isDeferredClassField(node) {
 	return (node.type === 'PropertyDefinition' || node.type === 'AccessorProperty') && !node.static;
 }
 
-function getPromiseProblems(chainCalls, state, assertionOnly, messageId) {
+function getPromiseProblems(chainCalls, state, assertionsOnly, messageId) {
 	return chainCalls.flatMap(call => getPromiseCallbackArguments(call).flatMap(callback => {
-		let activities = findActivities(callback.body, {...state, boundary: callback.body})
-			.filter(activity => !assertionOnly || activity.type === 'Assertion');
-		if (assertionOnly) {
+		let activities = findCallbackActivities(callback, state)
+			.filter(activity => !assertionsOnly || activity.type === 'Assertion');
+		if (assertionsOnly) {
 			activities = activities.slice(0, 1);
 		}
 
@@ -318,23 +344,21 @@ function getSchedulerName(node, timerImports, sourceCode) {
 			return callee.name;
 		}
 
-		if (timerImports.named.has(callee.name) && variable?.defs.some(definition => definition.type === 'ImportBinding')) {
+		if (timerImports.named.has(callee.name) && isImportBinding(callee, sourceCode)) {
 			return timerImports.named.get(callee.name);
 		}
 	}
 
+	const object = callee.type === 'MemberExpression' ? unwrapChainExpression(callee.object) : undefined;
 	if (
 		callee.type === 'MemberExpression'
 		&& !callee.computed
-		&& callee.object.type === 'Identifier'
+		&& object?.type === 'Identifier'
 		&& callee.property.type === 'Identifier'
 		&& SCHEDULER_NAMES.has(callee.property.name)
-		&& timerImports.namespaces.has(callee.object.name)
-	) {
-		const variable = findVariable(sourceCode.getScope(callee.object), callee.object);
-		if (variable?.defs.some(definition => definition.type === 'ImportBinding')) {
-			return callee.property.name;
-		}
+		&& timerImports.namespaces.has(object.name)
+		&& isImportBinding(object, sourceCode)) {
+		return callee.property.name;
 	}
 
 	return undefined;
@@ -603,12 +627,11 @@ export function createLateTestActivity(context, {assertionsOnly = false, message
 
 			const detachedScheduler = getDetachedScheduler(node, activeCallback, timerImports, sourceCode);
 			if (detachedScheduler) {
-				return findActivities(detachedScheduler.callback.body, {
+				return findCallbackActivities(detachedScheduler.callback, {
 					imports,
 					contextParameters,
 					sourceCode,
 					visitorKeys,
-					boundary: detachedScheduler.callback.body,
 				}).map(activity => ({
 					node: activity.node,
 					messageId,
