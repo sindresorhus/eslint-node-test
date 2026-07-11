@@ -119,7 +119,7 @@ test.snapshot({
 		'import test from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\ntest(\'waits\', {todo: \'later\'}, async () => {\n\tawait delay(500);\n});',
 		withPromiseTimerContextImport('await t.test(\'child\', async () => {\n\tawait delay(500);\n});'),
 		withPromiseTimerContextImport('await t.test.todo(\'child\', async () => {\n\tawait delay(500);\n});'),
-		withPromiseTimerContextImport('await t.test.expectFailure(\'child\', async () => {\n\tawait delay(500);\n});'),
+		withPromiseTimerContextImport('await t.test(\'child\', {expectFailure: true}, async () => {\n\tawait delay(500);\n});'),
 		withPromiseTimerContextImport('t.beforeEach(async () => {\n\tawait delay(500);\n}, {timeout: 1000});'),
 		withPromiseTimerContextImport('t.beforeEach(async () => {\n\tawait delay(500);\n}, {skip: true});'),
 		withPromiseTimerContextImport('t.afterEach(async () => {\n\tawait delay(500);\n});'),

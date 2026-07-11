@@ -26,7 +26,7 @@ const create = context => {
 	context.on('CallExpression', node => {
 		const parsed = parseTestCall(node, imports);
 		// Only plain tests (a placeholder suite is a different concept); an existing modifier is intentional.
-		if (parsed?.kind !== 'test' || parsed.modifiers.length > 0) {
+		if (parsed?.kind !== 'test' || parsed.hasExpectedFailure || parsed.modifiers.length > 0) {
 			return;
 		}
 

@@ -29,6 +29,9 @@ test.snapshot({
 		// `test.describe(…)` via the default import is a suite too, not a callback-style test
 		'import test from \'node:test\';\ntest.describe("s", (s, done) => { test.it("x", () => {}); });',
 
+		// Global assertion configuration is not a test registration.
+		'import test from \'node:test\';\ntest.assert.register(\'custom\', (actual, expected) => {});',
+
 		// Subtests are method calls, not matched (out of scope, like no-callback-and-promise)
 		withImport('test("x", t => { t.test("sub", (t, done) => { done(); }); });'),
 	],

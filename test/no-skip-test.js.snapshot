@@ -58,14 +58,46 @@ Suggestion 1/1: Remove \`.skip\`.:
 
 `;
 
-exports[`no-skip-test > invalid(4): import test from \"node:test\";\ntest(\"title\", {skip: true}, () => {}); 1`] = `
+exports[`no-skip-test > invalid(4): import {skip} from \"node:test\";\nskip(\"title\", () => {}); 1`] = `
+
+  1 | import {skip} from "node:test";
+  2 | skip("title", () => {});
+
+`;
+
+exports[`no-skip-test > invalid(4): import {skip} from \"node:test\";\nskip(\"title\", () => {}); 2`] = `
+
+Message:
+  1 | import {skip} from "node:test";
+> 2 | skip("title", () => {});
+    | ^^^^ Do not skip tests.
+
+`;
+
+exports[`no-skip-test > invalid(5): import {skip as omitted} from \"node:test\";\nomitted(\"title\", () => {}); 1`] = `
+
+  1 | import {skip as omitted} from "node:test";
+  2 | omitted("title", () => {});
+
+`;
+
+exports[`no-skip-test > invalid(5): import {skip as omitted} from \"node:test\";\nomitted(\"title\", () => {}); 2`] = `
+
+Message:
+  1 | import {skip as omitted} from "node:test";
+> 2 | omitted("title", () => {});
+    | ^^^^^^^ Do not skip tests.
+
+`;
+
+exports[`no-skip-test > invalid(6): import test from \"node:test\";\ntest(\"title\", {skip: true}, () => {}); 1`] = `
 
   1 | import test from "node:test";
   2 | test("title", {skip: true}, () => {});
 
 `;
 
-exports[`no-skip-test > invalid(4): import test from \"node:test\";\ntest(\"title\", {skip: true}, () => {}); 2`] = `
+exports[`no-skip-test > invalid(6): import test from \"node:test\";\ntest(\"title\", {skip: true}, () => {}); 2`] = `
 
 Message:
   1 | import test from "node:test";
@@ -74,14 +106,14 @@ Message:
 
 `;
 
-exports[`no-skip-test > invalid(5): import test from \"node:test\";\ntest(\"title\", {skip: \"not ready\"}, () => {}); 1`] = `
+exports[`no-skip-test > invalid(7): import test from \"node:test\";\ntest(\"title\", {skip: \"not ready\"}, () => {}); 1`] = `
 
   1 | import test from "node:test";
   2 | test("title", {skip: "not ready"}, () => {});
 
 `;
 
-exports[`no-skip-test > invalid(5): import test from \"node:test\";\ntest(\"title\", {skip: \"not ready\"}, () => {}); 2`] = `
+exports[`no-skip-test > invalid(7): import test from \"node:test\";\ntest(\"title\", {skip: \"not ready\"}, () => {}); 2`] = `
 
 Message:
   1 | import test from "node:test";
@@ -90,14 +122,14 @@ Message:
 
 `;
 
-exports[`no-skip-test > invalid(6): import * as nodeTest from \"node:test\";\nnodeTest.test.skip(\"title\", () => {}); 1`] = `
+exports[`no-skip-test > invalid(8): import * as nodeTest from \"node:test\";\nnodeTest.test.skip(\"title\", () => {}); 1`] = `
 
   1 | import * as nodeTest from "node:test";
   2 | nodeTest.test.skip("title", () => {});
 
 `;
 
-exports[`no-skip-test > invalid(6): import * as nodeTest from \"node:test\";\nnodeTest.test.skip(\"title\", () => {}); 2`] = `
+exports[`no-skip-test > invalid(8): import * as nodeTest from \"node:test\";\nnodeTest.test.skip(\"title\", () => {}); 2`] = `
 
 Message:
   1 | import * as nodeTest from "node:test";
@@ -107,5 +139,21 @@ Message:
 Suggestion 1/1: Remove \`.skip\`.:
   1 | import * as nodeTest from "node:test";
   2 | nodeTest.test("title", () => {});
+
+`;
+
+exports[`no-skip-test > invalid(9): import * as nodeTest from \"node:test\";\nnodeTest.skip(\"title\", () => {}); 1`] = `
+
+  1 | import * as nodeTest from "node:test";
+  2 | nodeTest.skip("title", () => {});
+
+`;
+
+exports[`no-skip-test > invalid(9): import * as nodeTest from \"node:test\";\nnodeTest.skip(\"title\", () => {}); 2`] = `
+
+Message:
+  1 | import * as nodeTest from "node:test";
+> 2 | nodeTest.skip("title", () => {});
+    |          ^^^^ Do not skip tests.
 
 `;

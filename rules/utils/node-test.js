@@ -15,11 +15,16 @@ import {strictEqual} from 'node:assert';
 ```
 */
 
-/** Canonical test/suite/hook function names exported from `node:test`. */
+/** Canonical test functions that expose static `node:test` APIs. */
 const TEST_FUNCTIONS = new Set(['test', 'it']);
+/** Canonical test exports, including the standalone `expectFailure` function. */
+const TEST_EXPORTS = new Set([...TEST_FUNCTIONS, 'expectFailure']);
+/** Standalone aliases for `test.only()`, `test.skip()`, and `test.todo()`. */
+const TEST_MODIFIER_EXPORTS = new Set(['only', 'skip', 'todo']);
 const SUITE_FUNCTIONS = new Set(['describe', 'suite']);
 const HOOK_FUNCTIONS = new Set(['before', 'after', 'beforeEach', 'afterEach']);
-const ALL_TEST_EXPORTS = new Set([...TEST_FUNCTIONS, ...SUITE_FUNCTIONS, ...HOOK_FUNCTIONS, 'mock']);
+const ALL_TEST_EXPORTS = new Set([...TEST_EXPORTS, ...SUITE_FUNCTIONS, ...HOOK_FUNCTIONS, 'mock']);
+const CONFIGURATION_EXPORTS = new Set(['assert', 'snapshot']);
 
 export {TEST_FUNCTIONS, SUITE_FUNCTIONS, HOOK_FUNCTIONS};
 
@@ -37,6 +42,8 @@ Scan a file's top-level imports and resolve the local bindings for
 @returns {{
 	locals: Map<string, string>,
 	namespace: string | undefined,
+	configurationLocals: Map<string, string>,
+	testModifierLocals: Map<string, string>,
 	assertNamespace: Set<string>,
 	assertNamed: Map<string, string>,
 	strictAssertLocals: Set<string>,
@@ -92,8 +99,20 @@ function addAssertBinding(bindings, localName, importedName, isStrict) {
 	}
 }
 
+function getImportSpecifierName(specifier) {
+	if (specifier.imported.type === 'Identifier') {
+		return specifier.imported.name;
+	}
+
+	return typeof specifier.imported.value === 'string' ? specifier.imported.value : undefined;
+}
+
 /** Collect bindings from an ESM `import` declaration. */
 function collectFromImport(node, bindings) {
+	if (node.importKind === 'type') {
+		return;
+	}
+
 	const {value: source} = node.source;
 	const kind = moduleKind(source);
 	if (!kind) {
@@ -103,22 +122,40 @@ function collectFromImport(node, bindings) {
 	const isStrict = source.endsWith('/strict');
 
 	for (const specifier of node.specifiers) {
+		if (specifier.importKind === 'type') {
+			continue;
+		}
+
 		const localName = specifier.local.name;
 
 		// Named import: `import {describe} from 'node:test'` / `import {strictEqual} from 'node:assert'`.
 		if (specifier.type === 'ImportSpecifier') {
-			if (specifier.imported.type !== 'Identifier') {
+			const importedName = getImportSpecifierName(specifier);
+			if (!importedName) {
 				continue;
 			}
 
 			if (kind === 'assert') {
-				if (specifier.imported.name === 'strict') {
+				if (importedName === 'strict') {
 					addAssertBinding(bindings, localName, undefined, true);
+				} else if (importedName === 'default') {
+					addAssertBinding(bindings, localName, undefined, isStrict);
 				} else {
-					addAssertBinding(bindings, localName, specifier.imported.name, isStrict);
+					addAssertBinding(bindings, localName, importedName, isStrict);
 				}
-			} else if (ALL_TEST_EXPORTS.has(specifier.imported.name)) {
-				bindings.locals.set(localName, specifier.imported.name);
+
+				continue;
+			}
+
+			if (importedName === 'default') {
+				bindings.locals.set(localName, 'test');
+				bindings.namespace = localName;
+			} else if (TEST_MODIFIER_EXPORTS.has(importedName)) {
+				bindings.testModifierLocals.set(localName, importedName);
+			} else if (ALL_TEST_EXPORTS.has(importedName)) {
+				bindings.locals.set(localName, importedName);
+			} else if (CONFIGURATION_EXPORTS.has(importedName)) {
+				bindings.configurationLocals.set(localName, importedName);
 			}
 		} else if (kind === 'assert') {
 			// Default or namespace import of the whole assert module.
@@ -143,6 +180,10 @@ function scanImports(context) {
 		locals: new Map(),
 		// `import * as nodeTest from 'node:test'` -> namespace local name.
 		namespace: undefined,
+		// Map of local identifier name -> process-wide `node:test` configuration object.
+		configurationLocals: new Map(),
+		// Map of local standalone modifier aliases to their canonical modifier names.
+		testModifierLocals: new Map(),
 		// Local names bound to the whole `node:assert` module (`import assert from …`).
 		assertNamespace: new Set(),
 		// Map of local name -> canonical `node:assert` method name (named imports).
@@ -160,7 +201,7 @@ function scanImports(context) {
 
 	const {locals, namespace, assertNamespace, assertNamed} = bindings;
 	// The file imports test/suite/hook bindings from `node:test`.
-	const isTestFile = locals.size > 0 || namespace !== undefined;
+	const isTestFile = locals.size > 0 || namespace !== undefined || bindings.testModifierLocals.size > 0;
 	// The file imports anything from `node:assert`.
 	const hasAssert = assertNamespace.size > 0 || assertNamed.size > 0;
 	return {
@@ -292,6 +333,73 @@ function getCallKind(name) {
 	return undefined;
 }
 
+function getStaticExportCall(testFunctionName, members) {
+	const [first, ...rest] = members;
+	if (first && ALL_TEST_EXPORTS.has(first.name)) {
+		const hasExpectedFailure = first.name === 'expectFailure' || rest[0]?.name === 'expectFailure';
+		return {
+			name: first.name === 'expectFailure' ? testFunctionName : first.name,
+			modifiers: hasExpectedFailure ? rest.slice(1) : rest,
+			hasExpectedFailure,
+		};
+	}
+
+	return {
+		name: testFunctionName,
+		modifiers: members,
+		hasExpectedFailure: false,
+	};
+}
+
+function getStaticTestFunctionName(root, firstMember, imports) {
+	if (root.name === imports.namespace && !imports.locals.has(root.name) && firstMember?.name === 'default') {
+		return 'test';
+	}
+
+	if (
+		TEST_FUNCTIONS.has(firstMember?.name)
+		&& (
+			root.name === imports.namespace
+			|| TEST_FUNCTIONS.has(imports.locals.get(root.name))
+		)
+	) {
+		return firstMember.name;
+	}
+}
+
+function getStaticTestCall(root, members, imports) {
+	const firstMember = members[0];
+	if (
+		TEST_MODIFIER_EXPORTS.has(firstMember?.name)
+		&& members.length === 1
+		&& root.name === imports.namespace
+		&& !imports.locals.has(root.name)
+	) {
+		return {
+			name: 'test',
+			modifiers: [firstMember],
+			hasExpectedFailure: false,
+			hasStandaloneModifier: true,
+		};
+	}
+
+	const testFunctionName = getStaticTestFunctionName(root, firstMember, imports);
+	if (testFunctionName) {
+		return getStaticExportCall(testFunctionName, members.slice(1));
+	}
+
+	if (
+		firstMember
+		&& ALL_TEST_EXPORTS.has(firstMember.name)
+		&& (
+			root.name === imports.namespace
+			|| TEST_FUNCTIONS.has(imports.locals.get(root.name))
+		)
+	) {
+		return getStaticExportCall(imports.locals.get(root.name) ?? 'test', members);
+	}
+}
+
 /*
 Memoize the `parse*Call` classifiers by node. The same `CallExpression` is parsed by many rules during one lint run (34 rules call `parseTestCall`, 21 call `parseAssertionCall`), and `imports` is stable per file (it is itself cached per AST), so the first parse can be reused across all of them. Keyed by node with an `imports` guard for safety.
 
@@ -322,6 +430,8 @@ Classify a `CallExpression` as a `node:test` test/suite/hook call.
 	name: string,
 	kind: 'test' | 'suite' | 'hook',
 	modifiers: import('estree').Identifier[],
+	hasExpectedFailure: boolean,
+	hasStandaloneModifier?: boolean,
 } | undefined}
 */
 export const parseTestCall = memoizeByNode(parseTestCallCache, (callExpression, imports) => {
@@ -335,35 +445,49 @@ export const parseTestCall = memoizeByNode(parseTestCallCache, (callExpression, 
 		return undefined;
 	}
 
-	let name;
-	let modifiers;
+	let parsed;
+	const standaloneModifier = imports.testModifierLocals.get(root.name);
+	if (standaloneModifier && members.length === 0) {
+		parsed = {
+			name: 'test',
+			modifiers: [root.name === standaloneModifier ? root : {...root, name: standaloneModifier}],
+			hasExpectedFailure: false,
+			hasStandaloneModifier: true,
+		};
+	} else {
+		parsed = getStaticTestCall(root, members, imports);
+	}
 
-	if (
-		imports.namespace
-		&& root.name === imports.namespace
-		&& members.length > 0
-		&& ALL_TEST_EXPORTS.has(members[0].name)
-	) {
-		// `nodeTest.test.only(…)` — namespace member access into a known export.
-		const [first, ...rest] = members;
-		name = first.name;
-		modifiers = rest;
-	} else if (imports.locals.has(root.name)) {
+	if (!parsed && imports.locals.has(root.name)) {
 		// `test.only(…)` / bare `test(…)` — a callable test binding. A binding that is both a local and
 		// the namespace (`import test from 'node:test'`) reaches here for member chains whose first
 		// segment is not a known export, e.g. `test.only(…)`.
-		name = imports.locals.get(root.name);
-		modifiers = members;
-	} else {
+		const importedName = imports.locals.get(root.name);
+		if (importedName === 'expectFailure') {
+			parsed = {name: 'test', modifiers: [], hasExpectedFailure: true};
+		} else {
+			parsed = {
+				name: importedName,
+				modifiers: members[0]?.name === 'expectFailure' ? members.slice(1) : members,
+				hasExpectedFailure: members[0]?.name === 'expectFailure',
+			};
+		}
+	}
+
+	if (!parsed) {
 		return undefined;
 	}
 
-	const kind = getCallKind(name);
+	if (parsed.modifiers.some(modifier => CONFIGURATION_EXPORTS.has(modifier.name))) {
+		return undefined;
+	}
+
+	const kind = getCallKind(parsed.name);
 	if (!kind) {
 		return undefined;
 	}
 
-	return {name, kind, modifiers};
+	return {...parsed, kind};
 });
 
 /** Get the modifier identifier node with the given name (`only`/`skip`/`todo`), or `undefined`. */
@@ -513,17 +637,19 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 }
 
 function getContextAssertIdentifier(node) {
-	const {callee} = node;
+	const callee = unwrapTypeScriptExpression(node.callee);
+	const object = callee.type === 'MemberExpression' ? unwrapTypeScriptExpression(callee.object) : undefined;
+	const contextReceiver = object?.type === 'MemberExpression' ? unwrapTypeScriptExpression(object.object) : undefined;
 	if (
 		callee.type === 'MemberExpression'
 		&& !callee.computed
-		&& callee.object.type === 'MemberExpression'
-		&& !callee.object.computed
-		&& callee.object.object.type === 'Identifier'
-		&& callee.object.property.type === 'Identifier'
-		&& callee.object.property.name === 'assert'
+		&& object?.type === 'MemberExpression'
+		&& !object.computed
+		&& contextReceiver?.type === 'Identifier'
+		&& object.property.type === 'Identifier'
+		&& object.property.name === 'assert'
 	) {
-		return callee.object.object;
+		return contextReceiver;
 	}
 
 	return undefined;
@@ -771,26 +897,32 @@ function isNamedStrictAssertIdentifier(node, imports) {
 }
 
 function isAssertStrictMember(node, imports) {
+	node = unwrapTypeScriptExpression(node);
+	const object = node.type === 'MemberExpression' ? unwrapTypeScriptExpression(node.object) : undefined;
 	return (
 		node.type === 'MemberExpression'
 		&& !node.computed
-		&& isAssertNamespaceIdentifier(node.object, imports)
+		&& object?.type === 'Identifier'
+		&& isAssertNamespaceIdentifier(object, imports)
 		&& node.property.type === 'Identifier'
 		&& node.property.name === 'strict'
 	);
 }
 
 function isTestContextAssertMember(node) {
+	node = unwrapTypeScriptExpression(node);
+	const object = node.type === 'MemberExpression' ? unwrapTypeScriptExpression(node.object) : undefined;
 	return (
 		node.type === 'MemberExpression'
 		&& !node.computed
-		&& node.object.type === 'Identifier'
+		&& object?.type === 'Identifier'
 		&& node.property.type === 'Identifier'
 		&& node.property.name === 'assert'
 	);
 }
 
 function parseAssertionMemberCall(callee, imports) {
+	callee = unwrapTypeScriptExpression(callee);
 	if (
 		callee.type !== 'MemberExpression'
 		|| callee.computed
@@ -799,7 +931,7 @@ function parseAssertionMemberCall(callee, imports) {
 		return;
 	}
 
-	const {object} = callee;
+	const object = unwrapTypeScriptExpression(callee.object);
 
 	if (callee.property.name === 'strict' && isAssertNamespaceIdentifier(object, imports)) {
 		return {
@@ -842,7 +974,7 @@ function parseAssertionMemberCall(callee, imports) {
 			method: callee.property.name,
 			methodNode: callee.property,
 			isStrict: false,
-			contextReceiver: object.object,
+			contextReceiver: unwrapTypeScriptExpression(object.object),
 		};
 	}
 }
@@ -861,7 +993,7 @@ Matches:
 @returns {{method: string, methodNode: import('estree').Node | undefined, isStrict: boolean, contextReceiver?: import('estree').Identifier}|undefined}
 */
 export const parseAssertionCall = memoizeByNode(parseAssertionCallCache, (callExpression, imports) => {
-	const {callee} = callExpression;
+	const callee = unwrapTypeScriptExpression(callExpression.callee);
 
 	if (
 		callee.type === 'Identifier'

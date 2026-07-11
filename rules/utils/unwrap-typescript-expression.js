@@ -1,5 +1,6 @@
 const typeScriptExpressionWrapperTypes = new Set([
 	'TSAsExpression',
+	'TSInstantiationExpression',
 	'TSSatisfiesExpression',
 	'TSNonNullExpression',
 	'TSTypeAssertion',

@@ -16,13 +16,19 @@ test.snapshot({
 		},
 		// Not a `node:test` binding.
 		'import test from "node:test";\nfoo.todo();',
+		// `expectFailure` does not have test modifiers.
+		'import {expectFailure} from "node:test";\nexpectFailure.todo("title");',
+		'import test from "node:test";\ntest.expectFailure.todo("title");',
 	],
 	invalid: [
 		'import test from "node:test";\ntest.todo("title");',
 		'import {it} from "node:test";\nit.todo("title");',
 		'import {describe} from "node:test";\ndescribe.todo("title", () => {});',
+		'import {todo} from "node:test";\ntodo("title", () => {});',
+		'import {todo as pending} from "node:test";\npending("title", () => {});',
 		'import test from "node:test";\ntest("title", {todo: true}, () => {});',
 		'import test from "node:test";\ntest("title", {todo: "later"}, () => {});',
 		'import * as nodeTest from "node:test";\nnodeTest.test.todo("title", () => {});',
+		'import * as nodeTest from "node:test";\nnodeTest.todo("title", () => {});',
 	],
 });

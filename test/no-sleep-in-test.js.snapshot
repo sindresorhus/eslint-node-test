@@ -1183,25 +1183,25 @@ Message:
 
 `;
 
-exports[`no-sleep-in-test > invalid(57): import test from 'node:test';\nimport {setTimeout as delay} from 'node:timers/promises';\ntest('waits', async t => {\n\tawait t.test.expectFailure('child', async () => {\n\t\tawait delay(500);\n\t});\n}); 1`] = `
+exports[`no-sleep-in-test > invalid(57): import test from 'node:test';\nimport {setTimeout as delay} from 'node:timers/promises';\ntest('waits', async t => {\n\tawait t.test('child', {expectFailure: true}, async () => {\n\t\tawait delay(500);\n\t});\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import {setTimeout as delay} from 'node:timers/promises';
   3 | test('waits', async t => {
-  4 | 	await t.test.expectFailure('child', async () => {
+  4 | 	await t.test('child', {expectFailure: true}, async () => {
   5 | 		await delay(500);
   6 | 	});
   7 | });
 
 `;
 
-exports[`no-sleep-in-test > invalid(57): import test from 'node:test';\nimport {setTimeout as delay} from 'node:timers/promises';\ntest('waits', async t => {\n\tawait t.test.expectFailure('child', async () => {\n\t\tawait delay(500);\n\t});\n}); 2`] = `
+exports[`no-sleep-in-test > invalid(57): import test from 'node:test';\nimport {setTimeout as delay} from 'node:timers/promises';\ntest('waits', async t => {\n\tawait t.test('child', {expectFailure: true}, async () => {\n\t\tawait delay(500);\n\t});\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
   2 | import {setTimeout as delay} from 'node:timers/promises';
   3 | test('waits', async t => {
-  4 | 	await t.test.expectFailure('child', async () => {
+  4 | 	await t.test('child', {expectFailure: true}, async () => {
 > 5 | 		await delay(500);
     | 		      ^^^^^^^^^^ Do not sleep in tests with \`setTimeout\`. Await the real signal or use mock timers instead.
   6 | 	});
