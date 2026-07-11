@@ -2,7 +2,6 @@ import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
 import {
 	resolveImports,
 	parseTestCall,
-	createContextTracker,
 	MODIFIERS,
 	getCalleeChain,
 	getContextParameterIdentifier,
@@ -63,7 +62,6 @@ const create = context => {
 		return;
 	}
 
-	const tracker = createContextTracker(imports);
 	const frames = [];
 	const skippedCallbacks = new WeakSet();
 
@@ -75,7 +73,15 @@ const create = context => {
 	};
 
 	const getFrame = receiver => {
+		if (receiver?.type !== 'Identifier') {
+			return undefined;
+		}
+
 		const variable = findVariable(sourceCode.getScope(receiver), receiver);
+		if (variable === undefined) {
+			return undefined;
+		}
+
 		return frames.findLast(frame => frame.contextVariable === variable);
 	};
 
@@ -91,10 +97,6 @@ const create = context => {
 
 	const getRunnableSubtestFrame = (node, enclosingFunction) => {
 		const receiver = getDirectSubtestReceiver(node);
-		if (!tracker.isContextIdentifier(receiver)) {
-			return undefined;
-		}
-
 		const frame = getFrame(receiver);
 		if (
 			!frame
@@ -123,11 +125,9 @@ const create = context => {
 		}
 
 		const hookReceiver = getContextHookReceiver(node);
-		if (tracker.isContextIdentifier(hookReceiver)) {
-			const frame = getFrame(hookReceiver);
-			if (frame && enclosingFunction === frame.callback) {
-				frame.hooks.push(node);
-			}
+		const frame = getFrame(hookReceiver);
+		if (frame && enclosingFunction === frame.callback) {
+			frame.hooks.push(node);
 		}
 
 		const parsed = parseTestCall(node, imports);
@@ -154,7 +154,6 @@ const create = context => {
 			return;
 		}
 
-		tracker.update(node);
 		const callback = getTestCallback(node);
 		if (!callback) {
 			return;
@@ -170,8 +169,6 @@ const create = context => {
 	});
 
 	context.onExit('CallExpression', function * (node) {
-		tracker.leave(node);
-
 		if (frames.at(-1)?.node !== node) {
 			return;
 		}

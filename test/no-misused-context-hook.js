@@ -40,6 +40,7 @@ test.snapshot({
 		// Lookalikes and shadowed bindings are ignored.
 		withTest('test(\'leaf\', t => { const hooks = {beforeEach() {}}; hooks.beforeEach(); });'),
 		withTest('test(\'leaf\', t => { { const t = {afterEach() {}}; t.afterEach(); } });'),
+		withTest('test(\'leaf\', () => { unknown.beforeEach(() => {}); });'),
 		withTest('test(\'leaf\', t => { function configure() { t.beforeEach(() => {}); } });'),
 		withTest('test(\'leaf\', t => { t.before(() => { t.afterEach(() => {}); }); });'),
 		'test(\'leaf\', t => { t.beforeEach(() => {}); });',
