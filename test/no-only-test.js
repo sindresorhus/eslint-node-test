@@ -28,6 +28,8 @@ test.snapshot({
 		'import {it} from "node:test";\nit.only("title", () => {});',
 		'import {describe} from "node:test";\ndescribe.only("title", () => {});',
 		'import {test} from "node:test";\ntest.only("title", () => {});',
+		'import {only} from "node:test";\nonly("title", () => {});',
+		'import {only as focused} from "node:test";\nfocused("title", () => {});',
 		'import test from "node:test";\ntest. /* keep */ only("title", () => {});',
 		// Options object form
 		'import test from "node:test";\ntest("title", {only: true}, () => {});',
@@ -36,6 +38,7 @@ test.snapshot({
 		'import {test as t} from "node:test";\nt.only("title", () => {});',
 		// Namespace import
 		'import * as nodeTest from "node:test";\nnodeTest.test.only("title", () => {});',
+		'import * as nodeTest from "node:test";\nnodeTest.only("title", () => {});',
 		// Bare "test" module
 		'import test from "test";\ntest.only("title", () => {});',
 	],

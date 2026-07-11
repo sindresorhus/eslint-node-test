@@ -24,8 +24,11 @@ test.snapshot({
 		'import test from "node:test";\ntest.skip("title", () => {});',
 		'import {it} from "node:test";\nit.skip("title", () => {});',
 		'import {describe} from "node:test";\ndescribe.skip("title", () => {});',
+		'import {skip} from "node:test";\nskip("title", () => {});',
+		'import {skip as omitted} from "node:test";\nomitted("title", () => {});',
 		'import test from "node:test";\ntest("title", {skip: true}, () => {});',
 		'import test from "node:test";\ntest("title", {skip: "not ready"}, () => {});',
 		'import * as nodeTest from "node:test";\nnodeTest.test.skip("title", () => {});',
+		'import * as nodeTest from "node:test";\nnodeTest.skip("title", () => {});',
 	],
 });

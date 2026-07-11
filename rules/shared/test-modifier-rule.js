@@ -52,6 +52,7 @@ export default function createTestModifierRule({modifier, description, errorMess
 				const nextToken = sourceCode.getTokenAfter(previousToken, {includeComments: true});
 				const modifierRange = sourceCode.getRange(modifierNode);
 				const suggest = memberExpression?.type === 'MemberExpression'
+					&& !parsed.hasStandaloneModifier
 					&& !memberExpression.computed
 					&& memberExpression.property === modifierNode
 					&& previousToken.value === '.'

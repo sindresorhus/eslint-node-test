@@ -19,6 +19,8 @@ import {strictEqual} from 'node:assert';
 const TEST_FUNCTIONS = new Set(['test', 'it']);
 /** Canonical test exports, including the standalone `expectFailure` function. */
 const TEST_EXPORTS = new Set([...TEST_FUNCTIONS, 'expectFailure']);
+/** Standalone aliases for `test.only()`, `test.skip()`, and `test.todo()`. */
+const TEST_MODIFIER_EXPORTS = new Set(['only', 'skip', 'todo']);
 const SUITE_FUNCTIONS = new Set(['describe', 'suite']);
 const HOOK_FUNCTIONS = new Set(['before', 'after', 'beforeEach', 'afterEach']);
 const ALL_TEST_EXPORTS = new Set([...TEST_EXPORTS, ...SUITE_FUNCTIONS, ...HOOK_FUNCTIONS, 'mock']);
@@ -41,6 +43,7 @@ Scan a file's top-level imports and resolve the local bindings for
 	locals: Map<string, string>,
 	namespace: string | undefined,
 	configurationLocals: Map<string, string>,
+	testModifierLocals: Map<string, string>,
 	assertNamespace: Set<string>,
 	assertNamed: Map<string, string>,
 	strictAssertLocals: Set<string>,
@@ -147,6 +150,9 @@ function collectFromImport(node, bindings) {
 			if (importedName === 'default') {
 				bindings.locals.set(localName, 'test');
 				bindings.namespace = localName;
+			} else if (TEST_MODIFIER_EXPORTS.has(importedName)) {
+				bindings.locals.set(localName, 'test');
+				bindings.testModifierLocals.set(localName, importedName);
 			} else if (ALL_TEST_EXPORTS.has(importedName)) {
 				bindings.locals.set(localName, importedName);
 			} else if (CONFIGURATION_EXPORTS.has(importedName)) {
@@ -177,6 +183,8 @@ function scanImports(context) {
 		namespace: undefined,
 		// Map of local identifier name -> process-wide `node:test` configuration object.
 		configurationLocals: new Map(),
+		// Map of local standalone modifier aliases to their canonical modifier names.
+		testModifierLocals: new Map(),
 		// Local names bound to the whole `node:assert` module (`import assert from …`).
 		assertNamespace: new Set(),
 		// Map of local name -> canonical `node:assert` method name (named imports).
@@ -360,6 +368,20 @@ function getStaticTestFunctionName(root, firstMember, imports) {
 
 function getStaticTestCall(root, members, imports) {
 	const firstMember = members[0];
+	if (
+		TEST_MODIFIER_EXPORTS.has(firstMember?.name)
+		&& members.length === 1
+		&& root.name === imports.namespace
+		&& !imports.locals.has(root.name)
+	) {
+		return {
+			name: 'test',
+			modifiers: [firstMember],
+			hasExpectedFailure: false,
+			hasStandaloneModifier: true,
+		};
+	}
+
 	const testFunctionName = getStaticTestFunctionName(root, firstMember, imports);
 	if (testFunctionName) {
 		return getStaticExportCall(testFunctionName, members.slice(1));
@@ -408,6 +430,7 @@ Classify a `CallExpression` as a `node:test` test/suite/hook call.
 	kind: 'test' | 'suite' | 'hook',
 	modifiers: import('estree').Identifier[],
 	hasExpectedFailure: boolean,
+	hasStandaloneModifier?: boolean,
 } | undefined}
 */
 export const parseTestCall = memoizeByNode(parseTestCallCache, (callExpression, imports) => {
@@ -421,7 +444,19 @@ export const parseTestCall = memoizeByNode(parseTestCallCache, (callExpression, 
 		return undefined;
 	}
 
-	let parsed = getStaticTestCall(root, members, imports);
+	let parsed;
+	const standaloneModifier = imports.testModifierLocals.get(root.name);
+	if (standaloneModifier && members.length === 0) {
+		parsed = {
+			name: 'test',
+			modifiers: [root.name === standaloneModifier ? root : {...root, name: standaloneModifier}],
+			hasExpectedFailure: false,
+			hasStandaloneModifier: true,
+		};
+	} else {
+		parsed = getStaticTestCall(root, members, imports);
+	}
+
 	if (!parsed && imports.locals.has(root.name)) {
 		// `test.only(…)` / bare `test(…)` — a callable test binding. A binding that is both a local and
 		// the namespace (`import test from 'node:test'`) reaches here for member chains whose first

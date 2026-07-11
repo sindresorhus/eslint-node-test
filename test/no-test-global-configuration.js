@@ -68,6 +68,13 @@ test.snapshot({
 		'import {it} from \'node:test\';\nit(\'t\', () => { it.assert.register(\'custom\', () => {}); });',
 		'import * as nodeTest from \'node:test\';\nnodeTest.test(\'t\', () => { nodeTest.snapshot.setDefaultSnapshotSerializers([]); nodeTest.assert.register(\'custom\', () => {}); });',
 
+		// Standalone test-modifier exports.
+		'import {only, snapshot} from \'node:test\';\nonly(\'t\', () => { snapshot.setResolveSnapshotPath(path => path); });',
+		'import {only as focused, snapshot} from \'node:test\';\nfocused(\'t\', () => { snapshot.setResolveSnapshotPath(path => path); });',
+		'import {assert, skip} from \'node:test\';\nskip(\'t\', () => { assert.register(\'custom\', () => {}); });',
+		'import {snapshot, todo} from \'node:test\';\ntodo(\'t\', () => { snapshot.setDefaultSnapshotSerializers([]); });',
+		'import * as nodeTest from \'node:test\';\nnodeTest.only(\'t\', () => { nodeTest.snapshot.setResolveSnapshotPath(path => path); });',
+
 		// Test modifiers and subtests.
 		'import test, {snapshot} from \'node:test\';\ntest.only(\'t\', () => { snapshot.setResolveSnapshotPath(path => path); });',
 		'import test, {snapshot} from \'node:test\';\ntest?.(\'t\', () => { snapshot.setResolveSnapshotPath(path => path); });',
