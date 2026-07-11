@@ -17,6 +17,7 @@ import {getEnclosingFunction, unwrapTypeScriptExpression, isTypeScriptExpression
 const MESSAGE_ID = 'no-unawaited-promise-assertion';
 
 const PROMISE_METHODS = new Set(['then', 'catch', 'finally']);
+const REJECTION_HANDLER_INDEXES = new Map([['then', 1], ['catch', 0]]);
 const PROMISE_ASSERTION_METHODS = new Set(['rejects', 'doesNotReject']);
 const SCHEDULER_NAMES = new Set(['setTimeout', 'setImmediate', 'queueMicrotask']);
 const TIMER_MODULES = new Set(['node:timers', 'timers']);
@@ -272,6 +273,72 @@ function isAwaited(node) {
 	return node.parent?.type === 'AwaitExpression';
 }
 
+function hasRejectionHandler(call) {
+	const index = REJECTION_HANDLER_INDEXES.get(call.method);
+	const argument = index === undefined ? undefined : unwrapTypeScriptExpression(call.node.arguments[index]);
+	return isInlineCallback(argument)
+		|| (
+			argument?.type === 'Identifier'
+			&& argument.name !== 'undefined'
+		)
+		|| argument?.type === 'MemberExpression'
+		|| argument?.type === 'CallExpression';
+}
+
+function hasChainedRejectionHandler(node, boundary) {
+	let current = node;
+	while (current.parent && current !== boundary) {
+		const {parent} = current;
+		if (parent.type === 'ChainExpression' || isTypeScriptExpressionWrapper(parent)) {
+			current = parent;
+			continue;
+		}
+
+		if (
+			parent.type === 'MemberExpression'
+			&& parent.object === current
+			&& parent.parent?.type === 'CallExpression'
+			&& parent.parent.callee === parent
+			&& !parent.computed
+			&& parent.property.type === 'Identifier'
+			&& PROMISE_METHODS.has(parent.property.name)
+		) {
+			const call = {node: parent.parent, method: parent.property.name};
+			if (hasRejectionHandler(call)) {
+				return true;
+			}
+
+			current = parent.parent;
+			continue;
+		}
+
+		break;
+	}
+
+	return false;
+}
+
+function getAssertionActivity(node, state) {
+	const {imports, contextParameters, sourceCode} = state;
+	const assertion = parseScopedAssertionCall(node, imports, contextParameters, sourceCode);
+	if (!assertion) {
+		return undefined;
+	}
+
+	const isPromiseAssertion = PROMISE_ASSERTION_METHODS.has(assertion.method);
+	const isInsideHandledTry = isInsideHandledTryBlock(node, state.boundary);
+	const isHandledPromiseAssertion = isPromiseAssertion
+		&& (
+			(!state.assertionsOnly && hasChainedRejectionHandler(node, state.boundary))
+			|| (isAwaited(node) && isInsideHandledTry)
+		);
+	if (isHandledPromiseAssertion || (!isPromiseAssertion && isInsideHandledTry)) {
+		return undefined;
+	}
+
+	return {node, type: 'Assertion', isPromiseAssertion};
+}
+
 function findActivities(node, state) {
 	const {
 		imports,
@@ -290,15 +357,9 @@ function findActivities(node, state) {
 	}
 
 	if (node.type === 'CallExpression') {
-		const assertion = parseScopedAssertionCall(node, imports, contextParameters, sourceCode);
-		if (
-			assertion
-			&& (
-				(PROMISE_ASSERTION_METHODS.has(assertion.method) && !isAwaited(node))
-				|| !isInsideHandledTryBlock(node, state.boundary)
-			)
-		) {
-			return [{node, type: 'Assertion'}];
+		const assertionActivity = getAssertionActivity(node, state);
+		if (assertionActivity) {
+			return [assertionActivity];
 		}
 	}
 
@@ -339,9 +400,14 @@ function isDeferredClassField(node) {
 }
 
 function getPromiseProblems(chainCalls, state, assertionsOnly, messageId) {
-	return chainCalls.flatMap(call => getPromiseCallbackArguments(call).flatMap(callback => {
-		let activities = findCallbackActivities(callback, state)
+	return chainCalls.flatMap((call, index) => getPromiseCallbackArguments(call).flatMap(callback => {
+		let activities = findCallbackActivities(callback, {...state, assertionsOnly})
 			.filter(activity => !assertionsOnly || activity.type === 'Assertion');
+		const hasDownstreamRejectionHandler = chainCalls.slice(0, index).some(outerCall => hasRejectionHandler(outerCall));
+		if (!assertionsOnly && hasDownstreamRejectionHandler) {
+			activities = activities.filter(activity => activity.type === 'Subtest' || activity.isPromiseAssertion);
+		}
+
 		if (assertionsOnly) {
 			activities = activities.slice(0, 1);
 		}
@@ -449,9 +515,10 @@ function getDetachedScheduler(node, activeCallback, timerImports, sourceCode) {
 	const promiseExpression = getPromiseExpression(node, activeCallback, sourceCode);
 	const promiseExecutor = promiseExpression && unwrapTypeScriptExpression(promiseExpression.arguments[0]);
 	const enclosingFunction = getEnclosingFunction(node);
+	const isInsidePromiseExecutor = enclosingFunction === promiseExecutor;
 	if (
-		(enclosingFunction === activeCallback || enclosingFunction === promiseExecutor)
-		&& !(promiseExpression && isExpressionConsumed(promiseExpression))
+		(enclosingFunction === activeCallback || isInsidePromiseExecutor)
+		&& !(isInsidePromiseExecutor && isExpressionConsumed(promiseExpression))
 	) {
 		return {callback, scheduler};
 	}

@@ -13,11 +13,15 @@ A test finishes when its callback returns or its returned Promise settles. Async
 
 This rule reports test activity inside detached `setTimeout()`, `setImmediate()`, `queueMicrotask()`, and floating Promise callbacks. Return or await the asynchronous work so the test runner knows when the test is complete. Promise chains whose values are otherwise consumed are not checked.
 
+Synchronous assertions and throws in a floating Promise callback are allowed when a downstream rejection callback handles them. Promise-returning assertions are still reported unless their Promise is handled directly.
+
 Scheduler callbacks inside a consumed `new Promise()` are allowed. Tests that call `t.plan()` with a statically truthy `wait` option as the first statement other than variable declarations, function declarations, and empty statements are also allowed because the test runner explicitly waits for the planned activity.
 
 Callback-style tests and hooks are not checked because their completion depends on when the completion callback is invoked.
 
 Only directly executed activity in inline callbacks is checked. External callback references and nested helper function bodies are not analyzed.
+
+Detached callbacks scheduled from inside another detached callback are not recursively analyzed.
 
 ## Examples
 
