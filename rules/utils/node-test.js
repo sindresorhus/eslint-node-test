@@ -190,25 +190,27 @@ function isImportedBindingReference(identifier, imports) {
 
 /** Whether a node references the global `mock` — a named/renamed import, `namespace.mock`, or `test.mock`/`it.mock`. */
 export function isGlobalMock(node, imports) {
-	return (
-		(
-			node.type === 'Identifier'
-			&& imports.mockLocals.has(node.name)
-			&& isImportedBindingReference(node, imports)
+	node = unwrapTypeScriptExpression(node);
+	if (node.type === 'Identifier') {
+		return imports.mockLocals.has(node.name) && isImportedBindingReference(node, imports);
+	}
+
+	if (
+		node.type !== 'MemberExpression'
+		|| node.computed
+		|| node.property.type !== 'Identifier'
+		|| node.property.name !== 'mock'
+	) {
+		return false;
+	}
+
+	const object = unwrapTypeScriptExpression(node.object);
+	return object.type === 'Identifier'
+		&& (
+			object.name === imports.namespace
+			|| TEST_FUNCTIONS.has(imports.locals.get(object.name))
 		)
-		|| (
-			node.type === 'MemberExpression'
-			&& !node.computed
-			&& node.property.type === 'Identifier'
-			&& node.property.name === 'mock'
-			&& node.object.type === 'Identifier'
-			&& (
-				node.object.name === imports.namespace
-				|| TEST_FUNCTIONS.has(imports.locals.get(node.object.name))
-			)
-			&& isImportedBindingReference(node.object, imports)
-		)
-	);
+		&& isImportedBindingReference(object, imports);
 }
 
 function computeCalleeChain(node) {

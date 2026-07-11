@@ -79,12 +79,22 @@ test.snapshot({
 
 		// Namespace mock.
 		'import * as nodeTest from \'node:test\';\nnodeTest.mock.method(object, \'value\', {setter: true});',
+		'import * as nodeTest from \'node:test\';\n(nodeTest?.mock).method(object, \'value\', {setter: true});',
+		{
+			code: 'import * as nodeTest from \'node:test\';\n(nodeTest as any).mock.method(object, \'value\', {setter: true});',
+			languageOptions: {parser: parsers.typescript},
+		},
 
 		// Default import as the node:test namespace.
 		'import test from \'node:test\';\ntest.mock.method(object, \'value\', {getter: true});',
 
 		// Test context mock.
 		inTest('t.mock.method(object, \'value\', {setter: true});'),
+		inTest('(t?.mock).method(object, \'value\', {setter: true});'),
+		{
+			code: 'import test from \'node:test\';\ntest(\'t\', t => { (t as any).mock.method(object, \'value\', {setter: true}); });',
+			languageOptions: {parser: parsers.typescript},
+		},
 		inTest('t.test(\'child\', child => child.mock.method(object, \'value\', {getter: true}));'),
 		{
 			code: 'import test from \'node:test\';\ntest(\'t\', (t => { t.mock.method(object, \'value\', {getter: true}); }) as (t: unknown) => void);',
