@@ -13,7 +13,7 @@
 
 The suggestion replaces the wrapper with a plain Promise-returning callback. Keeping the callback, rather than passing an already-created Promise, preserves lazy invocation and argument evaluation order.
 
-Apply the suggestion only when the operation returns a Promise and cannot throw synchronously. An async wrapper converts a synchronous throw into a rejected Promise, while a plain callback lets it escape from `assert.rejects()`.
+Apply the suggestion only when the operation returns a genuine Promise and cannot throw synchronously. For a synchronous throw, `assert.rejects()` skips the error matcher and returns a Promise rejected with the original error. For a non-Promise or thenable return value, it rejects with `ERR_INVALID_RETURN_VALUE`, while an async wrapper converts the value into a Promise.
 
 This rule reports parameterless async callbacks whose entire body is one awaited expression. Callbacks with parameters, additional statements, or control flow are ignored.
 

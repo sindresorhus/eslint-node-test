@@ -4,7 +4,7 @@ import {
 	createContextTracker,
 	isAssertionCallWithSupportedContext,
 } from './utils/node-test.js';
-import isFunction from './ast/is-function.js';
+import {isFunction} from './ast/index.js';
 import {containsSuspensionPoint, isParenthesized, unwrapTypeScriptExpression} from './utils/index.js';
 
 /**
@@ -19,7 +19,7 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Replace it with a plain Promise-returning callback.',
 };
 
-function getAwaitExpression(callback) {
+function getAwaitedCallbackBody(callback) {
 	let expression = callback.body;
 	let shouldAddReturn = false;
 	if (expression.type === 'BlockStatement') {
@@ -85,7 +85,7 @@ const create = context => {
 			return;
 		}
 
-		const awaited = getAwaitExpression(callback);
+		const awaited = getAwaitedCallbackBody(callback);
 		if (
 			!awaited
 			|| containsSuspensionPoint(awaited.awaitExpression.argument, sourceCode.visitorKeys)

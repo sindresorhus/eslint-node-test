@@ -118,5 +118,13 @@ test.snapshot({
 			code: withAssert('assert.rejects(async () => { await operation() as Promise<void>; });'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: withAssert('assert.rejects(async (): Promise<void> => await operation());'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withAssert('assert.rejects(async () => await (<Promise<void>>operation()));'),
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

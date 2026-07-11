@@ -784,6 +784,46 @@ Suggestion 1/1: Replace it with a plain Promise-returning callback.:
 
 `;
 
+exports[`no-unneeded-async-rejects-callback > invalid(46): import assert from 'node:assert';\nassert.rejects(async (): Promise<void> => await operation()); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.rejects(async (): Promise<void> => await operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(46): import assert from 'node:assert';\nassert.rejects(async (): Promise<void> => await operation()); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.rejects(async (): Promise<void> => await operation());
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | import assert from 'node:assert';
+  2 | assert.rejects((): Promise<void> => operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(47): import assert from 'node:assert';\nassert.rejects(async () => await (<Promise<void>>operation())); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.rejects(async () => await (<Promise<void>>operation()));
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(47): import assert from 'node:assert';\nassert.rejects(async () => await (<Promise<void>>operation())); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.rejects(async () => await (<Promise<void>>operation()));
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | import assert from 'node:assert';
+  2 | assert.rejects(() => (<Promise<void>>operation()));
+
+`;
+
 exports[`no-unneeded-async-rejects-callback > invalid(5): import assert from 'node:assert';\nassert.rejects(async function () { return await operation(); }); 1`] = `
 
   1 | import assert from 'node:assert';
