@@ -62,6 +62,7 @@ test.snapshot({
 		'import * as nodeTest from \'node:test\';\nnodeTest.test(\'changes directory\', () => { process.chdir(\'fixtures\'); });',
 		withTestImport('test.only(\'changes directory\', () => { process.chdir(\'fixtures\'); });'),
 		withTestImport('test.test(\'changes directory\', () => { process.chdir(\'fixtures\'); });'),
+		'import test from \'test\';\ntest(\'changes directory\', () => { process.chdir(\'fixtures\'); });',
 
 		// Process module imports
 		'import process from \'node:process\';\nimport test from \'node:test\';\ntest(\'changes directory\', () => { process.chdir(\'fixtures\'); });',

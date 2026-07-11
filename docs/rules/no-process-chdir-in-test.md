@@ -9,7 +9,7 @@
 
 [`process.chdir()`](https://nodejs.org/api/process.html#processchdirdirectory) changes the working directory for the whole Node.js process. Tests declared in the same file run in one application thread, so calling it directly in a test or subtest can leave later tests running from the wrong directory, making them order-dependent and difficult to debug. See the [test runner execution model](https://nodejs.org/api/test.html#test-runner-execution-model).
 
-Use absolute paths where possible. When a suite must change the working directory, own the setup and restoration in hooks. This rule reports direct calls in `test`/`it` and `t.test()` callbacks, including supported imports from `node:process` or `process`. It intentionally ignores hooks, suite bodies, top-level setup, nested helper functions, computed properties, CommonJS imports, extracted aliases, and indirect invocations.
+Use absolute paths where possible. When a suite must change the working directory, own the setup and restoration in hooks. This is unsafe with concurrent tests, even when restored afterward. This rule reports direct calls in `test`/`it` and `t.test()` callbacks, including supported imports from `node:process` or `process`. It intentionally ignores hooks, suite bodies, top-level setup, nested helper functions, computed properties, CommonJS imports, extracted aliases, and indirect invocations.
 
 ## Examples
 
