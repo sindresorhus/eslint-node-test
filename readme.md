@@ -20,9 +20,10 @@ Use a [preset config](#preset-configs) or configure each rule in `eslint.config.
 import eslintNodeTest from 'eslint-node-test';
 import {defineConfig} from 'eslint/config';
 
-export default defineConfig([
-	eslintNodeTest.configs.recommended,
-]);
+export default defineConfig({
+	plugins: {nodeTest: eslintNodeTest},
+	extends: ['nodeTest/recommended']
+});
 ```
 
 Or configure rules individually:
@@ -31,17 +32,15 @@ Or configure rules individually:
 import eslintNodeTest from 'eslint-node-test';
 import {defineConfig} from 'eslint/config';
 
-export default defineConfig([
-	{
-		plugins: {
-			'node-test': eslintNodeTest,
-		},
-		rules: {
-			'node-test/no-only-test': 'error',
-			'node-test/no-identical-title': 'error',
-		},
+export default defineConfig({
+	plugins: {
+		'node-test': eslintNodeTest,
 	},
-]);
+	rules: {
+		'node-test/no-only-test': 'error',
+		'node-test/no-identical-title': 'error',
+	}
+});
 ```
 
 The rules only activate in files that import from `node:test` (and assertion rules also activate for Node's built-in `assert` module), so you can safely apply the plugin across your whole project.
@@ -167,9 +166,10 @@ This plugin exports these configs:
 import eslintNodeTest from 'eslint-node-test';
 import {defineConfig} from 'eslint/config';
 
-export default defineConfig([
-	eslintNodeTest.configs.recommended,
-]);
+export default defineConfig({
+	plugins: {nodeTest: eslintNodeTest},
+	extends: ['nodeTest/recommended']
+});
 ```
 
 ## Related
