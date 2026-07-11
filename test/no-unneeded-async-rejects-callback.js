@@ -81,6 +81,8 @@ test.snapshot({
 		withAssert('assert.rejects(async () => await /* keep */ operation());'),
 		withAssert('assert.rejects(async () => await operation(/* keep */));'),
 		withAssert('assert.rejects(async () => { await /* keep */ operation(); });'),
+		withAssert('assert.rejects(async () => { await\noperation(); });'),
+		withAssert('assert.rejects(async () => { await // Keep this comment.\noperation(); });'),
 		withAssert('assert.rejects(async () => { ((await operation())); });'),
 		withAssert('assert.rejects(async () => { return (await operation()); });'),
 		withAssert('assert.rejects(async () => { return /* keep */ await operation(); });'),
@@ -94,6 +96,26 @@ test.snapshot({
 		},
 		{
 			code: withAssert('assert.rejects(async () => await (operation() satisfies Promise<void>));'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withAssert('assert.rejects(async () => (await operation()) as Promise<void>);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withAssert('assert.rejects(async () => (await operation())!);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withAssert('assert.rejects(async () => (await operation()) satisfies Promise<void>);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withAssert('assert.rejects(async () => { return (await operation()) as Promise<void>; });'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withAssert('assert.rejects(async () => { await operation() as Promise<void>; });'),
 			languageOptions: {parser: parsers.typescript},
 		},
 	],

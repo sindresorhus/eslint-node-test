@@ -20,22 +20,27 @@ const messages = {
 };
 
 function getAwaitExpression(callback) {
-	const {body} = callback;
-	if (body.type === 'AwaitExpression') {
-		return {awaitExpression: body, needsReturn: false};
+	let expression = callback.body;
+	let shouldAddReturn = false;
+	if (expression.type === 'BlockStatement') {
+		if (expression.body.length !== 1) {
+			return;
+		}
+
+		const [statement] = expression.body;
+		if (statement.type === 'ExpressionStatement') {
+			expression = statement.expression;
+			shouldAddReturn = true;
+		} else if (statement.type === 'ReturnStatement' && statement.argument) {
+			expression = statement.argument;
+		} else {
+			return;
+		}
 	}
 
-	if (body.type !== 'BlockStatement' || body.body.length !== 1) {
-		return;
-	}
-
-	const [statement] = body.body;
-	if (statement.type === 'ExpressionStatement' && statement.expression.type === 'AwaitExpression') {
-		return {awaitExpression: statement.expression, needsReturn: true};
-	}
-
-	if (statement.type === 'ReturnStatement' && statement.argument?.type === 'AwaitExpression') {
-		return {awaitExpression: statement.argument, needsReturn: false};
+	const awaitExpression = unwrapTypeScriptExpression(expression);
+	if (awaitExpression.type === 'AwaitExpression') {
+		return {awaitExpression, shouldAddReturn};
 	}
 }
 
@@ -96,7 +101,7 @@ const create = context => {
 					messageId: MESSAGE_ID_SUGGESTION,
 					/** @param {ESLint.Rule.RuleFixer} fixer */
 					* fix(fixer, {abort}) {
-						if (awaited.needsReturn && isParenthesized(awaited.awaitExpression, context)) {
+						if (awaited.shouldAddReturn && isParenthesized(awaited.awaitExpression, context)) {
 							return abort();
 						}
 
@@ -110,15 +115,15 @@ const create = context => {
 						yield fixer.removeRange(asyncRange);
 
 						const awaitToken = sourceCode.getFirstToken(awaited.awaitExpression);
-						if (awaited.needsReturn) {
-							yield fixer.replaceText(awaitToken, 'return');
-						} else {
-							const tokenAfterAwait = sourceCode.getTokenAfter(awaitToken);
-							const awaitRange = [sourceCode.getRange(awaitToken)[0], sourceCode.getRange(tokenAfterAwait)[0]];
-							if (hasCommentInRange(sourceCode, callback, awaitRange)) {
-								return abort();
-							}
+						const tokenAfterAwait = sourceCode.getTokenAfter(awaitToken);
+						const awaitRange = [sourceCode.getRange(awaitToken)[0], sourceCode.getRange(tokenAfterAwait)[0]];
+						if (hasCommentInRange(sourceCode, callback, awaitRange)) {
+							return abort();
+						}
 
+						if (awaited.shouldAddReturn) {
+							yield fixer.replaceTextRange(awaitRange, 'return ');
+						} else {
 							yield fixer.removeRange(awaitRange);
 						}
 					},
