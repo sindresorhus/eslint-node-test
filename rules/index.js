@@ -66,6 +66,7 @@ export {default as 'prefer-diagnostic'} from './prefer-diagnostic.js';
 export {default as 'prefer-equality-assertion'} from './prefer-equality-assertion.js';
 export {default as 'prefer-hooks-on-top'} from './prefer-hooks-on-top.js';
 export {default as 'prefer-lowercase-title'} from './prefer-lowercase-title.js';
+export {default as 'prefer-mock-accessor'} from './prefer-mock-accessor.js';
 export {default as 'prefer-mock-method'} from './prefer-mock-method.js';
 export {default as 'prefer-strict-assert'} from './prefer-strict-assert.js';
 export {default as 'prefer-test-context-assert'} from './prefer-test-context-assert.js';

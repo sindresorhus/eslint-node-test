@@ -28,7 +28,7 @@ const create = context => {
 			return;
 		}
 
-		if (nearestTestCallbackKind(node, imports) !== 'hook') {
+		if (nearestTestCallbackKind(node, imports, tracker.isContextIdentifier) !== 'hook') {
 			return;
 		}
 

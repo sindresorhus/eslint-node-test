@@ -1,6 +1,6 @@
 import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
 import isFunction from '../ast/is-function.js';
-import unwrapTypeScriptExpression from './unwrap-typescript-expression.js';
+import unwrapTypeScriptExpression, {isTypeScriptExpressionWrapper} from './unwrap-typescript-expression.js';
 
 /*
 Detection helpers for Node.js's built-in test runner (`node:test`).
@@ -190,25 +190,27 @@ function isImportedBindingReference(identifier, imports) {
 
 /** Whether a node references the global `mock` — a named/renamed import, `namespace.mock`, or `test.mock`/`it.mock`. */
 export function isGlobalMock(node, imports) {
-	return (
-		(
-			node.type === 'Identifier'
-			&& imports.mockLocals.has(node.name)
-			&& isImportedBindingReference(node, imports)
+	node = unwrapTypeScriptExpression(node);
+	if (node.type === 'Identifier') {
+		return imports.mockLocals.has(node.name) && isImportedBindingReference(node, imports);
+	}
+
+	if (
+		node.type !== 'MemberExpression'
+		|| node.computed
+		|| node.property.type !== 'Identifier'
+		|| node.property.name !== 'mock'
+	) {
+		return false;
+	}
+
+	const object = unwrapTypeScriptExpression(node.object);
+	return object.type === 'Identifier'
+		&& (
+			object.name === imports.namespace
+			|| TEST_FUNCTIONS.has(imports.locals.get(object.name))
 		)
-		|| (
-			node.type === 'MemberExpression'
-			&& !node.computed
-			&& node.property.type === 'Identifier'
-			&& node.property.name === 'mock'
-			&& node.object.type === 'Identifier'
-			&& (
-				node.object.name === imports.namespace
-				|| TEST_FUNCTIONS.has(imports.locals.get(node.object.name))
-			)
-			&& isImportedBindingReference(node.object, imports)
-		)
-	);
+		&& isImportedBindingReference(object, imports);
 }
 
 function computeCalleeChain(node) {
@@ -393,12 +395,31 @@ export function getSubtestReceiver(callExpression) {
 	return undefined;
 }
 
+function isContextHookCall(callExpression, isContextIdentifier) {
+	const callee = unwrapTypeScriptExpression(callExpression.callee);
+	return callee.type === 'MemberExpression'
+		&& !callee.computed
+		&& callee.property.type === 'Identifier'
+		&& HOOK_FUNCTIONS.has(callee.property.name)
+		&& isContextIdentifier(unwrapTypeScriptExpression(callee.object));
+}
+
+function getParentCallExpression(node) {
+	let {parent} = node;
+	while (isTypeScriptExpressionWrapper(parent)) {
+		const {parent: nextParent} = parent;
+		parent = nextParent;
+	}
+
+	return parent?.type === 'CallExpression' ? parent : undefined;
+}
+
 /**
-Track the test-context parameter names (`t`) introduced by enclosing test, subtest, and optionally hook callbacks.
+Track the test-context parameter names (`t`) introduced by enclosing test, subtest, and optionally hook callbacks, including hooks declared from a test context.
 
 Subtests (`t.test(…)`) are method calls, not imported bindings, so recognizing them requires knowing the enclosing context name. Drive the tracker from a `CallExpression` visitor: query `isSubtestCall`/`isContextName` first (against the current stack), then call `update(node)` to push this call's own context, and `leave(node)` on exit.
 
-Set `trackHooks` to also track hook context parameters for rules that inspect `t.assert.*()`.
+Set `trackHooks` to also track hook context parameters.
 
 @returns {{
 	isSubtestCall: (node: import('estree').Node) => boolean,
@@ -438,9 +459,11 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 		|| isHookMemberTestCall(parsed)
 	);
 
+	const isTrackedContextHookCall = node => trackHooks && isContextHookCall(node, isContextIdentifier);
+
 	const isTrackedCallbackCall = node => {
 		const parsed = parseTestCall(node, imports);
-		return (
+		return isTrackedContextHookCall(node) || (
 			(
 				parsed?.kind === 'test'
 				&& parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name))
@@ -466,7 +489,7 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 			}
 
 			const parsed = parseTestCall(node, imports);
-			const callback = isTrackedHookCall(parsed) ? getHookCallback(node) : getTestCallback(node);
+			const callback = isTrackedHookCall(parsed) || isTrackedContextHookCall(node) ? getHookCallback(node) : getTestCallback(node);
 			if (callback) {
 				const parameter = callback.params[0];
 
@@ -689,12 +712,12 @@ Determine the kind (`test`/`suite`/`hook`) of the nearest enclosing test-related
 
 Returns `undefined` when the nearest enclosing function is a regular function (e.g. a helper), or there is none. Subtests (`t.test(…)`) are method calls rather than imported bindings, so they are recognized structurally and classified as `'test'`.
 */
-export function nearestTestCallbackKind(node, imports) {
+export function nearestTestCallbackKind(node, imports, isContextIdentifier) {
 	let current = node.parent;
 	while (current) {
 		if (isFunction(current)) {
-			const call = current.parent;
-			if (call?.type === 'CallExpression') {
+			const call = getParentCallExpression(current);
+			if (call) {
 				const parsed = parseTestCall(call, imports);
 				if (
 					parsed?.kind === 'hook'
@@ -705,6 +728,10 @@ export function nearestTestCallbackKind(node, imports) {
 				}
 
 				if (isHookMemberTestCall(parsed) && getHookCallback(call) === current) {
+					return 'hook';
+				}
+
+				if (isContextIdentifier && isContextHookCall(call, isContextIdentifier) && getHookCallback(call) === current) {
 					return 'hook';
 				}
 
