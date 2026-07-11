@@ -20,6 +20,7 @@ const PROMISE_METHODS = new Set(['then', 'catch', 'finally']);
 const PROMISE_ASSERTION_METHODS = new Set(['rejects', 'doesNotReject']);
 const SCHEDULER_NAMES = new Set(['setTimeout', 'setImmediate', 'queueMicrotask']);
 const TIMER_MODULES = new Set(['node:timers', 'timers']);
+const NON_EXECUTABLE_STATEMENT_TYPES = new Set(['VariableDeclaration', 'FunctionDeclaration', 'EmptyStatement']);
 
 const messages = {
 	[MESSAGE_ID]: 'Assertion in a floating `{{method}}()` callback is not awaited by the test. Await or return the Promise chain.',
@@ -203,7 +204,7 @@ function parseScopedAssertionCall(node, imports, contextParameters, sourceCode) 
 
 function isInsideHandledTryBlock(node, boundary) {
 	let child = node;
-	for (let parent = node.parent; parent && child !== boundary; child = parent, parent = parent.parent) {
+	for (let {parent} = node; parent && child !== boundary; child = parent, parent = parent.parent) {
 		if (
 			parent.type === 'TryStatement'
 			&& parent.block === child
@@ -400,19 +401,19 @@ function hasStaticallyTruthyWaitOption(node, sourceCode) {
 	return false;
 }
 
-function hasWaitPlan(callback, contextParameter, state) {
-	if (!contextParameter) {
+function hasWaitPlan(callback, contextParameter, sourceCode) {
+	if (!contextParameter || callback.body.type !== 'BlockStatement') {
 		return false;
 	}
 
-	const {sourceCode, visitorKeys} = state;
-	const visit = node => {
-		if (isFunction(node) && node !== callback) {
-			return false;
+	for (const statement of callback.body.body) {
+		if (NON_EXECUTABLE_STATEMENT_TYPES.has(statement.type)) {
+			continue;
 		}
 
+		const node = statement.type === 'ExpressionStatement' ? unwrapTypeScriptExpression(statement.expression) : undefined;
 		if (
-			node.type === 'CallExpression'
+			node?.type === 'CallExpression'
 			&& node.callee.type === 'MemberExpression'
 			&& !node.callee.computed
 			&& node.callee.object.type === 'Identifier'
@@ -423,13 +424,10 @@ function hasWaitPlan(callback, contextParameter, state) {
 			return hasStaticallyTruthyWaitOption(node.arguments[1], sourceCode);
 		}
 
-		return (visitorKeys[node.type] ?? []).some(key => {
-			const child = node[key];
-			return (Array.isArray(child) ? child : [child]).some(childNode => childNode?.type && visit(childNode));
-		});
-	};
+		return false;
+	}
 
-	return visit(callback.body);
+	return false;
 }
 
 function isSameVariable(identifier, declaration, sourceCode) {
@@ -491,7 +489,7 @@ export function trackDetachedCallbacks(context) {
 				node,
 				callback: boundaryCallback,
 				contextParameter,
-				hasWaitPlan: hasWaitPlan(boundaryCallback, contextParameter, {sourceCode, visitorKeys}),
+				hasWaitPlan: hasWaitPlan(boundaryCallback, contextParameter, sourceCode),
 			});
 			return;
 		}
@@ -510,10 +508,8 @@ export function trackDetachedCallbacks(context) {
 			scheduler
 			&& isFunction(schedulerCallback)
 			&& (enclosingFunction === activeFrame.callback || enclosingFunction === promiseExecutor)
-		) {
-			if (!(promiseExpression && isExpressionConsumed(promiseExpression))) {
-				detachedCallbacks.add(schedulerCallback);
-			}
+			&& !(promiseExpression && isExpressionConsumed(promiseExpression))) {
+			detachedCallbacks.add(schedulerCallback);
 		}
 
 		const floatingExpression = getFloatingExpression(node);
@@ -558,7 +554,7 @@ export function createLateTestActivity(context, {assertionsOnly = false, message
 				node,
 				callback: boundaryCallback,
 				contextParameter,
-				hasWaitPlan: hasWaitPlan(boundaryCallback, contextParameter, {sourceCode, visitorKeys}),
+				hasWaitPlan: hasWaitPlan(boundaryCallback, contextParameter, sourceCode),
 			});
 			return;
 		}

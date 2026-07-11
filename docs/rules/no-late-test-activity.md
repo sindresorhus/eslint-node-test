@@ -13,9 +13,11 @@ A test finishes when its callback returns or its returned Promise settles. Async
 
 This rule reports test activity inside detached `setTimeout()`, `setImmediate()`, `queueMicrotask()`, and Promise callbacks. Return or await the asynchronous work so the test runner knows when the test is complete.
 
-Callbacks inside a used `new Promise()` are allowed. Tests using `t.plan()` with a statically truthy `wait` option are also allowed because the test runner explicitly waits for the planned activity.
+Callbacks inside a used `new Promise()` are allowed. Tests that call `t.plan()` with a statically truthy `wait` option before other executable statements are also allowed because the test runner explicitly waits for the planned activity.
 
 Callback-style tests and hooks are not checked because their completion depends on when the callback is invoked.
+
+Only directly executed activity in inline callbacks is checked. External callback references and nested helper function bodies are not analyzed.
 
 ## Examples
 
