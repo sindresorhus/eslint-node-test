@@ -17,6 +17,8 @@ test.snapshot({
 		withTest('test(\'parent\', async t => { t?.afterEach(() => {}); await t.test(\'child\', () => {}); });'),
 		withTest('test(\'parent\', t => { t.beforeEach(() => {}); test(\'child\', () => {}); });'),
 		withTest('test(\'parent\', t => { t.afterEach(() => {}); test.todo(\'child\', () => {}); });'),
+		withTest('test(\'parent\', t => { t.afterEach(() => {}); test.expectFailure(\'child\', () => {}); });'),
+		withTest('test(\'parent\', parent => { parent.beforeEach(() => {}); test(\'child\', child => { child.afterEach(() => {}); test(\'grandchild\', () => {}); }); });'),
 		'import test, {it} from \'node:test\';\ntest(\'parent\', t => { t.beforeEach(() => {}); it(\'child\', () => {}); });',
 		'import test, {test as specify} from \'node:test\';\ntest(\'parent\', t => { t.beforeEach(() => {}); specify(\'child\', () => {}); });',
 		'import test, * as nodeTest from \'node:test\';\ntest(\'parent\', t => { t.afterEach(() => {}); nodeTest.test(\'child\', () => {}); });',
@@ -24,6 +26,7 @@ test.snapshot({
 		withTest('test(\'parent\', () => { test(\'child\', {skip: true}, t => { t.beforeEach(() => {}); }); });'),
 		withTest('test.skip(\'skipped\', () => { test(\'child\', t => { t.afterEach(() => {}); }); });'),
 		withTest('test(\'skipped\', {skip: true}, () => { test(\'child\', t => { t.beforeEach(() => {}); }); });'),
+		withTest('test.expectFailure(\'skipped\', {skip: true}, () => { test(\'child\', t => { t.afterEach(() => {}); }); });'),
 		{
 			code: withTest('test(\'parent\', async t => { t.afterEach(() => {}); await (t as object).test(\'child\', () => {}); });'),
 			languageOptions: {parser: parsers.typescript},
@@ -55,6 +58,7 @@ test.snapshot({
 		// Leaf test context hooks.
 		withTest('test(\'leaf\', t => { t.beforeEach(() => {}); });'),
 		withTest('test(\'leaf\', t => { t.afterEach(() => {}); });'),
+		withTest('test.expectFailure(\'leaf\', t => { t.beforeEach(() => {}); });'),
 		withTest('test(\'leaf\', t => { t?.beforeEach(() => {}); });'),
 		withTest('test(\'leaf\', t => { t.beforeEach(() => {}); t.afterEach(() => {}); });'),
 		withTest('test(\'leaf\', (t = undefined) => { t.beforeEach(() => {}); });'),
