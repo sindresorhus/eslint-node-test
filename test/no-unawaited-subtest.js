@@ -35,6 +35,7 @@ test.snapshot({
 		withImport('test("parent", t => { load().then(() => { t.test("child", () => {}); }); });'),
 		withImport('test("parent", t => { new Promise(resolve => { setTimeout(() => { t.test("child", () => {}); resolve(); }); }); });'),
 		withImport('test("parent", t => { void new Promise(resolve => { setTimeout(() => { t.test("child", () => {}); resolve(); }); }); });'),
+		withImport('test("parent", () => { setTimeout(); });'),
 
 	],
 	invalid: [

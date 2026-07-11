@@ -20,7 +20,7 @@ const PROMISE_METHODS = new Set(['then', 'catch', 'finally']);
 const PROMISE_ASSERTION_METHODS = new Set(['rejects', 'doesNotReject']);
 const SCHEDULER_NAMES = new Set(['setTimeout', 'setImmediate', 'queueMicrotask']);
 const TIMER_MODULES = new Set(['node:timers', 'timers']);
-const NON_EXECUTABLE_STATEMENT_TYPES = new Set(['VariableDeclaration', 'FunctionDeclaration', 'EmptyStatement']);
+const WAIT_PLAN_PREFIX_STATEMENT_TYPES = new Set(['VariableDeclaration', 'FunctionDeclaration', 'EmptyStatement']);
 
 const messages = {
 	[MESSAGE_ID]: 'Assertion in a floating `{{method}}()` callback is not awaited by the test. Await or return the Promise chain.',
@@ -41,17 +41,10 @@ function getFloatingExpression(node) {
 	}
 
 	if (parent?.type === 'UnaryExpression' && parent.operator === 'void') {
-		const unaryExpression = parent;
-		parent = parent.parent;
-
-		if (parent?.type === 'ExpressionStatement') {
-			return {
-				expression: unaryExpression.argument,
-				canFix: false,
-			};
-		}
-
-		return undefined;
+		return {
+			expression: parent.argument,
+			canFix: false,
+		};
 	}
 
 	if (parent?.type !== 'ExpressionStatement') {
@@ -257,6 +250,10 @@ function findActivities(node, state) {
 
 	const activities = [];
 	for (const key of visitorKeys[node.type] ?? []) {
+		if (key === 'value' && isDeferredClassField(node)) {
+			continue;
+		}
+
 		const child = node[key];
 		for (const childNode of Array.isArray(child) ? child : [child]) {
 			if (childNode?.type) {
@@ -266,6 +263,10 @@ function findActivities(node, state) {
 	}
 
 	return activities;
+}
+
+function isDeferredClassField(node) {
+	return (node.type === 'PropertyDefinition' || node.type === 'AccessorProperty') && !node.static;
 }
 
 function getPromiseProblems(chainCalls, state, assertionOnly, messageId) {
@@ -310,7 +311,7 @@ function getTimerImports(sourceCode) {
 }
 
 function getSchedulerName(node, timerImports, sourceCode) {
-	const {callee} = node;
+	const callee = unwrapChainExpression(node.callee);
 	if (callee.type === 'Identifier') {
 		const variable = findVariable(sourceCode.getScope(callee), callee);
 		if (SCHEDULER_NAMES.has(callee.name) && (!variable || variable.defs.length === 0)) {
@@ -349,6 +350,45 @@ function getPromiseExpression(node, callback, sourceCode) {
 		) {
 			return current;
 		}
+	}
+
+	return undefined;
+}
+
+function hasUnevaluatedClassFieldBetween(node, boundary) {
+	let child = node;
+	for (let current = node.parent; current && current !== boundary; child = current, current = current.parent) {
+		if (
+			isDeferredClassField(current)
+			&& current.value === child
+		) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+function getDetachedScheduler(node, activeCallback, timerImports, sourceCode) {
+	const scheduler = getSchedulerName(node, timerImports, sourceCode);
+	const callback = unwrapTypeScriptExpression(node.arguments[0]);
+	if (
+		!scheduler
+		|| !callback
+		|| !isFunction(callback)
+		|| hasUnevaluatedClassFieldBetween(node, activeCallback)
+	) {
+		return undefined;
+	}
+
+	const promiseExpression = getPromiseExpression(node, activeCallback, sourceCode);
+	const promiseExecutor = promiseExpression && unwrapTypeScriptExpression(promiseExpression.arguments[0]);
+	const enclosingFunction = getEnclosingFunction(node);
+	if (
+		(enclosingFunction === activeCallback || enclosingFunction === promiseExecutor)
+		&& !(promiseExpression && isExpressionConsumed(promiseExpression))
+	) {
+		return {callback, scheduler};
 	}
 
 	return undefined;
@@ -407,7 +447,7 @@ function hasWaitPlan(callback, contextParameter, sourceCode) {
 	}
 
 	for (const statement of callback.body.body) {
-		if (NON_EXECUTABLE_STATEMENT_TYPES.has(statement.type)) {
+		if (WAIT_PLAN_PREFIX_STATEMENT_TYPES.has(statement.type)) {
 			continue;
 		}
 
@@ -475,7 +515,6 @@ function hasStaticBlockBetween(node, boundary) {
 export function trackDetachedCallbacks(context) {
 	const imports = resolveImports(context);
 	const {sourceCode} = context;
-	const {visitorKeys} = sourceCode;
 	const timerImports = getTimerImports(sourceCode);
 	const detachedCallbacks = new WeakSet();
 	const callbackStack = [];
@@ -499,20 +538,12 @@ export function trackDetachedCallbacks(context) {
 			return;
 		}
 
-		const scheduler = getSchedulerName(node, timerImports, sourceCode);
-		const schedulerCallback = unwrapTypeScriptExpression(node.arguments[0]);
-		const promiseExpression = getPromiseExpression(node, activeFrame.callback, sourceCode);
-		const promiseExecutor = promiseExpression && unwrapTypeScriptExpression(promiseExpression.arguments[0]);
-		const enclosingFunction = getEnclosingFunction(node);
-		if (
-			scheduler
-			&& isFunction(schedulerCallback)
-			&& (enclosingFunction === activeFrame.callback || enclosingFunction === promiseExecutor)
-			&& !(promiseExpression && isExpressionConsumed(promiseExpression))) {
-			detachedCallbacks.add(schedulerCallback);
+		const detachedScheduler = getDetachedScheduler(node, activeFrame.callback, timerImports, sourceCode);
+		if (detachedScheduler) {
+			detachedCallbacks.add(detachedScheduler.callback);
 		}
 
-		const floatingExpression = getFloatingExpression(node);
+		const floatingExpression = hasUnevaluatedClassFieldBetween(node, activeFrame.callback) ? undefined : getFloatingExpression(node);
 		if (!floatingExpression || getEnclosingFunction(node) !== activeFrame.callback) {
 			return;
 		}
@@ -570,28 +601,18 @@ export function createLateTestActivity(context, {assertionsOnly = false, message
 				return;
 			}
 
-			const scheduler = getSchedulerName(node, timerImports, sourceCode);
-			const schedulerCallback = unwrapTypeScriptExpression(node.arguments[0]);
-			const enclosingFunction = getEnclosingFunction(node);
-			const promiseExpression = getPromiseExpression(node, activeCallback, sourceCode);
-			const promiseExecutor = promiseExpression && unwrapTypeScriptExpression(promiseExpression.arguments[0]);
-			if (
-				scheduler
-				&& schedulerCallback
-				&& isFunction(schedulerCallback)
-				&& (enclosingFunction === activeCallback || enclosingFunction === promiseExecutor)
-				&& !(promiseExpression && isExpressionConsumed(promiseExpression))
-			) {
-				return findActivities(schedulerCallback.body, {
+			const detachedScheduler = getDetachedScheduler(node, activeCallback, timerImports, sourceCode);
+			if (detachedScheduler) {
+				return findActivities(detachedScheduler.callback.body, {
 					imports,
 					contextParameters,
 					sourceCode,
 					visitorKeys,
-					boundary: schedulerCallback.body,
+					boundary: detachedScheduler.callback.body,
 				}).map(activity => ({
 					node: activity.node,
 					messageId,
-					data: {activity: activity.type, scheduler: `${scheduler}()`},
+					data: {activity: activity.type, scheduler: `${detachedScheduler.scheduler}()`},
 				}));
 			}
 		}
@@ -600,7 +621,7 @@ export function createLateTestActivity(context, {assertionsOnly = false, message
 			return;
 		}
 
-		const floatingExpression = getFloatingExpression(node);
+		const floatingExpression = hasUnevaluatedClassFieldBetween(node, activeCallback) ? undefined : getFloatingExpression(node);
 		if (!floatingExpression) {
 			return;
 		}

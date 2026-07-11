@@ -3,6 +3,7 @@ import {getTester, parsers} from './utils/test.js';
 const {test} = getTester(import.meta);
 
 const withImport = code => `import test from 'node:test';\nimport assert from 'node:assert/strict';\n${code}`;
+const withTimerNamespaceImport = code => `import test from 'node:test';\nimport assert from 'node:assert/strict';\nimport * as timers from 'node:timers';\n${code}`;
 const inTest = code => withImport(`test('example', () => {\n\t${code}\n});`);
 const inAsyncTest = code => withImport(`test('example', async () => {\n\t${code}\n});`);
 
@@ -11,6 +12,7 @@ test.snapshot({
 		'import assert from \'node:assert/strict\';\nsetTimeout(() => assert.ok(value));',
 		inTest('setTimeout(() => handle(value));'),
 		inTest('setImmediate(externalCallback);'),
+		inTest('setTimeout();'),
 		inTest('queueMicrotask(() => { const check = () => assert.ok(value); check(); });'),
 		inAsyncTest('await load().then(value => assert.ok(value));'),
 		inTest('return load().catch(error => assert.ifError(error));'),
@@ -40,6 +42,14 @@ test.snapshot({
 		inTest('load().then(() => { try { throw error; } catch {} });'),
 		inTest('setTimeout(() => { try { assert.ok(value); } catch {} });'),
 		inTest('load().then(() => { try { assert.ok(value); } catch {} });'),
+		inTest('class Example { value = setTimeout(() => assert.ok(value)); }'),
+		inTest('class Example { value = load().then(() => assert.ok(value)); }'),
+		inTest('setTimeout(() => { class Example { value = assert.ok(value); } });'),
+		inTest('load().then(() => { class Example { value = assert.ok(value); } });'),
+		{
+			code: inTest('class Example { accessor value = setTimeout(() => assert.ok(value)); }'),
+			languageOptions: {parser: parsers.typescript},
+		},
 		'import test from \'node:test\';\nimport assert from \'node:assert/strict\';\nimport {setTimeout as delay} from \'node:timers\';\ntest(\'example\', delay => { delay(() => assert.ok(value)); });',
 		'import test from \'node:test\';\nimport assert from \'node:assert/strict\';\nimport * as timers from \'node:timers\';\ntest(\'example\', timers => { timers.setTimeout(() => assert.ok(value)); });',
 	],
@@ -67,6 +77,10 @@ test.snapshot({
 		'import test from \'node:test\';\nimport {strictEqual as equal} from \'node:assert/strict\';\ntest(\'example\', () => { setTimeout(() => equal(value, 1)); });',
 		inAsyncTest('load().then(value => assert.ok(value));'),
 		inTest('load().catch(error => { throw error; });'),
+		inAsyncTest('return void load().then(() => assert.ok(value));'),
+		inTest('class Example { static value = setTimeout(() => assert.ok(value)); }'),
+		inTest('class Example { [setTimeout(() => assert.ok(value))] = value; }'),
+		inTest('setTimeout(() => { class Example { static value = assert.ok(value); } });'),
 		inTest('setTimeout(() => { try { assert.rejects(load()); } catch {} });'),
 		inTest('new Promise(resolve => { setTimeout(() => { assert.ok(value); resolve(); }); });'),
 		inTest('void new Promise(resolve => { setTimeout(() => { assert.ok(value); resolve(); }); });'),
@@ -76,6 +90,14 @@ test.snapshot({
 		withImport('test(\'parent\', async t => { await t.test(\'child\', childContext => { setTimeout(() => childContext.assert.ok(value)); }); });'),
 		{
 			code: inTest('setTimeout((() => assert.ok(value)) as () => void);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: inTest('(setTimeout as typeof setTimeout)(() => assert.ok(value));'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withTimerNamespaceImport('test(\'example\', () => { (timers.setImmediate as typeof timers.setImmediate)(() => { throw error; }); });'),
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
