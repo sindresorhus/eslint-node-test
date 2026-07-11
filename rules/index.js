@@ -58,6 +58,7 @@ export {default as 'no-unawaited-promise-assertion'} from './no-unawaited-promis
 export {default as 'no-unawaited-rejects'} from './no-unawaited-rejects.js';
 export {default as 'no-unawaited-subtest'} from './no-unawaited-subtest.js';
 export {default as 'no-unknown-test-options'} from './no-unknown-test-options.js';
+export {default as 'no-unneeded-async-rejects-callback'} from './no-unneeded-async-rejects-callback.js';
 export {default as 'no-useless-assertion'} from './no-useless-assertion.js';
 export {default as 'prefer-assert-match'} from './prefer-assert-match.js';
 export {default as 'prefer-assert-throws'} from './prefer-assert-throws.js';
