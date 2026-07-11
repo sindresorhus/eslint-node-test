@@ -69,6 +69,7 @@ test.snapshot({
 		// Cases intentionally not handled by `no-late-test-activity`.
 		withImport('test("parent", t => { setTimeout(() => { function create() { t.test("child", () => {}); } create(); }); });'),
 		withImport('test("parent", t => { function schedule() { setTimeout(() => { t.test("child", () => {}); }); } schedule(); });'),
+		withImport('test("parent", t => { load().then(() => { setTimeout(() => { t.test("child", () => {}); }); }); });'),
 		withImport('test("parent", async t => { await new Promise(resolve => { setTimeout(() => { t.test("child", () => {}); resolve(); }); }); });'),
 		withImport('test("parent", (t, done) => { setTimeout(() => { t.test("child", () => {}); done(); }); });'),
 		withImport('test("parent", (t, done) => { load().then(() => { t.test("child", () => {}); done(); }); });'),
