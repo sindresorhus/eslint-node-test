@@ -14,6 +14,7 @@ test.snapshot({
 		withMock('mock.method(object, \'value\', {getter: false});'),
 		withMock('mock.method(object, \'value\', {setter: false});'),
 		withMock('mock.method(object, \'value\', {getter: enabled});'),
+		withMock('mock.method(object, ...[\'value\', {getter: false}], {getter: true});'),
 
 		// A four-argument call is only unambiguous when the implementation is an inline function.
 		withMock('mock.method(object, \'value\', {setter: true}, {getter: true});'),
@@ -33,8 +34,9 @@ test.snapshot({
 		withMock('mock.method(object, \'value\', {getter: true, get unrelated() { return true; }});'),
 		withMock('mock.method(object, \'value\', {__proto__: {setter: true}, getter: true});'),
 
-		// Computed option keys are intentionally ignored.
+		// Computed option keys can override the literal accessor option.
 		withMock('mock.method(object, \'value\', {[\'getter\']: true});'),
+		withMock('mock.method(object, \'value\', {getter: true, [\'getter\']: false});'),
 
 		// Shadowed mock imports are ignored.
 		withMock('const fn = mock => mock.method(object, \'value\', {getter: true});'),

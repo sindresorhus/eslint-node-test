@@ -18,7 +18,7 @@ function unwrapChainExpression(node) {
 }
 
 function getPropertyName(property) {
-	if (property.type !== 'Property' || property.computed) {
+	if (property.type !== 'Property') {
 		return undefined;
 	}
 
@@ -34,7 +34,7 @@ function getEnabledAccessor(options) {
 
 	for (let index = options.properties.length - 1; index >= 0; index -= 1) {
 		const property = options.properties[index];
-		if (property.type === 'SpreadElement') {
+		if (property.type === 'SpreadElement' || property.computed) {
 			return undefined;
 		}
 
@@ -74,6 +74,10 @@ function getEnabledAccessor(options) {
 }
 
 function getOptions(callExpression) {
+	if (callExpression.arguments.some(argument => argument.type === 'SpreadElement')) {
+		return undefined;
+	}
+
 	if (callExpression.arguments.length !== 3 && callExpression.arguments.length !== 4) {
 		return undefined;
 	}
