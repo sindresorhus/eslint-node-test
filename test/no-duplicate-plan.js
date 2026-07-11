@@ -27,6 +27,7 @@ test.snapshot({
 
 		// Skipped test callbacks do not run
 		withImport('test.skip("x", t => { t.plan(1); t.plan(2); });'),
+		'import {skip} from \'node:test\';\nskip("x", t => { t.plan(1); t.plan(2); });',
 		withImport('test("x", {skip: true}, t => { t.plan(1); t.plan(2); });'),
 		withImport('test("x", {"skip": true}, t => { t.plan(1); t.plan(2); });'),
 		withImport('test("x", {skip: "reason"}, t => { t.plan(1); t.plan(2); });'),

@@ -151,7 +151,6 @@ function collectFromImport(node, bindings) {
 				bindings.locals.set(localName, 'test');
 				bindings.namespace = localName;
 			} else if (TEST_MODIFIER_EXPORTS.has(importedName)) {
-				bindings.locals.set(localName, 'test');
 				bindings.testModifierLocals.set(localName, importedName);
 			} else if (ALL_TEST_EXPORTS.has(importedName)) {
 				bindings.locals.set(localName, importedName);
@@ -202,7 +201,7 @@ function scanImports(context) {
 
 	const {locals, namespace, assertNamespace, assertNamed} = bindings;
 	// The file imports test/suite/hook bindings from `node:test`.
-	const isTestFile = locals.size > 0 || namespace !== undefined;
+	const isTestFile = locals.size > 0 || namespace !== undefined || bindings.testModifierLocals.size > 0;
 	// The file imports anything from `node:assert`.
 	const hasAssert = assertNamespace.size > 0 || assertNamed.size > 0;
 	return {

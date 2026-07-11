@@ -27,6 +27,7 @@ test.snapshot({
 		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'t\', t => { assert.register(\'custom\', () => {}); t.assert.register(\'custom\', () => {}); });',
 		withTest('custom.snapshot.setDefaultSnapshotSerializers([]);'),
 		withTest('custom.assert.register(\'custom\', () => {});'),
+		'import {only} from \'node:test\';\nonly(\'t\', () => { only.snapshot.setResolveSnapshotPath(path => path); });',
 
 		// Computed properties and destructured aliases are intentionally ignored.
 		withTest('snapshot[\'setDefaultSnapshotSerializers\']([]);'),

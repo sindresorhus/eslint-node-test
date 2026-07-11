@@ -72,8 +72,8 @@ function hasEnabledSkipOption(node, sourceCode) {
 	return staticValue !== null && Boolean(staticValue.value);
 }
 
-function isSkippedTestCall(node, sourceCode) {
-	return hasSkipModifier(node.callee) || hasEnabledSkipOption(node, sourceCode);
+function isSkippedTestCall(node, parsed, sourceCode) {
+	return hasSkipModifier(node.callee) || parsed?.modifiers.some(modifier => modifier.name === 'skip') || hasEnabledSkipOption(node, sourceCode);
 }
 
 function hasEnabledPlanOption(node, sourceCode) {
@@ -126,7 +126,7 @@ const create = context => {
 		const isTest = isImportedTestCall || isSubtestCall(node);
 
 		if (isTest) {
-			if (isSkippedTestCall(node, sourceCode)) {
+			if (isSkippedTestCall(node, parsed, sourceCode)) {
 				const callback = getTestCallback(node);
 				if (callback) {
 					skippedCallbacks.add(callback);
