@@ -11,6 +11,8 @@
 
 A statically skipped child, such as one with `{skip: true}`, does not count as runnable.
 
+The rule also ignores callbacks of statically skipped tests and suites, because Node does not execute them.
+
 This rule recognizes only direct calls to context hooks, `t.test()`, and imported test functions made directly in inline test callback bodies. It does not trace helper calls, nested suites, runtime conditions, or whether a hook was registered before a subtest ran.
 
 > [!NOTE]
