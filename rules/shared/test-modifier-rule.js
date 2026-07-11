@@ -50,11 +50,12 @@ export default function createTestModifierRule({modifier, description, errorMess
 				const memberExpression = modifierNode.parent;
 				const previousToken = sourceCode.getTokenBefore(modifierNode);
 				const nextToken = sourceCode.getTokenAfter(previousToken, {includeComments: true});
+				const modifierRange = sourceCode.getRange(modifierNode);
 				const suggest = memberExpression?.type === 'MemberExpression'
 					&& !memberExpression.computed
 					&& memberExpression.property === modifierNode
 					&& previousToken.value === '.'
-					&& nextToken.range[0] === modifierNode.range[0]
+					&& sourceCode.getRange(nextToken)[0] === modifierRange[0]
 					? [
 						{
 							messageId: MESSAGE_ID_SUGGESTION,

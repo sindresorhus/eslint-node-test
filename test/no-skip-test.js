@@ -18,6 +18,7 @@ test.snapshot({
 		'import test from "node:test";\nfoo.skip();',
 		// `expectFailure` does not have test modifiers.
 		'import {expectFailure} from "node:test";\nexpectFailure.skip("title", () => {});',
+		'import test from "node:test";\ntest.expectFailure.skip("title", () => {});',
 	],
 	invalid: [
 		'import test from "node:test";\ntest.skip("title", () => {});',

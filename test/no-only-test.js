@@ -21,6 +21,7 @@ test.snapshot({
 		'import test from "node:test";\nfoo.only();',
 		// `expectFailure` does not have test modifiers.
 		'import {expectFailure} from "node:test";\nexpectFailure.only("title", () => {});',
+		'import test from "node:test";\ntest.expectFailure.only("title", () => {});',
 	],
 	invalid: [
 		'import test from "node:test";\ntest.only("title", () => {});',
