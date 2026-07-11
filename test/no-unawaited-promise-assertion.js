@@ -90,6 +90,7 @@ test.snapshot({
 
 		// Chained callbacks.
 		inAsyncTest('load().then(value => { assert.strictEqual(value, 42); }).catch(error => { assert.ifError(error); });'),
+		inAsyncTest('load().then(value => { assert.ok(value); assert.strictEqual(value, 42); });'),
 
 		// Optional chaining.
 		inAsyncTest('promise?.then(value => { assert.strictEqual(value, 42); });'),

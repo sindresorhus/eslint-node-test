@@ -1,0 +1,55 @@
+# no-late-test-activity
+
+📝 Disallow test activity inside detached asynchronous callbacks.
+
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-node-test#preset-configs): ✅ `recommended`, ☑️ `unopinionated`.
+
+🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
+
+<!-- end auto-generated rule header -->
+<!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
+
+A test finishes when its callback returns or its returned Promise settles. Asynchronous activity started by the test can continue afterward, causing assertions, thrown errors, and subtests to be reported separately from the test that created them.
+
+This rule reports test activity inside detached `setTimeout()`, `setImmediate()`, `queueMicrotask()`, and Promise callbacks. Return or await the asynchronous work so the test runner knows when the test is complete.
+
+Callbacks inside a used `new Promise()` are allowed. Tests using `t.plan()` with a statically truthy `wait` option are also allowed because the test runner explicitly waits for the planned activity.
+
+Callback-style tests and hooks are not checked because their completion depends on when the callback is invoked.
+
+## Examples
+
+```js
+import test from 'node:test';
+import assert from 'node:assert/strict';
+
+// ❌
+test('loads', () => {
+	setTimeout(() => {
+		assert.ok(loaded);
+	}, 10);
+});
+
+// ❌
+test('loads', () => {
+	load().then(value => {
+		assert.equal(value, 42);
+	});
+});
+
+// ✅
+test('loads', async () => {
+	const value = await load();
+	assert.equal(value, 42);
+});
+
+// ✅
+test('loads', async () => {
+	await new Promise(resolve => {
+		setTimeout(() => {
+			assert.ok(loaded);
+			resolve();
+		}, 10);
+	});
+});
+```

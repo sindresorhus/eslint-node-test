@@ -36,6 +36,7 @@ export {default as 'no-identical-assertion-arguments'} from './no-identical-asse
 export {default as 'no-identical-title'} from './no-identical-title.js';
 export {default as 'no-incorrect-deep-equal'} from './no-incorrect-deep-equal.js';
 export {default as 'no-incorrect-strict-equal'} from './no-incorrect-strict-equal.js';
+export {default as 'no-late-test-activity'} from './no-late-test-activity.js';
 export {default as 'no-loop-static-title'} from './no-loop-static-title.js';
 export {default as 'no-misused-concurrency'} from './no-misused-concurrency.js';
 export {default as 'no-mock-timers-destructured-import'} from './no-mock-timers-destructured-import.js';

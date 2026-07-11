@@ -1,11 +1,14 @@
-import {findVariable} from '@eslint-community/eslint-utils';
+import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
 import {
 	resolveImports,
 	parseTestCall,
 	getTestCallback,
+	getHookCallback,
+	getEffectiveArity,
 	parseAssertionCall,
 	getSubtestReceiver,
 	getCalleeChain,
+	isHookMemberTestCall,
 	MODIFIERS,
 } from './utils/node-test.js';
 import {isFunction} from './ast/index.js';
@@ -14,6 +17,9 @@ import {getEnclosingFunction, unwrapTypeScriptExpression, isTypeScriptExpression
 const MESSAGE_ID = 'no-unawaited-promise-assertion';
 
 const PROMISE_METHODS = new Set(['then', 'catch', 'finally']);
+const PROMISE_ASSERTION_METHODS = new Set(['rejects', 'doesNotReject']);
+const SCHEDULER_NAMES = new Set(['setTimeout', 'setImmediate', 'queueMicrotask']);
+const TIMER_MODULES = new Set(['node:timers', 'timers']);
 
 const messages = {
 	[MESSAGE_ID]: 'Assertion in a floating `{{method}}()` callback is not awaited by the test. Await or return the Promise chain.',
@@ -195,7 +201,22 @@ function parseScopedAssertionCall(node, imports, contextParameters, sourceCode) 
 	return importedAssertReference && isImportBinding(importedAssertReference, sourceCode) ? parsed : undefined;
 }
 
-function findAssertion(node, state) {
+function isInsideHandledTryBlock(node, boundary) {
+	let child = node;
+	for (let parent = node.parent; parent && child !== boundary; child = parent, parent = parent.parent) {
+		if (
+			parent.type === 'TryStatement'
+			&& parent.block === child
+			&& parent.handler
+		) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+function findActivities(node, state) {
 	const {
 		imports,
 		contextParameters,
@@ -205,58 +226,225 @@ function findAssertion(node, state) {
 
 	node = unwrapTypeScriptExpression(node);
 	if (!node) {
-		return undefined;
+		return [];
 	}
 
 	if (isFunction(node)) {
-		return undefined;
+		return [];
 	}
 
-	if (
-		node.type === 'CallExpression'
-		&& parseScopedAssertionCall(node, imports, contextParameters, sourceCode)
-	) {
-		return node;
+	if (node.type === 'CallExpression') {
+		const assertion = parseScopedAssertionCall(node, imports, contextParameters, sourceCode);
+		if (
+			assertion
+			&& (
+				PROMISE_ASSERTION_METHODS.has(assertion.method)
+				|| !isInsideHandledTryBlock(node, state.boundary)
+			)
+		) {
+			return [{node, type: 'Assertion'}];
+		}
 	}
 
+	if (node.type === 'CallExpression' && isTrackedSubtestCall(node, contextParameters, sourceCode)) {
+		return [{node, type: 'Subtest'}];
+	}
+
+	if (node.type === 'ThrowStatement' && !isInsideHandledTryBlock(node, state.boundary)) {
+		return [{node, type: 'Throw'}];
+	}
+
+	const activities = [];
 	for (const key of visitorKeys[node.type] ?? []) {
 		const child = node[key];
 		for (const childNode of Array.isArray(child) ? child : [child]) {
-			const assertion = childNode?.type && findAssertion(childNode, state);
-			if (assertion) {
-				return assertion;
+			if (childNode?.type) {
+				activities.push(...findActivities(childNode, state));
 			}
+		}
+	}
+
+	return activities;
+}
+
+function getPromiseProblems(chainCalls, state, assertionOnly, messageId) {
+	return chainCalls.flatMap(call => getPromiseCallbackArguments(call).flatMap(callback => {
+		let activities = findActivities(callback.body, {...state, boundary: callback.body})
+			.filter(activity => !assertionOnly || activity.type === 'Assertion');
+		if (assertionOnly) {
+			activities = activities.slice(0, 1);
+		}
+
+		return activities.map(activity => ({
+			node: activity.node,
+			messageId,
+			data: {method: call.method, activity: activity.type, scheduler: `${call.method}()`},
+		}));
+	}));
+}
+
+function getTimerImports(sourceCode) {
+	const named = new Map();
+	const namespaces = new Set();
+
+	for (const node of sourceCode.ast.body) {
+		if (node.type !== 'ImportDeclaration' || !TIMER_MODULES.has(node.source.value)) {
+			continue;
+		}
+
+		for (const specifier of node.specifiers) {
+			if (
+				specifier.type === 'ImportSpecifier'
+				&& specifier.imported.type === 'Identifier'
+				&& SCHEDULER_NAMES.has(specifier.imported.name)
+			) {
+				named.set(specifier.local.name, specifier.imported.name);
+			} else if (specifier.type === 'ImportNamespaceSpecifier') {
+				namespaces.add(specifier.local.name);
+			}
+		}
+	}
+
+	return {named, namespaces};
+}
+
+function getSchedulerName(node, timerImports, sourceCode) {
+	const {callee} = node;
+	if (callee.type === 'Identifier') {
+		const variable = findVariable(sourceCode.getScope(callee), callee);
+		if (SCHEDULER_NAMES.has(callee.name) && (!variable || variable.defs.length === 0)) {
+			return callee.name;
+		}
+
+		if (timerImports.named.has(callee.name) && variable?.defs.some(definition => definition.type === 'ImportBinding')) {
+			return timerImports.named.get(callee.name);
+		}
+	}
+
+	if (
+		callee.type === 'MemberExpression'
+		&& !callee.computed
+		&& callee.object.type === 'Identifier'
+		&& callee.property.type === 'Identifier'
+		&& SCHEDULER_NAMES.has(callee.property.name)
+		&& timerImports.namespaces.has(callee.object.name)
+	) {
+		const variable = findVariable(sourceCode.getScope(callee.object), callee.object);
+		if (variable?.defs.some(definition => definition.type === 'ImportBinding')) {
+			return callee.property.name;
 		}
 	}
 
 	return undefined;
 }
 
-function getAssertionProblems(chainCalls, state) {
-	return chainCalls.flatMap(call => getPromiseCallbackArguments(call).flatMap(callback => {
-		const assertion = findAssertion(callback.body, state);
-		if (!assertion) {
-			return [];
+function getPromiseExpression(node, callback, sourceCode) {
+	for (let current = node.parent; current && current !== callback; current = current.parent) {
+		if (
+			current.type === 'NewExpression'
+			&& current.callee.type === 'Identifier'
+			&& current.callee.name === 'Promise'
+			&& (findVariable(sourceCode.getScope(current.callee), current.callee)?.defs.length ?? 0) === 0
+		) {
+			return current;
+		}
+	}
+
+	return undefined;
+}
+
+function isExpressionConsumed(node) {
+	while (node.parent) {
+		const {parent} = node;
+		if (
+			parent.type === 'ChainExpression'
+			|| isTypeScriptExpressionWrapper(parent)
+			|| (parent.type === 'MemberExpression' && parent.object === node)
+			|| (parent.type === 'CallExpression' && parent.callee === node)
+		) {
+			node = parent;
+			continue;
 		}
 
-		return [{
-			node: assertion,
-			messageId: MESSAGE_ID,
-			data: {
-				method: call.method,
-			},
-		}];
-	}));
+		break;
+	}
+
+	return node.parent?.type !== 'ExpressionStatement'
+		&& !(node.parent?.type === 'UnaryExpression' && node.parent.operator === 'void');
+}
+
+function hasStaticallyTruthyWaitOption(node, sourceCode) {
+	node = unwrapTypeScriptExpression(node);
+	if (node?.type !== 'ObjectExpression') {
+		return false;
+	}
+
+	for (let index = node.properties.length - 1; index >= 0; index -= 1) {
+		const property = node.properties[index];
+		if (property.type === 'SpreadElement') {
+			return false;
+		}
+
+		if (
+			property.type === 'Property'
+			&& !property.computed
+			&& (
+				(property.key.type === 'Identifier' && property.key.name === 'wait')
+				|| (property.key.type === 'Literal' && property.key.value === 'wait')
+			)
+		) {
+			return Boolean(getStaticValue(property.value, sourceCode.getScope(property.value))?.value);
+		}
+	}
+
+	return false;
+}
+
+function hasWaitPlan(callback, contextParameter, state) {
+	if (!contextParameter) {
+		return false;
+	}
+
+	const {sourceCode, visitorKeys} = state;
+	const visit = node => {
+		if (isFunction(node) && node !== callback) {
+			return false;
+		}
+
+		if (
+			node.type === 'CallExpression'
+			&& node.callee.type === 'MemberExpression'
+			&& !node.callee.computed
+			&& node.callee.object.type === 'Identifier'
+			&& node.callee.property.type === 'Identifier'
+			&& node.callee.property.name === 'plan'
+			&& isSameVariable(node.callee.object, contextParameter, sourceCode)
+		) {
+			return hasStaticallyTruthyWaitOption(node.arguments[1], sourceCode);
+		}
+
+		return (visitorKeys[node.type] ?? []).some(key => {
+			const child = node[key];
+			return (Array.isArray(child) ? child : [child]).some(childNode => childNode?.type && visit(childNode));
+		});
+	};
+
+	return visit(callback.body);
+}
+
+function isSameVariable(identifier, declaration, sourceCode) {
+	return findVariable(sourceCode.getScope(identifier), identifier)?.identifiers.includes(declaration) === true;
 }
 
 function getTestBoundaryCallback(node, imports, contextParameters, sourceCode) {
 	const parsed = parseTestCall(node, imports);
 	if (parsed) {
-		if (parsed.kind !== 'test' && parsed.kind !== 'hook') {
+		const isHook = parsed.kind === 'hook' || isHookMemberTestCall(parsed);
+		if (parsed.kind !== 'test' && !isHook) {
 			return undefined;
 		}
 
-		if (!hasOnlyTestModifiers(parsed)) {
+		if (!isHook && !hasOnlyTestModifiers(parsed)) {
 			return undefined;
 		}
 
@@ -264,10 +452,16 @@ function getTestBoundaryCallback(node, imports, contextParameters, sourceCode) {
 			return undefined;
 		}
 
-		return getTestCallback(node);
+		const callback = isHook ? getHookCallback(node) : getTestCallback(node);
+		return callback && getEffectiveArity(callback.params) < 2 ? callback : undefined;
 	}
 
-	return isTrackedSubtestCall(node, contextParameters, sourceCode) ? getTestCallback(node) : undefined;
+	if (!isTrackedSubtestCall(node, contextParameters, sourceCode)) {
+		return undefined;
+	}
+
+	const callback = getTestCallback(node);
+	return callback && getEffectiveArity(callback.params) < 2 ? callback : undefined;
 }
 
 function hasStaticBlockBetween(node, boundary) {
@@ -280,8 +474,70 @@ function hasStaticBlockBetween(node, boundary) {
 	return false;
 }
 
-/** @param {import('eslint').Rule.RuleContext} context */
-const create = context => {
+export function trackDetachedCallbacks(context) {
+	const imports = resolveImports(context);
+	const {sourceCode} = context;
+	const {visitorKeys} = sourceCode;
+	const timerImports = getTimerImports(sourceCode);
+	const detachedCallbacks = new WeakSet();
+	const callbackStack = [];
+
+	context.on('CallExpression', node => {
+		const contextParameters = callbackStack.map(frame => frame.contextParameter).filter(Boolean);
+		const boundaryCallback = getTestBoundaryCallback(node, imports, contextParameters, sourceCode);
+		if (boundaryCallback) {
+			const contextParameter = getContextParameter(boundaryCallback);
+			callbackStack.push({
+				node,
+				callback: boundaryCallback,
+				contextParameter,
+				hasWaitPlan: hasWaitPlan(boundaryCallback, contextParameter, {sourceCode, visitorKeys}),
+			});
+			return;
+		}
+
+		const activeFrame = callbackStack.at(-1);
+		if (!activeFrame || activeFrame.hasWaitPlan) {
+			return;
+		}
+
+		const scheduler = getSchedulerName(node, timerImports, sourceCode);
+		const schedulerCallback = unwrapTypeScriptExpression(node.arguments[0]);
+		const promiseExpression = getPromiseExpression(node, activeFrame.callback, sourceCode);
+		const promiseExecutor = promiseExpression && unwrapTypeScriptExpression(promiseExpression.arguments[0]);
+		const enclosingFunction = getEnclosingFunction(node);
+		if (
+			scheduler
+			&& isFunction(schedulerCallback)
+			&& (enclosingFunction === activeFrame.callback || enclosingFunction === promiseExecutor)
+		) {
+			if (!(promiseExpression && isExpressionConsumed(promiseExpression))) {
+				detachedCallbacks.add(schedulerCallback);
+			}
+		}
+
+		const floatingExpression = getFloatingExpression(node);
+		if (!floatingExpression || getEnclosingFunction(node) !== activeFrame.callback) {
+			return;
+		}
+
+		for (const call of getPromiseChainCalls(floatingExpression.expression)) {
+			for (const callback of getPromiseCallbackArguments(call)) {
+				detachedCallbacks.add(callback);
+			}
+		}
+	});
+
+	context.onExit('CallExpression', node => {
+		if (callbackStack.at(-1)?.node === node) {
+			callbackStack.pop();
+		}
+	});
+
+	return node => detachedCallbacks.has(getEnclosingFunction(node));
+}
+
+export function createLateTestActivity(context, {assertionsOnly = false, messageId = MESSAGE_ID} = {}) {
 	const imports = resolveImports(context);
 	if (!imports.isTestFile) {
 		return;
@@ -289,6 +545,7 @@ const create = context => {
 
 	const {sourceCode} = context;
 	const {visitorKeys} = sourceCode;
+	const timerImports = getTimerImports(sourceCode);
 	const callbackStack = [];
 
 	context.on('CallExpression', node => {
@@ -296,16 +553,54 @@ const create = context => {
 		const boundaryCallback = getTestBoundaryCallback(node, imports, contextParameters, sourceCode);
 
 		if (boundaryCallback) {
+			const contextParameter = getContextParameter(boundaryCallback);
 			callbackStack.push({
 				node,
 				callback: boundaryCallback,
-				contextParameter: getContextParameter(boundaryCallback),
+				contextParameter,
+				hasWaitPlan: hasWaitPlan(boundaryCallback, contextParameter, {sourceCode, visitorKeys}),
 			});
 			return;
 		}
 
-		const activeCallback = callbackStack.at(-1)?.callback;
-		if (!activeCallback || getEnclosingFunction(node) !== activeCallback) {
+		const activeFrame = callbackStack.at(-1);
+		const activeCallback = activeFrame?.callback;
+		if (!activeCallback) {
+			return;
+		}
+
+		if (!assertionsOnly) {
+			if (activeFrame.hasWaitPlan) {
+				return;
+			}
+
+			const scheduler = getSchedulerName(node, timerImports, sourceCode);
+			const schedulerCallback = unwrapTypeScriptExpression(node.arguments[0]);
+			const enclosingFunction = getEnclosingFunction(node);
+			const promiseExpression = getPromiseExpression(node, activeCallback, sourceCode);
+			const promiseExecutor = promiseExpression && unwrapTypeScriptExpression(promiseExpression.arguments[0]);
+			if (
+				scheduler
+				&& schedulerCallback
+				&& isFunction(schedulerCallback)
+				&& (enclosingFunction === activeCallback || enclosingFunction === promiseExecutor)
+				&& !(promiseExpression && isExpressionConsumed(promiseExpression))
+			) {
+				return findActivities(schedulerCallback.body, {
+					imports,
+					contextParameters,
+					sourceCode,
+					visitorKeys,
+					boundary: schedulerCallback.body,
+				}).map(activity => ({
+					node: activity.node,
+					messageId,
+					data: {activity: activity.type, scheduler: `${scheduler}()`},
+				}));
+			}
+		}
+
+		if (getEnclosingFunction(node) !== activeCallback) {
 			return;
 		}
 
@@ -319,12 +614,12 @@ const create = context => {
 			return;
 		}
 
-		const problems = getAssertionProblems(chainCalls, {
+		const problems = getPromiseProblems(chainCalls, {
 			imports,
 			contextParameters,
 			sourceCode,
 			visitorKeys,
-		});
+		}, assertionsOnly, messageId);
 		if (problems.length === 0) {
 			return;
 		}
@@ -345,6 +640,11 @@ const create = context => {
 			callbackStack.pop();
 		}
 	});
+}
+
+/** @param {import('eslint').Rule.RuleContext} context */
+const create = context => {
+	createLateTestActivity(context, {assertionsOnly: true});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
@@ -354,9 +654,13 @@ const config = {
 		type: 'problem',
 		docs: {
 			description: 'Disallow assertions inside unawaited Promise callbacks.',
-			recommended: 'unopinionated',
+			recommended: false,
 		},
 		fixable: 'code',
+		deprecated: {
+			message: 'Use `no-late-test-activity` instead.',
+			replacedBy: ['no-late-test-activity'],
+		},
 		schema: [],
 		messages,
 		languages: ['js/js'],

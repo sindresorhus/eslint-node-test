@@ -31,6 +31,11 @@ test.snapshot({
 
 		// Renamed context parameter, awaited
 		withImport('test("parent", async context => { await context.test("child", () => {}); });'),
+		withImport('test("parent", t => { setTimeout(() => { t.test("child", () => {}); }); });'),
+		withImport('test("parent", t => { load().then(() => { t.test("child", () => {}); }); });'),
+		withImport('test("parent", t => { new Promise(resolve => { setTimeout(() => { t.test("child", () => {}); resolve(); }); }); });'),
+		withImport('test("parent", t => { void new Promise(resolve => { setTimeout(() => { t.test("child", () => {}); resolve(); }); }); });'),
+
 	],
 	invalid: [
 		// Floating subtest in an async parent — autofixable
@@ -59,5 +64,13 @@ test.snapshot({
 			code: withImport('test("parent", async (t: any) => { t.test("child", () => {}); });'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// Cases intentionally not handled by `no-late-test-activity`.
+		withImport('test("parent", t => { setTimeout(() => { function create() { t.test("child", () => {}); } create(); }); });'),
+		withImport('test("parent", t => { function schedule() { setTimeout(() => { t.test("child", () => {}); }); } schedule(); });'),
+		withImport('test("parent", async t => { await new Promise(resolve => { setTimeout(() => { t.test("child", () => {}); resolve(); }); }); });'),
+		withImport('test("parent", (t, done) => { setTimeout(() => { t.test("child", () => {}); done(); }); });'),
+		withImport('test("parent", (t, done) => { load().then(() => { t.test("child", () => {}); done(); }); });'),
+		withImport('test("parent", t => { t.plan(1, {wait: true}); setTimeout(() => { t.test("child", () => {}); t.assert.ok(true); }); });'),
 	],
 });

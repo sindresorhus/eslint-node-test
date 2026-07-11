@@ -18,6 +18,86 @@ Output:
 
 `;
 
+exports[`no-unawaited-subtest > invalid(10): import test from 'node:test';\ntest(\"parent\", t => { function schedule() { setTimeout(() => { t.test(\"child\", () => {}); }); } schedule(); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("parent", t => { function schedule() { setTimeout(() => { t.test("child", () => {}); }); } schedule(); });
+
+`;
+
+exports[`no-unawaited-subtest > invalid(10): import test from 'node:test';\ntest(\"parent\", t => { function schedule() { setTimeout(() => { t.test(\"child\", () => {}); }); } schedule(); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("parent", t => { function schedule() { setTimeout(() => { t.test("child", () => {}); }); } schedule(); });
+    |                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, otherwise it is cancelled when the parent test finishes.
+
+`;
+
+exports[`no-unawaited-subtest > invalid(11): import test from 'node:test';\ntest(\"parent\", async t => { await new Promise(resolve => { setTimeout(() => { t.test(\"child\", () => {}); resolve(); }); }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("parent", async t => { await new Promise(resolve => { setTimeout(() => { t.test("child", () => {}); resolve(); }); }); });
+
+`;
+
+exports[`no-unawaited-subtest > invalid(11): import test from 'node:test';\ntest(\"parent\", async t => { await new Promise(resolve => { setTimeout(() => { t.test(\"child\", () => {}); resolve(); }); }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("parent", async t => { await new Promise(resolve => { setTimeout(() => { t.test("child", () => {}); resolve(); }); }); });
+    |                                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, otherwise it is cancelled when the parent test finishes.
+
+`;
+
+exports[`no-unawaited-subtest > invalid(12): import test from 'node:test';\ntest(\"parent\", (t, done) => { setTimeout(() => { t.test(\"child\", () => {}); done(); }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("parent", (t, done) => { setTimeout(() => { t.test("child", () => {}); done(); }); });
+
+`;
+
+exports[`no-unawaited-subtest > invalid(12): import test from 'node:test';\ntest(\"parent\", (t, done) => { setTimeout(() => { t.test(\"child\", () => {}); done(); }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("parent", (t, done) => { setTimeout(() => { t.test("child", () => {}); done(); }); });
+    |                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, otherwise it is cancelled when the parent test finishes.
+
+`;
+
+exports[`no-unawaited-subtest > invalid(13): import test from 'node:test';\ntest(\"parent\", (t, done) => { load().then(() => { t.test(\"child\", () => {}); done(); }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("parent", (t, done) => { load().then(() => { t.test("child", () => {}); done(); }); });
+
+`;
+
+exports[`no-unawaited-subtest > invalid(13): import test from 'node:test';\ntest(\"parent\", (t, done) => { load().then(() => { t.test(\"child\", () => {}); done(); }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("parent", (t, done) => { load().then(() => { t.test("child", () => {}); done(); }); });
+    |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, otherwise it is cancelled when the parent test finishes.
+
+`;
+
+exports[`no-unawaited-subtest > invalid(14): import test from 'node:test';\ntest(\"parent\", t => { t.plan(1, {wait: true}); setTimeout(() => { t.test(\"child\", () => {}); t.assert.ok(true); }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("parent", t => { t.plan(1, {wait: true}); setTimeout(() => { t.test("child", () => {}); t.assert.ok(true); }); });
+
+`;
+
+exports[`no-unawaited-subtest > invalid(14): import test from 'node:test';\ntest(\"parent\", t => { t.plan(1, {wait: true}); setTimeout(() => { t.test(\"child\", () => {}); t.assert.ok(true); }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("parent", t => { t.plan(1, {wait: true}); setTimeout(() => { t.test("child", () => {}); t.assert.ok(true); }); });
+    |                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, otherwise it is cancelled when the parent test finishes.
+
+`;
+
 exports[`no-unawaited-subtest > invalid(2): import test from 'node:test';\ntest(\"parent\", t => { t.test(\"child\", () => {}); }); 1`] = `
 
   1 | import test from 'node:test';
@@ -167,5 +247,21 @@ Message:
 Output:
   1 | import test from 'node:test';
   2 | test("parent", async (t: any) => { await t.test("child", () => {}); });
+
+`;
+
+exports[`no-unawaited-subtest > invalid(9): import test from 'node:test';\ntest(\"parent\", t => { setTimeout(() => { function create() { t.test(\"child\", () => {}); } create(); }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("parent", t => { setTimeout(() => { function create() { t.test("child", () => {}); } create(); }); });
+
+`;
+
+exports[`no-unawaited-subtest > invalid(9): import test from 'node:test';\ntest(\"parent\", t => { setTimeout(() => { function create() { t.test(\"child\", () => {}); } create(); }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("parent", t => { setTimeout(() => { function create() { t.test("child", () => {}); } create(); }); });
+    |                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, otherwise it is cancelled when the parent test finishes.
 
 `;
