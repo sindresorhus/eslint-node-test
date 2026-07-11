@@ -17,11 +17,13 @@ test.snapshot({
 		'import value from \'./test/.helper.js\';',
 		'import value from \'./.fixtures/test/helper.js\';',
 		'import value from \'./test/%2e%2e/value.js\';',
+		'import \'./TEST.js\';',
+		'import \'./TEST/helper.js\';',
 		String.raw`import '.\\test\\helpers.js';`,
 		String.raw`import '..\\example.test.js';`,
 		{
-			code: 'import \'./example.test.ts\';',
-			languageOptions: {parser: parsers.typescript},
+			code: 'import \'./helper.js\';',
+			filename: 'source/parent.js',
 		},
 		'import value from \'/project/test/value.js\';',
 		'import value from \'file:///project/test/value.js\';',
@@ -31,27 +33,22 @@ test.snapshot({
 		'import(\'./value.test.js\' + suffix);',
 		{
 			code: 'import type {Value} from \'./value.test.ts\';',
-			options: [{extensions: ['js', 'mjs', 'cjs', 'ts', 'mts', 'cts']}],
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
 			code: 'import {type Value} from \'./value.test.ts\';',
-			options: [{extensions: ['js', 'mjs', 'cjs', 'ts', 'mts', 'cts']}],
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
 			code: 'export type {Value} from \'./value.test.ts\';',
-			options: [{extensions: ['js', 'mjs', 'cjs', 'ts', 'mts', 'cts']}],
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
 			code: 'export {type Value} from \'./value.test.ts\';',
-			options: [{extensions: ['js', 'mjs', 'cjs', 'ts', 'mts', 'cts']}],
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
 			code: 'export type * from \'./value.test.ts\';',
-			options: [{extensions: ['js', 'mjs', 'cjs', 'ts', 'mts', 'cts']}],
 			languageOptions: {parser: parsers.typescript},
 		},
 		...validCaseSensitiveTestFiles,
@@ -69,6 +66,14 @@ test.snapshot({
 		'import \'./example.%74est.js\';',
 		'import \'./node_modules/%2e%2e/test/helpers.js\';',
 		'import \'./test/helpers.js?direct#source\';',
+		{
+			code: 'import \'./helper.js\';',
+			filename: 'test/parent.test.js',
+		},
+		{
+			code: 'import \'../helper.js\';',
+			filename: 'test/nested/parent.test.js',
+		},
 		'import(`./example.test.js`);',
 		'import(`./example_test.js`);',
 		'import(`./example-test.js`);',
@@ -76,7 +81,14 @@ test.snapshot({
 		'export * from \'./example.test.js\';',
 		{
 			code: 'import \'./example.test.ts\';',
-			options: [{extensions: ['js', 'mjs', 'cjs', 'ts', 'mts', 'cts']}],
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import \'./example.test.mts\';',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import \'./example.test.cts\';',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
@@ -85,12 +97,10 @@ test.snapshot({
 		},
 		{
 			code: 'import {type Value, value} from \'./example.test.ts\';',
-			options: [{extensions: ['js', 'mjs', 'cjs', 'ts', 'mts', 'cts']}],
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
 			code: 'export {type Value, value} from \'./example.test.ts\';',
-			options: [{extensions: ['js', 'mjs', 'cjs', 'ts', 'mts', 'cts']}],
 			languageOptions: {parser: parsers.typescript},
 		},
 		...invalidCaseInsensitiveTestFiles,

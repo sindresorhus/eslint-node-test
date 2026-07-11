@@ -4,6 +4,7 @@ import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js'
 
 const MESSAGE_ID = 'no-import-test-files';
 const IS_CASE_INSENSITIVE_FILE_SYSTEM = process.platform === 'darwin' || process.platform === 'win32';
+const TEST_FILE_EXTENSIONS = new Set(['js', 'mjs', 'cjs', 'ts', 'mts', 'cts']);
 
 const messages = {
 	[MESSAGE_ID]: 'Do not import a test file. The Node.js test runner may execute it twice.',
@@ -44,14 +45,41 @@ function getSpecifierPath(specifier) {
 	} catch {}
 }
 
-function isTestFileSpecifier(specifier, extensions) {
+function getFilePath(specifier, filename, cwd) {
 	const filePath = getSpecifierPath(specifier);
+	if (!filePath) {
+		return;
+	}
+
+	if (!filename || filename === '<input>' || filename === '<text>') {
+		return filePath;
+	}
+
+	const resolvedFilePath = path.resolve(path.dirname(path.resolve(cwd, filename)), filePath);
+	const relativeFilePath = path.relative(cwd, resolvedFilePath);
+	if (
+		relativeFilePath === '..'
+		|| relativeFilePath.startsWith(`..${path.sep}`)
+		|| path.isAbsolute(relativeFilePath)
+	) {
+		return;
+	}
+
+	return relativeFilePath.replaceAll(path.sep, '/');
+}
+
+function getCaseInsensitiveValue(value) {
+	return IS_CASE_INSENSITIVE_FILE_SYSTEM ? value.toLowerCase() : value;
+}
+
+function isTestFileSpecifier(specifier, filename, cwd) {
+	const filePath = getFilePath(specifier, filename, cwd);
 	if (!filePath) {
 		return false;
 	}
 
-	const pathSegments = new Set(filePath.split('/'));
-	if (pathSegments.has('node_modules')) {
+	const pathSegments = filePath.split('/');
+	if (pathSegments.includes('node_modules')) {
 		return false;
 	}
 
@@ -61,21 +89,20 @@ function isTestFileSpecifier(specifier, extensions) {
 		}
 	}
 
-	const testFilePath = IS_CASE_INSENSITIVE_FILE_SYSTEM ? filePath.toLowerCase() : filePath;
-	const extension = path.posix.extname(testFilePath).slice(1);
-	if (!extensions.includes(extension)) {
+	const extension = path.posix.extname(filePath).slice(1);
+	if (!TEST_FILE_EXTENSIONS.has(getCaseInsensitiveValue(extension))) {
 		return false;
 	}
 
-	const name = path.posix.basename(testFilePath, `.${extension}`);
+	const name = path.posix.basename(filePath, `.${extension}`);
+	const caseInsensitiveName = getCaseInsensitiveValue(name);
 	return (
-		testFilePath.startsWith('test/')
-		|| testFilePath.includes('/test/')
+		pathSegments.includes('test')
 		|| name === 'test'
-		|| name.startsWith('test-')
-		|| name.endsWith('.test')
-		|| name.endsWith('_test')
-		|| name.endsWith('-test')
+		|| caseInsensitiveName.startsWith('test-')
+		|| caseInsensitiveName.endsWith('.test')
+		|| caseInsensitiveName.endsWith('_test')
+		|| caseInsensitiveName.endsWith('-test')
 	);
 }
 
@@ -85,10 +112,10 @@ function getSpecifierValue(node) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {extensions} = context.options[0];
+	const filename = context.physicalFilename ?? context.filename;
 	const getProblem = (node, source) => {
 		const specifier = getSpecifierValue(source);
-		if (!specifier || !isTestFileSpecifier(specifier, extensions)) {
+		if (!specifier || !isTestFileSpecifier(specifier, filename, context.cwd)) {
 			return;
 		}
 
@@ -131,24 +158,7 @@ const config = {
 			description: 'Disallow imports of Node.js test files.',
 			recommended: 'unopinionated',
 		},
-		schema: [
-			{
-				type: 'object',
-				properties: {
-					extensions: {
-						type: 'array',
-						items: {
-							type: 'string',
-						},
-						minItems: 1,
-						uniqueItems: true,
-						description: 'File extensions that the Node.js test runner discovers.',
-					},
-				},
-				additionalProperties: false,
-			},
-		],
-		defaultOptions: [{extensions: ['js', 'mjs', 'cjs']}],
+		schema: [],
 		messages,
 		languages: ['js/js'],
 	},
