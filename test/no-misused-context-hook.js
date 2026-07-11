@@ -20,6 +20,7 @@ test.snapshot({
 		withTest('test(\'parent\', t => { t.afterEach(() => {}); test.expectFailure(\'child\', () => {}); });'),
 		withTest('test(\'parent\', parent => { parent.beforeEach(() => {}); test(\'child\', child => { child.afterEach(() => {}); test(\'grandchild\', () => {}); }); });'),
 		'import test, {it} from \'node:test\';\ntest(\'parent\', t => { t.beforeEach(() => {}); it(\'child\', () => {}); });',
+		'import test, {it} from \'node:test\';\ntest(\'parent\', t => { t.afterEach(() => {}); it.expectFailure(\'child\', () => {}); });',
 		'import test, {test as specify} from \'node:test\';\ntest(\'parent\', t => { t.beforeEach(() => {}); specify(\'child\', () => {}); });',
 		'import test, * as nodeTest from \'node:test\';\ntest(\'parent\', t => { t.afterEach(() => {}); nodeTest.test(\'child\', () => {}); });',
 		withTest('test(\'parent\', () => { test.skip(\'child\', t => { t.afterEach(() => {}); }); });'),
@@ -27,6 +28,7 @@ test.snapshot({
 		withTest('test.skip(\'skipped\', () => { test(\'child\', t => { t.afterEach(() => {}); }); });'),
 		withTest('test(\'skipped\', {skip: true}, () => { test(\'child\', t => { t.beforeEach(() => {}); }); });'),
 		withTest('test.expectFailure(\'skipped\', {skip: true}, () => { test(\'child\', t => { t.afterEach(() => {}); }); });'),
+		'import test, {describe} from \'node:test\';\ndescribe.skip(\'skipped\', () => { test(\'child\', t => { t.beforeEach(() => {}); }); });',
 		{
 			code: withTest('test(\'parent\', async t => { t.afterEach(() => {}); await (t as object).test(\'child\', () => {}); });'),
 			languageOptions: {parser: parsers.typescript},
@@ -63,7 +65,7 @@ test.snapshot({
 		withTest('test(\'leaf\', t => { t.beforeEach(() => {}); t.afterEach(() => {}); });'),
 		withTest('test(\'leaf\', (t = undefined) => { t.beforeEach(() => {}); });'),
 
-		// A skipped subtest does not invoke the parent hooks.
+		// Skipped test and suite callbacks do not run.
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {skip: true}, () => {}); });'),
 		withTest('test(\'parent\', async t => { t.afterEach(() => {}); await t.test(\'child\', {skip: \'not ready\'}, () => {}); });'),
 		withTest('const shouldSkip = true;\ntest(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {skip: shouldSkip}, () => {}); });'),

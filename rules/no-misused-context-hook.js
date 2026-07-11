@@ -131,13 +131,13 @@ const create = context => {
 		}
 
 		const parsed = parseTestCall(node, imports);
-		const isSkippedTest = parsed?.kind === 'test'
+		const isSkippedCallback = (parsed?.kind === 'test' || parsed?.kind === 'suite')
 			&& parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name))
 			&& (
 				parsed.modifiers.some(modifier => modifier.name === 'skip')
 				|| isStaticallySkipped(node, sourceCode)
 			);
-		if (isSkippedTest) {
+		if (isSkippedCallback) {
 			const callback = getTestCallback(node);
 			if (callback) {
 				skippedCallbacks.add(callback);
