@@ -9,18 +9,18 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-`assert.rejects()` accepts either a Promise or a function that returns a Promise. Wrapping a single awaited operation in an `async` callback is often unnecessary and makes the assertion harder to read.
+`assert.rejects()` accepts a Promise or a Promise-returning function. This rule finds parameterless async callbacks that only await a built-in `Promise` and suggests removing `async` and `await`. It keeps the callback so the operation remains lazy.
 
-The suggestion replaces the wrapper with a plain Promise-returning callback. Keeping the callback, rather than passing an already-created Promise, preserves lazy invocation and argument evaluation order.
+With [typed linting](https://typescript-eslint.io/getting-started/typed-linting/), the rule verifies that the awaited value is a built-in `Promise`. Without type information, it only reports zero-argument calls to local async function declarations or inline async functions. It ignores `PromiseLike`, other non-Promise values, and callbacks with parameters, additional statements, or control flow.
 
-Apply the suggestion only when the operation returns a genuine Promise and cannot throw synchronously. For a synchronous throw, `assert.rejects()` skips the error matcher and returns a Promise rejected with the original error. For a return value that is not a genuine Promise, including a thenable, it rejects with `ERR_INVALID_RETURN_VALUE`, while an async wrapper converts the value into a Promise.
-
-This rule reports parameterless async callbacks whose entire body is one awaited expression. Callbacks with parameters, additional statements, or control flow are ignored.
+Review the suggestion before applying it. TypeScript can verify the Promise return type but cannot prove that the operation will not throw synchronously. Without the async wrapper, a synchronous error bypasses the `assert.rejects()` matcher, so the rule remains opt-in.
 
 ## Examples
 
-```js
+```ts
 import assert from 'node:assert/strict';
+
+declare const operation: () => Promise<void>;
 
 // ❌
 await assert.rejects(async () => await operation());

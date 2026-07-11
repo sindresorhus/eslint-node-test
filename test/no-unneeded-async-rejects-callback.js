@@ -1,3 +1,4 @@
+import {fileURLToPath} from 'node:url';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
@@ -9,9 +10,55 @@ const withNamedImport = (methods, code) => `import {${methods}} from 'node:asser
 const withNamedStrictImport = (methods, code) => `import {${methods}} from 'node:assert/strict';\n${code}`;
 const withTest = code => `import test from 'node:test';\n${code}`;
 const withNamespaceTest = code => `import * as nodeTest from 'node:test';\n${code}`;
+const filename = fileURLToPath(new URL('fixtures/inline.ts', import.meta.url));
+const typed = code => ({
+	code: withAssert(code),
+	filename,
+	languageOptions: {parser: parsers.typescriptWithTypes},
+});
+const typedOperation = testCase => {
+	if (typeof testCase === 'string') {
+		testCase = {code: testCase};
+	}
+
+	const {operationType = 'Promise<unknown>', withoutTypes, ...testCaseWithoutOptions} = testCase;
+	if (withoutTypes) {
+		return testCaseWithoutOptions;
+	}
+
+	return {
+		...testCaseWithoutOptions,
+		code: `declare function operation(): ${operationType};\n${testCase.code}`,
+		filename,
+		languageOptions: {parser: parsers.typescriptWithTypes},
+	};
+};
 
 test.snapshot({
 	valid: [
+		// Unknown operations require type information
+		withAssert('assert.rejects(async () => await operation());'),
+		{
+			code: withAssert('assert.rejects(async () => await operation());'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		withAssert('async function operation() {}\noperation = () => {};\nassert.rejects(async () => await operation());'),
+		withAssert('async function * operation() {}\nassert.rejects(async () => await operation());'),
+		withAssert('const operation = async () => {};\nassert.rejects(async () => await operation?.());'),
+		withAssert('const operation = async () => {};\nassert.rejects(async () => await operation());'),
+		withAssert('async function operation() {}\nassert.rejects(async () => await operation(mayThrow()));'),
+		withAssert('async function operation() {}\nassert.rejects(async () => await operation(...arguments_));'),
+		withAssert('const operation = () => {};\nassert.rejects(async () => await operation());'),
+		'import assert from \'node:assert\';\nimport {operation} from \'./operation.js\';\nassert.rejects(async () => await operation());',
+		withAssert('assert.rejects(async () => await service.operation());'),
+
+		// The awaited operation must return a genuine Promise
+		typed('declare const operation: () => void;\nassert.rejects(async () => await operation());'),
+		typed('declare const operation: () => PromiseLike<void>;\nassert.rejects(async () => await operation());'),
+		typed('declare const operation: () => Promise<void> | undefined;\nassert.rejects(async () => await operation());'),
+		typed('declare const operation: () => {result: Promise<void>} | undefined;\nassert.rejects(async () => await operation()?.result);'),
+		typed('declare class CustomPromise<Value> extends Promise<Value> {}\ndeclare const operation: () => CustomPromise<void>;\nassert.rejects(async () => await operation());'),
+
 		// Not an assert import
 		'assert.rejects(async () => await operation());',
 
@@ -49,6 +96,22 @@ test.snapshot({
 		withAssert('assert[\'rejects\'](async () => await operation());'),
 	],
 	invalid: [
+		{
+			code: withAssert('async function operation() {}\nassert.rejects(async () => await operation());'),
+			withoutTypes: true,
+		},
+		{
+			code: withAssert('assert.rejects(async () => await (async () => {})());'),
+			withoutTypes: true,
+		},
+		{
+			code: withAssert('assert.rejects(async () => await operation());'),
+			operationType: 'Promise<void> | Promise<string>',
+		},
+		{
+			code: withAssert('assert.rejects(async () => await operation());'),
+			operationType: 'Promise<void> & {readonly brand: true}',
+		},
 		withAssert('assert.rejects(async () => await operation());'),
 		withAssert('assert.rejects(async () => { await operation(); });'),
 		withAssert('assert.rejects(async () => { return await operation(); });'),
@@ -68,7 +131,6 @@ test.snapshot({
 		'import assert from \'assert/strict\';\nassert.rejects(async () => await operation());',
 		withAssert('assert?.rejects(async () => await operation());'),
 		withAssert('assert.rejects?.(async () => await operation());'),
-		withAssert('assert.rejects(async () => await operation()?.result);'),
 		withAssert('assert.rejects(async () => await (operation()));'),
 		withAssert('assert.rejects(async () => await operation().then(value => value));'),
 		withAssert('assert.rejects(async () => await (async () => await operation())());'),
@@ -139,5 +201,5 @@ test.snapshot({
 			code: withAssert('assert.rejects(async function (): Promise<void> { return await operation(); });'),
 			languageOptions: {parser: parsers.typescript},
 		},
-	],
+	].map(testCase => typedOperation(testCase)),
 });

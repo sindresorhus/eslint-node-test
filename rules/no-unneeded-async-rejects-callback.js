@@ -1,3 +1,4 @@
+import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	resolveImports,
 	parseAssertionCall,
@@ -51,6 +52,65 @@ function hasCommentInRange(sourceCode, node, range) {
 	});
 }
 
+function isBuiltInPromiseType(type, program, seen = new Set()) {
+	if (seen.has(type)) {
+		return false;
+	}
+
+	seen.add(type);
+
+	if (type.isUnion()) {
+		return type.types.every(member => isBuiltInPromiseType(member, program, new Set(seen)));
+	}
+
+	if (type.isIntersection() && type.types.some(member => isBuiltInPromiseType(member, program, new Set(seen)))) {
+		return true;
+	}
+
+	const symbol = type.getSymbol();
+	return symbol?.getName() === 'Promise'
+		&& symbol.declarations?.some(declaration => program.isSourceFileDefaultLibrary(declaration.getSourceFile())) === true;
+}
+
+function hasBuiltInPromiseType(node, parserServices, program) {
+	try {
+		return isBuiltInPromiseType(parserServices.getTypeAtLocation(node), program);
+	} catch {
+		return false;
+	}
+}
+
+function isAsyncFunction(node) {
+	return isFunction(node) && node.async && !node.generator;
+}
+
+function isKnownAsyncCall(node, sourceCode) {
+	node = unwrapTypeScriptExpression(node);
+	if (node.type !== 'CallExpression' || node.optional || node.arguments.length > 0) {
+		return false;
+	}
+
+	const callee = unwrapTypeScriptExpression(node.callee);
+	if (isAsyncFunction(callee)) {
+		return true;
+	}
+
+	if (callee.type !== 'Identifier') {
+		return false;
+	}
+
+	const variable = findVariable(sourceCode.getScope(callee), callee);
+	if (
+		variable?.defs.length !== 1
+		|| variable.references.some(reference => reference.isWrite() && !reference.init)
+	) {
+		return false;
+	}
+
+	const [definition] = variable.defs;
+	return definition.type === 'FunctionName' && isAsyncFunction(definition.node);
+}
+
 /** @param {ESLint.Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -58,6 +118,9 @@ const create = context => {
 	if (!imports.isAssertOrTestFile) {
 		return;
 	}
+
+	const {parserServices} = sourceCode;
+	const {program} = parserServices ?? {};
 
 	const tracker = createContextTracker(imports, {trackHooks: true});
 
@@ -89,6 +152,10 @@ const create = context => {
 		if (
 			!awaited
 			|| containsSuspensionPoint(awaited.awaitExpression.argument, sourceCode.visitorKeys)
+			|| (
+				!isKnownAsyncCall(awaited.awaitExpression.argument, sourceCode)
+				&& (!program || !hasBuiltInPromiseType(awaited.awaitExpression.argument, parserServices, program))
+			)
 		) {
 			return;
 		}
