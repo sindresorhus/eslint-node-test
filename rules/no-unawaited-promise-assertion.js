@@ -31,6 +31,22 @@ function unwrapChainExpression(node) {
 	return node?.type === 'ChainExpression' ? node.expression : node;
 }
 
+function getExpressionValuePropagation(parent, child) {
+	if (parent?.type === 'SequenceExpression') {
+		return parent.expressions.at(-1) === child;
+	}
+
+	if (parent?.type === 'LogicalExpression') {
+		return parent.right === child;
+	}
+
+	if (parent?.type === 'ConditionalExpression') {
+		return parent.test !== child;
+	}
+
+	return undefined;
+}
+
 function getFloatingExpression(node) {
 	let expression = node;
 	let {parent} = node;
@@ -41,8 +57,9 @@ function getFloatingExpression(node) {
 	}
 
 	let container = expression;
-	while (parent?.type === 'SequenceExpression') {
-		if (parent.expressions.at(-1) !== container) {
+	let valuePropagates;
+	while ((valuePropagates = getExpressionValuePropagation(parent, container)) !== undefined) {
+		if (!valuePropagates) {
 			return {expression, canFix: false};
 		}
 
@@ -425,7 +442,6 @@ function getDetachedScheduler(node, activeCallback, timerImports, sourceCode) {
 	if (
 		!scheduler
 		|| !isInlineCallback(callback)
-		|| hasUnevaluatedClassFieldBetween(node, activeCallback)
 	) {
 		return undefined;
 	}
@@ -444,23 +460,16 @@ function getDetachedScheduler(node, activeCallback, timerImports, sourceCode) {
 }
 
 function isExpressionConsumed(node) {
-	while (node.parent) {
-		const {parent} = node;
-		if (
-			parent.type === 'ChainExpression'
-			|| isTypeScriptExpressionWrapper(parent)
-			|| (parent.type === 'MemberExpression' && parent.object === node)
-			|| (parent.type === 'CallExpression' && parent.callee === node)
-		) {
-			node = parent;
-			continue;
-		}
-
-		break;
+	while (
+		node.parent?.type === 'ChainExpression'
+		|| isTypeScriptExpressionWrapper(node.parent)
+		|| (node.parent?.type === 'MemberExpression' && node.parent.object === node)
+		|| (node.parent?.type === 'CallExpression' && node.parent.callee === node)
+	) {
+		node = node.parent;
 	}
 
-	return node.parent?.type !== 'ExpressionStatement'
-		&& !(node.parent?.type === 'UnaryExpression' && node.parent.operator === 'void');
+	return getFloatingExpression(node) === undefined;
 }
 
 function hasStaticallyTruthyWaitOption(node, sourceCode) {
@@ -552,10 +561,10 @@ function getTestBoundaryCallback(node, imports, contextParameters, sourceCode) {
 }
 
 function isInsideGeneratorBody(node, callback) {
-	if (!callback.generator) {
-		return false;
-	}
+	return callback.generator && isInsideCallbackBody(node, callback);
+}
 
+function isInsideCallbackBody(node, callback) {
 	for (let current = node.parent; current && current !== callback; current = current.parent) {
 		if (current === callback.body) {
 			return true;
@@ -637,7 +646,7 @@ export function trackDetachedCallbacks(context) {
 			detachedCallbacks.add(detachedScheduler.callback);
 		}
 
-		const floatingExpression = hasUnevaluatedClassFieldBetween(node, activeFrame.callback) ? undefined : getFloatingExpression(node);
+		const floatingExpression = getFloatingExpression(node);
 		if (!floatingExpression || getEnclosingFunction(node) !== activeFrame.callback) {
 			return;
 		}
@@ -720,7 +729,7 @@ export function createLateTestActivity(context, {assertionsOnly = false, message
 			return;
 		}
 
-		const floatingExpression = hasUnevaluatedClassFieldBetween(node, activeCallback) ? undefined : getFloatingExpression(node);
+		const floatingExpression = getFloatingExpression(node);
 		if (!floatingExpression) {
 			return;
 		}
@@ -743,6 +752,7 @@ export function createLateTestActivity(context, {assertionsOnly = false, message
 		if (
 			floatingExpression.canFix
 			&& activeCallback.async
+			&& isInsideCallbackBody(floatingExpression.expression, activeCallback)
 			&& !hasStaticBlockBetween(floatingExpression.expression, activeCallback)
 		) {
 			problems[0].fix = fixer => fixer.insertTextBefore(floatingExpression.expression, 'await ');
