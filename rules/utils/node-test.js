@@ -330,7 +330,7 @@ function getStaticExportCall(testFunctionName, members) {
 		const hasExpectedFailure = first.name === 'expectFailure' || rest[0]?.name === 'expectFailure';
 		return {
 			name: first.name === 'expectFailure' ? testFunctionName : first.name,
-			modifiers: hasExpectedFailure && first.name !== 'expectFailure' ? rest.slice(1) : rest,
+			modifiers: hasExpectedFailure ? rest.slice(1) : rest,
 			hasExpectedFailure,
 		};
 	}
@@ -427,13 +427,15 @@ export const parseTestCall = memoizeByNode(parseTestCallCache, (callExpression, 
 		// the namespace (`import test from 'node:test'`) reaches here for member chains whose first
 		// segment is not a known export, e.g. `test.only(…)`.
 		const importedName = imports.locals.get(root.name);
-		parsed = importedName === 'expectFailure'
-			? {name: 'test', modifiers: members, hasExpectedFailure: true}
-			: {
+		if (importedName === 'expectFailure') {
+			parsed = {name: 'test', modifiers: [], hasExpectedFailure: true};
+		} else {
+			parsed = {
 				name: importedName,
 				modifiers: members[0]?.name === 'expectFailure' ? members.slice(1) : members,
 				hasExpectedFailure: members[0]?.name === 'expectFailure',
 			};
+		}
 	}
 
 	if (!parsed) {

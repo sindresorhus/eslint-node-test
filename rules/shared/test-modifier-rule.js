@@ -47,19 +47,29 @@ export default function createTestModifierRule({modifier, description, errorMess
 
 			const modifierNode = findModifier(parsed.modifiers, modifier);
 			if (modifierNode) {
-				return {
-					node: modifierNode,
-					messageId: MESSAGE_ID_ERROR,
-					suggest: [
+				const memberExpression = modifierNode.parent;
+				const previousToken = sourceCode.getTokenBefore(modifierNode);
+				const nextToken = sourceCode.getTokenAfter(previousToken, {includeComments: true});
+				const suggest = memberExpression?.type === 'MemberExpression'
+					&& !memberExpression.computed
+					&& memberExpression.property === modifierNode
+					&& previousToken.value === '.'
+					&& nextToken.range[0] === modifierNode.range[0]
+					? [
 						{
 							messageId: MESSAGE_ID_SUGGESTION,
 							/** @param {import('eslint').Rule.RuleFixer} fixer */
 							fix(fixer) {
-								const dotToken = sourceCode.getTokenBefore(modifierNode);
-								return fixer.removeRange([sourceCode.getRange(dotToken)[0], sourceCode.getRange(modifierNode)[1]]);
+								return fixer.removeRange([sourceCode.getRange(previousToken)[0], sourceCode.getRange(modifierNode)[1]]);
 							},
 						},
-					],
+					]
+					: undefined;
+
+				return {
+					node: modifierNode,
+					messageId: MESSAGE_ID_ERROR,
+					suggest,
 				};
 			}
 

@@ -16,6 +16,8 @@ test.snapshot({
 		},
 		// Not a `node:test` binding.
 		'import test from "node:test";\nfoo.todo();',
+		// `expectFailure` does not have test modifiers.
+		'import {expectFailure} from "node:test";\nexpectFailure.todo("title");',
 	],
 	invalid: [
 		'import test from "node:test";\ntest.todo("title");',

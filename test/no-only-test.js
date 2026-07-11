@@ -19,12 +19,15 @@ test.snapshot({
 		},
 		// `only` on an unrelated object
 		'import test from "node:test";\nfoo.only();',
+		// `expectFailure` does not have test modifiers.
+		'import {expectFailure} from "node:test";\nexpectFailure.only("title", () => {});',
 	],
 	invalid: [
 		'import test from "node:test";\ntest.only("title", () => {});',
 		'import {it} from "node:test";\nit.only("title", () => {});',
 		'import {describe} from "node:test";\ndescribe.only("title", () => {});',
 		'import {test} from "node:test";\ntest.only("title", () => {});',
+		'import test from "node:test";\ntest. /* keep */ only("title", () => {});',
 		// Options object form
 		'import test from "node:test";\ntest("title", {only: true}, () => {});',
 		'import {it} from "node:test";\nit("title", {only: true}, () => {});',

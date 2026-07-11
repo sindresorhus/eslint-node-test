@@ -16,6 +16,8 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		'import test from "node:test";\nfoo.skip();',
+		// `expectFailure` does not have test modifiers.
+		'import {expectFailure} from "node:test";\nexpectFailure.skip("title", () => {});',
 	],
 	invalid: [
 		'import test from "node:test";\ntest.skip("title", () => {});',
