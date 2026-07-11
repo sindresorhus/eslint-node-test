@@ -5,16 +5,18 @@ import {
 	isAssertionCallWithSupportedContext,
 } from './utils/node-test.js';
 import isFunction from './ast/is-function.js';
-import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
+import {containsSuspensionPoint, isParenthesized, unwrapTypeScriptExpression} from './utils/index.js';
 
 /**
 @import {TSESTree as ESTree} from '@typescript-eslint/types';
 @import * as ESLint from 'eslint';
 */
 
-const MESSAGE_ID = 'no-unneeded-async-rejects-callback';
+const MESSAGE_ID = 'no-unneeded-async-rejects-callback/error';
+const MESSAGE_ID_SUGGESTION = 'no-unneeded-async-rejects-callback/suggestion';
 const messages = {
-	[MESSAGE_ID]: 'Remove the unneeded `async` and `await` from this `rejects()` callback.',
+	[MESSAGE_ID]: 'This `rejects()` callback may unnecessarily wrap a single awaited operation.',
+	[MESSAGE_ID_SUGGESTION]: 'Replace it with a plain Promise-returning callback.',
 };
 
 function getAwaitExpression(callback) {
@@ -37,6 +39,13 @@ function getAwaitExpression(callback) {
 	}
 }
 
+function hasCommentInRange(sourceCode, node, range) {
+	return sourceCode.getCommentsInside(node).some(comment => {
+		const commentRange = sourceCode.getRange(comment);
+		return commentRange[0] >= range[0] && commentRange[1] <= range[1];
+	});
+}
+
 /** @param {ESLint.Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -45,14 +54,13 @@ const create = context => {
 		return;
 	}
 
-	const tracker = createContextTracker(imports);
+	const tracker = createContextTracker(imports, {trackHooks: true});
 
 	context.on('CallExpression', node => {
-		const parsed = parseAssertionCall(node, imports);
-		const isSupportedContext = isAssertionCallWithSupportedContext(node, tracker);
 		tracker.update(node);
 
-		if (parsed?.method !== 'rejects' || !isSupportedContext) {
+		const parsed = parseAssertionCall(node, imports);
+		if (parsed?.method !== 'rejects' || !isAssertionCallWithSupportedContext(node, tracker)) {
 			return;
 		}
 
@@ -73,31 +81,49 @@ const create = context => {
 		}
 
 		const awaited = getAwaitExpression(callback);
-		if (!awaited) {
+		if (
+			!awaited
+			|| containsSuspensionPoint(awaited.awaitExpression.argument, sourceCode.visitorKeys)
+		) {
 			return;
 		}
 
 		return {
 			node: callback,
 			messageId: MESSAGE_ID,
-			/** @param {ESLint.Rule.RuleFixer} fixer */
-			* fix(fixer, {abort}) {
-				if (sourceCode.getCommentsInside(callback).length > 0) {
-					return abort();
-				}
+			suggest: [
+				{
+					messageId: MESSAGE_ID_SUGGESTION,
+					/** @param {ESLint.Rule.RuleFixer} fixer */
+					* fix(fixer, {abort}) {
+						if (awaited.needsReturn && isParenthesized(awaited.awaitExpression, context)) {
+							return abort();
+						}
 
-				const asyncToken = sourceCode.getFirstToken(callback);
-				const tokenAfterAsync = sourceCode.getTokenAfter(asyncToken);
-				yield fixer.removeRange([sourceCode.getRange(asyncToken)[0], sourceCode.getRange(tokenAfterAsync)[0]]);
+						const asyncToken = sourceCode.getFirstToken(callback);
+						const tokenAfterAsync = sourceCode.getTokenAfter(asyncToken);
+						const asyncRange = [sourceCode.getRange(asyncToken)[0], sourceCode.getRange(tokenAfterAsync)[0]];
+						if (hasCommentInRange(sourceCode, callback, asyncRange)) {
+							return abort();
+						}
 
-				const awaitToken = sourceCode.getFirstToken(awaited.awaitExpression);
-				if (awaited.needsReturn) {
-					yield fixer.replaceText(awaitToken, 'return');
-				} else {
-					const tokenAfterAwait = sourceCode.getTokenAfter(awaitToken);
-					yield fixer.removeRange([sourceCode.getRange(awaitToken)[0], sourceCode.getRange(tokenAfterAwait)[0]]);
-				}
-			},
+						yield fixer.removeRange(asyncRange);
+
+						const awaitToken = sourceCode.getFirstToken(awaited.awaitExpression);
+						if (awaited.needsReturn) {
+							yield fixer.replaceText(awaitToken, 'return');
+						} else {
+							const tokenAfterAwait = sourceCode.getTokenAfter(awaitToken);
+							const awaitRange = [sourceCode.getRange(awaitToken)[0], sourceCode.getRange(tokenAfterAwait)[0]];
+							if (hasCommentInRange(sourceCode, callback, awaitRange)) {
+								return abort();
+							}
+
+							yield fixer.removeRange(awaitRange);
+						}
+					},
+				},
+			],
 		};
 	});
 
@@ -113,9 +139,9 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow unneeded async callbacks passed to `assert.rejects()`.',
-			recommended: 'unopinionated',
+			recommended: false,
 		},
-		fixable: 'code',
+		hasSuggestions: true,
 		schema: [],
 		messages,
 		languages: ['js/js'],
