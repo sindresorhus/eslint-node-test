@@ -170,13 +170,27 @@ Message:
 
 `;
 
-exports[`no-import-test-files > invalid(20): import './example.test.ts'; 1`] = `
+exports[`no-import-test-files > invalid(20): import './example.test.jsx'; 1`] = `
+
+  1 | import './example.test.jsx';
+
+`;
+
+exports[`no-import-test-files > invalid(20): import './example.test.jsx'; 2`] = `
+
+Message:
+> 1 | import './example.test.jsx';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not import a test file. The Node.js test runner may execute it twice.
+
+`;
+
+exports[`no-import-test-files > invalid(21): import './example.test.ts'; 1`] = `
 
   1 | import './example.test.ts';
 
 `;
 
-exports[`no-import-test-files > invalid(20): import './example.test.ts'; 2`] = `
+exports[`no-import-test-files > invalid(21): import './example.test.ts'; 2`] = `
 
 Message:
 > 1 | import './example.test.ts';
@@ -184,13 +198,13 @@ Message:
 
 `;
 
-exports[`no-import-test-files > invalid(21): import './example.test.mts'; 1`] = `
+exports[`no-import-test-files > invalid(22): import './example.test.mts'; 1`] = `
 
   1 | import './example.test.mts';
 
 `;
 
-exports[`no-import-test-files > invalid(21): import './example.test.mts'; 2`] = `
+exports[`no-import-test-files > invalid(22): import './example.test.mts'; 2`] = `
 
 Message:
 > 1 | import './example.test.mts';
@@ -198,13 +212,13 @@ Message:
 
 `;
 
-exports[`no-import-test-files > invalid(22): import './example.test.cts'; 1`] = `
+exports[`no-import-test-files > invalid(23): import './example.test.cts'; 1`] = `
 
   1 | import './example.test.cts';
 
 `;
 
-exports[`no-import-test-files > invalid(22): import './example.test.cts'; 2`] = `
+exports[`no-import-test-files > invalid(23): import './example.test.cts'; 2`] = `
 
 Message:
 > 1 | import './example.test.cts';
@@ -212,13 +226,27 @@ Message:
 
 `;
 
-exports[`no-import-test-files > invalid(23): import('./example.test.js' as string); 1`] = `
+exports[`no-import-test-files > invalid(24): import './example.test.tsx'; 1`] = `
+
+  1 | import './example.test.tsx';
+
+`;
+
+exports[`no-import-test-files > invalid(24): import './example.test.tsx'; 2`] = `
+
+Message:
+> 1 | import './example.test.tsx';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not import a test file. The Node.js test runner may execute it twice.
+
+`;
+
+exports[`no-import-test-files > invalid(25): import('./example.test.js' as string); 1`] = `
 
   1 | import('./example.test.js' as string);
 
 `;
 
-exports[`no-import-test-files > invalid(23): import('./example.test.js' as string); 2`] = `
+exports[`no-import-test-files > invalid(25): import('./example.test.js' as string); 2`] = `
 
 Message:
 > 1 | import('./example.test.js' as string);
@@ -226,13 +254,13 @@ Message:
 
 `;
 
-exports[`no-import-test-files > invalid(24): import {type Value, value} from './example.test.ts'; 1`] = `
+exports[`no-import-test-files > invalid(26): import {type Value, value} from './example.test.ts'; 1`] = `
 
   1 | import {type Value, value} from './example.test.ts';
 
 `;
 
-exports[`no-import-test-files > invalid(24): import {type Value, value} from './example.test.ts'; 2`] = `
+exports[`no-import-test-files > invalid(26): import {type Value, value} from './example.test.ts'; 2`] = `
 
 Message:
 > 1 | import {type Value, value} from './example.test.ts';
@@ -240,13 +268,13 @@ Message:
 
 `;
 
-exports[`no-import-test-files > invalid(25): export {type Value, value} from './example.test.ts'; 1`] = `
+exports[`no-import-test-files > invalid(27): export {type Value, value} from './example.test.ts'; 1`] = `
 
   1 | export {type Value, value} from './example.test.ts';
 
 `;
 
-exports[`no-import-test-files > invalid(25): export {type Value, value} from './example.test.ts'; 2`] = `
+exports[`no-import-test-files > invalid(27): export {type Value, value} from './example.test.ts'; 2`] = `
 
 Message:
 > 1 | export {type Value, value} from './example.test.ts';
@@ -254,13 +282,13 @@ Message:
 
 `;
 
-exports[`no-import-test-files > invalid(26): import './EXAMPLE.TEST.JS'; 1`] = `
+exports[`no-import-test-files > invalid(28): import './EXAMPLE.TEST.JS'; 1`] = `
 
   1 | import './EXAMPLE.TEST.JS';
 
 `;
 
-exports[`no-import-test-files > invalid(26): import './EXAMPLE.TEST.JS'; 2`] = `
+exports[`no-import-test-files > invalid(28): import './EXAMPLE.TEST.JS'; 2`] = `
 
 Message:
 > 1 | import './EXAMPLE.TEST.JS';

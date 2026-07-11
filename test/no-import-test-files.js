@@ -79,6 +79,7 @@ test.snapshot({
 		'import(`./example-test.js`);',
 		'export {value} from \'./example.test.js\';',
 		'export * from \'./example.test.js\';',
+		'import \'./example.test.jsx\';',
 		{
 			code: 'import \'./example.test.ts\';',
 			languageOptions: {parser: parsers.typescript},
@@ -89,6 +90,10 @@ test.snapshot({
 		},
 		{
 			code: 'import \'./example.test.cts\';',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import \'./example.test.tsx\';',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{

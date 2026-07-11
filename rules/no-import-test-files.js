@@ -4,7 +4,7 @@ import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js'
 
 const MESSAGE_ID = 'no-import-test-files';
 const IS_CASE_INSENSITIVE_FILE_SYSTEM = process.platform === 'darwin' || process.platform === 'win32';
-const TEST_FILE_EXTENSIONS = new Set(['js', 'mjs', 'cjs', 'ts', 'mts', 'cts']);
+const TEST_FILE_EXTENSIONS = new Set(['js', 'mjs', 'cjs', 'jsx', 'ts', 'mts', 'cts', 'tsx']);
 
 const messages = {
 	[MESSAGE_ID]: 'Do not import a test file. The Node.js test runner may execute it twice.',
