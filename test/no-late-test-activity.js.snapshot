@@ -744,7 +744,29 @@ Message:
 
 `;
 
-exports[`no-late-test-activity > invalid(40): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', t => { setTimeout((unused = t.assert.ok(value)) => {}, 10); }); 1`] = `
+exports[`no-late-test-activity > invalid(40): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tload().then(() => { assert.rejects(other()); }).catch(() => {});\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | test('example', () => {
+  4 | 	load().then(() => { assert.rejects(other()); }).catch(() => {});
+  5 | });
+
+`;
+
+exports[`no-late-test-activity > invalid(40): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tload().then(() => { assert.rejects(other()); }).catch(() => {});\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | test('example', () => {
+> 4 | 	load().then(() => { assert.rejects(other()); }).catch(() => {});
+    | 	                    ^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a detached \`then()\` callback can run after the test or hook has finished.
+  5 | });
+
+`;
+
+exports[`no-late-test-activity > invalid(41): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', t => { setTimeout((unused = t.assert.ok(value)) => {}, 10); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert/strict';
@@ -752,7 +774,7 @@ exports[`no-late-test-activity > invalid(40): import test from 'node:test';\nimp
 
 `;
 
-exports[`no-late-test-activity > invalid(40): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', t => { setTimeout((unused = t.assert.ok(value)) => {}, 10); }); 2`] = `
+exports[`no-late-test-activity > invalid(41): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', t => { setTimeout((unused = t.assert.ok(value)) => {}, 10); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -762,7 +784,7 @@ Message:
 
 `;
 
-exports[`no-late-test-activity > invalid(41): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', (t = fallback) => { setTimeout(() => t.assert.ok(value)); }); 1`] = `
+exports[`no-late-test-activity > invalid(42): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', (t = fallback) => { setTimeout(() => t.assert.ok(value)); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert/strict';
@@ -770,7 +792,7 @@ exports[`no-late-test-activity > invalid(41): import test from 'node:test';\nimp
 
 `;
 
-exports[`no-late-test-activity > invalid(41): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', (t = fallback) => { setTimeout(() => t.assert.ok(value)); }); 2`] = `
+exports[`no-late-test-activity > invalid(42): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', (t = fallback) => { setTimeout(() => t.assert.ok(value)); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -780,7 +802,7 @@ Message:
 
 `;
 
-exports[`no-late-test-activity > invalid(42): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tload().finally((unused = assert.ok(value)) => {});\n}); 1`] = `
+exports[`no-late-test-activity > invalid(43): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tload().finally((unused = assert.ok(value)) => {});\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert/strict';
@@ -790,7 +812,7 @@ exports[`no-late-test-activity > invalid(42): import test from 'node:test';\nimp
 
 `;
 
-exports[`no-late-test-activity > invalid(42): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tload().finally((unused = assert.ok(value)) => {});\n}); 2`] = `
+exports[`no-late-test-activity > invalid(43): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tload().finally((unused = assert.ok(value)) => {});\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -802,7 +824,7 @@ Message:
 
 `;
 
-exports[`no-late-test-activity > invalid(43): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', function * (t, unused = setTimeout(() => assert.ok(value))) {}); 1`] = `
+exports[`no-late-test-activity > invalid(44): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', function * (t, unused = setTimeout(() => assert.ok(value))) {}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert/strict';
@@ -810,7 +832,7 @@ exports[`no-late-test-activity > invalid(43): import test from 'node:test';\nimp
 
 `;
 
-exports[`no-late-test-activity > invalid(43): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', function * (t, unused = setTimeout(() => assert.ok(value))) {}); 2`] = `
+exports[`no-late-test-activity > invalid(44): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', function * (t, unused = setTimeout(() => assert.ok(value))) {}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -820,7 +842,7 @@ Message:
 
 `;
 
-exports[`no-late-test-activity > invalid(44): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tsetTimeout(function * (unused = assert.ok(value)) {});\n}); 1`] = `
+exports[`no-late-test-activity > invalid(45): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tsetTimeout(function * (unused = assert.ok(value)) {});\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert/strict';
@@ -830,7 +852,7 @@ exports[`no-late-test-activity > invalid(44): import test from 'node:test';\nimp
 
 `;
 
-exports[`no-late-test-activity > invalid(44): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tsetTimeout(function * (unused = assert.ok(value)) {});\n}); 2`] = `
+exports[`no-late-test-activity > invalid(45): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tsetTimeout(function * (unused = assert.ok(value)) {});\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -842,7 +864,7 @@ Message:
 
 `;
 
-exports[`no-late-test-activity > invalid(45): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tload().then(function * (unused = assert.ok(value)) {});\n}); 1`] = `
+exports[`no-late-test-activity > invalid(46): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tload().then(function * (unused = assert.ok(value)) {});\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert/strict';
@@ -852,7 +874,7 @@ exports[`no-late-test-activity > invalid(45): import test from 'node:test';\nimp
 
 `;
 
-exports[`no-late-test-activity > invalid(45): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tload().then(function * (unused = assert.ok(value)) {});\n}); 2`] = `
+exports[`no-late-test-activity > invalid(46): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tload().then(function * (unused = assert.ok(value)) {});\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -864,7 +886,7 @@ Message:
 
 `;
 
-exports[`no-late-test-activity > invalid(46): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', async (t, unused = void load().then(() => assert.ok(value))) => {}); 1`] = `
+exports[`no-late-test-activity > invalid(47): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', async (t, unused = void load().then(() => assert.ok(value))) => {}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert/strict';
@@ -872,7 +894,7 @@ exports[`no-late-test-activity > invalid(46): import test from 'node:test';\nimp
 
 `;
 
-exports[`no-late-test-activity > invalid(46): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', async (t, unused = void load().then(() => assert.ok(value))) => {}); 2`] = `
+exports[`no-late-test-activity > invalid(47): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', async (t, unused = void load().then(() => assert.ok(value))) => {}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -882,7 +904,7 @@ Message:
 
 `;
 
-exports[`no-late-test-activity > invalid(47): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', async () => {\n\treturn void load().then(() => assert.ok(value));\n}); 1`] = `
+exports[`no-late-test-activity > invalid(48): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', async () => {\n\treturn void load().then(() => assert.ok(value));\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert/strict';
@@ -892,7 +914,7 @@ exports[`no-late-test-activity > invalid(47): import test from 'node:test';\nimp
 
 `;
 
-exports[`no-late-test-activity > invalid(47): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', async () => {\n\treturn void load().then(() => assert.ok(value));\n}); 2`] = `
+exports[`no-late-test-activity > invalid(48): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', async () => {\n\treturn void load().then(() => assert.ok(value));\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -904,7 +926,7 @@ Message:
 
 `;
 
-exports[`no-late-test-activity > invalid(48): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\t(new Promise(resolve => { setTimeout(() => { assert.ok(value); resolve(); }); }), cleanup());\n}); 1`] = `
+exports[`no-late-test-activity > invalid(49): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\t(new Promise(resolve => { setTimeout(() => { assert.ok(value); resolve(); }); }), cleanup());\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert/strict';
@@ -914,7 +936,7 @@ exports[`no-late-test-activity > invalid(48): import test from 'node:test';\nimp
 
 `;
 
-exports[`no-late-test-activity > invalid(48): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\t(new Promise(resolve => { setTimeout(() => { assert.ok(value); resolve(); }); }), cleanup());\n}); 2`] = `
+exports[`no-late-test-activity > invalid(49): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\t(new Promise(resolve => { setTimeout(() => { assert.ok(value); resolve(); }); }), cleanup());\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -922,28 +944,6 @@ Message:
   3 | test('example', () => {
 > 4 | 	(new Promise(resolve => { setTimeout(() => { assert.ok(value); resolve(); }); }), cleanup());
     | 	                                             ^^^^^^^^^^^^^^^^ Assertion in a detached \`setTimeout()\` callback can run after the test or hook has finished.
-  5 | });
-
-`;
-
-exports[`no-late-test-activity > invalid(49): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tvoid (cleanup(), new Promise(resolve => { setTimeout(() => { assert.ok(value); resolve(); }); }));\n}); 1`] = `
-
-  1 | import test from 'node:test';
-  2 | import assert from 'node:assert/strict';
-  3 | test('example', () => {
-  4 | 	void (cleanup(), new Promise(resolve => { setTimeout(() => { assert.ok(value); resolve(); }); }));
-  5 | });
-
-`;
-
-exports[`no-late-test-activity > invalid(49): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tvoid (cleanup(), new Promise(resolve => { setTimeout(() => { assert.ok(value); resolve(); }); }));\n}); 2`] = `
-
-Message:
-  1 | import test from 'node:test';
-  2 | import assert from 'node:assert/strict';
-  3 | test('example', () => {
-> 4 | 	void (cleanup(), new Promise(resolve => { setTimeout(() => { assert.ok(value); resolve(); }); }));
-    | 	                                                             ^^^^^^^^^^^^^^^^ Assertion in a detached \`setTimeout()\` callback can run after the test or hook has finished.
   5 | });
 
 `;
@@ -970,7 +970,29 @@ Message:
 
 `;
 
-exports[`no-late-test-activity > invalid(50): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tcondition && new Promise(resolve => { setTimeout(() => { assert.ok(value); resolve(); }); });\n}); 1`] = `
+exports[`no-late-test-activity > invalid(50): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tvoid (cleanup(), new Promise(resolve => { setTimeout(() => { assert.ok(value); resolve(); }); }));\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | test('example', () => {
+  4 | 	void (cleanup(), new Promise(resolve => { setTimeout(() => { assert.ok(value); resolve(); }); }));
+  5 | });
+
+`;
+
+exports[`no-late-test-activity > invalid(50): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tvoid (cleanup(), new Promise(resolve => { setTimeout(() => { assert.ok(value); resolve(); }); }));\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | test('example', () => {
+> 4 | 	void (cleanup(), new Promise(resolve => { setTimeout(() => { assert.ok(value); resolve(); }); }));
+    | 	                                                             ^^^^^^^^^^^^^^^^ Assertion in a detached \`setTimeout()\` callback can run after the test or hook has finished.
+  5 | });
+
+`;
+
+exports[`no-late-test-activity > invalid(51): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tcondition && new Promise(resolve => { setTimeout(() => { assert.ok(value); resolve(); }); });\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert/strict';
@@ -980,7 +1002,7 @@ exports[`no-late-test-activity > invalid(50): import test from 'node:test';\nimp
 
 `;
 
-exports[`no-late-test-activity > invalid(50): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tcondition && new Promise(resolve => { setTimeout(() => { assert.ok(value); resolve(); }); });\n}); 2`] = `
+exports[`no-late-test-activity > invalid(51): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tcondition && new Promise(resolve => { setTimeout(() => { assert.ok(value); resolve(); }); });\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -992,7 +1014,7 @@ Message:
 
 `;
 
-exports[`no-late-test-activity > invalid(51): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tnew Promise(resolve => { setTimeout(() => { assert.ok(value); resolve(); }); }).then(() => {});\n}); 1`] = `
+exports[`no-late-test-activity > invalid(52): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tnew Promise(resolve => { setTimeout(() => { assert.ok(value); resolve(); }); }).then(() => {});\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert/strict';
@@ -1002,7 +1024,7 @@ exports[`no-late-test-activity > invalid(51): import test from 'node:test';\nimp
 
 `;
 
-exports[`no-late-test-activity > invalid(51): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tnew Promise(resolve => { setTimeout(() => { assert.ok(value); resolve(); }); }).then(() => {});\n}); 2`] = `
+exports[`no-late-test-activity > invalid(52): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tnew Promise(resolve => { setTimeout(() => { assert.ok(value); resolve(); }); }).then(() => {});\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1014,7 +1036,7 @@ Message:
 
 `;
 
-exports[`no-late-test-activity > invalid(52): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', async () => {\n\tawait new Promise(resolve => resolve(), setTimeout(() => assert.ok(value)));\n}); 1`] = `
+exports[`no-late-test-activity > invalid(53): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', async () => {\n\tawait new Promise(resolve => resolve(), setTimeout(() => assert.ok(value)));\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert/strict';
@@ -1024,7 +1046,7 @@ exports[`no-late-test-activity > invalid(52): import test from 'node:test';\nimp
 
 `;
 
-exports[`no-late-test-activity > invalid(52): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', async () => {\n\tawait new Promise(resolve => resolve(), setTimeout(() => assert.ok(value)));\n}); 2`] = `
+exports[`no-late-test-activity > invalid(53): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', async () => {\n\tawait new Promise(resolve => resolve(), setTimeout(() => assert.ok(value)));\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1036,7 +1058,7 @@ Message:
 
 `;
 
-exports[`no-late-test-activity > invalid(53): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tclass Example { static value = setTimeout(() => assert.ok(value)); }\n}); 1`] = `
+exports[`no-late-test-activity > invalid(54): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tclass Example { static value = setTimeout(() => assert.ok(value)); }\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert/strict';
@@ -1046,7 +1068,7 @@ exports[`no-late-test-activity > invalid(53): import test from 'node:test';\nimp
 
 `;
 
-exports[`no-late-test-activity > invalid(53): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tclass Example { static value = setTimeout(() => assert.ok(value)); }\n}); 2`] = `
+exports[`no-late-test-activity > invalid(54): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tclass Example { static value = setTimeout(() => assert.ok(value)); }\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1058,7 +1080,7 @@ Message:
 
 `;
 
-exports[`no-late-test-activity > invalid(54): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tclass Example { [setTimeout(() => assert.ok(value))] = value; }\n}); 1`] = `
+exports[`no-late-test-activity > invalid(55): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tclass Example { [setTimeout(() => assert.ok(value))] = value; }\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert/strict';
@@ -1068,7 +1090,7 @@ exports[`no-late-test-activity > invalid(54): import test from 'node:test';\nimp
 
 `;
 
-exports[`no-late-test-activity > invalid(54): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tclass Example { [setTimeout(() => assert.ok(value))] = value; }\n}); 2`] = `
+exports[`no-late-test-activity > invalid(55): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tclass Example { [setTimeout(() => assert.ok(value))] = value; }\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1080,7 +1102,7 @@ Message:
 
 `;
 
-exports[`no-late-test-activity > invalid(55): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tsetTimeout(() => { class Example { static value = assert.ok(value); } });\n}); 1`] = `
+exports[`no-late-test-activity > invalid(56): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tsetTimeout(() => { class Example { static value = assert.ok(value); } });\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert/strict';
@@ -1090,7 +1112,7 @@ exports[`no-late-test-activity > invalid(55): import test from 'node:test';\nimp
 
 `;
 
-exports[`no-late-test-activity > invalid(55): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tsetTimeout(() => { class Example { static value = assert.ok(value); } });\n}); 2`] = `
+exports[`no-late-test-activity > invalid(56): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tsetTimeout(() => { class Example { static value = assert.ok(value); } });\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1102,7 +1124,7 @@ Message:
 
 `;
 
-exports[`no-late-test-activity > invalid(56): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tsetTimeout(() => { try { assert.rejects(load()); } catch {} });\n}); 1`] = `
+exports[`no-late-test-activity > invalid(57): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tsetTimeout(() => { try { assert.rejects(load()); } catch {} });\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert/strict';
@@ -1112,7 +1134,7 @@ exports[`no-late-test-activity > invalid(56): import test from 'node:test';\nimp
 
 `;
 
-exports[`no-late-test-activity > invalid(56): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tsetTimeout(() => { try { assert.rejects(load()); } catch {} });\n}); 2`] = `
+exports[`no-late-test-activity > invalid(57): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tsetTimeout(() => { try { assert.rejects(load()); } catch {} });\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1124,7 +1146,7 @@ Message:
 
 `;
 
-exports[`no-late-test-activity > invalid(57): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tnew Promise(resolve => { setTimeout(() => { assert.ok(value); resolve(); }); });\n}); 1`] = `
+exports[`no-late-test-activity > invalid(58): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tnew Promise(resolve => { setTimeout(() => { assert.ok(value); resolve(); }); });\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert/strict';
@@ -1134,7 +1156,7 @@ exports[`no-late-test-activity > invalid(57): import test from 'node:test';\nimp
 
 `;
 
-exports[`no-late-test-activity > invalid(57): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tnew Promise(resolve => { setTimeout(() => { assert.ok(value); resolve(); }); });\n}); 2`] = `
+exports[`no-late-test-activity > invalid(58): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tnew Promise(resolve => { setTimeout(() => { assert.ok(value); resolve(); }); });\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1146,7 +1168,7 @@ Message:
 
 `;
 
-exports[`no-late-test-activity > invalid(58): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tvoid new Promise(resolve => { setTimeout(() => { assert.ok(value); resolve(); }); });\n}); 1`] = `
+exports[`no-late-test-activity > invalid(59): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tvoid new Promise(resolve => { setTimeout(() => { assert.ok(value); resolve(); }); });\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert/strict';
@@ -1156,7 +1178,7 @@ exports[`no-late-test-activity > invalid(58): import test from 'node:test';\nimp
 
 `;
 
-exports[`no-late-test-activity > invalid(58): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tvoid new Promise(resolve => { setTimeout(() => { assert.ok(value); resolve(); }); });\n}); 2`] = `
+exports[`no-late-test-activity > invalid(59): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tvoid new Promise(resolve => { setTimeout(() => { assert.ok(value); resolve(); }); });\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1164,28 +1186,6 @@ Message:
   3 | test('example', () => {
 > 4 | 	void new Promise(resolve => { setTimeout(() => { assert.ok(value); resolve(); }); });
     | 	                                                 ^^^^^^^^^^^^^^^^ Assertion in a detached \`setTimeout()\` callback can run after the test or hook has finished.
-  5 | });
-
-`;
-
-exports[`no-late-test-activity > invalid(59): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('parent', t => {\n\tload().finally(() => t.test('child', () => {}));\n}); 1`] = `
-
-  1 | import test from 'node:test';
-  2 | import assert from 'node:assert/strict';
-  3 | test('parent', t => {
-  4 | 	load().finally(() => t.test('child', () => {}));
-  5 | });
-
-`;
-
-exports[`no-late-test-activity > invalid(59): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('parent', t => {\n\tload().finally(() => t.test('child', () => {}));\n}); 2`] = `
-
-Message:
-  1 | import test from 'node:test';
-  2 | import assert from 'node:assert/strict';
-  3 | test('parent', t => {
-> 4 | 	load().finally(() => t.test('child', () => {}));
-    | 	                     ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest in a detached \`finally()\` callback can run after the test or hook has finished.
   5 | });
 
 `;
@@ -1212,7 +1212,29 @@ Message:
 
 `;
 
-exports[`no-late-test-activity > invalid(60): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tsetTimeout(() => { assert.ok(first); assert.ok(second); });\n}); 1`] = `
+exports[`no-late-test-activity > invalid(60): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('parent', t => {\n\tload().finally(() => t.test('child', () => {}));\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | test('parent', t => {
+  4 | 	load().finally(() => t.test('child', () => {}));
+  5 | });
+
+`;
+
+exports[`no-late-test-activity > invalid(60): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('parent', t => {\n\tload().finally(() => t.test('child', () => {}));\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | test('parent', t => {
+> 4 | 	load().finally(() => t.test('child', () => {}));
+    | 	                     ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest in a detached \`finally()\` callback can run after the test or hook has finished.
+  5 | });
+
+`;
+
+exports[`no-late-test-activity > invalid(61): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tsetTimeout(() => { assert.ok(first); assert.ok(second); });\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert/strict';
@@ -1222,7 +1244,7 @@ exports[`no-late-test-activity > invalid(60): import test from 'node:test';\nimp
 
 `;
 
-exports[`no-late-test-activity > invalid(60): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tsetTimeout(() => { assert.ok(first); assert.ok(second); });\n}); 2`] = `
+exports[`no-late-test-activity > invalid(61): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tsetTimeout(() => { assert.ok(first); assert.ok(second); });\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1234,7 +1256,7 @@ Message:
 
 `;
 
-exports[`no-late-test-activity > invalid(60): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tsetTimeout(() => { assert.ok(first); assert.ok(second); });\n}); 3`] = `
+exports[`no-late-test-activity > invalid(61): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tsetTimeout(() => { assert.ok(first); assert.ok(second); });\n}); 3`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1246,7 +1268,7 @@ Message:
 
 `;
 
-exports[`no-late-test-activity > invalid(61): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tload().then(() => { assert.ok(first); assert.ok(second); });\n}); 1`] = `
+exports[`no-late-test-activity > invalid(62): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tload().then(() => { assert.ok(first); assert.ok(second); });\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert/strict';
@@ -1256,7 +1278,7 @@ exports[`no-late-test-activity > invalid(61): import test from 'node:test';\nimp
 
 `;
 
-exports[`no-late-test-activity > invalid(61): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tload().then(() => { assert.ok(first); assert.ok(second); });\n}); 2`] = `
+exports[`no-late-test-activity > invalid(62): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tload().then(() => { assert.ok(first); assert.ok(second); });\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1268,7 +1290,7 @@ Message:
 
 `;
 
-exports[`no-late-test-activity > invalid(61): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tload().then(() => { assert.ok(first); assert.ok(second); });\n}); 3`] = `
+exports[`no-late-test-activity > invalid(62): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tload().then(() => { assert.ok(first); assert.ok(second); });\n}); 3`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1280,7 +1302,63 @@ Message:
 
 `;
 
-exports[`no-late-test-activity > invalid(62): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('parent', async t => { await t.test('child', childContext => { setTimeout(() => childContext.assert.ok(value)); }); }); 1`] = `
+exports[`no-late-test-activity > invalid(63): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('parent', t => { setTimeout(() => assert.ok(t.test('child', () => {}))); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | test('parent', t => { setTimeout(() => assert.ok(t.test('child', () => {}))); });
+
+`;
+
+exports[`no-late-test-activity > invalid(63): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('parent', t => { setTimeout(() => assert.ok(t.test('child', () => {}))); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+> 3 | test('parent', t => { setTimeout(() => assert.ok(t.test('child', () => {}))); });
+    |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a detached \`setTimeout()\` callback can run after the test or hook has finished.
+
+`;
+
+exports[`no-late-test-activity > invalid(63): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('parent', t => { setTimeout(() => assert.ok(t.test('child', () => {}))); }); 3`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+> 3 | test('parent', t => { setTimeout(() => assert.ok(t.test('child', () => {}))); });
+    |                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest in a detached \`setTimeout()\` callback can run after the test or hook has finished.
+
+`;
+
+exports[`no-late-test-activity > invalid(64): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('parent', t => { setTimeout(() => t.test('child', assert.ok(value))); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | test('parent', t => { setTimeout(() => t.test('child', assert.ok(value))); });
+
+`;
+
+exports[`no-late-test-activity > invalid(64): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('parent', t => { setTimeout(() => t.test('child', assert.ok(value))); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+> 3 | test('parent', t => { setTimeout(() => t.test('child', assert.ok(value))); });
+    |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest in a detached \`setTimeout()\` callback can run after the test or hook has finished.
+
+`;
+
+exports[`no-late-test-activity > invalid(64): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('parent', t => { setTimeout(() => t.test('child', assert.ok(value))); }); 3`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+> 3 | test('parent', t => { setTimeout(() => t.test('child', assert.ok(value))); });
+    |                                                        ^^^^^^^^^^^^^^^^ Assertion in a detached \`setTimeout()\` callback can run after the test or hook has finished.
+
+`;
+
+exports[`no-late-test-activity > invalid(65): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('parent', async t => { await t.test('child', childContext => { setTimeout(() => childContext.assert.ok(value)); }); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert/strict';
@@ -1288,7 +1366,7 @@ exports[`no-late-test-activity > invalid(62): import test from 'node:test';\nimp
 
 `;
 
-exports[`no-late-test-activity > invalid(62): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('parent', async t => { await t.test('child', childContext => { setTimeout(() => childContext.assert.ok(value)); }); }); 2`] = `
+exports[`no-late-test-activity > invalid(65): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('parent', async t => { await t.test('child', childContext => { setTimeout(() => childContext.assert.ok(value)); }); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1298,7 +1376,7 @@ Message:
 
 `;
 
-exports[`no-late-test-activity > invalid(63): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tsetTimeout((() => assert.ok(value)) as () => void);\n}); 1`] = `
+exports[`no-late-test-activity > invalid(66): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tsetTimeout((() => assert.ok(value)) as () => void);\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert/strict';
@@ -1308,7 +1386,7 @@ exports[`no-late-test-activity > invalid(63): import test from 'node:test';\nimp
 
 `;
 
-exports[`no-late-test-activity > invalid(63): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tsetTimeout((() => assert.ok(value)) as () => void);\n}); 2`] = `
+exports[`no-late-test-activity > invalid(66): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tsetTimeout((() => assert.ok(value)) as () => void);\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1320,7 +1398,7 @@ Message:
 
 `;
 
-exports[`no-late-test-activity > invalid(64): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\t(setTimeout as typeof setTimeout)(() => assert.ok(value));\n}); 1`] = `
+exports[`no-late-test-activity > invalid(67): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\t(setTimeout as typeof setTimeout)(() => assert.ok(value));\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert/strict';
@@ -1330,7 +1408,7 @@ exports[`no-late-test-activity > invalid(64): import test from 'node:test';\nimp
 
 `;
 
-exports[`no-late-test-activity > invalid(64): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\t(setTimeout as typeof setTimeout)(() => assert.ok(value));\n}); 2`] = `
+exports[`no-late-test-activity > invalid(67): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\t(setTimeout as typeof setTimeout)(() => assert.ok(value));\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1342,7 +1420,7 @@ Message:
 
 `;
 
-exports[`no-late-test-activity > invalid(65): import test from 'node:test';\nimport assert from 'node:assert/strict';\nimport * as timers from 'node:timers';\ntest('example', () => { (timers.setImmediate as typeof timers.setImmediate)(() => { throw error; }); }); 1`] = `
+exports[`no-late-test-activity > invalid(68): import test from 'node:test';\nimport assert from 'node:assert/strict';\nimport * as timers from 'node:timers';\ntest('example', () => { (timers.setImmediate as typeof timers.setImmediate)(() => { throw error; }); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert/strict';
@@ -1351,7 +1429,7 @@ exports[`no-late-test-activity > invalid(65): import test from 'node:test';\nimp
 
 `;
 
-exports[`no-late-test-activity > invalid(65): import test from 'node:test';\nimport assert from 'node:assert/strict';\nimport * as timers from 'node:timers';\ntest('example', () => { (timers.setImmediate as typeof timers.setImmediate)(() => { throw error; }); }); 2`] = `
+exports[`no-late-test-activity > invalid(68): import test from 'node:test';\nimport assert from 'node:assert/strict';\nimport * as timers from 'node:timers';\ntest('example', () => { (timers.setImmediate as typeof timers.setImmediate)(() => { throw error; }); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1362,7 +1440,7 @@ Message:
 
 `;
 
-exports[`no-late-test-activity > invalid(66): import test from 'node:test';\nimport assert from 'node:assert/strict';\nimport * as timers from 'node:timers';\ntest('example', () => { (timers as typeof timers).setTimeout(() => assert.ok(value)); }); 1`] = `
+exports[`no-late-test-activity > invalid(69): import test from 'node:test';\nimport assert from 'node:assert/strict';\nimport * as timers from 'node:timers';\ntest('example', () => { (timers as typeof timers).setTimeout(() => assert.ok(value)); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert/strict';
@@ -1371,7 +1449,7 @@ exports[`no-late-test-activity > invalid(66): import test from 'node:test';\nimp
 
 `;
 
-exports[`no-late-test-activity > invalid(66): import test from 'node:test';\nimport assert from 'node:assert/strict';\nimport * as timers from 'node:timers';\ntest('example', () => { (timers as typeof timers).setTimeout(() => assert.ok(value)); }); 2`] = `
+exports[`no-late-test-activity > invalid(69): import test from 'node:test';\nimport assert from 'node:assert/strict';\nimport * as timers from 'node:timers';\ntest('example', () => { (timers as typeof timers).setTimeout(() => assert.ok(value)); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1379,64 +1457,6 @@ Message:
   3 | import * as timers from 'node:timers';
 > 4 | test('example', () => { (timers as typeof timers).setTimeout(() => assert.ok(value)); });
     |                                                                    ^^^^^^^^^^^^^^^^ Assertion in a detached \`setTimeout()\` callback can run after the test or hook has finished.
-
-`;
-
-exports[`no-late-test-activity > invalid(67): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tsetTimeout(() => (assert as typeof assert).ok(value));\n}); 1`] = `
-
-  1 | import test from 'node:test';
-  2 | import assert from 'node:assert/strict';
-  3 | test('example', () => {
-  4 | 	setTimeout(() => (assert as typeof assert).ok(value));
-  5 | });
-
-`;
-
-exports[`no-late-test-activity > invalid(67): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tsetTimeout(() => (assert as typeof assert).ok(value));\n}); 2`] = `
-
-Message:
-  1 | import test from 'node:test';
-  2 | import assert from 'node:assert/strict';
-  3 | test('example', () => {
-> 4 | 	setTimeout(() => (assert as typeof assert).ok(value));
-    | 	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a detached \`setTimeout()\` callback can run after the test or hook has finished.
-  5 | });
-
-`;
-
-exports[`no-late-test-activity > invalid(68): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', t => { setTimeout(() => (t as typeof t).assert.ok(value)); }); 1`] = `
-
-  1 | import test from 'node:test';
-  2 | import assert from 'node:assert/strict';
-  3 | test('example', t => { setTimeout(() => (t as typeof t).assert.ok(value)); });
-
-`;
-
-exports[`no-late-test-activity > invalid(68): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', t => { setTimeout(() => (t as typeof t).assert.ok(value)); }); 2`] = `
-
-Message:
-  1 | import test from 'node:test';
-  2 | import assert from 'node:assert/strict';
-> 3 | test('example', t => { setTimeout(() => (t as typeof t).assert.ok(value)); });
-    |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a detached \`setTimeout()\` callback can run after the test or hook has finished.
-
-`;
-
-exports[`no-late-test-activity > invalid(69): import test from 'node:test';\nimport {strictEqual as equal} from 'node:assert/strict';\ntest('example', () => { setTimeout(() => (equal as typeof equal)(value, 1)); }); 1`] = `
-
-  1 | import test from 'node:test';
-  2 | import {strictEqual as equal} from 'node:assert/strict';
-  3 | test('example', () => { setTimeout(() => (equal as typeof equal)(value, 1)); });
-
-`;
-
-exports[`no-late-test-activity > invalid(69): import test from 'node:test';\nimport {strictEqual as equal} from 'node:assert/strict';\ntest('example', () => { setTimeout(() => (equal as typeof equal)(value, 1)); }); 2`] = `
-
-Message:
-  1 | import test from 'node:test';
-  2 | import {strictEqual as equal} from 'node:assert/strict';
-> 3 | test('example', () => { setTimeout(() => (equal as typeof equal)(value, 1)); });
-    |                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a detached \`setTimeout()\` callback can run after the test or hook has finished.
 
 `;
 
@@ -1464,7 +1484,65 @@ Message:
 
 `;
 
-exports[`no-late-test-activity > invalid(70): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', async () => {\n\t(load().then(value => assert.ok(value)) as Promise<void>);\n}); 1`] = `
+exports[`no-late-test-activity > invalid(70): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tsetTimeout(() => (assert as typeof assert).ok(value));\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | test('example', () => {
+  4 | 	setTimeout(() => (assert as typeof assert).ok(value));
+  5 | });
+
+`;
+
+exports[`no-late-test-activity > invalid(70): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tsetTimeout(() => (assert as typeof assert).ok(value));\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | test('example', () => {
+> 4 | 	setTimeout(() => (assert as typeof assert).ok(value));
+    | 	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a detached \`setTimeout()\` callback can run after the test or hook has finished.
+  5 | });
+
+`;
+
+exports[`no-late-test-activity > invalid(71): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', t => { setTimeout(() => (t as typeof t).assert.ok(value)); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | test('example', t => { setTimeout(() => (t as typeof t).assert.ok(value)); });
+
+`;
+
+exports[`no-late-test-activity > invalid(71): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', t => { setTimeout(() => (t as typeof t).assert.ok(value)); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+> 3 | test('example', t => { setTimeout(() => (t as typeof t).assert.ok(value)); });
+    |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a detached \`setTimeout()\` callback can run after the test or hook has finished.
+
+`;
+
+exports[`no-late-test-activity > invalid(72): import test from 'node:test';\nimport {strictEqual as equal} from 'node:assert/strict';\ntest('example', () => { setTimeout(() => (equal as typeof equal)(value, 1)); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import {strictEqual as equal} from 'node:assert/strict';
+  3 | test('example', () => { setTimeout(() => (equal as typeof equal)(value, 1)); });
+
+`;
+
+exports[`no-late-test-activity > invalid(72): import test from 'node:test';\nimport {strictEqual as equal} from 'node:assert/strict';\ntest('example', () => { setTimeout(() => (equal as typeof equal)(value, 1)); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import {strictEqual as equal} from 'node:assert/strict';
+> 3 | test('example', () => { setTimeout(() => (equal as typeof equal)(value, 1)); });
+    |                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a detached \`setTimeout()\` callback can run after the test or hook has finished.
+
+`;
+
+exports[`no-late-test-activity > invalid(73): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', async () => {\n\t(load().then(value => assert.ok(value)) as Promise<void>);\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert/strict';
@@ -1474,7 +1552,7 @@ exports[`no-late-test-activity > invalid(70): import test from 'node:test';\nimp
 
 `;
 
-exports[`no-late-test-activity > invalid(70): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', async () => {\n\t(load().then(value => assert.ok(value)) as Promise<void>);\n}); 2`] = `
+exports[`no-late-test-activity > invalid(73): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', async () => {\n\t(load().then(value => assert.ok(value)) as Promise<void>);\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';

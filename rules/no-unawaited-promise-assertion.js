@@ -356,22 +356,23 @@ function findActivities(node, state) {
 		return [];
 	}
 
+	const activities = [];
+
 	if (node.type === 'CallExpression') {
 		const assertionActivity = getAssertionActivity(node, state);
 		if (assertionActivity) {
-			return [assertionActivity];
+			activities.push(assertionActivity);
 		}
 	}
 
 	if (node.type === 'CallExpression' && isTrackedSubtestCall(node, contextParameters, sourceCode)) {
-		return [{node, type: 'Subtest'}];
+		activities.push({node, type: 'Subtest'});
 	}
 
 	if (node.type === 'ThrowStatement' && !isInsideHandledTryBlock(node, state.boundary)) {
-		return [{node, type: 'Throw'}];
+		activities.push({node, type: 'Throw'});
 	}
 
-	const activities = [];
 	for (const key of visitorKeys[node.type] ?? []) {
 		if (key === 'value' && isDeferredClassField(node)) {
 			continue;
