@@ -225,17 +225,6 @@ function getDeclaredVariable(identifier, node, imports) {
 	return imports.sourceCode.getDeclaredVariables(node).find(variable => variable.identifiers.includes(identifier));
 }
 
-/** Get the identifier from a direct or defaulted test-context parameter. */
-export function getContextParameterIdentifier(parameter) {
-	if (parameter?.type === 'Identifier') {
-		return parameter;
-	}
-
-	if (parameter?.type === 'AssignmentPattern' && parameter.left.type === 'Identifier') {
-		return parameter.left;
-	}
-}
-
 function isImportedBindingReference(identifier, imports) {
 	return getVariable(identifier, imports)?.defs.some(definition => definition.type === 'ImportBinding') ?? false;
 }

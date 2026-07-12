@@ -7,7 +7,6 @@ import {
 	MODIFIERS,
 	parseTestCall,
 	resolveImports,
-	getContextParameterIdentifier,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
