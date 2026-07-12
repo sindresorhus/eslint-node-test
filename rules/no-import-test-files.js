@@ -10,22 +10,6 @@ const messages = {
 	[MESSAGE_ID]: 'Do not import a test file. The Node.js test runner may execute it twice.',
 };
 
-function isTypeOnlyImport(node) {
-	return node.importKind === 'type'
-		|| (
-			node.specifiers.length > 0
-			&& node.specifiers.every(specifier => specifier.importKind === 'type')
-		);
-}
-
-function isTypeOnlyExport(node) {
-	return node.exportKind === 'type'
-		|| (
-			node.specifiers.length > 0
-			&& node.specifiers.every(specifier => specifier.exportKind === 'type')
-		);
-}
-
 function getSpecifierPath(specifier) {
 	specifier = specifier.split(/[#?]/, 1)[0];
 	if (
@@ -125,14 +109,14 @@ const create = context => {
 	};
 
 	context.on('ImportDeclaration', node => {
-		if (isTypeOnlyImport(node)) {
+		if (node.importKind === 'type') {
 			return;
 		}
 
 		return getProblem(node, node.source);
 	});
 	context.on('ExportNamedDeclaration', node => {
-		if (!node.source || isTypeOnlyExport(node)) {
+		if (!node.source || node.exportKind === 'type') {
 			return;
 		}
 

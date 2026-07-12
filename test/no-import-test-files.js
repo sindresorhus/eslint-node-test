@@ -29,6 +29,13 @@ test.snapshot({
 		'import value from \'/project/test/value.js\';',
 		'import value from \'file:///project/test/value.js\';',
 		'import \'./test/../value.js\';',
+		'import \'./test%2fhelpers.js\';',
+		'import \'./test%5chelpers.js\';',
+		'import \'./example.%74est.js%\';',
+		{
+			code: 'import \'../../example.test.js\';',
+			filename: 'source/parent.js',
+		},
 		// eslint-disable-next-line no-template-curly-in-string
 		'import(`./${name}.test.js`);',
 		'import(\'./value.test.js\' + suffix);',
@@ -37,15 +44,7 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
-			code: 'import {type Value} from \'./value.test.ts\';',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
 			code: 'export type {Value} from \'./value.test.ts\';',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'export {type Value} from \'./value.test.ts\';',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
@@ -79,6 +78,7 @@ test.snapshot({
 		'import(`./example_test.js`);',
 		'import(`./example-test.js`);',
 		'export {value} from \'./example.test.js\';',
+		'export {} from \'./example.test.js\';',
 		'export * from \'./example.test.js\';',
 		'import \'./example.test.jsx\';',
 		{
@@ -106,7 +106,15 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
+			code: 'import {type Value} from \'./example.test.ts\';',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
 			code: 'export {type Value, value} from \'./example.test.ts\';',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'export {type Value} from \'./example.test.ts\';',
 			languageOptions: {parser: parsers.typescript},
 		},
 		...invalidCaseInsensitiveTestFiles,
