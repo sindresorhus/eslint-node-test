@@ -2,6 +2,7 @@ import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	resolveImports,
 	createContextTracker,
+	getContextParameterIdentifier,
 	parseAssertionCall,
 } from './utils/node-test.js';
 
@@ -74,8 +75,8 @@ function isInsideCallback(node, callback, sourceCode) {
 }
 
 function isContextParameterInScope(name, callback, node, sourceCode) {
-	const parameter = callback.params[0];
-	if (parameter?.type !== 'Identifier') {
+	const parameter = getContextParameterIdentifier(callback.params[0]);
+	if (!parameter) {
 		return false;
 	}
 
