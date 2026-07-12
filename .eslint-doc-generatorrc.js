@@ -7,7 +7,7 @@ const config = {
 	ignoreConfig: [
 		'all',
 	],
-	ignoreDeprecatedRules: true,
+	ignoreDeprecatedRules: false,
 	ruleDocTitleFormat: 'name',
 	ruleListColumns: [
 		'name',

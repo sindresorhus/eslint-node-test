@@ -14,9 +14,9 @@ const unopinionatedRules = Object.fromEntries(Object.entries(rules).map(([id, ru
 	rule.meta.docs.recommended === 'unopinionated' ? 'error' : 'off',
 ]));
 
-const allRules = Object.fromEntries(Object.keys(rules).map(id => [
+const allRules = Object.fromEntries(Object.entries(rules).map(([id, rule]) => [
 	`node-test/${id}`,
-	'error',
+	rule.meta.deprecated ? 'off' : 'error',
 ]));
 
 const createConfig = (rules, flatConfigName) => ({

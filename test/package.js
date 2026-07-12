@@ -17,7 +17,7 @@ test('Every rule is defined in index file in alphabetical order', () => {
 		const name = path.basename(file, '.js');
 		assert.ok(eslintNodeTest.rules[name], `'${name}' is not exported in 'index.js'`);
 		assert.ok(
-			eslintNodeTest.configs.all.rules[`node-test/${name}`],
+			Object.hasOwn(eslintNodeTest.configs.all.rules, `node-test/${name}`),
 			`'${name}' is not set in the all config`,
 		);
 
@@ -126,4 +126,78 @@ test('rule.meta.docs.recommended should be synchronized with presets', () => {
 			assert.strictEqual(unopinionatedSeverity, 'off', `'${name}' rule should set to 'off' in the unopinionated config.`);
 		}
 	}
+});
+
+test('deprecated rules should be disabled in presets', () => {
+	for (const [name, rule] of Object.entries(eslintNodeTest.rules)) {
+		if (!rule.meta.deprecated) {
+			continue;
+		}
+
+		for (const config of Object.values(eslintNodeTest.configs)) {
+			assert.strictEqual(config.rules[`node-test/${name}`], 'off');
+		}
+	}
+});
+
+test('Promise assertions are owned by no-unawaited-promise-assertion', async () => {
+	const eslint = new ESLint({
+		baseConfig: eslintNodeTest.configs.recommended,
+		overrideConfigFile: true,
+	});
+	const source = [
+		'import test from \'node:test\';',
+		'import assert from \'node:assert/strict\';',
+		'test(\'example\', () => {',
+		'\tload().then(value => assert.ok(value));',
+		'\tload().then(() => assert.fail()).catch(() => {});',
+		'\tload().then(() => { assert.ok(value); throw error; });',
+		'});',
+	].join('\n');
+	const [result] = await eslint.lintText(source);
+	const promiseAssertionMessages = result.messages.filter(message => message.ruleId === 'node-test/no-unawaited-promise-assertion');
+	const lateActivityMessages = result.messages.filter(message => message.ruleId === 'node-test/no-late-test-activity');
+
+	assert.strictEqual(promiseAssertionMessages.length, 3);
+	assert.strictEqual(lateActivityMessages.length, 1);
+});
+
+test('overlapping rules should not report a detached subtest twice', async () => {
+	const eslint = new ESLint({
+		baseConfig: eslintNodeTest.configs.recommended,
+		overrideConfigFile: true,
+	});
+	const source = [
+		'import test from \'node:test\';',
+		'test(\'parent\', testContext => {',
+		'\tsetTimeout(() => {',
+		'\t\ttestContext.test(\'child\', () => {});',
+		'\t});',
+		'});',
+	].join('\n');
+	const [result] = await eslint.lintText(source);
+	const lateActivityMessages = result.messages.filter(message => message.ruleId === 'node-test/no-late-test-activity');
+
+	assert.strictEqual(lateActivityMessages.length, 1);
+	assert.ok(result.messages.every(message => message.ruleId !== 'node-test/no-unawaited-subtest'));
+});
+
+test('overlapping rules should not report a detached Promise subtest twice', async () => {
+	const eslint = new ESLint({
+		baseConfig: eslintNodeTest.configs.recommended,
+		overrideConfigFile: true,
+	});
+	const source = [
+		'import test from \'node:test\';',
+		'test(\'parent\', testContext => {',
+		'\tload().then(() => {',
+		'\t\ttestContext.test(\'child\', () => {});',
+		'\t});',
+		'});',
+	].join('\n');
+	const [result] = await eslint.lintText(source);
+	const lateActivityMessages = result.messages.filter(message => message.ruleId === 'node-test/no-late-test-activity');
+
+	assert.strictEqual(lateActivityMessages.length, 1);
+	assert.ok(result.messages.every(message => message.ruleId !== 'node-test/no-unawaited-subtest'));
 });

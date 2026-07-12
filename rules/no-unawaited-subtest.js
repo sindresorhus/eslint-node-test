@@ -1,5 +1,6 @@
 import {resolveImports, createContextTracker, getSubtestReceiver} from './utils/node-test.js';
 import {getEnclosingFunction} from './utils/index.js';
+import {trackDetachedCallbacks} from './no-unawaited-promise-assertion.js';
 
 const MESSAGE_ID = 'no-unawaited-subtest';
 
@@ -15,6 +16,7 @@ const create = context => {
 	}
 
 	const tracker = createContextTracker(imports);
+	const isInsideDetachedCallback = trackDetachedCallbacks(context);
 
 	context.on('CallExpression', node => {
 		// Whether this is a floating subtest must be decided against the current stack,
@@ -22,7 +24,11 @@ const create = context => {
 		const subtest = tracker.isSubtestCall(node);
 
 		let problem;
-		if (subtest && node.parent.type === 'ExpressionStatement') {
+		if (
+			subtest
+			&& node.parent.type === 'ExpressionStatement'
+			&& !isInsideDetachedCallback(node)
+		) {
 			const {name} = getSubtestReceiver(node);
 			const enclosingFunction = getEnclosingFunction(node);
 
