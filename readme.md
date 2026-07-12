@@ -44,7 +44,7 @@ export default defineConfig([
 ]);
 ```
 
-The rules only activate in files that import from `node:test`/`test` (and, for assertion rules, `node:assert`), so you can safely apply the plugin across your whole project.
+Most rules only activate in files that import from `node:test`/`test` (and, for assertion rules, `node:assert`), so you can safely apply the plugin across your whole project.
 
 ## Rules
 
@@ -93,6 +93,7 @@ The rules only activate in files that import from `node:test`/`test` (and, for a
 | [no-export](docs/rules/no-export.md)                                                             | Disallow exports from test files.                                                                          | ✅    |    |    |
 | [no-identical-assertion-arguments](docs/rules/no-identical-assertion-arguments.md)               | Disallow comparing a value to itself in an assertion.                                                      | ✅ ☑️ |    |    |
 | [no-identical-title](docs/rules/no-identical-title.md)                                           | Disallow identical test titles within the same scope.                                                      | ✅ ☑️ |    |    |
+| [no-import-test-files](docs/rules/no-import-test-files.md)                                       | Disallow imports of Node.js test files.                                                                    | ✅ ☑️ |    |    |
 | [no-incorrect-deep-equal](docs/rules/no-incorrect-deep-equal.md)                                 | Disallow `deepEqual`/`deepStrictEqual` (and their `notDeep*` variants) when comparing with primitives.     | ✅ ☑️ | 🔧 |    |
 | [no-incorrect-strict-equal](docs/rules/no-incorrect-strict-equal.md)                             | Disallow `strictEqual`/`equal` (and their `not*` variants) when comparing with an object or array literal. | ✅ ☑️ | 🔧 |    |
 | [no-late-test-activity](docs/rules/no-late-test-activity.md)                                     | Disallow test activity inside detached asynchronous callbacks.                                             | ✅ ☑️ | 🔧 |    |

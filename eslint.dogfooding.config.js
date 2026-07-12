@@ -10,6 +10,10 @@ const config = [
 		linterOptions: {
 			reportUnusedDisableDirectives: false,
 		},
+		rules: {
+			// The test command uses explicit globs, excluding internal helpers that match Node.js's default discovery.
+			'node-test/no-import-test-files': 'off',
+		},
 	},
 	{
 		ignores: [
