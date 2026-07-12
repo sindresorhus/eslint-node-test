@@ -44,7 +44,7 @@ export default defineConfig([
 ]);
 ```
 
-Most rules only activate in files that import from `node:test`/`test` (and, for assertion rules, `node:assert`), so you can safely apply the plugin across your whole project. `no-import-test-files` intentionally also checks other files, since Node.js test files do not need to import `node:test`.
+Most rules only activate in files that import from `node:test`/`test` (and, for assertion rules, `node:assert`), so you can safely apply the plugin across your whole project.
 
 ## Rules
 
