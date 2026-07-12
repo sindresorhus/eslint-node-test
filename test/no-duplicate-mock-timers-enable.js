@@ -67,7 +67,13 @@ test.snapshot({
 		'import {beforeEach} from \'node:test\';\nbeforeEach((t = undefined) => { t.mock.timers.enable(); t.mock.timers.enable(); });',
 		withImport('test("title", t => { t.beforeEach(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); });'),
 		withImport('test("title", t => { t.beforeEach((hookContext = undefined) => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); });'),
-		withImport('test("title", t => { t.before(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); t.after(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); t.afterEach(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); });'),
+		withImport([
+			'test("title", t => {',
+			't.before(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); });',
+			't.after(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); });',
+			't.afterEach(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); });',
+			'});',
+		].join('\n')),
 
 		// A conditional reset leaves a path with timers enabled.
 		withImport('mock.timers.enable();\nif (condition) { mock.timers.reset(); }\nmock.timers.enable();'),
