@@ -336,7 +336,7 @@ function getAssertionActivity(node, state) {
 		return undefined;
 	}
 
-	return {node, type: 'Assertion', isPromiseAssertion};
+	return {node, type: 'Assertion'};
 }
 
 function findActivities(node, state) {
@@ -403,10 +403,10 @@ function isDeferredClassField(node) {
 function getPromiseProblems(chainCalls, state, assertionsOnly, messageId) {
 	return chainCalls.flatMap((call, index) => getPromiseCallbackArguments(call).flatMap(callback => {
 		let activities = findCallbackActivities(callback, {...state, assertionsOnly})
-			.filter(activity => !assertionsOnly || activity.type === 'Assertion');
+			.filter(activity => assertionsOnly ? activity.type === 'Assertion' : activity.type !== 'Assertion');
 		const hasDownstreamRejectionHandler = chainCalls.slice(0, index).some(outerCall => hasRejectionHandler(outerCall));
 		if (!assertionsOnly && hasDownstreamRejectionHandler) {
-			activities = activities.filter(activity => activity.type === 'Subtest' || activity.isPromiseAssertion);
+			activities = activities.filter(activity => activity.type === 'Subtest');
 		}
 
 		if (assertionsOnly) {
@@ -848,13 +848,9 @@ const config = {
 		type: 'problem',
 		docs: {
 			description: 'Disallow assertions inside unawaited Promise callbacks.',
-			recommended: false,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
-		deprecated: {
-			message: 'Use `no-late-test-activity` instead.',
-			replacedBy: ['no-late-test-activity'],
-		},
 		schema: [],
 		messages,
 		languages: ['js/js'],

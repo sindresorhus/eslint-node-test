@@ -140,7 +140,7 @@ test('deprecated rules should be disabled in presets', () => {
 	}
 });
 
-test('replacement rule should replace the deprecated rule in presets', async () => {
+test('Promise assertions are owned by no-unawaited-promise-assertion', async () => {
 	const eslint = new ESLint({
 		baseConfig: eslintNodeTest.configs.recommended,
 		overrideConfigFile: true,
@@ -148,13 +148,18 @@ test('replacement rule should replace the deprecated rule in presets', async () 
 	const source = [
 		'import test from \'node:test\';',
 		'import assert from \'node:assert/strict\';',
-		'test(\'example\', async () => { load().then(value => assert.ok(value)); });',
+		'test(\'example\', () => {',
+		'\tload().then(value => assert.ok(value));',
+		'\tload().then(() => assert.fail()).catch(() => {});',
+		'\tload().then(() => { assert.ok(value); throw error; });',
+		'});',
 	].join('\n');
 	const [result] = await eslint.lintText(source);
+	const promiseAssertionMessages = result.messages.filter(message => message.ruleId === 'node-test/no-unawaited-promise-assertion');
 	const lateActivityMessages = result.messages.filter(message => message.ruleId === 'node-test/no-late-test-activity');
 
+	assert.strictEqual(promiseAssertionMessages.length, 3);
 	assert.strictEqual(lateActivityMessages.length, 1);
-	assert.ok(result.messages.every(message => message.ruleId !== 'node-test/no-unawaited-promise-assertion'));
 });
 
 test('overlapping rules should not report a detached subtest twice', async () => {

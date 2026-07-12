@@ -9,19 +9,11 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-A test finishes when its callback returns or its returned Promise settles. Asynchronous activity started by the test can continue afterward, causing assertions, thrown errors, and subtests to be reported separately from the test that created them.
+Detached `setTimeout()`, `setImmediate()`, `queueMicrotask()`, and floating Promise callbacks can run after a test or hook finishes. This rule reports assertions in scheduler callbacks and throws or subtests in any supported callback. [`no-unawaited-promise-assertion`](no-unawaited-promise-assertion.md) reports assertions in floating Promise callbacks.
 
-This rule reports test activity inside detached `setTimeout()`, `setImmediate()`, `queueMicrotask()`, and floating Promise callbacks. Return or await the asynchronous work so the test runner knows when the test is complete. Promise chains whose values are otherwise consumed are not checked.
+Return or await asynchronous work so the test runner waits for it. Consumed Promise chains and scheduler callbacks inside a consumed `new Promise()` are allowed. Throws are also allowed when a downstream rejection callback handles them. The rule skips callback-style tests and hooks, and tests whose first relevant statement is a statically recognizable `t.plan(..., {wait: <truthy>})` call.
 
-Synchronous assertions and throws in a floating Promise callback are allowed when a downstream rejection callback handles them. Promise-returning assertions are still reported unless their Promise is handled directly.
-
-Scheduler callbacks inside a consumed `new Promise()` are allowed. Tests that call `t.plan()` with a statically truthy `wait` option as the first statement other than variable declarations, function declarations, and empty statements are also allowed because the test runner explicitly waits for the planned activity.
-
-Callback-style tests and hooks are not checked because their completion depends on when the completion callback is invoked.
-
-Only directly executed activity in inline callbacks is checked. External callback references and nested helper function bodies are not analyzed.
-
-Detached callbacks scheduled from inside another detached callback are not recursively analyzed.
+Only directly executed activity in inline callbacks is checked. External callbacks, nested helper functions, and nested detached callbacks are not analyzed.
 
 ## Examples
 
@@ -38,8 +30,8 @@ test('loads', () => {
 
 // ❌
 test('loads', () => {
-	load().then(value => {
-		assert.equal(value, 42);
+	load().then(() => {
+		throw new Error('Failed to load');
 	});
 });
 
