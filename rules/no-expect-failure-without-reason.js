@@ -48,7 +48,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Require a reason when marking a test or suite as expected to fail.',
-			recommended: false,
+			recommended: true,
 		},
 		schema: [],
 		messages,
