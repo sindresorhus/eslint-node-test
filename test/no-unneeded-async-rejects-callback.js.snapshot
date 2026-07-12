@@ -1,0 +1,1379 @@
+exports[`no-unneeded-async-rejects-callback > invalid(1): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\ndeclare const promise: Promise<void>;\nassert.rejects(async () => await promise); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | declare const promise: Promise<void>;
+  4 | assert.rejects(async () => await promise);
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(1): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\ndeclare const promise: Promise<void>;\nassert.rejects(async () => await promise); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | declare const promise: Promise<void>;
+> 4 | assert.rejects(async () => await promise);
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | declare const promise: Promise<void>;
+  4 | assert.rejects(() => promise);
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(10): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async function () { await operation(); }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(async function () { await operation(); });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(10): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async function () { await operation(); }); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects(async function () { await operation(); });
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(function () { return operation(); });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(11): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async function () { return await operation(); }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(async function () { return await operation(); });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(11): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async function () { return await operation(); }); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects(async function () { return await operation(); });
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(function () { return operation(); });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(12): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async function operationCallback() { return await operation(); }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(async function operationCallback() { return await operation(); });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(12): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async function operationCallback() { return await operation(); }); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects(async function operationCallback() { return await operation(); });
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(function operationCallback() { return operation(); });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(13): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects((async () => await operation())); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects((async () => await operation()));
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(13): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects((async () => await operation())); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects((async () => await operation()));
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects((() => operation()));
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(14): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert/strict';\nassert.rejects(async () => await operation()); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert/strict';
+  3 | assert.rejects(async () => await operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(14): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert/strict';\nassert.rejects(async () => await operation()); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert/strict';
+> 3 | assert.rejects(async () => await operation());
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert/strict';
+  3 | assert.rejects(() => operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(15): declare function operation(): Promise<unknown>;\nimport * as assert from 'node:assert';\nassert.rejects(async () => await operation()); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import * as assert from 'node:assert';
+  3 | assert.rejects(async () => await operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(15): declare function operation(): Promise<unknown>;\nimport * as assert from 'node:assert';\nassert.rejects(async () => await operation()); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import * as assert from 'node:assert';
+> 3 | assert.rejects(async () => await operation());
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import * as assert from 'node:assert';
+  3 | assert.rejects(() => operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(16): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.strict.rejects(async () => await operation()); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.strict.rejects(async () => await operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(16): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.strict.rejects(async () => await operation()); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert.strict.rejects(async () => await operation());
+    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.strict.rejects(() => operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(17): declare function operation(): Promise<unknown>;\nimport * as assert from 'node:assert';\nassert.strict.rejects(async () => await operation()); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import * as assert from 'node:assert';
+  3 | assert.strict.rejects(async () => await operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(17): declare function operation(): Promise<unknown>;\nimport * as assert from 'node:assert';\nassert.strict.rejects(async () => await operation()); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import * as assert from 'node:assert';
+> 3 | assert.strict.rejects(async () => await operation());
+    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import * as assert from 'node:assert';
+  3 | assert.strict.rejects(() => operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(18): declare function operation(): Promise<unknown>;\nimport {rejects} from 'node:assert';\nrejects(async () => await operation()); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import {rejects} from 'node:assert';
+  3 | rejects(async () => await operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(18): declare function operation(): Promise<unknown>;\nimport {rejects} from 'node:assert';\nrejects(async () => await operation()); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import {rejects} from 'node:assert';
+> 3 | rejects(async () => await operation());
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import {rejects} from 'node:assert';
+  3 | rejects(() => operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(19): declare function operation(): Promise<unknown>;\nimport {rejects as assertRejects} from 'node:assert';\nassertRejects(async () => await operation()); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import {rejects as assertRejects} from 'node:assert';
+  3 | assertRejects(async () => await operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(19): declare function operation(): Promise<unknown>;\nimport {rejects as assertRejects} from 'node:assert';\nassertRejects(async () => await operation()); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import {rejects as assertRejects} from 'node:assert';
+> 3 | assertRejects(async () => await operation());
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import {rejects as assertRejects} from 'node:assert';
+  3 | assertRejects(() => operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(2): declare function operation(): Result;\nimport assert from 'node:assert';\ntype Result = Promise<void>;\nassert.rejects(async () => await operation()); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Result;
+  2 | import assert from 'node:assert';
+  3 | type Result = Promise<void>;
+  4 | assert.rejects(async () => await operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(2): declare function operation(): Result;\nimport assert from 'node:assert';\ntype Result = Promise<void>;\nassert.rejects(async () => await operation()); 2`] = `
+
+Message:
+  1 | declare function operation(): Result;
+  2 | import assert from 'node:assert';
+  3 | type Result = Promise<void>;
+> 4 | assert.rejects(async () => await operation());
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Result;
+  2 | import assert from 'node:assert';
+  3 | type Result = Promise<void>;
+  4 | assert.rejects(() => operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(20): declare function operation(): Promise<unknown>;\nimport {strict as strictAssert} from 'node:assert';\nstrictAssert.rejects(async () => await operation()); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import {strict as strictAssert} from 'node:assert';
+  3 | strictAssert.rejects(async () => await operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(20): declare function operation(): Promise<unknown>;\nimport {strict as strictAssert} from 'node:assert';\nstrictAssert.rejects(async () => await operation()); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import {strict as strictAssert} from 'node:assert';
+> 3 | strictAssert.rejects(async () => await operation());
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import {strict as strictAssert} from 'node:assert';
+  3 | strictAssert.rejects(() => operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(21): declare function operation(): Promise<unknown>;\nimport {rejects} from 'node:assert/strict';\nrejects(async () => await operation()); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import {rejects} from 'node:assert/strict';
+  3 | rejects(async () => await operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(21): declare function operation(): Promise<unknown>;\nimport {rejects} from 'node:assert/strict';\nrejects(async () => await operation()); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import {rejects} from 'node:assert/strict';
+> 3 | rejects(async () => await operation());
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import {rejects} from 'node:assert/strict';
+  3 | rejects(() => operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(22): declare function operation(): Promise<unknown>;\nimport {rejects} from 'assert';\nrejects(async () => await operation()); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import {rejects} from 'assert';
+  3 | rejects(async () => await operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(22): declare function operation(): Promise<unknown>;\nimport {rejects} from 'assert';\nrejects(async () => await operation()); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import {rejects} from 'assert';
+> 3 | rejects(async () => await operation());
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import {rejects} from 'assert';
+  3 | rejects(() => operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(23): declare function operation(): Promise<unknown>;\nimport assert from 'assert/strict';\nassert.rejects(async () => await operation()); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'assert/strict';
+  3 | assert.rejects(async () => await operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(23): declare function operation(): Promise<unknown>;\nimport assert from 'assert/strict';\nassert.rejects(async () => await operation()); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'assert/strict';
+> 3 | assert.rejects(async () => await operation());
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'assert/strict';
+  3 | assert.rejects(() => operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(24): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert?.rejects(async () => await operation()); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert?.rejects(async () => await operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(24): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert?.rejects(async () => await operation()); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert?.rejects(async () => await operation());
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert?.rejects(() => operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(25): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects?.(async () => await operation()); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects?.(async () => await operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(25): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects?.(async () => await operation()); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects?.(async () => await operation());
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects?.(() => operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(26): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => await (operation())); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(async () => await (operation()));
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(26): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => await (operation())); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects(async () => await (operation()));
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(() => (operation()));
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(27): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => await operation().then(value => value)); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(async () => await operation().then(value => value));
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(27): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => await operation().then(value => value)); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects(async () => await operation().then(value => value));
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(() => operation().then(value => value));
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(28): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => await (async () => await operation())()); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(async () => await (async () => await operation())());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(28): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => await (async () => await operation())()); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects(async () => await (async () => await operation())());
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(() => (async () => await operation())());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(29): declare function operation(): Promise<unknown>;\nimport test from 'node:test';\ntest('test', context => { context.assert.rejects(async () => await operation()); }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import test from 'node:test';
+  3 | test('test', context => { context.assert.rejects(async () => await operation()); });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(29): declare function operation(): Promise<unknown>;\nimport test from 'node:test';\ntest('test', context => { context.assert.rejects(async () => await operation()); }); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import test from 'node:test';
+> 3 | test('test', context => { context.assert.rejects(async () => await operation()); });
+    |                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import test from 'node:test';
+  3 | test('test', context => { context.assert.rejects(() => operation()); });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(3): import assert from 'node:assert';\nasync function operation() {}\nassert.rejects(async () => await operation()); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | async function operation() {}
+  3 | assert.rejects(async () => await operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(3): import assert from 'node:assert';\nasync function operation() {}\nassert.rejects(async () => await operation()); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+  2 | async function operation() {}
+> 3 | assert.rejects(async () => await operation());
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | import assert from 'node:assert';
+  2 | async function operation() {}
+  3 | assert.rejects(() => operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(30): declare function operation(): Promise<unknown>;\nimport test from 'node:test';\ntest.only('test', context => { context.assert.rejects(async () => await operation()); }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import test from 'node:test';
+  3 | test.only('test', context => { context.assert.rejects(async () => await operation()); });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(30): declare function operation(): Promise<unknown>;\nimport test from 'node:test';\ntest.only('test', context => { context.assert.rejects(async () => await operation()); }); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import test from 'node:test';
+> 3 | test.only('test', context => { context.assert.rejects(async () => await operation()); });
+    |                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import test from 'node:test';
+  3 | test.only('test', context => { context.assert.rejects(() => operation()); });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(31): declare function operation(): Promise<unknown>;\nimport * as nodeTest from 'node:test';\nnodeTest.test('test', context => { context.assert.rejects(async () => await operation()); }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import * as nodeTest from 'node:test';
+  3 | nodeTest.test('test', context => { context.assert.rejects(async () => await operation()); });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(31): declare function operation(): Promise<unknown>;\nimport * as nodeTest from 'node:test';\nnodeTest.test('test', context => { context.assert.rejects(async () => await operation()); }); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import * as nodeTest from 'node:test';
+> 3 | nodeTest.test('test', context => { context.assert.rejects(async () => await operation()); });
+    |                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import * as nodeTest from 'node:test';
+  3 | nodeTest.test('test', context => { context.assert.rejects(() => operation()); });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(32): declare function operation(): Promise<unknown>;\nimport test from 'node:test';\ntest('outer', context => { context.test('inner', nestedContext => { nestedContext.assert.rejects(async () => await operation()); }); }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import test from 'node:test';
+  3 | test('outer', context => { context.test('inner', nestedContext => { nestedContext.assert.rejects(async () => await operation()); }); });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(32): declare function operation(): Promise<unknown>;\nimport test from 'node:test';\ntest('outer', context => { context.test('inner', nestedContext => { nestedContext.assert.rejects(async () => await operation()); }); }); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import test from 'node:test';
+> 3 | test('outer', context => { context.test('inner', nestedContext => { nestedContext.assert.rejects(async () => await operation()); }); });
+    |                                                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import test from 'node:test';
+  3 | test('outer', context => { context.test('inner', nestedContext => { nestedContext.assert.rejects(() => operation()); }); });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(33): declare function operation(): Promise<unknown>;\nimport {beforeEach} from 'node:test';\nbeforeEach(context => { context.assert.rejects(async () => await operation()); }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import {beforeEach} from 'node:test';
+  3 | beforeEach(context => { context.assert.rejects(async () => await operation()); });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(33): declare function operation(): Promise<unknown>;\nimport {beforeEach} from 'node:test';\nbeforeEach(context => { context.assert.rejects(async () => await operation()); }); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import {beforeEach} from 'node:test';
+> 3 | beforeEach(context => { context.assert.rejects(async () => await operation()); });
+    |                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import {beforeEach} from 'node:test';
+  3 | beforeEach(context => { context.assert.rejects(() => operation()); });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(34): declare function operation(): Promise<unknown>;\nimport test from 'node:test';\ntest.beforeEach(context => { context.assert.rejects(async () => await operation()); }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import test from 'node:test';
+  3 | test.beforeEach(context => { context.assert.rejects(async () => await operation()); });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(34): declare function operation(): Promise<unknown>;\nimport test from 'node:test';\ntest.beforeEach(context => { context.assert.rejects(async () => await operation()); }); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import test from 'node:test';
+> 3 | test.beforeEach(context => { context.assert.rejects(async () => await operation()); });
+    |                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import test from 'node:test';
+  3 | test.beforeEach(context => { context.assert.rejects(() => operation()); });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(35): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async /* keep */ () => await operation()); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(async /* keep */ () => await operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(35): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async /* keep */ () => await operation()); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects(async /* keep */ () => await operation());
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(36): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => await /* keep */ operation()); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(async () => await /* keep */ operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(36): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => await /* keep */ operation()); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects(async () => await /* keep */ operation());
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(37): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => await operation(/* keep */)); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(async () => await operation(/* keep */));
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(37): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => await operation(/* keep */)); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects(async () => await operation(/* keep */));
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(() => operation(/* keep */));
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(38): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => { await /* keep */ operation(); }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(async () => { await /* keep */ operation(); });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(38): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => { await /* keep */ operation(); }); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects(async () => { await /* keep */ operation(); });
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(39): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => { await\noperation(); }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(async () => { await
+  4 | operation(); });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(39): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => { await\noperation(); }); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects(async () => { await
+    |                ^^^^^^^^^^^^^^^^^^^
+> 4 | operation(); });
+    | ^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(() => { return operation(); });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(4): import assert from 'node:assert';\nassert.rejects(async () => await (async () => {})()); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.rejects(async () => await (async () => {})());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(4): import assert from 'node:assert';\nassert.rejects(async () => await (async () => {})()); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.rejects(async () => await (async () => {})());
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | import assert from 'node:assert';
+  2 | assert.rejects(() => (async () => {})());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(40): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => { await // Keep this comment.\noperation(); }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(async () => { await // Keep this comment.
+  4 | operation(); });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(40): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => { await // Keep this comment.\noperation(); }); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects(async () => { await // Keep this comment.
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | operation(); });
+    | ^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(41): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => { ((await operation())); }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(async () => { ((await operation())); });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(41): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => { ((await operation())); }); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects(async () => { ((await operation())); });
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(42): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => { return (await operation()); }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(async () => { return (await operation()); });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(42): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => { return (await operation()); }); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects(async () => { return (await operation()); });
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(() => { return (operation()); });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(43): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => { return /* keep */ await operation(); }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(async () => { return /* keep */ await operation(); });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(43): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => { return /* keep */ await operation(); }); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects(async () => { return /* keep */ await operation(); });
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(() => { return /* keep */ operation(); });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(44): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => await (operation() as Promise<void>)); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(async () => await (operation() as Promise<void>));
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(44): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => await (operation() as Promise<void>)); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects(async () => await (operation() as Promise<void>));
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(() => (operation() as Promise<void>));
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(45): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => await operation()!); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(async () => await operation()!);
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(45): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => await operation()!); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects(async () => await operation()!);
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(() => operation()!);
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(46): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => await (operation() satisfies Promise<void>)); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(async () => await (operation() satisfies Promise<void>));
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(46): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => await (operation() satisfies Promise<void>)); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects(async () => await (operation() satisfies Promise<void>));
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(() => (operation() satisfies Promise<void>));
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(47): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => (await operation()) as Promise<void>); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(async () => (await operation()) as Promise<void>);
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(47): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => (await operation()) as Promise<void>); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects(async () => (await operation()) as Promise<void>);
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(() => (operation()) as Promise<void>);
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(48): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => (await operation())!); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(async () => (await operation())!);
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(48): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => (await operation())!); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects(async () => (await operation())!);
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(() => (operation())!);
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(49): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => (await operation()) satisfies Promise<void>); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(async () => (await operation()) satisfies Promise<void>);
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(49): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => (await operation()) satisfies Promise<void>); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects(async () => (await operation()) satisfies Promise<void>);
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(() => (operation()) satisfies Promise<void>);
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(5): declare function operation(): Promise<void> | Promise<string>;\nimport assert from 'node:assert';\nassert.rejects(async () => await operation()); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<void> | Promise<string>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(async () => await operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(5): declare function operation(): Promise<void> | Promise<string>;\nimport assert from 'node:assert';\nassert.rejects(async () => await operation()); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<void> | Promise<string>;
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects(async () => await operation());
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<void> | Promise<string>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(() => operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(50): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => { return (await operation()) as Promise<void>; }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(async () => { return (await operation()) as Promise<void>; });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(50): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => { return (await operation()) as Promise<void>; }); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects(async () => { return (await operation()) as Promise<void>; });
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(() => { return (operation()) as Promise<void>; });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(51): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => { await operation() as Promise<void>; }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(async () => { await operation() as Promise<void>; });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(51): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => { await operation() as Promise<void>; }); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects(async () => { await operation() as Promise<void>; });
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(() => { return operation() as Promise<void>; });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(52): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async (): Promise<void> => await operation()); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(async (): Promise<void> => await operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(52): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async (): Promise<void> => await operation()); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects(async (): Promise<void> => await operation());
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects((): Promise<void> => operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(53): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => await (<Promise<void>>operation())); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(async () => await (<Promise<void>>operation()));
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(53): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => await (<Promise<void>>operation())); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects(async () => await (<Promise<void>>operation()));
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(() => (<Promise<void>>operation()));
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(54): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(((async () => await operation()) as () => Promise<void>)!); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(((async () => await operation()) as () => Promise<void>)!);
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(54): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(((async () => await operation()) as () => Promise<void>)!); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects(((async () => await operation()) as () => Promise<void>)!);
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(((() => operation()) as () => Promise<void>)!);
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(55): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects((async () => await operation()) satisfies () => Promise<void>); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects((async () => await operation()) satisfies () => Promise<void>);
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(55): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects((async () => await operation()) satisfies () => Promise<void>); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects((async () => await operation()) satisfies () => Promise<void>);
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects((() => operation()) satisfies () => Promise<void>);
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(56): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async function (): Promise<void> { return await operation(); }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(async function (): Promise<void> { return await operation(); });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(56): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async function (): Promise<void> { return await operation(); }); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects(async function (): Promise<void> { return await operation(); });
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(function (): Promise<void> { return operation(); });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(6): declare function operation(): Promise<void> & {readonly brand: true};\nimport assert from 'node:assert';\nassert.rejects(async () => await operation()); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<void> & {readonly brand: true};
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(async () => await operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(6): declare function operation(): Promise<void> & {readonly brand: true};\nimport assert from 'node:assert';\nassert.rejects(async () => await operation()); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<void> & {readonly brand: true};
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects(async () => await operation());
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<void> & {readonly brand: true};
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(() => operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(7): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => await operation()); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(async () => await operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(7): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => await operation()); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects(async () => await operation());
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(() => operation());
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(8): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => { await operation(); }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(async () => { await operation(); });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(8): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => { await operation(); }); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects(async () => { await operation(); });
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(() => { return operation(); });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(9): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => { return await operation(); }); 1`] = `
+
+Filename: test/fixtures/inline.ts
+
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(async () => { return await operation(); });
+
+`;
+
+exports[`no-unneeded-async-rejects-callback > invalid(9): declare function operation(): Promise<unknown>;\nimport assert from 'node:assert';\nassert.rejects(async () => { return await operation(); }); 2`] = `
+
+Message:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+> 3 | assert.rejects(async () => { return await operation(); });
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This \`rejects()\` callback may unnecessarily wrap a single awaited operation.
+
+Suggestion 1/1: Replace it with a plain Promise-returning callback.:
+  1 | declare function operation(): Promise<unknown>;
+  2 | import assert from 'node:assert';
+  3 | assert.rejects(() => { return operation(); });
+
+`;
