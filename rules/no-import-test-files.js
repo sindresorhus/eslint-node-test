@@ -51,11 +51,10 @@ function getFilePath(specifier, filename, cwd) {
 		return;
 	}
 
-	if (!filename || filename === '<input>' || filename === '<text>') {
-		return filePath;
-	}
-
-	const resolvedFilePath = path.resolve(path.dirname(path.resolve(cwd, filename)), filePath);
+	const baseDirectory = filename && filename !== '<input>' && filename !== '<text>'
+		? path.dirname(path.resolve(cwd, filename))
+		: cwd;
+	const resolvedFilePath = path.resolve(baseDirectory, filePath);
 	const relativeFilePath = path.relative(cwd, resolvedFilePath);
 	if (
 		relativeFilePath === '..'
@@ -84,7 +83,7 @@ function isTestFileSpecifier(specifier, filename, cwd) {
 	}
 
 	for (const segment of pathSegments) {
-		if (segment !== '..' && segment.startsWith('.')) {
+		if (segment.startsWith('.')) {
 			return false;
 		}
 	}

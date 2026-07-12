@@ -21,6 +21,7 @@ test.snapshot({
 		'import \'./TEST/helper.js\';',
 		String.raw`import '.\\test\\helpers.js';`,
 		String.raw`import '..\\example.test.js';`,
+		'import \'../example.test.js\';',
 		{
 			code: 'import \'./helper.js\';',
 			filename: 'source/parent.js',
