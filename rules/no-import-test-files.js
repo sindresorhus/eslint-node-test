@@ -1,6 +1,6 @@
 import path from 'node:path';
 import {getStaticStringValue} from './ast/index.js';
-import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
+import {unwrapTypeScriptExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'no-import-test-files';
 const IS_CASE_INSENSITIVE_FILE_SYSTEM = process.platform === 'darwin' || process.platform === 'win32';
