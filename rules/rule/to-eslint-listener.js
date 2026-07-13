@@ -44,9 +44,26 @@ export default function toEslintListener(context, listeners) {
 	// Forward positional arguments explicitly instead of a rest array, since this runs for every
 	// visited node and a rest/spread would allocate on each call. ESLint passes at most three
 	// arguments to a listener (`onCodePathSegmentLoop`); node listeners get a single `node`.
+
+	// Nearly every visited node of every rule reports nothing, so returning early on `undefined` keeps
+	// the common case down to the listener call itself. Listeners are collected per rule, so a selector
+	// almost always has exactly one; calling it directly skips the loop for that case.
+	if (listeners.length === 1) {
+		const [listener] = listeners;
+		return (argument0, argument1, argument2) => {
+			const problems = listener(argument0, argument1, argument2);
+			if (problems !== undefined) {
+				reportProblems(context, problems);
+			}
+		};
+	}
+
 	return (argument0, argument1, argument2) => {
 		for (const listener of listeners) {
-			reportProblems(context, listener(argument0, argument1, argument2));
+			const problems = listener(argument0, argument1, argument2);
+			if (problems !== undefined) {
+				reportProblems(context, problems);
+			}
 		}
 	};
 }
