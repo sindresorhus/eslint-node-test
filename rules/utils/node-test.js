@@ -23,7 +23,7 @@ const TEST_EXPORTS = new Set([...TEST_FUNCTIONS, 'expectFailure']);
 const TEST_MODIFIER_EXPORTS = new Set(['only', 'skip', 'todo']);
 const SUITE_FUNCTIONS = new Set(['describe', 'suite']);
 const HOOK_FUNCTIONS = new Set(['before', 'after', 'beforeEach', 'afterEach']);
-const ALL_TEST_EXPORTS = new Set([...TEST_EXPORTS, ...SUITE_FUNCTIONS, ...HOOK_FUNCTIONS, 'mock']);
+const ALL_TEST_EXPORTS = new Set([...TEST_EXPORTS, ...SUITE_FUNCTIONS, ...HOOK_FUNCTIONS, 'getTestContext', 'mock']);
 const CONFIGURATION_EXPORTS = new Set(['assert', 'snapshot']);
 
 export {TEST_FUNCTIONS, SUITE_FUNCTIONS, HOOK_FUNCTIONS};
@@ -42,6 +42,7 @@ Scan a file's top-level imports and resolve the local bindings for
 @returns {{
 	locals: Map<string, string>,
 	namespace: string | undefined,
+	namespaceImport: string | undefined,
 	configurationLocals: Map<string, string>,
 	testModifierLocals: Map<string, string>,
 	assertNamespace: Set<string>,
@@ -169,6 +170,7 @@ function collectFromImport(node, bindings) {
 		} else {
 			// `import * as nodeTest from 'node:test'`.
 			bindings.namespace = localName;
+			bindings.namespaceImport = localName;
 		}
 	}
 }
@@ -180,6 +182,8 @@ function scanImports(context) {
 		locals: new Map(),
 		// `import * as nodeTest from 'node:test'` -> namespace local name.
 		namespace: undefined,
+		// The local name of an actual namespace import, excluding `import test from 'node:test'`.
+		namespaceImport: undefined,
 		// Map of local identifier name -> process-wide `node:test` configuration object.
 		configurationLocals: new Map(),
 		// Map of local standalone modifier aliases to their canonical modifier names.
@@ -254,6 +258,28 @@ export function isGlobalMock(node, imports) {
 			|| TEST_FUNCTIONS.has(imports.locals.get(object.name))
 		)
 		&& isImportedBindingReference(object, imports);
+}
+
+/** Check whether a call resolves to `getTestContext()` from `node:test`. */
+export function isGetTestContextCall(node, imports) {
+	if (node.type !== 'CallExpression') {
+		return false;
+	}
+
+	const chain = getCalleeChain(node.callee);
+	if (!chain || !isImportedBindingReference(chain.root, imports)) {
+		return false;
+	}
+
+	const {root, members} = chain;
+	return (
+		(imports.locals.get(root.name) === 'getTestContext' && members.length === 0)
+		|| (
+			members.length === 1
+			&& members[0].name === 'getTestContext'
+			&& root.name === imports.namespaceImport
+		)
+	);
 }
 
 function computeCalleeChain(node) {
@@ -609,24 +635,34 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 		return isContextIdentifier(receiver);
 	};
 
-	const isTrackedHookCall = parsed => trackHooks && (
+	const isContextHookCall = node => {
+		if (!trackHooks) {
+			return false;
+		}
+
+		const chain = getCalleeChain(node.callee);
+		return chain?.members.length === 1
+			&& HOOK_FUNCTIONS.has(chain.members[0].name)
+			&& isContextIdentifier(chain.root);
+	};
+
+	const isTrackedHookCall = (node, parsed) => trackHooks && (
 		(
 			parsed?.kind === 'hook'
 			&& parsed.modifiers.length === 0
 		)
 		|| isHookMemberTestCall(parsed)
+		|| isContextHookCall(node)
 	);
-
-	const isTrackedContextHookCall = node => trackHooks && isContextHookCall(node, isContextIdentifier);
 
 	const isTrackedCallbackCall = node => {
 		const parsed = parseTestCall(node, imports);
-		return isTrackedContextHookCall(node) || (
+		return (
 			(
 				parsed?.kind === 'test'
 				&& parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name))
 			)
-			|| isTrackedHookCall(parsed)
+			|| isTrackedHookCall(node, parsed)
 		);
 	};
 
@@ -648,7 +684,7 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 			}
 
 			const parsed = parseTestCall(node, imports);
-			const callback = isTrackedHookCall(parsed) || isTrackedContextHookCall(node) ? getHookCallback(node) : getTestCallback(node);
+			const callback = isTrackedHookCall(node, parsed) ? getHookCallback(node) : getTestCallback(node);
 			if (callback) {
 				const parameter = getContextParameterIdentifier(callback.params[0]);
 

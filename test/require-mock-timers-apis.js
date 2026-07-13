@@ -62,6 +62,11 @@ test.snapshot({
 
 		// Shadowed getTestContext import.
 		'import {getTestContext} from \'node:test\';\nconst fn = getTestContext => { getTestContext().mock.timers.enable(); };',
+		{
+			code: 'import type {getTestContext} from \'node:test\';\ngetTestContext().mock.timers.enable();',
+			languageOptions: {parser: parsers.typescript},
+		},
+		'import test from \'node:test\';\ntest.getTestContext().mock.timers.enable();',
 
 		// Shadowed subtest receiver.
 		head + 'test("a", t => { const fn = t => { t.test("b", subtest => { subtest.mock.timers.enable(); }); }; });',
@@ -194,9 +199,6 @@ test.snapshot({
 		// Namespace current test context.
 		'import * as nodeTest from \'node:test\';\nnodeTest.test("a", () => { nodeTest.getTestContext().mock.timers.enable(); });',
 
-		// Default import current test context.
-		'import test from \'node:test\';\ntest("a", () => { test.getTestContext().mock.timers.enable(); });',
-
 		// TypeScript non-null current test context.
 		{
 			code: 'import {test, getTestContext} from \'node:test\';\ntest("a", () => { getTestContext()!.mock.timers.enable(); });',
@@ -230,12 +232,6 @@ test.snapshot({
 		// TypeScript-wrapped default test mock.
 		{
 			code: 'import test from \'node:test\';\n(test as typeof test).mock.timers.enable({now: 1000});',
-			languageOptions: {parser: parsers.typescript},
-		},
-
-		// TypeScript-wrapped default current test context.
-		{
-			code: 'import test from \'node:test\';\ntest("a", () => { (test as typeof test).getTestContext().mock.timers.enable(); });',
 			languageOptions: {parser: parsers.typescript},
 		},
 

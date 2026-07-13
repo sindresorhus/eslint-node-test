@@ -77,6 +77,7 @@ test.snapshot({
 
 		// Namespace import, no assertion
 		'import * as nodeTest from "node:test";\nnodeTest.test("t1", () => { doSomething(); });',
+
 		// TypeScript
 		{
 			code: 'import test from "node:test";\nimport assert from "node:assert";\ntest("t1", (): void => { doSomething(); });',
