@@ -69,11 +69,13 @@ test.snapshot({
 		'import * as nodeProcess from \'process\';\nimport test from \'node:test\';\ntest(\'changes directory\', () => { nodeProcess.chdir(\'fixtures\'); });',
 		'import {default as nodeProcess} from \'node:process\';\nimport test from \'node:test\';\ntest(\'changes directory\', () => { nodeProcess.chdir(\'fixtures\'); });',
 		'import {chdir as changeDirectory} from \'node:process\';\nimport test from \'node:test\';\ntest(\'changes directory\', () => { changeDirectory(\'fixtures\'); });',
+		'import {\'chdir\' as changeDirectory} from \'node:process\';\nimport test from \'node:test\';\ntest(\'changes directory\', () => { changeDirectory(\'fixtures\'); });',
 		'import {chdir as changeDirectory} from \'process\';\nimport test from \'node:test\';\ntest(\'changes directory\', () => { changeDirectory(\'fixtures\'); });',
 
 		// Subtests
 		withTestImport('test(\'parent\', async t => {\n\tawait t.test(\'changes directory\', () => {\n\t\tprocess.chdir(\'fixtures\');\n\t});\n});'),
 		withTestImport('test(\'parent\', async t => {\n\tawait t.test.only(\'changes directory\', () => {\n\t\tprocess.chdir(\'fixtures\');\n\t});\n});'),
+		withTestImport('test(\'parent\', t => {\n\tt.test(\'child\', {skip: process.chdir(\'fixtures\')}, () => {});\n});'),
 
 		// Optional chaining
 		inTest('process?.chdir(\'fixtures\');'),
@@ -86,6 +88,10 @@ test.snapshot({
 		},
 		{
 			code: inTest('(process.chdir as typeof process.chdir)(\'fixtures\');'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: inTest('process!.chdir(\'fixtures\');'),
 			languageOptions: {parser: parsers.typescript},
 		},
 	],

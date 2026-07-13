@@ -6,7 +6,7 @@ import {getEnclosingFunction} from './utils/index.js';
 const MESSAGE_ID = 'no-process-chdir-in-test';
 
 const messages = {
-	[MESSAGE_ID]: 'Do not call `process.chdir()` inside a test. Use absolute paths or a hook that restores the original directory.',
+	[MESSAGE_ID]: 'Do not call `process.chdir()` inside a test. Use absolute paths instead.',
 };
 
 const PROCESS_MODULES = new Set(['node:process', 'process']);
@@ -111,11 +111,11 @@ const create = context => {
 	};
 
 	context.on('CallExpression', node => {
-		const callback = tracker.currentCallback();
+		const enclosingFunction = getEnclosingFunction(node);
 		const target = getChdirTarget(node);
 		tracker.update(node);
 
-		if (target && callback && getEnclosingFunction(node) === callback) {
+		if (target && tracker.isTrackedCallback(enclosingFunction)) {
 			return {
 				node: target,
 				messageId: MESSAGE_ID,

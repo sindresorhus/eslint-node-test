@@ -7,14 +7,16 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-[`process.chdir()`](https://nodejs.org/api/process.html#processchdirdirectory) changes the working directory for the whole Node.js process. Tests declared in the same file run in one application thread, so calling it directly in a test or subtest can leave later tests running from the wrong directory, making them order-dependent and difficult to debug. See the [test runner execution model](https://nodejs.org/api/test.html#test-runner-execution-model).
+[`process.chdir()`](https://nodejs.org/api/process.html#processchdirdirectory) changes the working directory for the whole Node.js process. Tests in the same file run in one app thread, so calling it in a test can affect later tests. See the [test runner execution model](https://nodejs.org/api/test.html#test-runner-execution-model).
 
-Use absolute paths where possible. When a suite must change the working directory, own the setup and restoration in hooks. This is unsafe with concurrent tests, even when restored afterward. This rule reports direct calls in `test`/`it` and `t.test()` callbacks, including supported imports from `node:process` or `process`. It intentionally ignores hooks, suite bodies, top-level setup, nested helper functions, computed properties, CommonJS imports, extracted aliases, and indirect invocations.
+Prefer absolute paths. If changing the working directory is unavoidable, use setup and restoration hooks only when tests run serially. Hooks are unsafe with concurrent tests, even when they restore the directory.
+
+This rule reports direct calls in `test`/`it` and `t.test()` callbacks, including imports from `node:process` or `process`. It ignores hooks, suite bodies, top-level setup, nested helpers, computed properties, CommonJS imports, aliases, and indirect calls.
 
 ## Examples
 
 ```js
-import test, {afterEach, beforeEach} from 'node:test';
+import test from 'node:test';
 import path from 'node:path';
 
 // ❌
@@ -26,15 +28,5 @@ test('loads the fixture', () => {
 test('loads the fixture', () => {
 	const fixturePath = path.resolve(import.meta.dirname, 'fixtures', 'example.json');
 	loadFixture(fixturePath);
-});
-
-// ✅
-let originalWorkingDirectory;
-beforeEach(() => {
-	originalWorkingDirectory = process.cwd();
-	process.chdir('fixtures');
-});
-afterEach(() => {
-	process.chdir(originalWorkingDirectory);
 });
 ```
