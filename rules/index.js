@@ -32,6 +32,7 @@ export {default as 'no-duplicate-assertions'} from './no-duplicate-assertions.js
 export {default as 'no-duplicate-hooks'} from './no-duplicate-hooks.js';
 export {default as 'no-duplicate-mock-timers-enable'} from './no-duplicate-mock-timers-enable.js';
 export {default as 'no-duplicate-plan'} from './no-duplicate-plan.js';
+export {default as 'no-expect-failure-without-reason'} from './no-expect-failure-without-reason.js';
 export {default as 'no-export'} from './no-export.js';
 export {default as 'no-identical-assertion-arguments'} from './no-identical-assertion-arguments.js';
 export {default as 'no-identical-title'} from './no-identical-title.js';

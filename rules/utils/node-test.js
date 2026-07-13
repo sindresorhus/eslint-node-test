@@ -818,20 +818,28 @@ export function getTestOptions(callExpression) {
 }
 
 /**
-Find a boolean-ish property (`only`/`skip`/`todo`) in an options object.
+Find the last statically-known property in an options object. An uninspectable later property may override an earlier one, so it makes the earlier property unusable.
 */
 export function findOptionsProperty(optionsObject, name) {
 	if (optionsObject?.type !== 'ObjectExpression') {
 		return undefined;
 	}
 
-	return optionsObject.properties.findLast(property =>
-		property.type === 'Property'
-		&& !property.computed
-		&& (
+	for (let index = optionsObject.properties.length - 1; index >= 0; index -= 1) {
+		const property = optionsObject.properties[index];
+		if (property.type === 'SpreadElement' || property.computed) {
+			return undefined;
+		}
+
+		if (
 			(property.key.type === 'Identifier' && property.key.name === name)
 			|| (property.key.type === 'Literal' && property.key.value === name)
-		));
+		) {
+			return property;
+		}
+	}
+
+	return undefined;
 }
 
 /**

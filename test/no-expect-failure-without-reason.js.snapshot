@@ -1,0 +1,223 @@
+exports[`no-expect-failure-without-reason > invalid(1): import test from 'node:test';\ntest('t', {expectFailure: true}, () => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', {expectFailure: true}, () => {});
+
+`;
+
+exports[`no-expect-failure-without-reason > invalid(1): import test from 'node:test';\ntest('t', {expectFailure: true}, () => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', {expectFailure: true}, () => {});
+    |            ^^^^^^^^^^^^^^^^^^^ Give \`expectFailure\` a reason string instead of \`true\` explaining why.
+
+`;
+
+exports[`no-expect-failure-without-reason > invalid(10): import {suite} from 'node:test';\nsuite('s', {expectFailure: true}, () => {}); 1`] = `
+
+  1 | import {suite} from 'node:test';
+  2 | suite('s', {expectFailure: true}, () => {});
+
+`;
+
+exports[`no-expect-failure-without-reason > invalid(10): import {suite} from 'node:test';\nsuite('s', {expectFailure: true}, () => {}); 2`] = `
+
+Message:
+  1 | import {suite} from 'node:test';
+> 2 | suite('s', {expectFailure: true}, () => {});
+    |             ^^^^^^^^^^^^^^^^^^^ Give \`expectFailure\` a reason string instead of \`true\` explaining why.
+
+`;
+
+exports[`no-expect-failure-without-reason > invalid(11): import * as nodeTest from 'node:test';\nnodeTest.test('t', {expectFailure: true}, () => {}); 1`] = `
+
+  1 | import * as nodeTest from 'node:test';
+  2 | nodeTest.test('t', {expectFailure: true}, () => {});
+
+`;
+
+exports[`no-expect-failure-without-reason > invalid(11): import * as nodeTest from 'node:test';\nnodeTest.test('t', {expectFailure: true}, () => {}); 2`] = `
+
+Message:
+  1 | import * as nodeTest from 'node:test';
+> 2 | nodeTest.test('t', {expectFailure: true}, () => {});
+    |                     ^^^^^^^^^^^^^^^^^^^ Give \`expectFailure\` a reason string instead of \`true\` explaining why.
+
+`;
+
+exports[`no-expect-failure-without-reason > invalid(12): import test from 'node:test';\ntest('t', {'expectFailure': true}, () => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', {'expectFailure': true}, () => {});
+
+`;
+
+exports[`no-expect-failure-without-reason > invalid(12): import test from 'node:test';\ntest('t', {'expectFailure': true}, () => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', {'expectFailure': true}, () => {});
+    |            ^^^^^^^^^^^^^^^^^^^^^ Give \`expectFailure\` a reason string instead of \`true\` explaining why.
+
+`;
+
+exports[`no-expect-failure-without-reason > invalid(13): import test from 'node:test';\ntest('t', {expectFailure: true as boolean}, () => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', {expectFailure: true as boolean}, () => {});
+
+`;
+
+exports[`no-expect-failure-without-reason > invalid(13): import test from 'node:test';\ntest('t', {expectFailure: true as boolean}, () => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', {expectFailure: true as boolean}, () => {});
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Give \`expectFailure\` a reason string instead of \`true\` explaining why.
+
+`;
+
+exports[`no-expect-failure-without-reason > invalid(14): import test from 'node:test';\ntest('t', ({expectFailure: true} as object), () => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', ({expectFailure: true} as object), () => {});
+
+`;
+
+exports[`no-expect-failure-without-reason > invalid(14): import test from 'node:test';\ntest('t', ({expectFailure: true} as object), () => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', ({expectFailure: true} as object), () => {});
+    |             ^^^^^^^^^^^^^^^^^^^ Give \`expectFailure\` a reason string instead of \`true\` explaining why.
+
+`;
+
+exports[`no-expect-failure-without-reason > invalid(2): import test from 'node:test';\ntest({expectFailure: true}, () => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test({expectFailure: true}, () => {});
+
+`;
+
+exports[`no-expect-failure-without-reason > invalid(2): import test from 'node:test';\ntest({expectFailure: true}, () => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test({expectFailure: true}, () => {});
+    |       ^^^^^^^^^^^^^^^^^^^ Give \`expectFailure\` a reason string instead of \`true\` explaining why.
+
+`;
+
+exports[`no-expect-failure-without-reason > invalid(3): import test from 'node:test';\ntest('t', {expectFailure: 'tracked in #123', expectFailure: true}, () => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', {expectFailure: 'tracked in #123', expectFailure: true}, () => {});
+
+`;
+
+exports[`no-expect-failure-without-reason > invalid(3): import test from 'node:test';\ntest('t', {expectFailure: 'tracked in #123', expectFailure: true}, () => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', {expectFailure: 'tracked in #123', expectFailure: true}, () => {});
+    |                                              ^^^^^^^^^^^^^^^^^^^ Give \`expectFailure\` a reason string instead of \`true\` explaining why.
+
+`;
+
+exports[`no-expect-failure-without-reason > invalid(4): import test from 'node:test';\ntest('t', {...options, expectFailure: true}, () => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', {...options, expectFailure: true}, () => {});
+
+`;
+
+exports[`no-expect-failure-without-reason > invalid(4): import test from 'node:test';\ntest('t', {...options, expectFailure: true}, () => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', {...options, expectFailure: true}, () => {});
+    |                        ^^^^^^^^^^^^^^^^^^^ Give \`expectFailure\` a reason string instead of \`true\` explaining why.
+
+`;
+
+exports[`no-expect-failure-without-reason > invalid(5): import test from 'node:test';\ntest('t', {[key]: value, expectFailure: true}, () => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', {[key]: value, expectFailure: true}, () => {});
+
+`;
+
+exports[`no-expect-failure-without-reason > invalid(5): import test from 'node:test';\ntest('t', {[key]: value, expectFailure: true}, () => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', {[key]: value, expectFailure: true}, () => {});
+    |                          ^^^^^^^^^^^^^^^^^^^ Give \`expectFailure\` a reason string instead of \`true\` explaining why.
+
+`;
+
+exports[`no-expect-failure-without-reason > invalid(6): import test from 'node:test';\ntest('t', {expectFailure: true, timeout: 1000}, () => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', {expectFailure: true, timeout: 1000}, () => {});
+
+`;
+
+exports[`no-expect-failure-without-reason > invalid(6): import test from 'node:test';\ntest('t', {expectFailure: true, timeout: 1000}, () => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', {expectFailure: true, timeout: 1000}, () => {});
+    |            ^^^^^^^^^^^^^^^^^^^ Give \`expectFailure\` a reason string instead of \`true\` explaining why.
+
+`;
+
+exports[`no-expect-failure-without-reason > invalid(7): import test from 'node:test';\ntest.only('t', {expectFailure: true}, () => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test.only('t', {expectFailure: true}, () => {});
+
+`;
+
+exports[`no-expect-failure-without-reason > invalid(7): import test from 'node:test';\ntest.only('t', {expectFailure: true}, () => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test.only('t', {expectFailure: true}, () => {});
+    |                 ^^^^^^^^^^^^^^^^^^^ Give \`expectFailure\` a reason string instead of \`true\` explaining why.
+
+`;
+
+exports[`no-expect-failure-without-reason > invalid(8): import test from 'node:test';\ntest.describe('s', {expectFailure: true}, () => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test.describe('s', {expectFailure: true}, () => {});
+
+`;
+
+exports[`no-expect-failure-without-reason > invalid(8): import test from 'node:test';\ntest.describe('s', {expectFailure: true}, () => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test.describe('s', {expectFailure: true}, () => {});
+    |                     ^^^^^^^^^^^^^^^^^^^ Give \`expectFailure\` a reason string instead of \`true\` explaining why.
+
+`;
+
+exports[`no-expect-failure-without-reason > invalid(9): import {it as check} from 'node:test';\ncheck('t', {expectFailure: true}, () => {}); 1`] = `
+
+  1 | import {it as check} from 'node:test';
+  2 | check('t', {expectFailure: true}, () => {});
+
+`;
+
+exports[`no-expect-failure-without-reason > invalid(9): import {it as check} from 'node:test';\ncheck('t', {expectFailure: true}, () => {}); 2`] = `
+
+Message:
+  1 | import {it as check} from 'node:test';
+> 2 | check('t', {expectFailure: true}, () => {});
+    |             ^^^^^^^^^^^^^^^^^^^ Give \`expectFailure\` a reason string instead of \`true\` explaining why.
+
+`;
