@@ -116,7 +116,7 @@ function collectFromImport(node, bindings) {
 
 	const {value: source} = node.source;
 	const kind = moduleKind(source);
-	if (!kind || node.importKind === 'type') {
+	if (!kind) {
 		return;
 	}
 
@@ -820,18 +820,6 @@ export function getTestCallback(callExpression) {
 		if (argument.type !== 'SpreadElement') {
 			return undefined;
 		}
-	}
-
-	return undefined;
-}
-
-function getParameterIdentifier(parameter) {
-	if (parameter?.type === 'Identifier') {
-		return parameter;
-	}
-
-	if (parameter?.type === 'AssignmentPattern' && parameter.left.type === 'Identifier') {
-		return parameter.left;
 	}
 
 	return undefined;
