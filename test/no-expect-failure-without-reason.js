@@ -28,6 +28,7 @@ test.snapshot({
 		// The chained form has no inline reason mechanism, so it is out of scope.
 		withTest('test.expectFailure(\'t\', () => {});'),
 		withTest('test.expectFailure(\'t\', {expectFailure: true}, () => {});'),
+		'import {it as check} from \'node:test\';\ncheck.expectFailure(\'t\', {expectFailure: true}, () => {});',
 
 		// Hooks do not support `expectFailure`.
 		'import {beforeEach} from \'node:test\';\nbeforeEach({expectFailure: true}, () => {});',

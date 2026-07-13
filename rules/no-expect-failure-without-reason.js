@@ -25,6 +25,7 @@ const create = context => {
 		if (
 			!parsed
 			|| parsed.kind === 'hook'
+			|| parsed.hasExpectedFailure
 			|| parsed.modifiers.some(modifier => !MODIFIERS.has(modifier.name))
 		) {
 			return;
