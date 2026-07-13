@@ -103,7 +103,6 @@ const create = context => {
 		if (
 			node.computed
 			|| node.optional
-			|| unwrapParentTypeScriptExpression(node).parent.type === 'TSInstantiationExpression'
 			|| node.property.type !== 'Identifier'
 			|| node.property.name !== 'length'
 			|| isWritableReference(node)

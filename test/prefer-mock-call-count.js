@@ -134,10 +134,6 @@ test.snapshot({
 			code: withNodeTest('new (spy.mock.calls.length<number>).foo;'),
 			languageOptions: {parser: parsers.typescript},
 		},
-		{
-			code: withNodeTest('(spy.mock.calls.length!<number>);'),
-			languageOptions: {parser: parsers.typescript},
-		},
 	],
 	invalid: [
 		// Mock function.
@@ -160,6 +156,10 @@ test.snapshot({
 		withNodeTest('spy.mock.calls.length /* trailing comment */;'),
 		{
 			code: withNodeTest('(spy.mock.calls.length as number);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withNodeTest('(spy.mock.calls.length!<number>);'),
 			languageOptions: {parser: parsers.typescript},
 		},
 
