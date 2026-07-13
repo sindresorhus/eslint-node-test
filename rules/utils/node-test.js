@@ -229,7 +229,9 @@ function isImportedBindingReference(identifier, imports) {
 	return getVariable(identifier, imports)?.defs.some(definition => definition.type === 'ImportBinding') ?? false;
 }
 
-/** Whether a node references the global `mock` — a named/renamed import, `namespace.mock`, or `test.mock`/`it.mock`. */
+/**
+Whether a node references the global `mock` — a named/renamed import, `namespace.mock`, or `test.mock`/`it.mock`.
+*/
 export function isGlobalMock(node, imports) {
 	node = unwrapTypeScriptExpression(node);
 	if (node.type === 'Identifier') {
@@ -316,7 +318,18 @@ export function getCalleeChain(node) {
 	return result;
 }
 
-/** Classify a canonical export name as a test, suite, or hook (or `undefined`). */
+/**
+Whether an identifier name is bound to any `node:test` import in this file.
+*/
+function isTestBindingName(name, imports) {
+	return imports.locals.has(name)
+		|| name === imports.namespace
+		|| imports.testModifierLocals.has(name);
+}
+
+/**
+Classify a canonical export name as a test, suite, or hook (or `undefined`).
+*/
 function getCallKind(name) {
 	if (TEST_FUNCTIONS.has(name)) {
 		return 'test';
@@ -441,7 +454,9 @@ export const parseTestCall = memoizeByNode(parseTestCallCache, (callExpression, 
 	}
 
 	const {root, members} = chain;
-	if (!isImportedBindingReference(root, imports)) {
+	// Every branch below requires the root to be one of the file's `node:test` bindings, so gate on the
+	// name first. Resolving the scope is the expensive part, and most calls in a file are unrelated.
+	if (!isTestBindingName(root.name, imports) || !isImportedBindingReference(root, imports)) {
 		return undefined;
 	}
 
