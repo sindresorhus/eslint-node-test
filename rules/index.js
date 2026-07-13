@@ -92,3 +92,4 @@ export {default as 'require-top-level-describe'} from './require-top-level-descr
 export {default as 'test-title-format'} from './test-title-format.js';
 export {default as 'test-title'} from './test-title.js';
 export {default as 'valid-describe-callback'} from './valid-describe-callback.js';
+export {default as 'valid-test-tags'} from './valid-test-tags.js';

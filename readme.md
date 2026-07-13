@@ -150,6 +150,7 @@ The rules only activate in files that import from `node:test` (and assertion rul
 | [test-title](docs/rules/test-title.md)                                                           | Require tests to have a title.                                                                             | ✅    | 🔧 |    |
 | [test-title-format](docs/rules/test-title-format.md)                                             | Require test titles to match a configured pattern.                                                         |      |    |    |
 | [valid-describe-callback](docs/rules/valid-describe-callback.md)                                 | Enforce valid `describe` callbacks.                                                                        | ✅ ☑️ |    |    |
+| [valid-test-tags](docs/rules/valid-test-tags.md)                                                 | Require valid test tags.                                                                                   | ✅ ☑️ | 🔧 |    |
 
 <!-- end auto-generated rules list -->
 
