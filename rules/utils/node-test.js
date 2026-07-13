@@ -640,11 +640,9 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 		|| isContextHookCall(node)
 	);
 
-	const isTrackedContextHookCall = node => trackHooks && isContextHookCall(node, isContextIdentifier);
-
 	const isTrackedCallbackCall = node => {
 		const parsed = parseTestCall(node, imports);
-		return isTrackedContextHookCall(node) || (
+		return (
 			(
 				parsed?.kind === 'test'
 				&& parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name))
@@ -671,7 +669,7 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 			}
 
 			const parsed = parseTestCall(node, imports);
-			const callback = isTrackedHookCall(parsed) || isTrackedContextHookCall(node) ? getHookCallback(node) : getTestCallback(node);
+			const callback = isTrackedHookCall(node, parsed) ? getHookCallback(node) : getTestCallback(node);
 			if (callback) {
 				const parameter = getContextParameterIdentifier(callback.params[0]);
 
