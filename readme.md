@@ -44,7 +44,7 @@ export default defineConfig([
 ]);
 ```
 
-Most rules only activate in files that import from `node:test`/`test` (and, for assertion rules, `node:assert`), so you can safely apply the plugin across your whole project.
+The rules only activate in files that import from `node:test` (and assertion rules also activate for Node's built-in `assert` module), so you can safely apply the plugin across your whole project.
 
 ## Rules
 
@@ -132,6 +132,7 @@ Most rules only activate in files that import from `node:test`/`test` (and, for 
 | [prefer-hooks-on-top](docs/rules/prefer-hooks-on-top.md)                                         | Require hooks to be declared before the tests in their scope.                                              | ✅    |    |    |
 | [prefer-lowercase-title](docs/rules/prefer-lowercase-title.md)                                   | Enforce lowercase test titles.                                                                             |      | 🔧 |    |
 | [prefer-mock-accessor](docs/rules/prefer-mock-accessor.md)                                       | Prefer `mock.getter()` and `mock.setter()` over `mock.method()` with accessor options.                     | ✅    | 🔧 |    |
+| [prefer-mock-call-count](docs/rules/prefer-mock-call-count.md)                                   | Prefer `mock.callCount()` over `mock.calls.length`.                                                        | ✅ ☑️ | 🔧 |    |
 | [prefer-mock-method](docs/rules/prefer-mock-method.md)                                           | Prefer `mock.method()` over assigning `mock.fn()` to an object property.                                   | ✅    |    | 💡 |
 | [prefer-strict-assert](docs/rules/prefer-strict-assert.md)                                       | Prefer strict assertion methods over their legacy loose counterparts.                                      | ✅ ☑️ | 🔧 |    |
 | [prefer-test-context-assert](docs/rules/prefer-test-context-assert.md)                           | Prefer the test context `t.assert` over the imported `node:assert`.                                        | ✅    |    | 💡 |

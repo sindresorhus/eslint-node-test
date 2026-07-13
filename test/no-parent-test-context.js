@@ -8,6 +8,8 @@ test.snapshot({
 	valid: [
 		// Not a test file
 		'function test(t) { t.test(\'child\', () => { t.mock.fn(); }); }',
+		// A bare `test` package is not Node's test runner.
+		'import test from \'test\';\ntest(\'parent\', async t => { await t.test(\'child\', () => { t.mock.fn(); }); });',
 
 		// Normal top-level context usage
 		withImport('test(\'parent\', t => { t.mock.fn(); t.plan(1); t.assert.ok(true); });'),

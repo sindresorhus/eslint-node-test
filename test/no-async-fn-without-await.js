@@ -38,6 +38,8 @@ test.snapshot({
 		withImport('import {suite} from "node:test";\nsuite("s", async () => {});'),
 		// Global assertion configuration is not a test registration.
 		withImport('test.assert.register("custom", async () => {});'),
+		// A bare `test` package is not Node's test runner.
+		'import test from "test";\ntest("title", async t => {});',
 	],
 	invalid: [
 		// Basic async arrow with no await
@@ -52,8 +54,6 @@ test.snapshot({
 		'import {test as t} from "node:test";\nt("title", async fn => {});',
 		// Namespace import
 		'import * as nodeTest from "node:test";\nnodeTest.test("title", async t => {});',
-		// Bare "test" module
-		'import test from "test";\ntest("title", async t => {});',
 		// It() alias
 		'import {it} from "node:test";\nit("title", async t => {});',
 		// Before() hook

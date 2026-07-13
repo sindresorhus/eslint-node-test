@@ -19,26 +19,6 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Replace `{{parent}}` with `{{child}}`.',
 };
 
-const TEST_MODULES = new Set(['node:test', 'test']);
-
-function getCalleeRoot(node) {
-	let current = node;
-
-	while (current.type === 'MemberExpression') {
-		current = current.object;
-	}
-
-	if (current.type === 'Identifier') {
-		return current;
-	}
-}
-
-function isNodeTestImport(variable) {
-	return variable?.defs.some(definition =>
-		definition.type === 'ImportBinding'
-		&& TEST_MODULES.has(definition.parent.source.value));
-}
-
 function isInsideNode(node, container, sourceCode) {
 	const [nodeStart, nodeEnd] = sourceCode.getRange(node);
 	const [containerStart, containerEnd] = sourceCode.getRange(container);
@@ -175,8 +155,7 @@ const create = context => {
 		const receiverProblem = receiver && getParentContextProblem(receiver, frames, sourceCode);
 		const isSubtest = getContextReceiverFrame(node, frames, sourceCode) !== undefined;
 		const parsed = parseTestCall(node, imports);
-		const root = getCalleeRoot(node.callee);
-		const isTest = parsed?.kind === 'test' && root && isNodeTestImport(getResolvedReference(root, sourceCode));
+		const isTest = parsed?.kind === 'test';
 
 		if (!isTest && !isSubtest) {
 			return receiverProblem;

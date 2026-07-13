@@ -151,23 +151,3 @@ Message:
   4 | });
 
 `;
-
-exports[`no-nested-tests > invalid(8): import test from \"test\";\ntest(\"outer\", () => {\n  test(\"inner\", () => {});\n}); 1`] = `
-
-  1 | import test from "test";
-  2 | test("outer", () => {
-  3 |   test("inner", () => {});
-  4 | });
-
-`;
-
-exports[`no-nested-tests > invalid(8): import test from \"test\";\ntest(\"outer\", () => {\n  test(\"inner\", () => {});\n}); 2`] = `
-
-Message:
-  1 | import test from "test";
-  2 | test("outer", () => {
-> 3 |   test("inner", () => {});
-    |   ^^^^^^^^^^^^^^^^^^^^^^^ Do not define a test or suite inside a test body. Use \`t.test()\` for subtests instead.
-  4 | });
-
-`;

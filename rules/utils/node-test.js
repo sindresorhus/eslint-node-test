@@ -32,7 +32,7 @@ export {TEST_FUNCTIONS, SUITE_FUNCTIONS, HOOK_FUNCTIONS};
 const MODIFIERS = new Set(['only', 'skip', 'todo']);
 export {MODIFIERS};
 
-const TEST_MODULES = new Set(['node:test', 'test']);
+const TEST_MODULE = 'node:test';
 const ASSERT_MODULES = new Set(['node:assert', 'node:assert/strict', 'assert', 'assert/strict']);
 
 /**
@@ -71,7 +71,7 @@ export function resolveImports(context) {
 
 /** Classify an import source as the test module, the assert module, or neither. */
 function moduleKind(source) {
-	if (TEST_MODULES.has(source)) {
+	if (source === TEST_MODULE) {
 		return 'test';
 	}
 
