@@ -569,6 +569,7 @@ Set `trackHooks` to also track hook context parameters.
 	isContextName: (name: string | undefined) => boolean,
 	current: () => string | undefined,
 	currentCallback: () => import('estree').Node | undefined,
+	isTrackedCallback: (node: import('estree').Node | undefined) => boolean,
 	update: (node: import('estree').Node) => void,
 	leave: (node: import('estree').Node) => void,
 }}
@@ -625,6 +626,7 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 		// only in scope inside this node, so a node visited in the call's title/options arguments (which
 		// the traversal reaches before the callback) is not actually within the context's scope.
 		currentCallback: () => callbacks.at(-1),
+		isTrackedCallback: node => callbacks.includes(node),
 		update(node) {
 			if (!(isTrackedCallbackCall(node) || isSubtestCall(node))) {
 				return;

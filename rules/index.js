@@ -47,6 +47,7 @@ export {default as 'no-mock-timers-destructured-import'} from './no-mock-timers-
 export {default as 'no-nested-tests'} from './no-nested-tests.js';
 export {default as 'no-only-test'} from './no-only-test.js';
 export {default as 'no-parent-test-context'} from './no-parent-test-context.js';
+export {default as 'no-process-chdir-in-test'} from './no-process-chdir-in-test.js';
 export {default as 'no-process-env-mutation'} from './no-process-env-mutation.js';
 export {default as 'no-process-exit-in-test'} from './no-process-exit-in-test.js';
 export {default as 'no-skip-test'} from './no-skip-test.js';
