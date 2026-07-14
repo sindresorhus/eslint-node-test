@@ -19,6 +19,13 @@ test.snapshot({
 		// T.assert.X form
 		'import test from "node:test";\ntest("t1", t => { t.assert.strictEqual(1, 1); });',
 
+		// Destructured TestContext.assert form
+		'import test from "node:test";\ntest("t1", ({assert}) => { assert.strictEqual(1, 1); });',
+		'import test from "node:test";\ntest("t1", ({assert: testAssert}) => { testAssert.strictEqual(1, 1); });',
+
+		// Nested tests each use their own destructured assertion binding
+		'import test from "node:test";\ntest("outer", ({assert}) => { assert.ok(1); test("inner", ({assert}) => { assert.ok(2); }); });',
+
 		// It() instead of test()
 		'import {it} from "node:test";\nimport assert from "node:assert";\nit("t1", () => { assert.ok(true); });',
 
@@ -83,5 +90,14 @@ test.snapshot({
 			code: 'import test from "node:test";\nimport assert from "node:assert";\ntest("t1", (): void => { doSomething(); });',
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// A local assert binding is not a destructured TestContext.assert
+		'import test from "node:test";\ntest("t1", () => { const assert = customAssert; assert.ok(1); });',
+
+		// A helper parameter shadowing the destructured assertion binding does not count
+		'import test from "node:test";\ntest("t1", ({assert}) => { function helper(assert) { assert.ok(1); } helper(customAssert); });',
+
+		// An assertion in a nested test does not count for the outer test
+		'import test from "node:test";\ntest("outer", () => { test("inner", ({assert}) => { assert.ok(1); }); });',
 	],
 });

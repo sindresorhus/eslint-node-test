@@ -1,3 +1,4 @@
+import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	resolveImports,
 	parseTestCall,
@@ -13,15 +14,50 @@ const messages = {
 	[MESSAGE_ID]: 'Test is missing an assertion. Tests without assertions will always pass.',
 };
 
+function getDestructuredAssertVariable(callback, sourceCode) {
+	const parameter = callback.params[0];
+	if (parameter?.type !== 'ObjectPattern') {
+		return undefined;
+	}
+
+	const property = parameter.properties.find(property =>
+		property.type === 'Property'
+		&& !property.computed
+		&& property.key.type === 'Identifier'
+		&& property.key.name === 'assert'
+		&& property.value.type === 'Identifier');
+
+	if (!property) {
+		return undefined;
+	}
+
+	return sourceCode.getDeclaredVariables(callback).find(variable => variable.identifiers.includes(property.value));
+}
+
+function isDestructuredAssertCall(node, variable, sourceCode) {
+	const {callee} = node;
+	if (
+		!variable
+		|| callee.type !== 'MemberExpression'
+		|| callee.computed
+		|| callee.object.type !== 'Identifier'
+	) {
+		return false;
+	}
+
+	return findVariable(sourceCode.getScope(callee.object), callee.object) === variable;
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	const {sourceCode} = context;
 	const imports = resolveImports(context);
 	if (!imports.isTestFile) {
 		return;
 	}
 
 	/*
-	Stack of {callNode, callback, hasAssertion} for each open test call.
+	Stack of state for each open test call.
 	We push when we enter a test call with an inline callback, and pop (and possibly report) on exit.
 	*/
 	const testStack = [];
@@ -37,7 +73,12 @@ const create = context => {
 			const callback = getTestCallback(node);
 			// Only push if there's an inline function body to inspect.
 			if (callback) {
-				testStack.push({callNode: node, callback, hasAssertion: false});
+				testStack.push({
+					callNode: node,
+					callback,
+					assertVariable: getDestructuredAssertVariable(callback, sourceCode),
+					hasAssertion: false,
+				});
 				return;
 			}
 
@@ -51,8 +92,15 @@ const create = context => {
 		}
 
 		// Check if this call is an assertion.
-		if (testStack.length > 0 && parseAssertionCall(node, imports) && isAssertionCallWithSupportedContext(node, tracker)) {
-			testStack.at(-1).hasAssertion = true;
+		const currentTest = testStack.at(-1);
+		if (
+			currentTest
+			&& (
+				(parseAssertionCall(node, imports) && isAssertionCallWithSupportedContext(node, tracker))
+				|| isDestructuredAssertCall(node, currentTest.assertVariable, sourceCode)
+			)
+		) {
+			currentTest.hasAssertion = true;
 		}
 	});
 
