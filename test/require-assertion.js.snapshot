@@ -14,6 +14,138 @@ Message:
 
 `;
 
+exports[`require-assertion > invalid(10): import test from \"node:test\";\ntest(\"t1\", ({assert}) => { function helper(assert) { assert.ok(1); } helper(customAssert); }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("t1", ({assert}) => { function helper(assert) { assert.ok(1); } helper(customAssert); });
+
+`;
+
+exports[`require-assertion > invalid(10): import test from \"node:test\";\ntest(\"t1\", ({assert}) => { function helper(assert) { assert.ok(1); } helper(customAssert); }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test("t1", ({assert}) => { function helper(assert) { assert.ok(1); } helper(customAssert); });
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+
+`;
+
+exports[`require-assertion > invalid(11): import test from \"node:test\";\ntest(\"outer\", () => { test(\"inner\", ({assert}) => { assert.ok(1); }); }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("outer", () => { test("inner", ({assert}) => { assert.ok(1); }); });
+
+`;
+
+exports[`require-assertion > invalid(11): import test from \"node:test\";\ntest(\"outer\", () => { test(\"inner\", ({assert}) => { assert.ok(1); }); }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test("outer", () => { test("inner", ({assert}) => { assert.ok(1); }); });
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+
+`;
+
+exports[`require-assertion > invalid(12): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(assert.ok(1), () => {}); 1`] = `
+
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+  3 | test(assert.ok(1), () => {});
+
+`;
+
+exports[`require-assertion > invalid(12): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(assert.ok(1), () => {}); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+> 3 | test(assert.ok(1), () => {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+
+`;
+
+exports[`require-assertion > invalid(13): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"outer\", () => { test(assert.ok(1), () => {}); }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+  3 | test("outer", () => { test(assert.ok(1), () => {}); });
+
+`;
+
+exports[`require-assertion > invalid(13): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"outer\", () => { test(assert.ok(1), () => {}); }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+  2 | import assert from "node:assert";
+> 3 | test("outer", () => { test(assert.ok(1), () => {}); });
+    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+
+`;
+
+exports[`require-assertion > invalid(14): import test from \"node:test\";\ntest(\"outer\", ({assert}) => { test(assert.ok(1), () => {}); }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("outer", ({assert}) => { test(assert.ok(1), () => {}); });
+
+`;
+
+exports[`require-assertion > invalid(14): import test from \"node:test\";\ntest(\"outer\", ({assert}) => { test(assert.ok(1), () => {}); }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test("outer", ({assert}) => { test(assert.ok(1), () => {}); });
+    |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+
+`;
+
+exports[`require-assertion > invalid(15): import test from \"node:test\";\ntest(\"outer\", () => { test(\"inner\", implementation); }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("outer", () => { test("inner", implementation); });
+
+`;
+
+exports[`require-assertion > invalid(15): import test from \"node:test\";\ntest(\"outer\", () => { test(\"inner\", implementation); }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test("outer", () => { test("inner", implementation); });
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+
+`;
+
+exports[`require-assertion > invalid(16): import test from \"node:test\";\ntest(\"outer\", ({assert}) => { test(\"inner\", () => { assert.ok(1); }); }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("outer", ({assert}) => { test("inner", () => { assert.ok(1); }); });
+
+`;
+
+exports[`require-assertion > invalid(16): import test from \"node:test\";\ntest(\"outer\", ({assert}) => { test(\"inner\", () => { assert.ok(1); }); }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test("outer", ({assert}) => { test("inner", () => { assert.ok(1); }); });
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+
+`;
+
+exports[`require-assertion > invalid(17): import test from \"node:test\";\ntest(\"outer\", t => { test(\"inner\", () => { t.assert.ok(1); }); }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("outer", t => { test("inner", () => { t.assert.ok(1); }); });
+
+`;
+
+exports[`require-assertion > invalid(17): import test from \"node:test\";\ntest(\"outer\", t => { test(\"inner\", () => { t.assert.ok(1); }); }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test("outer", t => { test("inner", () => { t.assert.ok(1); }); });
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+
+`;
+
 exports[`require-assertion > invalid(2): import test from \"node:test\";\ntest(\"t1\", () => { myFakeService.assert.ok(1); }); 1`] = `
 
   1 | import test from "node:test";
@@ -109,5 +241,37 @@ Message:
   2 | import assert from "node:assert";
 > 3 | test("t1", (): void => { doSomething(); });
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+
+`;
+
+exports[`require-assertion > invalid(8): import test from \"node:test\";\ntest(\"t1\", () => { const assert = customAssert; assert.ok(1); }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("t1", () => { const assert = customAssert; assert.ok(1); });
+
+`;
+
+exports[`require-assertion > invalid(8): import test from \"node:test\";\ntest(\"t1\", () => { const assert = customAssert; assert.ok(1); }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test("t1", () => { const assert = customAssert; assert.ok(1); });
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+
+`;
+
+exports[`require-assertion > invalid(9): import test from \"node:test\";\ntest(\"t1\", () => { customAssert.ok(1); }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("t1", () => { customAssert.ok(1); });
+
+`;
+
+exports[`require-assertion > invalid(9): import test from \"node:test\";\ntest(\"t1\", () => { customAssert.ok(1); }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test("t1", () => { customAssert.ok(1); });
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
 
 `;
