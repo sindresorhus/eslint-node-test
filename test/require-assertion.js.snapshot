@@ -114,6 +114,22 @@ Message:
 
 `;
 
+exports[`require-assertion > invalid(16): import test from \"node:test\";\ntest(\"outer\", t => { test(\"inner\", () => { t.assert.ok(1); }); }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("outer", t => { test("inner", () => { t.assert.ok(1); }); });
+
+`;
+
+exports[`require-assertion > invalid(16): import test from \"node:test\";\ntest(\"outer\", t => { test(\"inner\", () => { t.assert.ok(1); }); }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test("outer", t => { test("inner", () => { t.assert.ok(1); }); });
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+
+`;
+
 exports[`require-assertion > invalid(2): import test from \"node:test\";\ntest(\"t1\", () => { myFakeService.assert.ok(1); }); 1`] = `
 
   1 | import test from "node:test";

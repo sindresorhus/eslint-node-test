@@ -95,17 +95,16 @@ const create = context => {
 			return;
 		}
 
-		// Check if this call is an assertion.
-		const isAssertion = (
-			(parseAssertionCall(node, imports) && isAssertionCallWithSupportedContext(node, tracker))
-			|| isDestructuredAssertCall(node, testStack, sourceCode)
-		);
-		if (!isAssertion) {
+		const currentTest = getContainingTestFrame(node, testStack);
+		if (!currentTest) {
 			return;
 		}
 
-		const currentTest = getContainingTestFrame(node, testStack);
-		if (currentTest) {
+		// Check if this call is an assertion.
+		if (
+			(parseAssertionCall(node, imports) && isAssertionCallWithSupportedContext(node, tracker))
+			|| isDestructuredAssertCall(node, testStack, sourceCode)
+		) {
 			currentTest.hasAssertion = true;
 		}
 	});

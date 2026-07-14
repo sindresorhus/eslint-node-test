@@ -120,5 +120,8 @@ test.snapshot({
 
 		// A captured destructured assertion belongs to the nested callback where it is called
 		'import test from "node:test";\ntest("outer", ({assert}) => { test("inner", () => { assert.ok(1); }); });',
+
+		// A captured context assertion belongs to the nested callback where it is called
+		'import test from "node:test";\ntest("outer", t => { test("inner", () => { t.assert.ok(1); }); });',
 	],
 });
