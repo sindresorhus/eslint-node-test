@@ -7,7 +7,7 @@ test.snapshot({
 		// Not a test file — bail out early
 		'test("title", () => { doSomething(); });',
 
-		// Assert.X form
+		// The assert.* form
 		'import test from "node:test";\nimport assert from "node:assert";\ntest("t1", () => { assert.strictEqual(1, 1); });',
 
 		// Bare assert(value)
@@ -16,7 +16,7 @@ test.snapshot({
 		// Named import form
 		'import test from "node:test";\nimport {strictEqual} from "node:assert";\ntest("t1", () => { strictEqual(1, 1); });',
 
-		// T.assert.X form
+		// The t.assert.* form
 		'import test from "node:test";\ntest("t1", t => { t.assert.strictEqual(1, 1); });',
 
 		// Destructured TestContext.assert form
@@ -26,13 +26,19 @@ test.snapshot({
 		// Nested tests each use their own destructured assertion binding
 		'import test from "node:test";\ntest("outer", ({assert}) => { assert.ok(1); test("inner", ({assert}) => { assert.ok(2); }); });',
 
-		// It() instead of test()
+		// TypeScript wrapper around a destructured assertion binding
+		{
+			code: 'import test from "node:test";\ntest("t1", ({assert}: TestContext) => { (assert as TestContext["assert"]).ok(1); });',
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// The it() alias
 		'import {it} from "node:test";\nimport assert from "node:assert";\nit("t1", () => { assert.ok(true); });',
 
-		// Assert/strict module
+		// The node:assert/strict module
 		'import test from "node:test";\nimport assert from "node:assert/strict";\ntest("t1", () => { assert.strictEqual(1, 1); });',
 
-		// Node:assert/strict named import
+		// The node:assert/strict named import
 		'import test from "node:test";\nimport {deepStrictEqual} from "node:assert/strict";\ntest("t1", () => { deepStrictEqual(a, b); });',
 
 		// Describe/suite do not require assertions
@@ -47,7 +53,7 @@ test.snapshot({
 		// Renamed import
 		'import {test as myTest} from "node:test";\nimport assert from "node:assert";\nmyTest("t1", () => { assert.ok(1); });',
 
-		// Namespace import — assertion via assert.X
+		// Namespace import — assertion via assert.*
 		'import * as nodeTest from "node:test";\nimport assert from "node:assert";\nnodeTest.test("t1", () => { assert.ok(1); });',
 
 		// Test with no inline callback (external implementation) — skip reporting
@@ -94,10 +100,25 @@ test.snapshot({
 		// A local assert binding is not a destructured TestContext.assert
 		'import test from "node:test";\ntest("t1", () => { const assert = customAssert; assert.ok(1); });',
 
+		// An unrelated receiver is not a destructured TestContext.assert
+		'import test from "node:test";\ntest("t1", () => { customAssert.ok(1); });',
+
 		// A helper parameter shadowing the destructured assertion binding does not count
 		'import test from "node:test";\ntest("t1", ({assert}) => { function helper(assert) { assert.ok(1); } helper(customAssert); });',
 
 		// An assertion in a nested test does not count for the outer test
 		'import test from "node:test";\ntest("outer", () => { test("inner", ({assert}) => { assert.ok(1); }); });',
+
+		// An assertion in a test title does not count for that test
+		'import test from "node:test";\nimport assert from "node:assert";\ntest(assert.ok(1), () => {});',
+
+		// An assertion in a nested test title belongs to the outer callback
+		'import test from "node:test";\nimport assert from "node:assert";\ntest("outer", () => { test(assert.ok(1), () => {}); });',
+
+		// A nested test with an external implementation does not count as an assertion in its parent
+		'import test from "node:test";\ntest("outer", () => { test("inner", implementation); });',
+
+		// A captured destructured assertion belongs to the nested callback where it is called
+		'import test from "node:test";\ntest("outer", ({assert}) => { test("inner", () => { assert.ok(1); }); });',
 	],
 });

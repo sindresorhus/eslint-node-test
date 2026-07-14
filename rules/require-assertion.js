@@ -4,6 +4,7 @@ import {
 	parseTestCall,
 	getTestCallback,
 	parseAssertionCall,
+	getCalleeChain,
 	createContextTracker,
 	isAssertionCallWithSupportedContext,
 } from './utils/node-test.js';
@@ -31,21 +32,29 @@ function getDestructuredAssertVariable(callback, sourceCode) {
 		return undefined;
 	}
 
-	return sourceCode.getDeclaredVariables(callback).find(variable => variable.identifiers.includes(property.value));
+	return findVariable(sourceCode.getScope(property.value), property.value);
 }
 
-function isDestructuredAssertCall(node, variable, sourceCode) {
-	const {callee} = node;
-	if (
-		!variable
-		|| callee.type !== 'MemberExpression'
-		|| callee.computed
-		|| callee.object.type !== 'Identifier'
-	) {
+function isDestructuredAssertCall(node, testStack, sourceCode) {
+	const chain = getCalleeChain(node.callee);
+	if (!chain || chain.members.length !== 1) {
 		return false;
 	}
 
-	return findVariable(sourceCode.getScope(callee.object), callee.object) === variable;
+	const variable = findVariable(sourceCode.getScope(chain.root), chain.root);
+	return variable !== null && testStack.some(test => test.assertVariable === variable);
+}
+
+function getContainingTestFrame(node, testStack) {
+	return testStack.findLast(test => {
+		for (let current = node.parent; current; current = current.parent) {
+			if (current === test.callback) {
+				return true;
+			}
+		}
+
+		return false;
+	});
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -83,23 +92,20 @@ const create = context => {
 			}
 
 			// No inline callback: skip/todo or external implementation — don't report.
-			if (testStack.length > 0) {
-				// Mark parent as having an assertion-like (external impl may assert).
-				testStack.at(-1).hasAssertion = true;
-			}
-
 			return;
 		}
 
 		// Check if this call is an assertion.
-		const currentTest = testStack.at(-1);
-		if (
-			currentTest
-			&& (
-				(parseAssertionCall(node, imports) && isAssertionCallWithSupportedContext(node, tracker))
-				|| isDestructuredAssertCall(node, currentTest.assertVariable, sourceCode)
-			)
-		) {
+		const isAssertion = (
+			(parseAssertionCall(node, imports) && isAssertionCallWithSupportedContext(node, tracker))
+			|| isDestructuredAssertCall(node, testStack, sourceCode)
+		);
+		if (!isAssertion) {
+			return;
+		}
+
+		const currentTest = getContainingTestFrame(node, testStack);
+		if (currentTest) {
 			currentTest.hasAssertion = true;
 		}
 	});
@@ -125,7 +131,7 @@ const create = context => {
 			};
 		}
 
-		// Propagate to parent: a nested test call itself doesn't count as an assertion in the parent.
+		// A nested test call does not count as an assertion in its parent.
 	});
 };
 
