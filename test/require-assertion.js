@@ -20,6 +20,7 @@ test.snapshot({
 		'import test from "node:test";\ntest("t1", t => { t.assert.strictEqual(1, 1); });',
 
 		// Destructured TestContext.assert form
+		'import test from "node:test";\ntest("t1", ({assert}) => assert.ok(1));',
 		'import test from "node:test";\ntest("t1", ({assert}) => { assert.strictEqual(1, 1); });',
 		'import test from "node:test";\ntest("t1", ({assert: testAssert}) => { testAssert.strictEqual(1, 1); });',
 
@@ -114,6 +115,7 @@ test.snapshot({
 
 		// An assertion in a nested test title belongs to the outer callback
 		'import test from "node:test";\nimport assert from "node:assert";\ntest("outer", () => { test(assert.ok(1), () => {}); });',
+		'import test from "node:test";\ntest("outer", ({assert}) => { test(assert.ok(1), () => {}); });',
 
 		// A nested test with an external implementation does not count as an assertion in its parent
 		'import test from "node:test";\ntest("outer", () => { test("inner", implementation); });',
