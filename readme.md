@@ -17,33 +17,47 @@ npm install --save-dev eslint eslint-node-test
 Use a [preset config](#preset-configs) or configure each rule in `eslint.config.js`.
 
 ```js
-import eslintNodeTest from 'eslint-node-test';
+import nodeTest from 'eslint-node-test';
 import {defineConfig} from 'eslint/config';
 
-export default defineConfig({
-	plugins: {nodeTest: eslintNodeTest},
-	extends: ['nodeTest/recommended']
-});
+export default defineConfig([
+	{
+		files: [
+			'**/*.js'
+		],
+		plugins: {
+			'node-test': nodeTest
+		},
+		extends: [
+			'node-test/recommended'
+		]
+	}
+]);
 ```
 
 Or configure rules individually:
 
 ```js
-import eslintNodeTest from 'eslint-node-test';
+import nodeTest from 'eslint-node-test';
 import {defineConfig} from 'eslint/config';
 
-export default defineConfig({
-	plugins: {
-		'node-test': eslintNodeTest,
-	},
-	rules: {
-		'node-test/no-only-test': 'error',
-		'node-test/no-identical-title': 'error',
+export default defineConfig([
+	{
+		files: [
+			'**/*.js'
+		],
+		plugins: {
+			'node-test': nodeTest
+		},
+		rules: {
+			'node-test/no-only-test': 'error',
+			'node-test/no-identical-title': 'error'
+		}
 	}
-});
+]);
 ```
 
-The rules only activate in files that import from `node:test` (and assertion rules also activate for Node's built-in `assert` module), so you can safely apply the plugin across your whole project.
+The example scopes the plugin to JavaScript files. Add TypeScript extensions only when your ESLint config provides a TypeScript parser for them. The rules only activate in files that import from `node:test` (and assertion rules also activate for Node's built-in `assert` module), so you can safely apply the plugin across your whole project.
 
 ## Rules
 
@@ -163,13 +177,22 @@ This plugin exports these configs:
 - `all` — Enables every rule (not recommended for general use; useful to discover new rules).
 
 ```js
-import eslintNodeTest from 'eslint-node-test';
+import nodeTest from 'eslint-node-test';
 import {defineConfig} from 'eslint/config';
 
-export default defineConfig({
-	plugins: {nodeTest: eslintNodeTest},
-	extends: ['nodeTest/recommended']
-});
+export default defineConfig([
+	{
+		files: [
+			'**/*.js'
+		],
+		plugins: {
+			'node-test': nodeTest
+		},
+		extends: [
+			'node-test/recommended'
+		]
+	}
+]);
 ```
 
 ## Related

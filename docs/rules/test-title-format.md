@@ -22,7 +22,14 @@ A regular expression pattern string that all test titles must match.
 ## Examples
 
 ```js
-/* eslint node-test/test-title-format: ["error", {format: "^Should"}] */
+/* eslint
+	node-test/test-title-format: [
+		'error',
+		{
+			format: '^Should'
+		}
+	]
+*/
 import test from 'node:test';
 
 // ❌
@@ -34,7 +41,14 @@ test('Should throw on invalid input', () => {});
 ```
 
 ```js
-/* eslint node-test/test-title-format: ["error", {format: "\\.$"}] */
+/* eslint
+	node-test/test-title-format: [
+		'error',
+		{
+			format: '\\.$'
+		}
+	]
+*/
 import test from 'node:test';
 
 // ❌

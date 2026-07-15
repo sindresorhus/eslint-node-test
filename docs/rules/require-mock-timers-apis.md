@@ -25,7 +25,11 @@ test('debounce', t => {
 import {test} from 'node:test';
 
 test('debounce', t => {
-	t.mock.timers.enable({apis: ['setTimeout']});
+	t.mock.timers.enable({
+		apis: [
+			'setTimeout'
+		]
+	});
 });
 ```
 

@@ -37,7 +37,17 @@ Default: `[]`
 Test functions whose titles are not checked. Allowed values: `test`, `it`, `describe`, `suite`.
 
 ```js
-/* eslint node-test/prefer-lowercase-title: ["error", {ignore: ["describe", "suite"]}] */
+/* eslint
+	node-test/prefer-lowercase-title: [
+		'error',
+		{
+			ignore: [
+				'describe',
+				'suite'
+			]
+		}
+	]
+*/
 import {describe, test} from 'node:test';
 
 // ✅ — `describe` is ignored
@@ -55,7 +65,17 @@ Default: `[]`
 Title prefixes that are allowed to start with an uppercase letter, such as HTTP methods or proper nouns.
 
 ```js
-/* eslint node-test/prefer-lowercase-title: ["error", {allowedPrefixes: ["GET", "POST"]}] */
+/* eslint
+	node-test/prefer-lowercase-title: [
+		'error',
+		{
+			allowedPrefixes: [
+				'GET',
+				'POST'
+			]
+		}
+	]
+*/
 import test from 'node:test';
 
 // ✅

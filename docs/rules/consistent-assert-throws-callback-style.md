@@ -25,7 +25,12 @@ Autofix is skipped for `async` callbacks, explicit return types, unsafe comment 
 
 ```js
 {
-	'node-test/consistent-assert-throws-callback-style': ['error', {style: 'block'}]
+	'node-test/consistent-assert-throws-callback-style': [
+		'error',
+		{
+			style: 'block'
+		}
+	]
 }
 ```
 

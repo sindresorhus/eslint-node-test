@@ -20,10 +20,23 @@ import {describe, test} from 'node:test';
 
 // ❌
 test('loads the database', {tags: 'database'}, () => {});
-test('retries the request', {tags: ['Slow', 'slow']}, () => {});
+test('retries the request', {
+	tags: [
+		'Slow',
+		'slow'
+	]
+}, () => {});
 
 // ✅
-describe('database', {tags: ['database']}, () => {
-	test('loads a record', {tags: ['slow']}, () => {});
+describe('database', {
+	tags: [
+		'database'
+	]
+}, () => {
+	test('loads a record', {
+		tags: [
+			'slow'
+		]
+	}, () => {});
 });
 ```

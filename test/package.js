@@ -6,6 +6,8 @@ import {defineConfig} from 'eslint/config';
 import {ESLint} from 'eslint';
 import eslintNodeTest from '../index.js';
 
+const nodeTest = eslintNodeTest;
+
 let ruleFiles;
 
 before(async () => {
@@ -67,21 +69,34 @@ test('validate configuration', async () => {
 
 test('recommended config works through extends', async () => {
 	const eslint = new ESLint({
-		baseConfig: defineConfig({
-			plugins: {nodeTest: eslintNodeTest},
-			extends: ['nodeTest/recommended'],
-		}),
+		baseConfig: defineConfig([
+			{
+				files: ['**/*.js'],
+				plugins: {
+					'node-test': nodeTest,
+				},
+				extends: ['node-test/recommended'],
+			},
+		]),
 		overrideConfigFile: true,
 	});
 	const [result] = await eslint.lintText('import test from \'node:test\'; test.only(\'title\', () => {});', {filePath: 'example.js'});
 	assert.ok(result.messages.some(message => message.ruleId === 'node-test/no-only-test'));
 
+	const configForCjsFile = await eslint.calculateConfigForFile('example.cjs');
+	assert.strictEqual(configForCjsFile?.rules?.['node-test/no-only-test'], undefined);
+
 	const eslintWithOverrides = new ESLint({
-		baseConfig: defineConfig({
-			plugins: {nodeTest: eslintNodeTest},
-			extends: ['nodeTest/recommended'],
-			rules: {'node-test/no-only-test': 'off'},
-		}),
+		baseConfig: defineConfig([
+			{
+				files: ['**/*.js'],
+				plugins: {
+					'node-test': nodeTest,
+				},
+				extends: ['node-test/recommended'],
+				rules: {'node-test/no-only-test': 'off'},
+			},
+		]),
 		overrideConfigFile: true,
 	});
 	const [overriddenResult] = await eslintWithOverrides.lintText('import test from \'node:test\'; test.only(\'title\', () => {});', {filePath: 'example.js'});
