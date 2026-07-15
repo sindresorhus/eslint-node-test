@@ -42,7 +42,11 @@ import test from 'node:test';
 
 // ✅
 test('debounces', t => {
-	t.mock.timers.enable({apis: ['setTimeout']});
+	t.mock.timers.enable({
+		apis: [
+			'setTimeout'
+		]
+	});
 	setTimeout(callback, 500);
 	t.mock.timers.tick(500);
 });

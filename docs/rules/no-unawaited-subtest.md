@@ -35,7 +35,7 @@ test('parent', t => t.test('child', () => {}));
 test('parent', async t => {
 	await Promise.all([
 		t.test('a', () => {}),
-		t.test('b', () => {}),
+		t.test('b', () => {})
 	]);
 });
 ```

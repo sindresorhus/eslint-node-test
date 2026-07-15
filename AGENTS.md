@@ -33,7 +33,7 @@ Key differences from standard ESLint:
 const MESSAGE_ID = 'rule-name';
 
 const messages = {
-	[MESSAGE_ID]: 'Error message with {{placeholder}}.',
+	[MESSAGE_ID]: 'Error message with {{placeholder}}.'
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -43,7 +43,7 @@ const create = context => {
 			node,
 			messageId: MESSAGE_ID,
 			data: {placeholder: 'value'},
-			fix: fixer => fixer.replaceText(node, 'replacement'),
+			fix: fixer => fixer.replaceText(node, 'replacement')
 		};
 	});
 };
@@ -55,13 +55,17 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce …',
-			recommended: true, // 'unopinionated' (safest, in both presets), true (in recommended only), or false (opt-in)
+			recommended: true // 'unopinionated' (safest, in both presets), true (in recommended only), or false (opt-in)
 		},
 		fixable: 'code', // or omit; add hasSuggestions: true for suggestions
 		schema: [],
-		defaultOptions: [{option: 'default'}], // merged automatically
-		messages,
-	},
+		defaultOptions: [
+			{
+				option: 'default'
+			}
+		], // merged automatically
+		messages
+	}
 };
 export default config;
 ```
@@ -161,7 +165,10 @@ On rebase, `rules/index.js` and the `readme.md` rules table almost always confli
 ## Documentation
 
 Use JavaScript syntax for configuration examples, not JSON-style quoted keys and strings, unless the example is specifically JSON.
-For rule configuration examples, put the severity and options on separate lines inside the rule array when the rule has options, and omit trailing commas.
+Use single quotes for strings in JavaScript documentation examples.
+For rule configuration examples, put the severity and options on separate lines inside the rule array when the rule has options.
+Put non-empty option and configuration arrays in documentation examples on separate lines, with each element on its own line inside the brackets. This includes nested option arrays and config arrays such as `files` and `extends`: even short options like `ignore` and `allowedPrefixes` must not use an inline array. Do not apply this to ordinary test data such as `[1, 2, 3]`.
+Omit trailing commas in documentation examples.
 For rule examples, keep the `## Examples` heading. Prefer pairing each failing example with its passing counterpart in the same code block when feasible, and avoid one large block containing all failing and passing examples.
 
 ## Testing
@@ -176,7 +183,7 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: ['validCode'],
-	invalid: ['invalidCode'],
+	invalid: ['invalidCode']
 });
 ```
 

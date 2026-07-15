@@ -13,10 +13,13 @@
 
 ```js
 {
-	'node-test/consistent-test-it': ['error', {
-		fn: 'test', // 'test' | 'it' — name for top-level test cases (default: 'test')
-		withinDescribe: 'it', // 'test' | 'it' — name inside a `describe` (default: 'it')
-	}]
+	'node-test/consistent-test-it': [
+		'error',
+		{
+			fn: 'test', // 'test' | 'it' — name for top-level test cases (default: 'test')
+			withinDescribe: 'it' // 'test' | 'it' — name inside a `describe` (default: 'it')
+		}
+	]
 }
 ```
 

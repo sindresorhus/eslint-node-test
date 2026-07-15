@@ -17,7 +17,12 @@ This rule reports a `test`/`it` (or subtest) callback whose first parameter is n
 
 ```js
 {
-	'node-test/consistent-test-context-name': ['error', {name: 't'}]
+	'node-test/consistent-test-context-name': [
+		'error',
+		{
+			name: 't'
+		}
+	]
 }
 ```
 

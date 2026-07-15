@@ -49,7 +49,14 @@ Default: `5`
 The maximum number of assertions allowed in a test.
 
 ```js
-/* eslint node-test/max-assertions: ["error", {max: 3}] */
+/* eslint
+	node-test/max-assertions: [
+		'error',
+		{
+			max: 3
+		}
+	]
+*/
 import test from 'node:test';
 import assert from 'node:assert/strict';
 

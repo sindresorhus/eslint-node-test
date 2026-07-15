@@ -15,9 +15,12 @@ This rule reports `describe`/`suite` blocks nested beyond a configurable depth (
 
 ```js
 {
-	'node-test/max-nested-describe': ['error', {
-		max: 5, // maximum nesting depth (default: 5)
-	}]
+	'node-test/max-nested-describe': [
+		'error',
+		{
+			max: 5 // maximum nesting depth (default: 5)
+		}
+	]
 }
 ```
 

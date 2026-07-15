@@ -18,7 +18,11 @@ import {test, mock} from 'node:test';
 import {setTimeout} from 'node:timers'; // ❌ captured before the mock is installed
 
 test('debounce', () => {
-	mock.timers.enable({apis: ['setTimeout']});
+	mock.timers.enable({
+		apis: [
+			'setTimeout'
+		]
+	});
 	setTimeout(fn, 1000); // real timer — not mocked
 	mock.timers.tick(1000); // does nothing
 });
@@ -29,7 +33,11 @@ import {test, mock} from 'node:test';
 
 // ✅ the global `setTimeout` is intercepted by the mock
 test('debounce', () => {
-	mock.timers.enable({apis: ['setTimeout']});
+	mock.timers.enable({
+		apis: [
+			'setTimeout'
+		]
+	});
 	setTimeout(fn, 1000);
 	mock.timers.tick(1000);
 });

@@ -21,7 +21,12 @@ Hooks (`before`, `after`, `beforeEach`, `afterEach`) are always ignored, since t
 
 ```js
 {
-	'node-test/consistent-modifier-style': ['error', {style: 'chained'}]
+	'node-test/consistent-modifier-style': [
+		'error',
+		{
+			style: 'chained'
+		}
+	]
 }
 ```
 

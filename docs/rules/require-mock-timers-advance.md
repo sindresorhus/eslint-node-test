@@ -26,20 +26,33 @@ import test from 'node:test';
 
 // ❌
 test('delays work', t => {
-	t.mock.timers.enable({apis: ['setTimeout']});
+	t.mock.timers.enable({
+		apis: [
+			'setTimeout'
+		]
+	});
 	setTimeout(callback, 100);
 });
 
 // ✅
 test('delays work', t => {
-	t.mock.timers.enable({apis: ['setTimeout']});
+	t.mock.timers.enable({
+		apis: [
+			'setTimeout'
+		]
+	});
 	setTimeout(callback, 100);
 	t.mock.timers.tick(100);
 });
 
 // ✅
 test('uses a fixed date', t => {
-	t.mock.timers.enable({apis: ['Date'], now: 100});
+	t.mock.timers.enable({
+		apis: [
+			'Date'
+		],
+		now: 100
+	});
 	Date.now();
 });
 ```
