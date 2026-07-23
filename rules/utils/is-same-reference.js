@@ -1,4 +1,5 @@
 import {getStaticValue} from '@eslint-community/eslint-utils';
+import {unwrapExpression} from './skip-expression-wrappers.js';
 
 // Copied from https://github.com/eslint/eslint/blob/94ba68d76a6940f68ff82eea7332c6505f93df76/lib/rules/utils/ast-utils.js#L392
 
@@ -96,27 +97,6 @@ function equalLiteralValue(left, right) {
 }
 
 /**
-Unwrap ChainExpression (`?.`) and TypeScript expression wrapper (`as`, `satisfies`, `<Type>`, or `!`) nodes.
-@param {ASTNode} node The node to unwrap.
-@returns {ASTNode} The unwrapped node.
-*/
-function unwrapNode(node) {
-	while (
-		[
-			'ChainExpression',
-			'TSAsExpression',
-			'TSSatisfiesExpression',
-			'TSTypeAssertion',
-			'TSNonNullExpression',
-		].includes(node.type)
-	) {
-		node = node.expression;
-	}
-
-	return node;
-}
-
-/**
 Check if two expressions reference the same value. For example:
 	a = a
 	a.b = a.b
@@ -127,8 +107,8 @@ Check if two expressions reference the same value. For example:
 @returns {boolean} `true` if both sides match and reference the same value.
 */
 export default function isSameReference(left, right) {
-	left = unwrapNode(left);
-	right = unwrapNode(right);
+	left = unwrapExpression(left);
+	right = unwrapExpression(right);
 
 	if (left.type !== right.type) {
 		return false;

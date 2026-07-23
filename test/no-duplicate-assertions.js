@@ -69,6 +69,9 @@ test.snapshot({
 		// Non-context `assert` properties are ignored
 		withContextTest('\tfake.assert.strictEqual(user.id, 1);\n\tfake.assert.strictEqual(user.id, 1);'),
 
+		// A parameter that shadows the context name is a different variable
+		withContextTest('\tfunction helper(t) {\n\t\tt.assert.strictEqual(user.id, 1);\n\t\tt.assert.strictEqual(user.id, 1);\n\t}'),
+
 		// Computed properties are ignored
 		withTest('\tassert[\'strictEqual\'](user.id, 1);\n\tassert[\'strictEqual\'](user.id, 1);'),
 
@@ -101,6 +104,13 @@ test.snapshot({
 
 		// Test context assertion
 		withContextTest('\tt.assert.strictEqual(user.id, 1);\n\tt.assert.strictEqual(user.id, 1);'),
+
+		// A wrapped context receiver still resolves to the tracked context
+		{
+			code: withContextTest('\t(t as any).assert.strictEqual(user.id, 1);\n\t(t as any).assert.strictEqual(user.id, 1);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		withContextTest('\tt?.assert.strictEqual(user.id, 1);\n\tt?.assert.strictEqual(user.id, 1);'),
 
 		// Nested test bodies are checked independently
 		`${head}test('parent', t => {\n\tt.test('child', () => {\n\t\tassert.strictEqual(user.id, 1);\n\t\tassert.strictEqual(user.id, 1);\n\t});\n});`,

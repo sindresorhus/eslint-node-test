@@ -1,4 +1,4 @@
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -9,6 +9,12 @@ test.snapshot({
 		// Correctly awaited via Promise.all
 		inTest('await Promise.all(xs.map(x => t.test(x, () => {})));'),
 		inTest('await Promise.allSettled(xs.map(x => t.test(x, () => {})));'),
+
+		// A cast on the mapped array is what `Promise.all` receives, so the subtests are still awaited
+		{
+			code: inTest('await Promise.all(xs.map(x => t.test(x, () => {})) as Promise<void>[]);'),
+			languageOptions: {parser: parsers.typescript},
+		},
 
 		// Returned `Promise.all` (consumed by the caller)
 		inTest('return Promise.all(xs.map(x => t.test(x, () => {})));'),
@@ -25,6 +31,15 @@ test.snapshot({
 
 		// Bare-statement subtest in an iteration callback — covered by `no-unawaited-subtest`
 		inTest('xs.forEach(x => { t.test(x, () => {}); });'),
+
+		// Still a bare statement under a TypeScript wrapper or optional chaining, so it stays with
+		// `no-unawaited-subtest` rather than being reported by both rules
+		{
+			code: inTest('xs.forEach(x => { t.test(x, () => {}) as any; });'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		inTest('xs.forEach(x => { t?.test(x, () => {}); });'),
+		inTest('xs.forEach(x => { void t.test(x, () => {}); });'),
 
 		// Not a test file
 		'xs.map(x => something(x));',
@@ -53,5 +68,11 @@ test.snapshot({
 
 		// `flatMap`
 		inTest('xs.flatMap(x => t.test(x, () => {}));'),
+
+		// TypeScript wrapper on `Promise.all` must not mask a discarded result
+		{
+			code: inTest('Promise.all(xs.map(x => t.test(x, () => {}))) as Promise<void[]>;'),
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

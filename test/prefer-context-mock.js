@@ -55,5 +55,10 @@ test.snapshot({
 			code: withImport('mock.method(obj as Target, "fn");'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		// TypeScript: a mid-chain cast must not break the walk down to the global `mock`
+		{
+			code: withImport('(mock.timers as any).enable();'),
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

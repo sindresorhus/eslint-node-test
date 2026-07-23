@@ -19,6 +19,36 @@ Suggestion 1/1: Add \`return\` after \`t.skip()\`.:
 
 `;
 
+exports[`no-skip-without-return > invalid(10): import test from 'node:test';\ntest(\"x\", t => {\n\tt.skip() as void;\n\tassert.ok(x);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("x", t => {
+  3 | 	t.skip() as void;
+  4 | 	assert.ok(x);
+  5 | });
+
+`;
+
+exports[`no-skip-without-return > invalid(10): import test from 'node:test';\ntest(\"x\", t => {\n\tt.skip() as void;\n\tassert.ok(x);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test("x", t => {
+> 3 | 	t.skip() as void;
+    | 	^^^^^^^^ \`t.skip()\` does not stop the test; code after it still runs. Return afterwards.
+  4 | 	assert.ok(x);
+  5 | });
+
+Suggestion 1/1: Add \`return\` after \`t.skip()\`.:
+  1 | import test from 'node:test';
+  2 | test("x", t => {
+  3 | 	t.skip() as void;
+  4 | 	return;
+  5 | 	assert.ok(x);
+  6 | });
+
+`;
+
 exports[`no-skip-without-return > invalid(2): import test from 'node:test';\ntest(\"x\", t => {\n\tt.skip();\n\tassert.ok(x);\n}); 1`] = `
 
   1 | import test from 'node:test';

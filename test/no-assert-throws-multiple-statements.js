@@ -56,6 +56,18 @@ test.snapshot({
 			code: withAssert('assert.throws((() => { run(); }) as () => void);'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// A TypeScript-wrapped non-context receiver is not a test context
+		{
+			code: withTest('test(\'t\', t => { (custom as any).assert.throws(() => { setup(); run(); }); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// A same-named parameter outside the test callback is a different variable
+		withTest('test(\'t\', t => {});\nfunction helper(t) { t.assert.throws(() => { setup(); run(); }); }'),
+
+		// Suite contexts have no `assert`
+		'import {describe} from \'node:test\';\ndescribe(\'s\', s => { s.assert.throws(() => { setup(); run(); }); });',
 	],
 	invalid: [
 		withAssert('assert.throws(() => { setup(); run(); });'),
@@ -75,10 +87,20 @@ test.snapshot({
 		withNamedStrictImport('throws', 'throws(() => { setup(); run(); });'),
 		withAssert('assert?.throws(() => { setup(); run(); });'),
 		withTest('test(\'t\', t => { t.assert.throws(() => { setup(); run(); }); });'),
+		withTest('test(\'t\', (t = undefined) => { t.assert.throws(() => { setup(); run(); }); });'),
 		withTest('test(\'t\', t => { t.assert.rejects(async () => { setup(); await run(); }); });'),
 		withTest('test.only(\'t\', t => { t.assert.throws(() => { setup(); run(); }); });'),
 		withNamespaceTest('nodeTest.test(\'t\', t => { t.assert.throws(() => { setup(); run(); }); });'),
 		withNamespaceTest('nodeTest.test.only(\'t\', t => { t.assert.throws(() => { setup(); run(); }); });'),
+		// Standalone modifier import — `only()` is a test, so its callback declares a context
+		'import {only} from \'node:test\';\nonly(\'t\', t => { t.assert.throws(() => { setup(); run(); }); });',
+
+		// Hook callbacks receive a test context too
+		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { t.assert.throws(() => { setup(); run(); }); });',
+
+		// Including hooks declared from an enclosing test context
+		withTest('test(\'t\', t => { t.beforeEach(u => { u.assert.throws(() => { setup(); run(); }); }); });'),
+
 		withTest('test(\'outer\', t => { t.test(\'inner\', u => { u.assert.throws(() => { setup(); run(); }); }); });'),
 		withTest('test(\'outer\', t => { t.test(\'inner\', u => { u.assert.rejects(async () => { setup(); await run(); }); }); });'),
 		withAssert('assert.throws(() => { setup(); /* comment */ run(); });'),
@@ -98,5 +120,12 @@ test.snapshot({
 			code: withAssert('assert.throws(<() => void>(() => { setup(); run(); }));'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// A TypeScript-wrapped or optional-chained real context receiver still reports
+		{
+			code: withTest('test(\'t\', t => { (t as any).assert.throws(() => { setup(); run(); }); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		withTest('test(\'t\', t => { t?.assert.throws(() => { setup(); run(); }); });'),
 	],
 });

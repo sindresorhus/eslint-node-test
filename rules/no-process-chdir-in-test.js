@@ -1,7 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {resolveImports, createContextTracker} from './utils/node-test.js';
-import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
-import {getEnclosingFunction} from './utils/index.js';
+import {getEnclosingFunction, unwrapExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'no-process-chdir-in-test';
 
@@ -12,15 +11,6 @@ const messages = {
 const PROCESS_MODULES = new Set(['node:process', 'process']);
 
 const isValueImport = node => node.importKind === undefined || node.importKind === 'value';
-
-const unwrapExpression = node => {
-	let unwrapped = node && unwrapTypeScriptExpression(node);
-	while (unwrapped?.type === 'ChainExpression') {
-		unwrapped = unwrapTypeScriptExpression(unwrapped.expression);
-	}
-
-	return unwrapped;
-};
 
 const getImportSpecifierName = specifier => {
 	if (specifier.imported.type === 'Identifier') {

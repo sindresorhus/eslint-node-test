@@ -1,5 +1,4 @@
 import {findVariable} from '@eslint-community/eslint-utils';
-import isFunction from './ast/is-function.js';
 import {
 	resolveImports,
 	parseTestCall,
@@ -7,7 +6,7 @@ import {
 	getTestCallback,
 	MODIFIERS,
 } from './utils/node-test.js';
-import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
+import {unwrapExpression, getEnclosingFunction} from './utils/index.js';
 
 const MESSAGE_ID = 'no-process-env-mutation';
 
@@ -28,15 +27,6 @@ const REFLECT_MUTATORS = new Set([
 	'defineProperty',
 	'set',
 ]);
-
-const unwrapExpression = node => {
-	let unwrapped = node && unwrapTypeScriptExpression(node);
-	while (unwrapped?.type === 'ChainExpression') {
-		unwrapped = unwrapTypeScriptExpression(unwrapped.expression);
-	}
-
-	return unwrapped;
-};
 
 const getStaticPropertyName = node => {
 	if (node.type === 'Identifier') {
@@ -107,15 +97,6 @@ const getRootIdentifier = node => {
 	if (node?.type === 'MemberExpression') {
 		return getRootIdentifier(node.object);
 	}
-};
-
-const getNearestFunction = node => {
-	let {parent} = node;
-	while (parent && !isFunction(parent)) {
-		parent = parent.parent;
-	}
-
-	return parent;
 };
 
 const collectProcessModuleBindings = context => {
@@ -334,7 +315,7 @@ const create = context => {
 			return false;
 		}
 
-		return getNearestFunction(node) === test.callback;
+		return getEnclosingFunction(node) === test.callback;
 	};
 
 	const getMutatingProcessEnvironmentTarget = node => {

@@ -77,15 +77,16 @@ function isTestFileSpecifier(specifier, filename, cwd) {
 		return false;
 	}
 
-	const name = path.posix.basename(filePath, `.${extension}`);
-	const caseInsensitiveName = getCaseInsensitiveValue(name);
+	// Every name comparison goes through `getCaseInsensitiveValue`: on a case-insensitive file
+	// system `./TEST/Example.Test.js` resolves to the same file as `./test/example.test.js`.
+	const name = getCaseInsensitiveValue(path.posix.basename(filePath, `.${extension}`));
 	return (
-		pathSegments.includes('test')
+		pathSegments.some(segment => getCaseInsensitiveValue(segment) === 'test')
 		|| name === 'test'
-		|| caseInsensitiveName.startsWith('test-')
-		|| caseInsensitiveName.endsWith('.test')
-		|| caseInsensitiveName.endsWith('_test')
-		|| caseInsensitiveName.endsWith('-test')
+		|| name.startsWith('test-')
+		|| name.endsWith('.test')
+		|| name.endsWith('_test')
+		|| name.endsWith('-test')
 	);
 }
 

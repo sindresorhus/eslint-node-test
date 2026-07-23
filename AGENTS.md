@@ -15,7 +15,8 @@ Keep rules simple. Target common patterns, skip rare edge cases rather than over
 - `findModifier`, `getTestOptions`, `findOptionsProperty` — for the two ways a modifier is applied: chained (`test.only(…)`) and via the options object (`test('t', {only: true}, fn)`).
 - `getTestTitle(call, context)`, `getStaticString(node, context)` — resolve static string titles.
 - `getTestCallback(call)` — the inline implementation function (the last function argument).
-- `parseAssertionCall(call, imports)` — classifies a `node:assert` assertion: `assert.strictEqual(…)`, bare `assert(…)`, named-import `strictEqual(…)`, or `t.assert.strictEqual(…)`. Returns `{method}`. Assertion rules activate on a `node:assert` import (not necessarily `node:test`), since the advice is correct wherever `node:assert` is used.
+- `parseAssertionCall(call, imports)` — classifies a `node:assert` assertion: `assert.strictEqual(…)`, bare `assert(…)`, named-import `strictEqual(…)`, or `t.assert.strictEqual(…)`. Returns `{method, methodNode, isStrict, contextReceiver}`, where `contextReceiver` is set only for the `<receiver>.assert.*()` form. Assertion rules activate on a `node:assert` import (not necessarily `node:test`), since the advice is correct wherever `node:assert` is used.
+- `parseSupportedAssertionCall(call, imports, tracker)` — the same, but additionally rejects a `<receiver>.assert.*()` call whose receiver is not a tracked test context (`foo.assert.equal(…)` is an unrelated object's method). **Assertion rules should use this**, not `parseAssertionCall`, so the context check cannot be forgotten. Reach for the raw `parseAssertionCall` only when the rule deliberately treats the context form differently (`no-standalone-assert`, `require-context-assert-with-plan`, `prefer-test-context-assert`), when it merely asks "is this any assertion?" from a place with no tracker in scope, such as a recursive AST walk (`prefer-assert-throws`, `require-hook`, `require-throws-validator-return-true`), or when it does its own context bookkeeping for other reasons (`no-unawaited-promise-assertion`).
 
 Note: subtests created via the test context (`t.test(…)`) are method calls, not imported bindings, so they are intentionally not matched by `parseTestCall`.
 
@@ -111,7 +112,7 @@ The infrastructure (rule adapter, snapshot test harness, doc generation) is adap
 Before writing helpers, check these directories:
 
 - **`rules/ast/`** - AST node type checks: `isMethodCall`, `isMemberExpression`, `isFunction`, `isLoop`, `isExpressionStatement`, `isStringExpression`, `isBooleanLiteral`, `isRegexLiteral`, `getStaticStringValue`, etc.
-- **`rules/utils/`** - General utilities: parenthesis helpers (`isParenthesized`, `getParenthesizedRange`, `getParentheses`), `isSameReference`, `isValueNotUsable`, `isPromiseType`, `isConditionalBranch`, `getEnclosingFunction`, `getComments`, `unwrapTypeScriptExpression`, etc.
+- **`rules/utils/`** - General utilities: parenthesis helpers (`isParenthesized`, `getParenthesizedRange`, `getParentheses`), `isSameReference`, `isValueNotUsable`, `isPromiseType`, `isConditionalBranch`, `getEnclosingFunction`, `getComments`, `unwrapTypeScriptExpression`, `unwrapExpression`, `skipExpressionWrappers`, `outermostExpressionWrapper`, `isExpressionWrapper`, `getFloatingStatement`, etc.
 - **`rules/fix/`** - Fixer helpers: `removeArgument`, `removeMemberExpressionProperty`.
 - **`rules/shared/`** - Shared rule logic for rules that share patterns (e.g., `test-modifier-rule.js`).
 
@@ -126,7 +127,10 @@ Also use `@eslint-community/eslint-utils` for helpers like `findVariable`, `getS
 Most commonly used utilities:
 
 - **`isFunction`** - Check if a node is a function (declaration, expression, or arrow function).
-- **`unwrapTypeScriptExpression`**, **`isTypeScriptExpressionWrapper`** - Unwrap `as`/`satisfies`/non-null-assertion wrappers to reach the underlying expression.
+- **`unwrapTypeScriptExpression`**, **`isTypeScriptExpressionWrapper`** - Unwrap `as`/`satisfies`/non-null-assertion wrappers to reach the underlying expression. Use these only where optional chaining is handled separately (a callee chain, for example); otherwise prefer `unwrapExpression`.
+- **`unwrapExpression`** - Unwrap both `ChainExpression` (optional chaining) and TypeScript wrappers, inward. Use it on any node you are about to inspect (a callee, an argument, an object) so `(foo as any)?.bar` reads the same as `foo.bar`. Never hand-roll a local `unwrapChainExpression` helper.
+- **`skipExpressionWrappers`** - The upward counterpart: from `node.parent`, skip past `ChainExpression` and TypeScript wrappers to the real enclosing expression. Always use it instead of reading `node.parent.type` directly when checking whether a call is a bare statement — otherwise a cast (`foo() as any;`) hides the match. **`outermostExpressionWrapper`** returns the outermost wrapper instead, for when the wrapper's own node is what matters, and **`isExpressionWrapper`** is the shared predicate they are all built on, for loops that walk on their own terms.
+- **`getFloatingStatement`** - Whether a call's value is thrown away at statement level, as a bare statement or via `void`. Returns `{statement, canAwait}` (or `undefined`), so a rule can report every floating form while limiting the `await` fix to the forms it certifies as safe: `canAwait` is `false` for a `void`-discarded call and for one wrapped in a TypeScript type assertion (which binds looser than `await`), and `true` otherwise. Use it instead of an `ExpressionStatement` check whenever the rule is about an unawaited Promise.
 - **`isParenthesized`**, **`getParenthesizedRange`** (from `rules/utils/`) - Handle extra parentheses around nodes.
 - **`isValueNotUsable`** - Check if a call expression's return value is unused (safe to change behavior).
 - **`findVariable`** (from `@eslint-community/eslint-utils`) - Resolve a variable's scope binding.

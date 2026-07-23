@@ -27,20 +27,6 @@ function getPlanContextName(node) {
 	return undefined;
 }
 
-/** Whether a call is the `<context>.assert.method(…)` form, which the plan does count. */
-function isContextAssertCall(node, tracker) {
-	const {callee} = node;
-	return (
-		callee.type === 'MemberExpression'
-		&& callee.object.type === 'MemberExpression'
-		&& !callee.object.computed
-		&& callee.object.property.type === 'Identifier'
-		&& callee.object.property.name === 'assert'
-		&& callee.object.object.type === 'Identifier'
-		&& tracker.isContextName(callee.object.object.name)
-	);
-}
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const imports = resolveImports(context);
@@ -84,7 +70,12 @@ const create = context => {
 			return;
 		}
 
-		if (parseAssertionCall(node, imports) && !isContextAssertCall(node, tracker)) {
+		// Report only imported `node:assert` calls: `parseAssertionCall` leaves `contextReceiver`
+		// unset for those, and sets it for every `<receiver>.assert.*` form (unwrapping TypeScript).
+		// A `t.assert.*` call counts toward the plan, and a `.assert.*` call on an unrelated object
+		// is not a `node:assert` assertion — neither should be reported.
+		const parsed = parseAssertionCall(node, imports);
+		if (parsed && !parsed.contextReceiver) {
 			frames.at(-1).assertions.push(node);
 		}
 	});

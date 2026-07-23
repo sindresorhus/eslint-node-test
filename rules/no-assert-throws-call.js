@@ -1,10 +1,9 @@
 import {
 	resolveImports,
-	parseAssertionCall,
+	parseSupportedAssertionCall,
 	createContextTracker,
-	isAssertionCallWithSupportedContext,
 } from './utils/node-test.js';
-import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
+import {unwrapExpression} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-assert-throws-call/error';
 const MESSAGE_ID_SUGGESTION = 'no-assert-throws-call/suggestion';
@@ -13,16 +12,6 @@ const messages = {
 	[MESSAGE_ID_ERROR]: '`{{method}}()` expects a function callback. This call runs before the assertion can catch it.',
 	[MESSAGE_ID_SUGGESTION]: 'Wrap the call in an arrow function.',
 };
-
-function unwrapExpression(node) {
-	node = unwrapTypeScriptExpression(node);
-
-	while (node.type === 'ChainExpression') {
-		node = unwrapTypeScriptExpression(node.expression);
-	}
-
-	return node;
-}
 
 function isBindCall(node) {
 	const {callee} = node;
@@ -54,8 +43,8 @@ const create = context => {
 	context.on('CallExpression', node => {
 		tracker.update(node);
 
-		const assertion = parseAssertionCall(node, imports);
-		if (!assertion || assertion.method !== 'throws' || !isAssertionCallWithSupportedContext(node, tracker)) {
+		const assertion = parseSupportedAssertionCall(node, imports, tracker);
+		if (!assertion || assertion.method !== 'throws') {
 			return;
 		}
 

@@ -1,21 +1,12 @@
 import {resolveImports, createContextTracker, isGlobalMock} from './utils/node-test.js';
 import {isFunction} from './ast/index.js';
-import {unwrapTypeScriptExpression} from './utils/index.js';
+import {unwrapTypeScriptExpression, unwrapExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-mock-accessor';
 const ACCESSORS = new Set(['getter', 'setter']);
 const messages = {
 	[MESSAGE_ID]: 'Prefer `mock.{{accessor}}()` over `mock.method()` with `{{accessor}}: true`.',
 };
-
-function unwrapChainExpression(node) {
-	node = unwrapTypeScriptExpression(node);
-	while (node.type === 'ChainExpression') {
-		node = unwrapTypeScriptExpression(node.expression);
-	}
-
-	return node;
-}
 
 function getPropertyName(property) {
 	if (property.type !== 'Property') {
@@ -99,7 +90,7 @@ const create = context => {
 
 	const tracker = createContextTracker(imports, {trackHooks: true});
 	const isContextMock = node => {
-		node = unwrapChainExpression(node);
+		node = unwrapExpression(node);
 		if (
 			node.type !== 'MemberExpression'
 			|| node.computed
@@ -109,7 +100,7 @@ const create = context => {
 			return false;
 		}
 
-		const object = unwrapChainExpression(node.object);
+		const object = unwrapExpression(node.object);
 		return object.type === 'Identifier' && tracker.isContextIdentifier(object);
 	};
 
@@ -121,13 +112,13 @@ const create = context => {
 	});
 
 	context.on('CallExpression', node => {
-		const callee = unwrapChainExpression(node.callee);
+		const callee = unwrapExpression(node.callee);
 		if (
 			callee.type !== 'MemberExpression'
 			|| callee.computed
 			|| callee.property.type !== 'Identifier'
 			|| callee.property.name !== 'method'
-			|| (!isGlobalMock(unwrapChainExpression(callee.object), imports) && !isContextMock(callee.object))
+			|| (!isGlobalMock(unwrapExpression(callee.object), imports) && !isContextMock(callee.object))
 		) {
 			return;
 		}

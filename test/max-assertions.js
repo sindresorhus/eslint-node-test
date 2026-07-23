@@ -4,7 +4,7 @@ const {test} = getTester(import.meta);
 
 const head = 'import test from \'node:test\';\nimport assert from \'node:assert\';\n';
 
-const asserts = count => Array.from({length: count}, () => 'assert.ok(x);').join(' ');
+const asserts = (count, receiver = 'assert') => Array.from({length: count}, () => `${receiver}.ok(x);`).join(' ');
 
 test.snapshot({
 	valid: [
@@ -30,7 +30,7 @@ test.snapshot({
 		`${head}function helper(test) { test('x', () => { ${asserts(6)} }); }`,
 
 		// `.assert.*` on a non-context object is not counted
-		`${head}const fixture = {assert: {ok: () => {}}};\ntest('t', () => { fixture.assert.ok(1); fixture.assert.ok(2); fixture.assert.ok(3); fixture.assert.ok(4); fixture.assert.ok(5); fixture.assert.ok(6); });`,
+		`${head}const fixture = {assert: {ok: () => {}}};\ntest('t', () => { ${asserts(6, 'fixture.assert')} });`,
 	],
 	invalid: [
 		// One past the default limit

@@ -1,11 +1,8 @@
-import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
+import {getStaticValue} from '@eslint-community/eslint-utils';
 import {
-	MODIFIERS,
 	resolveImports,
-	parseAssertionCall,
-	parseTestCall,
-	getSubtestReceiver,
-	getTestCallback,
+	parseSupportedAssertionCall,
+	createContextTracker,
 } from './utils/node-test.js';
 import {isRegexLiteral} from './ast/index.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
@@ -54,86 +51,6 @@ function isStaticRegexLiteral(node) {
 	return isRegexLiteral(unwrapTypeScriptExpression(node));
 }
 
-// `parseTestCall` already guarantees the callee root is an imported `node:test` binding, so no
-// separate binding check is needed here (and doing one on the raw callee would miss TypeScript
-// wrappers like `(test as any)(…)`).
-function isNodeTestCall(node, imports) {
-	const parsed = parseTestCall(node, imports);
-	return Boolean(parsed)
-		&& (parsed.kind === 'test' || parsed.kind === 'hook')
-		&& !(parsed.kind === 'hook' && parsed.modifiers.length > 0)
-		&& parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name));
-}
-
-function getContextAssertReceiver(node) {
-	const {callee} = node;
-	if (
-		callee.type !== 'MemberExpression'
-		|| callee.computed
-		|| callee.object.type !== 'MemberExpression'
-		|| callee.object.computed
-		|| callee.object.object.type !== 'Identifier'
-		|| callee.object.property.type !== 'Identifier'
-		|| callee.object.property.name !== 'assert'
-	) {
-		return undefined;
-	}
-
-	return callee.object.object;
-}
-
-function isInsideNode(node, ancestor) {
-	let current = node;
-	while (current) {
-		if (current === ancestor) {
-			return true;
-		}
-
-		current = current.parent;
-	}
-
-	return false;
-}
-
-function getContextParameterVariable(callback, sourceCode) {
-	const parameter = callback.params[0];
-	if (parameter?.type !== 'Identifier') {
-		return undefined;
-	}
-
-	return sourceCode
-		.getDeclaredVariables(callback)
-		.find(variable => variable.identifiers.includes(parameter));
-}
-
-function isSubtestCall(node, activeContexts, sourceCode) {
-	const receiver = getSubtestReceiver(node);
-	if (!receiver) {
-		return false;
-	}
-
-	const receiverVariable = findVariable(sourceCode.getScope(receiver), receiver);
-	return activeContexts.some(({variable}) => receiverVariable === variable);
-}
-
-function getTestContextCallback(node, imports, activeContexts, sourceCode) {
-	if (isNodeTestCall(node, imports) || isSubtestCall(node, activeContexts, sourceCode)) {
-		return getTestCallback(node);
-	}
-}
-
-function isUntrackedContextAssertCall(node, activeContexts, sourceCode) {
-	const receiver = getContextAssertReceiver(node);
-	if (!receiver) {
-		return false;
-	}
-
-	const receiverVariable = findVariable(sourceCode.getScope(receiver), receiver);
-	return activeContexts.every(({callback, variable}) =>
-		!isInsideNode(receiver, callback)
-		|| receiverVariable !== variable);
-}
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const imports = resolveImports(context);
@@ -142,25 +59,13 @@ const create = context => {
 	}
 
 	const {sourceCode} = context;
-	const activeContexts = [];
-	const trackedTestCalls = new Set();
+	const tracker = createContextTracker(imports, {trackHooks: true});
 
 	context.on('CallExpression', node => {
-		const callback = getTestContextCallback(node, imports, activeContexts, sourceCode);
-		if (callback) {
-			const variable = getContextParameterVariable(callback, sourceCode);
-			if (variable) {
-				activeContexts.push({callback, variable});
-				trackedTestCalls.add(node);
-			}
-		}
+		tracker.update(node);
 
-		const assertion = parseAssertionCall(node, imports);
+		const assertion = parseSupportedAssertionCall(node, imports, tracker);
 		if (!assertion) {
-			return;
-		}
-
-		if (getContextAssertReceiver(node) && isUntrackedContextAssertCall(node, activeContexts, sourceCode)) {
 			return;
 		}
 
@@ -191,12 +96,7 @@ const create = context => {
 	});
 
 	context.onExit('CallExpression', node => {
-		if (!trackedTestCalls.has(node)) {
-			return;
-		}
-
-		trackedTestCalls.delete(node);
-		activeContexts.pop();
+		tracker.leave(node);
 	});
 };
 

@@ -9,7 +9,7 @@
 
 `t.beforeEach()` and `t.afterEach()` run around the current test's subtests. On a test without runnable subtests, there is nothing for them to run around, so their callbacks do nothing. Put the setup or cleanup directly in the test, or create subtests.
 
-A statically skipped child, such as one with `{skip: true}`, does not count as runnable.
+A statically skipped child, such as one with `{skip: true}` or `t.test.skip()`, does not count as runnable. A `.only` or `.todo` child is still runnable, so its hooks are meaningful.
 
 The rule also ignores callbacks of statically skipped tests and suites, because Node does not execute them.
 

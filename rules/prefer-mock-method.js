@@ -1,5 +1,5 @@
 import {resolveImports, createContextTracker, isGlobalMock} from './utils/node-test.js';
-import {isValueNotUsable} from './utils/index.js';
+import {isValueNotUsable, unwrapExpression} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-mock-method/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-mock-method/suggestion';
@@ -19,14 +19,21 @@ const create = context => {
 
 	const tracker = createContextTracker(imports);
 
-	// The context `<ctx>.mock`.
-	const isContextMock = node =>
-		node.type === 'MemberExpression'
-		&& !node.computed
-		&& node.property.type === 'Identifier'
-		&& node.property.name === 'mock'
-		&& node.object.type === 'Identifier'
-		&& tracker.isContextName(node.object.name);
+	// The context `<ctx>.mock`, seen through optional chaining and TypeScript wrappers.
+	const isContextMock = node => {
+		node = unwrapExpression(node);
+		if (
+			node.type !== 'MemberExpression'
+			|| node.computed
+			|| node.property.type !== 'Identifier'
+			|| node.property.name !== 'mock'
+		) {
+			return false;
+		}
+
+		const object = unwrapExpression(node.object);
+		return object.type === 'Identifier' && tracker.isContextName(object.name);
+	};
 
 	// Keep the context-name stack in sync as we enter and leave test callbacks.
 	context.on('CallExpression', node => {
@@ -37,11 +44,14 @@ const create = context => {
 	});
 
 	context.on('AssignmentExpression', node => {
-		if (node.operator !== '=' || node.left.type !== 'MemberExpression' || node.right.type !== 'CallExpression') {
+		// A cast on the assigned value (`obj.method = mock.fn() as typeof obj.method`) is a natural
+		// TypeScript pattern that must not hide the `mock.fn()` call.
+		const right = unwrapExpression(node.right);
+		if (node.operator !== '=' || node.left.type !== 'MemberExpression' || right.type !== 'CallExpression') {
 			return;
 		}
 
-		const {callee} = node.right;
+		const callee = unwrapExpression(right.callee);
 		if (
 			callee.type !== 'MemberExpression'
 			|| callee.computed
@@ -60,7 +70,7 @@ const create = context => {
 		};
 
 		const {left} = node;
-		const mockArguments = node.right.arguments;
+		const mockArguments = right.arguments;
 
 		// Resolve the property name to a `mock.method` second argument.
 		let key;

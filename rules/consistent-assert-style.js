@@ -1,12 +1,11 @@
 import {isParenthesized} from './utils/index.js';
+import {ASSERT_MODULES} from './utils/node-test.js';
 
 const MESSAGE_ID = 'consistent-assert-style';
 
 const messages = {
 	[MESSAGE_ID]: 'Prefer `{{expected}}` over `{{actual}}`.',
 };
-
-const ASSERT_MODULES = new Set(['node:assert', 'node:assert/strict', 'assert', 'assert/strict']);
 
 function isValueImport(node) {
 	return node.importKind === undefined || node.importKind === 'value';

@@ -55,13 +55,16 @@ const create = context => {
 	// Named timer-function imports from `node:timers`.
 	const timerImports = [];
 	for (const node of sourceCode.ast.body) {
-		if (node.type !== 'ImportDeclaration' || !TIMER_MODULES.has(node.source.value)) {
+		// Type-only imports (`import type {setTimeout} …`) are erased and create no runtime binding,
+		// so the code still calls the interceptable global.
+		if (node.type !== 'ImportDeclaration' || node.importKind === 'type' || !TIMER_MODULES.has(node.source.value)) {
 			continue;
 		}
 
 		for (const specifier of node.specifiers) {
 			if (
 				specifier.type === 'ImportSpecifier'
+				&& specifier.importKind !== 'type'
 				&& specifier.imported.type === 'Identifier'
 				&& FUNCTION_TO_API.has(specifier.imported.name)
 			) {

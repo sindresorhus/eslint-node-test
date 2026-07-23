@@ -33,7 +33,8 @@ const MODIFIERS = new Set(['only', 'skip', 'todo']);
 export {MODIFIERS};
 
 const TEST_MODULE = 'node:test';
-const ASSERT_MODULES = new Set(['node:assert', 'node:assert/strict', 'assert', 'assert/strict']);
+/** Module specifiers that resolve to Node's built-in `assert` module. */
+export const ASSERT_MODULES = new Set(['node:assert', 'node:assert/strict', 'assert', 'assert/strict']);
 
 /**
 Scan a file's top-level imports and resolve the local bindings for
@@ -440,7 +441,7 @@ function getStaticTestCall(root, members, imports) {
 }
 
 /*
-Memoize the `parse*Call` classifiers by node. The same `CallExpression` is parsed by many rules during one lint run (34 rules call `parseTestCall`, 21 call `parseAssertionCall`), and `imports` is stable per file (it is itself cached per AST), so the first parse can be reused across all of them. Keyed by node with an `imports` guard for safety.
+Memoize the `parse*Call` classifiers by node. The same `CallExpression` is parsed by many rules during one lint run (most rules call `parseTestCall`, and every assertion rule reaches `parseAssertionCall`, directly or through `parseSupportedAssertionCall`), and `imports` is stable per file (it is itself cached per AST), so the first parse can be reused across all of them. Keyed by node with an `imports` guard for safety.
 
 The cached result object is shared between callers, so treat it as read-only — never mutate the returned `modifiers` array or reassign its fields.
 */
@@ -560,13 +561,14 @@ export function getSubtestReceiver(callExpression) {
 	return undefined;
 }
 
-function isContextHookCall(callExpression, isContextIdentifier) {
-	const callee = unwrapTypeScriptExpression(callExpression.callee);
-	return callee.type === 'MemberExpression'
-		&& !callee.computed
-		&& callee.property.type === 'Identifier'
-		&& HOOK_FUNCTIONS.has(callee.property.name)
-		&& isContextIdentifier(unwrapTypeScriptExpression(callee.object));
+/**
+Whether a call is a `<context>.beforeEach(…)`-style hook declared on a test context. The `isContextIdentifier` predicate (typically `tracker.isContextIdentifier`) decides whether the receiver is a tracked context.
+*/
+export function isContextHookCall(callExpression, isContextIdentifier) {
+	const chain = getCalleeChain(callExpression.callee);
+	return chain?.members.length === 1
+		&& HOOK_FUNCTIONS.has(chain.members[0].name)
+		&& isContextIdentifier(chain.root);
 }
 
 function getParentCallExpression(node) {
@@ -622,7 +624,9 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 	const pushedCalls = new Set();
 
 	const isContextIdentifier = node => {
-		if (node?.type !== 'Identifier') {
+		// Resolving the scope is the expensive part; skip it entirely when no context is on the stack
+		// (the common case for a call outside any tracked test/subtest/hook body).
+		if (variables.length === 0 || node?.type !== 'Identifier') {
 			return false;
 		}
 
@@ -635,24 +639,13 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 		return isContextIdentifier(receiver);
 	};
 
-	const isContextHookCall = node => {
-		if (!trackHooks) {
-			return false;
-		}
-
-		const chain = getCalleeChain(node.callee);
-		return chain?.members.length === 1
-			&& HOOK_FUNCTIONS.has(chain.members[0].name)
-			&& isContextIdentifier(chain.root);
-	};
-
 	const isTrackedHookCall = (node, parsed) => trackHooks && (
 		(
 			parsed?.kind === 'hook'
 			&& parsed.modifiers.length === 0
 		)
 		|| isHookMemberTestCall(parsed)
-		|| isContextHookCall(node)
+		|| isContextHookCall(node, isContextIdentifier)
 	);
 
 	const isTrackedCallbackCall = node => {
@@ -707,31 +700,20 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 	};
 }
 
-function getContextAssertIdentifier(node) {
-	const callee = unwrapTypeScriptExpression(node.callee);
-	const object = callee.type === 'MemberExpression' ? unwrapTypeScriptExpression(callee.object) : undefined;
-	const contextReceiver = object?.type === 'MemberExpression' ? unwrapTypeScriptExpression(object.object) : undefined;
-	if (
-		callee.type === 'MemberExpression'
-		&& !callee.computed
-		&& object?.type === 'MemberExpression'
-		&& !object.computed
-		&& contextReceiver?.type === 'Identifier'
-		&& object.property.type === 'Identifier'
-		&& object.property.name === 'assert'
-	) {
-		return contextReceiver;
+/**
+Classify a `CallExpression` as a `node:assert` assertion whose receiver this file can reason about.
+
+Like `parseAssertionCall`, but also rejects a `<receiver>.assert.*()` call whose receiver is not a tracked test context — `foo.assert.equal(…)` is an unrelated object's method, not an assertion. Imported `node:assert` forms have no `contextReceiver` and are always accepted.
+
+Assertion rules should prefer this over `parseAssertionCall`, so the context check cannot be forgotten.
+*/
+export function parseSupportedAssertionCall(callExpression, imports, tracker) {
+	const parsed = parseAssertionCall(callExpression, imports);
+	if (!parsed || (parsed.contextReceiver !== undefined && !tracker.isContextIdentifier(parsed.contextReceiver))) {
+		return undefined;
 	}
 
-	return undefined;
-}
-
-/**
-Check whether a `t.assert.*()` call belongs to a tracked test context.
-*/
-export function isAssertionCallWithSupportedContext(node, tracker) {
-	const contextAssertIdentifier = getContextAssertIdentifier(node);
-	return contextAssertIdentifier === undefined || tracker.isContextIdentifier(contextAssertIdentifier);
+	return parsed;
 }
 
 /**

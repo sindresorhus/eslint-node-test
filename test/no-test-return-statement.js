@@ -99,6 +99,9 @@ test.snapshot({
 		typed('test("x", t => { t.before(() => 1); });'),
 		typed('test("x", t => { t.beforeEach(() => 1, {timeout: 1000}); });'),
 		typed('test("x", t => { t.beforeEach(() => ({a: 1})); });'),
+		// A TypeScript-wrapped or optional-chained context receiver is still the same context.
+		typed('test("x", t => { (t as any).beforeEach(() => ({a: 1})); });'),
+		typed('test("x", t => { t?.beforeEach(() => ({a: 1})); });'),
 		typed('test("x", t => { t.after(() => "done"); });'),
 		typed('test("x", t => { t.afterEach(() => { return {a: 1}; }, {timeout: 1000}); });'),
 		typed('test("x", t => { t.afterEach(() => [1, 2]); });'),

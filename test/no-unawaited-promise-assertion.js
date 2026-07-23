@@ -135,7 +135,7 @@ test.snapshot({
 
 		// TypeScript wrapper around the test callee itself still marks the test boundary.
 		{
-			code: 'import test from \'node:test\';\nimport assert from \'node:assert\';\n(test as typeof test)(\'loads\', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n});',
+			code: withImport('(test as typeof test)(\'loads\', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n});'),
 			languageOptions: {parser: parsers.typescript},
 		},
 	],

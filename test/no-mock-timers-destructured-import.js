@@ -20,6 +20,16 @@ test.snapshot({
 
 		// Namespace timer import is not destructured — the mock intercepts it
 		head + 'import * as timers from \'node:timers\';\nmock.timers.enable();\ntimers.setTimeout(fn, 1);',
+
+		// Type-only timer imports are erased — the code still calls the interceptable global
+		{
+			code: head + 'import {type setTimeout} from \'node:timers\';\nmock.timers.enable({apis: ["setTimeout"]});',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: head + 'import type {setTimeout} from \'node:timers\';\nmock.timers.enable({apis: ["setTimeout"]});',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		// Destructured setTimeout + enable all
@@ -46,6 +56,12 @@ test.snapshot({
 		// TypeScript
 		{
 			code: head + 'import {setImmediate} from \'node:timers\';\nmock.timers.enable({apis: ["setImmediate"]});',
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// A mixed specifier list still reports the runtime (value) import alongside a type-only one
+		{
+			code: head + 'import {type clearTimeout, setTimeout} from \'node:timers\';\nmock.timers.enable({apis: ["setTimeout"]});',
 			languageOptions: {parser: parsers.typescript},
 		},
 	],

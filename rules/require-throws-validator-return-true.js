@@ -2,8 +2,8 @@ import {getStaticValue} from '@eslint-community/eslint-utils';
 import {
 	resolveImports,
 	parseAssertionCall,
+	parseSupportedAssertionCall,
 	createContextTracker,
-	isAssertionCallWithSupportedContext,
 } from './utils/node-test.js';
 import isFunction from './ast/is-function.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
@@ -112,8 +112,8 @@ const create = context => {
 	context.on('CallExpression', node => {
 		tracker.update(node);
 
-		const parsed = parseAssertionCall(node, imports);
-		if (!parsed || !THROWS_METHODS.has(parsed.method) || !isAssertionCallWithSupportedContext(node, tracker)) {
+		const parsed = parseSupportedAssertionCall(node, imports, tracker);
+		if (!parsed || !THROWS_METHODS.has(parsed.method)) {
 			return;
 		}
 

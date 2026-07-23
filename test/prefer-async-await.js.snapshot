@@ -286,6 +286,70 @@ Message:
 
 `;
 
+exports[`prefer-async-await > invalid(26): import test from \"node:test\";\ntest(\"title\", t => { return (foo().then(fn)) as Promise<void>; }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("title", t => { return (foo().then(fn)) as Promise<void>; });
+
+`;
+
+exports[`prefer-async-await > invalid(26): import test from \"node:test\";\ntest(\"title\", t => { return (foo().then(fn)) as Promise<void>; }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test("title", t => { return (foo().then(fn)) as Promise<void>; });
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer async/await instead of returning a Promise.
+
+`;
+
+exports[`prefer-async-await > invalid(27): import test from \"node:test\";\ntest(\"title\", t => { return <Promise<void>>foo().then(fn); }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("title", t => { return <Promise<void>>foo().then(fn); });
+
+`;
+
+exports[`prefer-async-await > invalid(27): import test from \"node:test\";\ntest(\"title\", t => { return <Promise<void>>foo().then(fn); }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test("title", t => { return <Promise<void>>foo().then(fn); });
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer async/await instead of returning a Promise.
+
+`;
+
+exports[`prefer-async-await > invalid(28): import test from \"node:test\";\ntest(\"title\", t => { const bar = (foo().then(fn)) as any; return bar; }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("title", t => { const bar = (foo().then(fn)) as any; return bar; });
+
+`;
+
+exports[`prefer-async-await > invalid(28): import test from \"node:test\";\ntest(\"title\", t => { const bar = (foo().then(fn)) as any; return bar; }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test("title", t => { const bar = (foo().then(fn)) as any; return bar; });
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer async/await instead of returning a Promise.
+
+`;
+
+exports[`prefer-async-await > invalid(29): import test from \"node:test\";\ntest(\"title\", t => { return foo!.then(fn); }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("title", t => { return foo!.then(fn); });
+
+`;
+
+exports[`prefer-async-await > invalid(29): import test from \"node:test\";\ntest(\"title\", t => { return foo!.then(fn); }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test("title", t => { return foo!.then(fn); });
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer async/await instead of returning a Promise.
+
+`;
+
 exports[`prefer-async-await > invalid(3): import test from 'node:test';\ntest(\"title\", t => { return foo().then(fn).catch(fn2); }); 1`] = `
 
   1 | import test from 'node:test';

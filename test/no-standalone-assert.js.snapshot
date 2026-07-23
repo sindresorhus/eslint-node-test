@@ -123,3 +123,21 @@ Message:
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion runs when the module is loaded, not as part of a test. Move it into a test or hook.
 
 `;
+
+exports[`no-standalone-assert > invalid(8): import test from 'node:test';\nimport assert from 'node:assert';\nassert?.ok(value); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | assert?.ok(value);
+
+`;
+
+exports[`no-standalone-assert > invalid(8): import test from 'node:test';\nimport assert from 'node:assert';\nassert?.ok(value); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | assert?.ok(value);
+    | ^^^^^^^^^^^^^^^^^ Assertion runs when the module is loaded, not as part of a test. Move it into a test or hook.
+
+`;

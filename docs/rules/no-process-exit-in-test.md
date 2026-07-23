@@ -9,7 +9,7 @@
 
 Tests should fail through thrown errors or assertions, not by controlling the Node.js process. `process.exit()` stops the runner immediately, while `process.exitCode` can make the suite exit non-zero even when all reported tests pass.
 
-This rule reports direct `process.exit()` calls and direct writes to `process.exitCode` in files that import `node:test` or `test`. It intentionally ignores aliases, destructuring, and computed properties. Shadowed `process` bindings are unsupported and may still be reported.
+This rule reports direct `process.exit()` calls and direct writes to `process.exitCode` in files that import `node:test`. It intentionally ignores aliases, destructuring, and computed properties. Shadowed `process` bindings are unsupported and may still be reported.
 
 This overlaps with [`n/no-process-exit`](https://github.com/eslint-community/eslint-plugin-n/blob/master/docs/rules/no-process-exit.md) and [`unicorn/no-process-exit`](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/main/docs/rules/no-process-exit.md), but is test-scoped and also covers `process.exitCode`. To test CLI exits, run the CLI in a child process and assert on the child's exit status.
 

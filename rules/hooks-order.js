@@ -1,4 +1,5 @@
 import {resolveImports, parseTestCall} from './utils/node-test.js';
+import {skipExpressionWrappers} from './utils/index.js';
 
 const MESSAGE_ID = 'hooks-order/error';
 
@@ -99,11 +100,16 @@ const create = context => {
 
 	context.on('CallExpression', node => {
 		const parsed = parseTestCall(node, imports);
-		if (parsed?.kind !== 'hook' || node.parent.type !== 'ExpressionStatement') {
+		if (parsed?.kind !== 'hook') {
 			return;
 		}
 
-		const block = node.parent.parent;
+		const statement = skipExpressionWrappers(node.parent);
+		if (statement?.type !== 'ExpressionStatement') {
+			return;
+		}
+
+		const block = statement.parent;
 		if (block?.type !== 'BlockStatement' && block?.type !== 'Program') {
 			return;
 		}
@@ -114,7 +120,7 @@ const create = context => {
 			hooksByBlock.set(block, hooks);
 		}
 
-		hooks.push({name: parsed.name, statement: node.parent});
+		hooks.push({name: parsed.name, statement});
 	});
 
 	context.onExit('Program', () => {

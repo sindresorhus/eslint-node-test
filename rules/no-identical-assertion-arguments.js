@@ -1,8 +1,7 @@
 import {
 	resolveImports,
-	parseAssertionCall,
+	parseSupportedAssertionCall,
 	createContextTracker,
-	isAssertionCallWithSupportedContext,
 } from './utils/node-test.js';
 import {isSameReference} from './utils/index.js';
 
@@ -31,8 +30,8 @@ const create = context => {
 	context.on('CallExpression', node => {
 		tracker.update(node);
 
-		const assertion = parseAssertionCall(node, imports);
-		if (!assertion || !isAssertionCallWithSupportedContext(node, tracker)) {
+		const assertion = parseSupportedAssertionCall(node, imports, tracker);
+		if (!assertion) {
 			return;
 		}
 

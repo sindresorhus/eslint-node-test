@@ -1,9 +1,8 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	resolveImports,
-	parseAssertionCall,
+	parseSupportedAssertionCall,
 	createContextTracker,
-	isAssertionCallWithSupportedContext,
 } from './utils/node-test.js';
 import {isFunction} from './ast/index.js';
 import {containsSuspensionPoint, isParenthesized, unwrapTypeScriptExpression} from './utils/index.js';
@@ -127,8 +126,8 @@ const create = context => {
 	context.on('CallExpression', node => {
 		tracker.update(node);
 
-		const parsed = parseAssertionCall(node, imports);
-		if (parsed?.method !== 'rejects' || !isAssertionCallWithSupportedContext(node, tracker)) {
+		const parsed = parseSupportedAssertionCall(node, imports, tracker);
+		if (parsed?.method !== 'rejects') {
 			return;
 		}
 

@@ -1,8 +1,7 @@
 import {
 	resolveImports,
-	parseAssertionCall,
+	parseSupportedAssertionCall,
 	createContextTracker,
-	isAssertionCallWithSupportedContext,
 } from './utils/node-test.js';
 import {
 	isParenthesized,
@@ -171,8 +170,8 @@ function getExpressionStyleProblem(callback, context) {
 
 function getProblem(node, context, state) {
 	const {imports, tracker, style} = state;
-	const assertion = parseAssertionCall(node, imports);
-	if (assertion?.method !== 'throws' || !isAssertionCallWithSupportedContext(node, tracker)) {
+	const assertion = parseSupportedAssertionCall(node, imports, tracker);
+	if (assertion?.method !== 'throws') {
 		return undefined;
 	}
 

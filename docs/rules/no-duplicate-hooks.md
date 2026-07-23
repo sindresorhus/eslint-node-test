@@ -17,26 +17,33 @@ This rule reports a hook whose name was already used in the same scope. Hooks in
 import {describe, beforeEach} from 'node:test';
 
 // ❌
-beforeEach(() => {
-	setupA();
-});
-beforeEach(() => {
-	setupB();
+describe('user', () => {
+	beforeEach(() => {
+		setupA();
+	});
+	beforeEach(() => {
+		setupB();
+	});
 });
 
 // ✅
-beforeEach(() => {
-	setupA();
-	setupB();
+describe('user', () => {
+	beforeEach(() => {
+		setupA();
+		setupB();
+	});
 });
 
 // ✅ (same hook name in different scopes)
-beforeEach(() => {
-	setupOuter();
-});
-describe('group', () => {
+describe('outer', () => {
 	beforeEach(() => {
-		setupInner();
+		setupOuter();
+	});
+
+	describe('group', () => {
+		beforeEach(() => {
+			setupInner();
+		});
 	});
 });
 ```

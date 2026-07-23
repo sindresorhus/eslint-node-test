@@ -3,10 +3,9 @@ import {
 	resolveImports,
 	parseTestCall,
 	getTestCallback,
-	parseAssertionCall,
+	parseSupportedAssertionCall,
 	getCalleeChain,
 	createContextTracker,
-	isAssertionCallWithSupportedContext,
 } from './utils/node-test.js';
 
 const MESSAGE_ID = 'require-assertion/error';
@@ -102,7 +101,7 @@ const create = context => {
 
 		// Check if this call is an assertion.
 		if (
-			(parseAssertionCall(node, imports) && isAssertionCallWithSupportedContext(node, tracker))
+			parseSupportedAssertionCall(node, imports, tracker)
 			|| isDestructuredAssertCall(node, testStack, sourceCode)
 		) {
 			currentTest.hasAssertion = true;

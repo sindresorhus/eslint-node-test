@@ -11,6 +11,8 @@
 
 Prefer dedicated assertion methods over asserting the boolean result of regex methods. This makes test failures more informative and communicates the intent more clearly.
 
+`String#match()` returns `Array | null`, not a boolean, so only its truthiness forms (like `assert.ok(str.match(/re/))`) are matched. Comparing the result to a boolean literal is a test bug rather than a style issue, and rewriting it would change the outcome, so the rule leaves it alone.
+
 ## Examples
 
 ```js

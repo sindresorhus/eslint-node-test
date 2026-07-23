@@ -16,8 +16,15 @@ test.snapshot({
 		// Subtest using `t`
 		withTest('test(\'t\', async t => { await t.test(\'s\', t => {}); });'),
 
-		// Destructuring is not checked
+		// Destructuring is not checked, even with a default value
 		withTest('test(\'t\', ({mock}) => {});'),
+		withTest('test(\'t\', ({mock} = {}) => {});'),
+
+		// A rest parameter is not a named context parameter
+		withTest('test(\'t\', (...args) => {});'),
+
+		// A defaulted context parameter with the conventional name
+		withTest('test(\'t\', (t = undefined) => {});'),
 
 		// Custom name via option
 		{
@@ -35,6 +42,9 @@ test.snapshot({
 		// Non-`t` parameter
 		withTest('test(\'t\', context => {});'),
 		withTest('test(\'t\', async ctx => {});'),
+
+		// A defaulted context parameter is still named
+		withTest('test(\'t\', (context = undefined) => {});'),
 
 		// `it` alias
 		'import {it} from \'node:test\';\nit(\'t\', testContext => {});',

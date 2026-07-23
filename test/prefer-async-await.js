@@ -82,5 +82,24 @@ test.snapshot({
 			code: 'import test from "node:test";\ntest("title", (t => { return foo().then(fn); }) as any);',
 			languageOptions: {parser: parsers.typescript},
 		},
+		// TypeScript: a type assertion around the returned chain must not hide the `.then()`
+		{
+			code: 'import test from "node:test";\ntest("title", t => { return (foo().then(fn)) as Promise<void>; });',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import test from "node:test";\ntest("title", t => { return <Promise<void>>foo().then(fn); });',
+			languageOptions: {parser: parsers.typescript},
+		},
+		// TypeScript: a wrapped variable initializer is still recognized as assigned from `.then()`
+		{
+			code: 'import test from "node:test";\ntest("title", t => { const bar = (foo().then(fn)) as any; return bar; });',
+			languageOptions: {parser: parsers.typescript},
+		},
+		// TypeScript: a non-null assertion in the middle of the chain
+		{
+			code: 'import test from "node:test";\ntest("title", t => { return foo!.then(fn); });',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

@@ -203,6 +203,29 @@ Output:
 
 `;
 
+exports[`hooks-order > invalid(14): import test, {before, after} from 'node:test';\nafter(() => {}) as void;\nbefore(() => {}) as void; 1`] = `
+
+  1 | import test, {before, after} from 'node:test';
+  2 | after(() => {}) as void;
+  3 | before(() => {}) as void;
+
+`;
+
+exports[`hooks-order > invalid(14): import test, {before, after} from 'node:test';\nafter(() => {}) as void;\nbefore(() => {}) as void; 2`] = `
+
+Message:
+  1 | import test, {before, after} from 'node:test';
+  2 | after(() => {}) as void;
+> 3 | before(() => {}) as void;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Hook \`before\` must come before \`after\`.
+
+Output:
+  1 | import test, {before, after} from 'node:test';
+  2 | before(() => {}) as void;
+  3 | after(() => {}) as void;
+
+`;
+
 exports[`hooks-order > invalid(2): import test, {before, afterEach} from 'node:test';\nafterEach(() => {});\nbefore(() => {}); 1`] = `
 
   1 | import test, {before, afterEach} from 'node:test';

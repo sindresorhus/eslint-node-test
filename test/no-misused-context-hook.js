@@ -9,6 +9,11 @@ test.snapshot({
 		// Hooks run around ordinary and TODO subtests.
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); t.afterEach(() => {}); await t.test(\'child\', () => {}); });'),
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {todo: true}, () => {}); });'),
+
+		// Chained `.todo`/`.only` subtests are still runnable, so the hook is meaningful
+		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test.todo(\'child\', () => {}); });'),
+		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test.only(\'child\', () => {}); });'),
+		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test.only.todo(\'child\', () => {}); });'),
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {skip: false}, () => {}); });'),
 		withTest('const shouldSkip = false;\ntest(\'parent\', async t => { t.afterEach(() => {}); await t.test(\'child\', {skip: shouldSkip}, () => {}); });'),
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {skip: true, skip: false}, () => {}); });'),
@@ -71,6 +76,10 @@ test.snapshot({
 		withTest('test(\'parent\', async t => { t.afterEach(() => {}); await t.test(\'child\', {skip: \'not ready\'}, () => {}); });'),
 		withTest('const shouldSkip = true;\ntest(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {skip: shouldSkip}, () => {}); });'),
 		withTest('test(\'parent\', async t => { t.afterEach(() => {}); await t.test(\'child\', {skip: false, skip: true}, () => {}); });'),
+		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test.skip(\'child\', () => {}); });'),
+		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test.only.skip(\'child\', () => {}); });'),
+		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test.skip.todo(\'child\', () => {}); });'),
+		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test.todo.skip(\'child\', () => {}); });'),
 		withTest('test(\'parent\', t => { t.beforeEach(() => {}); test.skip(\'child\', () => {}); });'),
 		withTest('test(\'parent\', t => { t.afterEach(() => {}); test(\'child\', {skip: true}, () => {}); });'),
 		withTest('test(\'parent\', t => { t.beforeEach(() => {}); test(\'child\', {skip: true, todo: true}, () => {}); });'),

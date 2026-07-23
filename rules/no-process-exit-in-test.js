@@ -1,5 +1,5 @@
 import {resolveImports} from './utils/node-test.js';
-import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
+import {unwrapExpression} from './utils/index.js';
 
 const MESSAGE_ID_PROCESS_EXIT = 'processExit';
 const MESSAGE_ID_PROCESS_EXIT_CODE = 'processExitCode';
@@ -7,15 +7,6 @@ const MESSAGE_ID_PROCESS_EXIT_CODE = 'processExitCode';
 const messages = {
 	[MESSAGE_ID_PROCESS_EXIT]: 'Do not call `process.exit()` in a test file. Throw an error or use an assertion instead.',
 	[MESSAGE_ID_PROCESS_EXIT_CODE]: 'Do not set `process.exitCode` in a test file. Throw an error or use an assertion instead.',
-};
-
-const unwrapExpression = node => {
-	let unwrapped = node && unwrapTypeScriptExpression(node);
-	while (unwrapped?.type === 'ChainExpression') {
-		unwrapped = unwrapTypeScriptExpression(unwrapped.expression);
-	}
-
-	return unwrapped;
 };
 
 const getProcessProperty = (node, propertyName) => {

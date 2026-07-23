@@ -46,6 +46,18 @@ test.snapshot({
 		'import {test} from \'node:test\';\ntest.mock.fn(t => { t.assert.strictEqual(1, 1); });',
 		'import test from \'node:test\';\ntest.mock.fn(t => { t.assert.strictEqual(1, 1); });',
 
+		// An unrelated receiver stays unrelated under a TypeScript wrapper
+		{
+			code: 'import test from \'node:test\';\ntest(\'t\', t => { (custom as any).assert.strictEqual(1, 1); });',
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// A suite context has no `assert`, so `s.assert` is some other object
+		'import {describe} from \'node:test\';\ndescribe(\'s\', s => { s.assert.strictEqual(1, 1); });',
+
+		// The context parameter is out of scope once the test callback ends
+		'import test from \'node:test\';\ntest(\'t\', t => {});\nfunction helper(t) { t.assert.strictEqual(1, 1); }',
+
 		// Shadowed assert imports
 		withAssert('function helper(assert) { assert.ok(true); }'),
 		withAssert('function helper(assert) { assert(true); }'),
@@ -91,6 +103,8 @@ test.snapshot({
 		'import * as nodeTest from \'node:test\';\nnodeTest.test(\'t\', t => { t.assert.strictEqual(1, 1); });',
 		'import test from \'node:test\';\ntest(\'outer\', t => { t.test(\'inner\', subtest => { t.assert.strictEqual(1, 1); }); });',
 		'import test from \'node:test\';\ntest(\'outer\', t => { t.test(\'inner\', subtest => { subtest.assert.strictEqual(1, 1); }); });',
+		// The context is resolved by scope, so it is still tracked through an intermediate non-test callback
+		'import test from \'node:test\';\ntest(\'t\', t => { [1].forEach(() => { t.assert.strictEqual(1, 1); }); });',
 		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { t.assert.strictEqual(1, 1); });',
 		'import {beforeEach as setup} from \'node:test\';\nsetup(t => { t.assert.strictEqual(1, 1); });',
 		'import test from \'node:test\';\ntest.beforeEach(t => { t.assert.strictEqual(1, 1); });',
@@ -115,5 +129,20 @@ test.snapshot({
 			code: 'import test from \'node:test\';\n(test as any)(\'t\', t => { t.assert.ok(1); });',
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// A default-valued context parameter is still a context parameter
+		'import test from \'node:test\';\ntest(\'t\', (t = {}) => { t.assert.ok(1); });',
+
+		// Hooks declared from a test context receive a context too
+		'import test from \'node:test\';\ntest(\'t\', t => { t.beforeEach(u => { u.assert.ok(1); }); });',
+
+		// A trailing options argument does not hide the hook callback
+		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { t.assert.ok(1); }, {timeout: 1});',
+
+		// A modifier still leaves a tracked test context
+		'import test from \'node:test\';\ntest.skip(\'t\', t => { t.assert.ok(1); });',
+
+		// Optional chaining on the context receiver
+		'import test from \'node:test\';\ntest(\'t\', t => { t?.assert.ok(1); });',
 	],
 });

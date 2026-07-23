@@ -1,10 +1,6 @@
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
-const isCaseInsensitiveFileSystem = process.platform === 'darwin' || process.platform === 'win32';
-const caseSensitiveTestFile = 'import \'./EXAMPLE.TEST.JS\';';
-const validCaseSensitiveTestFiles = isCaseInsensitiveFileSystem ? [] : [caseSensitiveTestFile];
-const invalidCaseInsensitiveTestFiles = isCaseInsensitiveFileSystem ? [caseSensitiveTestFile] : [];
 
 test.snapshot({
 	valid: [
@@ -17,8 +13,11 @@ test.snapshot({
 		'import value from \'./test/.helper.js\';',
 		'import value from \'./.fixtures/test/helper.js\';',
 		'import value from \'./test/%2e%2e/value.js\';',
-		'import \'./TEST.js\';',
-		'import \'./TEST/helper.js\';',
+		// Names that only look like the test patterns, in any casing. Case-variant names that do
+		// match (`./TEST.js`) resolve to a test file on a case-insensitive file system and not on a
+		// case-sensitive one, so their result is platform-dependent and cannot be snapshotted.
+		'import \'./TESTS.js\';',
+		'import \'./TESTING/helper.js\';',
 		String.raw`import '.\\test\\helpers.js';`,
 		String.raw`import '..\\example.test.js';`,
 		'import \'../example.test.js\';',
@@ -51,7 +50,6 @@ test.snapshot({
 			code: 'export type * from \'./value.test.ts\';',
 			languageOptions: {parser: parsers.typescript},
 		},
-		...validCaseSensitiveTestFiles,
 	],
 	invalid: [
 		'import \'./test.js\';',
@@ -117,6 +115,5 @@ test.snapshot({
 			code: 'export {type Value} from \'./example.test.ts\';',
 			languageOptions: {parser: parsers.typescript},
 		},
-		...invalidCaseInsensitiveTestFiles,
 	],
 });

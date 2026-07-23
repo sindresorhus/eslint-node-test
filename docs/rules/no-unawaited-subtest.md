@@ -13,6 +13,8 @@ Subtests created through the test context (`t.test()`) run independently of thei
 
 This rule reports a subtest call used as a bare statement. When the enclosing test function is `async`, it autofixes by inserting `await`. In a synchronous parent it only reports, since `await` would be a syntax error — make the parent `async` (or `return` the subtest) yourself.
 
+Discarding the subtest with `void` does not help — it still leaves the subtest unawaited — so it is reported too (without an autofix).
+
 ## Examples
 
 ```js
@@ -21,6 +23,11 @@ import test from 'node:test';
 // ❌
 test('parent', async t => {
 	t.test('child', () => {});
+});
+
+// ❌
+test('parent', async t => {
+	void t.test('child', () => {}); // `void` discards the Promise but leaves the subtest unawaited
 });
 
 // ✅

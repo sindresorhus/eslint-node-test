@@ -94,6 +94,22 @@ Message:
 
 `;
 
+exports[`prefer-context-mock > invalid(15): import {test, mock} from 'node:test';\n(mock.timers as any).enable(); 1`] = `
+
+  1 | import {test, mock} from 'node:test';
+  2 | (mock.timers as any).enable();
+
+`;
+
+exports[`prefer-context-mock > invalid(15): import {test, mock} from 'node:test';\n(mock.timers as any).enable(); 2`] = `
+
+Message:
+  1 | import {test, mock} from 'node:test';
+> 2 | (mock.timers as any).enable();
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`t.mock.timers\` over the global \`mock.timers\`, which is not automatically restored between tests.
+
+`;
+
 exports[`prefer-context-mock > invalid(2): import {test, mock} from 'node:test';\nmock.method(obj, \"fn\"); 1`] = `
 
   1 | import {test, mock} from 'node:test';

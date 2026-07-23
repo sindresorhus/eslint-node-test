@@ -4,6 +4,7 @@ const {test} = getTester(import.meta);
 
 const withImport = code => `import test from 'node:test';\nimport assert from 'node:assert/strict';\n${code}`;
 const withTimerNamespaceImport = code => `import test from 'node:test';\nimport assert from 'node:assert/strict';\nimport * as timers from 'node:timers';\n${code}`;
+const withNamedTimerImport = code => withImport(`import {setTimeout as delay} from 'node:timers';\n${code}`);
 const inTest = code => withImport(`test('example', () => {\n\t${code}\n});`);
 const inAsyncTest = code => withImport(`test('example', async () => {\n\t${code}\n});`);
 
@@ -67,8 +68,8 @@ test.snapshot({
 			code: inTest('class Example { accessor value = setTimeout(() => assert.ok(value)); }'),
 			languageOptions: {parser: parsers.typescript},
 		},
-		'import test from \'node:test\';\nimport assert from \'node:assert/strict\';\nimport {setTimeout as delay} from \'node:timers\';\ntest(\'example\', delay => { delay(() => assert.ok(value)); });',
-		'import test from \'node:test\';\nimport assert from \'node:assert/strict\';\nimport * as timers from \'node:timers\';\ntest(\'example\', timers => { timers.setTimeout(() => assert.ok(value)); });',
+		withNamedTimerImport('test(\'example\', delay => { delay(() => assert.ok(value)); });'),
+		withTimerNamespaceImport('test(\'example\', timers => { timers.setTimeout(() => assert.ok(value)); });'),
 		'import {afterEach} from \'node:test\';\nimport assert from \'node:assert/strict\';\nafterEach(() => { load().then(() => assert.ok(value)); });',
 		inAsyncTest('load().then(value => assert.ok(value));'),
 		inAsyncTest('load()?.then(value => assert.ok(value));'),
@@ -113,8 +114,8 @@ test.snapshot({
 		'import {beforeEach} from \'node:test\';\nimport assert from \'node:assert/strict\';\nbeforeEach(() => { setTimeout(() => assert.ok(value), 10); });',
 		'import test from \'node:test\';\nimport assert from \'node:assert/strict\';\ntest.beforeEach(() => { setTimeout(() => assert.ok(value), 10); });',
 		'import * as nodeTest from \'node:test\';\nimport assert from \'node:assert/strict\';\nnodeTest.afterEach(() => { setImmediate(() => assert.ok(value)); });',
-		'import test from \'node:test\';\nimport assert from \'node:assert/strict\';\nimport {setTimeout as delay} from \'node:timers\';\ntest(\'example\', () => { delay(() => assert.ok(value), 10); });',
-		'import test from \'node:test\';\nimport assert from \'node:assert/strict\';\nimport * as timers from \'node:timers\';\ntest(\'example\', () => { timers.setImmediate(() => { throw error; }); });',
+		withNamedTimerImport('test(\'example\', () => { delay(() => assert.ok(value), 10); });'),
+		withTimerNamespaceImport('test(\'example\', () => { timers.setImmediate(() => { throw error; }); });'),
 		'import test from \'node:test\';\nimport assert from \'node:assert/strict\';\nimport {setTimeout as delay} from \'timers\';\ntest(\'example\', () => { delay(() => assert.ok(value), 10); });',
 		'import test from \'node:test\';\nimport {strictEqual as equal} from \'node:assert/strict\';\ntest(\'example\', () => { setTimeout(() => equal(value, 1)); });',
 		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'example\', () => { setTimeout(() => assert.strict.equal(actual, expected)); });',

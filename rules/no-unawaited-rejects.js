@@ -1,10 +1,9 @@
 import {
 	resolveImports,
-	parseAssertionCall,
+	parseSupportedAssertionCall,
 	createContextTracker,
-	isAssertionCallWithSupportedContext,
 } from './utils/node-test.js';
-import {getEnclosingFunction} from './utils/index.js';
+import {getEnclosingFunction, getFloatingStatement} from './utils/index.js';
 
 const MESSAGE_ID = 'no-unawaited-rejects/error';
 
@@ -27,26 +26,20 @@ const create = context => {
 	context.on('CallExpression', node => {
 		tracker.update(node);
 
-		const parsed = parseAssertionCall(node, imports);
-		if (!parsed || !isAssertionCallWithSupportedContext(node, tracker)) {
+		const parsed = parseSupportedAssertionCall(node, imports, tracker);
+		if (!parsed || !REJECTS_METHODS.has(parsed.method)) {
 			return;
 		}
 
-		if (!REJECTS_METHODS.has(parsed.method)) {
+		const floating = getFloatingStatement(node);
+		if (!floating) {
 			return;
 		}
 
-		// The call must be an ExpressionStatement (i.e. bare call, not awaited/returned/assigned).
-		const {parent} = node;
-		if (!parent || parent.type !== 'ExpressionStatement') {
-			return;
-		}
-
-		const enclosingFunction = getEnclosingFunction(node);
-		const isInAsyncFunction = enclosingFunction?.async === true;
-
-		if (isInAsyncFunction) {
-			// Can autofix with `await`.
+		// Only autofix where prepending `await` is faithful in an async function: `await` would be a
+		// syntax error outside one, and a `void`-discarded or type-asserted call cannot take it (see
+		// `getFloatingStatement`), so those are reported without a fix (matching `no-unawaited-promise-assertion`).
+		if (getEnclosingFunction(node)?.async === true && floating.canAwait) {
 			return {
 				node,
 				messageId: MESSAGE_ID,
@@ -55,7 +48,6 @@ const create = context => {
 			};
 		}
 
-		// Not in an async function — report without a fix (await would be a syntax error here).
 		return {
 			node,
 			messageId: MESSAGE_ID,
