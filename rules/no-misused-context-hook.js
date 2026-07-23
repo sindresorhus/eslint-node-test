@@ -4,6 +4,7 @@ import {
 	parseTestCall,
 	MODIFIERS,
 	getCalleeChain,
+	getSubtestReceiver,
 	getContextParameterIdentifier,
 	getTestCallback,
 	getTestOptions,
@@ -32,16 +33,15 @@ function getContextHookReceiver(callExpression) {
 }
 
 function getDirectSubtestReceiver(callExpression) {
-	const chain = getCalleeChain(callExpression.callee);
-	if (
-		!chain
-		|| chain.members.length !== 1
-		|| chain.members[0].name !== 'test'
-	) {
+	const receiver = getSubtestReceiver(callExpression);
+	if (receiver === undefined) {
 		return undefined;
 	}
 
-	return chain.root;
+	// `t.test.only`/`t.test.todo` are still runnable, so their hooks are meaningful; `t.test.skip`
+	// is not runnable and is treated the same as having no subtest (the hook is reported).
+	const {members} = getCalleeChain(callExpression.callee);
+	return members.some(member => member.name === 'skip') ? undefined : receiver;
 }
 
 function isStaticallySkipped(callExpression, sourceCode) {
@@ -63,7 +63,7 @@ const create = context => {
 	}
 
 	const frames = [];
-	const skippedCallbacks = new WeakSet();
+	const skippedCallbacks = new Set();
 
 	const getContextVariable = callback => {
 		const parameter = getContextParameterIdentifier(callback.params[0]);
@@ -86,6 +86,11 @@ const create = context => {
 	};
 
 	const isInsideSkippedCallback = node => {
+		// Walking to the root is the expensive part of visiting a call, and most files skip nothing.
+		if (skippedCallbacks.size === 0) {
+			return false;
+		}
+
 		for (let current = node.parent; current; current = current.parent) {
 			if (skippedCallbacks.has(current)) {
 				return true;

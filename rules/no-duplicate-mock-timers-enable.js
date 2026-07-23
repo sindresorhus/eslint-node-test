@@ -152,6 +152,11 @@ function isSkippedTestCall(node, sourceCode) {
 }
 
 function isInsideSkippedCallback(node, skippedCallbacks) {
+	// Walking to the root is the expensive part of visiting a call, and most files skip nothing.
+	if (skippedCallbacks.size === 0) {
+		return false;
+	}
+
 	for (let current = node.parent; current; current = current.parent) {
 		if (skippedCallbacks.has(current)) {
 			return true;
@@ -182,7 +187,7 @@ const create = context => {
 
 	const contextTracker = createContextTracker(imports, {trackHooks: true});
 	const trackedCallbacks = new WeakSet();
-	const skippedCallbacks = new WeakSet();
+	const skippedCallbacks = new Set();
 	const contextHookVariables = new Set();
 	const codePathStack = [];
 	const markSkippedCallback = (node, parsed, isSubtest, callback) => {

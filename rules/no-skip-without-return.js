@@ -1,5 +1,6 @@
 import {resolveImports, createContextTracker} from './utils/node-test.js';
 import isFunction from './ast/is-function.js';
+import {skipExpressionWrappers} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-skip-without-return/error';
 const MESSAGE_ID_SUGGESTION = 'no-skip-without-return/suggestion';
@@ -57,16 +58,18 @@ const create = context => {
 	context.on('CallExpression', node => {
 		let problem;
 
-		const {callee, parent} = node;
+		const {callee} = node;
+		const statement = skipExpressionWrappers(node.parent);
+
 		if (
-			parent.type === 'ExpressionStatement'
+			statement?.type === 'ExpressionStatement'
 			&& callee.type === 'MemberExpression'
 			&& !callee.computed
 			&& callee.property.type === 'Identifier'
 			&& SKIP_METHODS.has(callee.property.name)
 			&& callee.object.type === 'Identifier'
 			&& tracker.isContextIdentifier(callee.object)
-			&& hasCodeAfter(parent)
+			&& hasCodeAfter(statement)
 		) {
 			const {name} = callee.object;
 			const method = callee.property.name;
@@ -78,17 +81,17 @@ const create = context => {
 
 			// Only suggest inserting `return` when the skip is in a block; in a braceless
 			// `if (x) t.skip()` the inserted `return` would escape the condition.
-			if (parent.parent.type === 'BlockStatement') {
+			if (statement.parent.type === 'BlockStatement') {
 				problem.suggest = [
 					{
 						messageId: MESSAGE_ID_SUGGESTION,
 						data: {name, method},
 						fix(fixer) {
 							// Insert `return;` on its own line, matching the skip statement's indentation.
-							const [start] = sourceCode.getRange(parent);
+							const [start] = sourceCode.getRange(statement);
 							const lineStart = sourceCode.text.lastIndexOf('\n', start - 1) + 1;
 							const [indentation] = /^\s*/.exec(sourceCode.text.slice(lineStart, start));
-							return fixer.insertTextAfter(parent, `\n${indentation}return;`);
+							return fixer.insertTextAfter(statement, `\n${indentation}return;`);
 						},
 					},
 				];

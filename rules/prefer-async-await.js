@@ -1,5 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {resolveImports, parseTestCall, getTestCallback} from './utils/node-test.js';
+import {unwrapExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-async-await/error';
 
@@ -94,19 +95,18 @@ member chain.
 */
 function containsThen(node) {
 	while (node) {
-		if (node.type === 'ChainExpression') {
-			node = node.expression;
-			continue;
-		}
-
-		if (
-			node.type !== 'CallExpression'
-			|| node.callee.type !== 'MemberExpression'
-		) {
+		// Unwrap optional chaining and TypeScript wrappers so `return foo.then(…) as Promise<void>`
+		// and `foo?.then(…)` read the same as a bare `.then()` chain.
+		node = unwrapExpression(node);
+		if (node.type !== 'CallExpression') {
 			return false;
 		}
 
-		const {callee} = node;
+		const callee = unwrapExpression(node.callee);
+		if (callee.type !== 'MemberExpression') {
+			return false;
+		}
+
 		if (
 			callee.property.type === 'Identifier'
 			&& callee.property.name === 'then'

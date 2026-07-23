@@ -66,6 +66,28 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 
+		// TypeScript wrapper must not hide a floating subtest. Reported without a fix: `as` binds
+		// looser than `await`, so the inserted `await` would cast the awaited value, not the Promise.
+		{
+			code: withImport('test("parent", async t => { t.test("child", () => {}) as Promise<void>; });'),
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// Optional-chained subtest — `ChainExpression` on both callee and statement sides
+		withImport('test("parent", async t => { t?.test("child", () => {}); });'),
+
+		// Explicitly discarded with `void` — still unawaited, reported without an autofix
+		withImport('test("parent", async t => { void t.test("child", () => {}); });'),
+		withImport('test("parent", t => { void t.test("child", () => {}); });'),
+		{
+			code: withImport('test("parent", async t => { void (t.test("child", () => {}) as any); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// A bare-statement subtest in an iteration callback belongs to this rule, not to
+		// `require-await-concurrent-subtests`, whose valid cases point here for exactly this shape.
+		withImport('test("parent", async t => { xs.forEach(x => { t.test(x, () => {}); }); });'),
+
 		// Cases intentionally not handled by `no-late-test-activity`.
 		withImport('test("parent", t => { setTimeout(() => { function create() { t.test("child", () => {}); } create(); }); });'),
 		withImport('test("parent", t => { function schedule() { setTimeout(() => { t.test("child", () => {}); }); } schedule(); });'),

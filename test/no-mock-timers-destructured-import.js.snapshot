@@ -151,3 +151,21 @@ Message:
   3 | mock.timers.enable({apis: ["setImmediate"]});
 
 `;
+
+exports[`no-mock-timers-destructured-import > invalid(9): import {test, mock} from 'node:test';\nimport {type clearTimeout, setTimeout} from 'node:timers';\nmock.timers.enable({apis: [\"setTimeout\"]}); 1`] = `
+
+  1 | import {test, mock} from 'node:test';
+  2 | import {type clearTimeout, setTimeout} from 'node:timers';
+  3 | mock.timers.enable({apis: ["setTimeout"]});
+
+`;
+
+exports[`no-mock-timers-destructured-import > invalid(9): import {test, mock} from 'node:test';\nimport {type clearTimeout, setTimeout} from 'node:timers';\nmock.timers.enable({apis: [\"setTimeout\"]}); 2`] = `
+
+Message:
+  1 | import {test, mock} from 'node:test';
+> 2 | import {type clearTimeout, setTimeout} from 'node:timers';
+    |                            ^^^^^^^^^^ \`setTimeout\` is imported directly, so \`mock.timers\` cannot intercept it. Call the global \`setTimeout\` instead.
+  3 | mock.timers.enable({apis: ["setTimeout"]});
+
+`;

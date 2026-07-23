@@ -1,11 +1,12 @@
 import {
 	resolveImports,
 	parseTestCall,
-	parseAssertionCall,
+	parseSupportedAssertionCall,
 	getTestCallback,
 	createContextTracker,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
+import {unwrapExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'no-duplicate-assertions';
 
@@ -28,34 +29,10 @@ function getAssertionMethod(assertion) {
 	return assertion.method;
 }
 
-function getTestContextAssertionName(node) {
-	const {callee} = node;
-	if (
-		callee.type !== 'MemberExpression'
-		|| callee.computed
-		|| callee.object.type !== 'MemberExpression'
-		|| callee.object.computed
-		|| callee.object.object.type !== 'Identifier'
-		|| callee.object.property.type !== 'Identifier'
-		|| callee.object.property.name !== 'assert'
-	) {
-		return undefined;
-	}
-
-	return callee.object.object.name;
-}
-
 function getAssertionKey(assertionExpression, context, imports, tracker) {
 	const {node, isAwaited} = assertionExpression;
-	const assertion = parseAssertionCall(node, imports);
-	const testContextName = getTestContextAssertionName(node);
-	if (
-		!assertion
-		|| (
-			testContextName !== undefined
-			&& !tracker.isContextName(testContextName)
-		)
-	) {
+	const assertion = parseSupportedAssertionCall(node, imports, tracker);
+	if (!assertion) {
 		return undefined;
 	}
 
@@ -75,7 +52,9 @@ function getAssertionExpression(statement) {
 		return undefined;
 	}
 
-	const {expression} = statement;
+	// Unwrap on both sides of the `await`, so a cast or an optional chain (`t?.assert.ok(x);`) does
+	// not hide the call the way reading `statement.expression` raw would.
+	const expression = unwrapExpression(statement.expression);
 	if (expression.type === 'CallExpression') {
 		return {
 			node: expression,
@@ -83,14 +62,14 @@ function getAssertionExpression(statement) {
 		};
 	}
 
-	if (
-		expression.type === 'AwaitExpression'
-		&& expression.argument.type === 'CallExpression'
-	) {
-		return {
-			node: expression.argument,
-			isAwaited: true,
-		};
+	if (expression.type === 'AwaitExpression') {
+		const argument = unwrapExpression(expression.argument);
+		if (argument.type === 'CallExpression') {
+			return {
+				node: argument,
+				isAwaited: true,
+			};
+		}
 	}
 
 	return undefined;

@@ -9,7 +9,7 @@
 
 The test and subtest callbacks receive a test context object, conventionally named `t` (`test('…', t => {})`). Using a consistent name keeps `t.assert`, `t.mock`, `t.test`, and `t.plan` recognizable across a codebase.
 
-This rule reports a `test`/`it` (or subtest) callback whose first parameter is named something other than the configured name. Callbacks with no parameter, or that destructure the context, are left alone.
+This rule reports a `test`/`it` (or subtest) callback whose first parameter is named something other than the configured name, including one with a default value (`(context = …) => {}`). Callbacks with no parameter, or that destructure the context, are left alone.
 
 ## Options
 

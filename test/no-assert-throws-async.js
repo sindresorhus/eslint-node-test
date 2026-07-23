@@ -72,5 +72,26 @@ test.snapshot({
 			code: inAsyncTest('assert.throws(async (): Promise<void> => {}, TypeError);'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// TypeScript wrapper around the call must not prevent the suggestion from including `await`
+		{
+			code: inAsyncTest('assert.throws(async () => {}) as Promise<void>;'),
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// Optional-chained callee — the `ChainExpression` wrapper must not prevent `await`
+		inAsyncTest('assert?.throws(async () => {});'),
+
+		// A TypeScript wrapper around the callee still resolves to a rewritable member form
+		{
+			code: inAsyncTest('(assert.throws as any)(async () => {});'),
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// Already awaited, so the suggestion renames without prepending a second `await`
+		{
+			code: inAsyncTest('await (assert.throws as any)(async () => {});'),
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

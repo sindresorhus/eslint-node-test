@@ -30,14 +30,30 @@ Message:
 
 `;
 
-exports[`consistent-test-context-name > invalid(3): import {it} from 'node:test';\nit('t', testContext => {}); 1`] = `
+exports[`consistent-test-context-name > invalid(3): import test from 'node:test';\ntest('t', (context = undefined) => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', (context = undefined) => {});
+
+`;
+
+exports[`consistent-test-context-name > invalid(3): import test from 'node:test';\ntest('t', (context = undefined) => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', (context = undefined) => {});
+    |            ^^^^^^^ Name the test context parameter \`t\` instead of \`context\`.
+
+`;
+
+exports[`consistent-test-context-name > invalid(4): import {it} from 'node:test';\nit('t', testContext => {}); 1`] = `
 
   1 | import {it} from 'node:test';
   2 | it('t', testContext => {});
 
 `;
 
-exports[`consistent-test-context-name > invalid(3): import {it} from 'node:test';\nit('t', testContext => {}); 2`] = `
+exports[`consistent-test-context-name > invalid(4): import {it} from 'node:test';\nit('t', testContext => {}); 2`] = `
 
 Message:
   1 | import {it} from 'node:test';
@@ -46,14 +62,14 @@ Message:
 
 `;
 
-exports[`consistent-test-context-name > invalid(4): import test from 'node:test';\ntest('t', async t => { await t.test('s', subContext => {}); }); 1`] = `
+exports[`consistent-test-context-name > invalid(5): import test from 'node:test';\ntest('t', async t => { await t.test('s', subContext => {}); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', async t => { await t.test('s', subContext => {}); });
 
 `;
 
-exports[`consistent-test-context-name > invalid(4): import test from 'node:test';\ntest('t', async t => { await t.test('s', subContext => {}); }); 2`] = `
+exports[`consistent-test-context-name > invalid(5): import test from 'node:test';\ntest('t', async t => { await t.test('s', subContext => {}); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -62,7 +78,7 @@ Message:
 
 `;
 
-exports[`consistent-test-context-name > invalid(5): import test from 'node:test';\ntest('t', t => {}); 1`] = `
+exports[`consistent-test-context-name > invalid(6): import test from 'node:test';\ntest('t', t => {}); 1`] = `
 
 Options:
 - name: 'context'
@@ -73,7 +89,7 @@ Code:
 
 `;
 
-exports[`consistent-test-context-name > invalid(5): import test from 'node:test';\ntest('t', t => {}); 2`] = `
+exports[`consistent-test-context-name > invalid(6): import test from 'node:test';\ntest('t', t => {}); 2`] = `
 
 Message:
   1 | import test from 'node:test';

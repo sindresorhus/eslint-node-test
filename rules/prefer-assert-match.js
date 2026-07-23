@@ -1,8 +1,7 @@
 import {
 	resolveImports,
-	parseAssertionCall,
+	parseSupportedAssertionCall,
 	createContextTracker,
-	isAssertionCallWithSupportedContext,
 } from './utils/node-test.js';
 import {isRegexLiteral, isBooleanLiteral} from './ast/index.js';
 import {isParenthesized} from './utils/index.js';
@@ -13,6 +12,8 @@ const MESSAGE_ID = 'prefer-assert-match/error';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `assert.{{method}}()` over asserting `{{pattern}}` results.',
 };
+
+const EQUALITY_METHODS = new Set(['strictEqual', 'equal', 'notStrictEqual', 'notEqual']);
 
 /*
 Determine whether a node is a RegExp (regex literal or `new RegExp()` / `RegExp()` call).
@@ -164,6 +165,13 @@ function getEqualityProblem(node, method, context) {
 		}
 	}
 
+	// Only `re.test(str)` returns a boolean; `str.match(re)` returns `Array | null`, so comparing it
+	// to a boolean literal is always false (a user bug), and rewriting it to `assert.match()` would
+	// silently change the assertion's outcome.
+	if (regexCall.methodName !== 'test') {
+		return;
+	}
+
 	const isNegated = method === 'notStrictEqual' || method === 'notEqual';
 	// `strictEqual(re.test(str), true)` asserts a match; negating the method or comparing to
 	// `false` each flip the meaning.
@@ -189,8 +197,8 @@ const create = context => {
 	context.on('CallExpression', node => {
 		tracker.update(node);
 
-		const parsed = parseAssertionCall(node, imports);
-		if (!parsed || !isAssertionCallWithSupportedContext(node, tracker)) {
+		const parsed = parseSupportedAssertionCall(node, imports, tracker);
+		if (!parsed) {
 			return;
 		}
 
@@ -224,7 +232,7 @@ const create = context => {
 		}
 
 		// `assert.strictEqual`/`equal`/`notStrictEqual`/`notEqual(re.test(str), true/false)`
-		if (['strictEqual', 'equal', 'notStrictEqual', 'notEqual'].includes(method)) {
+		if (EQUALITY_METHODS.has(method)) {
 			return getEqualityProblem(node, method, context);
 		}
 	});

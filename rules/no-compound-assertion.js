@@ -1,6 +1,6 @@
 import {
 	resolveImports,
-	parseAssertionCall,
+	parseSupportedAssertionCall,
 	createContextTracker,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
@@ -74,17 +74,13 @@ const create = context => {
 		return;
 	}
 
-	const contextTracker = createContextTracker(imports, {trackHooks: true});
+	const tracker = createContextTracker(imports, {trackHooks: true});
 
 	context.on('CallExpression', node => {
-		contextTracker.update(node);
+		tracker.update(node);
 
-		const assertion = parseAssertionCall(node, imports);
+		const assertion = parseSupportedAssertionCall(node, imports, tracker);
 		if (assertion?.method !== 'ok') {
-			return;
-		}
-
-		if (assertion.contextReceiver && !contextTracker.isContextIdentifier(assertion.contextReceiver)) {
 			return;
 		}
 
@@ -108,7 +104,7 @@ const create = context => {
 	});
 
 	context.onExit('CallExpression', node => {
-		contextTracker.leave(node);
+		tracker.leave(node);
 	});
 };
 

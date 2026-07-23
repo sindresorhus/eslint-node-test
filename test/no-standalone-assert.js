@@ -20,6 +20,9 @@ test.snapshot({
 
 		// Test context assertion inside a test
 		withImport('test("x", t => { t.assert.ok(value); });'),
+
+		// A `.assert.*` call on an unrelated object is not a `node:assert` assertion
+		withImport('myDb.assert.ok(value);'),
 	],
 	invalid: [
 		// Top-level assertion in a test file
@@ -45,5 +48,8 @@ test.snapshot({
 			code: withImport('assert.ok(value as boolean);'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// Optional-chained imported assert is still a standalone assertion
+		withImport('assert?.ok(value);'),
 	],
 });

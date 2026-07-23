@@ -10,6 +10,10 @@ test.snapshot({
 		// Not a test file — not checked even with a non-matching name
 		{code: 'const a = 1;', filename: 'helpers.js'},
 
+		// Virtual files (linting stdin) have no real name to check
+		{code, filename: '<text>'},
+		{code, filename: '<input>'},
+
 		// Matching the default pattern
 		{code, filename: 'foo.test.js'},
 		{code, filename: '/project/src/foo.test.js'},

@@ -3,9 +3,8 @@ import {
 	parseTestCall,
 	getTestCallback,
 	getSubtestReceiver,
-	parseAssertionCall,
+	parseSupportedAssertionCall,
 	createContextTracker,
-	isAssertionCallWithSupportedContext,
 } from './utils/node-test.js';
 import isConditionalBranch from './utils/is-conditional-branch.js';
 
@@ -56,7 +55,7 @@ const create = context => {
 			return;
 		}
 
-		if (!parseAssertionCall(node, imports) || !isAssertionCallWithSupportedContext(node, tracker)) {
+		if (!parseSupportedAssertionCall(node, imports, tracker)) {
 			return;
 		}
 

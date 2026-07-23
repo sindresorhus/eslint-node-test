@@ -15,7 +15,12 @@ const create = context => {
 	}
 
 	context.on('CallExpression', node => {
-		if (!parseAssertionCall(node, imports)) {
+		const parsed = parseAssertionCall(node, imports);
+		// A `<receiver>.assert.*` call (`contextReceiver` set) is only a real assertion when the
+		// receiver is a test context, which only exists inside a test callback — never at module
+		// scope. So any such call reaching here is an unrelated object's method, not a standalone
+		// `node:assert` assertion.
+		if (!parsed || parsed.contextReceiver) {
 			return;
 		}
 

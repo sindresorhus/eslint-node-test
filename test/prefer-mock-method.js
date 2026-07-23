@@ -1,4 +1,4 @@
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -60,5 +60,21 @@ test.snapshot({
 		// Assignment value is used — reported but not rewritten, since `mock.method()` returns a
 		// different value (the original method) than the assignment (the mock function).
 		withMock('const spy = object.method = mock.fn();'),
+
+		// TypeScript: a cast on the assigned value must not hide the `mock.fn()` call. The rewrite
+		// drops the cast, which is correct — `mock.method()` returns the original method anyway.
+		{
+			code: withMock('object.method = mock.fn() as typeof object.method;'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withMock('object.method = mock.fn(() => 42) as any;'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		// TypeScript: a cast on a context mock receiver
+		{
+			code: inTest('object.method = t.mock.fn() as any;'),
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

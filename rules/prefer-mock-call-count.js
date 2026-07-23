@@ -1,5 +1,5 @@
 import {resolveImports} from './utils/node-test.js';
-import {isTypeScriptExpressionWrapper} from './utils/index.js';
+import {isExpressionWrapper, outermostExpressionWrapper} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-mock-call-count';
 
@@ -20,7 +20,6 @@ const getPatternParent = (node, parent) => {
 		|| parent.type === 'ObjectPattern'
 		|| (parent.type === 'AssignmentPattern' && parent.left === node)
 		|| (parent.type === 'RestElement' && parent.argument === node)
-		|| isTypeScriptExpressionWrapper(parent)
 	) {
 		return parent;
 	}
@@ -44,8 +43,8 @@ const isWritableReference = initialNode => {
 		}
 
 		if (
-			(parent.type === 'MemberExpression' && parent.object === node)
-			|| parent.type === 'ChainExpression'
+			isExpressionWrapper(parent)
+			|| (parent.type === 'MemberExpression' && parent.object === node)
 		) {
 			node = parent;
 			continue;
@@ -58,16 +57,8 @@ const isWritableReference = initialNode => {
 	}
 };
 
-const unwrapParentTypeScriptExpression = node => {
-	while (isTypeScriptExpressionWrapper(node.parent)) {
-		node = node.parent;
-	}
-
-	return node;
-};
-
 const isDirectlyCalledOrTagged = initialNode => {
-	const node = unwrapParentTypeScriptExpression(initialNode);
+	const node = outermostExpressionWrapper(initialNode);
 	return (
 		(node.parent.type === 'CallExpression' && node.parent.callee === node)
 		|| (node.parent.type === 'TaggedTemplateExpression' && node.parent.tag === node)
@@ -76,12 +67,9 @@ const isDirectlyCalledOrTagged = initialNode => {
 
 const isInNewExpressionCallee = node => {
 	while (true) {
-		node = unwrapParentTypeScriptExpression(node);
+		node = outermostExpressionWrapper(node);
 		const {parent} = node;
-		if (
-			(parent.type === 'MemberExpression' && parent.object === node)
-			|| parent.type === 'ChainExpression'
-		) {
+		if (parent.type === 'MemberExpression' && parent.object === node) {
 			node = parent;
 			continue;
 		}

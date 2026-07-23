@@ -14,16 +14,20 @@ This rule follows direct `mock.timers` calls on imported global mocks, including
 ## Examples
 
 ```js
-import {mock} from 'node:test';
+import test, {mock} from 'node:test';
 
 // ❌
-mock.timers.enable();
-mock.timers.enable();
+test('renders after a tick', () => {
+	mock.timers.enable();
+	mock.timers.enable();
+});
 
 // ✅
-mock.timers.enable();
-mock.timers.reset();
-mock.timers.enable();
+test('renders after a tick', () => {
+	mock.timers.enable();
+	mock.timers.reset();
+	mock.timers.enable();
+});
 ```
 
 ```js

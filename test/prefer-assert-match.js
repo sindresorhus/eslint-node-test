@@ -34,6 +34,18 @@ test.snapshot({
 		// Assert.strictEqual with both regex — not applicable
 		`${ASSERT_IMPORT}\nassert.strictEqual(/\\d+/.test(str), /\\w+/.test(str));`,
 
+		// `String#match` returns `Array | null`, never a boolean, so comparing it to a boolean
+		// literal is always false — a user bug the rule must not silently "fix" to a passing match.
+		`${ASSERT_IMPORT}\nassert.strictEqual('foo'.match(/\\d+/), true);`,
+		`${ASSERT_IMPORT}\nassert.equal('foo'.match(/\\d+/), true);`,
+		`${ASSERT_IMPORT}\nassert.notStrictEqual('foo'.match(/\\d+/), true);`,
+		`${ASSERT_IMPORT}\nassert.strictEqual(true, 'foo'.match(/\\d+/));`,
+		// The guard blocks the `false` polarity too, which would otherwise map to `doesNotMatch`.
+		`${ASSERT_IMPORT}\nassert.strictEqual('foo'.match(/\\d+/), false);`,
+		// …and the negated methods, whose outcome is unrelated to whether the regex matched.
+		`${ASSERT_IMPORT}\nassert.notEqual('foo'.match(/\\d+/), true);`,
+		`${ASSERT_IMPORT}\nassert.notStrictEqual('foo'.match(/\\d+/), false);`,
+
 		// Re.test() missing argument — can't transform safely
 		`${ASSERT_IMPORT}\nassert.ok(/\\d+/.test());`,
 

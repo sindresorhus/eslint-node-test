@@ -1,4 +1,5 @@
 import {resolveImports, isGlobalMock} from './utils/node-test.js';
+import {unwrapExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-context-mock';
 
@@ -17,7 +18,9 @@ const create = context => {
 	}
 
 	context.on('CallExpression', node => {
-		let member = node.callee;
+		// Unwrap wrappers at each step so a mid-chain cast (`(mock.timers as any).enable()`) does not
+		// break the walk down to the global `mock`.
+		let member = unwrapExpression(node.callee);
 		while (member.type === 'MemberExpression') {
 			if (isGlobalMock(member.object, imports) && !member.computed && member.property.type === 'Identifier') {
 				const accessor = member.property.name;
@@ -32,7 +35,7 @@ const create = context => {
 				return;
 			}
 
-			member = member.object;
+			member = unwrapExpression(member.object);
 		}
 	});
 };

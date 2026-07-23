@@ -1,8 +1,7 @@
 import {
 	resolveImports,
-	parseAssertionCall,
+	parseSupportedAssertionCall,
 	createContextTracker,
-	isAssertionCallWithSupportedContext,
 } from './utils/node-test.js';
 
 const MESSAGE_ID = 'no-useless-assertion';
@@ -25,8 +24,8 @@ const create = context => {
 	context.on('CallExpression', node => {
 		tracker.update(node);
 
-		const parsed = parseAssertionCall(node, imports);
-		if (!parsed || !USELESS_METHODS.has(parsed.method) || !isAssertionCallWithSupportedContext(node, tracker)) {
+		const parsed = parseSupportedAssertionCall(node, imports, tracker);
+		if (!parsed || !USELESS_METHODS.has(parsed.method)) {
 			return;
 		}
 

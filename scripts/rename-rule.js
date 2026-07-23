@@ -13,8 +13,7 @@ function checkFiles(ruleId) {
 		`docs/rules/${ruleId}.md`,
 		`rules/${ruleId}.js`,
 		`test/${ruleId}.js`,
-		`test/snapshots/${ruleId}.js.md`,
-		`test/snapshots/${ruleId}.js.snap`,
+		`test/${ruleId}.js.snapshot`,
 	];
 
 	for (const file of files) {
@@ -74,8 +73,7 @@ async function renameRule(from, to) {
 	await renameFile(`docs/rules/${from}.md`, `docs/rules/${to}.md`);
 	await renameFile(`rules/${from}.js`, `rules/${to}.js`);
 	await renameFile(`test/${from}.js`, `test/${to}.js`);
-	await renameFile(`test/snapshots/${from}.js.md`, `test/snapshots/${to}.js.md`);
-	await renameFile(`test/snapshots/${from}.js.snap`, `test/snapshots/${to}.js.snap`);
+	await renameFile(`test/${from}.js.snapshot`, `test/${to}.js.snapshot`);
 
 	const files = [
 		'readme.md',
@@ -84,7 +82,7 @@ async function renameRule(from, to) {
 		`docs/rules/${to}.md`,
 		`rules/${to}.js`,
 		`test/${to}.js`,
-		`test/snapshots/${to}.js.md`,
+		`test/${to}.js.snapshot`,
 	];
 
 	for (const filePath of files) {

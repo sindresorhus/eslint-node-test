@@ -10,8 +10,7 @@ import {
 	isHookMemberTestCall,
 	MODIFIERS,
 } from './utils/node-test.js';
-import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
-import {getEnclosingFunction} from './utils/index.js';
+import {getEnclosingFunction, unwrapExpression} from './utils/index.js';
 import {isFunction} from './ast/index.js';
 
 const MESSAGE_ID = 'no-sleep-in-test';
@@ -24,15 +23,6 @@ const CALLBACK_TIMER_MODULES = new Set(['node:timers', 'timers']);
 const PROMISE_TIMER_MODULES = new Set(['node:timers/promises', 'timers/promises']);
 const ACTIVE_TEST_MODIFIERS = new Set(['only', 'todo']);
 const CONTEXT_HOOKS = new Set(['before', 'beforeEach', 'after', 'afterEach']);
-
-const unwrapExpression = node => {
-	let unwrapped = node && unwrapTypeScriptExpression(node);
-	while (unwrapped?.type === 'ChainExpression') {
-		unwrapped = unwrapTypeScriptExpression(unwrapped.expression);
-	}
-
-	return unwrapped;
-};
 
 function isIdentifierReference(node, name) {
 	return node?.type === 'Identifier' && node.name === name;

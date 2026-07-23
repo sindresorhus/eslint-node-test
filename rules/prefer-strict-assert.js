@@ -1,8 +1,7 @@
 import {
 	resolveImports,
-	parseAssertionCall,
+	parseSupportedAssertionCall,
 	createContextTracker,
-	isAssertionCallWithSupportedContext,
 } from './utils/node-test.js';
 
 const MESSAGE_ID = 'prefer-strict-assert';
@@ -31,9 +30,9 @@ const create = context => {
 	context.on('CallExpression', node => {
 		tracker.update(node);
 
-		const assertion = parseAssertionCall(node, imports);
+		const assertion = parseSupportedAssertionCall(node, imports, tracker);
 		// In a strict-mode assert module the legacy methods already behave strictly, so leave them.
-		if (!assertion || assertion.isStrict || !isAssertionCallWithSupportedContext(node, tracker)) {
+		if (!assertion || assertion.isStrict) {
 			return;
 		}
 

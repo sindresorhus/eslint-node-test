@@ -1,5 +1,6 @@
 import {resolveImports, createContextTracker} from './utils/node-test.js';
 import isFunction from './ast/is-function.js';
+import {skipExpressionWrappers, outermostExpressionWrapper, getFloatingStatement} from './utils/index.js';
 
 const MESSAGE_ID = 'require-await-concurrent-subtests';
 
@@ -37,7 +38,10 @@ function findEnclosingIterationCall(node) {
 
 /** Whether the iteration call is an argument to a consumed `Promise.all(…)` / `Promise.allSettled(…)`. */
 function isAwaitedViaPromiseAll(iterationCall) {
-	const {parent} = iterationCall;
+	// A cast around the array (`xs.map(…) as Promise<void>[]`) is what `Promise.all()` actually
+	// receives as its argument, so compare against the outermost wrapper.
+	const argument = outermostExpressionWrapper(iterationCall);
+	const {parent} = argument;
 	if (
 		parent?.type === 'CallExpression'
 		&& parent.callee.type === 'MemberExpression'
@@ -46,12 +50,12 @@ function isAwaitedViaPromiseAll(iterationCall) {
 		&& (parent.callee.property.name === 'all' || parent.callee.property.name === 'allSettled')
 		&& parent.callee.object.type === 'Identifier'
 		&& parent.callee.object.name === 'Promise'
-		&& parent.arguments.includes(iterationCall)
+		&& parent.arguments.includes(argument)
 	) {
 		// The `Promise.all(…)` itself must be consumed (awaited, returned, or assigned), not discarded —
 		// otherwise the parent test still finishes before the subtests settle. It is discarded when left
 		// as a floating bare statement or explicitly thrown away with `void`.
-		const {parent: grandparent} = parent;
+		const grandparent = skipExpressionWrappers(parent.parent);
 		const isDiscarded = grandparent?.type === 'ExpressionStatement'
 			|| (grandparent?.type === 'UnaryExpression' && grandparent.operator === 'void');
 		return !isDiscarded;
@@ -73,9 +77,9 @@ const create = context => {
 		const isSubtest = tracker.isSubtestCall(node);
 
 		let problem;
-		// A bare-statement subtest is already covered by `no-unawaited-subtest`; this rule covers the
-		// expression-body and `return` forms inside an iteration callback that it misses.
-		if (isSubtest && node.parent?.type !== 'ExpressionStatement') {
+		// A subtest discarded at statement level is already covered by `no-unawaited-subtest`; this
+		// rule covers the expression-body and `return` forms inside an iteration callback that it misses.
+		if (isSubtest && !getFloatingStatement(node)) {
 			const iterationCall = findEnclosingIterationCall(node);
 			if (iterationCall) {
 				const method = iterationCall.callee.property.name;

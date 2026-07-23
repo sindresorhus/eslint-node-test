@@ -1,11 +1,10 @@
 import {
 	resolveImports,
-	parseAssertionCall,
+	parseSupportedAssertionCall,
 	createContextTracker,
-	isAssertionCallWithSupportedContext,
 } from './utils/node-test.js';
 import isFunction from './ast/is-function.js';
-import {getEnclosingFunction} from './utils/index.js';
+import {getEnclosingFunction, getFloatingStatement} from './utils/index.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
 const MESSAGE_ID_ERROR = 'no-assert-throws-async/error';
@@ -33,8 +32,8 @@ const create = context => {
 	context.on('CallExpression', node => {
 		tracker.update(node);
 
-		const assertion = parseAssertionCall(node, imports);
-		if (!assertion || !isAssertionCallWithSupportedContext(node, tracker)) {
+		const assertion = parseSupportedAssertionCall(node, imports, tracker);
+		if (!assertion) {
 			return;
 		}
 
@@ -53,7 +52,7 @@ const create = context => {
 			return;
 		}
 
-		const {callee} = node;
+		const callee = unwrapTypeScriptExpression(node.callee);
 		const data = {method: assertion.method, replacement};
 		const problem = {
 			node: callee,
@@ -64,13 +63,11 @@ const create = context => {
 		// Only the member forms (`assert.throws`, `t.assert.throws`) can be rewritten. A bare named
 		// import (`throws`) would reference an unimported `rejects`, so leave it reported but unfixed.
 		if (callee.type === 'MemberExpression') {
-			const isAwaited = node.parent?.type === 'AwaitExpression';
-			const enclosingFunction = getEnclosingFunction(node);
 			// Prepend `await` only where it is both valid and needed: a bare call statement inside an
 			// async function. Otherwise just switch the method and let `no-unawaited-rejects` guide the await.
-			const shouldAwait = !isAwaited
-				&& node.parent?.type === 'ExpressionStatement'
-				&& enclosingFunction?.async === true;
+			// An awaited call is never a bare statement, so it is already excluded.
+			const shouldAwait = getFloatingStatement(node)?.canAwait === true
+				&& getEnclosingFunction(node)?.async === true;
 
 			problem.suggest = [
 				{

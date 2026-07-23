@@ -1,5 +1,5 @@
 import {resolveImports, createContextTracker, getSubtestReceiver} from './utils/node-test.js';
-import {getEnclosingFunction} from './utils/index.js';
+import {getEnclosingFunction, getFloatingStatement} from './utils/index.js';
 import {trackDetachedCallbacks} from './no-unawaited-promise-assertion.js';
 
 const MESSAGE_ID = 'no-unawaited-subtest';
@@ -23,14 +23,12 @@ const create = context => {
 		// before this call pushes its own context.
 		const subtest = tracker.isSubtestCall(node);
 
+		// A cast like `t.test('x', fn) as any` or a `void` discard must not hide a floating subtest.
+		const floating = getFloatingStatement(node);
+
 		let problem;
-		if (
-			subtest
-			&& node.parent.type === 'ExpressionStatement'
-			&& !isInsideDetachedCallback(node)
-		) {
+		if (subtest && floating && !isInsideDetachedCallback(node)) {
 			const {name} = getSubtestReceiver(node);
-			const enclosingFunction = getEnclosingFunction(node);
 
 			problem = {
 				node,
@@ -38,8 +36,9 @@ const create = context => {
 				data: {name},
 			};
 
-			// `await` is only valid (and a behavior-preserving fix) inside an async function.
-			if (enclosingFunction?.async) {
+			// `await` is only valid (and a behavior-preserving fix) inside an async function, and only
+			// where prepending it is faithful (see `getFloatingStatement`).
+			if (getEnclosingFunction(node)?.async && floating.canAwait) {
 				problem.fix = fixer => fixer.insertTextBefore(node, 'await ');
 			}
 		}

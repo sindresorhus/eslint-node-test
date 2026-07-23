@@ -1,5 +1,5 @@
 import {resolveImports, parseTestCall, getTestCallback} from './utils/node-test.js';
-import isFunction from './ast/is-function.js';
+import {getEnclosingFunction} from './utils/index.js';
 
 const MESSAGE_ID = 'no-conditional-in-test';
 
@@ -33,11 +33,7 @@ const create = context => {
 	const report = node => {
 		// The conditional must sit directly in the test body, not in a sibling argument like the
 		// options object (`{skip: a ? … : …}`) or inside a nested helper function.
-		let enclosing = node.parent;
-		while (enclosing && !isFunction(enclosing)) {
-			enclosing = enclosing.parent;
-		}
-
+		const enclosing = getEnclosingFunction(node);
 		if (enclosing && testCallbacks.has(enclosing)) {
 			return {node, messageId: MESSAGE_ID};
 		}

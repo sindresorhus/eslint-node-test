@@ -98,6 +98,13 @@ const create = context => {
 	context.on('CallExpression', node => {
 		tracker.update(node);
 
+		// Classify the call first: it is a cheap, memoized check, while the scope resolution below
+		// walks the scope chain for every call it is given.
+		const method = getAssertMethod(node, imports);
+		if (!method) {
+			return;
+		}
+
 		const contextName = tracker.current();
 		if (!contextName) {
 			return;
@@ -109,11 +116,6 @@ const create = context => {
 			|| !isInsideCallback(node, callback, sourceCode)
 			|| !isContextParameterInScope(contextName, callback, node, sourceCode)
 		) {
-			return;
-		}
-
-		const method = getAssertMethod(node, imports);
-		if (!method) {
 			return;
 		}
 

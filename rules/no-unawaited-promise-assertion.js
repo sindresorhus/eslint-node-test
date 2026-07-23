@@ -12,7 +12,14 @@ import {
 	MODIFIERS,
 } from './utils/node-test.js';
 import {isFunction} from './ast/index.js';
-import {getEnclosingFunction, unwrapTypeScriptExpression, isTypeScriptExpressionWrapper} from './utils/index.js';
+import {
+	getEnclosingFunction,
+	unwrapTypeScriptExpression,
+	unwrapExpression,
+	skipExpressionWrappers,
+	outermostExpressionWrapper,
+	isExpressionWrapper,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'no-unawaited-promise-assertion';
 
@@ -26,11 +33,6 @@ const WAIT_PLAN_PREFIX_STATEMENT_TYPES = new Set(['VariableDeclaration', 'Functi
 const messages = {
 	[MESSAGE_ID]: 'Assertion in a floating `{{method}}()` callback is not awaited by the test. Await or return the Promise chain.',
 };
-
-function unwrapChainExpression(node) {
-	node = unwrapTypeScriptExpression(node);
-	return node?.type === 'ChainExpression' ? node.expression : node;
-}
 
 function getExpressionValuePropagation(parent, child) {
 	if (parent?.type === 'SequenceExpression') {
@@ -49,27 +51,18 @@ function getExpressionValuePropagation(parent, child) {
 }
 
 function getFloatingExpression(node) {
-	let expression = node;
-	let {parent} = node;
-
-	while (parent?.type === 'ChainExpression' || isTypeScriptExpressionWrapper(parent)) {
-		expression = parent;
-		parent = parent.parent;
-	}
+	const expression = outermostExpressionWrapper(node);
 
 	let container = expression;
+	let {parent} = expression;
 	let valuePropagates;
 	while ((valuePropagates = getExpressionValuePropagation(parent, container)) !== undefined) {
 		if (!valuePropagates) {
 			return {expression, canFix: false};
 		}
 
-		container = parent;
-		parent = parent.parent;
-		while (parent?.type === 'ChainExpression' || isTypeScriptExpressionWrapper(parent)) {
-			container = parent;
-			parent = parent.parent;
-		}
+		container = outermostExpressionWrapper(parent);
+		parent = container.parent;
 	}
 
 	if (parent?.type === 'UnaryExpression' && parent.operator === 'void') {
@@ -95,10 +88,10 @@ function getFloatingExpression(node) {
 
 function getPromiseChainCalls(node) {
 	const calls = [];
-	node = unwrapChainExpression(node);
+	node = unwrapExpression(node);
 
 	while (node?.type === 'CallExpression') {
-		const callee = unwrapChainExpression(node.callee);
+		const callee = unwrapExpression(node.callee);
 		if (
 			callee?.type !== 'MemberExpression'
 			|| callee.computed
@@ -110,7 +103,7 @@ function getPromiseChainCalls(node) {
 		if (!PROMISE_METHODS.has(callee.property.name)) {
 			if (
 				calls.length > 0
-				&& unwrapChainExpression(callee.object)?.type === 'CallExpression'
+				&& unwrapExpression(callee.object)?.type === 'CallExpression'
 			) {
 				return [];
 			}
@@ -123,7 +116,7 @@ function getPromiseChainCalls(node) {
 			method: callee.property.name,
 		});
 
-		node = unwrapChainExpression(callee.object);
+		node = unwrapExpression(callee.object);
 	}
 
 	return calls;
@@ -168,7 +161,7 @@ function getContextAssertReceiver(node) {
 }
 
 function unwrapAssertionCallee(node) {
-	node = unwrapChainExpression(node);
+	node = unwrapExpression(node);
 	if (node?.type !== 'MemberExpression') {
 		return node;
 	}
@@ -266,11 +259,7 @@ function isInsideHandledTryBlock(node, boundary) {
 }
 
 function isAwaited(node) {
-	while (node.parent?.type === 'ChainExpression' || isTypeScriptExpressionWrapper(node.parent)) {
-		node = node.parent;
-	}
-
-	return node.parent?.type === 'AwaitExpression';
+	return skipExpressionWrappers(node.parent)?.type === 'AwaitExpression';
 }
 
 function hasRejectionHandler(call) {
@@ -289,7 +278,7 @@ function hasChainedRejectionHandler(node, boundary) {
 	let current = node;
 	while (current.parent && current !== boundary) {
 		const {parent} = current;
-		if (parent.type === 'ChainExpression' || isTypeScriptExpressionWrapper(parent)) {
+		if (isExpressionWrapper(parent)) {
 			current = parent;
 			continue;
 		}
@@ -447,7 +436,7 @@ function getTimerImports(sourceCode) {
 }
 
 function getSchedulerName(node, timerImports, sourceCode) {
-	const callee = unwrapChainExpression(node.callee);
+	const callee = unwrapExpression(node.callee);
 	if (callee.type === 'Identifier') {
 		const variable = findVariable(sourceCode.getScope(callee), callee);
 		if (SCHEDULER_NAMES.has(callee.name) && (!variable || variable.defs.length === 0)) {
@@ -459,7 +448,7 @@ function getSchedulerName(node, timerImports, sourceCode) {
 		}
 	}
 
-	const object = callee.type === 'MemberExpression' ? unwrapChainExpression(callee.object) : undefined;
+	const object = callee.type === 'MemberExpression' ? unwrapExpression(callee.object) : undefined;
 	if (
 		callee.type === 'MemberExpression'
 		&& !callee.computed
@@ -529,8 +518,7 @@ function getDetachedScheduler(node, activeCallback, timerImports, sourceCode) {
 
 function isExpressionConsumed(node) {
 	while (
-		node.parent?.type === 'ChainExpression'
-		|| isTypeScriptExpressionWrapper(node.parent)
+		isExpressionWrapper(node.parent)
 		|| (node.parent?.type === 'MemberExpression' && node.parent.object === node)
 		|| (node.parent?.type === 'CallExpression' && node.parent.callee === node)
 	) {

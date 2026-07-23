@@ -14,15 +14,19 @@ Enforce a consistent declaration order for `node:test` hooks. The canonical orde
 ## Examples
 
 ```js
-import {before, beforeEach, afterEach, after} from 'node:test';
+import {describe, before, beforeEach, afterEach, after} from 'node:test';
 
 // ❌
-afterEach(() => {});
-before(() => {});
+describe('user', () => {
+	afterEach(() => {});
+	before(() => {});
+});
 
 // ✅
-before(() => {});
-beforeEach(() => {});
-afterEach(() => {});
-after(() => {});
+describe('user', () => {
+	before(() => {});
+	beforeEach(() => {});
+	afterEach(() => {});
+	after(() => {});
+});
 ```

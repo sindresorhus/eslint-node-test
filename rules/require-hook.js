@@ -64,11 +64,13 @@ const create = context => {
 			return;
 		}
 
-		if (allow.has(sourceCode.getText(call.callee))) {
+		// Check the scope before the `allow` list: it is a few parent lookups, while the list is
+		// keyed by callee source text, which has to be materialized for every call it is given.
+		if (!isInRegistrationScope(node, imports)) {
 			return;
 		}
 
-		if (!isInRegistrationScope(node, imports)) {
+		if (allow.size > 0 && allow.has(sourceCode.getText(call.callee))) {
 			return;
 		}
 

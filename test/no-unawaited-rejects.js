@@ -38,8 +38,14 @@ test.snapshot({
 		// `t.assert.rejects` properly awaited in a test file (no `node:assert` import)
 		'import test from \'node:test\';\ntest(\'t\', async t => {\n\tawait t.assert.rejects(fn);\n});',
 
+		// Optional-chained but properly awaited
+		`${ASSERT_IMPORT}\nasync function test() { await assert?.rejects(fn); }`,
+
 		// `.assert.rejects` on a non-context object — not a test context, so not this rule's concern
 		'import test from \'node:test\';\nimport assert from \'node:assert\';\nasync function run() {\n\tdb.assert.rejects(fn);\n}',
+
+		// `void` does not override the context filter — a non-context receiver is still ignored
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\nasync function run() {\n\tvoid db.assert.rejects(fn);\n}',
 	],
 	invalid: [
 		// Bare assert.rejects in async function — autofix available
@@ -80,5 +86,50 @@ test.snapshot({
 
 		// Arrow function
 		`${ASSERT_IMPORT}\nconst run = async () => {\n\tassert.rejects(fn);\n};`,
+
+		// Explicitly discarded with `void` — still floating, reported without an autofix
+		`${ASSERT_IMPORT}\nvoid assert.rejects(fn);`,
+		`${ASSERT_IMPORT}\nasync function test() {\n\tvoid assert.rejects(fn);\n}`,
+		`${ASSERT_IMPORT}\nasync function test() {\n\tvoid assert.doesNotReject(fn);\n}`,
+
+		// Voided context assertion in a test file (no `node:assert` import)
+		'import test from \'node:test\';\ntest(\'t\', async t => {\n\tvoid t.assert.rejects(fn);\n});',
+
+		// Optional-chained floating call — the `ChainExpression` wrapper must not hide it
+		`${ASSERT_IMPORT}\nasync function test() {\n\tassert?.rejects(fn);\n}`,
+		`${ASSERT_IMPORT}\nassert?.rejects(fn);`,
+		`${ASSERT_IMPORT}\nvoid assert?.rejects(fn);`,
+
+		// Optional-chained context assertion — `ChainExpression` unwrap plus context receiver together
+		'import test from \'node:test\';\ntest(\'t\', async t => {\n\tt?.assert.rejects(fn);\n});',
+
+		// TypeScript wrappers around the floating call must not hide it (matches the callee-side
+		// handling, where `(assert as any).rejects(fn)` is already caught). Reported without a fix:
+		// `as` binds looser than `await`, so `await assert.rejects(fn) as Promise<void>` would cast
+		// the awaited value instead of the Promise.
+		{
+			code: `${ASSERT_IMPORT}\nasync function test() {\n\tassert.rejects(fn) as Promise<void>;\n}`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: `${ASSERT_IMPORT}\nassert.rejects(fn)!;`,
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// `void` wrapping a TypeScript-cast call — both wrappers must be unwrapped together
+		{
+			code: `${ASSERT_IMPORT}\nvoid (assert.rejects(fn) as any);`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: `${ASSERT_IMPORT}\nasync function test() {\n\tvoid (assert.rejects(fn) as any);\n}`,
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// A TypeScript wrapper *around* the `void` expression must not hide it either
+		{
+			code: `${ASSERT_IMPORT}\nasync function test() {\n\t(void assert.rejects(fn)) as any;\n}`,
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

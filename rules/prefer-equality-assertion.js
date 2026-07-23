@@ -1,8 +1,7 @@
 import {
 	resolveImports,
-	parseAssertionCall,
+	parseSupportedAssertionCall,
 	createContextTracker,
-	isAssertionCallWithSupportedContext,
 } from './utils/node-test.js';
 import {isParenthesized, getParenthesizedRange} from './utils/index.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
@@ -34,9 +33,9 @@ const create = context => {
 	context.on('CallExpression', node => {
 		tracker.update(node);
 
-		const parsed = parseAssertionCall(node, imports);
+		const parsed = parseSupportedAssertionCall(node, imports, tracker);
 		// Only the truthiness assertions (`assert(…)` / `assert.ok(…)`) benefit.
-		if (parsed?.method !== 'ok' || !isAssertionCallWithSupportedContext(node, tracker)) {
+		if (parsed?.method !== 'ok') {
 			return;
 		}
 

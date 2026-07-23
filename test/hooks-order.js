@@ -1,4 +1,4 @@
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -61,5 +61,11 @@ test.snapshot({
 		withImport('before, beforeEach, afterEach, after', 'after(() => {});\nafterEach(() => {});\nbeforeEach(() => {});\nbefore(() => {});'),
 		// Out-of-order hooks in two separate describe blocks — each block is ordered independently
 		withImport('describe, before, after', 'describe("a", () => {\n\tafter(() => {});\n\tbefore(() => {});\n});\ndescribe("b", () => {\n\tafter(() => {});\n\tbefore(() => {});\n});'),
+
+		// TypeScript wrapper on a hook call must not prevent detection
+		{
+			code: withImport('before, after', 'after(() => {}) as void;\nbefore(() => {}) as void;'),
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

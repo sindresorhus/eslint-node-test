@@ -62,5 +62,11 @@ test.snapshot({
 			code: withImport('test("x", (t: any) => { t.skip(); assert.ok(x); });'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// TypeScript wrapper on the call must not hide it
+		{
+			code: withImport('test("x", t => {\n\tt.skip() as void;\n\tassert.ok(x);\n});'),
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

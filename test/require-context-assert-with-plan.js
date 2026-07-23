@@ -1,4 +1,4 @@
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -12,6 +12,19 @@ test.snapshot({
 		// Plan with context assert — counts toward the plan
 		withTest('test(\'t\', t => { t.plan(1); t.assert.ok(1); });'),
 		withTest('test(\'t\', t => { t.plan(2); t.assert.strictEqual(1, 1); t.assert.ok(2); });'),
+
+		// A `.assert.*` call on an unrelated object is not a `node:assert` assertion
+		withTest('test(\'t\', t => { t.plan(1); db.assert.ok(1); });'),
+
+		// A TypeScript-wrapped context assert still counts toward the plan
+		{
+			code: withTest('test(\'t\', t => { t.plan(1); (t.assert.ok as unknown)(1); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withTest('test(\'t\', t => { t.plan(1); t!.assert.ok(1); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
 
 		// Plan satisfied by a subtest — no imported assert
 		'import test from \'node:test\';\ntest(\'t\', async t => { t.plan(1); await t.test(\'s\', () => {}); });',

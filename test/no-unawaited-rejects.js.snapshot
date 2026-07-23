@@ -154,6 +154,108 @@ Output:
 
 `;
 
+exports[`no-unawaited-rejects > invalid(15): import assert from 'node:assert';\nvoid assert.rejects(fn); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | void assert.rejects(fn);
+
+`;
+
+exports[`no-unawaited-rejects > invalid(15): import assert from 'node:assert';\nvoid assert.rejects(fn); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | void assert.rejects(fn);
+    |      ^^^^^^^^^^^^^^^^^^ \`assert.rejects()\` must be awaited or returned.
+
+`;
+
+exports[`no-unawaited-rejects > invalid(16): import assert from 'node:assert';\nasync function test() {\n\tvoid assert.rejects(fn);\n} 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | async function test() {
+  3 | 	void assert.rejects(fn);
+  4 | }
+
+`;
+
+exports[`no-unawaited-rejects > invalid(16): import assert from 'node:assert';\nasync function test() {\n\tvoid assert.rejects(fn);\n} 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+  2 | async function test() {
+> 3 | 	void assert.rejects(fn);
+    | 	     ^^^^^^^^^^^^^^^^^^ \`assert.rejects()\` must be awaited or returned.
+  4 | }
+
+`;
+
+exports[`no-unawaited-rejects > invalid(17): import assert from 'node:assert';\nasync function test() {\n\tvoid assert.doesNotReject(fn);\n} 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | async function test() {
+  3 | 	void assert.doesNotReject(fn);
+  4 | }
+
+`;
+
+exports[`no-unawaited-rejects > invalid(17): import assert from 'node:assert';\nasync function test() {\n\tvoid assert.doesNotReject(fn);\n} 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+  2 | async function test() {
+> 3 | 	void assert.doesNotReject(fn);
+    | 	     ^^^^^^^^^^^^^^^^^^^^^^^^ \`assert.doesNotReject()\` must be awaited or returned.
+  4 | }
+
+`;
+
+exports[`no-unawaited-rejects > invalid(18): import test from 'node:test';\ntest('t', async t => {\n\tvoid t.assert.rejects(fn);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', async t => {
+  3 | 	void t.assert.rejects(fn);
+  4 | });
+
+`;
+
+exports[`no-unawaited-rejects > invalid(18): import test from 'node:test';\ntest('t', async t => {\n\tvoid t.assert.rejects(fn);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', async t => {
+> 3 | 	void t.assert.rejects(fn);
+    | 	     ^^^^^^^^^^^^^^^^^^^^ \`assert.rejects()\` must be awaited or returned.
+  4 | });
+
+`;
+
+exports[`no-unawaited-rejects > invalid(19): import assert from 'node:assert';\nasync function test() {\n\tassert?.rejects(fn);\n} 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | async function test() {
+  3 | 	assert?.rejects(fn);
+  4 | }
+
+`;
+
+exports[`no-unawaited-rejects > invalid(19): import assert from 'node:assert';\nasync function test() {\n\tassert?.rejects(fn);\n} 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+  2 | async function test() {
+> 3 | 	assert?.rejects(fn);
+    | 	^^^^^^^^^^^^^^^^^^^ \`assert.rejects()\` must be awaited or returned.
+  4 | }
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | async function test() {
+  3 | 	await assert?.rejects(fn);
+  4 | }
+
+`;
+
 exports[`no-unawaited-rejects > invalid(2): import assert from 'node:assert';\nasync function test() {\n\tassert.doesNotReject(fn);\n} 1`] = `
 
   1 | import assert from 'node:assert';
@@ -176,6 +278,156 @@ Output:
   1 | import assert from 'node:assert';
   2 | async function test() {
   3 | 	await assert.doesNotReject(fn);
+  4 | }
+
+`;
+
+exports[`no-unawaited-rejects > invalid(20): import assert from 'node:assert';\nassert?.rejects(fn); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert?.rejects(fn);
+
+`;
+
+exports[`no-unawaited-rejects > invalid(20): import assert from 'node:assert';\nassert?.rejects(fn); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert?.rejects(fn);
+    | ^^^^^^^^^^^^^^^^^^^ \`assert.rejects()\` must be awaited or returned.
+
+`;
+
+exports[`no-unawaited-rejects > invalid(21): import assert from 'node:assert';\nvoid assert?.rejects(fn); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | void assert?.rejects(fn);
+
+`;
+
+exports[`no-unawaited-rejects > invalid(21): import assert from 'node:assert';\nvoid assert?.rejects(fn); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | void assert?.rejects(fn);
+    |      ^^^^^^^^^^^^^^^^^^^ \`assert.rejects()\` must be awaited or returned.
+
+`;
+
+exports[`no-unawaited-rejects > invalid(22): import test from 'node:test';\ntest('t', async t => {\n\tt?.assert.rejects(fn);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', async t => {
+  3 | 	t?.assert.rejects(fn);
+  4 | });
+
+`;
+
+exports[`no-unawaited-rejects > invalid(22): import test from 'node:test';\ntest('t', async t => {\n\tt?.assert.rejects(fn);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', async t => {
+> 3 | 	t?.assert.rejects(fn);
+    | 	^^^^^^^^^^^^^^^^^^^^^ \`assert.rejects()\` must be awaited or returned.
+  4 | });
+
+Output:
+  1 | import test from 'node:test';
+  2 | test('t', async t => {
+  3 | 	await t?.assert.rejects(fn);
+  4 | });
+
+`;
+
+exports[`no-unawaited-rejects > invalid(23): import assert from 'node:assert';\nasync function test() {\n\tassert.rejects(fn) as Promise<void>;\n} 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | async function test() {
+  3 | 	assert.rejects(fn) as Promise<void>;
+  4 | }
+
+`;
+
+exports[`no-unawaited-rejects > invalid(23): import assert from 'node:assert';\nasync function test() {\n\tassert.rejects(fn) as Promise<void>;\n} 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+  2 | async function test() {
+> 3 | 	assert.rejects(fn) as Promise<void>;
+    | 	^^^^^^^^^^^^^^^^^^ \`assert.rejects()\` must be awaited or returned.
+  4 | }
+
+`;
+
+exports[`no-unawaited-rejects > invalid(24): import assert from 'node:assert';\nassert.rejects(fn)!; 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.rejects(fn)!;
+
+`;
+
+exports[`no-unawaited-rejects > invalid(24): import assert from 'node:assert';\nassert.rejects(fn)!; 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.rejects(fn)!;
+    | ^^^^^^^^^^^^^^^^^^ \`assert.rejects()\` must be awaited or returned.
+
+`;
+
+exports[`no-unawaited-rejects > invalid(25): import assert from 'node:assert';\nvoid (assert.rejects(fn) as any); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | void (assert.rejects(fn) as any);
+
+`;
+
+exports[`no-unawaited-rejects > invalid(25): import assert from 'node:assert';\nvoid (assert.rejects(fn) as any); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | void (assert.rejects(fn) as any);
+    |       ^^^^^^^^^^^^^^^^^^ \`assert.rejects()\` must be awaited or returned.
+
+`;
+
+exports[`no-unawaited-rejects > invalid(26): import assert from 'node:assert';\nasync function test() {\n\tvoid (assert.rejects(fn) as any);\n} 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | async function test() {
+  3 | 	void (assert.rejects(fn) as any);
+  4 | }
+
+`;
+
+exports[`no-unawaited-rejects > invalid(26): import assert from 'node:assert';\nasync function test() {\n\tvoid (assert.rejects(fn) as any);\n} 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+  2 | async function test() {
+> 3 | 	void (assert.rejects(fn) as any);
+    | 	      ^^^^^^^^^^^^^^^^^^ \`assert.rejects()\` must be awaited or returned.
+  4 | }
+
+`;
+
+exports[`no-unawaited-rejects > invalid(27): import assert from 'node:assert';\nasync function test() {\n\t(void assert.rejects(fn)) as any;\n} 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | async function test() {
+  3 | 	(void assert.rejects(fn)) as any;
+  4 | }
+
+`;
+
+exports[`no-unawaited-rejects > invalid(27): import assert from 'node:assert';\nasync function test() {\n\t(void assert.rejects(fn)) as any;\n} 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+  2 | async function test() {
+> 3 | 	(void assert.rejects(fn)) as any;
+    | 	      ^^^^^^^^^^^^^^^^^^ \`assert.rejects()\` must be awaited or returned.
   4 | }
 
 `;

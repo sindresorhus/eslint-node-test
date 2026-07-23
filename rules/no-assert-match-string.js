@@ -1,8 +1,7 @@
 import {
 	resolveImports,
-	parseAssertionCall,
+	parseSupportedAssertionCall,
 	createContextTracker,
-	isAssertionCallWithSupportedContext,
 } from './utils/node-test.js';
 import {isStringExpression, getStaticStringValue} from './ast/index.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
@@ -109,8 +108,8 @@ const create = context => {
 	context.on('CallExpression', node => {
 		tracker.update(node);
 
-		const parsed = parseAssertionCall(node, imports);
-		if (!parsed || !MATCH_METHODS.has(parsed.method) || !isAssertionCallWithSupportedContext(node, tracker)) {
+		const parsed = parseSupportedAssertionCall(node, imports, tracker);
+		if (!parsed || !MATCH_METHODS.has(parsed.method)) {
 			return;
 		}
 
