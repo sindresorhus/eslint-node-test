@@ -5,7 +5,7 @@ import {
 	createContextTracker,
 } from './utils/node-test.js';
 import {isRegexLiteral} from './ast/index.js';
-import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
+import {unwrapExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'no-constant-assertion';
 
@@ -29,26 +29,66 @@ const MATCH_METHODS = new Set([
 	'doesNotMatch',
 ]);
 
-function isStaticArgument(node, sourceCode) {
-	if (!node || node.type === 'SpreadElement') {
+const isPrimitiveValue = value => value === null || (typeof value !== 'object' && typeof value !== 'function');
+
+/*
+Whether the expression consists entirely of literals and variables bound to a primitive (values that the code under test cannot affect).
+
+A value read through a reference (`array`, `object.property`, `array.slice()`) is intentionally not considered constant, even when its initializer is static, since the object it reads from can be mutated between its definition and the assertion.
+*/
+function isConstantExpression(node, sourceCode) {
+	if (!node) {
 		return false;
 	}
 
-	node = unwrapTypeScriptExpression(node);
+	node = unwrapExpression(node);
 
-	return getStaticValue(node, sourceCode.getScope(node)) !== null;
-}
-
-function areStaticArguments(nodes, sourceCode) {
-	return nodes.every(node => isStaticArgument(node, sourceCode));
-}
-
-function isStaticRegexLiteral(node) {
-	if (!node || node.type === 'SpreadElement') {
-		return false;
+	// Any unary operator (`!`, `-`, `typeof`, …) applied to a constant is still constant.
+	while (node.type === 'UnaryExpression') {
+		node = unwrapExpression(node.argument);
 	}
 
-	return isRegexLiteral(unwrapTypeScriptExpression(node));
+	switch (node.type) {
+		case 'Literal': {
+			return true;
+		}
+
+		case 'Identifier': {
+			const staticValue = getStaticValue(node, sourceCode.getScope(node));
+
+			return staticValue !== null && isPrimitiveValue(staticValue.value);
+		}
+
+		case 'TemplateLiteral': {
+			return node.expressions.every(expression => isConstantExpression(expression, sourceCode));
+		}
+
+		case 'ArrayExpression': {
+			return node.elements.every(element => element === null || isConstantExpression(element, sourceCode));
+		}
+
+		case 'ObjectExpression': {
+			return node.properties.every(property =>
+				property.type === 'Property'
+				&& (!property.computed || isConstantExpression(property.key, sourceCode))
+				&& isConstantExpression(property.value, sourceCode));
+		}
+
+		case 'BinaryExpression':
+		case 'LogicalExpression': {
+			return isConstantExpression(node.left, sourceCode) && isConstantExpression(node.right, sourceCode);
+		}
+
+		case 'ConditionalExpression': {
+			return isConstantExpression(node.test, sourceCode)
+				&& isConstantExpression(node.consequent, sourceCode)
+				&& isConstantExpression(node.alternate, sourceCode);
+		}
+
+		default: {
+			return false;
+		}
+	}
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -78,11 +118,11 @@ const create = context => {
 		let isConstant = false;
 
 		if (method === 'ok' || method === 'ifError') {
-			isConstant = isStaticArgument(firstArgument, sourceCode);
+			isConstant = isConstantExpression(firstArgument, sourceCode);
 		} else if (COMPARISON_METHODS.has(method)) {
-			isConstant = areStaticArguments([firstArgument, secondArgument], sourceCode);
+			isConstant = isConstantExpression(firstArgument, sourceCode) && isConstantExpression(secondArgument, sourceCode);
 		} else if (MATCH_METHODS.has(method)) {
-			isConstant = isStaticArgument(firstArgument, sourceCode) && isStaticRegexLiteral(secondArgument);
+			isConstant = isConstantExpression(firstArgument, sourceCode) && isRegexLiteral(unwrapExpression(secondArgument));
 		}
 
 		if (!isConstant) {

@@ -21,6 +21,24 @@ test.snapshot({
 		withAssert('assert.match("hello", pattern);'),
 		withAssert('assert.ifError(error);'),
 		withAssert('const pattern = /ell/g;\npattern.test("hello");\nassert.match("hello", pattern);'),
+		withAssert('let value = 1;\nvalue = compute();\nassert.strictEqual(value, 1);'),
+
+		// A value read through a reference can be mutated before the assertion
+		withStrictAssert('const original = [\'red\'];\nconst copy = original.slice();\nmutate(copy);\nassert.deepEqual(copy, original);'),
+		withAssert('const object = {a: 1};\nmutate(object);\nassert.strictEqual(object.a, 1);'),
+		withAssert('const expected = [1];\nassert.deepEqual([1], expected);'),
+		withAssert('const expected = {a: 1};\nassert.deepStrictEqual({a: 1}, expected);'),
+		withAssert('const values = [1];\nassert.deepEqual([...values], [1]);'),
+		withAssert('const values = {a: 1};\nassert.deepEqual({...values}, {a: 1});'),
+		withAssert('assert.ok(Math.PI);'),
+		withAssert('const pattern = /ell/;\nassert.match(\'hello\', pattern);'),
+		withAssert('assert.ok([1].length);'),
+
+		// Expressions the rule intentionally does not evaluate
+		withAssert('assert.strictEqual(String(1), \'1\');'),
+		withAssert('assert.ok(() => {});'),
+		withAssert('assert.deepEqual({a() {}}, {a() {}});'),
+		withAssert('assert.ok((0, true));'),
 
 		// Explicit unreachable marker
 		withAssert('assert.fail();'),
@@ -71,6 +89,11 @@ test.snapshot({
 		withAssert('assert.ok(1 === 1);'),
 		withAssert('assert.ok(`value`);'),
 		withAssert('const value = true;\nassert.ok(value);'),
+		withAssert('const value = 0;\nassert.ok(!value);'),
+		withAssert('assert.ok(!!true);'),
+		withAssert('assert.ok(true ? 1 : 0);'),
+		// eslint-disable-next-line no-template-curly-in-string
+		withAssert('assert.ok(`value ${1}`);'),
 
 		// IfError
 		withAssert('assert.ifError(undefined);'),
@@ -86,6 +109,12 @@ test.snapshot({
 		withAssert('assert.notDeepStrictEqual({a: 1}, {a: 1});'),
 		withAssert('assert.deepEqual([1], [1]);'),
 		withAssert('assert.notDeepEqual([1], [1]);'),
+		withAssert('assert.deepEqual([1, , 2], [1, , 2]);'),
+		withAssert('const value = 1;\nassert.strictEqual(value, 1);'),
+		withAssert('const value = 1;\nassert.deepEqual([value], [1]);'),
+		withAssert('const key = \'a\';\nassert.deepEqual({[key]: 1}, {a: 1});'),
+		// A `let` that is never reassigned is bound to a primitive just like a `const`
+		withAssert('let value = 1;\nassert.strictEqual(value, 1);'),
 
 		// Match assertions
 		withAssert('assert.match("hello", /ell/);'),
