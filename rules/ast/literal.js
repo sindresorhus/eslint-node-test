@@ -29,4 +29,4 @@ export const getStaticStringValue = node => {
 	}
 };
 
-export const isRegexLiteral = node => node.type === 'Literal' && Boolean(node.regex);
+export const isRegexLiteral = node => node?.type === 'Literal' && Boolean(node.regex);
