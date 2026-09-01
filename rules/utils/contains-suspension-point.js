@@ -24,10 +24,15 @@ export default function containsSuspensionPoint(node, visitorKeys) {
 
 	for (const key of visitorKeys[node.type] ?? []) {
 		const child = node[key];
-		for (const childNode of Array.isArray(child) ? child : [child]) {
-			if (childNode?.type && containsSuspensionPoint(childNode, visitorKeys)) {
-				return true;
+		// Branch on array vs. single child rather than normalizing with `[child]`: unlike the other AST walkers in this plugin, this one runs over every node of every async test body, so a wrapper array per child is worth avoiding.
+		if (Array.isArray(child)) {
+			for (const childNode of child) {
+				if (childNode?.type && containsSuspensionPoint(childNode, visitorKeys)) {
+					return true;
+				}
 			}
+		} else if (child?.type && containsSuspensionPoint(child, visitorKeys)) {
+			return true;
 		}
 	}
 

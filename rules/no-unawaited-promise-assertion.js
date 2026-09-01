@@ -8,6 +8,7 @@ import {
 	parseAssertionCall,
 	getSubtestReceiver,
 	getCalleeChain,
+	getContextParameterIdentifier,
 	isHookMemberTestCall,
 	MODIFIERS,
 } from './utils/node-test.js';
@@ -133,15 +134,6 @@ function getPromiseCallbackArguments(call) {
 	return argumentIndexes
 		.map(index => unwrapTypeScriptExpression(call.node.arguments[index]))
 		.filter(argument => isInlineCallback(argument));
-}
-
-function getContextParameter(callback) {
-	const parameter = callback.params[0];
-	if (parameter?.type === 'Identifier') {
-		return parameter;
-	}
-
-	return parameter?.type === 'AssignmentPattern' && parameter.left.type === 'Identifier' ? parameter.left : undefined;
 }
 
 function getContextAssertReceiver(node) {
@@ -438,9 +430,12 @@ function getTimerImports(sourceCode) {
 function getSchedulerName(node, timerImports, sourceCode) {
 	const callee = unwrapExpression(node.callee);
 	if (callee.type === 'Identifier') {
-		const variable = findVariable(sourceCode.getScope(callee), callee);
-		if (SCHEDULER_NAMES.has(callee.name) && (!variable || variable.defs.length === 0)) {
-			return callee.name;
+		// Check the name before resolving the scope: this runs for every call in a test body, and nearly all of them are unrelated.
+		if (SCHEDULER_NAMES.has(callee.name)) {
+			const variable = findVariable(sourceCode.getScope(callee), callee);
+			if (!variable || variable.defs.length === 0) {
+				return callee.name;
+			}
 		}
 
 		if (timerImports.named.has(callee.name) && isImportBinding(callee, sourceCode)) {
@@ -665,30 +660,67 @@ function hasStaticBlockBetween(node, boundary) {
 	return false;
 }
 
+/*
+The stack of enclosing test/subtest/hook callbacks, innermost last, with the context parameters they declare. The parameters are kept in step with the frames on push and pop rather than rebuilt with `map`/`filter` for every `CallExpression`, which allocated two arrays per call.
+*/
+function createBoundaryStack(context, imports) {
+	const {sourceCode} = context;
+	const frames = [];
+	const contextParameters = [];
+
+	context.onExit('CallExpression', node => {
+		if (frames.at(-1)?.node !== node) {
+			return;
+		}
+
+		if (frames.pop().contextParameter) {
+			contextParameters.pop();
+		}
+	});
+
+	return {
+		contextParameters,
+		activeFrame: () => frames.at(-1),
+		// Push a frame when the call is a test boundary directly evaluated by the active callback. Returns whether a frame was pushed.
+		enter(node) {
+			const activeFrame = frames.at(-1);
+			const callback = !activeFrame || isDirectlyEvaluatedByCallback(node, activeFrame.callback)
+				? getTestBoundaryCallback(node, imports, contextParameters, sourceCode)
+				: undefined;
+			if (!callback) {
+				return false;
+			}
+
+			const contextParameter = getContextParameterIdentifier(callback.params[0]);
+			frames.push({
+				node,
+				callback,
+				contextParameter,
+				hasWaitPlan: hasWaitPlan(callback, contextParameter, sourceCode),
+			});
+			if (contextParameter) {
+				contextParameters.push(contextParameter);
+			}
+
+			return true;
+		},
+	};
+}
+
 export function trackDetachedCallbacks(context) {
 	const imports = resolveImports(context);
 	const {sourceCode} = context;
 	const timerImports = getTimerImports(sourceCode);
 	const detachedCallbacks = new WeakSet();
-	const callbackStack = [];
+	const stack = createBoundaryStack(context, imports);
+	const {contextParameters} = stack;
 
 	context.on('CallExpression', node => {
-		const activeFrame = callbackStack.at(-1);
-		const contextParameters = callbackStack.map(frame => frame.contextParameter).filter(Boolean);
-		const boundaryCallback = !activeFrame || isDirectlyEvaluatedByCallback(node, activeFrame.callback)
-			? getTestBoundaryCallback(node, imports, contextParameters, sourceCode)
-			: undefined;
-		if (boundaryCallback) {
-			const contextParameter = getContextParameter(boundaryCallback);
-			callbackStack.push({
-				node,
-				callback: boundaryCallback,
-				contextParameter,
-				hasWaitPlan: hasWaitPlan(boundaryCallback, contextParameter, sourceCode),
-			});
+		if (stack.enter(node)) {
 			return;
 		}
 
+		const activeFrame = stack.activeFrame();
 		if (!activeFrame || activeFrame.hasWaitPlan) {
 			return;
 		}
@@ -714,12 +746,6 @@ export function trackDetachedCallbacks(context) {
 		}
 	});
 
-	context.onExit('CallExpression', node => {
-		if (callbackStack.at(-1)?.node === node) {
-			callbackStack.pop();
-		}
-	});
-
 	return node => detachedCallbacks.has(getEnclosingFunction(node));
 }
 
@@ -732,26 +758,15 @@ export function createLateTestActivity(context, {assertionsOnly = false, message
 	const {sourceCode} = context;
 	const {visitorKeys} = sourceCode;
 	const timerImports = getTimerImports(sourceCode);
-	const callbackStack = [];
+	const stack = createBoundaryStack(context, imports);
+	const {contextParameters} = stack;
 
 	context.on('CallExpression', node => {
-		const activeFrame = callbackStack.at(-1);
-		const contextParameters = callbackStack.map(frame => frame.contextParameter).filter(Boolean);
-		const boundaryCallback = !activeFrame || isDirectlyEvaluatedByCallback(node, activeFrame.callback)
-			? getTestBoundaryCallback(node, imports, contextParameters, sourceCode)
-			: undefined;
-
-		if (boundaryCallback) {
-			const contextParameter = getContextParameter(boundaryCallback);
-			callbackStack.push({
-				node,
-				callback: boundaryCallback,
-				contextParameter,
-				hasWaitPlan: hasWaitPlan(boundaryCallback, contextParameter, sourceCode),
-			});
+		if (stack.enter(node)) {
 			return;
 		}
 
+		const activeFrame = stack.activeFrame();
 		const activeCallback = activeFrame?.callback;
 		if (!activeCallback) {
 			return;
@@ -815,12 +830,6 @@ export function createLateTestActivity(context, {assertionsOnly = false, message
 		}
 
 		return problems;
-	});
-
-	context.onExit('CallExpression', node => {
-		if (callbackStack.at(-1)?.node === node) {
-			callbackStack.pop();
-		}
 	});
 }
 

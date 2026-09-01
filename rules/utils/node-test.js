@@ -316,10 +316,18 @@ function computeCalleeChain(node) {
 
 /*
 Cache the chain per callee node. It is a pure function of the node, and both `parseTestCall` and `getSubtestReceiver` (used by ~30 rules) walk the same callee on every `CallExpression`, so the first walk is reused across all of them. The returned object is shared, so callers must treat it (and its `members` array) as read-only.
-*/
-const calleeChainCache = new WeakMap();
 
-// Sentinel stored for callees with no chain, so a cache hit is a single `get` even when the
+Why a symbol-keyed property on the node instead of a `WeakMap`:
+
+- Cost per lookup. This runs for every call in the file, for nearly every rule, so the lookup itself dominates. A symbol-keyed property read is a plain property load (~1ns); a `WeakMap.get` hashes the key and probes a table (~7ns), several times slower.
+- Garbage collection. A `WeakMap` keyed by AST nodes holds an ephemeron for every node that was ever looked up, i.e. most of the AST. The collector has to process those ephemerons on every major GC (iteratively, since ephemeron liveness depends on other ephemerons), which showed up as a large share of GC time in profiles. A property on the node lives and dies with the node, and costs the collector nothing extra.
+- Lifetime. Nodes are created per parse and discarded with the AST, so the cached value cannot outlive or leak across files.
+
+Symbol keys are invisible to `Object.keys`, `for…in`, `JSON.stringify`, and AST traversal (which walks `visitorKeys`), so no rule, fixer, or serializer reads them. They are not invisible to object spread: `{...node}` copies own enumerable symbol keys, so a synthesized copy of a node inherits its cache. No caller passes such a copy to `getCalleeChain`; `memoizeByNode` guards against it. ESLint and its parsers do not freeze nodes.
+*/
+const CALLEE_CHAIN = Symbol('calleeChain');
+
+// Sentinel stored for callees with no chain, so a cache hit is a single property read even when the
 // computed result is `undefined` (the common case for non-matching callees).
 const NO_CHAIN = Symbol('no chain');
 
@@ -335,13 +343,13 @@ export function getCalleeChain(node) {
 		return undefined;
 	}
 
-	const cached = calleeChainCache.get(node);
+	const cached = node[CALLEE_CHAIN];
 	if (cached !== undefined) {
 		return cached === NO_CHAIN ? undefined : cached;
 	}
 
 	const result = computeCalleeChain(node);
-	calleeChainCache.set(node, result ?? NO_CHAIN);
+	node[CALLEE_CHAIN] = result ?? NO_CHAIN;
 	return result;
 }
 
@@ -441,25 +449,27 @@ function getStaticTestCall(root, members, imports) {
 }
 
 /*
-Memoize the `parse*Call` classifiers by node. The same `CallExpression` is parsed by many rules during one lint run (most rules call `parseTestCall`, and every assertion rule reaches `parseAssertionCall`, directly or through `parseSupportedAssertionCall`), and `imports` is stable per file (it is itself cached per AST), so the first parse can be reused across all of them. Keyed by node with an `imports` guard for safety.
+Memoize the `parse*Call` classifiers by node. The same `CallExpression` is parsed by many rules during one lint run (most rules call `parseTestCall`, and every assertion rule reaches `parseAssertionCall`, directly or through `parseSupportedAssertionCall`), and `imports` is stable per file (it is itself cached per AST), so the first parse can be reused across all of them.
+
+Stored on the node under a symbol key, not in a `WeakMap`, for the reasons given at `CALLEE_CHAIN`. The `imports` guard makes the cache self-invalidating: it can only be hit with the same `imports` object it was computed for. The `node` guard makes a synthesized copy of a node (`{...node, callee}` copies the symbol) a miss rather than a stale hit.
 
 The cached result object is shared between callers, so treat it as read-only — never mutate the returned `modifiers` array or reassign its fields.
 */
-const parseTestCallCache = new WeakMap();
-const parseAssertionCallCache = new WeakMap();
+const PARSED_TEST_CALL = Symbol('parsedTestCall');
+const PARSED_ASSERTION_CALL = Symbol('parsedAssertionCall');
 
-const memoizeByNode = (cache, compute) => (callExpression, imports) => {
+const memoizeByNode = (key, compute) => (callExpression, imports) => {
 	if (callExpression.type !== 'CallExpression') {
 		return undefined;
 	}
 
-	const cached = cache.get(callExpression);
-	if (cached && cached.imports === imports) {
+	const cached = callExpression[key];
+	if (cached !== undefined && cached.node === callExpression && cached.imports === imports) {
 		return cached.result;
 	}
 
 	const result = compute(callExpression, imports);
-	cache.set(callExpression, {imports, result});
+	callExpression[key] = {node: callExpression, imports, result};
 	return result;
 };
 
@@ -474,7 +484,7 @@ Classify a `CallExpression` as a `node:test` test/suite/hook call.
 	hasStandaloneModifier?: boolean,
 } | undefined}
 */
-export const parseTestCall = memoizeByNode(parseTestCallCache, (callExpression, imports) => {
+export const parseTestCall = memoizeByNode(PARSED_TEST_CALL, (callExpression, imports) => {
 	const chain = getCalleeChain(callExpression.callee);
 	if (!chain) {
 		return undefined;
@@ -550,15 +560,19 @@ export function getSubtestReceiver(callExpression) {
 	}
 
 	const chain = getCalleeChain(callExpression.callee);
-	if (
-		chain
-		&& chain.members[0]?.name === 'test'
-		&& chain.members.slice(1).every(member => MODIFIERS.has(member.name))
-	) {
-		return chain.root;
+	if (!chain || chain.members[0]?.name !== 'test') {
+		return undefined;
 	}
 
-	return undefined;
+	// Checked with a plain loop rather than `slice(1).every(…)`: this runs for every call in the file, for every rule that tracks contexts.
+	const {members} = chain;
+	for (let index = 1; index < members.length; index += 1) {
+		if (!MODIFIERS.has(members[index].name)) {
+			return undefined;
+		}
+	}
+
+	return chain.root;
 }
 
 /**
@@ -621,7 +635,8 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 	const names = [];
 	const variables = [];
 	const callbacks = [];
-	const pushedCalls = new Set();
+	// The call nodes whose callbacks are on the stack, in the same order. Exits are nested, so `leave` only ever pops the top one.
+	const calls = [];
 
 	const isContextIdentifier = node => {
 		// Resolving the scope is the expensive part; skip it entirely when no context is on the stack
@@ -648,16 +663,8 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 		|| isContextHookCall(node, isContextIdentifier)
 	);
 
-	const isTrackedCallbackCall = node => {
-		const parsed = parseTestCall(node, imports);
-		return (
-			(
-				parsed?.kind === 'test'
-				&& parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name))
-			)
-			|| isTrackedHookCall(node, parsed)
-		);
-	};
+	const isTrackedTestCall = parsed => parsed?.kind === 'test'
+		&& parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name));
 
 	return {
 		isSubtestCall,
@@ -672,27 +679,30 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 		currentCallback: () => callbacks.at(-1),
 		isTrackedCallback: node => callbacks.includes(node),
 		update(node) {
-			if (!(isTrackedCallbackCall(node) || isSubtestCall(node))) {
+			// Classify the call once and reuse the result for every check. This runs for every call in the file, for each of the ~45 rules that track contexts, so avoid re-parsing or re-walking the callee per check. `parseTestCall` is memoized per node, so it is cheap here.
+			const parsed = parseTestCall(node, imports);
+			const isHook = isTrackedHookCall(node, parsed);
+			if (!isHook && !isTrackedTestCall(parsed) && !isSubtestCall(node)) {
 				return;
 			}
 
-			const parsed = parseTestCall(node, imports);
-			const callback = isTrackedHookCall(node, parsed) ? getHookCallback(node) : getTestCallback(node);
+			const callback = isHook ? getHookCallback(node) : getTestCallback(node);
 			if (callback) {
 				const parameter = getContextParameterIdentifier(callback.params[0]);
 
 				names.push(parameter?.name);
 				variables.push(parameter ? getDeclaredVariable(parameter, callback, imports) : undefined);
 				callbacks.push(callback);
-				pushedCalls.add(node);
+				calls.push(node);
 			}
 		},
 		leave(node) {
-			if (!pushedCalls.has(node)) {
+			// ESLint exits nodes in strict nesting order, so a tracked call is always the top of `calls` when its exit fires. Comparing the top replaces the `Set` membership check that ran for every call exit in every tracking rule.
+			if (calls.at(-1) !== node) {
 				return;
 			}
 
-			pushedCalls.delete(node);
+			calls.pop();
 			names.pop();
 			variables.pop();
 			callbacks.pop();
@@ -1053,7 +1063,7 @@ Matches:
 
 @returns {{method: string, methodNode: import('estree').Node | undefined, isStrict: boolean, contextReceiver?: import('estree').Identifier}|undefined}
 */
-export const parseAssertionCall = memoizeByNode(parseAssertionCallCache, (callExpression, imports) => {
+export const parseAssertionCall = memoizeByNode(PARSED_ASSERTION_CALL, (callExpression, imports) => {
 	const callee = unwrapTypeScriptExpression(callExpression.callee);
 
 	if (

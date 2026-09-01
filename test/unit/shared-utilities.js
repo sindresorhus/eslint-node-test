@@ -12,6 +12,7 @@ import {
 	getFloatingStatement,
 } from '../../rules/utils/index.js';
 import {removeArgument} from '../../rules/fix/index.js';
+import {parseAssertionCall, resolveImports} from '../../rules/utils/node-test.js';
 
 // Apply `removeArgument` to the argument at `index` of the `fn(…)` call and return the fixed source.
 const removeArgumentFrom = (code, index) => {
@@ -240,4 +241,26 @@ test('getFloatingStatement returns undefined when the value is used', () => {
 	// A different unary operator does not discard the value the way `void` does.
 	const negated = chainParents({type: 'CallExpression'}, {type: 'UnaryExpression', operator: '!'}, {type: 'ExpressionStatement'});
 	assert.strictEqual(getFloatingStatement(negated), undefined);
+});
+
+test('parseAssertionCall does not serve a cached result to a spread copy of the node', () => {
+	const code = 'import assert from \'node:assert\';\n(assert?.strict).equal(1, 2);';
+	const results = [];
+	const rule = {
+		create: context => ({
+			CallExpression(node) {
+				const imports = resolveImports(context);
+				// Parse the original first so its cache is populated, then a copy that unwraps the optional chain, as `no-unawaited-promise-assertion` builds. Object spread copies symbol-keyed properties, so the copy must not be served the original's result.
+				results.push(parseAssertionCall(node, imports)?.method);
+				const copy = {...node, callee: {...node.callee, object: node.callee.object.expression}};
+				results.push(parseAssertionCall(copy, imports)?.method);
+			},
+		}),
+	};
+	new Linter().verify(code, {
+		plugins: {test: {rules: {rule}}},
+		rules: {'test/rule': 'error'},
+		languageOptions: {ecmaVersion: 'latest', sourceType: 'module'},
+	});
+	assert.deepEqual(results, [undefined, 'equal']);
 });
