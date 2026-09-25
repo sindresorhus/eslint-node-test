@@ -69,5 +69,6 @@ test.snapshot({
 		// A computed key that folds to a constant names the same property a bare one does
 		'import {test} from \'node:test\';\ntest(\'a\', {[\'skip\']: true}, () => {});',
 		'import {test} from \'node:test\';\ntest(\'a\', {[\'sk\' + \'ip\']: true}, () => {});',
+		"import {test} from \'node:test\';\ntest(\'a\', {skip: shouldSkip}, () => {});",
 	],
 });

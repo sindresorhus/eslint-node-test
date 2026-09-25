@@ -1,11 +1,27 @@
-exports[`max-nested-describe > invalid(1): import {describe, it} from 'node:test';\ndescribe(\"d1\", () => { describe(\"d2\", () => { describe(\"d3\", () => { describe(\"d4\", () => { describe(\"d5\", () => { describe(\"d6\", () => { it(\"t\", () => {}); }); }); }); }); }); }); 1`] = `
+exports[`max-nested-describe > invalid(1): import {describe, suite} from 'node:test';\ndescribe('a', () => { suite('b', () => { describe('c', () => { suite('d', () => { describe('e', () => { suite('f', () => {}); }); }); }); }); }); 1`] = `
+
+  1 | import {describe, suite} from 'node:test';
+  2 | describe('a', () => { suite('b', () => { describe('c', () => { suite('d', () => { describe('e', () => { suite('f', () => {}); }); }); }); }); });
+
+`;
+
+exports[`max-nested-describe > invalid(1): import {describe, suite} from 'node:test';\ndescribe('a', () => { suite('b', () => { describe('c', () => { suite('d', () => { describe('e', () => { suite('f', () => {}); }); }); }); }); }); 2`] = `
+
+Message:
+  1 | import {describe, suite} from 'node:test';
+> 2 | describe('a', () => { suite('b', () => { describe('c', () => { suite('d', () => { describe('e', () => { suite('f', () => {}); }); }); }); }); });
+    |                                                                                                         ^^^^^^^^^^^^^^^^^^^^ Describe blocks are nested too deeply (6). Maximum allowed is 5.
+
+`;
+
+exports[`max-nested-describe > invalid(2): import {describe, it} from 'node:test';\ndescribe(\"d1\", () => { describe(\"d2\", () => { describe(\"d3\", () => { describe(\"d4\", () => { describe(\"d5\", () => { describe(\"d6\", () => { it(\"t\", () => {}); }); }); }); }); }); }); 1`] = `
 
   1 | import {describe, it} from 'node:test';
   2 | describe("d1", () => { describe("d2", () => { describe("d3", () => { describe("d4", () => { describe("d5", () => { describe("d6", () => { it("t", () => {}); }); }); }); }); }); });
 
 `;
 
-exports[`max-nested-describe > invalid(1): import {describe, it} from 'node:test';\ndescribe(\"d1\", () => { describe(\"d2\", () => { describe(\"d3\", () => { describe(\"d4\", () => { describe(\"d5\", () => { describe(\"d6\", () => { it(\"t\", () => {}); }); }); }); }); }); }); 2`] = `
+exports[`max-nested-describe > invalid(2): import {describe, it} from 'node:test';\ndescribe(\"d1\", () => { describe(\"d2\", () => { describe(\"d3\", () => { describe(\"d4\", () => { describe(\"d5\", () => { describe(\"d6\", () => { it(\"t\", () => {}); }); }); }); }); }); }); 2`] = `
 
 Message:
   1 | import {describe, it} from 'node:test';
@@ -14,14 +30,14 @@ Message:
 
 `;
 
-exports[`max-nested-describe > invalid(2): import {describe, it} from 'node:test';\ndescribe(\"d1\", () => { describe(\"d2\", () => { describe(\"d3\", () => { describe(\"d4\", () => { describe(\"d5\", () => { describe(\"d6\", () => { describe(\"d7\", () => { it(\"t\", () => {}); }); }); }); }); }); }); }); 1`] = `
+exports[`max-nested-describe > invalid(3): import {describe, it} from 'node:test';\ndescribe(\"d1\", () => { describe(\"d2\", () => { describe(\"d3\", () => { describe(\"d4\", () => { describe(\"d5\", () => { describe(\"d6\", () => { describe(\"d7\", () => { it(\"t\", () => {}); }); }); }); }); }); }); }); 1`] = `
 
   1 | import {describe, it} from 'node:test';
   2 | describe("d1", () => { describe("d2", () => { describe("d3", () => { describe("d4", () => { describe("d5", () => { describe("d6", () => { describe("d7", () => { it("t", () => {}); }); }); }); }); }); }); });
 
 `;
 
-exports[`max-nested-describe > invalid(2): import {describe, it} from 'node:test';\ndescribe(\"d1\", () => { describe(\"d2\", () => { describe(\"d3\", () => { describe(\"d4\", () => { describe(\"d5\", () => { describe(\"d6\", () => { describe(\"d7\", () => { it(\"t\", () => {}); }); }); }); }); }); }); }); 2`] = `
+exports[`max-nested-describe > invalid(3): import {describe, it} from 'node:test';\ndescribe(\"d1\", () => { describe(\"d2\", () => { describe(\"d3\", () => { describe(\"d4\", () => { describe(\"d5\", () => { describe(\"d6\", () => { describe(\"d7\", () => { it(\"t\", () => {}); }); }); }); }); }); }); }); 2`] = `
 
 Message:
   1 | import {describe, it} from 'node:test';
@@ -30,7 +46,7 @@ Message:
 
 `;
 
-exports[`max-nested-describe > invalid(2): import {describe, it} from 'node:test';\ndescribe(\"d1\", () => { describe(\"d2\", () => { describe(\"d3\", () => { describe(\"d4\", () => { describe(\"d5\", () => { describe(\"d6\", () => { describe(\"d7\", () => { it(\"t\", () => {}); }); }); }); }); }); }); }); 3`] = `
+exports[`max-nested-describe > invalid(3): import {describe, it} from 'node:test';\ndescribe(\"d1\", () => { describe(\"d2\", () => { describe(\"d3\", () => { describe(\"d4\", () => { describe(\"d5\", () => { describe(\"d6\", () => { describe(\"d7\", () => { it(\"t\", () => {}); }); }); }); }); }); }); }); 3`] = `
 
 Message:
   1 | import {describe, it} from 'node:test';
@@ -39,7 +55,7 @@ Message:
 
 `;
 
-exports[`max-nested-describe > invalid(3): import {describe, it} from 'node:test';\ndescribe(\"d1\", () => { describe(\"d2\", () => { describe(\"d3\", () => { it(\"t\", () => {}); }); }); }); 1`] = `
+exports[`max-nested-describe > invalid(4): import {describe, it} from 'node:test';\ndescribe(\"d1\", () => { describe(\"d2\", () => { describe(\"d3\", () => { it(\"t\", () => {}); }); }); }); 1`] = `
 
 Options:
 - max: 2
@@ -50,7 +66,7 @@ Code:
 
 `;
 
-exports[`max-nested-describe > invalid(3): import {describe, it} from 'node:test';\ndescribe(\"d1\", () => { describe(\"d2\", () => { describe(\"d3\", () => { it(\"t\", () => {}); }); }); }); 2`] = `
+exports[`max-nested-describe > invalid(4): import {describe, it} from 'node:test';\ndescribe(\"d1\", () => { describe(\"d2\", () => { describe(\"d3\", () => { it(\"t\", () => {}); }); }); }); 2`] = `
 
 Message:
   1 | import {describe, it} from 'node:test';
@@ -59,7 +75,7 @@ Message:
 
 `;
 
-exports[`max-nested-describe > invalid(4): import {describe} from 'node:test';\ndescribe(\"a\", () => { describe(\"b\", () => { describe(\"c\", () => {}); }); }); 1`] = `
+exports[`max-nested-describe > invalid(5): import {describe} from 'node:test';\ndescribe(\"a\", () => { describe(\"b\", () => { describe(\"c\", () => {}); }); }); 1`] = `
 
 Options:
 - max: 1
@@ -70,7 +86,7 @@ Code:
 
 `;
 
-exports[`max-nested-describe > invalid(4): import {describe} from 'node:test';\ndescribe(\"a\", () => { describe(\"b\", () => { describe(\"c\", () => {}); }); }); 2`] = `
+exports[`max-nested-describe > invalid(5): import {describe} from 'node:test';\ndescribe(\"a\", () => { describe(\"b\", () => { describe(\"c\", () => {}); }); }); 2`] = `
 
 Message:
   1 | import {describe} from 'node:test';
@@ -79,7 +95,7 @@ Message:
 
 `;
 
-exports[`max-nested-describe > invalid(4): import {describe} from 'node:test';\ndescribe(\"a\", () => { describe(\"b\", () => { describe(\"c\", () => {}); }); }); 3`] = `
+exports[`max-nested-describe > invalid(5): import {describe} from 'node:test';\ndescribe(\"a\", () => { describe(\"b\", () => { describe(\"c\", () => {}); }); }); 3`] = `
 
 Message:
   1 | import {describe} from 'node:test';
@@ -88,7 +104,7 @@ Message:
 
 `;
 
-exports[`max-nested-describe > invalid(5): import {describe} from 'node:test';\ndescribe(\"a\", () => { describe(\"a1\", () => {}); });\ndescribe(\"b\", () => { describe(\"b1\", () => {}); }); 1`] = `
+exports[`max-nested-describe > invalid(6): import {describe} from 'node:test';\ndescribe(\"a\", () => { describe(\"a1\", () => {}); });\ndescribe(\"b\", () => { describe(\"b1\", () => {}); }); 1`] = `
 
 Options:
 - max: 1
@@ -100,7 +116,7 @@ Code:
 
 `;
 
-exports[`max-nested-describe > invalid(5): import {describe} from 'node:test';\ndescribe(\"a\", () => { describe(\"a1\", () => {}); });\ndescribe(\"b\", () => { describe(\"b1\", () => {}); }); 2`] = `
+exports[`max-nested-describe > invalid(6): import {describe} from 'node:test';\ndescribe(\"a\", () => { describe(\"a1\", () => {}); });\ndescribe(\"b\", () => { describe(\"b1\", () => {}); }); 2`] = `
 
 Message:
   1 | import {describe} from 'node:test';
@@ -110,7 +126,7 @@ Message:
 
 `;
 
-exports[`max-nested-describe > invalid(5): import {describe} from 'node:test';\ndescribe(\"a\", () => { describe(\"a1\", () => {}); });\ndescribe(\"b\", () => { describe(\"b1\", () => {}); }); 3`] = `
+exports[`max-nested-describe > invalid(6): import {describe} from 'node:test';\ndescribe(\"a\", () => { describe(\"a1\", () => {}); });\ndescribe(\"b\", () => { describe(\"b1\", () => {}); }); 3`] = `
 
 Message:
   1 | import {describe} from 'node:test';
@@ -120,7 +136,7 @@ Message:
 
 `;
 
-exports[`max-nested-describe > invalid(6): import {describe, test} from 'node:test';\ntest(\"t\", () => { describe(\"a\", () => { describe(\"b\", () => {}); }); }); 1`] = `
+exports[`max-nested-describe > invalid(7): import {describe, test} from 'node:test';\ntest(\"t\", () => { describe(\"a\", () => { describe(\"b\", () => {}); }); }); 1`] = `
 
 Options:
 - max: 1
@@ -131,7 +147,7 @@ Code:
 
 `;
 
-exports[`max-nested-describe > invalid(6): import {describe, test} from 'node:test';\ntest(\"t\", () => { describe(\"a\", () => { describe(\"b\", () => {}); }); }); 2`] = `
+exports[`max-nested-describe > invalid(7): import {describe, test} from 'node:test';\ntest(\"t\", () => { describe(\"a\", () => { describe(\"b\", () => {}); }); }); 2`] = `
 
 Message:
   1 | import {describe, test} from 'node:test';
@@ -140,7 +156,7 @@ Message:
 
 `;
 
-exports[`max-nested-describe > invalid(7): import * as nodeTest from 'node:test';\nnodeTest.describe(\"a\", () => { nodeTest.describe(\"b\", () => {}); }); 1`] = `
+exports[`max-nested-describe > invalid(8): import * as nodeTest from 'node:test';\nnodeTest.describe(\"a\", () => { nodeTest.describe(\"b\", () => {}); }); 1`] = `
 
 Options:
 - max: 1
@@ -151,7 +167,7 @@ Code:
 
 `;
 
-exports[`max-nested-describe > invalid(7): import * as nodeTest from 'node:test';\nnodeTest.describe(\"a\", () => { nodeTest.describe(\"b\", () => {}); }); 2`] = `
+exports[`max-nested-describe > invalid(8): import * as nodeTest from 'node:test';\nnodeTest.describe(\"a\", () => { nodeTest.describe(\"b\", () => {}); }); 2`] = `
 
 Message:
   1 | import * as nodeTest from 'node:test';
@@ -160,14 +176,14 @@ Message:
 
 `;
 
-exports[`max-nested-describe > invalid(8): import {describe, it} from 'node:test';\ndescribe(\"d1\", () => { describe(\"d2\", () => { describe(\"d3\", () => { describe(\"d4\", () => { describe(\"d5\", () => { describe(\"d6\", () => { it(\"t\", () => {}); }); }); }); }); }); }); 1`] = `
+exports[`max-nested-describe > invalid(9): import {describe, it} from 'node:test';\ndescribe(\"d1\", () => { describe(\"d2\", () => { describe(\"d3\", () => { describe(\"d4\", () => { describe(\"d5\", () => { describe(\"d6\", () => { it(\"t\", () => {}); }); }); }); }); }); }); 1`] = `
 
   1 | import {describe, it} from 'node:test';
   2 | describe("d1", () => { describe("d2", () => { describe("d3", () => { describe("d4", () => { describe("d5", () => { describe("d6", () => { it("t", () => {}); }); }); }); }); }); });
 
 `;
 
-exports[`max-nested-describe > invalid(8): import {describe, it} from 'node:test';\ndescribe(\"d1\", () => { describe(\"d2\", () => { describe(\"d3\", () => { describe(\"d4\", () => { describe(\"d5\", () => { describe(\"d6\", () => { it(\"t\", () => {}); }); }); }); }); }); }); 2`] = `
+exports[`max-nested-describe > invalid(9): import {describe, it} from 'node:test';\ndescribe(\"d1\", () => { describe(\"d2\", () => { describe(\"d3\", () => { describe(\"d4\", () => { describe(\"d5\", () => { describe(\"d6\", () => { it(\"t\", () => {}); }); }); }); }); }); }); 2`] = `
 
 Message:
   1 | import {describe, it} from 'node:test';

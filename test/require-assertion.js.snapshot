@@ -486,6 +486,38 @@ Message:
 
 `;
 
+exports[`require-assertion > invalid(37): import test from \"node:test\";\ntest(\"t1\", () => doSomething()); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("t1", () => doSomething());
+
+`;
+
+exports[`require-assertion > invalid(37): import test from \"node:test\";\ntest(\"t1\", () => doSomething()); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test("t1", () => doSomething());
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
+
+`;
+
+exports[`require-assertion > invalid(38): import test from \"node:test\";\ntest(\"t1\", async () => doSomething()); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("t1", async () => doSomething());
+
+`;
+
+exports[`require-assertion > invalid(38): import test from \"node:test\";\ntest(\"t1\", async () => doSomething()); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test("t1", async () => doSomething());
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
+
+`;
+
 exports[`require-assertion > invalid(4): import test from 'node:test';\ntest(\"x\", ({assert}) => { assert.a.b.c.d(); }); 1`] = `
 
   1 | import test from 'node:test';

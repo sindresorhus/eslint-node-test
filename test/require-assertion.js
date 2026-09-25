@@ -121,6 +121,7 @@ test.snapshot({
 		'import test from "node:test";\ntest("t1", ({"assert": testAssert}) => { testAssert.ok(1); });',
 		'import test from "node:test";\ntest("t1", ({"assert": {ok}}) => { ok(1); });',
 		'import test from "node:test";\ntest("t1", ({["assert"]: {ok}}) => { ok(1); });',
+		'import test from "node:test";\nimport assert from "node:assert";\ntest("t1", () => assert.ok(1));',
 	],
 	invalid: [
 		// `skip: false` and `only` still run, so the assertion is still required
@@ -211,5 +212,9 @@ test.snapshot({
 		'import test from "node:test";\ntest("t", {skip: 0}, () => { doSomething(); });',
 		'import test from "node:test";\ntest("t", {skip: \'\'}, () => { doSomething(); });',
 		'import test from "node:test";\ntest("t", {skip: null}, () => { doSomething(); });',
+
+		// A concise arrow body is the whole test, so it can pass vacuously too
+		'import test from "node:test";\ntest("t1", () => doSomething());',
+		'import test from "node:test";\ntest("t1", async () => doSomething());',
 	],
 });

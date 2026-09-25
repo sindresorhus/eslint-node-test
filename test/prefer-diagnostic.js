@@ -6,6 +6,8 @@ const inTest = code => `import test from 'node:test';\ntest('t', t => {\n\t${cod
 
 test.snapshot({
 	valid: [
+		// The doc covers a hook on the test's context; a top-level hook is registration-time code
+		'import {beforeEach, test} from \'node:test\';\nbeforeEach(t => { console.log(\'x\'); });',
 		// A `var` that re-binds the context parameter resolves to the same variable, so the name no
 		// longer reaches the test context
 		'import test from \'node:test\';\ntest(\'t\', t => { var t = other; console.log(\'x\'); });',
@@ -120,5 +122,6 @@ test.snapshot({
 
 		// `getTestContext` under any local alias is the same import
 		'import {test, getTestContext as gtc} from \'node:test\';\ntest(\'a\', () => { console.log(\'x\'); });',
+		'import {test} from \'node:test\';\ntest(\'a\', t => { function inner() { console.log(\'x\'); } inner(); });',
 	],
 });

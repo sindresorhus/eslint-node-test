@@ -84,6 +84,8 @@ test.snapshot({
 		typed('test("x", () => { const helper = () => { return 1; }; helper(); });'),
 		typed('after(() => { const helper = () => { return 1; }; helper(); });'),
 		typed('test("x", t => { t.afterEach(() => { const helper = () => { return 1; }; helper(); }, {timeout: 1000}); });'),
+		// `void 0` is `undefined`, so it returns no value to end the test early
+		'import {test} from \'node:test\';\ntest(\'a\', () => { return void 0; });',
 	],
 	invalid: [
 		// A `node:test` context type is a concrete value, which the typed parser now resolves

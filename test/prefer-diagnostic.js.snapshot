@@ -380,6 +380,26 @@ Suggestion 1/1: Replace with \`gtc().diagnostic()\`.:
 
 `;
 
+exports[`prefer-diagnostic > invalid(25): import {test} from 'node:test';\ntest('a', t => { function inner() { console.log('x'); } inner(); }); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | test('a', t => { function inner() { console.log('x'); } inner(); });
+
+`;
+
+exports[`prefer-diagnostic > invalid(25): import {test} from 'node:test';\ntest('a', t => { function inner() { console.log('x'); } inner(); }); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | test('a', t => { function inner() { console.log('x'); } inner(); });
+    |                                     ^^^^^^^^^^^ Prefer \`t.diagnostic()\` over \`console.log()\` inside a test, so the message is attached to the test as a TAP diagnostic.
+
+Suggestion 1/1: Replace with \`t.diagnostic()\`.:
+  1 | import {test} from 'node:test';
+  2 | test('a', t => { function inner() { t.diagnostic('x'); } inner(); });
+
+`;
+
 exports[`prefer-diagnostic > invalid(3): import test from 'node:test';\ntest('t', t => {\n\tconsole?.log('value');\n}); 1`] = `
 
   1 | import test from 'node:test';

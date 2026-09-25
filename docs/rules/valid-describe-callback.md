@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-`node:test` calls a `describe`/`suite` callback with a `SuiteContext`, awaits a returned promise, and ignores any other returned value. A parameter is therefore a real use, not a mistake: the suite context carries the suite `name`, `fullName`, `signal`, `passed`, `attempt`, `diagnostic()`, and `log()`. It does not have the `before`/`after`/`beforeEach`/`afterEach` methods a test context has, so a suite callback that needs a hook declares it with the imported `beforeEach` and friends. An implicit return from an arrow callback registers tests through a returned expression instead of statements in a block body, which is harder to read.
+`node:test` calls a `describe`/`suite` callback with a `SuiteContext`, awaits a returned promise, and ignores any other returned value. A parameter is therefore a real use, not a mistake: the suite context carries the suite `name`, `fullName`, `filePath`, `signal`, `passed`, `attempt`, `diagnostic()`, and `log()`. It does not have the `before`/`after`/`beforeEach`/`afterEach` methods a test context has, so a suite callback that needs a hook declares it with the imported `beforeEach` and friends. An implicit return from an arrow callback registers tests through a returned expression instead of statements in a block body, which is harder to read.
 
 This rule reports a `describe`/`suite` callback whose arrow has an expression body. A top-level `return` inside a block body is not reported.
 

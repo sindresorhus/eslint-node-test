@@ -128,6 +128,22 @@ Message:
 
 `;
 
+exports[`no-loop-static-title > invalid(17): import {suite} from 'node:test';\nfor (const input of inputs) { suite('same', () => {}); } 1`] = `
+
+  1 | import {suite} from 'node:test';
+  2 | for (const input of inputs) { suite('same', () => {}); }
+
+`;
+
+exports[`no-loop-static-title > invalid(17): import {suite} from 'node:test';\nfor (const input of inputs) { suite('same', () => {}); } 2`] = `
+
+Message:
+  1 | import {suite} from 'node:test';
+> 2 | for (const input of inputs) { suite('same', () => {}); }
+    |                                     ^^^^^^ This title is static but generated in a loop, so every iteration registers the same title. Include the loop variable so each title is unique.
+
+`;
+
 exports[`no-loop-static-title > invalid(2): import {test, it, describe, suite} from 'node:test';\nfor (let i = 0; i < 3; i++) { test('static', () => {}); } 1`] = `
 
   1 | import {test, it, describe, suite} from 'node:test';

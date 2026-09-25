@@ -60,6 +60,8 @@ test.snapshot({
 		'import {test} from \'node:test\';\ntest();',
 		'import {test} from \'node:test\';\ntest(\'p\', t => { t.test(); });',
 		'import {test, getTestContext} from \'node:test\';\ntest(\'p\', () => { getTestContext().test(); });',
+		// `t.todo(…)` renames the parent, so there is no subtest to mark
+		'import {test} from \'node:test\';\ntest(\'a\', async t => { t.todo(\'b\'); });',
 	],
 	invalid: [
 		// The object form is an empty placeholder too, and `name`/`fn` carry no intent

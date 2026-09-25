@@ -73,6 +73,9 @@ test.snapshot({
 
 		// `.assert.*` on `this` is not a test context either
 		withImport('function f() {\n\tthis.assert.equal(x, x);\n}'),
+
+		// A getter runs on every read, so the negated form is decided too
+		'import assert from \'node:assert\';\nlet n = 0;\nconst o = {get value() { return n++; }};\nassert.notStrictEqual(o.value, o.value);',
 	],
 	invalid: [
 		// A declaration with no initializer is a plain variable, so the two reads are the same reference

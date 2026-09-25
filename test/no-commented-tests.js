@@ -40,6 +40,8 @@ test.snapshot({
 		'// test.snapshot({invalid: []});',
 		'// test.mock.method(object, \'value\', () => 1);',
 		'// getTestContext().test("foo", () => {});',
+		// A comment that is not a test call, next to a live one
+		'import {test} from \'node:test\';\n// TODO: split this up\ntest(\'a\', () => {});',
 	],
 	invalid: [
 		// `test.test(…)` and `test.it(…)` register a test exactly as `test(…)` does
@@ -94,5 +96,6 @@ test.snapshot({
 		'import {it as check} from \'node:test\';\n// check(\'a\', () => {});',
 		'import {test as t} from \'node:test\';\n// t.skip(\'a\', () => {});',
 		'import {test as testCase} from \'node:test\';\n// testCase(\'a\', () => {});',
+		'import {test} from \'node:test\';\n// test(\'a\', () => {});\ntest(\'b\', () => {});',
 	],
 });

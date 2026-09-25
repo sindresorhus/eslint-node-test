@@ -71,6 +71,9 @@ test.snapshot({
 			code: withImport('describe("s", () => { seedData(); test("x", () => {}); });'),
 			options: [{allow: ['seedData']}],
 		},
+		// A loop or an expression body is not a bare statement in the suite body
+		'import {describe} from \'node:test\';\ndescribe(\'s\', () => { for (const x of xs) { setup(); } });',
+		'import {describe} from \'node:test\';\ndescribe(\'s\', () => setup());',
 	],
 	invalid: [
 		// An immediately invoked function that does real setup still runs at load time

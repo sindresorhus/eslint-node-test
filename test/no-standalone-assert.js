@@ -32,6 +32,9 @@ test.snapshot({
 		// An object method is a function like any other, so it is not a module-load assertion
 		withImport('const helpers = {check() { assert.ok(value); }};'),
 		withImport('export const check = () => { assert.ok(value); };'),
+		// A suite body is registration-time code, not a test body
+		'import {describe, it} from \'node:test\';\nimport assert from \'node:assert\';\ndescribe(\'s\', () => { assert.ok(1); });',
+		'import {describe, it} from \'node:test\';\nimport assert from \'node:assert\';\ndescribe(\'s\', () => { it(\'a\', () => { assert.ok(1); }); });',
 	],
 	invalid: [
 		// A computed class field key is evaluated when the class is defined, which is at load
