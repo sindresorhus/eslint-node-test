@@ -67,6 +67,9 @@ const create = context => {
 	}
 
 	const tracker = createContextTracker(imports);
+	// A test with no context parameter can still reach its context through `getTestContext()`, so the
+	// message and its suggestion name that import, under whatever local name the file bound it to.
+	const getTestContextName = [...imports.locals].find(([, canonicalName]) => canonicalName === 'getTestContext')?.[0];
 
 	// One frame per enclosing test/subtest. Assertions attach to the innermost; the frame is
 	// reported only if its test called `plan()`.
@@ -112,9 +115,11 @@ const create = context => {
 				// `getTestContext()`, so the frame stands in as its own key.
 				contextKey: contextVariable ?? undefined,
 				hasPlan: hasPlanOption,
-				// The message names the context to convert to, so it needs a declared parameter. A
-				// test with none has nothing to suggest.
-				planName: hasPlanOption && contextName ? contextName : undefined,
+				// The message names the context to convert to. A test with no declared parameter can
+				// only name the `getTestContext()` import, and only when the file has one.
+				planName: hasPlanOption
+					? (contextName ?? (getTestContextName ? `${getTestContextName}()` : undefined))
+					: undefined,
 				assertions: [],
 			});
 			return;
@@ -140,7 +145,9 @@ const create = context => {
 					frames[index].hasPlan = true;
 					// A plan set through `getTestContext()` names the context that way, since the
 					// test may declare no parameter to name it after.
-					frames[index].planName = planReceiver === 'getTestContext()' ? 'getTestContext()' : frames[index].contextName;
+					frames[index].planName = planReceiver === 'getTestContext()'
+						? (getTestContextName ? `${getTestContextName}()` : 'getTestContext()')
+						: frames[index].contextName;
 					break;
 				}
 			}

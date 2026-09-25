@@ -5,6 +5,7 @@ import {
 	resolveImports,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
+import {getStaticPropertyName} from './utils/index.js';
 
 const MESSAGE_ID = 'require-mock-timers-apis';
 const STATIC_NON_OPTIONS_VALUE_TYPES = new Set(['ArrayExpression', 'Literal', 'TemplateLiteral']);
@@ -30,13 +31,10 @@ function isStaticNonOptionsValue(node) {
 	return STATIC_NON_OPTIONS_VALUE_TYPES.has(node.type);
 }
 
+// A computed key with a static string is the same property Node reads: `{['apis']: [...]}` names
+// `apis` just as `{apis: [...]}` does.
 function isApisProperty(property) {
-	return property.type === 'Property'
-		&& !property.computed
-		&& (
-			(property.key.type === 'Identifier' && property.key.name === 'apis')
-			|| (property.key.type === 'Literal' && property.key.value === 'apis')
-		);
+	return property.type === 'Property' && getStaticPropertyName(property) === 'apis';
 }
 
 function getLastVisibleApisProperty(optionsObject) {

@@ -63,8 +63,9 @@ test.snapshot({
 		withTest('test(\'a\', () => { getTestContext().plan(1); assert.ok(1); });'),
 		withTest('test(\'a\', t => { getTestContext().plan(0); assert.ok(1); });'),
 		// A plan option is a real plan, but a context assertion already counts toward it
-		// A plan option is a real plan, but a context assertion already counts toward it
 		withTest('test(\'t\', {plan: 1}, t => { t.assert.ok(1); });'),
+		// Without a context parameter there is nothing to convert to unless `getTestContext` is imported
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'a\', {plan: 1}, () => { assert.ok(1); });',
 	],
 	invalid: [
 		// Plan + imported namespace assert
@@ -94,6 +95,20 @@ test.snapshot({
 		// A plan set through `getTestContext()` is the same plan, in either spelling
 		'import {test, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'t\', t => { getTestContext().plan(1); assert.ok(1); });',
 		'import {test, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'t\', () => { getTestContext().plan(1); assert.ok(1); });',
+
+		// A `plan` option is the same plan, and a test with no context parameter reaches its context
+		// through `getTestContext()` just as a `plan()` call does
+		'import {test, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'a\', {plan: 1}, () => { assert.ok(1); });',
+		'import {test, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'a\', {plan: 1}, t => { assert.ok(1); });',
+		'import {test, getTestContext as gtc} from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'a\', {plan: 1}, () => { assert.ok(1); });',
+		'import {test, getTestContext as gtc} from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'a\', () => { gtc().plan(1); assert.ok(1); });',
+		'import {test, getTestContext as gtc} from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'a\', {plan: 2}, () => { assert.ok(1); assert.ok(2); });',
+		'import {test, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'a\', t => { t.test(\'b\', {plan: 1}, () => { assert.ok(1); }); });',
+		'import {test, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\ntest({name: \'a\', plan: 1}, () => { assert.ok(1); });',
+		{
+			code: 'import {test, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'a\', {plan: 1}, () => { (assert as any).ok(1); });',
+			languageOptions: {parser: parsers.typescript},
+		},
 
 		// A `plan` option is the same plan as `t.plan(n)`, so the imported assertions are the ones
 		// that do not count toward it
