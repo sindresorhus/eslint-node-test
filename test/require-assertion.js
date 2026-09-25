@@ -111,6 +111,16 @@ test.snapshot({
 		'import {it} from \'node:test\';\nit(\'a\', () => { it.getTestContext().assert.equal(1, 1); });',
 		'import {test as check} from \'node:test\';\ncheck(\'a\', () => { check.getTestContext().assert.equal(1, 1); });',
 		'import * as nodeTest from \'node:test\';\nnodeTest.test(\'a\', () => { nodeTest.test.getTestContext().assert.equal(1, 1); });',
+
+		// A TypeScript `this` parameter is erased at compile time, so the pattern binds `assert`
+		{
+			code: 'import test from "node:test";\ntest("t1", function (this: unknown, {assert}) { assert.ok(1); });',
+			languageOptions: {parser: parsers.typescript},
+		},
+		// A quoted or computed key binds the same property
+		'import test from "node:test";\ntest("t1", ({"assert": testAssert}) => { testAssert.ok(1); });',
+		'import test from "node:test";\ntest("t1", ({"assert": {ok}}) => { ok(1); });',
+		'import test from "node:test";\ntest("t1", ({["assert"]: {ok}}) => { ok(1); });',
 	],
 	invalid: [
 		// `skip: false` and `only` still run, so the assertion is still required

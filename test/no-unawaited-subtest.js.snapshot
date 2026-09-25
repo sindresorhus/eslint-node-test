@@ -558,6 +558,38 @@ Message:
 
 `;
 
+exports[`no-unawaited-subtest > invalid(37): import * as nodeTest from 'node:test';\nnodeTest.test('a', () => { nodeTest.it.getTestContext().test('b', () => {}); }); 1`] = `
+
+  1 | import * as nodeTest from 'node:test';
+  2 | nodeTest.test('a', () => { nodeTest.it.getTestContext().test('b', () => {}); });
+
+`;
+
+exports[`no-unawaited-subtest > invalid(37): import * as nodeTest from 'node:test';\nnodeTest.test('a', () => { nodeTest.it.getTestContext().test('b', () => {}); }); 2`] = `
+
+Message:
+  1 | import * as nodeTest from 'node:test';
+> 2 | nodeTest.test('a', () => { nodeTest.it.getTestContext().test('b', () => {}); });
+    |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`getTestContext().test()\` must be awaited or returned, so the test's own work does not run alongside it.
+
+`;
+
+exports[`no-unawaited-subtest > invalid(38): import * as nodeTest from 'node:test';\nnodeTest.test('a', () => { nodeTest.default.getTestContext().test('b', () => {}); }); 1`] = `
+
+  1 | import * as nodeTest from 'node:test';
+  2 | nodeTest.test('a', () => { nodeTest.default.getTestContext().test('b', () => {}); });
+
+`;
+
+exports[`no-unawaited-subtest > invalid(38): import * as nodeTest from 'node:test';\nnodeTest.test('a', () => { nodeTest.default.getTestContext().test('b', () => {}); }); 2`] = `
+
+Message:
+  1 | import * as nodeTest from 'node:test';
+> 2 | nodeTest.test('a', () => { nodeTest.default.getTestContext().test('b', () => {}); });
+    |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`getTestContext().test()\` must be awaited or returned, so the test's own work does not run alongside it.
+
+`;
+
 exports[`no-unawaited-subtest > invalid(4): import test from 'node:test';\ntest(\"parent\", async t => { t.test(\"a\", () => {}); t.test(\"b\", () => {}); }); 1`] = `
 
   1 | import test from 'node:test';

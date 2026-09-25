@@ -40,6 +40,9 @@ test.snapshot({
 		withImport('test("parent", t => { void new Promise(resolve => { setTimeout(() => { t.test("child", () => {}); resolve(); }); }); });'),
 		withImport('test("parent", () => { setTimeout(); });'),
 
+		// A suite context has no `getTestContext`, so the namespace member is not the test's
+		'import * as nodeTest from \'node:test\';\nnodeTest.test(\'a\', async () => { await nodeTest.it.getTestContext().test(\'b\', () => {}); });',
+		'import * as nodeTest from \'node:test\';\nnodeTest.test(\'a\', () => { nodeTest.describe.getTestContext().test(\'b\', () => {}); });',
 	],
 	invalid: [
 		// A `getTestContext()` under any local alias is named by the local name
@@ -125,5 +128,10 @@ test.snapshot({
 		// is cancelled the same way
 		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { t.test(\'c\', () => {}); });',
 		'import {getTestContext, beforeEach} from \'node:test\';\nbeforeEach(t => { getTestContext().test(\'c\', () => {}); });',
+
+		// A namespace reaches the same function as `it` and as `default`, and each has
+		// `getTestContext` on it
+		'import * as nodeTest from \'node:test\';\nnodeTest.test(\'a\', () => { nodeTest.it.getTestContext().test(\'b\', () => {}); });',
+		'import * as nodeTest from \'node:test\';\nnodeTest.test(\'a\', () => { nodeTest.default.getTestContext().test(\'b\', () => {}); });',
 	],
 });

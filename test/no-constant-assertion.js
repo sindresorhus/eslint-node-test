@@ -182,5 +182,14 @@ test.snapshot({
 		'import test from \'node:test\';\ntest(\'t\', t => { t?.assert.ok(1); });',
 		// `getTestContext().assert.ok(true)` is the same constant assertion as `t.assert.ok(true)`
 		'import test, {getTestContext} from \'node:test\';\ntest(\'a\', () => { getTestContext().assert.ok(true); });',
+
+		// A TypeScript `this` parameter is erased at compile time, so the pattern binds `assert`
+		{
+			code: 'import test from "node:test";\ntest("t1", function (this: unknown, {assert}) { assert.ok(1); });',
+			languageOptions: {parser: parsers.typescript},
+		},
+		'import test from "node:test";\ntest("t1", ({"assert": testAssert}) => { testAssert.ok(1); });',
+		'import test from "node:test";\ntest("t1", ({"assert": {ok}}) => { ok(1); });',
+		'import test from "node:test";\ntest("t1", ({["assert"]: {ok}}) => { ok(1); });',
 	],
 });

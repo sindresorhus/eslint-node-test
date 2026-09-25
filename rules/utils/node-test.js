@@ -280,9 +280,11 @@ export function isGetTestContextCall(node, imports) {
 	// function off the test binding, which a default, named, or namespace import all provide.
 	const isTestBinding = imports.namespaces.has(root.name)
 		|| TEST_FUNCTIONS.has(imports.locals.get(root.name));
-	// `nodeTest.test.getTestContext()` is the same call through a namespace's test export.
+	// `nodeTest.test.getTestContext()` is the same call through a namespace's test export. A namespace
+	// reaches it as `it` and as `default` too, since all three are the same function, while
+	// `nodeTest.describe.getTestContext` does not exist.
 	const isNamespaceTestChain = members.length === 2
-		&& members[0].name === 'test'
+		&& (TEST_FUNCTIONS.has(members[0].name) || members[0].name === 'default')
 		&& members[1].name === 'getTestContext'
 		&& imports.namespaces.has(root.name);
 	return (
@@ -672,20 +674,18 @@ export function getContextParameterIdentifier(parameter) {
 // arguments.
 const isTypeScriptThisParameter = parameter => parameter.type === 'Identifier' && parameter.name === 'this';
 
-/**
-Get the identifier a callback binds its test context to, or `undefined`.
-
-A TypeScript `this` parameter is erased at compile time, so the parameter after it is the first one
-the compiled function has, and the only one that can be the context.
+/*
+The first parameter of a callback that the compiled function still has, or `undefined` when it has
+none. A TypeScript `this` parameter is erased at compile time, so it takes no argument slot.
 */
-export function getFirstContextParameter(parameters) {
-	for (const parameter of parameters ?? []) {
-		if (!isTypeScriptThisParameter(parameter)) {
-			return getContextParameterIdentifier(parameter);
-		}
-	}
+function getFirstRuntimeParameter(parameters) {
+	return (parameters ?? []).find(parameter => !isTypeScriptThisParameter(parameter));
+}
 
-	return undefined;
+/** Get the identifier a callback binds its test context to, or `undefined`. */
+export function getFirstContextParameter(parameters) {
+	const parameter = getFirstRuntimeParameter(parameters);
+	return parameter && getContextParameterIdentifier(parameter);
 }
 
 /**
@@ -1293,16 +1293,16 @@ A method's name comes from the property it was destructured from, not from the l
 @returns {Map<import('eslint').Scope.Variable, string | undefined>}
 */
 export function getDestructuredAssertBindings(callback, imports) {
-	const parameter = callback.params[0];
+	// A TypeScript `this` parameter is erased at compile time, so the pattern that binds `assert` is
+	// the next one along, the same way `getFirstContextParameter` reads it everywhere else.
+	const parameter = getFirstRuntimeParameter(callback.params);
 	if (parameter?.type !== 'ObjectPattern') {
 		return new Map();
 	}
 
+	// The key may be written `'assert'` or `['assert']`, which bind the same property.
 	const property = parameter.properties.find(property =>
-		property.type === 'Property'
-		&& !property.computed
-		&& property.key.type === 'Identifier'
-		&& property.key.name === 'assert');
+		property.type === 'Property' && getStaticPropertyName(property) === 'assert');
 
 	if (!property) {
 		return new Map();
@@ -1327,8 +1327,8 @@ export function getDestructuredAssertBindings(callback, imports) {
 	if (nested.type === 'ObjectPattern') {
 		for (const nestedProperty of nested.properties) {
 			const nestedIdentifier = getDestructuredIdentifier(nestedProperty);
-			if (nestedIdentifier && nestedProperty.key.type === 'Identifier') {
-				addBinding(nestedIdentifier, nestedProperty.key.name);
+			if (nestedIdentifier) {
+				addBinding(nestedIdentifier, getStaticPropertyName(nestedProperty));
 			}
 		}
 	}
