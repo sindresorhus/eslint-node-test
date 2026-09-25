@@ -1,9 +1,11 @@
+import {getStaticValue} from '@eslint-community/eslint-utils';
 import {
 	resolveImports,
 	parseTestCall,
 	parseAssertionCall,
 	createContextTracker,
 	hasEnabledPlanOption,
+	isEnabledPlanCount,
 } from './utils/node-test.js';
 
 const MESSAGE_ID = 'require-context-assert-with-plan';
@@ -13,7 +15,7 @@ const messages = {
 };
 
 /** Get the context name of a `<context>.plan(…)` call, or `undefined`. */
-function getPlanContextName(node) {
+function getPlanContextName(node, context) {
 	const {callee} = node;
 	if (
 		callee.type === 'MemberExpression'
@@ -22,6 +24,17 @@ function getPlanContextName(node) {
 		&& callee.property.name === 'plan'
 		&& callee.object.type === 'Identifier'
 	) {
+		// A count that is statically known *not* to be a real plan (`t.plan(0)`, `t.plan(-1)`) runs the
+		// body without waiting for any assertion, so it sets no expectation the rule should enforce. A
+		// count we cannot resolve is still a plan, so only a resolved non-count is excluded.
+		const [countArgument] = node.arguments;
+		if (countArgument) {
+			const staticValue = getStaticValue(countArgument, context.sourceCode.getScope(countArgument));
+			if (staticValue && !isEnabledPlanCount(staticValue)) {
+				return undefined;
+			}
+		}
+
 		return callee.object.name;
 	}
 
@@ -64,7 +77,7 @@ const create = context => {
 			return;
 		}
 
-		const planContextName = getPlanContextName(node);
+		const planContextName = getPlanContextName(node, context);
 		if (planContextName !== undefined) {
 			// Mark the innermost frame whose test owns this context.
 			for (let index = frames.length - 1; index >= 0; index -= 1) {

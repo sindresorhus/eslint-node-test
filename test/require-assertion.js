@@ -87,6 +87,9 @@ test.snapshot({
 		'import test from "node:test";\nimport assert from "node:assert";\ntest("outer", t => { t.test("inner", () => { assert.ok(1); }); });',
 		// A bare `test` package is not Node's test runner.
 		'import test from "test";\ntest("t1", () => { doSomething(); });',
+
+		// `getTestContext().assert.ok(…)` is a real context assertion, exactly like `t.assert.ok(…)`
+		'import test, {getTestContext} from \'node:test\';\ntest(\'a\', () => { getTestContext().assert.ok(1); });',
 	],
 	invalid: [
 		// Only the assertion shapes the shared helper accepts count; a deeper chain is not one

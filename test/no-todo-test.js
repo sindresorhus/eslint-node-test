@@ -22,6 +22,9 @@ test.snapshot({
 		// `expectFailure` does not have test modifiers.
 		'import {expectFailure} from "node:test";\nexpectFailure.todo("title");',
 		'import test from "node:test";\ntest.expectFailure.todo("title");',
+
+		// `void 0` is `undefined`, so node:test does not mark it todo
+		'import test from \'node:test\';\ntest(\'a\', {todo: void 0}, () => {});',
 	],
 	invalid: [
 		'import test from "node:test";\ntest.todo("title");',

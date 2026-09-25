@@ -1,9 +1,11 @@
 import {resolveImports, findOptionsProperty} from './utils/node-test.js';
 
 const MESSAGE_ID = 'no-mock-timers-destructured-import';
+const MESSAGE_ID_NAMESPACE = 'no-mock-timers-destructured-import/namespace';
 
 const messages = {
 	[MESSAGE_ID]: '`{{name}}` is imported directly, so `mock.timers` cannot intercept it. Call the global `{{name}}` instead.',
+	[MESSAGE_ID_NAMESPACE]: '`{{name}}` is imported as a namespace, so it holds the real timer functions and `mock.timers` cannot intercept them. Call the global timer functions instead.',
 };
 
 const TIMER_MODULES = new Set(['node:timers', 'timers']);
@@ -70,6 +72,10 @@ const create = context => {
 
 	// Named timer-function imports from `node:timers`.
 	const timerImports = [];
+	// `import * as timers from 'node:timers'` is captured too: the namespace object is a snapshot of
+	// the module taken at import time, before `mock.timers.enable()` patches `module.exports`, so
+	// `timers.setTimeout(…)` escapes the mock exactly like a destructured import.
+	const namespaceImports = [];
 	for (const node of sourceCode.ast.body) {
 		// Type-only imports (`import type {setTimeout} …`) are erased and create no runtime binding,
 		// so the code still calls the interceptable global.
@@ -78,7 +84,9 @@ const create = context => {
 		}
 
 		for (const specifier of node.specifiers) {
-			if (
+			if (specifier.type === 'ImportNamespaceSpecifier') {
+				namespaceImports.push(specifier);
+			} else if (
 				specifier.type === 'ImportSpecifier'
 				&& specifier.importKind !== 'type'
 				&& specifier.imported.type === 'Identifier'
@@ -89,7 +97,7 @@ const create = context => {
 		}
 	}
 
-	if (timerImports.length === 0) {
+	if (timerImports.length === 0 && namespaceImports.length === 0) {
 		return;
 	}
 
@@ -141,13 +149,27 @@ const create = context => {
 			return;
 		}
 
-		return timerImports
+		const problems = timerImports
 			.filter(specifier => isAllEnabled || enabledApis.has(FUNCTION_TO_API.get(specifier.imported.name)))
 			.map(specifier => ({
 				node: specifier,
 				messageId: MESSAGE_ID,
 				data: {name: specifier.imported.name},
 			}));
+
+		// A namespace import holds the real timer functions for every API, so any enabled timer API
+		// makes it a problem.
+		if (namespaceImports.length > 0 && (isAllEnabled || enabledApis.size > 0)) {
+			for (const specifier of namespaceImports) {
+				problems.push({
+					node: specifier,
+					messageId: MESSAGE_ID_NAMESPACE,
+					data: {name: specifier.local.name},
+				});
+			}
+		}
+
+		return problems;
 	});
 };
 

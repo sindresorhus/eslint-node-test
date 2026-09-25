@@ -4,6 +4,7 @@ import {
 	createContextTracker,
 } from './utils/node-test.js';
 import {getEnclosingFunction, getFloatingStatement} from './utils/index.js';
+import {hasStaticBlockBetween} from './no-unawaited-promise-assertion.js';
 
 const MESSAGE_ID = 'no-unawaited-rejects/error';
 
@@ -37,9 +38,15 @@ const create = context => {
 		}
 
 		// Only autofix where prepending `await` is faithful in an async function: `await` would be a
-		// syntax error outside one, and a `void`-discarded or type-asserted call cannot take it (see
-		// `getFloatingStatement`), so those are reported without a fix (matching `no-unawaited-promise-assertion`).
-		if (getEnclosingFunction(node)?.async === true && floating.canAwait) {
+		// syntax error outside one or inside a class static block, and a `void`-discarded or
+		// type-asserted call cannot take it (see `getFloatingStatement`), so those are reported
+		// without a fix (matching `no-unawaited-promise-assertion` and `no-unawaited-subtest`).
+		const enclosingFunction = getEnclosingFunction(node);
+		if (
+			enclosingFunction?.async === true
+			&& floating.canAwait
+			&& !hasStaticBlockBetween(node, enclosingFunction)
+		) {
 			return {
 				node,
 				messageId: MESSAGE_ID,

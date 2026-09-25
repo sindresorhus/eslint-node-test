@@ -92,5 +92,8 @@ test.snapshot({
 		// A leading descriptor is still checked, with or without trailing arguments
 		withImport('test({name: "x", skp: true}, () => {});'),
 		withImport('test({name: "x", skp: true}, {skip: true});'),
+		// A subtest and a context hook read their options the same way
+		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\', {skp: true}, () => {}); });',
+		'import {test} from \'node:test\';\ntest(\'p\', t => { t.beforeEach(() => {}, {skp: true}); });',
 	],
 });

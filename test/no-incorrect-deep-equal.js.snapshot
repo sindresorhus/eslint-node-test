@@ -12,10 +12,6 @@ Message:
 > 2 | assert.deepEqual(1, b);
     | ^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`deepEqual\` with a primitive. Use the non-deep equality equivalent instead.
 
-Output:
-  1 | import assert from 'node:assert';
-  2 | assert.equal(1, b);
-
 `;
 
 exports[`no-incorrect-deep-equal > invalid(10): import assert from 'node:assert';\nassert.deepEqual(42n, b); 1`] = `
@@ -31,10 +27,6 @@ Message:
   1 | import assert from 'node:assert';
 > 2 | assert.deepEqual(42n, b);
     | ^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`deepEqual\` with a primitive. Use the non-deep equality equivalent instead.
-
-Output:
-  1 | import assert from 'node:assert';
-  2 | assert.equal(42n, b);
 
 `;
 
@@ -52,10 +44,6 @@ Message:
 > 2 | assert.deepEqual(a, 1);
     | ^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`deepEqual\` with a primitive. Use the non-deep equality equivalent instead.
 
-Output:
-  1 | import assert from 'node:assert';
-  2 | assert.equal(a, 1);
-
 `;
 
 exports[`no-incorrect-deep-equal > invalid(12): import assert from 'node:assert';\nassert.deepEqual(a, \"str\"); 1`] = `
@@ -71,10 +59,6 @@ Message:
   1 | import assert from 'node:assert';
 > 2 | assert.deepEqual(a, "str");
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`deepEqual\` with a primitive. Use the non-deep equality equivalent instead.
-
-Output:
-  1 | import assert from 'node:assert';
-  2 | assert.equal(a, "str");
 
 `;
 
@@ -92,10 +76,6 @@ Message:
 > 2 | assert.deepEqual(a, null);
     | ^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`deepEqual\` with a primitive. Use the non-deep equality equivalent instead.
 
-Output:
-  1 | import assert from 'node:assert';
-  2 | assert.equal(a, null);
-
 `;
 
 exports[`no-incorrect-deep-equal > invalid(14): import assert from 'node:assert';\nassert.deepEqual(a, undefined); 1`] = `
@@ -111,10 +91,6 @@ Message:
   1 | import assert from 'node:assert';
 > 2 | assert.deepEqual(a, undefined);
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`deepEqual\` with a primitive. Use the non-deep equality equivalent instead.
-
-Output:
-  1 | import assert from 'node:assert';
-  2 | assert.equal(a, undefined);
 
 `;
 
@@ -132,10 +108,6 @@ Message:
 > 2 | assert.deepEqual(a, \`hello\`);
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`deepEqual\` with a primitive. Use the non-deep equality equivalent instead.
 
-Output:
-  1 | import assert from 'node:assert';
-  2 | assert.equal(a, \`hello\`);
-
 `;
 
 exports[`no-incorrect-deep-equal > invalid(16): import assert from 'node:assert';\nassert.deepEqual(\`hello\`, b); 1`] = `
@@ -151,10 +123,6 @@ Message:
   1 | import assert from 'node:assert';
 > 2 | assert.deepEqual(\`hello\`, b);
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`deepEqual\` with a primitive. Use the non-deep equality equivalent instead.
-
-Output:
-  1 | import assert from 'node:assert';
-  2 | assert.equal(\`hello\`, b);
 
 `;
 
@@ -172,10 +140,6 @@ Message:
 > 2 | assert.deepEqual(a, \`hello \${name}\`);
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`deepEqual\` with a primitive. Use the non-deep equality equivalent instead.
 
-Output:
-  1 | import assert from 'node:assert';
-  2 | assert.equal(a, \`hello \${name}\`);
-
 `;
 
 exports[`no-incorrect-deep-equal > invalid(18): import assert from 'node:assert';\nassert.deepEqual(void 0, b); 1`] = `
@@ -191,10 +155,6 @@ Message:
   1 | import assert from 'node:assert';
 > 2 | assert.deepEqual(void 0, b);
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`deepEqual\` with a primitive. Use the non-deep equality equivalent instead.
-
-Output:
-  1 | import assert from 'node:assert';
-  2 | assert.equal(void 0, b);
 
 `;
 
@@ -232,10 +192,6 @@ Message:
 > 2 | assert.deepEqual("str", b);
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`deepEqual\` with a primitive. Use the non-deep equality equivalent instead.
 
-Output:
-  1 | import assert from 'node:assert';
-  2 | assert.equal("str", b);
-
 `;
 
 exports[`no-incorrect-deep-equal > invalid(20): import assert from 'node:assert';\nassert.deepStrictEqual(1, b); 1`] = `
@@ -272,10 +228,6 @@ Message:
 > 2 | assert.notDeepEqual(a, 1);
     | ^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`notDeepEqual\` with a primitive. Use the non-deep equality equivalent instead.
 
-Output:
-  1 | import assert from 'node:assert';
-  2 | assert.notEqual(a, 1);
-
 `;
 
 exports[`no-incorrect-deep-equal > invalid(22): import assert from 'node:assert';\nassert.notDeepEqual(1, b); 1`] = `
@@ -291,10 +243,6 @@ Message:
   1 | import assert from 'node:assert';
 > 2 | assert.notDeepEqual(1, b);
     | ^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`notDeepEqual\` with a primitive. Use the non-deep equality equivalent instead.
-
-Output:
-  1 | import assert from 'node:assert';
-  2 | assert.notEqual(1, b);
 
 `;
 
@@ -352,10 +300,6 @@ Message:
 > 2 | assert.deepEqual(a, 1);
     | ^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`deepEqual\` with a primitive. Use the non-deep equality equivalent instead.
 
-Output:
-  1 | import assert from 'node:assert/strict';
-  2 | assert.equal(a, 1);
-
 `;
 
 exports[`no-incorrect-deep-equal > invalid(26): import assert from 'node:assert/strict';\nassert.deepStrictEqual(a, 1); 1`] = `
@@ -391,10 +335,6 @@ Message:
   1 | import test from 'node:test';
 > 2 | test('t', t => { t.assert.deepEqual(a, 1); });
     |                  ^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`deepEqual\` with a primitive. Use the non-deep equality equivalent instead.
-
-Output:
-  1 | import test from 'node:test';
-  2 | test('t', t => { t.assert.equal(a, 1); });
 
 `;
 
@@ -432,10 +372,6 @@ Message:
 > 2 | test('t', t => { t.assert.notDeepEqual(a, "str"); });
     |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`notDeepEqual\` with a primitive. Use the non-deep equality equivalent instead.
 
-Output:
-  1 | import test from 'node:test';
-  2 | test('t', t => { t.assert.notEqual(a, "str"); });
-
 `;
 
 exports[`no-incorrect-deep-equal > invalid(3): import assert from 'node:assert';\nassert.deepEqual(true, b); 1`] = `
@@ -451,10 +387,6 @@ Message:
   1 | import assert from 'node:assert';
 > 2 | assert.deepEqual(true, b);
     | ^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`deepEqual\` with a primitive. Use the non-deep equality equivalent instead.
-
-Output:
-  1 | import assert from 'node:assert';
-  2 | assert.equal(true, b);
 
 `;
 
@@ -588,10 +520,6 @@ Message:
 > 2 | assert.deepEqual(a, 1, "message");
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`deepEqual\` with a primitive. Use the non-deep equality equivalent instead.
 
-Output:
-  1 | import assert from 'node:assert';
-  2 | assert.equal(a, 1, "message");
-
 `;
 
 exports[`no-incorrect-deep-equal > invalid(38): import assert from 'node:assert';\nassert.deepEqual(a as string, 1); 1`] = `
@@ -607,10 +535,6 @@ Message:
   1 | import assert from 'node:assert';
 > 2 | assert.deepEqual(a as string, 1);
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`deepEqual\` with a primitive. Use the non-deep equality equivalent instead.
-
-Output:
-  1 | import assert from 'node:assert';
-  2 | assert.equal(a as string, 1);
 
 `;
 
@@ -628,10 +552,6 @@ Message:
 > 2 | assert.deepEqual(a, 1 as number);
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`deepEqual\` with a primitive. Use the non-deep equality equivalent instead.
 
-Output:
-  1 | import assert from 'node:assert';
-  2 | assert.equal(a, 1 as number);
-
 `;
 
 exports[`no-incorrect-deep-equal > invalid(4): import assert from 'node:assert';\nassert.deepEqual(null, b); 1`] = `
@@ -647,10 +567,6 @@ Message:
   1 | import assert from 'node:assert';
 > 2 | assert.deepEqual(null, b);
     | ^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`deepEqual\` with a primitive. Use the non-deep equality equivalent instead.
-
-Output:
-  1 | import assert from 'node:assert';
-  2 | assert.equal(null, b);
 
 `;
 
@@ -688,10 +604,6 @@ Message:
 > 2 | assert.deepEqual(undefined, b);
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`deepEqual\` with a primitive. Use the non-deep equality equivalent instead.
 
-Output:
-  1 | import assert from 'node:assert';
-  2 | assert.equal(undefined, b);
-
 `;
 
 exports[`no-incorrect-deep-equal > invalid(6): import assert from 'node:assert';\nassert.deepEqual(NaN, b); 1`] = `
@@ -707,10 +619,6 @@ Message:
   1 | import assert from 'node:assert';
 > 2 | assert.deepEqual(NaN, b);
     | ^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`deepEqual\` with a primitive. Use the non-deep equality equivalent instead.
-
-Output:
-  1 | import assert from 'node:assert';
-  2 | assert.equal(NaN, b);
 
 `;
 
@@ -728,10 +636,6 @@ Message:
 > 2 | assert.deepEqual(Infinity, b);
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`deepEqual\` with a primitive. Use the non-deep equality equivalent instead.
 
-Output:
-  1 | import assert from 'node:assert';
-  2 | assert.equal(Infinity, b);
-
 `;
 
 exports[`no-incorrect-deep-equal > invalid(8): import assert from 'node:assert';\nassert.deepEqual(-1, b); 1`] = `
@@ -748,10 +652,6 @@ Message:
 > 2 | assert.deepEqual(-1, b);
     | ^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`deepEqual\` with a primitive. Use the non-deep equality equivalent instead.
 
-Output:
-  1 | import assert from 'node:assert';
-  2 | assert.equal(-1, b);
-
 `;
 
 exports[`no-incorrect-deep-equal > invalid(9): import assert from 'node:assert';\nassert.deepEqual(-Infinity, b); 1`] = `
@@ -767,9 +667,5 @@ Message:
   1 | import assert from 'node:assert';
 > 2 | assert.deepEqual(-Infinity, b);
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`deepEqual\` with a primitive. Use the non-deep equality equivalent instead.
-
-Output:
-  1 | import assert from 'node:assert';
-  2 | assert.equal(-Infinity, b);
 
 `;

@@ -4,6 +4,7 @@ import {
 	parseTestCall,
 	getTestTitle,
 	getTestCallback,
+	createContextTracker,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
@@ -66,9 +67,16 @@ const create = context => {
 		return;
 	}
 
+	// A subtest (`t.test(…)`) is rendered in the test output exactly like an imported test, so a
+	// missing/empty title is just as unreadable; it is recognized through the context tracker.
+	const tracker = createContextTracker(imports);
+
 	context.on('CallExpression', node => {
+		const isSubtest = tracker.isSubtestCall(node);
+		tracker.update(node);
+
 		const parsed = parseTestCall(node, imports);
-		if (!parsed || parsed.kind === 'hook') {
+		if ((!parsed && !isSubtest) || parsed?.kind === 'hook') {
 			return;
 		}
 
@@ -116,6 +124,10 @@ const create = context => {
 		}
 
 		// Dynamic/computed title — can't validate statically, skip.
+	});
+
+	context.onExit('CallExpression', node => {
+		tracker.leave(node);
 	});
 };
 

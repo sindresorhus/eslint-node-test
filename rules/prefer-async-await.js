@@ -1,5 +1,10 @@
 import {findVariable} from '@eslint-community/eslint-utils';
-import {resolveImports, parseTestCall, getTestCallback} from './utils/node-test.js';
+import {
+	resolveImports,
+	parseTestCall,
+	getTestCallback,
+	createContextTracker,
+} from './utils/node-test.js';
 import {unwrapExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-async-await/error';
@@ -128,15 +133,23 @@ const create = context => {
 		return;
 	}
 
+	// Subtests (`t.test(…)`) are method calls on a context parameter, not imported bindings, so the
+	// tracker is needed to see them alongside the imported `test`/`it` spellings.
+	const tracker = createContextTracker(imports);
+
 	context.on('CallExpression', node => {
+		// Query the tracker before it learns about this call, so the receiver is the enclosing context.
+		const isSubtest = tracker.isSubtestCall(node);
+		tracker.update(node);
+
 		const parsed = parseTestCall(node, imports);
-		if (!parsed) {
+		if (!parsed && !isSubtest) {
 			return;
 		}
 
 		// `describe`/`suite` callbacks run synchronously and are never awaited, so returning a
 		// Promise from them is meaningless and converting to async/await would not help.
-		if (parsed.kind === 'suite') {
+		if (parsed?.kind === 'suite') {
 			return;
 		}
 
@@ -182,6 +195,10 @@ const create = context => {
 				};
 			}
 		}
+	});
+
+	context.onExit('CallExpression', node => {
+		tracker.leave(node);
 	});
 };
 

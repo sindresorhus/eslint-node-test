@@ -1,4 +1,11 @@
-import {resolveImports, parseTestCall, getTestCallback} from './utils/node-test.js';
+import {
+	resolveImports,
+	parseTestCall,
+	getTestCallback,
+	createContextTracker,
+	isContextHookCall,
+	getCalleeChain,
+} from './utils/node-test.js';
 
 const MESSAGE_ID = 'prefer-hooks-on-top';
 
@@ -17,16 +24,29 @@ const create = context => {
 	const scopeStack = [{seenTest: false}];
 	const pushedCalls = new Set();
 
+	// A subtest (`t.test(…)`) is a test, and a hook declared on a context (`t.beforeEach(…)`) is a
+	// hook; both are method calls, so the tracker recognizes them alongside the imported forms.
+	const tracker = createContextTracker(imports, {trackHooks: true});
+	const getContextHookName = node => getCalleeChain(node.callee)?.members[0]?.name;
+
 	context.on('CallExpression', node => {
+		const isSubtest = tracker.isSubtestCall(node);
+		const isContextHook = isContextHookCall(node, tracker.isContextIdentifier);
+		tracker.update(node);
+
 		const parsed = parseTestCall(node, imports);
-		if (!parsed) {
+		if (!parsed && !isSubtest && !isContextHook) {
 			return;
 		}
 
 		const scope = scopeStack.at(-1);
 
 		let problem;
-		if (parsed.kind === 'hook' && scope.seenTest) {
+		if (isContextHook) {
+			if (scope.seenTest) {
+				problem = {node, messageId: MESSAGE_ID, data: {name: getContextHookName(node)}};
+			}
+		} else if (parsed?.kind === 'hook' && scope.seenTest) {
 			problem = {
 				node,
 				messageId: MESSAGE_ID,
@@ -34,7 +54,7 @@ const create = context => {
 			};
 		}
 
-		if (parsed.kind === 'test' || parsed.kind === 'suite') {
+		if (isSubtest || parsed?.kind === 'test' || parsed?.kind === 'suite') {
 			scope.seenTest = true;
 
 			const callback = getTestCallback(node);
@@ -48,6 +68,8 @@ const create = context => {
 	});
 
 	context.onExit('CallExpression', node => {
+		tracker.leave(node);
+
 		if (!pushedCalls.has(node)) {
 			return;
 		}

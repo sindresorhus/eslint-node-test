@@ -61,5 +61,8 @@ test.snapshot({
 			code: withImport('test("x", async (t, done): Promise<void> => { done(); });'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		// An async subtest / context hook callback with a `done` parameter fails the same way
+		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\', async (sub, done) => { done(); }); });',
+		'import {test} from \'node:test\';\ntest(\'p\', t => { t.beforeEach(async (sub, done) => {}); });',
 	],
 });

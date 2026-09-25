@@ -808,6 +808,22 @@ Message:
 
 `;
 
+exports[`no-constant-assertion > invalid(55): import test, {getTestContext} from 'node:test';\ntest('a', () => { getTestContext().assert.ok(true); }); 1`] = `
+
+  1 | import test, {getTestContext} from 'node:test';
+  2 | test('a', () => { getTestContext().assert.ok(true); });
+
+`;
+
+exports[`no-constant-assertion > invalid(55): import test, {getTestContext} from 'node:test';\ntest('a', () => { getTestContext().assert.ok(true); }); 2`] = `
+
+Message:
+  1 | import test, {getTestContext} from 'node:test';
+> 2 | test('a', () => { getTestContext().assert.ok(true); });
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This assertion has a constant outcome, so it does not test code behavior.
+
+`;
+
 exports[`no-constant-assertion > invalid(6): import assert from 'node:assert';\nassert(false); 1`] = `
 
   1 | import assert from 'node:assert';

@@ -4,6 +4,7 @@ import {
 	getTestCallback,
 	getTestOptions,
 	getTestTitle,
+	createContextTracker,
 } from './utils/node-test.js';
 import {removeArgument} from './fix/index.js';
 
@@ -49,10 +50,18 @@ const create = context => {
 		return;
 	}
 
+	// A subtest (`t.test(…)`) is a test too, so an empty one is reported, but it has no `.todo`
+	// method, so no `.todo` suggestion is offered for it.
+	const tracker = createContextTracker(imports);
+
 	context.on('CallExpression', node => {
+		const isSubtest = tracker.isSubtestCall(node);
+		tracker.update(node);
+
 		const parsed = parseTestCall(node, imports);
-		// Only plain tests (a placeholder suite is a different concept); an existing modifier is intentional.
-		if (parsed?.kind !== 'test' || parsed.hasExpectedFailure || parsed.modifiers.length > 0) {
+		// Only plain tests (a placeholder suite is a different concept); an existing modifier is
+		// intentional. A subtest has no parsed form here, so it always passes this gate.
+		if (!isSubtest && (parsed?.kind !== 'test' || parsed.hasExpectedFailure || parsed.modifiers.length > 0)) {
 			return;
 		}
 
@@ -81,11 +90,12 @@ const create = context => {
 		const {callee} = node;
 		// Dropping the function also drops the gaps on either side of it, so a comment in either one
 		// would be left behind describing the title instead.
-		const canFix = !callback || (
+		// A subtest has no `.todo` method, so the suggestion is not offered for it.
+		const canFix = !isSubtest && (!callback || (
 			sourceCode.getCommentsInside(callback).length === 0
 			&& !hasCommentBefore(callback, sourceCode)
 			&& sourceCode.getCommentsAfter(callback).length === 0
-		);
+		));
 
 		const problem = {
 			node,
@@ -107,6 +117,10 @@ const create = context => {
 		}
 
 		return problem;
+	});
+
+	context.onExit('CallExpression', node => {
+		tracker.leave(node);
 	});
 };
 

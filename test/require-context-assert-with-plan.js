@@ -48,6 +48,9 @@ test.snapshot({
 
 		// Not a test file
 		'assert.ok(1);',
+		// `t.plan(0)` / `t.plan(-1)` is not a real plan, so it sets no expectation to enforce
+		withTest('test(\'a\', t => { t.plan(0); assert.ok(1); });'),
+		withTest('test(\'a\', t => { t.plan(-1); assert.ok(1); });'),
 	],
 	invalid: [
 		// Plan + imported namespace assert

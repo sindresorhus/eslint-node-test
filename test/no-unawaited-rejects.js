@@ -131,5 +131,9 @@ test.snapshot({
 			code: `${ASSERT_IMPORT}\nasync function test() {\n\t(void assert.rejects(fn)) as any;\n}`,
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// A class static block sits between the call and the async function, and `await` is a syntax
+		// error inside one, so the problem is reported but no fix is offered.
+		`${ASSERT_IMPORT}\nasync function test() {\n\tclass C {\n\t\tstatic {\n\t\t\tassert.rejects(fn);\n\t\t}\n\t}\n}`,
 	],
 });

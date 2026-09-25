@@ -3,6 +3,8 @@ import {
 	parseTestCall,
 	getTestCallback,
 	getEffectiveArity,
+	createContextTracker,
+	isContextHookCall,
 } from './utils/node-test.js';
 
 const MESSAGE_ID = 'no-callback-and-promise';
@@ -18,10 +20,18 @@ const create = context => {
 		return;
 	}
 
+	// Subtests (`t.test(…)`) and context hooks (`t.beforeEach(…)`) are method calls, not imported
+	// bindings, but their async callback with a `done` parameter fails the same way.
+	const tracker = createContextTracker(imports, {trackHooks: true});
+
 	context.on('CallExpression', node => {
+		const isSubtest = tracker.isSubtestCall(node);
+		const isContextHook = isContextHookCall(node, tracker.isContextIdentifier);
+		tracker.update(node);
+
 		const parsed = parseTestCall(node, imports);
 		// Suite (`describe`/`suite`) callbacks receive a `SuiteContext`, never a `done` callback.
-		if (parsed?.kind !== 'test' && parsed?.kind !== 'hook') {
+		if (parsed?.kind !== 'test' && parsed?.kind !== 'hook' && !isSubtest && !isContextHook) {
 			return;
 		}
 
@@ -33,8 +43,12 @@ const create = context => {
 		return {
 			node: callback.params[1],
 			messageId: MESSAGE_ID,
-			data: {kind: parsed.kind === 'hook' ? 'hook' : 'test'},
+			data: {kind: parsed?.kind === 'hook' || isContextHook ? 'hook' : 'test'},
 		};
+	});
+
+	context.onExit('CallExpression', node => {
+		tracker.leave(node);
 	});
 };
 

@@ -3,7 +3,7 @@ import {
 	parseSupportedAssertionCall,
 	createContextTracker,
 } from './utils/node-test.js';
-import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
+import {isPrimitive} from './utils/index.js';
 
 const MESSAGE_ID = 'no-deep-equal-with-primitive';
 
@@ -13,29 +13,6 @@ const DEEP_EQUAL_METHODS = new Map([
 	['notDeepEqual', 'notEqual'],
 	['notDeepStrictEqual', 'notStrictEqual'],
 ]);
-
-/**
-Check if a node represents a primitive value.
-Covers: literals, `undefined`/`NaN`/`Infinity` identifiers, template literals (always a string,
-regardless of interpolation), `void` expressions, and negated numeric/Infinity/NaN literals.
-*/
-function isPrimitive(node) {
-	node = unwrapTypeScriptExpression(node);
-	return (
-		(node.type === 'Literal' && !node.regex)
-		|| (node.type === 'Identifier' && ['undefined', 'NaN', 'Infinity'].includes(node.name))
-		|| node.type === 'TemplateLiteral'
-		|| (node.type === 'UnaryExpression' && node.operator === 'void')
-		|| (
-			node.type === 'UnaryExpression'
-			&& node.operator === '-'
-			&& (
-				(node.argument.type === 'Literal' && !node.argument.regex)
-				|| (node.argument.type === 'Identifier' && (node.argument.name === 'Infinity' || node.argument.name === 'NaN'))
-			)
-		)
-	);
-}
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -79,7 +56,14 @@ const create = context => {
 		// Autofix only the member forms (`assert.deepEqual`, `t.assert.deepEqual`). A bare named
 		// import (`deepEqual`) cannot be rewritten to `equal` without also importing it, so leave
 		// it reported but unfixed.
-		if (callee.type === 'MemberExpression') {
+		//
+		// Only the strict pair is safe to autofix: `deepStrictEqual` and `strictEqual` agree on every
+		// primitive. The loose pair (`deepEqual` -> `equal`) is not equivalent, because `==` coerces
+		// a value that loose deep equality does not — `deepEqual(0, [])` fails while `equal(0, [])`
+		// passes, and `deepEqual(new Number(1), 1)` fails while `equal(new Number(1), 1)` passes. Leave
+		// the loose pair reported but unfixed.
+		const isLoosePair = method === 'deepEqual' || method === 'notDeepEqual';
+		if (callee.type === 'MemberExpression' && !isLoosePair) {
 			problem.fix = fixer => fixer.replaceText(callee.property, replacement);
 		}
 

@@ -138,5 +138,15 @@ test.snapshot({
 		// Parenthesized boolean argument — reported but not autofixed (parens would be left behind)
 		String.raw`${ASSERT_IMPORT}
 assert.strictEqual(/\d+/.test('foo'), (true));`,
+		// A statically non-string subject is reported but not fixed: `re.test(x)` coerces `x`,
+		// while `assert.match(x, re)` throws unless `x` is already a string primitive.
+		ASSERT_IMPORT + '\nassert.ok(/5/.test(5));',
+		ASSERT_IMPORT + '\nassert.ok(/a/.test(["a"]));',
+		// A statically non-string subject (`undefined`, `NaN`, a unary expression, a function) is
+		// reported but not fixed: `re.test(x)` coerces `x`, but `assert.match(x, re)` throws.
+		ASSERT_IMPORT + '\nassert.ok(/d/.test(undefined));',
+		ASSERT_IMPORT + '\nassert.ok(/d/.test(NaN));',
+		ASSERT_IMPORT + '\nassert.ok(/d/.test(-0));',
+		ASSERT_IMPORT + '\nassert.ok(/d/.test(() => {}));',
 	],
 });

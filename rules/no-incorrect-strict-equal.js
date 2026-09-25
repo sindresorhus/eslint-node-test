@@ -4,6 +4,7 @@ import {
 	createContextTracker,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
+import {isPrimitive} from './utils/index.js';
 
 const MESSAGE_ID = 'no-incorrect-strict-equal';
 
@@ -65,7 +66,13 @@ const create = context => {
 		// Autofix only the member forms (`assert.strictEqual`, `t.assert.strictEqual`). A bare named
 		// import (`strictEqual`) cannot be rewritten to `deepStrictEqual` without also importing it,
 		// so leave it reported but unfixed.
-		if (callee.type === 'MemberExpression') {
+		//
+		// Only autofix when neither argument is a primitive. With a primitive on one side and a fresh
+		// object or array literal on the other, `==` and loose deep equality diverge: `equal(0, [])`
+		// passes while `deepEqual(0, [])` fails. Fixing there would also fight
+		// `no-incorrect-deep-equal`, which rewrites the opposite direction, so the two fixers would
+		// not converge. Leave that case reported but unfixed.
+		if (callee.type === 'MemberExpression' && !isPrimitive(actual) && !isPrimitive(expected)) {
 			problem.fix = fixer => fixer.replaceText(callee.property, replacement);
 		}
 
@@ -89,7 +96,7 @@ const config = {
 		fixable: 'code',
 		schema: [],
 		messages: {
-			[MESSAGE_ID]: 'Avoid using `{{method}}` with an object or array literal, which compares by reference rather than structure. Use `{{replacement}}` instead.',
+			[MESSAGE_ID]: 'Avoid using `{{method}}` with an object or array literal. Use `{{replacement}}` to compare by structure instead.',
 		},
 		languages: ['js/js'],
 	},

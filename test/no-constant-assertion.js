@@ -180,5 +180,7 @@ test.snapshot({
 
 		// Optional chaining on the context receiver
 		'import test from \'node:test\';\ntest(\'t\', t => { t?.assert.ok(1); });',
+		// `getTestContext().assert.ok(true)` is the same constant assertion as `t.assert.ok(true)`
+		'import test, {getTestContext} from \'node:test\';\ntest(\'a\', () => { getTestContext().assert.ok(true); });',
 	],
 });

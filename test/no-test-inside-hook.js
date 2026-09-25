@@ -44,5 +44,8 @@ test.snapshot({
 
 		// Hook with a trailing options argument — the callback is the first argument
 		withSetup('beforeEach(() => { it(\'a\', () => {}); }, {timeout: 1000});'),
+		// A hook declared on a test context is still a hook
+		'import test from \'node:test\';\ntest(\'o\', t => { t.beforeEach(() => { test(\'inner\', () => {}); }); });',
+		'import test from \'node:test\';\ntest(\'o\', t => { t.after(() => { test(\'inner\', () => {}); }); });',
 	],
 });

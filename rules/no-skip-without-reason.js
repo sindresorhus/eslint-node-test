@@ -30,8 +30,8 @@ const create = context => {
 	context.on('CallExpression', node => {
 		const problems = [];
 
-		// Options form: `{skip: true}` / `{todo: true}` on a test/suite/hook.
-		if (parseTestCall(node, imports)) {
+		// Options form: `{skip: true}` / `{todo: true}` on a test/suite/hook, including a subtest.
+		if (parseTestCall(node, imports) || tracker.isSubtestCall(node)) {
 			const options = getTestOptions(node);
 			for (const modifier of REASON_MODIFIERS) {
 				const property = findOptionsProperty(options, modifier);

@@ -117,3 +117,19 @@ Message:
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Hook \`beforeEach\` should come before any test or \`describe\` in its scope.
 
 `;
+
+exports[`prefer-hooks-on-top > invalid(7): import {test} from 'node:test';\ntest('p', t => { t.test('a', () => {}); t.beforeEach(() => {}); }); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | test('p', t => { t.test('a', () => {}); t.beforeEach(() => {}); });
+
+`;
+
+exports[`prefer-hooks-on-top > invalid(7): import {test} from 'node:test';\ntest('p', t => { t.test('a', () => {}); t.beforeEach(() => {}); }); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | test('p', t => { t.test('a', () => {}); t.beforeEach(() => {}); });
+    |                                         ^^^^^^^^^^^^^^^^^^^^^^ Hook \`beforeEach\` should come before any test or \`describe\` in its scope.
+
+`;

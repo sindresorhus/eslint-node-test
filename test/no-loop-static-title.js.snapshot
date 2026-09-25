@@ -112,6 +112,22 @@ Message:
 
 `;
 
+exports[`no-loop-static-title > invalid(16): import {test, it, describe, suite} from 'node:test';\ntest('p', async t => { for (const x of xs) { await t.test('same', () => {}); } }); 1`] = `
+
+  1 | import {test, it, describe, suite} from 'node:test';
+  2 | test('p', async t => { for (const x of xs) { await t.test('same', () => {}); } });
+
+`;
+
+exports[`no-loop-static-title > invalid(16): import {test, it, describe, suite} from 'node:test';\ntest('p', async t => { for (const x of xs) { await t.test('same', () => {}); } }); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite} from 'node:test';
+> 2 | test('p', async t => { for (const x of xs) { await t.test('same', () => {}); } });
+    |                                                           ^^^^^^ This title is static but generated in a loop, so every iteration registers the same title. Include the loop variable so each title is unique.
+
+`;
+
 exports[`no-loop-static-title > invalid(2): import {test, it, describe, suite} from 'node:test';\nfor (let i = 0; i < 3; i++) { test('static', () => {}); } 1`] = `
 
   1 | import {test, it, describe, suite} from 'node:test';

@@ -107,5 +107,10 @@ test.snapshot({
 			options: [{format: '^Should'}],
 			languageOptions: {parser: parsers.typescript},
 		},
+		// A subtest title is formatted the same way
+		{
+			code: 'import test from \'node:test\';\ntest(\'p\', async t => { await t.test(\'nope\', () => {}); });',
+			options: [{format: '^Should'}],
+		},
 	],
 });

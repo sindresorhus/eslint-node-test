@@ -1,4 +1,10 @@
-import {resolveImports, parseTestCall, getTestOptions} from './utils/node-test.js';
+import {
+	resolveImports,
+	parseTestCall,
+	getTestOptions,
+	createContextTracker,
+	isContextHookCall,
+} from './utils/node-test.js';
 
 const MESSAGE_ID = 'no-unknown-test-options';
 
@@ -31,9 +37,17 @@ const create = context => {
 		return;
 	}
 
+	// A subtest (`t.test(…)`) accepts the test options, and a context hook (`t.beforeEach(…)`) the
+	// hook options; both are method calls, so the tracker recognizes them alongside the imported forms.
+	const tracker = createContextTracker(imports, {trackHooks: true});
+
 	context.on('CallExpression', function * (node) {
+		const isSubtest = tracker.isSubtestCall(node);
+		const isContextHook = isContextHookCall(node, tracker.isContextIdentifier);
+		tracker.update(node);
+
 		const parsed = parseTestCall(node, imports);
-		if (!parsed) {
+		if (!parsed && !isSubtest && !isContextHook) {
 			return;
 		}
 
@@ -42,7 +56,8 @@ const create = context => {
 			return;
 		}
 
-		const known = parsed.kind === 'hook' ? HOOK_OPTIONS : TEST_OPTIONS;
+		const isHook = parsed?.kind === 'hook' || isContextHook;
+		const known = isHook ? HOOK_OPTIONS : TEST_OPTIONS;
 
 		for (const property of options.properties) {
 			if (property.type !== 'Property' || property.computed) {
@@ -62,10 +77,14 @@ const create = context => {
 				yield {
 					node: property.key,
 					messageId: MESSAGE_ID,
-					data: {name, kind: parsed.kind},
+					data: {name, kind: isHook ? 'hook' : 'test'},
 				};
 			}
 		}
+	});
+
+	context.onExit('CallExpression', node => {
+		tracker.leave(node);
 	});
 };
 

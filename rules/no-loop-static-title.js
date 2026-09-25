@@ -2,6 +2,7 @@ import {
 	resolveImports,
 	parseTestCall,
 	getStaticString,
+	createContextTracker,
 	getTestTitle,
 } from './utils/node-test.js';
 import {isLoop, isFunction} from './ast/index.js';
@@ -57,9 +58,16 @@ const create = context => {
 		return;
 	}
 
+	// A subtest (`t.test(…)`) inside a loop registers the same static title on every iteration, just
+	// like an imported test, so it is tracked through the context tracker.
+	const tracker = createContextTracker(imports);
+
 	context.on('CallExpression', node => {
+		const isSubtest = tracker.isSubtestCall(node);
+		tracker.update(node);
+
 		const parsed = parseTestCall(node, imports);
-		if (parsed?.kind !== 'test' && parsed?.kind !== 'suite') {
+		if (!isSubtest && parsed?.kind !== 'test' && parsed?.kind !== 'suite') {
 			return;
 		}
 
@@ -80,6 +88,10 @@ const create = context => {
 			node: titleNode,
 			messageId: MESSAGE_ID,
 		};
+	});
+
+	context.onExit('CallExpression', node => {
+		tracker.leave(node);
 	});
 };
 

@@ -1,4 +1,10 @@
-import {resolveImports, parseTestCall} from './utils/node-test.js';
+import {
+	resolveImports,
+	parseTestCall,
+	createContextTracker,
+	isContextHookCall,
+	getCalleeChain,
+} from './utils/node-test.js';
 import {skipExpressionWrappers} from './utils/index.js';
 
 const MESSAGE_ID = 'hooks-order/error';
@@ -113,11 +119,21 @@ const create = context => {
 	// skipped. The containing block (a `describe` body or the program) is the ordering scope.
 	const hooksByBlock = new Map();
 
+	// A hook declared on a test context (`t.beforeEach(…)`) has the same canonical order as an
+	// imported hook, so it is recognized through the tracker.
+	const tracker = createContextTracker(imports, {trackHooks: true});
+
 	context.on('CallExpression', node => {
+		const isContextHook = isContextHookCall(node, tracker.isContextIdentifier);
+		tracker.update(node);
+
 		const parsed = parseTestCall(node, imports);
-		if (parsed?.kind !== 'hook') {
+		const isHook = parsed?.kind === 'hook' || isContextHook;
+		if (!isHook) {
 			return;
 		}
+
+		const hookName = isContextHook ? getCalleeChain(node.callee)?.members[0]?.name : parsed.name;
 
 		const statement = skipExpressionWrappers(node.parent);
 		if (statement?.type !== 'ExpressionStatement') {
@@ -135,7 +151,11 @@ const create = context => {
 			hooksByBlock.set(block, hooks);
 		}
 
-		hooks.push({name: parsed.name, statement});
+		hooks.push({name: hookName, statement});
+	});
+
+	context.onExit('CallExpression', node => {
+		tracker.leave(node);
 	});
 
 	context.onExit('Program', () => {

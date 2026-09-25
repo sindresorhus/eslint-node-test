@@ -62,6 +62,38 @@ Message:
 
 `;
 
+exports[`no-skip-without-reason > invalid(13): import {test} from 'node:test';\ntest('p', async t => { await t.test('a', {skip: true}, () => {}); }); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | test('p', async t => { await t.test('a', {skip: true}, () => {}); });
+
+`;
+
+exports[`no-skip-without-reason > invalid(13): import {test} from 'node:test';\ntest('p', async t => { await t.test('a', {skip: true}, () => {}); }); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | test('p', async t => { await t.test('a', {skip: true}, () => {}); });
+    |                                           ^^^^^^^^^^ Give \`skip\` a reason string instead of \`true\` explaining why.
+
+`;
+
+exports[`no-skip-without-reason > invalid(14): import {test} from 'node:test';\ntest('p', async t => { await t.test('a', {todo: true}, () => {}); }); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | test('p', async t => { await t.test('a', {todo: true}, () => {}); });
+
+`;
+
+exports[`no-skip-without-reason > invalid(14): import {test} from 'node:test';\ntest('p', async t => { await t.test('a', {todo: true}, () => {}); }); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | test('p', async t => { await t.test('a', {todo: true}, () => {}); });
+    |                                           ^^^^^^^^^^ Give \`todo\` a reason string instead of \`true\` explaining why.
+
+`;
+
 exports[`no-skip-without-reason > invalid(2): import test from 'node:test';\ntest('t', {todo: true}, () => {}); 1`] = `
 
   1 | import test from 'node:test';

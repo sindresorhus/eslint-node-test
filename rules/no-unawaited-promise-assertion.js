@@ -13,6 +13,7 @@ import {
 	parseDestructuredAssertCall,
 	isHookMemberTestCall,
 	MODIFIERS,
+	HOOK_FUNCTIONS,
 } from './utils/node-test.js';
 import {isFunction} from './ast/index.js';
 import {
@@ -186,6 +187,21 @@ function isTrackedSubtestCall(node, contextParameters, sourceCode) {
 	}
 
 	const variable = findVariable(sourceCode.getScope(receiver), receiver);
+	return variable?.identifiers.some(identifier => contextParameters.includes(identifier)) === true;
+}
+
+/*
+Whether a call is a hook declared on a tracked test context (`t.beforeEach(…)`). It is a method
+call on the context parameter, not an imported binding, so `parseTestCall` does not classify it, but
+its callback is still a boundary whose late activity the runner reports.
+*/
+function isTrackedContextHookCall(node, contextParameters, sourceCode) {
+	const chain = getCalleeChain(node.callee);
+	if (!chain || chain.members.length !== 1 || !HOOK_FUNCTIONS.has(chain.members[0].name)) {
+		return false;
+	}
+
+	const variable = findVariable(sourceCode.getScope(chain.root), chain.root);
 	return variable?.identifiers.some(identifier => contextParameters.includes(identifier)) === true;
 }
 
@@ -646,6 +662,11 @@ function getTestBoundaryCallback(node, imports, contextParameters, sourceCode) {
 		return isInlineCallback(callback) && getEffectiveArity(callback.params) < 2 ? callback : undefined;
 	}
 
+	if (isTrackedContextHookCall(node, contextParameters, sourceCode)) {
+		const callback = getHookCallback(node);
+		return isInlineCallback(callback) && getEffectiveArity(callback.params) < 2 ? callback : undefined;
+	}
+
 	if (!isTrackedSubtestCall(node, contextParameters, sourceCode)) {
 		return undefined;
 	}
@@ -693,7 +714,7 @@ function isDirectlyEvaluatedByCallback(node, callback) {
 	return getEnclosingFunction(node) === callback && !isInsideUnevaluatedCallbackRegion(node, callback);
 }
 
-function hasStaticBlockBetween(node, boundary) {
+export function hasStaticBlockBetween(node, boundary) {
 	for (let current = node; current && current !== boundary; current = current.parent) {
 		if (current.type === 'StaticBlock') {
 			return true;

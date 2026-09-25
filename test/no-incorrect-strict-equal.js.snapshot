@@ -10,7 +10,7 @@ exports[`no-incorrect-strict-equal > invalid(1): import assert from 'node:assert
 Message:
   1 | import assert from 'node:assert';
 > 2 | assert.strictEqual(a, {});
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal, which compares by reference rather than structure. Use \`deepStrictEqual\` instead.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal. Use \`deepStrictEqual\` to compare by structure instead.
 
 Output:
   1 | import assert from 'node:assert';
@@ -30,7 +30,7 @@ exports[`no-incorrect-strict-equal > invalid(10): import assert from 'node:asser
 Message:
   1 | import assert from 'node:assert';
 > 2 | assert.strictEqual(a, {}, "message");
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal, which compares by reference rather than structure. Use \`deepStrictEqual\` instead.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal. Use \`deepStrictEqual\` to compare by structure instead.
 
 Output:
   1 | import assert from 'node:assert';
@@ -50,7 +50,7 @@ exports[`no-incorrect-strict-equal > invalid(11): import assert from 'node:asser
 Message:
   1 | import assert from 'node:assert/strict';
 > 2 | assert.strictEqual(a, {});
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal, which compares by reference rather than structure. Use \`deepStrictEqual\` instead.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal. Use \`deepStrictEqual\` to compare by structure instead.
 
 Output:
   1 | import assert from 'node:assert/strict';
@@ -70,7 +70,7 @@ exports[`no-incorrect-strict-equal > invalid(12): import test from 'node:test';\
 Message:
   1 | import test from 'node:test';
 > 2 | test('t', t => { t.assert.strictEqual(a, {}); });
-    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal, which compares by reference rather than structure. Use \`deepStrictEqual\` instead.
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal. Use \`deepStrictEqual\` to compare by structure instead.
 
 Output:
   1 | import test from 'node:test';
@@ -90,7 +90,7 @@ exports[`no-incorrect-strict-equal > invalid(13): import test from 'node:test';\
 Message:
   1 | import test from 'node:test';
 > 2 | test('t', t => { t.assert.notStrictEqual([1], b); });
-    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`notStrictEqual\` with an object or array literal, which compares by reference rather than structure. Use \`notDeepStrictEqual\` instead.
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`notStrictEqual\` with an object or array literal. Use \`notDeepStrictEqual\` to compare by structure instead.
 
 Output:
   1 | import test from 'node:test';
@@ -110,7 +110,7 @@ exports[`no-incorrect-strict-equal > invalid(14): import {strictEqual} from 'nod
 Message:
   1 | import {strictEqual} from 'node:assert';
 > 2 | strictEqual(a, {});
-    | ^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal, which compares by reference rather than structure. Use \`deepStrictEqual\` instead.
+    | ^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal. Use \`deepStrictEqual\` to compare by structure instead.
 
 `;
 
@@ -126,7 +126,7 @@ exports[`no-incorrect-strict-equal > invalid(15): import {equal as eq} from 'nod
 Message:
   1 | import {equal as eq} from 'node:assert';
 > 2 | eq(a, [1]);
-    | ^^^^^^^^^^ Avoid using \`equal\` with an object or array literal, which compares by reference rather than structure. Use \`deepEqual\` instead.
+    | ^^^^^^^^^^ Avoid using \`equal\` with an object or array literal. Use \`deepEqual\` to compare by structure instead.
 
 `;
 
@@ -142,7 +142,7 @@ exports[`no-incorrect-strict-equal > invalid(16): import assert from 'node:asser
 Message:
   1 | import assert from 'node:assert';
 > 2 | assert.strictEqual(a, {x: 1} as const);
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal, which compares by reference rather than structure. Use \`deepStrictEqual\` instead.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal. Use \`deepStrictEqual\` to compare by structure instead.
 
 Output:
   1 | import assert from 'node:assert';
@@ -162,7 +162,7 @@ exports[`no-incorrect-strict-equal > invalid(17): import assert from 'node:asser
 Message:
   1 | import assert from 'node:assert';
 > 2 | assert.strictEqual(a, [1, 2] as number[]);
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal, which compares by reference rather than structure. Use \`deepStrictEqual\` instead.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal. Use \`deepStrictEqual\` to compare by structure instead.
 
 Output:
   1 | import assert from 'node:assert';
@@ -182,7 +182,7 @@ exports[`no-incorrect-strict-equal > invalid(2): import assert from 'node:assert
 Message:
   1 | import assert from 'node:assert';
 > 2 | assert.strictEqual(a, {x: 1});
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal, which compares by reference rather than structure. Use \`deepStrictEqual\` instead.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal. Use \`deepStrictEqual\` to compare by structure instead.
 
 Output:
   1 | import assert from 'node:assert';
@@ -202,7 +202,7 @@ exports[`no-incorrect-strict-equal > invalid(3): import assert from 'node:assert
 Message:
   1 | import assert from 'node:assert';
 > 2 | assert.strictEqual({a: 1}, b);
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal, which compares by reference rather than structure. Use \`deepStrictEqual\` instead.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal. Use \`deepStrictEqual\` to compare by structure instead.
 
 Output:
   1 | import assert from 'node:assert';
@@ -222,7 +222,7 @@ exports[`no-incorrect-strict-equal > invalid(4): import assert from 'node:assert
 Message:
   1 | import assert from 'node:assert';
 > 2 | assert.strictEqual(a, [1, 2]);
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal, which compares by reference rather than structure. Use \`deepStrictEqual\` instead.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal. Use \`deepStrictEqual\` to compare by structure instead.
 
 Output:
   1 | import assert from 'node:assert';
@@ -242,7 +242,7 @@ exports[`no-incorrect-strict-equal > invalid(5): import assert from 'node:assert
 Message:
   1 | import assert from 'node:assert';
 > 2 | assert.strictEqual([1], b);
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal, which compares by reference rather than structure. Use \`deepStrictEqual\` instead.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal. Use \`deepStrictEqual\` to compare by structure instead.
 
 Output:
   1 | import assert from 'node:assert';
@@ -262,7 +262,7 @@ exports[`no-incorrect-strict-equal > invalid(6): import assert from 'node:assert
 Message:
   1 | import assert from 'node:assert';
 > 2 | assert.equal(a, {});
-    | ^^^^^^^^^^^^^^^^^^^ Avoid using \`equal\` with an object or array literal, which compares by reference rather than structure. Use \`deepEqual\` instead.
+    | ^^^^^^^^^^^^^^^^^^^ Avoid using \`equal\` with an object or array literal. Use \`deepEqual\` to compare by structure instead.
 
 Output:
   1 | import assert from 'node:assert';
@@ -282,7 +282,7 @@ exports[`no-incorrect-strict-equal > invalid(7): import assert from 'node:assert
 Message:
   1 | import assert from 'node:assert';
 > 2 | assert.notEqual(a, []);
-    | ^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`notEqual\` with an object or array literal, which compares by reference rather than structure. Use \`notDeepEqual\` instead.
+    | ^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`notEqual\` with an object or array literal. Use \`notDeepEqual\` to compare by structure instead.
 
 Output:
   1 | import assert from 'node:assert';
@@ -302,7 +302,7 @@ exports[`no-incorrect-strict-equal > invalid(8): import assert from 'node:assert
 Message:
   1 | import assert from 'node:assert';
 > 2 | assert.notStrictEqual(a, {x: 1});
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`notStrictEqual\` with an object or array literal, which compares by reference rather than structure. Use \`notDeepStrictEqual\` instead.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`notStrictEqual\` with an object or array literal. Use \`notDeepStrictEqual\` to compare by structure instead.
 
 Output:
   1 | import assert from 'node:assert';
@@ -322,7 +322,7 @@ exports[`no-incorrect-strict-equal > invalid(9): import assert from 'node:assert
 Message:
   1 | import assert from 'node:assert';
 > 2 | assert.strictEqual({}, {});
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal, which compares by reference rather than structure. Use \`deepStrictEqual\` instead.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`strictEqual\` with an object or array literal. Use \`deepStrictEqual\` to compare by structure instead.
 
 Output:
   1 | import assert from 'node:assert';

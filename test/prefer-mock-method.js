@@ -25,6 +25,9 @@ test.snapshot({
 
 		// Assigning to a plain variable, not a property
 		withMock('let spy;\nspy = mock.fn();'),
+
+		// A shadowed inner parameter with the same name is not the test context
+		'import test from \'node:test\';\ntest(\'t\', t => {\n\tfunction f(t) {\n\t\tobject.method = t.mock.fn();\n\t}\n});',
 	],
 	invalid: [
 		// A sequence-expression receiver or implementation is re-emitted without its parentheses,

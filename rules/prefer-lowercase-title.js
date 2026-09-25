@@ -1,4 +1,9 @@
-import {resolveImports, parseTestCall, getTestTitle} from './utils/node-test.js';
+import {
+	resolveImports,
+	parseTestCall,
+	getTestTitle,
+	createContextTracker,
+} from './utils/node-test.js';
 
 const MESSAGE_ID = 'prefer-lowercase-title';
 
@@ -30,13 +35,19 @@ const create = context => {
 
 	const {ignore, allowedPrefixes} = context.options[0];
 
+	// A subtest (`t.test(…)`) has a title just like an imported test.
+	const tracker = createContextTracker(imports);
+
 	context.on('CallExpression', node => {
+		const isSubtest = tracker.isSubtestCall(node);
+		tracker.update(node);
+
 		const parsed = parseTestCall(node, imports);
-		if (parsed?.kind !== 'test' && parsed?.kind !== 'suite') {
+		if (!isSubtest && parsed?.kind !== 'test' && parsed?.kind !== 'suite') {
 			return;
 		}
 
-		if (ignore.includes(parsed.name)) {
+		if (!isSubtest && ignore.includes(parsed.name)) {
 			return;
 		}
 
@@ -73,6 +84,10 @@ const create = context => {
 		}
 
 		return problem;
+	});
+
+	context.onExit('CallExpression', node => {
+		tracker.leave(node);
 	});
 };
 

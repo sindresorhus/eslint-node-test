@@ -13,7 +13,7 @@ Each `node:assert` method has a fixed set of required positional arguments, plus
 
 - Too few required arguments are passed.
 - More arguments are passed than the method accepts (required + 1 optional message).
-- A trailing `message` argument is statically known to be neither a string nor an `Error`.
+- A trailing `message` argument is statically known to be neither a string, an `Error`, a function, nor `null`.
 
 Methods with variable arity (`fail`) and calls that use spread arguments are not checked.
 

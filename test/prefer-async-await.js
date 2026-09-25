@@ -101,5 +101,6 @@ test.snapshot({
 			code: 'import test from "node:test";\ntest("title", t => { return foo!.then(fn); });',
 			languageOptions: {parser: parsers.typescript},
 		},
+		withImport('test(\'x\', async t => { await t.test(\'y\', () => { return f().then(d => d); }); });'),
 	],
 });

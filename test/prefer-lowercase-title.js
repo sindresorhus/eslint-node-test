@@ -88,5 +88,6 @@ test.snapshot({
 		withImport('test(function inner() {}, {name: "UPPERCASE"});'),
 		// A spread before `name` cannot override it, so the title is still known
 		withImport('test("lowercase", {...rest, name: "UPPERCASE"}, () => {});'),
+		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'Foo\', () => {}); });',
 	],
 });

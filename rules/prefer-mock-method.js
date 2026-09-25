@@ -33,7 +33,7 @@ const create = context => {
 		}
 
 		const object = unwrapExpression(node.object);
-		return object.type === 'Identifier' && tracker.isContextName(object.name);
+		return object.type === 'Identifier' && tracker.isContextIdentifier(object);
 	};
 
 	// Keep the context-name stack in sync as we enter and leave test callbacks.

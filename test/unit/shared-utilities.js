@@ -13,7 +13,7 @@ import {
 	getFloatingStatement,
 } from '../../rules/utils/index.js';
 import {removeArgument} from '../../rules/fix/index.js';
-import {parseAssertionCall, resolveImports} from '../../rules/utils/node-test.js';
+import {parseAssertionCall, getTestCallback, resolveImports} from '../../rules/utils/node-test.js';
 
 // Apply `removeArgument` to the argument at `index` of the `fn(…)` call and return the fixed source.
 const removeArgumentFrom = (code, index, languageOptions) => {
@@ -276,4 +276,44 @@ test('parseAssertionCall does not serve a cached result to a spread copy of the 
 		languageOptions: {ecmaVersion: 'latest', sourceType: 'module'},
 	});
 	assert.deepEqual(results, [undefined, 'equal']);
+});
+
+// The text of the callback `getTestCallback` picks out of the last call in `code`.
+const testCallbackText = code => {
+	let text;
+	const rule = {
+		create: context => ({
+			'CallExpression:exit'(node) {
+				const callback = getTestCallback(node);
+				text = callback && context.sourceCode.getText(callback);
+			},
+		}),
+	};
+	new Linter().verify(code, {
+		plugins: {test: {rules: {rule}}},
+		rules: {'test/rule': 'error'},
+		languageOptions: {ecmaVersion: 'latest', sourceType: 'module'},
+	});
+	return text;
+};
+
+test('getTestCallback returns the function node:test actually runs', () => {
+	// `node:test` runs the FIRST function argument of a call, so a second function is never called.
+	assert.strictEqual(testCallbackText('test(\'a\', function first() {}, function second() {});'), 'function first() {}');
+	assert.strictEqual(testCallbackText('beforeEach(function first() {}, function second() {});'), 'function first() {}');
+	assert.strictEqual(testCallbackText('describe(\'a\', function first() {}, function second() {});'), 'function first() {}');
+
+	// The only function argument, in every documented slot.
+	assert.strictEqual(testCallbackText('test(\'a\', {skip: true}, function fn() {});'), 'function fn() {}');
+	assert.strictEqual(testCallbackText('test(\'a\', function fn() {});'), 'function fn() {}');
+	assert.strictEqual(testCallbackText('beforeEach(function fn() {}, {skip: true});'), 'function fn() {}');
+
+	// `options.fn` wins over a positional callback, wherever the options object sits.
+	assert.strictEqual(testCallbackText('test(\'a\', {fn: function descriptor() {}}, function positional() {});'), 'function descriptor() {}');
+	assert.strictEqual(testCallbackText('test({name: \'a\', fn: function descriptor() {}}, function positional() {});'), 'function descriptor() {}');
+	// A trailing object on a call that already has a callback is not options, so it is ignored.
+	assert.strictEqual(testCallbackText('test(\'a\', function positional() {}, {fn: function ignored() {}});'), 'function positional() {}');
+
+	// No callback at all.
+	assert.strictEqual(testCallbackText('test(\'a\', {skip: true});'), undefined);
 });

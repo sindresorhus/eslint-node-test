@@ -169,5 +169,8 @@ test.snapshot({
 			code: 'import test from \'node:test\';\nimport {strictEqual as equal} from \'node:assert/strict\';\ntest(\'example\', () => { setTimeout(() => (equal as typeof equal)(value, 1)); });',
 			languageOptions: {parser: parsers.typescript},
 		},
+		// A hook declared on a test context is still a boundary the runner reports activity after
+		withImport('test(\'o\', t => { t.beforeEach(() => { setTimeout(() => assert.ok(1), 1); }); });'),
+		withImport('test(\'o\', t => { t.before(() => { setTimeout(() => assert.ok(1), 1); }); });'),
 	],
 });

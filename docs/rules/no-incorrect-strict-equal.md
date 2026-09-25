@@ -9,9 +9,11 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-`strictEqual` and `equal` (and their `not*` variants) compare with `Object.is` / `==`. When an argument is an object or array literal, that comparison is decided purely by reference identity: a freshly allocated `{…}` or `[…]` is never reference-equal to anything else. So `strictEqual(value, {a: 1})` always fails and `notStrictEqual(value, {a: 1})` always passes, regardless of `value`. The author almost always meant a deep structural comparison.
+`strictEqual` and `notStrictEqual` compare with `Object.is`. When an argument is an object or array literal, that comparison is decided purely by reference identity: a freshly allocated `{…}` or `[…]` is never reference-equal to anything else. So `strictEqual(value, {a: 1})` always fails and `notStrictEqual(value, {a: 1})` always passes, regardless of `value`. The author almost always meant a deep structural comparison.
 
-This rule reports `equal`, `strictEqual`, `notEqual`, and `notStrictEqual` calls where either argument is an object or array literal. It autofixes by replacing the method name with the deep equivalent.
+`equal` and `notEqual` compare with `==`, which coerces, so the outcome there is not decided by reference identity: `equal(0, [])` passes. The advice to compare by structure still holds, so this rule reports all four methods.
+
+This rule reports `equal`, `strictEqual`, `notEqual`, and `notStrictEqual` calls where either argument is an object or array literal. It autofixes by replacing the method name with the deep equivalent, but only when neither argument is a primitive: with a primitive on one side the loose and deep forms disagree (`equal(0, [])` passes while `deepEqual(0, [])` fails), so those calls are reported without a fix.
 
 This is the mirror of [`no-incorrect-deep-equal`](./no-incorrect-deep-equal.md), which flags the opposite mistake (deep comparison against a primitive).
 

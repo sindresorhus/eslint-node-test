@@ -43,6 +43,10 @@ test.snapshot({
 		withImport('test.assert.register("custom", async () => {});'),
 		// A bare `test` package is not Node's test runner.
 		'import test from "test";\ntest("title", async t => {});',
+
+		// Subtest and context-hook callbacks with an await are valid
+		withImport('test(\'a\', t => { t.test(\'b\', async () => { await foo(); }); });'),
+		withImport('test(\'a\', t => { t.beforeEach(async () => { await foo(); }); });'),
 	],
 	invalid: [
 		// A comment between `async` and the callback would be removed with the keyword,
@@ -86,6 +90,9 @@ test.snapshot({
 		// A comment between `async` and the method name would be removed with the keyword,
 		// so the test is reported but no fix is offered
 		'import test from \'node:test\';\ntest({name: "x", async /* keep me */ fn() {}});',
+		// Subtests and context hooks are test/hook callbacks too
+		withImport('test(\'a\', t => { t.test(\'b\', async () => {}); });'),
+		withImport('test(\'a\', t => { t.beforeEach(async () => {}); });'),
 	],
 });
 

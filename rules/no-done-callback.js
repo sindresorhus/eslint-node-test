@@ -3,6 +3,8 @@ import {
 	parseTestCall,
 	getTestCallback,
 	getEffectiveArity,
+	createContextTracker,
+	isContextHookCall,
 } from './utils/node-test.js';
 
 const MESSAGE_ID = 'no-done-callback';
@@ -18,10 +20,18 @@ const create = context => {
 		return;
 	}
 
+	// Subtests (`t.test(…)`) and context hooks (`t.beforeEach(…)`) are method calls, not imported
+	// bindings, but their callbacks receive the same `done` based on arity.
+	const tracker = createContextTracker(imports, {trackHooks: true});
+
 	context.on('CallExpression', node => {
+		const isSubtest = tracker.isSubtestCall(node);
+		const isContextHook = isContextHookCall(node, tracker.isContextIdentifier);
+		tracker.update(node);
+
 		const parsed = parseTestCall(node, imports);
 		// Suite (`describe`/`suite`) callbacks receive a `SuiteContext`, never a `done` callback.
-		if (parsed?.kind !== 'test' && parsed?.kind !== 'hook') {
+		if (parsed?.kind !== 'test' && parsed?.kind !== 'hook' && !isSubtest && !isContextHook) {
 			return;
 		}
 
@@ -37,6 +47,10 @@ const create = context => {
 			messageId: MESSAGE_ID,
 			data: {name: parameter.type === 'Identifier' ? parameter.name : 'done'},
 		};
+	});
+
+	context.onExit('CallExpression', node => {
+		tracker.leave(node);
 	});
 };
 

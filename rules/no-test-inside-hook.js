@@ -1,4 +1,10 @@
-import {resolveImports, parseTestCall, getHookCallback} from './utils/node-test.js';
+import {
+	resolveImports,
+	parseTestCall,
+	getHookCallback,
+	createContextTracker,
+	isContextHookCall,
+} from './utils/node-test.js';
 
 const MESSAGE_ID = 'no-test-inside-hook';
 
@@ -13,23 +19,35 @@ const create = context => {
 		return;
 	}
 
-	// Stack of hook callback function nodes we are currently inside.
+	// Stack of hook callback function nodes we are currently inside. A test registered in a hook
+	// callback is dropped at runtime, whether the hook is imported (`beforeEach(…)`) or declared on a
+	// test context (`t.beforeEach(…)`).
 	const hookCallbackStack = [];
 
+	// The tracker is needed to recognise a context hook: `t.beforeEach(…)` is a method call on the
+	// test's context parameter, not an imported binding.
+	const tracker = createContextTracker(imports, {trackHooks: true});
+
 	context.on('CallExpression', node => {
+		// Query the tracker before it learns about this call, so the receiver is the enclosing context.
+		const isContextHook = isContextHookCall(node, tracker.isContextIdentifier);
+		tracker.update(node);
+
 		const parsed = parseTestCall(node, imports);
-		if (!parsed) {
+		if (!parsed && !isContextHook) {
 			return;
 		}
 
-		if ((parsed.kind === 'test' || parsed.kind === 'suite') && hookCallbackStack.length > 0) {
+		const kind = isContextHook ? 'hook' : parsed.kind;
+
+		if ((kind === 'test' || kind === 'suite') && hookCallbackStack.length > 0) {
 			return {
 				node,
 				messageId: MESSAGE_ID,
 			};
 		}
 
-		if (parsed.kind === 'hook') {
+		if (kind === 'hook') {
 			const callback = getHookCallback(node);
 			if (callback) {
 				hookCallbackStack.push(callback);
@@ -38,8 +56,11 @@ const create = context => {
 	});
 
 	context.onExit('CallExpression', node => {
+		const isContextHook = isContextHookCall(node, tracker.isContextIdentifier);
+		tracker.leave(node);
+
 		const parsed = parseTestCall(node, imports);
-		if (parsed?.kind !== 'hook') {
+		if (parsed?.kind !== 'hook' && !isContextHook) {
 			return;
 		}
 

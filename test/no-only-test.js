@@ -39,6 +39,9 @@ test.snapshot({
 		'import test from "node:test";\ntest.expectFailure.only("title", () => {});',
 		// A bare `test` package is not Node's test runner.
 		'import test from "test";\ntest.only("title", () => {});',
+
+		// `void 0` is `undefined`, so node:test does not treat it as only
+		'import test from \'node:test\';\ntest(\'a\', {only: void 0}, () => {});',
 	],
 	invalid: [
 		// Options in the slot the runner actually reads

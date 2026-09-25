@@ -75,5 +75,7 @@ test.snapshot({
 			code: withImport('before, after', 'after(() => {}) as void;\nbefore(() => {}) as void;'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		// A hook declared on a test context has the same canonical order
+		'import {test} from \'node:test\';\ntest(\'p\', t => { t.afterEach(() => {}); t.beforeEach(() => {}); });',
 	],
 });

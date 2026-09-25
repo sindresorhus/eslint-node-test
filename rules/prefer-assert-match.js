@@ -3,7 +3,7 @@ import {
 	parseSupportedAssertionCall,
 	createContextTracker,
 } from './utils/node-test.js';
-import {isRegexLiteral, isBooleanLiteral} from './ast/index.js';
+import {isRegexLiteral, isBooleanLiteral, isFunction} from './ast/index.js';
 import {isParenthesized} from './utils/index.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
@@ -125,6 +125,32 @@ rewrite/removal could drop, and no parenthesized arguments. The rewrite replaces
 argument's inner node and removes the boolean argument up to its own inner node, so surrounding
 parentheses on either would be left behind as stray tokens.
 */
+/*
+`re.test(x)` coerces `x` to a string, but `assert.match(x, re)` requires `x` to already be a string
+primitive and throws otherwise. When the subject is statically known not to be a string, the rewrite
+would turn a passing assertion into a thrown one, so it is reported but not fixed.
+*/
+function isStaticallyNonString(node) {
+	node = unwrapTypeScriptExpression(node);
+	if (node.type === 'Literal') {
+		return typeof node.value !== 'string';
+	}
+
+	if (node.type === 'Identifier') {
+		return ['NaN', 'Infinity', 'undefined'].includes(node.name);
+	}
+
+	// Every unary operator yields a non-string except `typeof`, which yields a string.
+	if (node.type === 'UnaryExpression') {
+		return node.operator !== 'typeof';
+	}
+
+	return node.type === 'ArrayExpression'
+		|| node.type === 'ObjectExpression'
+		|| node.type === 'NewExpression'
+		|| isFunction(node);
+}
+
 function canAutofix(node, context, regexCall) {
 	return node.callee.type === 'MemberExpression'
 		&& context.sourceCode.getCommentsInside(node).length === 0
@@ -133,7 +159,8 @@ function canAutofix(node, context, regexCall) {
 		// around a sequence expression. Keeping them would leave a stray `)`, but dropping them
 		// turns one argument into several, so do not rewrite at all.
 		&& !isSequenceExpression(regexCall.string)
-		&& !isSequenceExpression(regexCall.regex);
+		&& !isSequenceExpression(regexCall.regex)
+		&& !isStaticallyNonString(regexCall.string);
 }
 
 /** Build the problem object for a detected regex-result assertion. */

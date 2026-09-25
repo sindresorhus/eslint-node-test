@@ -29,6 +29,10 @@ const create = context => {
 		return;
 	}
 
+	// `mock.module('os')` and `mock.module('node:os')` resolve to the same module, and so do
+	// `import 'os'` and `import 'node:os'`, so the prefix is stripped before comparing.
+	const normalizeSpecifier = specifier => specifier.replace(/^node:/, '');
+
 	const staticImports = new Set();
 	for (const node of sourceCode.ast.body) {
 		if (
@@ -36,7 +40,7 @@ const create = context => {
 			&& typeof node.source.value === 'string'
 			&& isRuntimeImport(node)
 		) {
-			staticImports.add(node.source.value);
+			staticImports.add(normalizeSpecifier(node.source.value));
 		}
 	}
 
@@ -81,7 +85,7 @@ const create = context => {
 		}
 
 		const specifier = getStaticString(node.arguments[0], context);
-		if (specifier === undefined || !staticImports.has(specifier)) {
+		if (specifier === undefined || !staticImports.has(normalizeSpecifier(specifier))) {
 			return;
 		}
 

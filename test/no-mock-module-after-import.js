@@ -12,7 +12,6 @@ test.snapshot({
 
 		// Different module
 		head + 'import value from \'module.js\';\nmock.module(\'other-module.js\');',
-		'import {mock} from \'node:test\';\nimport \'node:fs\';\nmock.module(\'fs\');',
 
 		// Dynamic imports happen after the mock is installed.
 		head + 'test(\'mock\', async t => {\n\tt.mock.module(\'module.js\');\n\tawait import(\'module.js\');\n});',
@@ -120,5 +119,11 @@ test.snapshot({
 			code: head + 'import \'module.js\';\ntest(\'mock\', t => {\n\t(t as TestContext).mock.module(\'module.js\');\n});',
 			languageOptions: {parser: parsers.typescript},
 		},
+		// `mock.module` strips the `node:` prefix, so the two spellings name the same module
+		'import {mock} from \'node:test\';\nimport * as os from \'node:os\';\nmock.module(\'os\', {exports: {}});',
+		'import {mock} from \'node:test\';\nimport * as os from \'os\';\nmock.module(\'node:os\', {exports: {}});',
+		// `mock.module` strips the `node:` prefix, so `import 'node:fs'` and `mock.module('fs')`
+		// name the same module.
+		'import {mock} from \'node:test\';\nimport \'node:fs\';\nmock.module(\'fs\');',
 	],
 });

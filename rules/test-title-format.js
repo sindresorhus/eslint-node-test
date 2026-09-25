@@ -1,6 +1,7 @@
 import {
 	resolveImports,
 	parseTestCall,
+	createContextTracker,
 	getTestTitle,
 	getStaticString,
 } from './utils/node-test.js';
@@ -26,9 +27,15 @@ const create = context => {
 
 	const titleRegExp = toRegExp(formatOption, 'test-title-format', 'format');
 
+	// A subtest (`t.test(…)`) has a title the same way an imported test does.
+	const tracker = createContextTracker(imports);
+
 	context.on('CallExpression', node => {
+		const isSubtest = tracker.isSubtestCall(node);
+		tracker.update(node);
+
 		const parsed = parseTestCall(node, imports);
-		if (!parsed || parsed.kind === 'hook') {
+		if ((!parsed && !isSubtest) || parsed?.kind === 'hook') {
 			return;
 		}
 
@@ -49,6 +56,10 @@ const create = context => {
 				data: {format: String(titleRegExp)},
 			};
 		}
+	});
+
+	context.onExit('CallExpression', node => {
+		tracker.leave(node);
 	});
 };
 

@@ -97,5 +97,7 @@ test.snapshot({
 		// A comment in the gap after the callback would be left behind describing the title
 		'import test from \'node:test\';\ntest(\'placeholder\', () => {} /* keep me */);',
 		'import test from \'node:test\';\ntest(\'placeholder\', () => {\n} /* keep me */);',
+		// A subtest is a test too, but has no `.todo` method, so it is reported without a suggestion
+		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\', () => {}); });',
 	],
 });

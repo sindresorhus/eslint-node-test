@@ -565,6 +565,35 @@ Message:
 
 `;
 
+exports[`valid-test-tags > invalid(36): import {test} from 'node:test';\ntest('p', async t => { await t.test('a', {tags: ['Slow', 'slow']}, () => {}); }); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | test('p', async t => { await t.test('a', {tags: ['Slow', 'slow']}, () => {}); });
+
+`;
+
+exports[`valid-test-tags > invalid(36): import {test} from 'node:test';\ntest('p', async t => { await t.test('a', {tags: ['Slow', 'slow']}, () => {}); }); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | test('p', async t => { await t.test('a', {tags: ['Slow', 'slow']}, () => {}); });
+    |                                                  ^^^^^^ Tag \`Slow\` must use its lowercase canonical form.
+
+Output:
+  1 | import {test} from 'node:test';
+  2 | test('p', async t => { await t.test('a', {tags: ['slow', 'slow']}, () => {}); });
+
+`;
+
+exports[`valid-test-tags > invalid(36): import {test} from 'node:test';\ntest('p', async t => { await t.test('a', {tags: ['Slow', 'slow']}, () => {}); }); 3`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | test('p', async t => { await t.test('a', {tags: ['Slow', 'slow']}, () => {}); });
+    |                                                          ^^^^^^ Duplicate tag \`slow\`.
+
+`;
+
 exports[`valid-test-tags > invalid(4): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: {}}, () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';

@@ -238,6 +238,38 @@ Message:
 
 `;
 
+exports[`no-done-callback > invalid(23): import {test} from 'node:test';\ntest('p', async t => { await t.test('a', (sub, done) => { done(); }); }); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | test('p', async t => { await t.test('a', (sub, done) => { done(); }); });
+
+`;
+
+exports[`no-done-callback > invalid(23): import {test} from 'node:test';\ntest('p', async t => { await t.test('a', (sub, done) => { done(); }); }); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | test('p', async t => { await t.test('a', (sub, done) => { done(); }); });
+    |                                                ^^^^ Use \`async\`/\`await\` or return a Promise instead of the \`done\` callback parameter.
+
+`;
+
+exports[`no-done-callback > invalid(24): import {test} from 'node:test';\ntest('p', t => { t.beforeEach((sub, done) => {}); }); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | test('p', t => { t.beforeEach((sub, done) => {}); });
+
+`;
+
+exports[`no-done-callback > invalid(24): import {test} from 'node:test';\ntest('p', t => { t.beforeEach((sub, done) => {}); }); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | test('p', t => { t.beforeEach((sub, done) => {}); });
+    |                                     ^^^^ Use \`async\`/\`await\` or return a Promise instead of the \`done\` callback parameter.
+
+`;
+
 exports[`no-done-callback > invalid(3): import test from 'node:test';\ntest('a', {name: 'a', fn(t, done) { done(); }}); 1`] = `
 
   1 | import test from 'node:test';

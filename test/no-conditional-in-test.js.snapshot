@@ -222,6 +222,70 @@ Message:
 
 `;
 
+exports[`no-conditional-in-test > invalid(22): import {test, describe, beforeEach} from 'node:test';\ntest('o', t => { t.beforeEach(() => { if (a) { f(); } }); }); 1`] = `
+
+  1 | import {test, describe, beforeEach} from 'node:test';
+  2 | test('o', t => { t.beforeEach(() => { if (a) { f(); } }); });
+
+`;
+
+exports[`no-conditional-in-test > invalid(22): import {test, describe, beforeEach} from 'node:test';\ntest('o', t => { t.beforeEach(() => { if (a) { f(); } }); }); 2`] = `
+
+Message:
+  1 | import {test, describe, beforeEach} from 'node:test';
+> 2 | test('o', t => { t.beforeEach(() => { if (a) { f(); } }); });
+    |                                       ^^^^^^^^^^^^^^^ Avoid conditional logic in a test; a test should run the same way every time.
+
+`;
+
+exports[`no-conditional-in-test > invalid(23): import {test, describe, beforeEach} from 'node:test';\ntest('o', t => { t.before(() => { if (a) { f(); } }); }); 1`] = `
+
+  1 | import {test, describe, beforeEach} from 'node:test';
+  2 | test('o', t => { t.before(() => { if (a) { f(); } }); });
+
+`;
+
+exports[`no-conditional-in-test > invalid(23): import {test, describe, beforeEach} from 'node:test';\ntest('o', t => { t.before(() => { if (a) { f(); } }); }); 2`] = `
+
+Message:
+  1 | import {test, describe, beforeEach} from 'node:test';
+> 2 | test('o', t => { t.before(() => { if (a) { f(); } }); });
+    |                                   ^^^^^^^^^^^^^^^ Avoid conditional logic in a test; a test should run the same way every time.
+
+`;
+
+exports[`no-conditional-in-test > invalid(24): import {test, describe, beforeEach} from 'node:test';\nbeforeEach(function live() { if (a) { f(); } }, function dead() { g(); }); 1`] = `
+
+  1 | import {test, describe, beforeEach} from 'node:test';
+  2 | beforeEach(function live() { if (a) { f(); } }, function dead() { g(); });
+
+`;
+
+exports[`no-conditional-in-test > invalid(24): import {test, describe, beforeEach} from 'node:test';\nbeforeEach(function live() { if (a) { f(); } }, function dead() { g(); }); 2`] = `
+
+Message:
+  1 | import {test, describe, beforeEach} from 'node:test';
+> 2 | beforeEach(function live() { if (a) { f(); } }, function dead() { g(); });
+    |                              ^^^^^^^^^^^^^^^ Avoid conditional logic in a test; a test should run the same way every time.
+
+`;
+
+exports[`no-conditional-in-test > invalid(25): import {test, describe, beforeEach} from 'node:test';\ntest(\"a\", function live() { if (a) { f(); } }, function dead() { g(); }); 1`] = `
+
+  1 | import {test, describe, beforeEach} from 'node:test';
+  2 | test("a", function live() { if (a) { f(); } }, function dead() { g(); });
+
+`;
+
+exports[`no-conditional-in-test > invalid(25): import {test, describe, beforeEach} from 'node:test';\ntest(\"a\", function live() { if (a) { f(); } }, function dead() { g(); }); 2`] = `
+
+Message:
+  1 | import {test, describe, beforeEach} from 'node:test';
+> 2 | test("a", function live() { if (a) { f(); } }, function dead() { g(); });
+    |                             ^^^^^^^^^^^^^^^ Avoid conditional logic in a test; a test should run the same way every time.
+
+`;
+
 exports[`no-conditional-in-test > invalid(3): import {test, describe, beforeEach} from 'node:test';\ntest(\"a\", async t => { await t.test.only(\"b\", () => { if (x) { f(); } }); }); 1`] = `
 
   1 | import {test, describe, beforeEach} from 'node:test';

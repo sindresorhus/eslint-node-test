@@ -769,7 +769,11 @@ Assertion rules should prefer this over `parseAssertionCall`, so the context che
 export function parseSupportedAssertionCall(callExpression, imports, tracker) {
 	const parsed = parseAssertionCall(callExpression, imports);
 	if (parsed) {
-		return parsed.contextReceiver !== undefined && !tracker.isContextIdentifier(parsed.contextReceiver)
+		// The receiver is a real test context when it is either a tracked context parameter or a
+		// `getTestContext()` call; anything else (`foo.assert.equal(…)`) is an unrelated object.
+		return parsed.contextReceiver !== undefined
+			&& !tracker.isContextIdentifier(parsed.contextReceiver)
+			&& !isGetTestContextCall(parsed.contextReceiver, imports)
 			? undefined
 			: parsed;
 	}
@@ -953,10 +957,12 @@ Get the inline function implementation argument of a test, suite, or hook call.
 the options slot wins: `test('a', {fn: first}, second)` runs `first` and never calls `second`. A hook
 is the exception — it takes its callback first and the runner never reads `options.fn` for it.
 
-Otherwise this is the last top-level function argument, which covers every positional `node:test`
-signature: `test(name, fn)`, `test(name, options, fn)`, `test(name, options)`, and the hook forms
-`beforeEach(fn)` / `beforeEach(fn, options)`. The options object is never a function, so a scan
-from the end skips straight past it. A call with no callback (`test(name, {skip: true})`) has none.
+Otherwise this is the first top-level function argument, which is the one `node:test` runs: a call
+never gets a second positional callback, so `test('a', first, second)` and `beforeEach(first, second)`
+run `first` and leave `second` uncalled. The scan covers every positional `node:test` signature:
+`test(name, fn)`, `test(name, options, fn)`, `test(name, options)`, and the hook forms
+`beforeEach(fn)` / `beforeEach(fn, options)`, since the options object is never a function. A call
+with no callback (`test(name, {skip: true})`) has none.
 */
 export function getTestCallback(callExpression) {
 	if (!isCallbackFirst(callExpression)) {
@@ -966,10 +972,10 @@ export function getTestCallback(callExpression) {
 		}
 	}
 
-	for (let index = callExpression.arguments.length - 1; index >= 0; index -= 1) {
-		const argument = unwrapTypeScriptExpression(callExpression.arguments[index]);
-		if (isFunction(argument)) {
-			return argument;
+	for (const argument of callExpression.arguments) {
+		const unwrapped = unwrapTypeScriptExpression(argument);
+		if (isFunction(unwrapped)) {
+			return unwrapped;
 		}
 	}
 
@@ -1139,9 +1145,12 @@ Find an options property (`only`/`skip`/`todo`) that is set to an *enabled* valu
 export function findEnabledOptionsProperty(optionsObject, name) {
 	const property = findOptionsProperty(optionsObject, name);
 	const value = property && unwrapTypeScriptExpression(property.value);
+	// `undefined` and `void …` are the only expressions that statically evaluate to `undefined`.
+	const isUndefined = (value?.type === 'Identifier' && value.name === 'undefined')
+		|| (value?.type === 'UnaryExpression' && value.operator === 'void');
 	if (
 		property
-		&& !(value.type === 'Identifier' && value.name === 'undefined')
+		&& !isUndefined
 		&& (value.type !== 'Literal' || value.value)
 	) {
 		return property;
@@ -1172,6 +1181,14 @@ export function hasEnabledPlanOption(callExpression, context) {
 	}
 
 	const staticValue = getStaticValue(property.value, context.sourceCode.getScope(property.value));
+	return isEnabledPlanCount(staticValue);
+}
+
+/**
+Whether a statically-resolved value is a real, usable plan count (a positive safe `uint32`).
+Both the `plan` option and `<context>.plan(…)` must satisfy this, so they agree on what counts.
+*/
+export function isEnabledPlanCount(staticValue) {
 	return typeof staticValue?.value === 'number'
 		&& Number.isSafeInteger(staticValue.value)
 		&& staticValue.value > 0
@@ -1254,16 +1271,21 @@ function isAssertStrictMember(node, imports) {
 	);
 }
 
-function isTestContextAssertMember(node) {
+function isTestContextAssertMember(node, imports) {
 	node = unwrapTypeScriptExpression(node);
-	const object = node.type === 'MemberExpression' ? unwrapTypeScriptExpression(node.object) : undefined;
-	return (
-		node.type === 'MemberExpression'
-		&& !node.computed
-		&& object?.type === 'Identifier'
-		&& node.property.type === 'Identifier'
-		&& node.property.name === 'assert'
-	);
+	if (node.type !== 'MemberExpression' || node.computed) {
+		return false;
+	}
+
+	if (node.property.type !== 'Identifier' || node.property.name !== 'assert') {
+		return false;
+	}
+
+	const object = unwrapTypeScriptExpression(node.object);
+	// The receiver is a test context when it is a plain identifier (a context parameter) or a
+	// `getTestContext()` call. Deeper chains like `a.b.assert`, `this.assert`, or an unrelated
+	// `foo().assert` are other objects that merely have an `assert` property.
+	return object?.type === 'Identifier' || isGetTestContextCall(object, imports);
 }
 
 function parseAssertionMemberCall(callee, imports) {
@@ -1314,9 +1336,9 @@ function parseAssertionMemberCall(callee, imports) {
 		};
 	}
 
-	// `t.assert.strictEqual(…)`: `t.assert` is always loose mode. The receiver must be a plain identifier (a test context parameter); deeper chains like `a.b.assert.equal(…)`, `this.assert`, or `foo().assert` are unrelated objects that merely have an `assert` property.
+	// `t.assert.strictEqual(…)` / `getTestContext().assert.ok(…)`: the context `assert` is always loose mode.
 	// `t.assert.strict` is excluded because the context assert has no `strict` view, so calling it throws.
-	if (isTestContextAssertMember(object) && callee.property.name !== 'strict') {
+	if (isTestContextAssertMember(object, imports) && callee.property.name !== 'strict') {
 		return {
 			method: callee.property.name,
 			methodNode: callee.property,

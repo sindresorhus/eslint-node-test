@@ -91,5 +91,19 @@ test.snapshot({
 			code: withAssert('assert.ok((a === b) as boolean);'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		// `===` treats `0 === -0` as true and `NaN === NaN` as false, but `strictEqual` is
+		// `Object.is` (which differ on `NaN` and `±0`), so these are reported without a fix.
+		withAssert('assert.ok(x === 0);'),
+		withAssert('assert.ok(NaN === NaN);'),
+		withAssert('assert.ok(x === -0);'),
+		withAssert('assert.ok(x !== 0);'),
+		// `equal`/`notEqual` treat `NaN` as equal to itself while `==`/`!=` do not, so the loose
+		// rewrite is only reported when a `NaN` operand is present.
+		withAssert('assert.ok(NaN == NaN);'),
+		withAssert('assert.ok(NaN != NaN);'),
+		// `equal`/`notEqual` treat `NaN` as equal to itself, so the loose rewrite is only reported
+		// when the comparison is `NaN == NaN` (both operands `NaN`-producing).
+		withAssert('assert.ok(Number("x") == NaN);'),
+		withAssert('assert.ok(0 / 0 != NaN);'),
 	],
 });

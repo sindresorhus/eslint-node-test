@@ -126,6 +126,9 @@ test.snapshot({
 
 		// `.assert.*` on a non-context object — not a node:assert binding
 		'import test from \'node:test\';\nconst obj = {assert: {strictEqual() {}}};\ntest(\'t\', () => { obj.assert.strictEqual(a); });',
+		// A function message is called to produce the message, and `null` uses the default message
+		withAssert('assert.ok(value, () => "x");'),
+		withAssert('assert.ok(value, null);'),
 	],
 	invalid: [
 		// A destructured `assert` is a real assertion, exactly like `t.assert`
@@ -213,11 +216,9 @@ test.snapshot({
 		// Message arg not a string
 		withAssert('assert.ok(value, 123);'),
 		withAssert('assert.strictEqual(a, b, false);'),
-		withAssert('assert.ok(value, null);'),
-		// Message arg as an object/array/function literal — statically not a string or Error
+		// Message arg as an object/array literal — statically not a string, Error, or function
 		withAssert('assert.ok(value, {message: "x"});'),
 		withAssert('assert.ok(value, [1, 2]);'),
-		withAssert('assert.ok(value, () => "x");'),
 
 		// Named imports
 		withNamedImport('strictEqual', 'strictEqual(a);'),

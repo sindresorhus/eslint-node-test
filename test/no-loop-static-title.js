@@ -87,5 +87,7 @@ test.snapshot({
 
 		// A static `options.name` is the title the runner uses
 		withSetup('for (const x of xs) { it(\'placeholder\', {name: \'static\'}, () => {}); }'),
+		// A subtest in a loop registers the same static title each iteration
+		withSetup('test(\'p\', async t => { for (const x of xs) { await t.test(\'same\', () => {}); } });'),
 	],
 });

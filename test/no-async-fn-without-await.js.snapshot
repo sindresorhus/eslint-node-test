@@ -213,6 +213,26 @@ Message:
 
 `;
 
+exports[`no-async-fn-without-await > invalid(19): import test from 'node:test';\ntest('a', t => { t.test('b', async () => {}); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('a', t => { t.test('b', async () => {}); });
+
+`;
+
+exports[`no-async-fn-without-await > invalid(19): import test from 'node:test';\ntest('a', t => { t.test('b', async () => {}); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('a', t => { t.test('b', async () => {}); });
+    |                              ^^^^^ Async test/hook function has no \`await\` expression.
+
+Suggestion 1/1: Remove the \`async\` keyword.:
+  1 | import test from 'node:test';
+  2 | test('a', t => { t.test('b', () => {}); });
+
+`;
+
 exports[`no-async-fn-without-await > invalid(2): import test from 'node:test';\ntest('a', async /* keep me */ function () { foo(); }); 1`] = `
 
   1 | import test from 'node:test';
@@ -246,6 +266,26 @@ Message:
 Suggestion 1/1: Remove the \`async\` keyword.:
   1 | import {beforeEach} from "node:test";
   2 | beforeEach(() => { foo(); }, {timeout: 1000});
+
+`;
+
+exports[`no-async-fn-without-await > invalid(20): import test from 'node:test';\ntest('a', t => { t.beforeEach(async () => {}); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('a', t => { t.beforeEach(async () => {}); });
+
+`;
+
+exports[`no-async-fn-without-await > invalid(20): import test from 'node:test';\ntest('a', t => { t.beforeEach(async () => {}); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('a', t => { t.beforeEach(async () => {}); });
+    |                               ^^^^^ Async test/hook function has no \`await\` expression.
+
+Suggestion 1/1: Remove the \`async\` keyword.:
+  1 | import test from 'node:test';
+  2 | test('a', t => { t.beforeEach(() => {}); });
 
 `;
 

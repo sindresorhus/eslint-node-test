@@ -1,4 +1,12 @@
-import {resolveImports, parseTestCall, getTestCallback} from './utils/node-test.js';
+import {
+	resolveImports,
+	parseTestCall,
+	getTestCallback,
+	getHookCallback,
+	createContextTracker,
+	isContextHookCall,
+	getCalleeChain,
+} from './utils/node-test.js';
 
 const MESSAGE_ID = 'no-duplicate-hooks';
 
@@ -18,14 +26,32 @@ const create = context => {
 	// Calls whose callback opened a scope, so we can pop on exit.
 	const pushedCalls = new Set();
 
+	// Subtests (`t.test(…)`) are their own scope, and a hook declared on a context
+	// (`t.beforeEach(…)`) is a real hook; neither is an imported binding, so the tracker is needed.
+	const tracker = createContextTracker(imports, {trackHooks: true});
+
+	const getContextHookName = node => getCalleeChain(node.callee)?.members[0]?.name;
+
 	context.on('CallExpression', node => {
+		const isSubtest = tracker.isSubtestCall(node);
+		const isContextHook = isContextHookCall(node, tracker.isContextIdentifier);
+		tracker.update(node);
+
 		const parsed = parseTestCall(node, imports);
-		if (!parsed) {
+		if (!parsed && !isSubtest && !isContextHook) {
 			return;
 		}
 
 		let problem;
-		if (parsed.kind === 'hook') {
+		if (isContextHook) {
+			const name = getContextHookName(node);
+			const scope = scopeStack.at(-1);
+			if (scope.has(name)) {
+				problem = {node, messageId: MESSAGE_ID, data: {name}};
+			} else {
+				scope.add(name);
+			}
+		} else if (parsed?.kind === 'hook') {
 			const scope = scopeStack.at(-1);
 			if (scope.has(parsed.name)) {
 				problem = {
@@ -36,8 +62,8 @@ const create = context => {
 			} else {
 				scope.add(parsed.name);
 			}
-		} else if (parsed.kind === 'test' || parsed.kind === 'suite') {
-			const callback = getTestCallback(node);
+		} else if (isSubtest || parsed?.kind === 'test' || parsed?.kind === 'suite') {
+			const callback = isContextHook ? getHookCallback(node) : getTestCallback(node);
 			if (callback) {
 				scopeStack.push(new Set());
 				pushedCalls.add(node);
@@ -48,6 +74,8 @@ const create = context => {
 	});
 
 	context.onExit('CallExpression', node => {
+		tracker.leave(node);
+
 		if (!pushedCalls.has(node)) {
 			return;
 		}

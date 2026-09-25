@@ -105,6 +105,7 @@ test.snapshot({
 			code: withImport('test("title", {tags: -(1 as number)}, () => {});'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\', {tags: [\'Slow\', \'slow\']}, () => {}); });',
 	],
 });
 

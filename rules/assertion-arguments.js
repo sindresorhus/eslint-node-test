@@ -3,7 +3,6 @@ import {
 	parseSupportedAssertionCall,
 	createContextTracker,
 } from './utils/node-test.js';
-import {isFunction} from './ast/index.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
 const MESSAGE_ID_TOO_FEW = 'too-few-arguments';
@@ -41,20 +40,25 @@ const ASSERTION_ARGS = new Map([
 ]);
 
 /*
-The optional trailing `message` argument accepts a string or an `Error`. Only flag values that
-are statically known to be neither: object/array/function literals, or non-string literals
-(numbers, booleans, `null`, regexes). Identifiers, calls, member expressions, template
-literals, conditionals, logical/binary expressions, and TypeScript casts can all resolve to a
-string or `Error` at runtime, so they are left alone to avoid false positives.
+The optional trailing `message` argument accepts a string, an `Error`, a function that Node calls to
+produce the message, or `null` (which uses the default message). Only flag values that are statically
+known to be none of those: object/array literals, or non-string literals that are not `null`
+(numbers, booleans, regexes). Identifiers, calls, member expressions, template literals, conditionals,
+logical/binary expressions, and TypeScript casts can all resolve to a valid message at runtime, so
+they are left alone to avoid false positives.
 */
 function isInvalidMessageArgument(node) {
 	node = unwrapTypeScriptExpression(node);
 
-	if (node.type === 'ArrayExpression' || node.type === 'ObjectExpression' || isFunction(node)) {
+	if (node.type === 'ArrayExpression' || node.type === 'ObjectExpression') {
 		return true;
 	}
 
-	return node.type === 'Literal' && typeof node.value !== 'string';
+	// `null` is a valid message (Node falls back to the default), and a function is called to build
+	// the message, so only a non-string, non-null literal is rejected.
+	return node.type === 'Literal'
+		&& node.value !== null
+		&& typeof node.value !== 'string';
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -138,7 +142,7 @@ const config = {
 		messages: {
 			[MESSAGE_ID_TOO_FEW]: 'Not enough arguments. Expected at least {{min}}.',
 			[MESSAGE_ID_TOO_MANY]: 'Too many arguments. Expected at most {{max}}.',
-			[MESSAGE_ID_NOT_STRING]: 'Assertion message must be a string or an `Error`.',
+			[MESSAGE_ID_NOT_STRING]: 'Assertion message must be a string, an `Error`, a function, or `null`.',
 		},
 		languages: ['js/js'],
 	},

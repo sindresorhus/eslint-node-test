@@ -17,6 +17,13 @@ test.snapshot({
 
 		// Sibling describes each with their own hook
 		withImport('describe("a", () => { before(() => {}); });\ndescribe("b", () => { before(() => {}); });'),
+
+		// Sibling subtests are separate scopes, so a `beforeEach` in each is independent
+		'import {test, beforeEach} from \'node:test\';\n'
+		+ 'test(\'p\', async t => {\n'
+		+ '\tawait t.test(\'one\', async one => { beforeEach(() => {}); });\n'
+		+ '\tawait t.test(\'two\', async two => { beforeEach(() => {}); });\n'
+		+ '});',
 	],
 	invalid: [
 		// Duplicate at the top level
@@ -49,5 +56,9 @@ test.snapshot({
 			code: withImport('before((): void => {});\nbefore((): void => {});'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		// A hook declared on a test context is a real hook
+		'import {test} from \'node:test\';\ntest(\'p\', t => { t.beforeEach(() => {}); t.beforeEach(() => {}); });',
+		// A duplicate inside a subtest body is still a duplicate
+		'import {test, beforeEach} from \'node:test\';\ntest(\'p\', async t => { t.test(\'a\', () => { beforeEach(() => {}); beforeEach(() => {}); }); });',
 	],
 });

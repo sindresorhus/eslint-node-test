@@ -432,6 +432,34 @@ Message:
 
 `;
 
+exports[`no-unawaited-rejects > invalid(28): import assert from 'node:assert';\nasync function test() {\n\tclass C {\n\t\tstatic {\n\t\t\tassert.rejects(fn);\n\t\t}\n\t}\n} 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | async function test() {
+  3 | 	class C {
+  4 | 		static {
+  5 | 			assert.rejects(fn);
+  6 | 		}
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`no-unawaited-rejects > invalid(28): import assert from 'node:assert';\nasync function test() {\n\tclass C {\n\t\tstatic {\n\t\t\tassert.rejects(fn);\n\t\t}\n\t}\n} 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+  2 | async function test() {
+  3 | 	class C {
+  4 | 		static {
+> 5 | 			assert.rejects(fn);
+    | 			^^^^^^^^^^^^^^^^^^ \`assert.rejects()\` must be awaited or returned.
+  6 | 		}
+  7 | 	}
+  8 | }
+
+`;
+
 exports[`no-unawaited-rejects > invalid(3): import assert from 'node:assert';\nassert.rejects(fn); 1`] = `
 
   1 | import assert from 'node:assert';

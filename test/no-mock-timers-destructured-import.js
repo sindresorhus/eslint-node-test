@@ -26,9 +26,6 @@ test.snapshot({
 		// Enabled api does not match the imported function
 		head + 'import {setInterval} from \'node:timers\';\nmock.timers.enable({apis: ["setTimeout"]});',
 
-		// Namespace timer import is not destructured — the mock intercepts it
-		head + 'import * as timers from \'node:timers\';\nmock.timers.enable();\ntimers.setTimeout(fn, 1);',
-
 		// Type-only timer imports are erased — the code still calls the interceptable global
 		{
 			code: head + 'import {type setTimeout} from \'node:timers\';\nmock.timers.enable({apis: ["setTimeout"]});',
@@ -72,5 +69,8 @@ test.snapshot({
 			code: head + 'import {type clearTimeout, setTimeout} from \'node:timers\';\nmock.timers.enable({apis: ["setTimeout"]});',
 			languageOptions: {parser: parsers.typescript},
 		},
+		// A namespace import holds the real timer functions (a snapshot taken at import time), so
+		// `mock.timers` cannot intercept `timers.setTimeout(…)` either.
+		head + 'import * as timers from \'node:timers\';\nmock.timers.enable();\ntimers.setTimeout(fn, 1);',
 	],
 });

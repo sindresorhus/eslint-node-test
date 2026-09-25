@@ -1,6 +1,6 @@
 import {resolveImports, createContextTracker, getSubtestReceiver} from './utils/node-test.js';
 import {getEnclosingFunction, getFloatingStatement} from './utils/index.js';
-import {trackDetachedCallbacks} from './no-unawaited-promise-assertion.js';
+import {trackDetachedCallbacks, hasStaticBlockBetween} from './no-unawaited-promise-assertion.js';
 
 const MESSAGE_ID = 'no-unawaited-subtest';
 
@@ -37,8 +37,10 @@ const create = context => {
 			};
 
 			// `await` is only valid (and a behavior-preserving fix) inside an async function, and only
-			// where prepending it is faithful (see `getFloatingStatement`).
-			if (getEnclosingFunction(node)?.async && floating.canAwait) {
+			// where prepending it is faithful (see `getFloatingStatement`). A class static block sits
+			// between the call and that function, where `await` is a syntax error.
+			const enclosingFunction = getEnclosingFunction(node);
+			if (enclosingFunction?.async && floating.canAwait && !hasStaticBlockBetween(node, enclosingFunction)) {
 				problem.fix = fixer => fixer.insertTextBefore(node, 'await ');
 			}
 		}

@@ -32,9 +32,6 @@ test.snapshot({
 		// Global assertion configuration is not a test registration.
 		'import test from \'node:test\';\ntest.assert.register(\'custom\', (actual, expected) => {});',
 
-		// Subtests are method calls, not matched (out of scope, like no-callback-and-promise)
-		withImport('test("x", t => { t.test("sub", (t, done) => { done(); }); });'),
-
 		// A hook's callback is its first argument, so trailing options never hide a 1-arity function
 		withImport('beforeEach(t => {}, {timeout: 1000});'),
 	],
@@ -96,5 +93,8 @@ test.snapshot({
 			code: withImport('test("x", (t: TestContext, done: () => void) => { done(); });'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		// A subtest callback and a context hook receive `done` based on arity too
+		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\', (sub, done) => { done(); }); });',
+		'import {test} from \'node:test\';\ntest(\'p\', t => { t.beforeEach((sub, done) => {}); });',
 	],
 });

@@ -55,5 +55,7 @@ test.snapshot({
 			code: withTest('test(\'t\', {skip: true as boolean}, () => {});'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\', {skip: true}, () => {}); });',
+		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\', {todo: true}, () => {}); });',
 	],
 });

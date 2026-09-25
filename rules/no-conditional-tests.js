@@ -1,4 +1,9 @@
-import {resolveImports, parseTestCall} from './utils/node-test.js';
+import {
+	resolveImports,
+	parseTestCall,
+	createContextTracker,
+	isContextHookCall,
+} from './utils/node-test.js';
 import isConditionalBranch from './utils/is-conditional-branch.js';
 import isFunction from './ast/is-function.js';
 
@@ -39,9 +44,17 @@ const create = context => {
 		return;
 	}
 
+	// Subtests (`t.test(…)`) and context hooks (`t.beforeEach(…)`) register conditionally just like the
+	// imported forms, so a condition around them is equally non-deterministic.
+	const tracker = createContextTracker(imports, {trackHooks: true});
+
 	context.on('CallExpression', node => {
+		const isSubtest = tracker.isSubtestCall(node);
+		const isContextHook = isContextHookCall(node, tracker.isContextIdentifier);
+		tracker.update(node);
+
 		const parsed = parseTestCall(node, imports);
-		if (!parsed) {
+		if (!parsed && !isSubtest && !isContextHook) {
 			return;
 		}
 
@@ -52,8 +65,12 @@ const create = context => {
 		return {
 			node,
 			messageId: MESSAGE_ID,
-			data: {kind: parsed.kind},
+			data: {kind: isSubtest ? 'test' : (isContextHook ? 'hook' : parsed.kind)},
 		};
+	});
+
+	context.onExit('CallExpression', node => {
+		tracker.leave(node);
 	});
 };
 

@@ -1,4 +1,10 @@
-import {resolveImports, parseTestCall, getTestCallback} from './utils/node-test.js';
+import {
+	resolveImports,
+	parseTestCall,
+	getTestCallback,
+	createContextTracker,
+	isContextHookCall,
+} from './utils/node-test.js';
 import containsSuspensionPoint from './utils/contains-suspension-point.js';
 
 const MESSAGE_ID = 'no-async-fn-without-await/error';
@@ -17,11 +23,21 @@ const create = context => {
 		return;
 	}
 
+	// Subtests (`t.test(…)`) and context hooks (`t.beforeEach(…)`) are method calls on a context
+	// parameter, not imported bindings, so the tracker is needed to see them alongside the imported
+	// `test`/`it` and `before`/`after` spellings.
+	const tracker = createContextTracker(imports, {trackHooks: true});
+
 	context.on('CallExpression', node => {
+		// Query the tracker before it learns about this call, so the receiver is the enclosing context.
+		const isSubtest = tracker.isSubtestCall(node);
+		tracker.update(node);
+
 		const parsed = parseTestCall(node, imports);
+		const isContextHook = isContextHookCall(node, tracker.isContextIdentifier);
 		// Suites are handled by `no-async-describe`, which forbids an async `describe` callback
 		// outright (the runner never awaits it), so skip them here to avoid a duplicate report.
-		if (!parsed || parsed.kind === 'suite') {
+		if ((!parsed && !isSubtest && !isContextHook) || parsed?.kind === 'suite') {
 			return;
 		}
 
@@ -70,6 +86,10 @@ const create = context => {
 		}
 
 		return problem;
+	});
+
+	context.onExit('CallExpression', node => {
+		tracker.leave(node);
 	});
 };
 

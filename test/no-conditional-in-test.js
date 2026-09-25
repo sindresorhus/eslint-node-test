@@ -84,5 +84,11 @@ test.snapshot({
 			code: withImport('test("x", () => { if (a as boolean) { f(); } });'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		withImport('test(\'o\', t => { t.beforeEach(() => { if (a) { f(); } }); });'),
+		withImport('test(\'o\', t => { t.before(() => { if (a) { f(); } }); });'),
+
+		// `node:test` runs the first function argument and never calls the second, so only the first is a hook body
+		withImport('beforeEach(function live() { if (a) { f(); } }, function dead() { g(); });'),
+		withImport('test("a", function live() { if (a) { f(); } }, function dead() { g(); });'),
 	],
 });

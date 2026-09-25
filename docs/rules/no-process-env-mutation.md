@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Mutating `process.env` directly in a test or subtest callback leaks into later tests running in the same process. This makes tests order-dependent and hard to debug.
+Mutating `process.env` directly in a test or subtest callback, including through `globalThis.process` or `global.process`, leaks into later tests running in the same process. This makes tests order-dependent and hard to debug.
 
 Move environment setup into hooks that restore the original value.
 

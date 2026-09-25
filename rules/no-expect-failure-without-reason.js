@@ -1,6 +1,7 @@
 import {
 	resolveImports,
 	parseTestCall,
+	createContextTracker,
 	getTestOptions,
 	findOptionsProperty,
 	MODIFIERS,
@@ -20,13 +21,19 @@ const create = context => {
 		return;
 	}
 
+	// A subtest (`t.test(…)`) accepts `expectFailure` too, so it is recognized through the tracker.
+	const tracker = createContextTracker(imports);
+
 	context.on('CallExpression', node => {
+		const isSubtest = tracker.isSubtestCall(node);
+		tracker.update(node);
+
 		const parsed = parseTestCall(node, imports);
 		if (
-			!parsed
-			|| parsed.kind === 'hook'
-			|| parsed.hasExpectedFailure
-			|| parsed.modifiers.some(modifier => !MODIFIERS.has(modifier.name))
+			(!parsed && !isSubtest)
+			|| parsed?.kind === 'hook'
+			|| parsed?.hasExpectedFailure
+			|| parsed?.modifiers.some(modifier => !MODIFIERS.has(modifier.name))
 		) {
 			return;
 		}

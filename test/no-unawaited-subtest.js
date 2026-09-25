@@ -96,5 +96,8 @@ test.snapshot({
 		withImport('test("parent", (t, done) => { setTimeout(() => { t.test("child", () => {}); done(); }); });'),
 		withImport('test("parent", (t, done) => { load().then(() => { t.test("child", () => {}); done(); }); });'),
 		withImport('test("parent", t => { t.plan(1, {wait: true}); setTimeout(() => { t.test("child", () => {}); t.assert.ok(true); }); });'),
+		// A class static block sits between the subtest and the async function, where `await` is a
+		// syntax error, so the problem is reported but no fix is offered.
+		withImport('test(\'p\', async t => { class C { static { t.test(\'c\', () => {}); } } });'),
 	],
 });

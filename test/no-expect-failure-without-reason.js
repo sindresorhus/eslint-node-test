@@ -75,5 +75,6 @@ test.snapshot({
 			code: withTest('test(\'t\', ({expectFailure: true} as object), () => {});'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\', {expectFailure: true}, () => {}); });',
 	],
 });

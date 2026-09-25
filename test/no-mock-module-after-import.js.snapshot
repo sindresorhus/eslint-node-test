@@ -448,6 +448,60 @@ Message:
 
 `;
 
+exports[`no-mock-module-after-import > invalid(30): import {mock} from 'node:test';\nimport * as os from 'node:os';\nmock.module('os', {exports: {}}); 1`] = `
+
+  1 | import {mock} from 'node:test';
+  2 | import * as os from 'node:os';
+  3 | mock.module('os', {exports: {}});
+
+`;
+
+exports[`no-mock-module-after-import > invalid(30): import {mock} from 'node:test';\nimport * as os from 'node:os';\nmock.module('os', {exports: {}}); 2`] = `
+
+Message:
+  1 | import {mock} from 'node:test';
+  2 | import * as os from 'node:os';
+> 3 | mock.module('os', {exports: {}});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.module()\` cannot affect \`os\` because it was already imported statically.
+
+`;
+
+exports[`no-mock-module-after-import > invalid(31): import {mock} from 'node:test';\nimport * as os from 'os';\nmock.module('node:os', {exports: {}}); 1`] = `
+
+  1 | import {mock} from 'node:test';
+  2 | import * as os from 'os';
+  3 | mock.module('node:os', {exports: {}});
+
+`;
+
+exports[`no-mock-module-after-import > invalid(31): import {mock} from 'node:test';\nimport * as os from 'os';\nmock.module('node:os', {exports: {}}); 2`] = `
+
+Message:
+  1 | import {mock} from 'node:test';
+  2 | import * as os from 'os';
+> 3 | mock.module('node:os', {exports: {}});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.module()\` cannot affect \`node:os\` because it was already imported statically.
+
+`;
+
+exports[`no-mock-module-after-import > invalid(32): import {mock} from 'node:test';\nimport 'node:fs';\nmock.module('fs'); 1`] = `
+
+  1 | import {mock} from 'node:test';
+  2 | import 'node:fs';
+  3 | mock.module('fs');
+
+`;
+
+exports[`no-mock-module-after-import > invalid(32): import {mock} from 'node:test';\nimport 'node:fs';\nmock.module('fs'); 2`] = `
+
+Message:
+  1 | import {mock} from 'node:test';
+  2 | import 'node:fs';
+> 3 | mock.module('fs');
+    | ^^^^^^^^^^^^^^^^^ \`mock.module()\` cannot affect \`fs\` because it was already imported statically.
+
+`;
+
 exports[`no-mock-module-after-import > invalid(4): import {test, mock} from 'node:test';\nimport 'module.js';\nmock.module('module.js'); 1`] = `
 
   1 | import {test, mock} from 'node:test';

@@ -366,6 +366,22 @@ Message:
 
 `;
 
+exports[`prefer-async-await > invalid(30): import test from 'node:test';\ntest('x', async t => { await t.test('y', () => { return f().then(d => d); }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('x', async t => { await t.test('y', () => { return f().then(d => d); }); });
+
+`;
+
+exports[`prefer-async-await > invalid(30): import test from 'node:test';\ntest('x', async t => { await t.test('y', () => { return f().then(d => d); }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('x', async t => { await t.test('y', () => { return f().then(d => d); }); });
+    |                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer async/await instead of returning a Promise.
+
+`;
+
 exports[`prefer-async-await > invalid(4): import test from 'node:test';\ntest(\"title\", t => { return foo().catch(fn2).then(fn); }); 1`] = `
 
   1 | import test from 'node:test';

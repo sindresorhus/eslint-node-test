@@ -40,5 +40,7 @@ test.snapshot({
 			code: withImport('it("a", () => {});\nbeforeEach((): void => {});'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		// A subtest is a test and a context hook is a hook
+		'import {test} from \'node:test\';\ntest(\'p\', t => { t.test(\'a\', () => {}); t.beforeEach(() => {}); });',
 	],
 });

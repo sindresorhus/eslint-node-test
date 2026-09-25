@@ -2,6 +2,7 @@ import quoteJsString from 'quote-js-string';
 import {
 	resolveImports,
 	parseTestCall,
+	createContextTracker,
 	getTestOptions,
 	MODIFIERS,
 } from './utils/node-test.js';
@@ -92,12 +93,18 @@ const create = context => {
 		return;
 	}
 
+	// A subtest (`t.test(…)`) accepts `tags` just like an imported test.
+	const tracker = createContextTracker(imports);
+
 	context.on('CallExpression', function * (node) {
+		const isSubtest = tracker.isSubtestCall(node);
+		tracker.update(node);
+
 		const parsed = parseTestCall(node, imports);
 		if (
-			(parsed?.kind !== 'test' && parsed?.kind !== 'suite')
-			|| parsed.modifiers.length > 1
-			|| parsed.modifiers.some(modifier => !TEST_AND_SUITE_MODIFIERS.has(modifier.name))
+			(!isSubtest && parsed?.kind !== 'test' && parsed?.kind !== 'suite')
+			|| parsed?.modifiers.length > 1
+			|| parsed?.modifiers.some(modifier => !TEST_AND_SUITE_MODIFIERS.has(modifier.name))
 		) {
 			return;
 		}
@@ -175,6 +182,10 @@ const create = context => {
 
 			seenTags.add(normalizedTag);
 		}
+	});
+
+	context.onExit('CallExpression', node => {
+		tracker.leave(node);
 	});
 };
 

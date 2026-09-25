@@ -4,6 +4,7 @@ import {
 	getTestTitle,
 	getStaticString,
 	getTestCallback,
+	createContextTracker,
 } from './utils/node-test.js';
 
 const MESSAGE_ID = 'no-identical-title/duplicate';
@@ -32,14 +33,21 @@ const create = context => {
 	*/
 	const suiteCallbackNodes = new WeakSet();
 
+	// A subtest (`t.test(…)`) is a test with a title and its own scope for its children, exactly like
+	// an imported test, so it is tracked through the context tracker.
+	const tracker = createContextTracker(imports);
+
 	context.on('CallExpression', node => {
+		const isSubtest = tracker.isSubtestCall(node);
+		tracker.update(node);
+
 		const parsed = parseTestCall(node, imports);
-		if (!parsed || parsed.kind === 'hook') {
+		if ((!parsed && !isSubtest) || parsed?.kind === 'hook') {
 			return;
 		}
 
-		// Track suite callbacks for scope push/pop.
-		if (parsed.kind === 'suite') {
+		// Track suite and subtest callbacks for scope push/pop.
+		if (parsed?.kind === 'suite' || isSubtest) {
 			const callback = getTestCallback(node);
 			if (callback) {
 				suiteCallbackNodes.add(callback);
@@ -69,6 +77,10 @@ const create = context => {
 
 	// Push/pop a scope around each suite callback body.
 	const functionTypes = ['FunctionExpression', 'ArrowFunctionExpression'];
+
+	context.onExit('CallExpression', node => {
+		tracker.leave(node);
+	});
 
 	context.on(functionTypes, node => {
 		if (suiteCallbackNodes.has(node)) {

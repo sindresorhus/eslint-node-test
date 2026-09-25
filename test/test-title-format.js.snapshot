@@ -137,3 +137,32 @@ Message:
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test title does not match the required format: \`/^Should/u\`.
 
 `;
+
+exports[`test-title-format > invalid(8): import test from 'node:test';\ntest('p', async t => { await t.test('nope', () => {}); }); 1`] = `
+
+Options:
+- format: '^Should'
+
+Code:
+  1 | import test from 'node:test';
+  2 | test('p', async t => { await t.test('nope', () => {}); });
+
+`;
+
+exports[`test-title-format > invalid(8): import test from 'node:test';\ntest('p', async t => { await t.test('nope', () => {}); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('p', async t => { await t.test('nope', () => {}); });
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test title does not match the required format: \`/^Should/u\`.
+
+`;
+
+exports[`test-title-format > invalid(8): import test from 'node:test';\ntest('p', async t => { await t.test('nope', () => {}); }); 3`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('p', async t => { await t.test('nope', () => {}); });
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^^ Test title does not match the required format: \`/^Should/u\`.
+
+`;
