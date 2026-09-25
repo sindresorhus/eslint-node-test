@@ -34,6 +34,14 @@ test.snapshot({
 		withImport('export const check = () => { assert.ok(value); };'),
 	],
 	invalid: [
+		// A computed class field key is evaluated when the class is defined, which is at load
+		withImport('class Config { [assert.ok(1)] = 1; }'),
+		withImport('class Config { [String(assert.ok(1))] = 1; }'),
+		{
+			code: withImport('class Config { [(assert.ok(1) as any)] = 1; }'),
+			languageOptions: {parser: parsers.typescript},
+		},
+
 		// Top-level assertion in a test file
 		withImport('assert.ok(value);'),
 

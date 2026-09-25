@@ -6,6 +6,12 @@ const withImport = code => `import assert from 'node:assert';\n${code}`;
 
 test.snapshot({
 	valid: [
+		// A getter read through a computed key, or declared with one, runs on every read
+		'import assert from \'node:assert\';\nlet n = 0;\nconst o = {get value() { return n++; }};\nassert.strictEqual(o[\'value\'], o[\'value\']);',
+		'import assert from \'node:assert\';\nlet n = 0;\nconst o = {get [\'value\']() { return n++; }};\nassert.strictEqual(o.value, o.value);',
+		'import assert from \'node:assert\';\nlet n = 0;\nconst o = {get [`value`]() { return n++; }};\nassert.strictEqual(o.value, o.value);',
+		'import assert from \'node:assert\';\nclass C { get [\'value\']() { return Math.random(); } }\nconst c = new C();\nassert.strictEqual(c.value, c.value);',
+
 		// A getter runs on every read, so the two operands are not the same value. This is the
 		// property-read equivalent of the rule already skipping operands that contain a call.
 		withImport('let n = 0;\nconst counter = {get value() { return n++; }};\nassert.notStrictEqual(counter.value, counter.value);'),

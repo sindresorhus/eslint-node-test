@@ -1,10 +1,10 @@
 import {findVariable} from '@eslint-community/eslint-utils';
+import {getStaticPropertyName, isSameReference} from './utils/index.js';
 import {
 	resolveImports,
 	parseSupportedAssertionCall,
 	createContextTracker,
 } from './utils/node-test.js';
-import {isSameReference} from './utils/index.js';
 
 const MESSAGE_ID_ALWAYS_PASSES = 'no-identical-assertion-arguments/always-passes';
 const MESSAGE_ID_ALWAYS_FAILS = 'no-identical-assertion-arguments/always-fails';
@@ -30,8 +30,10 @@ function isRegExpLiteral(node) {
 
 /** Whether a `Property`/`MethodDefinition` key matches `name`, ignoring quoting and computed-ness. */
 function isKeyFor(property, name) {
+	// A computed key that folds to a string names the same property: `{get ['value']() {}}` declares
+	// the getter `o.value` reads.
 	if (property.computed) {
-		return false;
+		return getStaticPropertyName(property) === name;
 	}
 
 	return (property.key.type === 'Identifier' && property.key.name === name)
@@ -80,11 +82,14 @@ the operands being the same reference. This is the property-read equivalent of t
 skipping operands that contain a call.
 */
 function readsAccessor(node, sourceCode) {
-	if (node.type !== 'MemberExpression' || node.computed) {
+	if (node.type !== 'MemberExpression') {
 		return false;
 	}
 
-	const propertyName = node.property.type === 'Identifier' ? node.property.name : undefined;
+	// `o['value']` and `` o[`value`] `` name the same property as `o.value`.
+	const propertyName = node.computed
+		? getStaticPropertyName(node)
+		: (node.property.type === 'Identifier' ? node.property.name : undefined);
 	if (!propertyName) {
 		return false;
 	}
