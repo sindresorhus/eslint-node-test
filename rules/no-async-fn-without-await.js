@@ -1,12 +1,15 @@
+import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	resolveImports,
 	parseTestCall,
 	getHookCallback,
-	getTestCallback,
+	getResolvedTestCallback,
 	createContextTracker,
 	isContextHookCall,
 } from './utils/node-test.js';
 import containsSuspensionPoint from './utils/contains-suspension-point.js';
+import {unwrapTypeScriptExpression} from './utils/index.js';
+import isFunction from './ast/is-function.js';
 
 const MESSAGE_ID = 'no-async-fn-without-await/error';
 const MESSAGE_ID_SUGGESTION = 'no-async-fn-without-await/suggestion';
@@ -15,6 +18,28 @@ const messages = {
 	[MESSAGE_ID]: 'Async test/hook function has no `await`, `for await`, `await using` or `yield`.',
 	[MESSAGE_ID_SUGGESTION]: 'Remove the `async` keyword.',
 };
+
+/*
+The function a context hook (`t.beforeEach(…)`) runs: its first argument, inline or through the binding it names. The runner never reads a later slot or `options.fn` for a hook.
+*/
+function getContextHookCallback(call, context) {
+	const callback = getHookCallback(call);
+	const firstArgument = call.arguments[0] && unwrapTypeScriptExpression(call.arguments[0]);
+	if (callback || firstArgument?.type !== 'Identifier') {
+		return callback;
+	}
+
+	const variable = findVariable(context.sourceCode.getScope(firstArgument), firstArgument);
+	for (const definition of variable?.defs ?? []) {
+		// A `function body() {}` definition carries the declaration; `const body = () => {}` carries the declarator, whose `init` is the function.
+		const node = definition.type === 'FunctionName' ? definition.node : definition.node?.init;
+		if (isFunction(node)) {
+			return node;
+		}
+	}
+
+	return undefined;
+}
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -44,7 +69,9 @@ const create = context => {
 
 		// A context hook (`t.beforeEach(…)`) takes only a callback, so a function in a later slot is
 		// dead code there too.
-		const callback = isContextHook ? getHookCallback(node) : getTestCallback(node, imports);
+		// A callback the call names out of line, for a test or a hook alike, is still the callback the
+		// runner calls, so it is read as the function its binding reaches.
+		const callback = isContextHook ? getContextHookCallback(node, context) : getResolvedTestCallback(node, context, imports);
 		if (!callback?.async) {
 			return;
 		}

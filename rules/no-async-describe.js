@@ -1,4 +1,4 @@
-import {resolveImports, parseTestCall, getTestCallback} from './utils/node-test.js';
+import {resolveImports, parseTestCall, getResolvedTestCallback} from './utils/node-test.js';
 
 const MESSAGE_ID = 'no-async-describe';
 
@@ -13,16 +13,23 @@ const create = context => {
 		return;
 	}
 
+	// A body named out of line can be passed to several suites, but it is one function, so it is reported once.
+	const reportedCallbacks = new Set();
+
 	context.on('CallExpression', node => {
 		const parsed = parseTestCall(node, imports);
 		if (parsed?.kind !== 'suite') {
 			return;
 		}
 
-		const callback = getTestCallback(node);
-		if (!callback?.async) {
+		// A callback the call names out of line is still the callback the runner awaits, wherever it
+		// is declared, so it is read as the function rather than as the name.
+		const callback = getResolvedTestCallback(node, context, imports);
+		if (!callback?.async || reportedCallbacks.has(callback)) {
 			return;
 		}
+
+		reportedCallbacks.add(callback);
 
 		return {
 			node: callback,

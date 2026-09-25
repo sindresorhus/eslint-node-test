@@ -2,6 +2,7 @@ import {
 	resolveImports,
 	parseTestCall,
 	getTestCallback,
+	getOutOfLineCallbackCall,
 	createContextTracker,
 	isContextHookCall,
 } from './utils/node-test.js';
@@ -70,6 +71,29 @@ const create = context => {
 			}
 		}
 	};
+
+	// A callback the call names out of line is entered where it is declared, which the call's own frame
+	// does not cover, so a conditional in it is still inside the test body. A suite body is about test
+	// registration, so it stays excluded the way the inline form is.
+	const functionTypes = ['FunctionExpression', 'ArrowFunctionExpression', 'FunctionDeclaration'];
+	const outOfLineTestCallbacks = new WeakSet();
+
+	context.on(functionTypes, node => {
+		const call = getOutOfLineCallbackCall(node, context, imports);
+		const kind = call && parseTestCall(call, imports)?.kind;
+		if (kind !== 'test' && kind !== 'hook') {
+			return;
+		}
+
+		outOfLineTestCallbacks.add(node);
+		testCallbacks.add(node);
+	});
+
+	context.onExit(functionTypes, node => {
+		if (outOfLineTestCallbacks.delete(node)) {
+			testCallbacks.delete(node);
+		}
+	});
 
 	context.on('IfStatement', report);
 	context.on('SwitchStatement', report);

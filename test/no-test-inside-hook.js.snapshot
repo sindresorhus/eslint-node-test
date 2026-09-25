@@ -94,6 +94,78 @@ Message:
 
 `;
 
+exports[`no-test-inside-hook > invalid(15): import {before, test} from 'node:test';\nbefore(setup);\nfunction setup() { test('a', () => {}); } 1`] = `
+
+  1 | import {before, test} from 'node:test';
+  2 | before(setup);
+  3 | function setup() { test('a', () => {}); }
+
+`;
+
+exports[`no-test-inside-hook > invalid(15): import {before, test} from 'node:test';\nbefore(setup);\nfunction setup() { test('a', () => {}); } 2`] = `
+
+Message:
+  1 | import {before, test} from 'node:test';
+  2 | before(setup);
+> 3 | function setup() { test('a', () => {}); }
+    |                    ^^^^^^^^^^^^^^^^^^^ Do not define a test or suite inside a hook. Define it at the top level or inside a \`describe\`.
+
+`;
+
+exports[`no-test-inside-hook > invalid(16): import {before, test} from 'node:test';\nconst setup = () => { test('a', () => {}); };\nbefore(setup); 1`] = `
+
+  1 | import {before, test} from 'node:test';
+  2 | const setup = () => { test('a', () => {}); };
+  3 | before(setup);
+
+`;
+
+exports[`no-test-inside-hook > invalid(16): import {before, test} from 'node:test';\nconst setup = () => { test('a', () => {}); };\nbefore(setup); 2`] = `
+
+Message:
+  1 | import {before, test} from 'node:test';
+> 2 | const setup = () => { test('a', () => {}); };
+    |                       ^^^^^^^^^^^^^^^^^^^ Do not define a test or suite inside a hook. Define it at the top level or inside a \`describe\`.
+  3 | before(setup);
+
+`;
+
+exports[`no-test-inside-hook > invalid(17): import {before, describe} from 'node:test';\nbefore(setup);\nfunction setup() { describe('a', () => {}); } 1`] = `
+
+  1 | import {before, describe} from 'node:test';
+  2 | before(setup);
+  3 | function setup() { describe('a', () => {}); }
+
+`;
+
+exports[`no-test-inside-hook > invalid(17): import {before, describe} from 'node:test';\nbefore(setup);\nfunction setup() { describe('a', () => {}); } 2`] = `
+
+Message:
+  1 | import {before, describe} from 'node:test';
+  2 | before(setup);
+> 3 | function setup() { describe('a', () => {}); }
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^ Do not define a test or suite inside a hook. Define it at the top level or inside a \`describe\`.
+
+`;
+
+exports[`no-test-inside-hook > invalid(18): import {beforeEach, test} from 'node:test';\nbeforeEach(setup);\nfunction setup() { test('a', () => {}); } 1`] = `
+
+  1 | import {beforeEach, test} from 'node:test';
+  2 | beforeEach(setup);
+  3 | function setup() { test('a', () => {}); }
+
+`;
+
+exports[`no-test-inside-hook > invalid(18): import {beforeEach, test} from 'node:test';\nbeforeEach(setup);\nfunction setup() { test('a', () => {}); } 2`] = `
+
+Message:
+  1 | import {beforeEach, test} from 'node:test';
+  2 | beforeEach(setup);
+> 3 | function setup() { test('a', () => {}); }
+    |                    ^^^^^^^^^^^^^^^^^^^ Do not define a test or suite inside a hook. Define it at the top level or inside a \`describe\`.
+
+`;
+
 exports[`no-test-inside-hook > invalid(2): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nbefore(() => { test('a', () => {}); }); 1`] = `
 
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';

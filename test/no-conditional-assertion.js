@@ -4,6 +4,12 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
+		// A suite body is about test registration, out of line as much as inline
+		'import {describe} from "node:test";\nimport assert from "node:assert";\ndescribe("s", body);\nfunction body() { if (x) { assert.strictEqual(1, 1); } }',
+		// A helper the test body calls is a separate case
+		'import test from "node:test";\nimport assert from "node:assert";\nconst body = () => { if (x) { assert.strictEqual(1, 1); } };\ntest("t1", () => { body(); });',
+		'import test from "node:test";\nimport assert from "node:assert";\nfunction helper() { if (x) { assert.strictEqual(1, 1); } }\ntest("t1", () => { helper(); });',
+
 		// An unrelated object's `test` method registers nothing, so a conditional assertion in the
 		// callback it takes is that object's own business, not a test body
 		'import test from \'node:test\';\nimport assert from \'node:assert\';\n'
@@ -63,6 +69,11 @@ test.snapshot({
 		+ 'test(\'o\', async () => {\n\tif (c) {\n\t\tawait getTestContext().test(\'s\', () => { assert.ok(1); });\n\t}\n});',
 	],
 	invalid: [
+		// A test body the call names out of line is still a test body
+		'import test from "node:test";\nimport assert from "node:assert";\nfunction body() { if (x) { assert.strictEqual(1, 1); } }\ntest("t1", body);',
+		'import test from "node:test";\nimport assert from "node:assert";\nconst body = () => { if (x) { assert.strictEqual(1, 1); } };\ntest("t1", body);',
+		'import test from "node:test";\nimport assert from "node:assert";\nconst body = () => { if (x) { assert.strictEqual(1, 1); } };\ntest("t1", {fn: body});',
+
 		// If without else
 		'import test from "node:test";\nimport assert from "node:assert";\ntest("t1", () => { if (x) { assert.strictEqual(1, 1); } });',
 

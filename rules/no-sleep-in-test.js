@@ -5,6 +5,7 @@ import {
 	getCalleeChain,
 	getHookCallback,
 	getTestCallback,
+	getOutOfLineCallbackCall,
 	getTestOptions,
 	getFirstContextParameter,
 	findEnabledOptionsProperty,
@@ -439,6 +440,28 @@ const create = context => {
 		if (inactiveCallbackStack.at(-1)?.node === node) {
 			inactiveCallbackStack.pop();
 		} else {
+			testStack.pop();
+		}
+	});
+
+	// A test body the call names out of line is entered where it is declared, which the call's own
+	// frame does not cover, so a sleep in it sat outside every tracked scope.
+	const functionTypes = ['FunctionExpression', 'ArrowFunctionExpression', 'FunctionDeclaration'];
+	const outOfLineTestBodies = new WeakSet();
+
+	context.on(functionTypes, node => {
+		const call = getOutOfLineCallbackCall(node, context, imports);
+		const kind = call && parseTestCall(call, imports)?.kind;
+		if (kind !== 'test' && kind !== 'hook') {
+			return;
+		}
+
+		outOfLineTestBodies.add(node);
+		testStack.push({callback: node, contextVariable: getContextVariable(node)});
+	});
+
+	context.onExit(functionTypes, node => {
+		if (outOfLineTestBodies.delete(node)) {
 			testStack.pop();
 		}
 	});

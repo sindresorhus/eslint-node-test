@@ -1227,6 +1227,51 @@ not treat those dead functions as a live hook callback. A hook declared on a tes
 (`t.beforeEach(…)`) is a method call that `parseTestCall` does not classify; callers that know it is
 one should ask for `getHookCallback` themselves.
 */
+/**
+The function a test, suite, subtest or hook call runs as its callback, whether the call names it
+directly or names a binding that reaches it.
+
+`getTestCallback` answers only the first: an identifier argument is the callback by name, and the
+function it reaches is declared elsewhere, which is still the function the runner calls. A rule that
+reads what the callback contains needs the function itself, not the name.
+
+@param {import('estree').CallExpression} callExpression
+@param {import('eslint').Rule.RuleContext} context
+@param {object} imports The result of `resolveImports`.
+@returns {import('estree').Node | undefined} The callback function node, when there is one.
+*/
+export function getResolvedTestCallback(callExpression, context, imports) {
+	const callback = getTestCallback(callExpression, imports);
+	if (callback) {
+		return callback;
+	}
+
+	// The callback may be named by an identifier in any argument slot, or by the `fn` property of the
+	// descriptor, and the name may be something else entirely: the title is often a variable too.
+	const identifiers = callExpression.arguments
+		.map(argument => unwrapTypeScriptExpression(argument))
+		.filter(argument => argument?.type === 'Identifier');
+	const fnProperty = findOptionsProperty(getTestOptions(callExpression), 'fn');
+	const fn = fnProperty && unwrapTypeScriptExpression(fnProperty.value);
+	if (fn?.type === 'Identifier') {
+		identifiers.push(fn);
+	}
+
+	for (const identifier of identifiers) {
+		const variable = findVariable(context.sourceCode.getScope(identifier), identifier);
+		for (const definition of variable?.defs ?? []) {
+			// A `function body() {}` definition carries the declaration; `const body = () => {}` carries
+			// the declarator, whose `init` is the function.
+			const node = definition.type === 'FunctionName' ? definition.node : definition.node?.init;
+			if (isFunction(node)) {
+				return node;
+			}
+		}
+	}
+
+	return undefined;
+}
+
 export function getTestCallback(callExpression, imports) {
 	const parsed = imports && parseTestCall(callExpression, imports);
 	if (parsed?.kind === 'hook' || isHookMemberTestCall(parsed)) {

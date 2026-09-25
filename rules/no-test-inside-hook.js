@@ -2,6 +2,7 @@ import {
 	resolveImports,
 	parseTestCall,
 	getHookCallback,
+	getOutOfLineCallbackCall,
 	createContextTracker,
 	isContextHookCall,
 } from './utils/node-test.js';
@@ -69,6 +70,27 @@ const create = context => {
 
 		const callback = getHookCallback(node);
 		if (callback && hookCallbackStack.at(-1) === callback) {
+			hookCallbackStack.pop();
+		}
+	});
+
+	// A hook callback the call names out of line is entered where it is declared, which the call's own
+	// frame does not cover, so a test inside it is still inside the hook and the runner still drops it.
+	const functionTypes = ['FunctionExpression', 'ArrowFunctionExpression', 'FunctionDeclaration'];
+	const outOfLineHookCallbacks = new WeakSet();
+
+	context.on(functionTypes, node => {
+		const call = getOutOfLineCallbackCall(node, context, imports);
+		if (!call || parseTestCall(call, imports)?.kind !== 'hook') {
+			return;
+		}
+
+		outOfLineHookCallbacks.add(node);
+		hookCallbackStack.push(node);
+	});
+
+	context.onExit(functionTypes, node => {
+		if (outOfLineHookCallbacks.delete(node)) {
 			hookCallbackStack.pop();
 		}
 	});

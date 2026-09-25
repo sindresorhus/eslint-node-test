@@ -102,6 +102,11 @@ test.snapshot({
 	invalid: [
 		// Adjacent duplicate assertion
 		withTest('\tassert.strictEqual(user.id, 1);\n\tassert.strictEqual(user.id, 1);'),
+
+		// A test body the call names out of line has its duplicates the same way
+		`${head}function body() {\n\tassert.strictEqual(user.id, 1);\n\tassert.strictEqual(user.id, 1);\n}\ntest('user', body);`,
+		`${head}const body = () => {\n\tassert.strictEqual(user.id, 1);\n\tassert.strictEqual(user.id, 1);\n};\ntest('user', body);`,
+		`${head}function body() {\n\tassert.strictEqual(user.id, 1);\n\tassert.strictEqual(user.id, 1);\n}\ntest('user', {fn: body});`,
 		withTest('\tassert.strictEqual(user.id, 1);\n\tassert.strictEqual(user.id, 1);\n\tassert.strictEqual(user.id, 1);'),
 
 		// `node:assert/strict`

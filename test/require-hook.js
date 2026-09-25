@@ -74,6 +74,10 @@ test.snapshot({
 		// A loop or an expression body is not a bare statement in the suite body
 		'import {describe} from \'node:test\';\ndescribe(\'s\', () => { for (const x of xs) { setup(); } });',
 		'import {describe} from \'node:test\';\ndescribe(\'s\', () => setup());',
+		// A test or hook body named out of line runs as that test's own body
+		'import {describe, test} from \'node:test\';\nfunction body() { setup(); }\ntest(\'a\', body);',
+		'import {describe, test} from \'node:test\';\nconst body = () => { setup(); };\ntest(\'a\', body);',
+		'import {describe, beforeEach} from \'node:test\';\nfunction body() { setup(); }\nbeforeEach(body);',
 	],
 	invalid: [
 		// An immediately invoked function that does real setup still runs at load time
@@ -156,5 +160,10 @@ test.snapshot({
 		'import {suite} from \'node:test\';\nsuite(\'a\', {fn() { setup(); }});',
 		// A bare call at the top level is what the default `allow` is about
 		'import {test} from \'node:test\';\nconsole.log(\'top level\');\ntest(\'a\', () => {});',
+		// A suite body named out of line runs at collection time, exactly as the inline one does
+		'import {describe} from \'node:test\';\nconst body = () => { setup(); };\ndescribe(\'s\', body);',
+		'import {describe} from \'node:test\';\ndescribe(\'s\', body);\nfunction body() { setup(); }',
+		'import {describe} from \'node:test\';\nconst body = () => { setup(); };\ndescribe(\'s\', {fn: body});',
+		'import {describe} from \'node:test\';\nconst body = () => { setup(); };\ndescribe(\'s\', body, {skip: true});',
 	],
 });

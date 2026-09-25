@@ -17,6 +17,10 @@ test.snapshot({
 		// Over the default limit, but allowed by a higher `max`
 		{code: `${head}test('x', () => { ${asserts(6)} });`, options: [{max: 10}]},
 
+		// A suite body is not a test body, and a helper the test body calls is a separate case
+		`${head}function body() { ${asserts(6)} }\ndescribe('x', body);`,
+		`${head}function helper() { ${asserts(6)} }\ntest('x', () => { helper(); });`,
+
 		// Assertions split across separate tests — each counted on its own
 		`${head}test('a', () => { ${asserts(3)} });\ntest('b', () => { ${asserts(3)} });`,
 
@@ -35,6 +39,11 @@ test.snapshot({
 	invalid: [
 		// One past the default limit
 		`${head}test('x', () => { ${asserts(6)} });`,
+
+		// A test body the call names out of line is counted the same way
+		`${head}function body() { ${asserts(6)} }\ntest('x', body);`,
+		`${head}const body = () => { ${asserts(6)} };\ntest('x', body);`,
+		`${head}function body() { ${asserts(6)} }\ntest('x', {fn: body});`,
 
 		// `t.assert.*` assertions are counted too
 		`${head}test('x', t => { t.assert.ok(a); t.assert.ok(b); t.assert.ok(c); t.assert.ok(d); t.assert.ok(e); t.assert.ok(f); });`,

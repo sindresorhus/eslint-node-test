@@ -3,6 +3,7 @@ import {
 	parseTestCall,
 	parseAssertionCall,
 	getTestCallback,
+	getOutOfLineCallbackCall,
 } from './utils/node-test.js';
 import isFunction from './ast/is-function.js';
 import {unwrapExpression} from './utils/skip-expression-wrappers.js';
@@ -35,7 +36,7 @@ function getCalledExpression(statement) {
 Whether the statement sits directly in a registration-time scope: the module top level or a
 `describe`/`suite` body. Statements inside a test/hook callback or a helper function are fine.
 */
-function isInRegistrationScope(statement, imports) {
+function isInRegistrationScope(statement, imports, context) {
 	const {parent} = statement;
 	if (parent.type === 'Program') {
 		return true;
@@ -57,11 +58,17 @@ function isInRegistrationScope(statement, imports) {
 		call = call.parent.parent;
 	}
 
-	if (call?.type !== 'CallExpression' || getTestCallback(call) !== callback) {
-		return false;
+	if (call?.type === 'CallExpression') {
+		if (getTestCallback(call, imports) !== callback) {
+			return false;
+		}
+	} else {
+		// A suite body named out of line is declared somewhere else, and the call that runs it is found
+		// by resolving the binding back to the reference that passes it.
+		call = getOutOfLineCallbackCall(callback, context, imports);
 	}
 
-	return parseTestCall(call, imports)?.kind === 'suite';
+	return call !== undefined && parseTestCall(call, imports)?.kind === 'suite';
 }
 
 /*
@@ -114,7 +121,7 @@ const create = context => {
 
 		// Check the scope before the `allow` list: it is a few parent lookups, while the list is
 		// keyed by callee source text, which has to be materialized for every call it is given.
-		if (!isInRegistrationScope(node, imports)) {
+		if (!isInRegistrationScope(node, imports, context)) {
 			return;
 		}
 

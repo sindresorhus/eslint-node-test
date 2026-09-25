@@ -5,6 +5,7 @@ import {
 	getSubtestReceiver,
 	isGetTestContextSubtestCall,
 	getTestCallback,
+	getOutOfLineCallbackCall,
 	getFirstContextParameter,
 	MODIFIERS,
 	getImportSpecifierName,
@@ -313,6 +314,32 @@ const create = context => {
 		testStack.pop();
 	};
 
+	// A test body the call names out of line is entered where it is declared, which the call's own
+	// frame does not cover, so a mutation in it sat outside every tracked scope.
+	const functionTypes = ['FunctionExpression', 'ArrowFunctionExpression', 'FunctionDeclaration'];
+	const outOfLineTestBodies = new WeakSet();
+
+	const enterOutOfLineTestBody = node => {
+		const call = getOutOfLineCallbackCall(node, context, imports);
+		if (!call) {
+			return;
+		}
+
+		const parsed = parseTestCall(call, imports);
+		if (parsed?.kind !== 'test' || parsed.modifiers.some(modifier => !MODIFIERS.has(modifier.name))) {
+			return;
+		}
+
+		outOfLineTestBodies.add(node);
+		testStack.push({callback: node, contextVariable: getContextVariable(node)});
+	};
+
+	const leaveOutOfLineTestBody = node => {
+		if (outOfLineTestBodies.delete(node)) {
+			testStack.pop();
+		}
+	};
+
 	// Any test or subtest callback on the stack, not only the innermost one: a subtest's options
 	// object is evaluated inside the parent test's callback, so a mutation there is in a test body too.
 	const isInsideTestCallback = node => {
@@ -398,6 +425,9 @@ const create = context => {
 	context.onExit('CallExpression', node => {
 		leaveTestCall(node);
 	});
+
+	context.on(functionTypes, enterOutOfLineTestBody);
+	context.onExit(functionTypes, leaveOutOfLineTestBody);
 
 	context.on('AssignmentExpression', node => {
 		const target = getMutatingProcessEnvironmentTarget(node);

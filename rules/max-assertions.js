@@ -2,6 +2,7 @@ import {
 	resolveImports,
 	parseTestCall,
 	parseSupportedAssertionCall,
+	getOutOfLineCallbackCall,
 	createContextTracker,
 } from './utils/node-test.js';
 
@@ -42,6 +43,37 @@ const create = context => {
 		tracker.leave(node);
 
 		if (frames.at(-1)?.node !== node) {
+			return;
+		}
+
+		const {count} = frames.pop();
+		if (count > max) {
+			return {
+				node,
+				messageId: MESSAGE_ID,
+				data: {count, max},
+			};
+		}
+	});
+
+	// A test body the call names out of line is entered where it is declared, which the call's own frame
+	// does not cover, so the assertions in it would count toward nothing. The frame is keyed on the
+	// function instead, and the report lands on it.
+	const functionTypes = ['FunctionExpression', 'ArrowFunctionExpression', 'FunctionDeclaration'];
+	const outOfLineFrames = new WeakSet();
+
+	context.on(functionTypes, node => {
+		const call = getOutOfLineCallbackCall(node, context, imports);
+		if (!call || parseTestCall(call, imports)?.kind !== 'test') {
+			return;
+		}
+
+		outOfLineFrames.add(node);
+		frames.push({node, count: 0});
+	});
+
+	context.onExit(functionTypes, node => {
+		if (!outOfLineFrames.delete(node) || frames.at(-1)?.node !== node) {
 			return;
 		}
 

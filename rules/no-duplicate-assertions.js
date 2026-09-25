@@ -3,6 +3,7 @@ import {
 	parseTestCall,
 	parseSupportedAssertionCall,
 	getTestCallback,
+	getOutOfLineCallbackCall,
 	createContextTracker,
 	LOOSE_TO_STRICT_METHODS,
 } from './utils/node-test.js';
@@ -93,6 +94,20 @@ const create = context => {
 		}
 
 		testCallbackBodies.add(callback.body);
+	});
+
+	// A test body the call names out of line is entered where it is declared, which the call's own
+	// traversal does not cover, so duplicate assertions in it went unseen. The body is registered the
+	// same way, and the block exit below does the rest.
+	const functionTypes = ['FunctionExpression', 'ArrowFunctionExpression', 'FunctionDeclaration'];
+
+	context.on(functionTypes, node => {
+		const call = getOutOfLineCallbackCall(node, context, imports);
+		if (!call || parseTestCall(call, imports)?.kind !== 'test' || node.body.type !== 'BlockStatement') {
+			return;
+		}
+
+		testCallbackBodies.add(node.body);
 	});
 
 	context.onExit('BlockStatement', function * (node) {

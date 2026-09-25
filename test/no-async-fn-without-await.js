@@ -32,8 +32,6 @@ test.snapshot({
 		withImport('import {afterEach} from "node:test";\nafterEach(async () => { await cleanup(); });'),
 		// It() alias with await
 		withImport('import {it} from "node:test";\nit("title", async t => { await foo(); });'),
-		// Passing a non-inline function ref — no callback to inspect
-		withImport('const fn = async t => { foo(); };\ntest("title", fn);'),
 		// No callback at all
 		withImport('test("title");'),
 		// Shadowed import name
@@ -118,10 +116,22 @@ test.snapshot({
 		withHookImport('test.beforeEach({fn: async () => {}});'),
 		withImport('test(\'title\', t => { t.beforeEach({}, async () => { foo(); }); });'),
 		withImport('test(\'title\', t => { t.beforeEach({fn: async () => {}}); });'),
+		withImport('test(\'title\', t => { async function body() { foo(); } t.beforeEach({}, body); });'),
+		// A context hook body the call names out of line that does await is fine
+		withImport('test(\'title\', async t => { async function body() { await foo(); } t.beforeEach(body); await t.test(\'x\', () => {}); });'),
 	],
 	invalid: [
 		// A hook's trailing options must not hide an async callback with no await
 		'import {before} from "node:test";\nbefore(async () => {}, {timeout: 1});',
+		// A test body the call names out of line is checked the same way: the function is the callback
+		withImport('const fn = async t => { foo(); };\ntest("title", fn);'),
+
+		// A test or hook body the call names out of line is checked the same way
+		'import {test} from \'node:test\';\nconst body = async () => { foo(); };\ntest(\'a\', body);',
+		'import {test} from \'node:test\';\nasync function body() { foo(); }\ntest(\'a\', body);',
+		'import {test} from \'node:test\';\nconst body = async () => { foo(); };\ntest(\'a\', {fn: body});',
+		'import {before} from \'node:test\';\nconst body = async () => { foo(); };\nbefore(body);',
+
 		'import {beforeEach} from "node:test";\nbeforeEach(async () => { foo(); }, {timeout: 1000});',
 		'import {after} from "node:test";\nafter(async () => {}, {timeout: 1});',
 		'import {afterEach} from "node:test";\nafterEach(async () => {}, {timeout: 1});',
@@ -135,5 +145,8 @@ test.snapshot({
 		withImport('test("title", async function * () { foo(); });'),
 		withImport('test("title", async function * named() { foo(); });'),
 		'import {beforeEach} from "node:test";\nbeforeEach(async function * () { foo(); });',
+
+		// A context hook body the call names out of line is checked the same way as an inline one
+		withImport('test(\'p\', async t => { async function body() { foo(); } t.beforeEach(body); await t.test(\'x\', () => {}); });'),
 	],
 });

@@ -29,6 +29,12 @@ test.snapshot({
 		+ '\tawait t.test(\'one\', async one => { beforeEach(() => {}); });\n'
 		+ '\tawait t.test(\'two\', async two => { beforeEach(() => {}); });\n'
 		+ '});',
+
+		// A hook body is a scope of its own. Its `t` is the context of the test the hook runs for, so a
+		// hook declared on it belongs to that test's subtests, not to the scope it was declared in.
+		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { t.beforeEach(() => {}); });',
+		// A context hook in a test body belongs to that test's scope, not to the file's
+		'import {before, test} from \'node:test\';\ntest(\'a\', t => { t.before(() => {}); });\nbefore(() => {});',
 	],
 	invalid: [
 		// The same hook twice inside one out-of-line suite body is still a duplicate

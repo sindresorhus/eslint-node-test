@@ -45,6 +45,13 @@ test.snapshot({
 		withImport('test("outer", t => { t.beforeEach(() => {}, {timeout: a ? 1 : 2}); });'),
 		'import {test, getTestContext} from \'node:test\';\n'
 		+ 'test("outer", () => { getTestContext().beforeEach(() => {}, {timeout: a ? 1 : 2}); });',
+
+		// A suite body is about test registration, out of line as much as inline
+		'import {describe} from \'node:test\';\ndescribe("d", body);\nfunction body() {\n\tif (x) {\n\t\tf();\n\t}\n}',
+
+		// A helper the test body calls is a separate case
+		withImport('const body = () => {\n\tif (x) {\n\t\tf();\n\t}\n};\ntest("x", () => { body(); });'),
+		withImport('function helper() {\n\tif (x) {\n\t\tf();\n\t}\n}\ntest("x", () => { helper(); });'),
 	],
 	invalid: [
 		// A conditional in an argument of a call the test body runs is the body's own logic
@@ -114,5 +121,10 @@ test.snapshot({
 
 		// A hook declared through `getTestContext()` is the same hook
 		'import {test, getTestContext} from \'node:test\';\ntest(\'p\', t => { getTestContext().beforeEach(() => { if (a) { f(); } }); });',
+
+		// A test body the call names out of line is still the test body
+		withImport('function body() {\n\tif (x) {\n\t\tf();\n\t}\n}\ntest("x", body);'),
+		withImport('const body = () => {\n\tif (x) {\n\t\tf();\n\t}\n};\ntest("x", body);'),
+		'import {before} from \'node:test\';\nbefore(setup);\nfunction setup() {\n\tif (x) {\n\t\tf();\n\t}\n}',
 	],
 });

@@ -21,6 +21,10 @@ const withSuitePromiseTimerImport = (callee, options, code) => withNodeTestPromi
 
 test.snapshot({
 	valid: [
+		// A suite body and a helper the test body calls are separate cases
+		'import {describe} from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\nconst body = async () => { await delay(500); };\ndescribe(\'s\', body);',
+		'import test from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\nconst body = async () => { await delay(500); };\ntest(\'waits\', () => { body(); });',
+
 		// Not a test file.
 		'await new Promise(resolve => setTimeout(resolve, 500));',
 
@@ -78,6 +82,11 @@ test.snapshot({
 	],
 	invalid: [
 		withTest('await new Promise(resolve => setTimeout(resolve, 500));'),
+
+		// A test body the call names out of line is still a test body
+		'import test from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\nasync function body() { await delay(500); }\ntest(\'waits\', body);',
+		'import test from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\nconst body = async () => { await delay(500); };\ntest(\'waits\', body);',
+		'import test from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\nconst body = async () => { await delay(500); };\ntest(\'waits\', {fn: body});',
 		withTest('return new Promise(resolve => setTimeout(resolve, 500));'),
 		'import test from \'node:test\';\ntest(\'waits\', {timeout: 1000}, async () => {\n\tawait new Promise(resolve => setTimeout(resolve, 500));\n});',
 		'import test from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\ntest(\'waits\', {skip: undefined}, async () => {\n\tawait delay(500);\n});',

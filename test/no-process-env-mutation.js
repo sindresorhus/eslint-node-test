@@ -9,6 +9,10 @@ const inTest = code => withTestImport(`test('reads config', t => {\n\t${code}\n}
 
 test.snapshot({
 	valid: [
+		// A suite body and a helper the test body calls are separate cases
+		'import {describe} from \'node:test\';\nconst body = () => { process.env.NODE_ENV = \'production\'; };\ndescribe(\'s\', body);',
+		'import {test} from \'node:test\';\nconst body = () => { process.env.NODE_ENV = \'production\'; };\ntest(\'a\', () => { body(); });',
+
 		// Not a test file
 		'process.env.NODE_ENV = \'production\';',
 
@@ -74,6 +78,11 @@ test.snapshot({
 		inTest('const globalThis = {process: {env: {}}};\nglobalThis.process.env.NODE_ENV = \'production\';'),
 	],
 	invalid: [
+		// A test body the call names out of line is still a test body
+		withTestImport('function body() { process.env.NODE_ENV = \'production\'; }\ntest(\'a\', body);'),
+		withTestImport('const body = () => { process.env.NODE_ENV = \'production\'; };\ntest(\'a\', body);'),
+		withTestImport('const body = () => { process.env.NODE_ENV = \'production\'; };\ntest(\'a\', {fn: body});'),
+
 		// A subtest's options object is evaluated inside the parent test's callback, so a mutation
 		// there is in a test body and leaks into every later test just the same
 		withTestImport('test(\'parent\', t => {\n\tt.test(\'child\', {skip: (process.env.NODE_ENV = \'production\', false)}, () => {});\n});'),

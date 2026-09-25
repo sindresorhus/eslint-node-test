@@ -478,6 +478,78 @@ Message:
 
 `;
 
+exports[`require-hook > invalid(33): import {describe} from 'node:test';\nconst body = () => { setup(); };\ndescribe('s', body); 1`] = `
+
+  1 | import {describe} from 'node:test';
+  2 | const body = () => { setup(); };
+  3 | describe('s', body);
+
+`;
+
+exports[`require-hook > invalid(33): import {describe} from 'node:test';\nconst body = () => { setup(); };\ndescribe('s', body); 2`] = `
+
+Message:
+  1 | import {describe} from 'node:test';
+> 2 | const body = () => { setup(); };
+    |                      ^^^^^^^^ This runs when the file is loaded, not as part of a test. Move it into a \`before\`, \`beforeEach\`, \`after\`, or \`afterEach\` hook.
+  3 | describe('s', body);
+
+`;
+
+exports[`require-hook > invalid(34): import {describe} from 'node:test';\ndescribe('s', body);\nfunction body() { setup(); } 1`] = `
+
+  1 | import {describe} from 'node:test';
+  2 | describe('s', body);
+  3 | function body() { setup(); }
+
+`;
+
+exports[`require-hook > invalid(34): import {describe} from 'node:test';\ndescribe('s', body);\nfunction body() { setup(); } 2`] = `
+
+Message:
+  1 | import {describe} from 'node:test';
+  2 | describe('s', body);
+> 3 | function body() { setup(); }
+    |                   ^^^^^^^^ This runs when the file is loaded, not as part of a test. Move it into a \`before\`, \`beforeEach\`, \`after\`, or \`afterEach\` hook.
+
+`;
+
+exports[`require-hook > invalid(35): import {describe} from 'node:test';\nconst body = () => { setup(); };\ndescribe('s', {fn: body}); 1`] = `
+
+  1 | import {describe} from 'node:test';
+  2 | const body = () => { setup(); };
+  3 | describe('s', {fn: body});
+
+`;
+
+exports[`require-hook > invalid(35): import {describe} from 'node:test';\nconst body = () => { setup(); };\ndescribe('s', {fn: body}); 2`] = `
+
+Message:
+  1 | import {describe} from 'node:test';
+> 2 | const body = () => { setup(); };
+    |                      ^^^^^^^^ This runs when the file is loaded, not as part of a test. Move it into a \`before\`, \`beforeEach\`, \`after\`, or \`afterEach\` hook.
+  3 | describe('s', {fn: body});
+
+`;
+
+exports[`require-hook > invalid(36): import {describe} from 'node:test';\nconst body = () => { setup(); };\ndescribe('s', body, {skip: true}); 1`] = `
+
+  1 | import {describe} from 'node:test';
+  2 | const body = () => { setup(); };
+  3 | describe('s', body, {skip: true});
+
+`;
+
+exports[`require-hook > invalid(36): import {describe} from 'node:test';\nconst body = () => { setup(); };\ndescribe('s', body, {skip: true}); 2`] = `
+
+Message:
+  1 | import {describe} from 'node:test';
+> 2 | const body = () => { setup(); };
+    |                      ^^^^^^^^ This runs when the file is loaded, not as part of a test. Move it into a \`before\`, \`beforeEach\`, \`after\`, or \`afterEach\` hook.
+  3 | describe('s', body, {skip: true});
+
+`;
+
 exports[`require-hook > invalid(4): import {test, describe, beforeEach} from 'node:test';\nstartServer();\ntest(\"x\", () => {}); 1`] = `
 
   1 | import {test, describe, beforeEach} from 'node:test';

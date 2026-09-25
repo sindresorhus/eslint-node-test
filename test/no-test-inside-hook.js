@@ -25,6 +25,11 @@ test.snapshot({
 
 		// Not a test file
 		'beforeEach(() => { it(\'a\', () => {}); });',
+		// A test callback named out of line is the test's own body
+		'import {before, test} from \'node:test\';\nconst setup = () => { test(\'a\', () => {}); };\ntest(\'t\', setup);',
+		'import {before, test} from \'node:test\';\nconst body = () => { test(\'a\', () => {}); };\ntest(\'t\', body);',
+		// A helper the hook merely calls is a different case, and is left alone
+		'import {before, test} from \'node:test\';\nbefore(() => { setup(); });\nfunction setup() { test(\'a\', () => {}); }',
 	],
 	invalid: [
 		// `it` inside each hook type
@@ -55,5 +60,12 @@ test.snapshot({
 		'import {test} from \'node:test\';\ntest(\'a\', t => { t.beforeEach(() => { t.test(\'b\', () => {}); }); });',
 		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { t.test(\'b\', () => {}); });',
 		'import {before} from \'node:test\';\nbefore(t => { t.test(\'b\', () => {}); });',
+
+		// A hook callback the call names out of line runs as the hook's body, so a test in it is
+		// registered nowhere
+		'import {before, test} from \'node:test\';\nbefore(setup);\nfunction setup() { test(\'a\', () => {}); }',
+		'import {before, test} from \'node:test\';\nconst setup = () => { test(\'a\', () => {}); };\nbefore(setup);',
+		'import {before, describe} from \'node:test\';\nbefore(setup);\nfunction setup() { describe(\'a\', () => {}); }',
+		'import {beforeEach, test} from \'node:test\';\nbeforeEach(setup);\nfunction setup() { test(\'a\', () => {}); }',
 	],
 });

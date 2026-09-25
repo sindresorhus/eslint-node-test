@@ -2,6 +2,7 @@ import {
 	resolveImports,
 	parseTestCall,
 	getTestCallback,
+	getOutOfLineCallbackCall,
 	parseSupportedAssertionCall,
 	createContextTracker,
 } from './utils/node-test.js';
@@ -40,6 +41,28 @@ const create = context => {
 	// scoped to the subtest, not to a conditional wrapping the subtest call in the outer test.
 	const testCallbackStack = [];
 	const tracker = createContextTracker(imports, {trackHooks: true});
+	const outOfLineCallbacks = new WeakSet();
+
+	// A callback the call names out of line is entered where it is declared, which the call's own frame
+	// does not cover, so an assertion in it was checked against no scope at all.
+	const functionTypes = ['FunctionExpression', 'ArrowFunctionExpression', 'FunctionDeclaration'];
+
+	context.on(functionTypes, node => {
+		const call = getOutOfLineCallbackCall(node, context, imports);
+		const kind = call && parseTestCall(call, imports)?.kind;
+		if (kind !== 'test' && kind !== 'hook') {
+			return;
+		}
+
+		outOfLineCallbacks.add(node);
+		testCallbackStack.push(node);
+	});
+
+	context.onExit(functionTypes, node => {
+		if (outOfLineCallbacks.delete(node)) {
+			testCallbackStack.pop();
+		}
+	});
 
 	context.on('CallExpression', node => {
 		tracker.update(node);

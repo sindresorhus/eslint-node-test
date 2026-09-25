@@ -61,12 +61,18 @@ const create = context => {
 			} else {
 				scope.add(parsed.name);
 			}
-		} else if (isSubtest || parsed?.kind === 'test' || parsed?.kind === 'suite') {
-			const callback = isContextHook ? getHookCallback(node) : getTestCallback(node);
-			if (callback) {
-				scopeStack.push(new Set());
-				pushedCalls.add(node);
-			}
+		}
+
+		// A hook body is a scope of its own, like a test or a suite body. Its `t` is the context of the
+		// test the hook runs for, so a hook declared on it is registered on that test and fires there (a
+		// `beforeEach` for that test's subtests), which is not the scope the hook itself was declared in.
+		// It is not a duplicate of a hook outside it.
+		const callback = isContextHook || parsed?.kind === 'hook'
+			? getHookCallback(node)
+			: (isSubtest || parsed?.kind === 'test' || parsed?.kind === 'suite' ? getTestCallback(node) : undefined);
+		if (callback) {
+			scopeStack.push(new Set());
+			pushedCalls.add(node);
 		}
 
 		return problem;
