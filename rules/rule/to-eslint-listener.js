@@ -24,8 +24,10 @@ function reportProblems(context, problems) {
 		return;
 	}
 
-	// A single problem object is a plain object (not iterable), so report it directly.
-	if (typeof problems[Symbol.iterator] !== 'function') {
+	// A single problem object is a plain object (not iterable), so report it directly. The shape is
+	// checked as well, so a problem that happens to be iterable is still one problem rather than a
+	// list of them, which would drop it and report only whatever it yields.
+	if (typeof problems[Symbol.iterator] !== 'function' || 'node' in problems) {
 		context.report(toEslintProblem(problems));
 		return;
 	}

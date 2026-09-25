@@ -72,8 +72,26 @@ function getArgumentRemovalRange(node, context) {
 @param {ESLint.Rule.RuleFixer} fixer
 @param {ESTree.CallExpressionArgument} node
 @param {ESLint.Rule.RuleContext} context - The ESLint rule context object.
-@returns {ESLint.Rule.Fix}
+@returns {ESLint.Rule.Fix | undefined} `undefined` when the range holds a comment, since a fix must
+not remove one or leave it behind describing a different argument.
 */
 export default function removeArgument(fixer, node, context) {
-	return fixer.removeRange(getArgumentRemovalRange(node, context));
+	const [start, end] = getArgumentRemovalRange(node, context);
+
+	// The range spans the whole gap around the argument, up to the next argument's first token, and
+	// whatever it leaves on either side becomes the neighbouring argument's trailing or leading gap.
+	// A comment anywhere in that span would be removed with the argument, or would end up describing a
+	// different one, so the fix stands down.
+	const {sourceCode} = context;
+	const previous = sourceCode.getTokenBefore({range: [start, start]});
+	const following = sourceCode.getTokenAfter({range: [end, end]});
+	const span = [
+		previous ? sourceCode.getRange(previous)[1] : start,
+		following ? sourceCode.getRange(following)[0] : end,
+	];
+	if (sourceCode.getCommentsInside({range: span}).length > 0) {
+		return undefined;
+	}
+
+	return fixer.removeRange([start, end]);
 }

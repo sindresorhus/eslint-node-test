@@ -1,4 +1,5 @@
 import toEslintFixer from './to-eslint-rule-fixer.js';
+import {iterateFixOrProblems} from './utilities.js';
 
 /**
 @import * as ESLint from 'eslint';
@@ -21,15 +22,20 @@ export default function toEslintProblem(unicornProblem) {
 		eslintProblem.fix = toEslintFixer(unicornProblem.fix);
 	}
 
-	if (Array.isArray(unicornProblem.suggest)) {
-		eslintProblem.suggest = unicornProblem.suggest.map(unicornSuggest => ({
-			...unicornSuggest,
-			fix: toEslintFixer(unicornSuggest.fix),
-			data: {
-				...unicornProblem.data,
-				...unicornSuggest.data,
-			},
-		}));
+	// Anything iterable, the same as the fix path: a generator defers its body, and ESLint drops a
+	// `suggest` it cannot read without saying so.
+	if (unicornProblem.suggest) {
+		// A suggestion without a fix is dropped, the way ESLint drops one it cannot apply.
+		eslintProblem.suggest = [...iterateFixOrProblems(unicornProblem.suggest)]
+			.filter(unicornSuggest => typeof unicornSuggest.fix === 'function')
+			.map(unicornSuggest => ({
+				...unicornSuggest,
+				fix: toEslintFixer(unicornSuggest.fix),
+				data: {
+					...unicornProblem.data,
+					...unicornSuggest.data,
+				},
+			}));
 	}
 
 	return eslintProblem;

@@ -16,15 +16,15 @@ import {removeArgument} from '../../rules/fix/index.js';
 import isFunction from '../../rules/ast/is-function.js';
 import {parseAssertionCall, getTestCallback, resolveImports} from '../../rules/utils/node-test.js';
 
-// Apply `removeArgument` to the argument at `index` of the `fn(…)` call and return the fixed source.
-const removeArgumentFrom = (code, index, languageOptions) => {
+// Apply `removeArgument` to the argument at `index` of the `fn(…)` call, as `getNode` picks it from the call's argument, and return the fixed source.
+const removeArgumentFrom = (code, index, languageOptions, getNode = argument => argument) => {
 	const linter = new Linter();
 	const rule = {
 		meta: {fixable: 'code'},
 		create: context => ({
 			CallExpression(node) {
 				if (node.callee.name === 'fn' && Object.hasOwn(node.arguments, index)) {
-					context.report({node, message: 'x', fix: fixer => removeArgument(fixer, node.arguments[index], context)});
+					context.report({node, message: 'x', fix: fixer => removeArgument(fixer, getNode(node.arguments[index]), context)});
 				}
 			},
 		}),
@@ -122,12 +122,19 @@ test('removeArgument removes the whole argument including any expression wrapper
 	// The call holds the wrapper, not the inner node, so the range has to cover it or the
 	// leftover `as unknown` would stay behind as a dangling argument.
 	const asTypeScript = {parser: typescriptParser};
-	assert.strictEqual(removeArgumentFrom('fn(a as unknown);', 0, asTypeScript), 'fn();');
-	assert.strictEqual(removeArgumentFrom('fn(a satisfies unknown);', 0, asTypeScript), 'fn();');
-	assert.strictEqual(removeArgumentFrom('fn(a!);', 0, asTypeScript), 'fn();');
-	assert.strictEqual(removeArgumentFrom('fn(a as unknown, b);', 0, asTypeScript), 'fn(b);');
-	assert.strictEqual(removeArgumentFrom('fn(b, c as unknown);', 1, asTypeScript), 'fn(b);');
-	assert.strictEqual(removeArgumentFrom('fn(a?.b as unknown);', 0, asTypeScript), 'fn();');
+	for (const [code, index, expected] of [
+		['fn(a as unknown);', 0, 'fn();'],
+		['fn(a satisfies unknown);', 0, 'fn();'],
+		['fn(a!);', 0, 'fn();'],
+		['fn(a as unknown, b);', 0, 'fn(b);'],
+		['fn(b, c as unknown);', 1, 'fn(b);'],
+		['fn(a?.b as unknown);', 0, 'fn();'],
+	]) {
+		// The wrapper itself, as the call holds it.
+		assert.strictEqual(removeArgumentFrom(code, index, asTypeScript), expected);
+		// The inner node, as a rule passes it after unwrapping the argument (`prefer-todo` does, through `getTestCallback`).
+		assert.strictEqual(removeArgumentFrom(code, index, asTypeScript, unwrapExpression), expected);
+	}
 });
 
 test('skipExpressionWrappers and outermostExpressionWrapper walk past chain and TypeScript wrappers', () => {
@@ -317,6 +324,38 @@ test('getTestCallback returns the function node:test actually runs', () => {
 
 	// No callback at all.
 	assert.strictEqual(testCallbackText('test(\'a\', {skip: true});'), undefined);
+});
+
+test('removeArgument offers no fix when a comment would go with the argument', () => {
+	// The range spans the whole gap around the argument, up to the next argument's first token, and
+	// what it leaves on either side becomes the neighbouring argument's gap.
+	for (const [code, index] of [
+		['fn(a /* keep */, b);', 0],
+		['fn((/* keep */ a), b);', 0],
+		['fn(a // keep\n, b);', 0],
+		['fn(a, /* keep */ b);', 1],
+		['fn(a, b /* keep */);', 1],
+		['fn(a, (/* keep */ () => {}));', 1],
+		['fn(a /* keep */);', 0],
+	]) {
+		const linter = new Linter();
+		const rule = {
+			meta: {fixable: 'code'},
+			create: context => ({
+				CallExpression(node) {
+					if (node.callee.name === 'fn' && Object.hasOwn(node.arguments, index)) {
+						context.report({node, message: 'x', fix: fixer => removeArgument(fixer, node.arguments[index], context)});
+					}
+				},
+			}),
+		};
+		const [message] = linter.verify(code, {
+			plugins: {test: {rules: {removeArgument: rule}}},
+			rules: {'test/removeArgument': 'error'},
+			languageOptions: {ecmaVersion: 'latest'},
+		});
+		assert.strictEqual(message.fix, undefined, `a fix was offered for ${JSON.stringify(code)}`);
+	}
 });
 
 test('isFunction answers false for a missing node', () => {

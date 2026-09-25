@@ -34,7 +34,10 @@ export default function toEslintRuleFixer(fix) {
 		try {
 			const unicornReport = fix(fixer, fixOptions);
 
-			return [...iterateFixOrProblems(unicornReport)];
+			// A fix helper stands down by yielding `undefined` rather than by calling `abort()`, so the
+			// falsy entries are dropped here. Handing one to ESLint would make `mergeFixes` read `.range`
+			// off `undefined` and take the whole lint run down with it.
+			return [...iterateFixOrProblems(unicornReport)].filter(Boolean);
 		} catch (error) {
 			if (error instanceof FixAbortError) {
 				return;
