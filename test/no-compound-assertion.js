@@ -58,6 +58,8 @@ test.snapshot({
 	],
 	invalid: [
 		withTest('test(\'t\', ({assert}) => { assert.ok(a && b); });'),
+		// A class static block is a plain statement list, so the split applies there too
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\n\nclass A {\n\tstatic {\n\t\tassert.ok(x > 0 && x < 5);\n\t}\n}',
 		'import {beforeEach} from \'node:test\';\nbeforeEach(({assert}) => { assert.ok(a && b); });',
 
 		// A nested context's `t.plan()` does not apply to the outer one, which stays fixable

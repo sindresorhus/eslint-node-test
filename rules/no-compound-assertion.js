@@ -53,7 +53,9 @@ function buildFix({node, operands, sourceCode, context, hasPlan}) {
 			hasPlan
 			|| node.arguments.length !== 1
 			|| node.parent.type !== 'ExpressionStatement'
-			|| !['Program', 'BlockStatement'].includes(node.parent.parent.type)
+			// A static block is a plain statement list, so the split keeps the same shape. A braceless
+			// control-flow parent is the case this cannot handle.
+			|| !['Program', 'BlockStatement', 'StaticBlock'].includes(node.parent.parent.type)
 			|| sourceCode.getCommentsInside(node.parent).length > 0
 			|| !hasOnlyWhitespaceAfterStatement(sourceCode, node.parent)
 		) {
