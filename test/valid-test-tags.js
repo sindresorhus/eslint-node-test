@@ -14,7 +14,6 @@ test.snapshot({
 
 		// Valid tag arrays
 		withImport('test("title", {tags: []}, () => {});'),
-		withImport('test("title", {tags: ["unit", "slow", " "]}, () => {});'),
 		withImport('test("title", {tags: ["UPPER"], tags: ["unit"]}, () => {});'),
 		withImport('test("title", {tags: ["UPPER"], ...{tags: ["unit"]}}, () => {});'),
 		withImport('test("title", {tags: ["unit"], ...{tags: ["UPPER"]}}, () => {});'),
@@ -106,6 +105,30 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\', {tags: [\'Slow\', \'slow\']}, () => {}); });',
+
+		// A tag with whitespace or a tag-filter operator character makes `test()` throw
+		withImport('test("title", {tags: [\'a b\']}, () => {});'),
+		withImport(String.raw`test("title", {tags: ['a\tb']}, () => {});`),
+		withImport('test("title", {tags: [\' a\']}, () => {});'),
+		withImport('test("title", {tags: [\'a&b\']}, () => {});'),
+		withImport('test("title", {tags: [\'a|b\']}, () => {});'),
+		withImport('test("title", {tags: [\'a!b\']}, () => {});'),
+		withImport('test("title", {tags: [\'a(b\']}, () => {});'),
+		withImport('test("title", {tags: [\'a)b\']}, () => {});'),
+		withImport('test("title", {tags: [\'a*b\']}, () => {});'),
+		withImport('describe("title", {tags: [\'a b\']}, () => {});'),
+		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\', {tags: [\'a b\']}, () => {}); });',
+
+		// A whitespace-only tag is not empty, but it still contains a forbidden character
+		withImport('test("title", {tags: ["unit", "slow", " "]}, () => {});'),
+
+		// `and`, `or` and `not` are reserved by the tag filter in any casing
+		withImport('test("title", {tags: [\'and\']}, () => {});'),
+		withImport('test("title", {tags: [\'or\']}, () => {});'),
+		withImport('test("title", {tags: [\'not\']}, () => {});'),
+		// Lowercasing a reserved word would only produce another reserved word, so there is no fix
+		withImport('test("title", {tags: [\'AND\']}, () => {});'),
+		withImport('test("title", {tags: [\'Not\']}, () => {});'),
 	],
 });
 

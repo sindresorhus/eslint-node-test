@@ -1,6 +1,7 @@
 import {
 	resolveImports,
 	parseTestCall,
+	createContextTracker,
 	getTestOptions,
 	findEnabledOptionsProperty,
 	MODIFIERS,
@@ -19,19 +20,25 @@ const create = context => {
 		return;
 	}
 
+	// A subtest takes the same modifiers, through its options object.
+	const tracker = createContextTracker(imports);
+
 	context.on('CallExpression', node => {
+		const isSubtest = tracker.isSubtestCall(node);
+		tracker.update(node);
+
 		const parsed = parseTestCall(node, imports);
-		if (!parsed) {
+		if (!parsed && !isSubtest) {
 			return;
 		}
 
 		const active = new Set();
-		if (parsed.hasExpectedFailure) {
+		if (parsed?.hasExpectedFailure) {
 			active.add('expectFailure');
 		}
 
 		// Chained form: `test.skip.only(…)`.
-		for (const modifier of parsed.modifiers) {
+		for (const modifier of parsed?.modifiers ?? []) {
 			if (MODIFIERS.has(modifier.name)) {
 				active.add(modifier.name);
 			}
@@ -66,6 +73,10 @@ const create = context => {
 			messageId: MESSAGE_ID,
 			data: {modifiers},
 		};
+	});
+
+	context.onExit('CallExpression', node => {
+		tracker.leave(node);
 	});
 };
 

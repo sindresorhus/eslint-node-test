@@ -12,6 +12,7 @@ import {
 	getDestructuredAssertBindings,
 	parseDestructuredAssertCall,
 	isHookMemberTestCall,
+	isGetTestContextCall,
 	MODIFIERS,
 	HOOK_FUNCTIONS,
 } from './utils/node-test.js';
@@ -148,7 +149,6 @@ function getContextAssertReceiver(node) {
 		callee.type === 'MemberExpression'
 		&& callee.object.type === 'MemberExpression'
 		&& !callee.object.computed
-		&& callee.object.object.type === 'Identifier'
 		&& callee.object.property.type === 'Identifier'
 		&& callee.object.property.name === 'assert'
 	) {
@@ -173,9 +173,19 @@ function getUnwrappedAssertionCall(node) {
 	return callee === node.callee ? node : {...node, callee};
 }
 
-function isTrackedContextAssertCall(node, contextParameters, sourceCode) {
+function isTrackedContextAssertCall(node, contextParameters, sourceCode, imports) {
 	const receiver = getContextAssertReceiver(node);
 	if (!receiver) {
+		return false;
+	}
+
+	// `getTestContext()` returns the context the enclosing callbacks were given, so it needs no
+	// identifier to match against.
+	if (isGetTestContextCall(receiver, imports)) {
+		return true;
+	}
+
+	if (receiver.type !== 'Identifier') {
 		return false;
 	}
 
@@ -290,7 +300,7 @@ function parseScopedAssertionCall(node, imports, sourceCode, parameters) {
 	}
 
 	if (getContextAssertReceiver(assertionCall)) {
-		return isTrackedContextAssertCall(assertionCall, contextParameters, sourceCode) ? parsed : undefined;
+		return isTrackedContextAssertCall(assertionCall, contextParameters, sourceCode, imports) ? parsed : undefined;
 	}
 
 	const importedAssertReference = getImportedAssertReference(assertionCall, imports);

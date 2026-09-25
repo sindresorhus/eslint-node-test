@@ -154,5 +154,9 @@ test.snapshot({
 			code: withImport('(test as typeof test)(\'loads\', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n});'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// `getTestContext()` returns the same test context, so its `assert` is a real assertion
+		'import {test, getTestContext} from \'node:test\';\ntest(\'loads\', async () => {\n\tload().then(value => { getTestContext().assert.strictEqual(value, 42); });\n});',
+		'import {test, getTestContext} from \'node:test\';\ntest(\'loads\', async () => {\n\tload().then(() => { getTestContext().assert.rejects(load()); });\n});',
 	],
 });

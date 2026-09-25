@@ -4,6 +4,7 @@ import {
 	parseTestCall,
 	getSubtestReceiver,
 	getTestCallback,
+	getContextParameterIdentifier,
 	MODIFIERS,
 } from './utils/node-test.js';
 import {unwrapExpression, getEnclosingFunction, isGlobalProcessMember} from './utils/index.js';
@@ -202,6 +203,12 @@ const create = context => {
 			return isImportBinding(context, node, environmentNames) || isEnvironmentAlias(node, seenVariables);
 		}
 
+		// `process.env` is a truthy object that is never nullish, so a defensive
+		// `process.env ?? {}` or `process.env || {}` still evaluates to `process.env`.
+		if (node.type === 'LogicalExpression' && (node.operator === '??' || node.operator === '||')) {
+			return isEnvironmentObject(node.left, seenVariables);
+		}
+
 		return node.type === 'MemberExpression'
 			&& getMemberPropertyName(node) === 'env'
 			&& isProcessObject(node.object);
@@ -252,8 +259,9 @@ const create = context => {
 	};
 
 	const getContextVariable = callback => {
-		const [parameter] = callback.params;
-		if (parameter?.type !== 'Identifier') {
+		// A defaulted parameter (`(t = getTestContext())`) declares the context just the same.
+		const parameter = getContextParameterIdentifier(callback.params[0]);
+		if (!parameter) {
 			return;
 		}
 

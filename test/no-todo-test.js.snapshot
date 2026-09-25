@@ -18,6 +18,22 @@ Suggestion 1/1: Remove \`.todo\`.:
 
 `;
 
+exports[`no-todo-test > invalid(10): import {test} from 'node:test';\ntest('p', async t => { await t.test('c', {todo: true}, () => {}); }); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | test('p', async t => { await t.test('c', {todo: true}, () => {}); });
+
+`;
+
+exports[`no-todo-test > invalid(10): import {test} from 'node:test';\ntest('p', async t => { await t.test('c', {todo: true}, () => {}); }); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | test('p', async t => { await t.test('c', {todo: true}, () => {}); });
+    |                                           ^^^^^^^^^^ Do not commit \`.todo\` tests.
+
+`;
+
 exports[`no-todo-test > invalid(2): import {it} from \"node:test\";\nit.todo(\"title\"); 1`] = `
 
   1 | import {it} from "node:test";

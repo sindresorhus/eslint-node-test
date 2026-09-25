@@ -13,8 +13,23 @@ const MESSAGE_ID_HOLE = 'valid-test-tags/hole';
 const MESSAGE_ID_NOT_STRING = 'valid-test-tags/not-string';
 const MESSAGE_ID_EMPTY = 'valid-test-tags/empty';
 const MESSAGE_ID_LOWERCASE = 'valid-test-tags/lowercase';
+const MESSAGE_ID_FORBIDDEN = 'valid-test-tags/forbidden-character';
+const MESSAGE_ID_RESERVED = 'valid-test-tags/reserved-word';
 const MESSAGE_ID_DUPLICATE = 'valid-test-tags/duplicate';
 const TEST_AND_SUITE_MODIFIERS = new Set(['expectFailure', ...MODIFIERS]);
+
+/*
+The characters `node:test` rejects in a tag. `*` is not one of the break characters the tag-filter
+lexer uses, but it is forbidden in a tag value, as are the operator characters and every kind of
+whitespace.
+*/
+const FORBIDDEN_TAG_CHARACTER = /[\s!&()*|]/;
+
+/*
+The words the tag filter reads as operators, which are rejected in any casing. Node compares the
+lowercased tag, so `AND` is as reserved as `and`.
+*/
+const RESERVED_TAGS = new Set(['and', 'or', 'not']);
 
 const messages = {
 	[MESSAGE_ID_NOT_ARRAY]: '`tags` must be an array.',
@@ -22,8 +37,15 @@ const messages = {
 	[MESSAGE_ID_NOT_STRING]: 'Tag values must be strings.',
 	[MESSAGE_ID_EMPTY]: 'Tag values must not be empty.',
 	[MESSAGE_ID_LOWERCASE]: 'Tag `{{tag}}` must use its lowercase canonical form.',
+	[MESSAGE_ID_FORBIDDEN]: 'Tag `{{tag}}` must not contain whitespace or any of `&`, `|`, `!`, `(`, `)`, `*`.',
+	[MESSAGE_ID_RESERVED]: 'Tag `{{tag}}` must not be the reserved word `and`, `or`, or `not`.',
 	[MESSAGE_ID_DUPLICATE]: 'Duplicate tag `{{tag}}`.',
 };
+
+/** Whether `value` is a tag `node:test` accepts. */
+function isValidTag(value) {
+	return !FORBIDDEN_TAG_CHARACTER.test(value) && !RESERVED_TAGS.has(value.toLowerCase());
+}
 
 function isTagsProperty(property) {
 	return (
@@ -86,6 +108,87 @@ function getLowercaseFix(node, value) {
 	return fixer => fixer.replaceText(node, quoteJsString(value.toLowerCase(), quote));
 }
 
+/**
+The problems for one entry of a `tags` array, in the order `node:test` itself rejects them: a hole,
+a spread that proves nothing, a non-string, an empty tag, a tag with a forbidden character, a
+reserved word, and only then the canonical-form and duplicate checks, which are about the tag list
+rather than the tag itself.
+*/
+function * getElementProblems(rawElement, tags, seenTags) {
+	if (rawElement === null) {
+		yield {
+			node: tags,
+			messageId: MESSAGE_ID_HOLE,
+		};
+		return;
+	}
+
+	if (rawElement.type === 'SpreadElement') {
+		return;
+	}
+
+	const tag = getStaticString(rawElement);
+	if (!tag) {
+		if (isStaticValue(rawElement)) {
+			yield {
+				node: rawElement,
+				messageId: MESSAGE_ID_NOT_STRING,
+			};
+		}
+
+		return;
+	}
+
+	if (tag.value === '') {
+		yield {
+			node: tag.node,
+			messageId: MESSAGE_ID_EMPTY,
+		};
+		return;
+	}
+
+	const normalizedTag = tag.value.toLowerCase();
+
+	if (FORBIDDEN_TAG_CHARACTER.test(tag.value)) {
+		yield {
+			node: tag.node,
+			messageId: MESSAGE_ID_FORBIDDEN,
+			data: {tag: tag.value},
+		};
+		return;
+	}
+
+	if (RESERVED_TAGS.has(normalizedTag)) {
+		// Reported on its own: lowercasing `AND` would only produce the reserved word `and`.
+		yield {
+			node: tag.node,
+			messageId: MESSAGE_ID_RESERVED,
+			data: {tag: tag.value},
+		};
+		return;
+	}
+
+	if (tag.value !== normalizedTag) {
+		yield {
+			node: tag.node,
+			messageId: MESSAGE_ID_LOWERCASE,
+			data: {tag: tag.value},
+			fix: getLowercaseFix(tag.node, tag.value),
+		};
+	}
+
+	if (seenTags.has(normalizedTag)) {
+		yield {
+			node: tag.node,
+			messageId: MESSAGE_ID_DUPLICATE,
+			data: {tag: normalizedTag},
+		};
+		return;
+	}
+
+	seenTags.add(normalizedTag);
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const imports = resolveImports(context);
@@ -129,58 +232,7 @@ const create = context => {
 
 		const seenTags = new Set();
 		for (const rawElement of tags.elements) {
-			if (rawElement === null) {
-				yield {
-					node: tags,
-					messageId: MESSAGE_ID_HOLE,
-				};
-				continue;
-			}
-
-			if (rawElement.type === 'SpreadElement') {
-				continue;
-			}
-
-			const tag = getStaticString(rawElement);
-			if (!tag) {
-				if (isStaticValue(rawElement)) {
-					yield {
-						node: rawElement,
-						messageId: MESSAGE_ID_NOT_STRING,
-					};
-				}
-
-				continue;
-			}
-
-			if (tag.value === '') {
-				yield {
-					node: tag.node,
-					messageId: MESSAGE_ID_EMPTY,
-				};
-				continue;
-			}
-
-			const normalizedTag = tag.value.toLowerCase();
-			if (tag.value !== normalizedTag) {
-				yield {
-					node: tag.node,
-					messageId: MESSAGE_ID_LOWERCASE,
-					data: {tag: tag.value},
-					fix: getLowercaseFix(tag.node, tag.value),
-				};
-			}
-
-			if (seenTags.has(normalizedTag)) {
-				yield {
-					node: tag.node,
-					messageId: MESSAGE_ID_DUPLICATE,
-					data: {tag: normalizedTag},
-				};
-				continue;
-			}
-
-			seenTags.add(normalizedTag);
+			yield * getElementProblems(rawElement, tags, seenTags);
 		}
 	});
 

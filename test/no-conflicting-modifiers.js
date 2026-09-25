@@ -73,5 +73,9 @@ test.snapshot({
 			code: withImport('test.skip.only("x", (): void => {});'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// A subtest carries the same modifier options as an imported test
+		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'c\', {skip: true, only: true}, () => {}); });',
+		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'c\', {only: true, todo: true}, () => {}); });',
 	],
 });

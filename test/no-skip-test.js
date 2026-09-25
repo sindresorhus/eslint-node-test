@@ -36,5 +36,8 @@ test.snapshot({
 		'import test from "node:test";\ntest("title", {skip: "not ready"}, () => {});',
 		'import * as nodeTest from "node:test";\nnodeTest.test.skip("title", () => {});',
 		'import * as nodeTest from "node:test";\nnodeTest.skip("title", () => {});',
+
+		// A subtest carries the same modifier options as an imported test
+		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'c\', {skip: true}, () => {}); });',
 	],
 });

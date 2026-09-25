@@ -99,5 +99,10 @@ test.snapshot({
 		// A class static block sits between the subtest and the async function, where `await` is a
 		// syntax error, so the problem is reported but no fix is offered.
 		withImport('test(\'p\', async t => { class C { static { t.test(\'c\', () => {}); } } });'),
+
+		// A subtest created through `getTestContext()` is cancelled the same way
+		'import {test, getTestContext} from \'node:test\';\ntest(\'parent\', async () => {\n\tgetTestContext().test(\'child\', () => {});\n});',
+		'import {test, getTestContext} from \'node:test\';\ntest(\'parent\', () => {\n\tgetTestContext().test(\'child\', () => {});\n});',
+		'import {test, getTestContext} from \'node:test\';\ntest(\'parent\', async () => {\n\tclass C { static { getTestContext().test(\'child\', () => {}); } }\n});',
 	],
 });

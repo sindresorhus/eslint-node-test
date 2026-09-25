@@ -1,6 +1,6 @@
-import {resolveImports, createContextTracker} from './utils/node-test.js';
+import {resolveImports, createContextTracker, isGetTestContextCall} from './utils/node-test.js';
 import isFunction from './ast/is-function.js';
-import {skipExpressionWrappers} from './utils/index.js';
+import {skipExpressionWrappers, unwrapTypeScriptExpression} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-skip-without-return/error';
 const MESSAGE_ID_SUGGESTION = 'no-skip-without-return/suggestion';
@@ -61,11 +61,26 @@ const create = context => {
 	// that hook exactly as it does in a test body.
 	const tracker = createContextTracker(imports, {trackHooks: true});
 
+	// The name to show for a test-context receiver, or `undefined` when the receiver is some other
+	// object's method of the same name.
+	const getContextName = receiver => {
+		if (receiver.type === 'Identifier') {
+			return tracker.isContextIdentifier(receiver) ? receiver.name : undefined;
+		}
+
+		return isGetTestContextCall(receiver, imports) ? 'getTestContext()' : undefined;
+	};
+
 	context.on('CallExpression', node => {
 		let problem;
 
-		const {callee} = node;
+		const callee = unwrapTypeScriptExpression(node.callee);
 		const statement = skipExpressionWrappers(node.parent);
+		// The receiver is a tracked context parameter or a `getTestContext()` call, behind any
+		// TypeScript wrapper.
+		const name = callee.type === 'MemberExpression'
+			? getContextName(unwrapTypeScriptExpression(callee.object))
+			: undefined;
 
 		if (
 			statement?.type === 'ExpressionStatement'
@@ -73,11 +88,9 @@ const create = context => {
 			&& !callee.computed
 			&& callee.property.type === 'Identifier'
 			&& SKIP_METHODS.has(callee.property.name)
-			&& callee.object.type === 'Identifier'
-			&& tracker.isContextIdentifier(callee.object)
+			&& name
 			&& hasCodeAfter(statement)
 		) {
-			const {name} = callee.object;
 			const method = callee.property.name;
 			problem = {
 				node,

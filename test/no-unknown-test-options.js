@@ -95,5 +95,9 @@ test.snapshot({
 		// A subtest and a context hook read their options the same way
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\', {skp: true}, () => {}); });',
 		'import {test} from \'node:test\';\ntest(\'p\', t => { t.beforeEach(() => {}, {skp: true}); });',
+
+		// A hook takes its callback in the first position; the runner never reads `options.fn`
+		'import {beforeEach} from \'node:test\';\nbeforeEach(() => {}, {fn: x});',
+		'import {test} from \'node:test\';\ntest(\'o\', t => { t.beforeEach(() => {}, {fn: x}); });',
 	],
 });

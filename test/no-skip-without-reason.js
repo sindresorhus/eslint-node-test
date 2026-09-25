@@ -57,5 +57,18 @@ test.snapshot({
 		},
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\', {skip: true}, () => {}); });',
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\', {todo: true}, () => {}); });',
+
+		// `getTestContext()` returns the same test context, and a TypeScript wrapper on the
+		// receiver must not hide the call
+		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', () => { getTestContext().skip(); });',
+		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', () => { getTestContext().todo(); });',
+		{
+			code: 'import {test} from \'node:test\';\ntest(\'a\', t => { t!.skip(); });',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import {test} from \'node:test\';\ntest(\'a\', t => { (t as TestContext).todo(); });',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

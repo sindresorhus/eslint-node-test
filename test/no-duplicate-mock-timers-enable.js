@@ -52,6 +52,10 @@ test.snapshot({
 			code: withImport('test("title", (t: any) => { (t.mock as any).timers.enable(); (t.mock as any).timers.reset(); (t.mock as any).timers.enable(); });'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// `getTestContext()` names the same tracker as the context parameter
+		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', t => {\n\tt.mock.timers.enable();\n\tgetTestContext().mock.timers.reset();\n\tt.mock.timers.enable();\n});',
+		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', t => {\n\tgetTestContext().mock.timers.enable();\n\tt.mock.timers.reset();\n\tgetTestContext().mock.timers.enable();\n});',
 	],
 	invalid: [
 		// A standalone `only` with no skip does run
@@ -101,5 +105,9 @@ test.snapshot({
 			code: withImport('test("title", (t: any) => { (t.mock as any).timers.enable(); (t.mock as any).timers.enable(); });'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// `getTestContext()` names the same tracker as the context parameter
+		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', () => { getTestContext().mock.timers.enable(); getTestContext().mock.timers.enable(); });',
+		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', t => { getTestContext().mock.timers.enable(); t.mock.timers.enable(); });',
 	],
 });

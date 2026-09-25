@@ -52,6 +52,12 @@ const create = context => {
 			return;
 		}
 
+		// A nested binding of the same name shadows the context, so `t.diagnostic(…)` there would
+		// not reach the test context at all.
+		if (!tracker.isContextNameInScope(contextName, node)) {
+			return;
+		}
+
 		const method = callee.property.name;
 		const data = {context: contextName, method};
 		const problem = {

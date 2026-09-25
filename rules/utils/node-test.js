@@ -625,8 +625,11 @@ Set `trackHooks` to also track hook context parameters.
 
 @returns {{
 	isSubtestCall: (node: import('estree').Node) => boolean,
+	hasIdentifierSubtestReceiver: (node: import('estree').Node) => boolean,
 	isContextIdentifier: (node: import('estree').Node | undefined) => boolean,
 	isContextName: (name: string | undefined) => boolean,
+	isContextNameInScope: (name: string | undefined, node: import('estree').Node) => boolean,
+	currentContextVariable: () => import('eslint').Scope.Variable | undefined,
 	current: () => string | undefined,
 	currentCallback: () => import('estree').Node | undefined,
 	isTrackedCallback: (node: import('estree').Node | undefined) => boolean,
@@ -660,9 +663,20 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 		return variable !== undefined && variables.includes(variable);
 	};
 
+	// A subtest created through the context object itself: `getTestContext().test(…)`. It has no
+	// identifier receiver, so `getSubtestReceiver` cannot see it.
+	const isGetTestContextSubtestCall = node => {
+		const callee = unwrapTypeScriptExpression(node.callee);
+		return callee.type === 'MemberExpression'
+			&& !callee.computed
+			&& callee.property.type === 'Identifier'
+			&& callee.property.name === 'test'
+			&& isGetTestContextCall(unwrapTypeScriptExpression(callee.object), imports);
+	};
+
 	const isSubtestCall = node => {
 		const receiver = getSubtestReceiver(node);
-		return isContextIdentifier(receiver);
+		return receiver ? isContextIdentifier(receiver) : isGetTestContextSubtestCall(node);
 	};
 
 	// The method name an identifier names, `ASSERT_OBJECT` for the destructured `assert` object
@@ -703,13 +717,32 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 	const isTrackedTestCall = parsed => parsed?.kind === 'test'
 		&& parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name));
 
+	// Whether `name` still resolves to one of the open contexts' parameters at `node`. A nested
+	// binding of the same name (a block-scoped `const t`, a `catch (t)`, a callback parameter) shadows
+	// the context, so writing `name.diagnostic(…)` there would not reach the test context.
+	const isContextNameInScope = (name, node) => {
+		if (variables.length === 0 || name === undefined) {
+			return false;
+		}
+
+		const variable = findVariable(imports.sourceCode.getScope(node), name);
+		return variable !== undefined && variables.includes(variable);
+	};
+
 	return {
 		isSubtestCall,
+		// Whether the subtest call has a context-parameter receiver, which the rules that name it in a
+		// message need in order to tell `t.test(…)` from `getTestContext().test(…)`.
+		hasIdentifierSubtestReceiver: node => getSubtestReceiver(node) !== undefined,
 		isContextIdentifier,
 		isContextName: name => name !== undefined && names.includes(name),
+		isContextNameInScope,
 		// The name of the innermost enclosing tracked context, or `undefined` when its
 		// callback declared no context parameter (or we are not inside a tracked callback).
 		current: () => names.at(-1),
+		// The innermost enclosing context's parameter variable, which a `getTestContext()` call in the
+		// same place refers to as well.
+		currentContextVariable: () => variables.at(-1),
 		// The callback function node of the innermost enclosing tracked callback. The context parameter is
 		// only in scope inside this node, so a node visited in the call's title/options arguments (which
 		// the traversal reaches before the callback) is not actually within the context's scope.

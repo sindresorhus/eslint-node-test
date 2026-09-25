@@ -30,6 +30,9 @@ test.snapshot({
 		'// it.each([1, 2])("foo", () => {})',
 		'// test.config({ timeout: 1 })',
 		'// describe.configure()',
+		// `Function.prototype` has no node:test export names, so a `describe.name(…)` call is prose
+		'// describe.name(x)',
+		'// test.await("foo", () => {})',
 	],
 	invalid: [
 		// Line comment with test(
@@ -66,5 +69,12 @@ test.snapshot({
 		'// it.todo("foo", () => {})',
 		// Chained todo modifier on `test`
 		'// test.todo("foo", () => {})',
+		// The static `node:test` exports on the test function
+		'// test.describe("group", () => {})',
+		'// test.suite("group", () => {})',
+		'// test.beforeEach(() => {})',
+		'// it.after(() => {})',
+		// A top-level test awaited from module scope
+		'// await test("foo", async () => {})',
 	],
 });

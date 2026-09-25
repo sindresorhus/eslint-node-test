@@ -1,6 +1,7 @@
 import {
 	resolveImports,
 	parseTestCall,
+	createContextTracker,
 	findModifier,
 	getTestOptions,
 	findEnabledOptionsProperty,
@@ -12,6 +13,8 @@ Shared logic for rules that disallow a single test modifier (`only`/`skip`/`todo
 A modifier can be applied two ways in `node:test`:
 - As a chained property: `test.only(…)`.
 - As an options-object property: `test('title', {only: true}, () => {})`.
+
+A subtest (`t.test(…)`) takes the same options object, so only the chained form is impossible there.
 */
 
 /**
@@ -39,13 +42,19 @@ export default function createTestModifierRule({modifier, description, errorMess
 			return;
 		}
 
+		// A subtest is a method call, so it takes the options form only.
+		const tracker = createContextTracker(imports);
+
 		context.on('CallExpression', node => {
+			const isSubtest = tracker.isSubtestCall(node);
+			tracker.update(node);
+
 			const parsed = parseTestCall(node, imports);
-			if (!parsed) {
+			if (!parsed && !isSubtest) {
 				return;
 			}
 
-			const modifierNode = findModifier(parsed.modifiers, modifier);
+			const modifierNode = parsed && findModifier(parsed.modifiers, modifier);
 			if (modifierNode) {
 				const memberExpression = modifierNode.parent;
 				const previousToken = sourceCode.getTokenBefore(modifierNode);
@@ -82,6 +91,10 @@ export default function createTestModifierRule({modifier, description, errorMess
 					messageId: MESSAGE_ID_ERROR,
 				};
 			}
+		});
+
+		context.onExit('CallExpression', node => {
+			tracker.leave(node);
 		});
 	};
 

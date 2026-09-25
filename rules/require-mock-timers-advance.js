@@ -8,6 +8,7 @@ import {
 	isGlobalMock,
 	MODIFIERS,
 	getContextParameterIdentifier,
+	isGetTestContextCall,
 } from './utils/node-test.js';
 import {getEnclosingFunction} from './utils/index.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
@@ -121,6 +122,21 @@ function getMockTimersReceiverKey(node, imports, sourceCode, contextVariables) {
 	}
 
 	const contextObject = mockObject?.type === 'MemberExpression' ? unwrapTypeScriptExpression(mockObject.object) : undefined;
+
+	// `getTestContext()` returns the context the enclosing callbacks were given, so it drives the
+	// same tracker as that context parameter.
+	if (
+		mockObject?.type === 'MemberExpression'
+		&& !mockObject.computed
+		&& !mockObject.optional
+		&& getStaticPropertyName(mockObject.property) === 'mock'
+		&& isGetTestContextCall(contextObject, imports)
+	) {
+		// With no context parameter to name it after, the innermost context is the only one there is.
+		const innermostContext = contextVariables.at(-1);
+		return `context:${innermostContext ? innermostContext.name : 'getTestContext()'}`;
+	}
+
 	if (
 		mockObject?.type === 'MemberExpression'
 		&& !mockObject.computed

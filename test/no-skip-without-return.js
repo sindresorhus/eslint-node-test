@@ -75,5 +75,18 @@ test.snapshot({
 			code: withImport('test("x", t => {\n\tt.skip() as void;\n\tassert.ok(x);\n});'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// `getTestContext()` is the same test context, and a TypeScript wrapper on the receiver must
+		// not hide the call
+		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', () => {\n\tgetTestContext().skip(\'why\');\n\tdoStuff();\n});',
+		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', () => {\n\tgetTestContext().todo(\'why\');\n\tdoStuff();\n});',
+		{
+			code: 'import {test} from \'node:test\';\ntest(\'a\', t => {\n\tt!.skip(\'why\');\n\tdoStuff();\n});',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import {test} from \'node:test\';\ntest(\'a\', t => {\n\t(t as TestContext).skip(\'why\');\n\tdoStuff();\n});',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

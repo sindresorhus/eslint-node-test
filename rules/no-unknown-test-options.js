@@ -21,14 +21,13 @@ updating as `node:test` gains options.
 `options.name` whenever there is one, so `test('a', {name: 'b'}, fn)` is called `b`. A hook has no
 title and no descriptor form, so `before({name: 'x'})` really is an unknown key.
 */
-const TEST_OPTIONS = new Set(['concurrency', 'expectFailure', 'name', 'only', 'plan', 'signal', 'skip', 'tags', 'timeout', 'todo']);
-const HOOK_OPTIONS = new Set(['signal', 'timeout']);
-
 /*
-`node:test` reads `fn` from an options object wherever it sits, so `test({name, fn})` and
-`test(name, {fn})` both run that function.
+`node:test` reads `fn` from a test's options object wherever it sits, so `test({name, fn})` and
+`test(name, {fn})` both run that function. A hook is the exception: it takes its callback in the
+first position and the runner never reads `options.fn` for it.
 */
-const ALWAYS_KNOWN_KEYS = new Set(['fn']);
+const TEST_OPTIONS = new Set(['concurrency', 'expectFailure', 'fn', 'name', 'only', 'plan', 'signal', 'skip', 'tags', 'timeout', 'todo']);
+const HOOK_OPTIONS = new Set(['signal', 'timeout']);
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -73,7 +72,7 @@ const create = context => {
 				continue;
 			}
 
-			if (!known.has(name) && !ALWAYS_KNOWN_KEYS.has(name)) {
+			if (!known.has(name)) {
 				yield {
 					node: property.key,
 					messageId: MESSAGE_ID,

@@ -28,7 +28,9 @@ const create = context => {
 
 		let problem;
 		if (subtest && floating && !isInsideDetachedCallback(node)) {
-			const {name} = getSubtestReceiver(node);
+			// Either form names the context it creates the subtest from.
+			const receiver = getSubtestReceiver(node);
+			const name = receiver ? receiver.name : 'getTestContext()';
 
 			problem = {
 				node,

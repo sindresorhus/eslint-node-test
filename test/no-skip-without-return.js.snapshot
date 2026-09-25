@@ -95,6 +95,126 @@ Suggestion 1/1: Add \`return\` after \`t.skip()\`.:
 
 `;
 
+exports[`no-skip-without-return > invalid(13): import {test, getTestContext} from 'node:test';\ntest('a', () => {\n\tgetTestContext().skip('why');\n\tdoStuff();\n}); 1`] = `
+
+  1 | import {test, getTestContext} from 'node:test';
+  2 | test('a', () => {
+  3 | 	getTestContext().skip('why');
+  4 | 	doStuff();
+  5 | });
+
+`;
+
+exports[`no-skip-without-return > invalid(13): import {test, getTestContext} from 'node:test';\ntest('a', () => {\n\tgetTestContext().skip('why');\n\tdoStuff();\n}); 2`] = `
+
+Message:
+  1 | import {test, getTestContext} from 'node:test';
+  2 | test('a', () => {
+> 3 | 	getTestContext().skip('why');
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`getTestContext().skip()\` does not stop the test; code after it still runs. Return afterwards.
+  4 | 	doStuff();
+  5 | });
+
+Suggestion 1/1: Add \`return\` after \`getTestContext().skip()\`.:
+  1 | import {test, getTestContext} from 'node:test';
+  2 | test('a', () => {
+  3 | 	getTestContext().skip('why');
+  4 | 	return;
+  5 | 	doStuff();
+  6 | });
+
+`;
+
+exports[`no-skip-without-return > invalid(14): import {test, getTestContext} from 'node:test';\ntest('a', () => {\n\tgetTestContext().todo('why');\n\tdoStuff();\n}); 1`] = `
+
+  1 | import {test, getTestContext} from 'node:test';
+  2 | test('a', () => {
+  3 | 	getTestContext().todo('why');
+  4 | 	doStuff();
+  5 | });
+
+`;
+
+exports[`no-skip-without-return > invalid(14): import {test, getTestContext} from 'node:test';\ntest('a', () => {\n\tgetTestContext().todo('why');\n\tdoStuff();\n}); 2`] = `
+
+Message:
+  1 | import {test, getTestContext} from 'node:test';
+  2 | test('a', () => {
+> 3 | 	getTestContext().todo('why');
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`getTestContext().todo()\` does not stop the test; code after it still runs. Return afterwards.
+  4 | 	doStuff();
+  5 | });
+
+Suggestion 1/1: Add \`return\` after \`getTestContext().todo()\`.:
+  1 | import {test, getTestContext} from 'node:test';
+  2 | test('a', () => {
+  3 | 	getTestContext().todo('why');
+  4 | 	return;
+  5 | 	doStuff();
+  6 | });
+
+`;
+
+exports[`no-skip-without-return > invalid(15): import {test} from 'node:test';\ntest('a', t => {\n\tt!.skip('why');\n\tdoStuff();\n}); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | test('a', t => {
+  3 | 	t!.skip('why');
+  4 | 	doStuff();
+  5 | });
+
+`;
+
+exports[`no-skip-without-return > invalid(15): import {test} from 'node:test';\ntest('a', t => {\n\tt!.skip('why');\n\tdoStuff();\n}); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+  2 | test('a', t => {
+> 3 | 	t!.skip('why');
+    | 	^^^^^^^^^^^^^^ \`t.skip()\` does not stop the test; code after it still runs. Return afterwards.
+  4 | 	doStuff();
+  5 | });
+
+Suggestion 1/1: Add \`return\` after \`t.skip()\`.:
+  1 | import {test} from 'node:test';
+  2 | test('a', t => {
+  3 | 	t!.skip('why');
+  4 | 	return;
+  5 | 	doStuff();
+  6 | });
+
+`;
+
+exports[`no-skip-without-return > invalid(16): import {test} from 'node:test';\ntest('a', t => {\n\t(t as TestContext).skip('why');\n\tdoStuff();\n}); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | test('a', t => {
+  3 | 	(t as TestContext).skip('why');
+  4 | 	doStuff();
+  5 | });
+
+`;
+
+exports[`no-skip-without-return > invalid(16): import {test} from 'node:test';\ntest('a', t => {\n\t(t as TestContext).skip('why');\n\tdoStuff();\n}); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+  2 | test('a', t => {
+> 3 | 	(t as TestContext).skip('why');
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`t.skip()\` does not stop the test; code after it still runs. Return afterwards.
+  4 | 	doStuff();
+  5 | });
+
+Suggestion 1/1: Add \`return\` after \`t.skip()\`.:
+  1 | import {test} from 'node:test';
+  2 | test('a', t => {
+  3 | 	(t as TestContext).skip('why');
+  4 | 	return;
+  5 | 	doStuff();
+  6 | });
+
+`;
+
 exports[`no-skip-without-return > invalid(2): import test from 'node:test';\ntest(\"x\", t => {\n\tt.skip(/* why */);\n\tcheck();\n}); 1`] = `
 
   1 | import test from 'node:test';

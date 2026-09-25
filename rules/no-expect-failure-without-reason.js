@@ -1,3 +1,4 @@
+import {getStaticValue} from '@eslint-community/eslint-utils';
 import {
 	resolveImports,
 	parseTestCall,
@@ -11,11 +12,33 @@ import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js'
 const MESSAGE_ID = 'no-expect-failure-without-reason';
 
 const messages = {
-	[MESSAGE_ID]: 'Give `expectFailure` a reason string instead of `true` explaining why.',
+	[MESSAGE_ID]: 'Give `expectFailure` a reason string instead of `{{value}}` explaining why.',
 };
+
+/*
+Whether `expectFailure` is off, so the rule has nothing to say: `node:test` reads `undefined` and
+`false` as "no expected failure".
+*/
+function isExpectFailureOff(value) {
+	return value === undefined || value === false;
+}
+
+/*
+Whether a value carries a reason or a matcher, which is what `parseExpectFailure` accepts. It rejects
+`null` outright and any object with no own enumerable keys, such as `{}`, `[]`, or a `Date`, so those
+are not reasons either — they are values the runner throws on.
+*/
+function hasExpectFailureReason(value) {
+	if (typeof value === 'string' || typeof value === 'function' || value instanceof RegExp) {
+		return true;
+	}
+
+	return typeof value === 'object' && value !== null && Object.keys(value).length > 0;
+}
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	const {sourceCode} = context;
 	const imports = resolveImports(context);
 	if (!imports.isTestFile) {
 		return;
@@ -40,12 +63,20 @@ const create = context => {
 
 		const property = findOptionsProperty(getTestOptions(node), 'expectFailure');
 		const value = property && unwrapTypeScriptExpression(property.value);
-		if (value?.type === 'Literal' && value.value === true) {
-			return {
-				node: property,
-				messageId: MESSAGE_ID,
-			};
+		if (!value) {
+			return;
 		}
+
+		const staticValue = getStaticValue(value, context.sourceCode.getScope(value));
+		if (staticValue === null || isExpectFailureOff(staticValue.value) || hasExpectFailureReason(staticValue.value)) {
+			return;
+		}
+
+		return {
+			node: property,
+			messageId: MESSAGE_ID,
+			data: {value: sourceCode.getText(value)},
+		};
 	});
 };
 

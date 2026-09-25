@@ -36,5 +36,8 @@ test.snapshot({
 		'import test from "node:test";\ntest("title", {todo: "later"}, () => {});',
 		'import * as nodeTest from "node:test";\nnodeTest.test.todo("title", () => {});',
 		'import * as nodeTest from "node:test";\nnodeTest.todo("title", () => {});',
+
+		// A subtest carries the same modifier options as an imported test
+		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'c\', {todo: true}, () => {}); });',
 	],
 });

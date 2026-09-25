@@ -72,5 +72,8 @@ test.snapshot({
 		// Namespace import
 		'import * as nodeTest from "node:test";\nnodeTest.test.only("title", () => {});',
 		'import * as nodeTest from "node:test";\nnodeTest.only("title", () => {});',
+
+		// A subtest carries the same modifier options as an imported test
+		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'c\', {only: true}, () => {}); });',
 	],
 });

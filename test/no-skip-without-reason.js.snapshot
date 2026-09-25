@@ -94,6 +94,70 @@ Message:
 
 `;
 
+exports[`no-skip-without-reason > invalid(15): import {test, getTestContext} from 'node:test';\ntest('a', () => { getTestContext().skip(); }); 1`] = `
+
+  1 | import {test, getTestContext} from 'node:test';
+  2 | test('a', () => { getTestContext().skip(); });
+
+`;
+
+exports[`no-skip-without-reason > invalid(15): import {test, getTestContext} from 'node:test';\ntest('a', () => { getTestContext().skip(); }); 2`] = `
+
+Message:
+  1 | import {test, getTestContext} from 'node:test';
+> 2 | test('a', () => { getTestContext().skip(); });
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^ Pass a reason message to \`getTestContext().skip()\`.
+
+`;
+
+exports[`no-skip-without-reason > invalid(16): import {test, getTestContext} from 'node:test';\ntest('a', () => { getTestContext().todo(); }); 1`] = `
+
+  1 | import {test, getTestContext} from 'node:test';
+  2 | test('a', () => { getTestContext().todo(); });
+
+`;
+
+exports[`no-skip-without-reason > invalid(16): import {test, getTestContext} from 'node:test';\ntest('a', () => { getTestContext().todo(); }); 2`] = `
+
+Message:
+  1 | import {test, getTestContext} from 'node:test';
+> 2 | test('a', () => { getTestContext().todo(); });
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^ Pass a reason message to \`getTestContext().todo()\`.
+
+`;
+
+exports[`no-skip-without-reason > invalid(17): import {test} from 'node:test';\ntest('a', t => { t!.skip(); }); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | test('a', t => { t!.skip(); });
+
+`;
+
+exports[`no-skip-without-reason > invalid(17): import {test} from 'node:test';\ntest('a', t => { t!.skip(); }); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | test('a', t => { t!.skip(); });
+    |                  ^^^^^^^^^ Pass a reason message to \`t.skip()\`.
+
+`;
+
+exports[`no-skip-without-reason > invalid(18): import {test} from 'node:test';\ntest('a', t => { (t as TestContext).todo(); }); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | test('a', t => { (t as TestContext).todo(); });
+
+`;
+
+exports[`no-skip-without-reason > invalid(18): import {test} from 'node:test';\ntest('a', t => { (t as TestContext).todo(); }); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | test('a', t => { (t as TestContext).todo(); });
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^ Pass a reason message to \`t.todo()\`.
+
+`;
+
 exports[`no-skip-without-reason > invalid(2): import test from 'node:test';\ntest('t', {todo: true}, () => {}); 1`] = `
 
   1 | import test from 'node:test';

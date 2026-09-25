@@ -8,6 +8,7 @@ import {
 	getTestCallback,
 	getTestOptions,
 	HOOK_FUNCTIONS,
+	isGetTestContextCall,
 	isGlobalMock,
 	MODIFIERS,
 	parseTestCall,
@@ -22,6 +23,9 @@ const messages = {
 };
 
 const GLOBAL_RECEIVER = Symbol('global receiver');
+// `getTestContext()` outside any tracked callback, where there is no context parameter to stand in
+// for it. Two such calls still name the same tracker.
+const ROOT_CONTEXT_RECEIVER = Symbol('root context receiver');
 
 function getStaticPropertyName(node) {
 	if (node.type === 'Identifier') {
@@ -45,6 +49,13 @@ function getContextMockReceiver(node, contextTracker, contextHookVariables, impo
 	}
 
 	const context = unwrapTypeScriptExpression(expression.object);
+
+	// `getTestContext()` returns the context the enclosing callbacks were given, so it names the
+	// same tracker as the context parameter.
+	if (isGetTestContextCall(context, imports)) {
+		return contextTracker.currentContextVariable() ?? ROOT_CONTEXT_RECEIVER;
+	}
+
 	if (context.type !== 'Identifier') {
 		return undefined;
 	}

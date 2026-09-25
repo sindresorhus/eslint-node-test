@@ -1,8 +1,6 @@
-import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	resolveImports,
 	createContextTracker,
-	getContextParameterIdentifier,
 	parseAssertionCall,
 	LOOSE_TO_STRICT_METHODS,
 } from './utils/node-test.js';
@@ -69,16 +67,6 @@ function isInsideCallback(node, callback, sourceCode) {
 	return nodeStart >= callbackStart && nodeStart < callbackEnd;
 }
 
-function isContextParameterInScope(name, callback, node, sourceCode) {
-	const parameter = getContextParameterIdentifier(callback.params[0]);
-	if (!parameter) {
-		return false;
-	}
-
-	const variable = findVariable(sourceCode.getScope(node), name);
-	return variable?.defs.some(definition => definition.name === parameter) === true;
-}
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -109,7 +97,7 @@ const create = context => {
 		if (
 			!callback
 			|| !isInsideCallback(node, callback, sourceCode)
-			|| !isContextParameterInScope(contextName, callback, node, sourceCode)
+			|| !tracker.isContextNameInScope(contextName, node)
 		) {
 			return;
 		}

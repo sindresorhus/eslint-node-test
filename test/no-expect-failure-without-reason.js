@@ -19,6 +19,8 @@ test.snapshot({
 		withTest('test(\'t\', {expectFailure: undefined}, () => {});'),
 		withTest('test(\'t\', {expectFailure: shouldExpectFailure}, () => {});'),
 		withTest('test(\'t\', {expectFailure: \'\'}, () => {});'),
+		// A reason read from a constant is still a reason
+		withTest('const reason = \'tracked in #123\';\ntest(\'t\', {expectFailure: reason}, () => {});'),
 
 		// The last option property determines the effective value.
 		withTest('test(\'t\', {expectFailure: true, expectFailure: \'tracked in #123\'}, () => {});'),
@@ -76,5 +78,17 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\', {expectFailure: true}, () => {}); });',
+
+		// `node:test` turns on an expected failure for any value that is not `undefined`, `false`, a
+		// string, a matcher, or an object, so these are all reasonless expected failures.
+		withTest('test(\'t\', {expectFailure: !0}, () => {});'),
+		withTest('test(\'t\', {expectFailure: 1}, () => {});'),
+		withTest('test(\'t\', {expectFailure: 0}, () => {});'),
+		withTest('const expected = true;\ntest(\'t\', {expectFailure: expected}, () => {});'),
+
+		// `node:test` rejects these outright rather than reading them as a reason
+		withTest('test(\'t\', {expectFailure: null}, () => {});'),
+		withTest('test(\'t\', {expectFailure: {}}, () => {});'),
+		withTest('test(\'t\', {expectFailure: []}, () => {});'),
 	],
 });

@@ -4,6 +4,7 @@ import {
 	createContextTracker,
 	getTestOptions,
 	findOptionsProperty,
+	isGetTestContextCall,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
@@ -46,22 +47,24 @@ const create = context => {
 			}
 		}
 
-		// Context method form: `t.skip()` / `t.todo()` with no reason message.
-		const {callee} = node;
-		if (
-			node.arguments.length === 0
-			&& callee.type === 'MemberExpression'
-			&& !callee.computed
-			&& callee.property.type === 'Identifier'
-			&& REASON_MODIFIERS.has(callee.property.name)
-			&& callee.object.type === 'Identifier'
-			&& tracker.isContextIdentifier(callee.object)
-		) {
-			problems.push({
-				node,
-				messageId: MESSAGE_ID_CALL,
-				data: {context: callee.object.name, modifier: callee.property.name},
-			});
+		// Context method form: `t.skip()` / `t.todo()` with no reason message. The receiver is a
+		// tracked context parameter or a `getTestContext()` call, behind any TypeScript wrapper.
+		const callee = unwrapTypeScriptExpression(node.callee);
+		if (node.arguments.length === 0 && callee.type === 'MemberExpression' && !callee.computed && callee.property.type === 'Identifier' && REASON_MODIFIERS.has(callee.property.name)) {
+			const receiver = unwrapTypeScriptExpression(callee.object);
+			if (receiver.type === 'Identifier' && tracker.isContextIdentifier(receiver)) {
+				problems.push({
+					node,
+					messageId: MESSAGE_ID_CALL,
+					data: {context: receiver.name, modifier: callee.property.name},
+				});
+			} else if (isGetTestContextCall(receiver, imports)) {
+				problems.push({
+					node,
+					messageId: MESSAGE_ID_CALL,
+					data: {context: 'getTestContext()', modifier: callee.property.name},
+				});
+			}
 		}
 
 		tracker.update(node);

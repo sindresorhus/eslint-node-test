@@ -22,6 +22,12 @@ test.snapshot({
 		// Shadowed test binding
 		'import test from \'node:test\';\nfunction helper(test) { test(\'t\', t => { console.log(\'value\'); }); }',
 
+		// A shadowed context name is not the test context, so `t.diagnostic(…)` would throw
+		'import test from \'node:test\';\ntest(\'t\', t => { { const t = 1; console.log(\'value\'); } });',
+		'import test from \'node:test\';\ntest(\'t\', t => { function inner(t) { console.log(\'value\'); } inner(1); });',
+		'import test from \'node:test\';\ntest(\'t\', t => { try { f(); } catch (t) { console.log(\'value\'); } });',
+		'import test from \'node:test\';\ntest(\'t\', t => { for (const t of xs) { console.log(\'value\'); } });',
+
 		// `console.error`/`console.warn` are not targeted
 		inTest('console.error(\'real error\');'),
 		inTest('console.warn(\'warning\');'),

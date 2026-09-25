@@ -128,5 +128,12 @@ test.snapshot({
 			code: inTest('(process as NodeJS.Process).env.NODE_ENV = \'production\';'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// A defaulted context parameter is still the test context, exactly as in the other rules
+		'import {test} from \'node:test\';\ntest(\'sub\', (t = getTestContext()) => {\n\tt.test(\'child\', () => {\n\t\tprocess.env.NODE_ENV = \'production\';\n\t});\n});',
+
+		// `process.env` is a truthy object, so a defensive fallback still evaluates to it
+		inTest('const environment = process.env ?? {};\nenvironment.NODE_ENV = \'production\';'),
+		inTest('const environment = process.env || {};\nenvironment.NODE_ENV = \'production\';'),
 	],
 });
