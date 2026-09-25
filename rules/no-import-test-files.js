@@ -1,6 +1,6 @@
 import path from 'node:path';
 import {getStaticStringValue} from './ast/index.js';
-import {unwrapTypeScriptExpression} from './utils/index.js';
+import {isUnshadowedGlobal, unwrapTypeScriptExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'no-import-test-files';
 const IS_CASE_INSENSITIVE_FILE_SYSTEM = process.platform === 'darwin' || process.platform === 'win32';
@@ -132,7 +132,10 @@ const create = context => {
 	const getRequireProblem = (node, expression) => {
 		const argument = expression?.type === 'TSExternalModuleReference'
 			? expression.expression
-			: (expression?.type === 'CallExpression' && expression.callee.type === 'Identifier' && expression.callee.name === 'require'
+			: (expression?.type === 'CallExpression'
+				&& expression.callee.type === 'Identifier'
+				&& expression.callee.name === 'require'
+				&& isUnshadowedGlobal(context, expression.callee, 'require')
 				? expression.arguments[0]
 				: undefined);
 		return argument ? getProblem(node, argument) : undefined;
@@ -160,6 +163,9 @@ const create = context => {
 		return getProblem(node, node.source);
 	});
 	context.on('ImportExpression', node => getProblem(node, node.source));
+	// A CommonJS `require('./other.test.js')` loads the target the same way an import does, so the
+	// runner really does execute the dependency a second time.
+	context.on('CallExpression', node => getRequireProblem(node, node));
 	// TypeScript's own import forms, where the specifier sits on an external module reference
 	// instead of an `ImportDeclaration.source`.
 	context.on('TSImportEqualsDeclaration', node => {

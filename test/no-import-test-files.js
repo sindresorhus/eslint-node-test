@@ -4,6 +4,9 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
+		// A `require` that is a local binding is some other function
+		'const {test} = require(\'node:test\');\nfunction load(require) { require(\'./dependency.test.js\'); }',
+		'const {test} = require(\'node:test\');\nrequire(specifier);',
 		'import value from \'./value.js\';',
 		'import value from \'./test/value.json\';',
 		'import value from \'package-test\';',
@@ -81,6 +84,9 @@ test.snapshot({
 		},
 	],
 	invalid: [
+		// A CommonJS `require()` of a test file loads it the same way an import does
+		'const {test} = require(\'node:test\');\nrequire(\'./dependency.test.cjs\');',
+
 		// A mixed declaration still loads the module for its value specifier
 		{
 			code: 'import {type Helper, value} from \'./example.test.js\';',
