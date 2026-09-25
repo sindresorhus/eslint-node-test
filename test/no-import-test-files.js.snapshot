@@ -410,14 +410,6 @@ Message:
 
 `;
 
-exports[`no-import-test-files > invalid(35): export = require('./example.test.js'); 3`] = `
-
-Message:
-> 1 | export = require('./example.test.js');
-    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not import a test file. The Node.js test runner may execute it twice.
-
-`;
-
 exports[`no-import-test-files > invalid(36): export import helper = require('./example.test.js'); 1`] = `
 
   1 | export import helper = require('./example.test.js');
@@ -429,6 +421,22 @@ exports[`no-import-test-files > invalid(36): export import helper = require('./e
 Message:
 > 1 | export import helper = require('./example.test.js');
     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not import a test file. The Node.js test runner may execute it twice.
+
+`;
+
+exports[`no-import-test-files > invalid(37): // A TypeScript \`export = require()\` is one import, so it is reported once, on the statement\nexport = require('./example.test.js'); 1`] = `
+
+  1 | // A TypeScript \`export = require()\` is one import, so it is reported once, on the statement
+  2 | export = require('./example.test.js');
+
+`;
+
+exports[`no-import-test-files > invalid(37): // A TypeScript \`export = require()\` is one import, so it is reported once, on the statement\nexport = require('./example.test.js'); 2`] = `
+
+Message:
+  1 | // A TypeScript \`export = require()\` is one import, so it is reported once, on the statement
+> 2 | export = require('./example.test.js');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not import a test file. The Node.js test runner may execute it twice.
 
 `;
 

@@ -544,15 +544,19 @@ function getTimerImports(sourceCode) {
 	return {named, namespaces};
 }
 
+/** Whether `node` is a name with no local definition, i.e. the global of that name rather than a local binding. */
+function isUnshadowedReference(sourceCode, node) {
+	const variable = findVariable(sourceCode.getScope(node), node);
+	return !variable || variable.defs.length === 0;
+}
+
 function getSchedulerName(node, timerImports, sourceCode) {
 	const callee = unwrapExpression(node.callee);
 	if (callee.type === 'Identifier') {
-		// Check the name before resolving the scope: this runs for every call in a test body, and nearly all of them are unrelated.
-		if (SCHEDULER_NAMES.has(callee.name)) {
-			const variable = findVariable(sourceCode.getScope(callee), callee);
-			if (!variable || variable.defs.length === 0) {
-				return callee.name;
-			}
+		// The name is checked before the scope is resolved: this runs for every call in a test body,
+		// and nearly all of them are unrelated.
+		if (SCHEDULER_NAMES.has(callee.name) && isUnshadowedReference(sourceCode, callee)) {
+			return callee.name;
 		}
 
 		if (timerImports.named.has(callee.name) && isImportBinding(callee, sourceCode)) {
@@ -568,8 +572,9 @@ function getSchedulerName(node, timerImports, sourceCode) {
 		&& callee.property.type === 'Identifier'
 		&& SCHEDULER_NAMES.has(callee.property.name)
 		&& (
-			// `globalThis.setTimeout` is the same scheduler as the bare global.
-			(object.name === 'globalThis' || object.name === 'global')
+			// `globalThis.setTimeout` is the same scheduler as the bare global, but only for the
+			// unshadowed global: a local `globalThis` or `global` is some other object.
+			((object.name === 'globalThis' || object.name === 'global') && isUnshadowedReference(sourceCode, object))
 			|| (timerImports.namespaces.has(object.name) && isImportBinding(object, sourceCode))
 		)
 	) {

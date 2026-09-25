@@ -18,6 +18,8 @@ test.snapshot({
 		withImport('test("title", {tags: ["UPPER"], ...{tags: ["unit"]}}, () => {});'),
 		withImport('test("title", {tags: ["unit"], ...{tags: ["UPPER"]}}, () => {});'),
 		withImport('test("title", {tags: ["UPPER"], ["tags"]: ["unit"]}, () => {});'),
+		// A later computed key that does not fold could be `tags`
+		withImport('test("title", {tags: ["UPPER"], [key]: 5}, () => {});'),
 		withImport('test("title", {get tags() { return ["UPPER"]; }}, () => {});'),
 		withImport('test("title", {tags: ["UPPER"], get tags() { return ["unit"]; }}, () => {});'),
 		withImport('test.foo("title", {tags: ["UPPER"]}, () => {});'),
@@ -170,6 +172,9 @@ test.snapshot({
 
 		// A nested array is a static value that is not a string
 		withImport('test("title", {tags: [["unit"]]}, () => {});'),
+
+		// A later computed key that folds to a constant names another option, so it cannot override `tags`
+		withImport('test("title", {tags: ["UPPER"], ["timeout"]: 5}, () => {});'),
 	],
 });
 

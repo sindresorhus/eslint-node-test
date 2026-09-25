@@ -4,6 +4,7 @@ import {
 	createContextTracker,
 	LOOSE_TO_STRICT_METHODS,
 } from './utils/node-test.js';
+import {unwrapExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-strict-assert';
 
@@ -42,8 +43,9 @@ const create = context => {
 
 		// Autofix only the member forms (`assert.equal`, `t.assert.equal`). A bare named
 		// import (`equal`) cannot be rewritten to `strictEqual` without also importing it,
-		// so leave it reported but unfixed.
-		if (assertion.methodNode && assertion.methodNode !== node.callee) {
+		// so leave it reported but unfixed. The callee is unwrapped first, so a cast around a
+		// bare import is left unfixed too, exactly like the bare import it erases to.
+		if (assertion.methodNode && assertion.methodNode !== unwrapExpression(node.callee)) {
 			problem.fix = fixer => fixer.replaceText(assertion.methodNode, replacement);
 		}
 

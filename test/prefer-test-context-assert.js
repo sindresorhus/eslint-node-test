@@ -116,5 +116,14 @@ test.snapshot({
 		// has to name the local one
 		'import test, {getTestContext as gtc} from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'x\', () => { assert.ok(value); });',
 		'import test, {getTestContext as gtc} from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'x\', t => { assert.ok(value); });',
+		{
+			code: '// A cast on the module reads the same as the bare form\n'
+				+ 'import test from \'node:test\';\n'
+				+ 'import assert from \'node:assert\';\n'
+				+ 'test(\'a\', t => {\n'
+				+ '\tassert!.strict.equal(x, 1);\n'
+				+ '});',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

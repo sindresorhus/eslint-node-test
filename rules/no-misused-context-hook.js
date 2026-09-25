@@ -74,7 +74,7 @@ function isStaticallySkipped(callExpression, sourceCode) {
 
 // Array methods that call a predicate over their elements, so a subtest registered in one of those
 // callbacks still runs and the hook around it still applies.
-const ITERATION_METHODS = new Set(['every', 'filter', 'find', 'findIndex', 'findLast', 'findLastIndex', 'flatMap', 'forEach', 'map', 'reduce', 'some', 'sort']);
+const ITERATION_METHODS = new Set(['every', 'filter', 'find', 'findIndex', 'findLast', 'findLastIndex', 'flatMap', 'forEach', 'map', 'reduce', 'reduceRight', 'some', 'sort']);
 
 // The argument slot a method runs its callback from, for the two that do not use the first. Only
 // `Array.from(items, fn)` is here: `Array.of(…)` takes no callback at all, it makes an array of its

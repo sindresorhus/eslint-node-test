@@ -133,5 +133,7 @@ test.snapshot({
 		// there is the same placeholder
 		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { t.test(\'c\', () => {}); });',
 		'import {getTestContext, beforeEach} from \'node:test\';\nbeforeEach(t => { getTestContext().test(\'c\', () => {}); });',
+		'// A comment before the separating comma leaves no safe fix, but must not break the run\nimport test from \'node:test\';\ntest(\'placeholder\' /* keep me */, () => {});',
+		'import test from \'node:test\';\ntest(\'placeholder\' // keep me\n, () => {});',
 	],
 });

@@ -4,6 +4,7 @@ import {
 	parseTestCall,
 	createContextTracker,
 	getTestOptions,
+	findOptionsProperty,
 	MODIFIERS,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
@@ -42,30 +43,6 @@ const messages = {
 	[MESSAGE_ID_RESERVED]: 'Tag `{{tag}}` must not be the reserved word `and`, `or`, or `not`.',
 	[MESSAGE_ID_DUPLICATE]: 'Duplicate tag `{{tag}}`.',
 };
-
-function isTagsProperty(property) {
-	return (
-		property.type === 'Property'
-		&& !property.computed
-		&& (
-			(property.key.type === 'Identifier' && property.key.name === 'tags')
-			|| (property.key.type === 'Literal' && property.key.value === 'tags')
-		)
-	);
-}
-
-function getTagsProperty(options) {
-	for (let index = options.properties.length - 1; index >= 0; index -= 1) {
-		const property = options.properties[index];
-		if (isTagsProperty(property)) {
-			return property.kind === 'init' ? property : undefined;
-		}
-
-		if (property.type === 'SpreadElement' || property.computed) {
-			return;
-		}
-	}
-}
 
 function getStaticString(node) {
 	node = unwrapTypeScriptExpression(node);
@@ -208,9 +185,11 @@ const create = context => {
 			return;
 		}
 
-		const options = getTestOptions(node);
-		const tagsProperty = options && getTagsProperty(options);
-		if (!tagsProperty) {
+		// A computed key that folds to a constant names the same property a bare one does, so `{['tags']: []}`
+		// is the `{tags: []}` the runner reads, and a bad tag in it still throws at registration. A getter's
+		// value is the accessor, not the tags.
+		const tagsProperty = findOptionsProperty(getTestOptions(node), 'tags');
+		if (tagsProperty?.kind !== 'init') {
 			return;
 		}
 

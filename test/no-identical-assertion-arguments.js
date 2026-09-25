@@ -145,6 +145,6 @@ test.snapshot({
 		withImport('assert.notDeepEqual(/a/, /a/);'),
 		// `partialDeepStrictEqual` compares the same reference to itself, so it always passes
 		withImport('const x = [1];\nassert.partialDeepStrictEqual(x, x);'),
-
+		'// The partial deep method compares structure too, so two RegExp literals are the same value to it\nimport assert from \'node:assert\';\nassert.partialDeepStrictEqual(/x/, /x/);',
 	],
 });

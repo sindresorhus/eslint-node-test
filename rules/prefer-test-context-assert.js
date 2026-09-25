@@ -42,13 +42,15 @@ function isImportedAssertCallee(callee, imports) {
 		return true;
 	}
 
+	// The module is unwrapped too, so a cast or a non-null assertion on `assert` reads the same
+	// as the bare form, the way `isAssertStrictMember` in the shared helper already does.
+	const moduleObject = object?.type === 'MemberExpression' ? unwrapTypeScriptExpression(object.object) : undefined;
 	return (
-		object?.type === 'MemberExpression'
+		moduleObject?.type === 'Identifier'
 		&& !object.computed
-		&& object.object.type === 'Identifier'
 		&& object.property.type === 'Identifier'
 		&& object.property.name === 'strict'
-		&& imports.assertNamespace.has(object.object.name)
+		&& imports.assertNamespace.has(moduleObject.name)
 	);
 }
 

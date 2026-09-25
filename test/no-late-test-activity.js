@@ -103,6 +103,14 @@ test.snapshot({
 		// A different object with a `setTimeout` method is not a detached scheduler
 		'import test from \'node:test\';\nimport assert from \'node:assert\';\n'
 		+ 'test(\'t\', () => { foo.setTimeout(() => { assert.ok(x); }, 10); });',
+		'// A shadowed `globalThis` is some other object, not the global scheduler\n'
+		+ 'import {test} from \'node:test\';\n'
+		+ 'import assert from \'node:assert\';\n'
+		+ 'test(\'a\', global => {\n'
+		+ '	global.setTimeout(() => {\n'
+		+ '		assert.ok(1);\n'
+		+ '	}, 10);\n'
+		+ '});',
 	],
 	invalid: [
 		inTest('setTimeout(() => assert.ok(value), 10);'),
@@ -220,6 +228,9 @@ test.snapshot({
 		+ 'test(\'t\', () => { timers.setImmediate(() => { assert.ok(x); }); });',
 
 		// A string-literal name is the same export, so the scheduler is the same detached one
-		'import test from \'node:test\';\nimport assert from \'node:assert\';\nimport {\'setImmediate\' as si} from \'node:timers\';\ntest(\'a\', () => { new Promise(resolve => { si(() => assert.ok(1)); }); });',
+		'import test from \'node:test\';\n'
+		+ 'import assert from \'node:assert\';\n'
+		+ 'import {\'setImmediate\' as si} from \'node:timers\';\n'
+		+ 'test(\'a\', () => { new Promise(resolve => { si(() => assert.ok(1)); }); });',
 	],
 });

@@ -120,5 +120,9 @@ test.snapshot({
 
 		// A hook declared through `getTestContext()` is the same hook
 		'import {test, getTestContext} from \'node:test\';\ntest(\'p\', t => { getTestContext().beforeEach((sub, done) => {}); });',
+		{
+			code: '// A TypeScript `this` parameter is erased, so `done` is the second emitted parameter\nimport {test} from \'node:test\';\ntest(\'a\', function (this: void, t, done) {});',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

@@ -104,6 +104,15 @@ test.snapshot({
 		'import test, {getTestContext} from \'node:test\';\ntest(\'a\', t => { t.beforeEach(() => {}); getTestContext().test(\'c\', () => {}); });',
 		// An unrelated object is not a test context
 		'import {test} from \'node:test\';\ntest(\'a\', t => { foo.beforeEach(() => {}); });',
+		'// `reduceRight` calls a predicate over the elements too, so the subtest still runs\n'
+		+ 'import {test} from \'node:test\';\n'
+		+ 'test(\'a\', t => {\n'
+		+ '	t.beforeEach(() => {});\n'
+		+ '	[1, 2].reduceRight((accumulator, index) => {\n'
+		+ '		t.test(\'c\' + index, () => {});\n'
+		+ '		return accumulator;\n'
+		+ '	}, []);\n'
+		+ '});',
 	],
 	invalid: [
 		// `Array.of(…)` makes an array of its arguments, so it runs nothing, and the third argument

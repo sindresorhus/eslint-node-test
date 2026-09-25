@@ -169,5 +169,9 @@ test.snapshot({
 			code: 'export import helper = require(\'./example.test.js\');',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: '// A TypeScript `export = require()` is one import, so it is reported once, on the statement\nexport = require(\'./example.test.js\');',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

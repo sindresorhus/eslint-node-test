@@ -1,6 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {resolveImports, getImportSpecifierName} from './utils/node-test.js';
-import {unwrapExpression, isGlobalProcessMember} from './utils/index.js';
+import {unwrapExpression, getGlobalProcessObject, isUnshadowedGlobal} from './utils/index.js';
 
 const MESSAGE_ID_PROCESS_EXIT = 'processExit';
 const MESSAGE_ID_PROCESS_EXIT_CODE = 'processExitCode';
@@ -44,7 +44,7 @@ const getExitImportBindings = sourceCode => {
 	return bindings;
 };
 
-const getProcessProperty = (node, propertyName) => {
+const getProcessProperty = (context, node, propertyName) => {
 	const unwrapped = unwrapExpression(node);
 	if (
 		unwrapped?.type !== 'MemberExpression'
@@ -56,12 +56,13 @@ const getProcessProperty = (node, propertyName) => {
 	}
 
 	const object = unwrapExpression(unwrapped.object);
-	if (
-		(object?.type === 'Identifier' && object.name === 'process')
-		|| isGlobalProcessMember(object)
-	) {
+	if (object?.type === 'Identifier' && object.name === 'process') {
 		return unwrapped;
 	}
+
+	// A local `globalThis` or `global` is some other object, exactly as a local `process` is.
+	const globalObject = getGlobalProcessObject(object);
+	return globalObject && isUnshadowedGlobal(context, globalObject, globalObject.name) ? unwrapped : undefined;
 };
 
 /** Whether a call is a bare call to a name the file imported as `process.exit`. */
@@ -83,7 +84,7 @@ const create = context => {
 
 	context.on('CallExpression', node => {
 		const importedExit = getImportedExitCallee(node.callee, exitBindings, context.sourceCode);
-		if (!getProcessProperty(node.callee, 'exit') && !importedExit) {
+		if (!getProcessProperty(context, node.callee, 'exit') && !importedExit) {
 			return;
 		}
 
@@ -94,7 +95,7 @@ const create = context => {
 	});
 
 	context.on('AssignmentExpression', node => {
-		const exitCode = getProcessProperty(node.left, 'exitCode');
+		const exitCode = getProcessProperty(context, node.left, 'exitCode');
 		if (!exitCode) {
 			return;
 		}
@@ -106,7 +107,7 @@ const create = context => {
 	});
 
 	context.on('UpdateExpression', node => {
-		const exitCode = getProcessProperty(node.argument, 'exitCode');
+		const exitCode = getProcessProperty(context, node.argument, 'exitCode');
 		if (!exitCode) {
 			return;
 		}

@@ -84,6 +84,40 @@ Output:
 
 `;
 
+exports[`prefer-strict-assert > invalid(13): // A cast around a bare named import erases to it, so the fix would name an unimported method\nimport {equal} from 'node:assert';\n(equal as any)(a, b); 1`] = `
+
+  1 | // A cast around a bare named import erases to it, so the fix would name an unimported method
+  2 | import {equal} from 'node:assert';
+  3 | (equal as any)(a, b);
+
+`;
+
+exports[`prefer-strict-assert > invalid(13): // A cast around a bare named import erases to it, so the fix would name an unimported method\nimport {equal} from 'node:assert';\n(equal as any)(a, b); 2`] = `
+
+Message:
+  1 | // A cast around a bare named import erases to it, so the fix would name an unimported method
+  2 | import {equal} from 'node:assert';
+> 3 | (equal as any)(a, b);
+    | ^^^^^^^^^^^^^^^^^^^^ Prefer \`strictEqual\` over the legacy loose \`equal\`.
+
+`;
+
+exports[`prefer-strict-assert > invalid(14): import {equal} from 'node:assert';\n(equal!)(a, b); 1`] = `
+
+  1 | import {equal} from 'node:assert';
+  2 | (equal!)(a, b);
+
+`;
+
+exports[`prefer-strict-assert > invalid(14): import {equal} from 'node:assert';\n(equal!)(a, b); 2`] = `
+
+Message:
+  1 | import {equal} from 'node:assert';
+> 2 | (equal!)(a, b);
+    | ^^^^^^^^^^^^^^ Prefer \`strictEqual\` over the legacy loose \`equal\`.
+
+`;
+
 exports[`prefer-strict-assert > invalid(2): import assert from 'node:assert';\nassert.notEqual(a, b); 1`] = `
 
   1 | import assert from 'node:assert';

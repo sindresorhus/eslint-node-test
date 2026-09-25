@@ -164,8 +164,10 @@ const create = context => {
 	});
 	context.on('ImportExpression', node => getProblem(node, node.source));
 	// A CommonJS `require('./other.test.js')` loads the target the same way an import does, so the
-	// runner really does execute the dependency a second time.
-	context.on('CallExpression', node => getRequireProblem(node, node));
+	// runner really does execute the dependency a second time. TypeScript's `export = require(…)` is
+	// the one exception: the `TSExportAssignment` visitor below already reports it, on the whole
+	// statement, so reporting the inner call again would be a second problem for one import.
+	context.on('CallExpression', node => node.parent?.type === 'TSExportAssignment' ? undefined : getRequireProblem(node, node));
 	// TypeScript's own import forms, where the specifier sits on an external module reference
 	// instead of an `ImportDeclaration.source`.
 	context.on('TSImportEqualsDeclaration', node => {

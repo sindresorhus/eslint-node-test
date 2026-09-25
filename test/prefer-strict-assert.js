@@ -76,5 +76,13 @@ test.snapshot({
 			code: withAssert('assert.equal(a as string, b);'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: '// A cast around a bare named import erases to it, so the fix would name an unimported method\nimport {equal} from \'node:assert\';\n(equal as any)(a, b);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import {equal} from \'node:assert\';\n(equal!)(a, b);',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

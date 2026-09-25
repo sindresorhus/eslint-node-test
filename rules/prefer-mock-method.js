@@ -43,7 +43,9 @@ function canRewriteMethodCall({node, left, key, mockArguments, sourceCode}) {
 		// `super` names no value to pass, and `mock.method(super, …)` does not parse at all.
 		&& left.object.type !== 'Super'
 		&& (!left.computed || left.property.type !== 'SequenceExpression')
-		&& mockArguments.every(argument => argument.type !== 'SequenceExpression');
+		// A spread argument fills the rest of the rewritten argument list, so the implementation is no
+		// longer the third argument: `mock.method(o, 'm', ...args)` does not pass an implementation at all.
+		&& mockArguments.every(argument => argument.type !== 'SequenceExpression' && argument.type !== 'SpreadElement');
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */

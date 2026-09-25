@@ -873,6 +873,24 @@ Suggestion 1/1: Replace with \`getTestContext().mock.method()\`.:
 
 `;
 
+exports[`prefer-mock-method > invalid(50): // A spread fills the rest of the rewritten argument list, so there is no implementation to pass\nimport {mock} from 'node:test';\nobject.method = mock.fn(...args); 1`] = `
+
+  1 | // A spread fills the rest of the rewritten argument list, so there is no implementation to pass
+  2 | import {mock} from 'node:test';
+  3 | object.method = mock.fn(...args);
+
+`;
+
+exports[`prefer-mock-method > invalid(50): // A spread fills the rest of the rewritten argument list, so there is no implementation to pass\nimport {mock} from 'node:test';\nobject.method = mock.fn(...args); 2`] = `
+
+Message:
+  1 | // A spread fills the rest of the rewritten argument list, so there is no implementation to pass
+  2 | import {mock} from 'node:test';
+> 3 | object.method = mock.fn(...args);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`mock.method()\` over assigning \`mock.fn()\` to a property, so the original method is tracked and can be restored.
+
+`;
+
 exports[`prefer-mock-method > invalid(6): import {beforeEach} from 'node:test';\nbeforeEach(t => { object.method = t.mock.fn(); }); 1`] = `
 
   1 | import {beforeEach} from 'node:test';

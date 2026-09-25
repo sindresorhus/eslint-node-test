@@ -389,6 +389,53 @@ Suggestion 1/1: Mark with \`{todo: true}\`.:
 
 `;
 
+exports[`prefer-todo > invalid(28): // A comment before the separating comma leaves no safe fix, but must not break the run\nimport test from 'node:test';\ntest('placeholder' /* keep me */, () => {}); 1`] = `
+
+  1 | // A comment before the separating comma leaves no safe fix, but must not break the run
+  2 | import test from 'node:test';
+  3 | test('placeholder' /* keep me */, () => {});
+
+`;
+
+exports[`prefer-todo > invalid(28): // A comment before the separating comma leaves no safe fix, but must not break the run\nimport test from 'node:test';\ntest('placeholder' /* keep me */, () => {}); 2`] = `
+
+Message:
+  1 | // A comment before the separating comma leaves no safe fix, but must not break the run
+  2 | import test from 'node:test';
+> 3 | test('placeholder' /* keep me */, () => {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Empty placeholder test. Use \`.todo\` to mark it as unfinished.
+
+Suggestion 1/1: Mark as \`.todo\`.:
+  1 | // A comment before the separating comma leaves no safe fix, but must not break the run
+  2 | import test from 'node:test';
+  3 | test.todo('placeholder' /* keep me */, () => {});
+
+`;
+
+exports[`prefer-todo > invalid(29): import test from 'node:test';\ntest('placeholder' // keep me\n, () => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('placeholder' // keep me
+  3 | , () => {});
+
+`;
+
+exports[`prefer-todo > invalid(29): import test from 'node:test';\ntest('placeholder' // keep me\n, () => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('placeholder' // keep me
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | , () => {});
+    | ^^^^^^^^^^^ Empty placeholder test. Use \`.todo\` to mark it as unfinished.
+
+Suggestion 1/1: Mark as \`.todo\`.:
+  1 | import test from 'node:test';
+  2 | test.todo('placeholder' // keep me
+  3 | , () => {});
+
+`;
+
 exports[`prefer-todo > invalid(3): import test from 'node:test';\ntest({name: 't'}); 1`] = `
 
   1 | import test from 'node:test';

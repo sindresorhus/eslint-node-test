@@ -41,6 +41,8 @@ test.snapshot({
 		'import {exit} from \'node:process\';\nimport {test} from \'node:test\';\ntest(\'a\', function (exit) { exit(1); });',
 		// Another named export is not `process.exit`
 		'import {env} from \'node:process\';\nimport {test} from \'node:test\';\ntest(\'a\', () => { env(1); });',
+		'// A shadowed `globalThis` is some other object\nimport {test} from \'node:test\';\ntest(\'a\', function (globalThis) {\n	globalThis.process.exit(0);\n});',
+		'// A shadowed `global` is some other object\nimport {test} from \'node:test\';\ntest(\'a\', function (global) {\n	global.process.exitCode = 1;\n});',
 	],
 	invalid: [
 		// `process.exit()` anywhere in a test file

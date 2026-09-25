@@ -4,6 +4,7 @@ import {
 	getHookCallback,
 	getTestCallback,
 	getEffectiveArity,
+	getRuntimeParameter,
 	createContextTracker,
 	isContextHookCall,
 } from './utils/node-test.js';
@@ -44,7 +45,9 @@ const create = context => {
 			return;
 		}
 
-		const parameter = callback.params[1];
+		// A TypeScript `this` parameter is erased before the code runs, so the reported slot is the
+		// second emitted parameter, which is what `getEffectiveArity` counted.
+		const parameter = getRuntimeParameter(callback.params, 1);
 		return {
 			node: parameter,
 			messageId: MESSAGE_ID,

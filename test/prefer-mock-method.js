@@ -150,5 +150,6 @@ test.snapshot({
 		'import {mock} from \'node:test\';\nclass A extends B {\n\tm() {\n\t\tsuper.method = mock.fn(impl);\n\t}\n\tn() {\n\t\tthis.method = mock.fn(impl);\n\t}\n}',
 		inTest('object.method = t.mock.fn((a, b));'),
 		inTest('object[(a, b)] = t.mock.fn(() => \'stubbed\');'),
+		'// A spread fills the rest of the rewritten argument list, so there is no implementation to pass\nimport {mock} from \'node:test\';\nobject.method = mock.fn(...args);',
 	],
 });
