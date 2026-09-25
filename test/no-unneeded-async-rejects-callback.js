@@ -162,6 +162,24 @@ test.snapshot({
 		withAssert('assert.rejects(async () => { await // Keep this comment.\noperation(); });'),
 		withAssert('assert.rejects(async () => { ((await operation())); });'),
 		withAssert('assert.rejects(async () => { return (await operation()); });'),
+		// A type assertion binds looser than `await`, so `return` cannot be put in front of it
+		{
+			code: withAssert('assert.rejects(async () => { <Error>await operation(); });'),
+			operationType: 'Promise<Error>',
+		},
+		{
+			code: withAssert('assert.rejects(async () => { <Promise<void>>await operation(); });'),
+			operationType: 'Promise<void>',
+		},
+		{
+			code: withAssert('assert.rejects(async function () { <Error>await operation(); });'),
+			operationType: 'Promise<Error>',
+		},
+		// The expression body only loses the `await`, which the type assertion still takes
+		{
+			code: withAssert('assert.rejects(async () => <Error>await operation());'),
+			operationType: 'Promise<Error>',
+		},
 		withAssert('assert.rejects(async () => { return /* keep */ await operation(); });'),
 		{
 			code: withAssert('assert.rejects(async () => await (operation() as Promise<void>));'),

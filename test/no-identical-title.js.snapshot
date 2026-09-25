@@ -88,6 +88,38 @@ Message:
 
 `;
 
+exports[`no-identical-title > invalid(14): import test from \"node:test\";\ntest(\"parent\", t => { t.test(\"same\", () => {}); t.test(\"same\", () => {}); }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("parent", t => { t.test("same", () => {}); t.test("same", () => {}); });
+
+`;
+
+exports[`no-identical-title > invalid(14): import test from \"node:test\";\ntest(\"parent\", t => { t.test(\"same\", () => {}); t.test(\"same\", () => {}); }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test("parent", t => { t.test("same", () => {}); t.test("same", () => {}); });
+    |                                                        ^^^^^^ Test title is already used by another test in the same scope.
+
+`;
+
+exports[`no-identical-title > invalid(15): import test from \"node:test\";\ntest(\"parent\", t => { t.test(\"a\", () => {}); t.test(\"a\", () => {}); }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("parent", t => { t.test("a", () => {}); t.test("a", () => {}); });
+
+`;
+
+exports[`no-identical-title > invalid(15): import test from \"node:test\";\ntest(\"parent\", t => { t.test(\"a\", () => {}); t.test(\"a\", () => {}); }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test("parent", t => { t.test("a", () => {}); t.test("a", () => {}); });
+    |                                                     ^^^ Test title is already used by another test in the same scope.
+
+`;
+
 exports[`no-identical-title > invalid(2): import {it} from \"node:test\";\nit(\"a\", () => {});\nit(\"a\", () => {}); 1`] = `
 
   1 | import {it} from "node:test";

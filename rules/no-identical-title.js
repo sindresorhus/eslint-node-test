@@ -23,15 +23,16 @@ const create = context => {
 	/*
 	Stack of title sets, one per scope level.
 	The bottom of the stack (index 0) is the module top-level.
-	Each describe/suite callback body pushes a new set on entry and pops it on exit.
+	Each suite or test callback body pushes a new set on entry and pops it on exit: the tests
+	registered inside one belong to that suite or test, not to the level that encloses it.
 	*/
 	const scopeStack = [new Set()];
 
 	/*
-	Map from a suite callback function node to the call expression that created it,
-	so we can push/pop the scope when entering/exiting the callback body.
+	The callback function nodes that open a title scope, so the scope is pushed when the body is
+	entered and popped when it is left.
 	*/
-	const suiteCallbackNodes = new WeakSet();
+	const scopeCallbackNodes = new WeakSet();
 
 	// A subtest (`t.test(…)`) is a test with a title and its own scope for its children, exactly like
 	// an imported test, so it is tracked through the context tracker.
@@ -46,11 +47,11 @@ const create = context => {
 			return;
 		}
 
-		// Track suite and subtest callbacks for scope push/pop.
-		if (parsed?.kind === 'suite' || isSubtest) {
+		// Suite and test callbacks (imported tests and subtests alike) open a title scope.
+		if (parsed?.kind === 'suite' || parsed?.kind === 'test' || isSubtest) {
 			const callback = getTestCallback(node);
 			if (callback) {
-				suiteCallbackNodes.add(callback);
+				scopeCallbackNodes.add(callback);
 			}
 		}
 
@@ -77,7 +78,7 @@ const create = context => {
 		currentScope.add(titleValue);
 	});
 
-	// Push/pop a scope around each suite callback body.
+	// Push/pop a scope around each suite or test callback body.
 	const functionTypes = ['FunctionExpression', 'ArrowFunctionExpression'];
 
 	context.onExit('CallExpression', node => {
@@ -85,13 +86,13 @@ const create = context => {
 	});
 
 	context.on(functionTypes, node => {
-		if (suiteCallbackNodes.has(node)) {
+		if (scopeCallbackNodes.has(node)) {
 			scopeStack.push(new Set());
 		}
 	});
 
 	context.onExit(functionTypes, node => {
-		if (suiteCallbackNodes.has(node)) {
+		if (scopeCallbackNodes.has(node)) {
 			scopeStack.pop();
 		}
 	});

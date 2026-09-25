@@ -8,7 +8,7 @@ import {
 	isGetTestContextCall,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
-import {getStaticPropertyName} from './utils/index.js';
+import {getParenthesizedRange, getStaticPropertyName} from './utils/index.js';
 
 const MESSAGE_ID = 'no-compound-assertion';
 
@@ -45,7 +45,7 @@ function getOperandText(sourceCode, operand) {
 	return operand.type === 'SequenceExpression' ? `(${text})` : text;
 }
 
-function buildFix({node, operands, sourceCode, hasPlan}) {
+function buildFix({node, operands, sourceCode, context, hasPlan}) {
 	return fixer => {
 		if (
 			// Splitting one assertion into several changes the assertion count, which a
@@ -60,7 +60,10 @@ function buildFix({node, operands, sourceCode, hasPlan}) {
 			return undefined;
 		}
 
-		const callee = sourceCode.getText(node.callee);
+		// The parenthesized range keeps the call's own parentheses, which a TypeScript wrapper around
+		// the callee (`(assert.ok as any)`) needs: its text alone, `assert.ok as any`, does not parse
+		// as a callee.
+		const callee = sourceCode.text.slice(...getParenthesizedRange(node.callee, context));
 		const indent = getIndent(sourceCode, node.parent);
 		if (indent === undefined) {
 			return undefined;
@@ -150,6 +153,7 @@ const create = context => {
 				node,
 				operands,
 				sourceCode,
+				context,
 				hasPlan: hasPlan(),
 			}),
 		};

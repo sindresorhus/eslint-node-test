@@ -33,6 +33,12 @@ test.snapshot({
 		// An empty title is not the name the runner uses: it falls back to the callback's function name
 		'import test from \'node:test\';\ntest(\'\', function alpha() {});\ntest(\'\', function beta() {});',
 		'import test from \'node:test\';\ntest(\'a\', {name: \'\'}, function alpha() {});\ntest(\'b\', {name: \'\'}, function beta() {});',
+		// A subtest is in its parent test’s own scope, so sharing the parent’s title is fine
+		'import test from \'node:test\';\ntest(\'a\', t => { t.test(\'a\', () => {}); });',
+		'import test from \'node:test\';\ntest(\'a\', t => { t.test(\'b\', () => {}); });\ntest(\'b\', () => {});',
+		// A nested subtest is one level deeper again
+		'import test from \'node:test\';\ntest(\'a\', t => { t.test(\'b\', t2 => { t2.test(\'b\', () => {}); }); });',
+		'import test, {getTestContext} from \'node:test\';\ntest(\'a\', () => { getTestContext().test(\'a\', () => {}); });',
 	],
 	invalid: [
 		// Duplicate top-level titles
@@ -64,5 +70,9 @@ test.snapshot({
 		},
 		// Duplicate `options.name` — the title each test actually runs under
 		'import test from "node:test";\ntest("a", {name: "same"}, () => {});\ntest("b", {name: "same"}, () => {});',
+		// Duplicate sibling subtests inside one test callback
+		'import test from "node:test";\ntest("parent", t => { t.test("same", () => {}); t.test("same", () => {}); });',
+		// A subtest and a test registered in the same test callback
+		'import test from "node:test";\ntest("parent", t => { t.test("a", () => {}); t.test("a", () => {}); });',
 	],
 });

@@ -40,7 +40,7 @@ function getAwaitedCallbackBody(callback) {
 
 	const awaitExpression = unwrapTypeScriptExpression(expression);
 	if (awaitExpression.type === 'AwaitExpression') {
-		return {awaitExpression, shouldAddReturn};
+		return {expression, awaitExpression, shouldAddReturn};
 	}
 }
 
@@ -169,7 +169,15 @@ const create = context => {
 					messageId: MESSAGE_ID_SUGGESTION,
 					/** @param {ESLint.Rule.RuleFixer} fixer */
 					* fix(fixer, {abort}) {
-						if (awaited.shouldAddReturn && isParenthesized(awaited.awaitExpression, context)) {
+						// `return` can only go where the `await` keyword stood, which is directly before the
+						// awaited expression. Parentheses (`(await x)`) or a TypeScript type assertion
+						// (`<Error>await x`), which binds looser than `await`, both put something between
+						// them that `return` cannot be inserted into.
+						if (
+							awaited.shouldAddReturn
+							&& (isParenthesized(awaited.awaitExpression, context)
+								|| sourceCode.getFirstToken(awaited.expression) !== sourceCode.getFirstToken(awaited.awaitExpression))
+						) {
 							return abort();
 						}
 

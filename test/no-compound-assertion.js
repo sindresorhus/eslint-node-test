@@ -12,6 +12,7 @@ const withRenamedImport = code => `import {ok as assertOk} from 'node:assert';\n
 const withStrictNamedImport = code => `import {strict as assert} from 'node:assert';\n${code}`;
 const withStrictImport = code => `import {strict} from 'node:assert';\n${code}`;
 const withTest = code => `import test from 'node:test';\n${code}`;
+const withTestAndAssert = code => `import test from 'node:test';\nimport assert from 'node:assert';\n${code}`;
 const withHook = code => `import {beforeEach} from 'node:test';\n${code}`;
 const withTestNamespace = code => `import * as nodeTest from 'node:test';\n${code}`;
 const withRenamedTest = code => `import {test as nodeTest} from 'node:test';\n${code}`;
@@ -152,6 +153,24 @@ test.snapshot({
 		},
 		{
 			code: withAssert('assert.ok((a && b) as boolean);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		// A TypeScript wrapper on the callee — the fix keeps the call's own parentheses, which
+		// `assert.ok as any(x)` would need to parse.
+		{
+			code: withTestAndAssert('test(\'t\', () => {\n\t(assert.ok as any)(a && b);\n});'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withTestAndAssert('test(\'t\', () => {\n\t(assert.ok satisfies any)(a && b);\n});'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withTestAndAssert('test(\'t\', () => {\n\tassert.ok!(a && b);\n});'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withTestAndAssert('test(\'t\', () => {\n\t(assert.ok)(a && b);\n});'),
 			languageOptions: {parser: parsers.typescript},
 		},
 
