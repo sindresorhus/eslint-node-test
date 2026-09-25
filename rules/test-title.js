@@ -1,8 +1,9 @@
+import {getStaticValue} from '@eslint-community/eslint-utils';
 import quoteJsString from 'quote-js-string';
 import {
 	resolveImports,
 	parseTestCall,
-	getTestTitle,
+	getTestTitleNode,
 	getTestCallback,
 	createContextTracker,
 } from './utils/node-test.js';
@@ -21,23 +22,37 @@ const messages = {
 };
 
 /*
-Validate the resolved static title string of a `titleNode` (a string `Literal` or `TemplateLiteral`).
-Returns a problem for an empty or untrimmed title, or `undefined` when it is fine or not statically
+Validate the node `node:test` reads a test's title from. Returns a problem for a title that is
+statically not a string, empty, or untrimmed, or `undefined` when it is fine or not statically
 resolvable.
+
+`node:test` names a test `<anonymous>` for any title that is not a string, so a value that
+`getStaticValue` resolves to a non-string (`undefined`, `NaN`, a number read from a constant) is as
+knowable as a numeric literal.
 */
-function getStaticTitleProblem(titleNode) {
+function getStaticTitleProblem(titleNode, context) {
+	const {sourceCode} = context;
+
 	let titleValue;
-	if (titleNode.type === 'Literal') {
-		titleValue = titleNode.value;
-	} else if (titleNode.type === 'TemplateLiteral' && titleNode.expressions.length === 0) {
+	if (titleNode.type === 'TemplateLiteral' && titleNode.expressions.length === 0) {
 		titleValue = titleNode.quasis[0].value.cooked;
+	} else if (titleNode.type === 'Literal') {
+		titleValue = titleNode.value;
 	} else {
-		// A template literal with expressions or some other dynamic node — can't validate.
-		return;
+		const staticValue = getStaticValue(titleNode, sourceCode.getScope(titleNode));
+		if (staticValue === null) {
+			// A template literal with expressions or some other dynamic node — can't validate.
+			return;
+		}
+
+		titleValue = staticValue.value;
 	}
 
-	if (titleValue === null || titleValue === undefined) {
-		return;
+	if (typeof titleValue !== 'string') {
+		return {
+			node: titleNode,
+			messageId: MESSAGE_ID_NOT_STRING,
+		};
 	}
 
 	if (titleValue.trim() === '') {
@@ -88,11 +103,10 @@ const create = context => {
 		}
 
 		// The object form carries its title in the descriptor's `name`, and `options.name` overrides
-		// a positional title, so let `getTestTitle` resolve the title from every slot `node:test`
-		// reads it from.
-		const titleNode = getTestTitle(node, context);
+		// a positional title, so resolve the title node from every slot `node:test` reads it from.
+		const titleNode = getTestTitleNode(node);
 		if (titleNode) {
-			return getStaticTitleProblem(titleNode);
+			return getStaticTitleProblem(titleNode, context);
 		}
 
 		// The first argument is the implementation and nothing named the test.
@@ -112,18 +126,7 @@ const create = context => {
 			};
 		}
 
-		// First argument exists but is not a string (e.g. a number, boolean).
-		if (
-			firstArgument.type === 'Literal'
-			&& typeof firstArgument.value !== 'string'
-		) {
-			return {
-				node: firstArgument,
-				messageId: MESSAGE_ID_NOT_STRING,
-			};
-		}
-
-		// Dynamic/computed title — can't validate statically, skip.
+		// The title comes from a slot this helper cannot pin down, or the title is dynamic — skip.
 	});
 
 	context.onExit('CallExpression', node => {

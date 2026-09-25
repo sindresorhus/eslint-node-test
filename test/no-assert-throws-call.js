@@ -31,6 +31,10 @@ test.snapshot({
 		// Obvious function-producing calls
 		withAssert('assert.throws(fn.bind(undefined, input));'),
 		withAssert('assert.throws(Function(\'throw new Error()\'));'),
+		// A parenthesized optional chain wraps the callee in a `ChainExpression`, which must not hide
+		// the same `.bind` call
+		withAssert('assert.throws((parse?.bind)(null), SyntaxError);'),
+		withAssert('assert.throws((fn.bind)(undefined, input));'),
 
 		// TypeScript callback expression
 		{

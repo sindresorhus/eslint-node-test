@@ -210,7 +210,7 @@ exports[`test-title > invalid(2): import test from 'node:test';\ntest({name: 1, 
 Message:
   1 | import test from 'node:test';
 > 2 | test({name: 1, fn() {}});
-    | ^^^^^^^^^^^^^^^^^^^^^^^^ Test must have a title.
+    |             ^ Test title must be a string.
 
 `;
 
@@ -350,6 +350,38 @@ Message:
 
 `;
 
+exports[`test-title > invalid(28): import test from \"node:test\";\ntest(undefined, () => {}); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test(undefined, () => {});
+
+`;
+
+exports[`test-title > invalid(28): import test from \"node:test\";\ntest(undefined, () => {}); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test(undefined, () => {});
+    |      ^^^^^^^^^ Test title must be a string.
+
+`;
+
+exports[`test-title > invalid(29): import test from \"node:test\";\ntest(NaN, () => {}); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test(NaN, () => {});
+
+`;
+
+exports[`test-title > invalid(29): import test from \"node:test\";\ntest(NaN, () => {}); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test(NaN, () => {});
+    |      ^^^ Test title must be a string.
+
+`;
+
 exports[`test-title > invalid(3): import test from 'node:test';\ntest({fn() {}}); 1`] = `
 
   1 | import test from 'node:test';
@@ -363,6 +395,54 @@ Message:
   1 | import test from 'node:test';
 > 2 | test({fn() {}});
     | ^^^^^^^^^^^^^^^ Test must have a title.
+
+`;
+
+exports[`test-title > invalid(30): import test from \"node:test\";\ntest('pos', {name: 5}, () => {}); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test('pos', {name: 5}, () => {});
+
+`;
+
+exports[`test-title > invalid(30): import test from \"node:test\";\ntest('pos', {name: 5}, () => {}); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test('pos', {name: 5}, () => {});
+    |                    ^ Test title must be a string.
+
+`;
+
+exports[`test-title > invalid(31): import test from \"node:test\";\ntest('pos', {name: undefined}, () => {}); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test('pos', {name: undefined}, () => {});
+
+`;
+
+exports[`test-title > invalid(31): import test from \"node:test\";\ntest('pos', {name: undefined}, () => {}); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test('pos', {name: undefined}, () => {});
+    |                    ^^^^^^^^^ Test title must be a string.
+
+`;
+
+exports[`test-title > invalid(32): import test from \"node:test\";\ntest(() => {}, {name: 5}); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test(() => {}, {name: 5});
+
+`;
+
+exports[`test-title > invalid(32): import test from \"node:test\";\ntest(() => {}, {name: 5}); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test(() => {}, {name: 5});
+    |                       ^ Test title must be a string.
 
 `;
 

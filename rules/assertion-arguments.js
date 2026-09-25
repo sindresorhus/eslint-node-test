@@ -14,7 +14,7 @@ Map of node:assert method -> required argument count.
 Each method also accepts one optional trailing `message` argument, making max = required + 1.
 `fail` is omitted because it accepts 0 or 1 args (ambiguous) — not checkable.
 `throws`/`doesNotThrow`/`rejects`/`doesNotReject` accept 1 required + optional error + optional message (max 3).
-`ifError` is the exception with no trailing message argument — it accepts exactly one value (max = min = 1).
+`ifError` is the exception with no trailing message argument — it takes one value and ignores the rest (max 1). It also needs no value: it throws only for an argument that is neither `null` nor `undefined`, so a missing argument passes just like an explicit `undefined`.
 `snapshot` is omitted because its optional second argument is an options object, not a message string,
 so it does not fit this map's "trailing string message" model (and it is a `node:test` context
 assertion rather than a `node:assert` method).
@@ -36,7 +36,7 @@ const ASSERTION_ARGS = new Map([
 	['doesNotThrow', {min: 1, max: 3}],
 	['rejects', {min: 1, max: 3}],
 	['doesNotReject', {min: 1, max: 3}],
-	['ifError', {min: 1, max: 1}],
+	['ifError', {min: 0, max: 1}],
 ]);
 
 /*

@@ -620,13 +620,6 @@ Message:
     | 	                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
   5 | });
 
-Output:
-  1 | import test from 'node:test';
-  2 | import assert from 'node:assert';
-  3 | test('loads', async () => {
-  4 | 	(await load().then(value => { assert.strictEqual(value, 42); }) as Promise<void>);
-  5 | });
-
 `;
 
 exports[`no-unawaited-promise-assertion > invalid(3): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `

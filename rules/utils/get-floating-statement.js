@@ -1,9 +1,5 @@
 import skipExpressionWrappers from './skip-expression-wrappers.js';
-
-// TypeScript type assertions bind looser than `await`, so `await call() as T` parses as
-// `(await call()) as T` and casts the awaited value instead of the Promise. Optional chaining and
-// the non-null `!` bind tighter, so a call wrapped only in those still takes an `await` faithfully.
-const AWAIT_LOOSER_THAN = new Set(['TSAsExpression', 'TSSatisfiesExpression', 'TSTypeAssertion']);
+import {hasLooserBindThanAwait} from './unwrap-typescript-expression.js';
 
 /**
 Classify an expression whose value is thrown away at statement level: a bare statement (`fn();`) or one explicitly discarded with `void` (`void fn();`).
@@ -25,6 +21,6 @@ export default function getFloatingStatement(node) {
 		return undefined;
 	}
 
-	const canAwait = !isVoided && !AWAIT_LOOSER_THAN.has(statement.expression.type);
+	const canAwait = !isVoided && !hasLooserBindThanAwait(statement.expression);
 	return {statement, canAwait};
 }

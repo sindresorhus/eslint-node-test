@@ -14,7 +14,9 @@ const messages = {
 };
 
 function isBindCall(node) {
-	const {callee} = node;
+	// A parenthesized optional chain puts the `ChainExpression` on the callee, so `(parse?.bind)(null)`
+	// is the same function-producing call as `parse?.bind(null)`.
+	const callee = unwrapExpression(node.callee);
 
 	return callee.type === 'MemberExpression'
 		&& !callee.computed

@@ -65,7 +65,8 @@ const create = context => {
 			return;
 		}
 
-		const firstCharacter = leadingText[0];
+		// A character outside the BMP is two UTF-16 code units, so read the whole code point.
+		const firstCharacter = String.fromCodePoint(leadingText.codePointAt(0));
 		if (!/\p{Uppercase_Letter}/u.test(firstCharacter)) {
 			return;
 		}
@@ -77,10 +78,13 @@ const create = context => {
 
 		// The first content character sits right after the opening quote/backtick.
 		const start = sourceCode.getRange(titleNode)[0] + 1;
+		const end = start + firstCharacter.length;
+		const lowercased = firstCharacter.toLowerCase();
 		// Skip the fix when the first character is written as a Unicode/hex escape, so the
 		// raw source does not start with the letter itself and replacing it would corrupt the escape.
-		if (sourceCode.getText(titleNode)[1] === firstCharacter) {
-			problem.fix = fixer => fixer.replaceTextRange([start, start + 1], firstCharacter.toLowerCase());
+		// A character with no lowercase form (many mathematical alphanumerics) has nothing to rewrite.
+		if (lowercased !== firstCharacter && sourceCode.getText(titleNode).slice(1, 1 + firstCharacter.length) === firstCharacter) {
+			problem.fix = fixer => fixer.replaceTextRange([start, end], lowercased);
 		}
 
 		return problem;

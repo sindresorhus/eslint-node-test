@@ -172,5 +172,16 @@ test.snapshot({
 		// A hook declared on a test context is still a boundary the runner reports activity after
 		withImport('test(\'o\', t => { t.beforeEach(() => { setTimeout(() => assert.ok(1), 1); }); });'),
 		withImport('test(\'o\', t => { t.before(() => { setTimeout(() => assert.ok(1), 1); }); });'),
+
+		// A TypeScript cast around the floating chain binds looser than `await`, so adding one would
+		// cast the awaited value instead of the Promise. Reported without a fix.
+		{
+			code: 'import test from \'node:test\';\ntest(\'loads\', async () => {\n\tload().then(() => { throw new Error(\'Failed\'); }) as Promise<void>;\n});',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import test from \'node:test\';\ntest(\'loads\', async () => {\n\tload().then(() => { throw new Error(\'Failed\'); }) satisfies Promise<void>;\n});',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

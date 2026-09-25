@@ -877,6 +877,16 @@ Get the title node `node:test` actually names a test/suite with, when it is a st
 - otherwise the first argument is the title.
 */
 export function getTestTitle(callExpression, context) {
+	const titleNode = getTestTitleNode(callExpression);
+	return titleNode && getStaticStringNode(titleNode, context);
+}
+
+/**
+Get the node `node:test` reads a test's or suite's title from, whether or not it holds a static string, or `undefined` when the call names it with nothing at all.
+
+This is `getTestTitle` without the static-string requirement, so a rule that has to report a *bad* title (not just read a good one) can reach the node. `undefined` means the call names the test from a slot this helper cannot pin down (a later spread or computed key) or names it not at all (a descriptor with no `name`).
+*/
+export function getTestTitleNode(callExpression) {
 	const first = callExpression.arguments[0] && unwrapTypeScriptExpression(callExpression.arguments[0]);
 
 	// A leading object is the descriptor, which `node:test` reads on its own. A plain options object
@@ -884,7 +894,9 @@ export function getTestTitle(callExpression, context) {
 	const isDescriptor = first?.type === 'ObjectExpression';
 	const options = isDescriptor ? first : getTestOptions(callExpression);
 	if (!options) {
-		return getStaticStringNode(first, context);
+		// A function in the first position is the implementation (`test(fn)` / `beforeEach(fn)`), never
+		// a positional title.
+		return isFunction(first) ? undefined : first;
 	}
 
 	const nameProperty = findOptionsProperty(options, 'name');
@@ -900,7 +912,7 @@ export function getTestTitle(callExpression, context) {
 		return undefined;
 	}
 
-	return getStaticStringNode(nameProperty ? nameProperty.value : first, context);
+	return nameProperty ? nameProperty.value : first;
 }
 
 /** Get the static string value of a node, if it resolves to one. */

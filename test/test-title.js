@@ -94,5 +94,14 @@ test.snapshot({
 		// A subtest is rendered in the output just like a test, so it needs a real title
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(() => {}); });',
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(123, () => {}); });',
+
+		// A non-string title that is not a literal. `node:test` names every one of these `<anonymous>`,
+		// and `getStaticValue` can resolve them, so they are as knowable as `test(123, …)`.
+		'import test from "node:test";\ntest(undefined, () => {});',
+		'import test from "node:test";\ntest(NaN, () => {});',
+		// `options.name` wins over the positional title, so a non-string one leaves the test unnamed
+		'import test from "node:test";\ntest(\'pos\', {name: 5}, () => {});',
+		'import test from "node:test";\ntest(\'pos\', {name: undefined}, () => {});',
+		'import test from "node:test";\ntest(() => {}, {name: 5});',
 	],
 });

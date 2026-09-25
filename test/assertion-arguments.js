@@ -12,6 +12,12 @@ test.snapshot({
 		withAssert('assert.partialDeepStrictEqual(actual, expected);'),
 		withAssert('assert.partialDeepStrictEqual(actual, expected, message);'),
 
+		// `ifError` only throws for a value that is neither `null` nor `undefined`, so a missing
+		// argument passes just like `ifError(undefined)`
+		withAssert('assert.ifError();'),
+		withAssert('assert.ifError(undefined);'),
+		withAssert('assert.ifError(null);'),
+
 		// Not a node:assert file — ignored
 		'assert.strictEqual(a, b);',
 
@@ -207,8 +213,6 @@ test.snapshot({
 		// Throws — too many
 		withAssert('assert.throws(fn, Error, "message", extra);'),
 
-		// IfError — too few
-		withAssert('assert.ifError();'),
 		// IfError — too many (it takes exactly one argument, no trailing message)
 		withAssert('assert.ifError(value, "msg");'),
 		withAssert('assert.ifError(value, "msg", extra);'),

@@ -89,5 +89,11 @@ test.snapshot({
 		// A spread before `name` cannot override it, so the title is still known
 		withImport('test("lowercase", {...rest, name: "UPPERCASE"}, () => {});'),
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'Foo\', () => {}); });',
+
+		// An uppercase letter outside the BMP is two UTF-16 code units, so indexing the title with
+		// `[0]` sees only a lone surrogate and misses it.
+		withImport('test("\u{10400}bc", () => {});'),
+		// No lowercase form exists for this one, so it is reported without a fix.
+		withImport('test("\u{1D400}bc", () => {});'),
 	],
 });

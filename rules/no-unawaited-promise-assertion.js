@@ -24,6 +24,7 @@ import {
 	outermostExpressionWrapper,
 	isExpressionWrapper,
 } from './utils/index.js';
+import {hasLooserBindThanAwait} from './utils/unwrap-typescript-expression.js';
 
 const MESSAGE_ID = 'no-unawaited-promise-assertion';
 
@@ -86,7 +87,9 @@ function getFloatingExpression(node) {
 
 	return {
 		expression,
-		canFix: true,
+		// A type assertion binds looser than `await`, so `await chain as T` would cast the awaited
+		// value instead of the Promise, exactly as `getFloatingStatement` reports for a bare call.
+		canFix: !hasLooserBindThanAwait(expression),
 	};
 }
 

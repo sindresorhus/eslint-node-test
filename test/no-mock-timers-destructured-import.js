@@ -35,6 +35,11 @@ test.snapshot({
 			code: head + 'import type {setTimeout} from \'node:timers\';\nmock.timers.enable({apis: ["setTimeout"]});',
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// `foo.mock` is not a test context, so its `timers` have nothing to do with the global tracker
+		`${head}import {setTimeout} from 'node:timers';\nfoo.mock.timers.enable({apis: ['setTimeout']});`,
+		// A shadowed `mock` parameter is a different object entirely
+		`${head}import {setTimeout} from 'node:timers';\nfunction helper(mock) {\n\tmock.timers.enable({apis: ['setTimeout']});\n}`,
 	],
 	invalid: [
 		// Destructured setTimeout + enable all

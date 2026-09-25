@@ -1,4 +1,10 @@
-import {resolveImports, findOptionsProperty} from './utils/node-test.js';
+import {
+	resolveImports,
+	findOptionsProperty,
+	createContextTracker,
+	isGetTestContextCall,
+	isGlobalMock,
+} from './utils/node-test.js';
 
 const MESSAGE_ID = 'no-mock-timers-destructured-import';
 const MESSAGE_ID_NAMESPACE = 'no-mock-timers-destructured-import/namespace';
@@ -101,30 +107,34 @@ const create = context => {
 		return;
 	}
 
-	const {mockLocals} = imports;
+	const tracker = createContextTracker(imports, {trackHooks: true});
 
-	// `mock.timers` (global) or `t.mock.timers` (context).
+	// `t.mock.timers` (a test context) or `getTestContext().mock.timers`. An unrelated
+	// `<anything>.mock.timers` is another object's API and has nothing to do with the global tracker.
+	const isContextMock = node =>
+		node.type === 'MemberExpression'
+		&& !node.computed
+		&& node.property.type === 'Identifier'
+		&& node.property.name === 'mock'
+		&& (
+			tracker.isContextIdentifier(node.object)
+			|| isGetTestContextCall(node.object, imports)
+		);
+
 	const isMockTimers = node =>
 		node.type === 'MemberExpression'
 		&& !node.computed
 		&& node.property.type === 'Identifier'
 		&& node.property.name === 'timers'
-		&& (
-			// `mock.timers` (global, named/renamed import).
-			(node.object.type === 'Identifier' && mockLocals.has(node.object.name))
-			// `t.mock.timers` (context) or `namespace.mock.timers`.
-			|| (
-				node.object.type === 'MemberExpression'
-				&& !node.object.computed
-				&& node.object.property.type === 'Identifier'
-				&& node.object.property.name === 'mock'
-			)
-		);
+		// `mock.timers` (global import) or `t.mock.timers` (context).
+		&& (isGlobalMock(node.object, imports) || isContextMock(node.object));
 
 	const enabledApis = new Set();
 	let isAllEnabled = false;
 
 	context.on('CallExpression', node => {
+		tracker.update(node);
+
 		const {callee} = node;
 		if (
 			callee.type === 'MemberExpression'
@@ -142,6 +152,10 @@ const create = context => {
 				}
 			}
 		}
+	});
+
+	context.onExit('CallExpression', node => {
+		tracker.leave(node);
 	});
 
 	context.onExit('Program', () => {

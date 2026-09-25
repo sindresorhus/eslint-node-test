@@ -141,7 +141,9 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 
-		// TypeScript wrapper around the whole floating chain.
+		// TypeScript wrapper around the whole floating chain. Reported without a fix: the parentheses
+		// do not help, because `as` binds looser than `await` inside them too, so
+		// `(await chain as Promise<void>)` casts the awaited value and does not type check.
 		{
 			code: inAsyncTest('(load().then(value => { assert.strictEqual(value, 42); }) as Promise<void>);'),
 			languageOptions: {parser: parsers.typescript},
