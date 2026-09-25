@@ -6,6 +6,9 @@ const head = 'import {test, mock} from \'node:test\';\n';
 
 test.snapshot({
 	valid: [
+		// A `Date`-only list mocks no timer function, so the namespace import is harmless, exactly as
+		// it is for a named import
+		head + 'import * as timers from \'node:timers\';\nmock.timers.enable({apis: ["Date"]});',
 		// An `apis` value that cannot be resolved at lint time proves nothing, so the imported
 		// timer may well not be among the enabled APIs
 		`${head}import {setTimeout} from 'node:timers';\nconst APIS = ['setInterval'];\ntest('a', () => { mock.timers.enable({apis: APIS}); });`,
@@ -91,6 +94,8 @@ test.snapshot({
 		// A namespace import holds the real timer functions (a snapshot taken at import time), so
 		// `mock.timers` cannot intercept `timers.setTimeout(…)` either.
 		head + 'import * as timers from \'node:timers\';\nmock.timers.enable();\ntimers.setTimeout(fn, 1);',
+		head + 'import * as timers from \'node:timers\';\nmock.timers.enable({apis: ["setTimeout"]});\ntimers.setTimeout(fn, 1);',
+		head + 'import * as timers from \'node:timers\';\nmock.timers.enable({apis: ["Date", "setImmediate"]});\ntimers.setImmediate(fn);',
 
 		// A TypeScript wrapper on the `enable` callee must not hide it
 		{

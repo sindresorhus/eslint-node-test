@@ -311,6 +311,10 @@ Message:
 > 2 | test('p', async () => { await getTestContext().test('a', () => {}); });
     |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Empty placeholder subtest. Use the \`todo\` option to mark it as unfinished.
 
+Suggestion 1/1: Mark with \`{todo: true}\`.:
+  1 | import {test, getTestContext} from 'node:test';
+  2 | test('p', async () => { await getTestContext().test('a', {todo: true}); });
+
 `;
 
 exports[`prefer-todo > invalid(24): import {test} from 'node:test';\ntest('p', async t => { await t.test('a', {fn() {}}); }); 1`] = `
@@ -362,6 +366,10 @@ Message:
   1 | import {getTestContext, beforeEach} from 'node:test';
 > 2 | beforeEach(t => { getTestContext().test('c', () => {}); });
     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Empty placeholder subtest. Use the \`todo\` option to mark it as unfinished.
+
+Suggestion 1/1: Mark with \`{todo: true}\`.:
+  1 | import {getTestContext, beforeEach} from 'node:test';
+  2 | beforeEach(t => { getTestContext().test('c', {todo: true}); });
 
 `;
 

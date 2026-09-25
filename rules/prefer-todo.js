@@ -46,27 +46,6 @@ function hasIntentOptions(callExpression) {
 	);
 }
 
-/**
-The context identifier of a `t.test(…)` callee, or `undefined` when the callee is not that shape.
-
-A subtest's TODO form is the `todo` option on the subtest call itself: `t.test` has no `.todo`
-method, and `t.todo(…)` is the enclosing test's TODO marker rather than a subtest registrar, so it
-would drop the subtest.
-*/
-function getSubtestReceiver(callee) {
-	if (
-		callee.type !== 'MemberExpression'
-		|| callee.computed
-		|| callee.object.type !== 'Identifier'
-		|| callee.property.type !== 'Identifier'
-		|| callee.property.name !== 'test'
-	) {
-		return undefined;
-	}
-
-	return callee.object;
-}
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -115,11 +94,10 @@ const create = context => {
 		const {callee} = node;
 		// Dropping the function also drops the gaps on either side of it, so a comment in either one
 		// would be left behind describing the title instead.
-		const subtestReceiver = isSubtest ? getSubtestReceiver(callee) : undefined;
 		// The subtest rewrite puts `{todo: true}` where the callback stands, so the callback has to be
 		// a positional argument rather than an `fn` inside the options object.
 		const isPositionalCallback = !callback || node.arguments.includes(callback);
-		const canFix = (isSubtest ? Boolean(subtestReceiver) && isPositionalCallback : true) && (!callback || (
+		const canFix = (isSubtest ? isPositionalCallback : true) && (!callback || (
 			sourceCode.getCommentsInside(callback).length === 0
 			&& !hasCommentBefore(callback, sourceCode)
 			&& sourceCode.getCommentsAfter(callback).length === 0
@@ -133,9 +111,9 @@ const create = context => {
 		if (canFix) {
 			problem.suggest = [
 				{
-					messageId: subtestReceiver ? MESSAGE_ID_SUGGESTION_SUBTEST : MESSAGE_ID_SUGGESTION,
+					messageId: isSubtest ? MESSAGE_ID_SUGGESTION_SUBTEST : MESSAGE_ID_SUGGESTION,
 					* fix(fixer) {
-						if (subtestReceiver) {
+						if (isSubtest) {
 							// `t.test('a', …)` becomes `t.test('a', {todo: true})`, which keeps the
 							// subtest and reports it as a pending TODO.
 							yield callback

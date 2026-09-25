@@ -61,10 +61,14 @@ const create = context => {
 					data: {context: receiver.name, modifier: callee.property.name},
 				});
 			} else if (isGetTestContextCall(receiver, imports)) {
+				// Named as the file writes it: a renamed import, or `test.getTestContext()`.
 				problems.push({
 					node,
 					messageId: MESSAGE_ID_CALL,
-					data: {context: 'getTestContext()', modifier: callee.property.name},
+					data: {
+						context: context.sourceCode.getText(receiver),
+						modifier: callee.property.name,
+					},
 				});
 			}
 		}

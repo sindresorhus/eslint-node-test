@@ -27,6 +27,9 @@ const FUNCTION_TO_API = new Map([
 	['clearImmediate', 'setImmediate'],
 ]);
 
+/** The APIs that mock a timer function, which is every enabled API but `Date`. */
+const TIMER_APIS = new Set(FUNCTION_TO_API.values());
+
 /*
 What an `enable()` call enables:
 
@@ -178,8 +181,10 @@ const create = context => {
 			}));
 
 		// A namespace import holds the real timer functions for every API, so any enabled timer API
-		// makes it a problem.
-		if (namespaceImports.length > 0 && (isAllEnabled || enabledApis.size > 0)) {
+		// makes it a problem. A list of only `Date` mocks no timer function, so the namespace import is
+		// then harmless, exactly as it is for a named import.
+		const hasEnabledTimerApi = [...enabledApis].some(api => TIMER_APIS.has(api));
+		if (namespaceImports.length > 0 && (isAllEnabled || hasEnabledTimerApi)) {
 			for (const specifier of namespaceImports) {
 				problems.push({
 					node: specifier,

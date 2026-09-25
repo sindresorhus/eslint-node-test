@@ -8,6 +8,7 @@ import {
 	getDestructuredAssertBindings,
 	createContextTracker,
 } from './utils/node-test.js';
+import {isSkippedTestCall} from './shared/skipped-test.js';
 
 const MESSAGE_ID = 'require-assertion/error';
 
@@ -82,6 +83,12 @@ const create = context => {
 
 		// Track nested test calls as their own scope (don't let their assertions count for parent).
 		if (parsed && parsed.kind === 'test') {
+			// A skipped callback never runs, so it cannot pass vacuously and cannot let a wrong result
+			// go unnoticed. A `todo` callback does run, so it is still checked.
+			if (isSkippedTestCall(node, parsed, context)) {
+				return;
+			}
+
 			const callback = getTestCallback(node);
 			// Only push if there's an inline function body to inspect.
 			if (callback) {

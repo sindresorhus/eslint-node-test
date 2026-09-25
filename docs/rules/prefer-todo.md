@@ -13,7 +13,7 @@ A test with no implementation — either `test('title')` with no function, or `t
 
 A subtest has no `.todo` method, and `t.todo(…)` is the enclosing test's TODO marker rather than a subtest registrar, so an empty subtest is marked with the `todo` option on its own call: `t.test('title', {todo: true})`.
 
-This rule reports empty placeholder tests and offers a suggestion to convert them to `.todo`, or to the `todo` option for a subtest, since `t.test` has no `.todo` method. Tests with an existing modifier (`.only`/`.skip`/`.todo`) are left alone. An options object is left alone when it carries intent: `{skip: true}` and friends, but a descriptor that only holds `name` or `fn` is still reported, because neither says the test is deliberate.
+This rule reports empty placeholder tests and offers a suggestion to convert them to `.todo`, or to the `todo` option for a subtest, since `t.test` has no `.todo` method. Tests with an existing modifier (`.only`/`.skip`/`.todo`) are left alone. An options object is left alone when it carries intent: `{skip: true}` and friends, while a descriptor that only holds `name` or `fn` does not, so a test that pairs one with an empty body is still reported. A test with no body at all beyond such an options object, and a test with no title, are left alone: there is nothing to mark as a `.todo`.
 
 ## Examples
 

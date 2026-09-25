@@ -9,6 +9,11 @@ test.snapshot({
 		// Not a test file
 		'before(() => {}); before(() => {});',
 
+		// A callback the call names out of line is that suite's own scope, so one hook in each of two
+		// such suites is not a duplicate
+		'import {describe, before} from \'node:test\';\nconst d1 = () => { before(() => {}); };\nconst d2 = () => { before(() => {}); };\ndescribe(\'a\', d1);\ndescribe(\'b\', d2);',
+		'import {describe, before} from \'node:test\';\nconst d1 = () => { before(() => {}); };\ndescribe(\'a\', d1);\ndescribe(\'b\', d1);',
+
 		// Each hook once at the top level
 		withImport('before(() => {});\nafter(() => {});\nbeforeEach(() => {});\nafterEach(() => {});'),
 
@@ -26,6 +31,9 @@ test.snapshot({
 		+ '});',
 	],
 	invalid: [
+		// The same hook twice inside one out-of-line suite body is still a duplicate
+		'import {describe, before} from \'node:test\';\nconst d1 = () => { before(() => {}); before(() => {}); };\ndescribe(\'a\', d1);',
+		'import {describe, before} from \'node:test\';\nfunction d1() { before(() => {}); before(() => {}); }\ndescribe(\'a\', d1);',
 		// Duplicate at the top level
 		withImport('before(() => {});\nbefore(() => {});'),
 

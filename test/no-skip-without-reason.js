@@ -34,6 +34,8 @@ test.snapshot({
 		'import {beforeEach} from \'node:test\';\nbeforeEach(() => {}, {skip: true});',
 	],
 	invalid: [
+		// A `getTestContext()` under any local alias is named by the local name
+		'import {test, getTestContext as gtc} from \'node:test\';\ntest(\'a\', () => { gtc().skip(); });',
 		// `{skip: true}` / `{todo: true}`
 		withTest('test(\'t\', {skip: true}, () => {});'),
 		withTest('test(\'t\', {todo: true}, () => {});'),
@@ -73,5 +75,8 @@ test.snapshot({
 			code: 'import {test} from \'node:test\';\ntest(\'a\', t => { (t as TestContext).todo(); });',
 			languageOptions: {parser: parsers.typescript},
 		},
+		// The `getTestContext` a default or namespace import carries is named as the file writes it
+		'import test from \'node:test\';\ntest(\'a\', () => { test.getTestContext().skip(); });',
+		'import * as nt from \'node:test\';\nnt.test(\'a\', () => { nt.getTestContext().todo(); });',
 	],
 });

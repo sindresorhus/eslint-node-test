@@ -2,6 +2,7 @@ import {
 	resolveImports,
 	parseTestCall,
 	getTestCallback,
+	isOutOfLineCallback,
 	getHookCallback,
 	createContextTracker,
 	isContextHookCall,
@@ -80,6 +81,26 @@ const create = context => {
 
 		pushedCalls.delete(node);
 		scopeStack.pop();
+	});
+
+	// A callback the call names out of line (`describe('s', body)`) is entered where it is declared,
+	// which the call's own scope does not cover, so its hooks are scoped to that suite as well.
+	const functionTypes = ['FunctionExpression', 'ArrowFunctionExpression', 'FunctionDeclaration'];
+	const outOfLineCallbacks = new WeakSet();
+
+	context.on(functionTypes, node => {
+		if (!isOutOfLineCallback(node, context, imports)) {
+			return;
+		}
+
+		outOfLineCallbacks.add(node);
+		scopeStack.push(new Set());
+	});
+
+	context.onExit(functionTypes, node => {
+		if (outOfLineCallbacks.delete(node)) {
+			scopeStack.pop();
+		}
 	});
 };
 

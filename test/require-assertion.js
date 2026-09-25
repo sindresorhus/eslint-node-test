@@ -7,6 +7,14 @@ test.snapshot({
 		// Not a test file — bail out early
 		'test("title", () => { doSomething(); });',
 
+		// A skipped callback never runs, so it cannot pass vacuously. A `todo` callback does run, so it
+		// is still checked.
+		'import test from "node:test";\ntest.skip("t", () => { doSomething(); });',
+		'import test from "node:test";\ntest("t", {skip: true}, () => { doSomething(); });',
+		'import test from "node:test";\ntest("t", {skip: "flaky"}, () => { doSomething(); });',
+		'import test from "node:test";\ntest("t", {skip: 0}, () => { doSomething(); });',
+		'import {it, skip} from "node:test";\nit.skip("t", () => { doSomething(); });\nskip("u", () => { doSomething(); });',
+
 		// The assert.* form
 		'import test from "node:test";\nimport assert from "node:assert";\ntest("t1", () => { assert.strictEqual(1, 1); });',
 
@@ -98,6 +106,10 @@ test.snapshot({
 		'import * as nodeTest from \'node:test\';\nnodeTest.test(\'a\', () => { nodeTest.test.getTestContext().assert.equal(1, 1); });',
 	],
 	invalid: [
+		// `skip: false` and `only` still run, so the assertion is still required
+		'import test from "node:test";\ntest("t", {skip: false}, () => { doSomething(); });',
+		'import test from "node:test";\ntest.only("t", () => { doSomething(); });',
+		'import test from "node:test";\ntest.todo("t", () => { doSomething(); });',
 		// Only the assertion shapes the shared helper accepts count; a deeper chain is not one
 		'import test from \'node:test\';\ntest("x", ({assert}) => { assert.a.b.c.d(); });',
 		'import test from \'node:test\';\ntest("x", ({assert: {a: {b}}}) => { b(1); });',
