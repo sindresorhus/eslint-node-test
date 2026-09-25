@@ -66,6 +66,12 @@ test.snapshot({
 		'import process from \'node:process\';\nimport test from \'node:test\';\ntest(\'reads config\', () => {\n\tconst process = other;\n\tprocess.env.NODE_ENV = \'production\';\n});',
 		// Hooks are out of scope however they are declared, so `test.beforeEach` too
 		'import test from \'node:test\';\ntest.beforeEach(() => {\n\tprocess.env.NODE_ENV = \'production\';\n});',
+
+		// A local `globalThis` / `global` is some other object, the same way a local `process` is
+		withTestImport('test(\'reads config\', function (globalThis) { globalThis.process.env.NODE_ENV = \'production\'; });'),
+		withTestImport('test(\'reads config\', function (global) { global.process.env.NODE_ENV = \'production\'; });'),
+		withTestImport('test(\'reads config\', (globalThis) => { globalThis.process.env.NODE_ENV = \'production\'; });'),
+		inTest('const globalThis = {process: {env: {}}};\nglobalThis.process.env.NODE_ENV = \'production\';'),
 	],
 	invalid: [
 		// A subtest's options object is evaluated inside the parent test's callback, so a mutation

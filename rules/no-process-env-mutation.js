@@ -12,7 +12,7 @@ import {
 import {
 	unwrapExpression,
 	getEnclosingFunction,
-	isGlobalProcessMember,
+	getGlobalProcessObject,
 	isUnshadowedGlobal,
 } from './utils/index.js';
 
@@ -128,8 +128,10 @@ const create = context => {
 
 	const isProcessObject = node => {
 		node = unwrapExpression(node);
-		if (isGlobalProcessMember(node)) {
-			return true;
+		// A local `globalThis` or `global` is some other object, exactly as a local `process` is.
+		const globalObject = getGlobalProcessObject(node);
+		if (globalObject) {
+			return isUnshadowedGlobal(context, globalObject, globalObject.name);
 		}
 
 		return node?.type === 'Identifier'

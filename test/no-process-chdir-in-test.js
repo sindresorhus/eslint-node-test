@@ -55,6 +55,11 @@ test.snapshot({
 			code: 'import {type chdir} from \'node:process\';\nimport test from \'node:test\';\ntest(\'changes directory\', () => { chdir(\'fixtures\'); });',
 			languageOptions: {parser: parsers.typescript},
 		},
+		// A local `globalThis` / `global` is some other object, the same way a local `process` is
+		withTestImport('test(\'changes directory\', function (globalThis) { globalThis.process.chdir(\'fixtures\'); });'),
+		withTestImport('test(\'changes directory\', function (global) { global.process.chdir(\'fixtures\'); });'),
+		withTestImport('test(\'changes directory\', (globalThis) => { globalThis.process.chdir(\'fixtures\'); });'),
+		inTest('const globalThis = {process: {}};\nglobalThis.process.chdir(\'fixtures\');'),
 	],
 	invalid: [
 		// Direct calls in test callbacks

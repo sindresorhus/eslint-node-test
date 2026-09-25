@@ -1,6 +1,11 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {resolveImports, createContextTracker, getImportSpecifierName} from './utils/node-test.js';
-import {getEnclosingFunction, unwrapExpression, isGlobalProcessMember} from './utils/index.js';
+import {
+	getEnclosingFunction,
+	unwrapExpression,
+	getGlobalProcessObject,
+	isUnshadowedGlobal,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'no-process-chdir-in-test';
 
@@ -67,8 +72,10 @@ const create = context => {
 
 	const isProcessReference = node => {
 		node = unwrapExpression(node);
-		if (isGlobalProcessMember(node)) {
-			return true;
+		// A local `globalThis` or `global` is some other object, exactly as a local `process` is.
+		const globalObject = getGlobalProcessObject(node);
+		if (globalObject) {
+			return isUnshadowedGlobal(context, globalObject, globalObject.name);
 		}
 
 		if (node?.type !== 'Identifier') {

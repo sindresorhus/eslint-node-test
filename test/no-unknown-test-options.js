@@ -40,7 +40,7 @@ test.snapshot({
 		// A spread, and a computed key that does not fold to a constant, cannot be checked statically
 		withImport('test("x", {[key]: true}, () => {});'),
 		withImport('test("x", {...options}, () => {});'),
-		withImport('test("x", {[`tag${name}`]: true}, () => {});'),
+		withImport('test("x", {[\'tag\' + name]: true}, () => {});'),
 
 		// A key that cannot be an option name: a number is not a string, so there is no name to check
 		withImport('test("x", {0: true}, () => {});'),
