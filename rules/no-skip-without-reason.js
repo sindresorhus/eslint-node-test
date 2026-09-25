@@ -31,8 +31,10 @@ const create = context => {
 	context.on('CallExpression', node => {
 		const problems = [];
 
-		// Options form: `{skip: true}` / `{todo: true}` on a test/suite/hook, including a subtest.
-		if (parseTestCall(node, imports) || tracker.isSubtestCall(node)) {
+		// Options form: `{skip: true}` / `{todo: true}` on a test/suite, including a subtest. A hook
+		// has no such option, so `skip`/`todo` in its options belong to `no-unknown-test-options`.
+		const parsed = parseTestCall(node, imports);
+		if ((parsed && parsed.kind !== 'hook') || tracker.isSubtestCall(node)) {
 			const options = getTestOptions(node);
 			for (const modifier of REASON_MODIFIERS) {
 				const property = findOptionsProperty(options, modifier);

@@ -15,6 +15,9 @@ A modifier can be applied two ways in `node:test`:
 - As an options-object property: `test('title', {only: true}, () => {})`.
 
 A subtest (`t.test(…)`) takes the same options object, so only the chained form is impossible there.
+
+A hook has neither: `TestHook` reads only `hookType`, `loc`, `parent`, `timeout` and `signal` from its
+options, so `{skip: true}` on a hook is inert. `no-unknown-test-options` reports that key instead.
 */
 
 /**
@@ -50,7 +53,8 @@ export default function createTestModifierRule({modifier, description, errorMess
 			tracker.update(node);
 
 			const parsed = parseTestCall(node, imports);
-			if (!parsed && !isSubtest) {
+			// A hook has no modifier form at all: neither the chained method nor the option exists.
+			if ((!parsed && !isSubtest) || parsed?.kind === 'hook') {
 				return;
 			}
 
@@ -84,7 +88,7 @@ export default function createTestModifierRule({modifier, description, errorMess
 				};
 			}
 
-			const property = findEnabledOptionsProperty(getTestOptions(node), modifier);
+			const property = findEnabledOptionsProperty(getTestOptions(node), modifier, context);
 			if (property) {
 				return {
 					node: property,

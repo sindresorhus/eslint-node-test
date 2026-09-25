@@ -29,6 +29,12 @@ function hasSkipModifier(node) {
 	return false;
 }
 
+/*
+`node:test` skips for any value that is neither `undefined` nor `false`, so `{skip: 0}` skips and
+`{skip: false}` does not. A value that cannot be resolved proves nothing, so the test is treated as
+running: these rules report what is inside a test body, and code that may never run has no plan to
+get wrong.
+*/
 function hasEnabledSkipOption(node, context) {
 	const property = findOptionsProperty(getTestOptions(node), 'skip');
 	if (property === undefined) {
@@ -36,7 +42,7 @@ function hasEnabledSkipOption(node, context) {
 	}
 
 	const staticValue = getStaticValue(property.value, context.sourceCode.getScope(property.value));
-	return staticValue !== null && Boolean(staticValue.value);
+	return staticValue !== null && staticValue.value !== undefined && staticValue.value !== false;
 }
 
 /**

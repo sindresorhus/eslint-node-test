@@ -39,6 +39,12 @@ test.snapshot({
 		'import test from "node:test";\ntest(function body() {}, {name: "my test"});',
 		// A spread after `name` could override it, so the title is not statically known
 		'import test from "node:test";\ntest(" my test ", {name: "ok", ...rest}, () => {});',
+
+		// A spread or computed key in the descriptor could supply the `name`, and `node:test`
+		// spreads the descriptor, so the title is not statically known
+		'import test from \'node:test\';\nconst rest = {name: \'z\'};\ntest({name: \'before\', ...rest});',
+		'import test from \'node:test\';\ntest({...descriptor});',
+		'import test from \'node:test\';\ntest({name: \'a\', [key]: 1});',
 	],
 	invalid: [
 		// The object form carries its title in the descriptor, so a `name` is not a missing title

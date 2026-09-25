@@ -60,9 +60,9 @@ function areActiveModifiers(modifiers) {
 	return modifiers.every(modifier => ACTIVE_TEST_MODIFIERS.has(modifier.name));
 }
 
-function hasInactiveTestOptions(node) {
+function hasInactiveTestOptions(node, context) {
 	const options = getTestOptions(node);
-	return Boolean(findEnabledOptionsProperty(options, 'skip'));
+	return Boolean(findEnabledOptionsProperty(options, 'skip', context));
 }
 
 function getSubtestModifiers(node) {
@@ -112,8 +112,8 @@ function getParsedModifiers(parsed) {
 	return isHookMemberTestCall(parsed) ? [] : parsed.modifiers;
 }
 
-function hasInactiveParsedOptions(node, parsed) {
-	return getParsedKind(parsed) !== 'hook' && hasInactiveTestOptions(node);
+function hasInactiveParsedOptions(node, parsed, context) {
+	return getParsedKind(parsed) !== 'hook' && hasInactiveTestOptions(node, context);
 }
 
 function getTimerImportBindings(sourceCode) {
@@ -346,12 +346,12 @@ const create = context => {
 
 	const isActiveSubtestCall = node => isCurrentTestContextSubtestCall(node)
 		&& areActiveModifiers(getSubtestModifiers(node))
-		&& !hasInactiveTestOptions(node);
+		&& !hasInactiveTestOptions(node, context);
 
 	const isInactiveSubtestCall = node => isCurrentTestContextSubtestCall(node)
 		&& (
 			!areActiveModifiers(getSubtestModifiers(node))
-			|| hasInactiveTestOptions(node)
+			|| hasInactiveTestOptions(node, context)
 		);
 
 	const getScopeBoundaryCallback = node => {
@@ -366,7 +366,7 @@ const create = context => {
 			return (
 				(kind === 'test' || kind === 'hook')
 				&& areActiveModifiers(getParsedModifiers(parsed))
-				&& !hasInactiveParsedOptions(node, parsed)
+				&& !hasInactiveParsedOptions(node, parsed, context)
 			)
 				? getParsedCallback(node, parsed)
 				: undefined;
@@ -384,7 +384,7 @@ const create = context => {
 		if (parsed) {
 			return (
 				!areActiveModifiers(getParsedModifiers(parsed))
-				|| hasInactiveParsedOptions(node, parsed)
+				|| hasInactiveParsedOptions(node, parsed, context)
 			)
 				? getParsedCallback(node, parsed)
 				: undefined;

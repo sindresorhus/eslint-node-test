@@ -66,6 +66,12 @@ test.snapshot({
 			code: withTest('test(\'parent\', async t => { (t as object).beforeEach(() => {}); await t.test(\'child\', () => {}); });'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// A hook and its subtest both reached through `getTestContext()`
+		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', async () => {\n\tgetTestContext().beforeEach(() => {});\n\tawait getTestContext().test(\'c\', () => {});\n});',
+		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', async () => { await getTestContext().test(\'c\', () => {}); });',
+		// An unrelated object is not a test context
+		'import {test} from \'node:test\';\ntest(\'a\', t => { foo.beforeEach(() => {}); });',
 	],
 	invalid: [
 		// A second argument to an array method is `thisArg`, which the method never calls, so a
@@ -116,5 +122,9 @@ test.snapshot({
 			code: withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {skip: true as boolean}, () => {}); });'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// A hook reached through `getTestContext()` with no runnable subtest is the same misuse
+		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', () => {\n\tgetTestContext().beforeEach(() => {});\n});',
+		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', async () => {\n\tgetTestContext().beforeEach(() => {});\n\tawait getTestContext().test(\'c\', {skip: true}, () => {});\n});',
 	],
 });

@@ -40,6 +40,10 @@ test.snapshot({
 		withImport('test("lowercase", {name: "UPPERCASE", ...rest}, () => {});'),
 		// A trailing object after the callback is not options, so it does not name the test
 		withImport('test("lowercase", () => {}, {name: "UPPERCASE"});'),
+
+		// The object past the callback is not the options slot, so it does not name the test
+		withImport('test(\'a\', \'x\', {name: \'UPPERCASE\'});'),
+		withImport('test(\'a\', fn, {name: \'UPPERCASE\'});'),
 	],
 	invalid: [
 		// The object form title is the descriptor's `name`

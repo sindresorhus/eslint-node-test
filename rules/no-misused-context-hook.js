@@ -9,8 +9,10 @@ import {
 	getTestCallback,
 	getTestOptions,
 	findOptionsProperty,
+	isGetTestContextCall,
 } from './utils/node-test.js';
 import {getEnclosingFunction} from './utils/index.js';
+import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 import isFunction from './ast/is-function.js';
 
 const MESSAGE_ID = 'no-misused-context-hook';
@@ -20,28 +22,40 @@ const messages = {
 	[MESSAGE_ID]: '`{{name}}()` has no effect on a test without runnable subtests. It only runs around the test\'s subtests.',
 };
 
-function getContextHookReceiver(callExpression) {
-	const chain = getCalleeChain(callExpression.callee);
+/**
+The receiver of a `<context>.beforeEach(…)`-style hook, or `undefined` when the call is not one. The
+receiver is a context parameter or a `getTestContext()` call, so it is returned as a node for
+`getFrame` to resolve.
+*/
+function getContextHookReceiver(callExpression, imports) {
+	const callee = unwrapTypeScriptExpression(callExpression.callee);
 	if (
-		!chain
-		|| chain.members.length !== 1
-		|| !CONTEXT_HOOKS.has(chain.members[0].name)
+		callee?.type !== 'MemberExpression'
+		|| callee.computed
+		|| callee.property.type !== 'Identifier'
+		|| !CONTEXT_HOOKS.has(callee.property.name)
 	) {
 		return undefined;
 	}
 
-	return chain.root;
+	const receiver = unwrapTypeScriptExpression(callee.object);
+	if (receiver.type === 'Identifier') {
+		return receiver;
+	}
+
+	return isGetTestContextCall(receiver, imports) ? GET_TEST_CONTEXT : undefined;
 }
 
-function getDirectSubtestReceiver(callExpression) {
+function getDirectSubtestReceiver(callExpression, imports) {
 	const receiver = getSubtestReceiver(callExpression);
 	if (receiver === undefined) {
-		return undefined;
+		// `getTestContext().test(…)` creates the same subtest, with no identifier to match on.
+		return isGetTestContextSubtestCall(callExpression, imports) ? GET_TEST_CONTEXT : undefined;
 	}
 
 	// `t.test.only`/`t.test.todo` are still runnable, so their hooks are meaningful; `t.test.skip`
 	// is not runnable and is treated the same as having no subtest (the hook is reported).
-	const {members} = getCalleeChain(callExpression.callee);
+	const {members = []} = getCalleeChain(callExpression.callee) ?? {};
 	return members.some(member => member.name === 'skip') ? undefined : receiver;
 }
 
@@ -56,6 +70,21 @@ function isStaticallySkipped(callExpression, sourceCode) {
 }
 
 const ITERATION_METHODS = new Set(['every', 'filter', 'find', 'flatMap', 'forEach', 'map', 'some']);
+
+/** Stands in for a `getTestContext()` receiver, which has no identifier to resolve. */
+const GET_TEST_CONTEXT = Symbol('getTestContext receiver');
+
+/**
+Whether the call is a subtest created through `getTestContext().test(…)`.
+*/
+function isGetTestContextSubtestCall(callExpression, imports) {
+	const callee = unwrapTypeScriptExpression(callExpression.callee);
+	return callee?.type === 'MemberExpression'
+		&& !callee.computed
+		&& callee.property.type === 'Identifier'
+		&& callee.property.name === 'test'
+		&& isGetTestContextCall(unwrapTypeScriptExpression(callee.object), imports);
+}
 
 /**
 Whether an iteration callback is invoked by a statement that is itself part of `ancestor`.
@@ -125,6 +154,11 @@ const create = context => {
 	};
 
 	const getFrame = receiver => {
+		// `getTestContext()` returns the context of the innermost frame.
+		if (receiver === GET_TEST_CONTEXT) {
+			return frames.at(-1);
+		}
+
 		if (receiver?.type !== 'Identifier') {
 			return undefined;
 		}
@@ -153,7 +187,7 @@ const create = context => {
 	};
 
 	const getRunnableSubtestFrame = (node, enclosingFunction) => {
-		const receiver = getDirectSubtestReceiver(node);
+		const receiver = getDirectSubtestReceiver(node, imports);
 		const frame = getFrame(receiver);
 		if (
 			!frame
@@ -181,7 +215,7 @@ const create = context => {
 			runnableSubtestFrame.hasSubtest = true;
 		}
 
-		const hookReceiver = getContextHookReceiver(node);
+		const hookReceiver = getContextHookReceiver(node, imports);
 		const frame = getFrame(hookReceiver);
 		if (frame && enclosingFunction === frame.callback) {
 			frame.hooks.push(node);
@@ -236,11 +270,13 @@ const create = context => {
 		}
 
 		for (const hook of frame.hooks) {
-			const {members} = getCalleeChain(hook.callee);
+			// A hook recorded here always has a context-hook method, so the member is there; the
+			// `getTestContext()` form is the one whose callee chain cannot be walked.
+			const callee = unwrapTypeScriptExpression(hook.callee);
 			yield {
 				node: hook,
 				messageId: MESSAGE_ID,
-				data: {name: members[0].name},
+				data: {name: callee.property.name},
 			};
 		}
 	});

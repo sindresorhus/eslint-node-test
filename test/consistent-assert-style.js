@@ -63,6 +63,9 @@ test.snapshot({
 			code: 'import {type strict as assert} from \'node:assert\';\nassert.ok(value);',
 			languageOptions: {parser: parsers.typescript},
 		},
+		// A `strict` member on an unrelated object is not an assert
+		withAssert('other.strict(value);'),
+		withAssert('other.strict.ok(value);'),
 	],
 	invalid: [
 		// Default: prefer `assert.ok(…)`
@@ -107,6 +110,13 @@ test.snapshot({
 			code: withAssert('assert.ok(value as boolean);'),
 			options: [assertStyle],
 			languageOptions: {parser: parsers.typescript},
+		},
+
+		// The strict view of the module is a callable assert too
+		withAssert('assert.strict(value);'),
+		{
+			code: withAssert('assert.strict.ok(value);'),
+			options: [assertStyle],
 		},
 	],
 });

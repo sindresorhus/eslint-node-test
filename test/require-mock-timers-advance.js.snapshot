@@ -382,6 +382,22 @@ Message:
 
 `;
 
+exports[`require-mock-timers-advance > invalid(31): import {test} from 'node:test';\ntest('a', t => { t.mock.timers.enable!({apis: ['setTimeout']}); setTimeout(fn, 1); }); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | test('a', t => { t.mock.timers.enable!({apis: ['setTimeout']}); setTimeout(fn, 1); });
+
+`;
+
+exports[`require-mock-timers-advance > invalid(31): import {test} from 'node:test';\ntest('a', t => { t.mock.timers.enable!({apis: ['setTimeout']}); setTimeout(fn, 1); }); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | test('a', t => { t.mock.timers.enable!({apis: ['setTimeout']}); setTimeout(fn, 1); });
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` must be followed by \`tick()\` or \`runAll()\` so mocked timer callbacks can run.
+
+`;
+
 exports[`require-mock-timers-advance > invalid(4): import test, {mock, beforeEach} from 'node:test';\ntest('title', t => { t.mock.timers.enable({apis: ['setTimeout', 'Date'], now: 100}); Date.now(); }); 1`] = `
 
   1 | import test, {mock, beforeEach} from 'node:test';

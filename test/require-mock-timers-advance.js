@@ -83,6 +83,12 @@ test.snapshot({
 		'import {test, getTestContext} from \'node:test\';\n'
 		+ 'test(\'a\', t => { t.mock.timers.enable({apis: [\'setTimeout\']});\n'
 		+ '\tsetTimeout(fn, 1);\n\tgetTestContext().mock.timers.runAll(); });',
+		// A TypeScript wrapper on the advance call satisfies the enable just the same
+		{
+			code: 'import {test} from \'node:test\';\n'
+				+ 'test(\'a\', t => { t.mock.timers.enable({apis: [\'setTimeout\']}); setTimeout(fn, 1); t.mock.timers.tick!(1); });',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		// Timer enabled but never advanced
@@ -151,5 +157,12 @@ test.snapshot({
 		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', () => { getTestContext().mock.timers.enable({apis: [\'setTimeout\']}); setTimeout(fn, 1); });',
 		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', t => { getTestContext().mock.timers.enable({apis: [\'setTimeout\']}); setTimeout(fn, 1); });',
 		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', t => { t.mock.timers.enable({apis: [\'setTimeout\']}); setTimeout(fn, 1); });',
+
+		// A TypeScript wrapper on the callee must not hide the call
+		{
+			code: 'import {test} from \'node:test\';\n'
+				+ 'test(\'a\', t => { t.mock.timers.enable!({apis: [\'setTimeout\']}); setTimeout(fn, 1); });',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

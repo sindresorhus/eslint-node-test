@@ -14,54 +14,14 @@ Message:
 
 `;
 
-exports[`no-only-test > invalid(10): import test from \"node:test\";\ntest.only(\"title\", () => {}); 1`] = `
-
-  1 | import test from "node:test";
-  2 | test.only("title", () => {});
-
-`;
-
-exports[`no-only-test > invalid(10): import test from \"node:test\";\ntest.only(\"title\", () => {}); 2`] = `
-
-Message:
-  1 | import test from "node:test";
-> 2 | test.only("title", () => {});
-    |      ^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
-
-Suggestion 1/1: Remove \`.only\`.:
-  1 | import test from "node:test";
-  2 | test("title", () => {});
-
-`;
-
-exports[`no-only-test > invalid(11): import {it} from \"node:test\";\nit.only(\"title\", () => {}); 1`] = `
-
-  1 | import {it} from "node:test";
-  2 | it.only("title", () => {});
-
-`;
-
-exports[`no-only-test > invalid(11): import {it} from \"node:test\";\nit.only(\"title\", () => {}); 2`] = `
-
-Message:
-  1 | import {it} from "node:test";
-> 2 | it.only("title", () => {});
-    |    ^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
-
-Suggestion 1/1: Remove \`.only\`.:
-  1 | import {it} from "node:test";
-  2 | it("title", () => {});
-
-`;
-
-exports[`no-only-test > invalid(12): import {describe} from \"node:test\";\ndescribe.only(\"title\", () => {}); 1`] = `
+exports[`no-only-test > invalid(10): import {describe} from \"node:test\";\ndescribe.only(\"title\", () => {}); 1`] = `
 
   1 | import {describe} from "node:test";
   2 | describe.only("title", () => {});
 
 `;
 
-exports[`no-only-test > invalid(12): import {describe} from \"node:test\";\ndescribe.only(\"title\", () => {}); 2`] = `
+exports[`no-only-test > invalid(10): import {describe} from \"node:test\";\ndescribe.only(\"title\", () => {}); 2`] = `
 
 Message:
   1 | import {describe} from "node:test";
@@ -74,14 +34,14 @@ Suggestion 1/1: Remove \`.only\`.:
 
 `;
 
-exports[`no-only-test > invalid(13): import {test} from \"node:test\";\ntest.only(\"title\", () => {}); 1`] = `
+exports[`no-only-test > invalid(11): import {test} from \"node:test\";\ntest.only(\"title\", () => {}); 1`] = `
 
   1 | import {test} from "node:test";
   2 | test.only("title", () => {});
 
 `;
 
-exports[`no-only-test > invalid(13): import {test} from \"node:test\";\ntest.only(\"title\", () => {}); 2`] = `
+exports[`no-only-test > invalid(11): import {test} from \"node:test\";\ntest.only(\"title\", () => {}); 2`] = `
 
 Message:
   1 | import {test} from "node:test";
@@ -94,14 +54,14 @@ Suggestion 1/1: Remove \`.only\`.:
 
 `;
 
-exports[`no-only-test > invalid(14): import {only} from \"node:test\";\nonly(\"title\", () => {}); 1`] = `
+exports[`no-only-test > invalid(12): import {only} from \"node:test\";\nonly(\"title\", () => {}); 1`] = `
 
   1 | import {only} from "node:test";
   2 | only("title", () => {});
 
 `;
 
-exports[`no-only-test > invalid(14): import {only} from \"node:test\";\nonly(\"title\", () => {}); 2`] = `
+exports[`no-only-test > invalid(12): import {only} from \"node:test\";\nonly(\"title\", () => {}); 2`] = `
 
 Message:
   1 | import {only} from "node:test";
@@ -110,14 +70,14 @@ Message:
 
 `;
 
-exports[`no-only-test > invalid(15): import {only as focused} from \"node:test\";\nfocused(\"title\", () => {}); 1`] = `
+exports[`no-only-test > invalid(13): import {only as focused} from \"node:test\";\nfocused(\"title\", () => {}); 1`] = `
 
   1 | import {only as focused} from "node:test";
   2 | focused("title", () => {});
 
 `;
 
-exports[`no-only-test > invalid(15): import {only as focused} from \"node:test\";\nfocused(\"title\", () => {}); 2`] = `
+exports[`no-only-test > invalid(13): import {only as focused} from \"node:test\";\nfocused(\"title\", () => {}); 2`] = `
 
 Message:
   1 | import {only as focused} from "node:test";
@@ -126,14 +86,14 @@ Message:
 
 `;
 
-exports[`no-only-test > invalid(16): import test from \"node:test\";\ntest. /* keep */ only(\"title\", () => {}); 1`] = `
+exports[`no-only-test > invalid(14): import test from \"node:test\";\ntest. /* keep */ only(\"title\", () => {}); 1`] = `
 
   1 | import test from "node:test";
   2 | test. /* keep */ only("title", () => {});
 
 `;
 
-exports[`no-only-test > invalid(16): import test from \"node:test\";\ntest. /* keep */ only(\"title\", () => {}); 2`] = `
+exports[`no-only-test > invalid(14): import test from \"node:test\";\ntest. /* keep */ only(\"title\", () => {}); 2`] = `
 
 Message:
   1 | import test from "node:test";
@@ -142,14 +102,14 @@ Message:
 
 `;
 
-exports[`no-only-test > invalid(17): import test from \"node:test\";\ntest(\"title\", {only: true}, () => {}); 1`] = `
+exports[`no-only-test > invalid(15): import test from \"node:test\";\ntest(\"title\", {only: true}, () => {}); 1`] = `
 
   1 | import test from "node:test";
   2 | test("title", {only: true}, () => {});
 
 `;
 
-exports[`no-only-test > invalid(17): import test from \"node:test\";\ntest(\"title\", {only: true}, () => {}); 2`] = `
+exports[`no-only-test > invalid(15): import test from \"node:test\";\ntest(\"title\", {only: true}, () => {}); 2`] = `
 
 Message:
   1 | import test from "node:test";
@@ -158,14 +118,14 @@ Message:
 
 `;
 
-exports[`no-only-test > invalid(18): import {it} from \"node:test\";\nit(\"title\", {only: true}, () => {}); 1`] = `
+exports[`no-only-test > invalid(16): import {it} from \"node:test\";\nit(\"title\", {only: true}, () => {}); 1`] = `
 
   1 | import {it} from "node:test";
   2 | it("title", {only: true}, () => {});
 
 `;
 
-exports[`no-only-test > invalid(18): import {it} from \"node:test\";\nit(\"title\", {only: true}, () => {}); 2`] = `
+exports[`no-only-test > invalid(16): import {it} from \"node:test\";\nit(\"title\", {only: true}, () => {}); 2`] = `
 
 Message:
   1 | import {it} from "node:test";
@@ -174,14 +134,14 @@ Message:
 
 `;
 
-exports[`no-only-test > invalid(19): import {test as t} from \"node:test\";\nt.only(\"title\", () => {}); 1`] = `
+exports[`no-only-test > invalid(17): import {test as t} from \"node:test\";\nt.only(\"title\", () => {}); 1`] = `
 
   1 | import {test as t} from "node:test";
   2 | t.only("title", () => {});
 
 `;
 
-exports[`no-only-test > invalid(19): import {test as t} from \"node:test\";\nt.only(\"title\", () => {}); 2`] = `
+exports[`no-only-test > invalid(17): import {test as t} from \"node:test\";\nt.only(\"title\", () => {}); 2`] = `
 
 Message:
   1 | import {test as t} from "node:test";
@@ -191,6 +151,42 @@ Message:
 Suggestion 1/1: Remove \`.only\`.:
   1 | import {test as t} from "node:test";
   2 | t("title", () => {});
+
+`;
+
+exports[`no-only-test > invalid(18): import * as nodeTest from \"node:test\";\nnodeTest.test.only(\"title\", () => {}); 1`] = `
+
+  1 | import * as nodeTest from "node:test";
+  2 | nodeTest.test.only("title", () => {});
+
+`;
+
+exports[`no-only-test > invalid(18): import * as nodeTest from \"node:test\";\nnodeTest.test.only(\"title\", () => {}); 2`] = `
+
+Message:
+  1 | import * as nodeTest from "node:test";
+> 2 | nodeTest.test.only("title", () => {});
+    |               ^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
+
+Suggestion 1/1: Remove \`.only\`.:
+  1 | import * as nodeTest from "node:test";
+  2 | nodeTest.test("title", () => {});
+
+`;
+
+exports[`no-only-test > invalid(19): import * as nodeTest from \"node:test\";\nnodeTest.only(\"title\", () => {}); 1`] = `
+
+  1 | import * as nodeTest from "node:test";
+  2 | nodeTest.only("title", () => {});
+
+`;
+
+exports[`no-only-test > invalid(19): import * as nodeTest from \"node:test\";\nnodeTest.only(\"title\", () => {}); 2`] = `
+
+Message:
+  1 | import * as nodeTest from "node:test";
+> 2 | nodeTest.only("title", () => {});
+    |          ^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
 
 `;
 
@@ -210,50 +206,14 @@ Message:
 
 `;
 
-exports[`no-only-test > invalid(20): import * as nodeTest from \"node:test\";\nnodeTest.test.only(\"title\", () => {}); 1`] = `
-
-  1 | import * as nodeTest from "node:test";
-  2 | nodeTest.test.only("title", () => {});
-
-`;
-
-exports[`no-only-test > invalid(20): import * as nodeTest from \"node:test\";\nnodeTest.test.only(\"title\", () => {}); 2`] = `
-
-Message:
-  1 | import * as nodeTest from "node:test";
-> 2 | nodeTest.test.only("title", () => {});
-    |               ^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
-
-Suggestion 1/1: Remove \`.only\`.:
-  1 | import * as nodeTest from "node:test";
-  2 | nodeTest.test("title", () => {});
-
-`;
-
-exports[`no-only-test > invalid(21): import * as nodeTest from \"node:test\";\nnodeTest.only(\"title\", () => {}); 1`] = `
-
-  1 | import * as nodeTest from "node:test";
-  2 | nodeTest.only("title", () => {});
-
-`;
-
-exports[`no-only-test > invalid(21): import * as nodeTest from \"node:test\";\nnodeTest.only(\"title\", () => {}); 2`] = `
-
-Message:
-  1 | import * as nodeTest from "node:test";
-> 2 | nodeTest.only("title", () => {});
-    |          ^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
-
-`;
-
-exports[`no-only-test > invalid(22): import {test} from 'node:test';\ntest('p', async t => { await t.test('c', {only: true}, () => {}); }); 1`] = `
+exports[`no-only-test > invalid(20): import {test} from 'node:test';\ntest('p', async t => { await t.test('c', {only: true}, () => {}); }); 1`] = `
 
   1 | import {test} from 'node:test';
   2 | test('p', async t => { await t.test('c', {only: true}, () => {}); });
 
 `;
 
-exports[`no-only-test > invalid(22): import {test} from 'node:test';\ntest('p', async t => { await t.test('c', {only: true}, () => {}); }); 2`] = `
+exports[`no-only-test > invalid(20): import {test} from 'node:test';\ntest('p', async t => { await t.test('c', {only: true}, () => {}); }); 2`] = `
 
 Message:
   1 | import {test} from 'node:test';
@@ -310,39 +270,7 @@ Message:
 
 `;
 
-exports[`no-only-test > invalid(6): import {beforeEach} from \"node:test\";\nbeforeEach(() => {}, {only: true}); 1`] = `
-
-  1 | import {beforeEach} from "node:test";
-  2 | beforeEach(() => {}, {only: true});
-
-`;
-
-exports[`no-only-test > invalid(6): import {beforeEach} from \"node:test\";\nbeforeEach(() => {}, {only: true}); 2`] = `
-
-Message:
-  1 | import {beforeEach} from "node:test";
-> 2 | beforeEach(() => {}, {only: true});
-    |                       ^^^^^^^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
-
-`;
-
-exports[`no-only-test > invalid(7): import {beforeEach} from \"node:test\";\nbeforeEach({only: true}, () => {}); 1`] = `
-
-  1 | import {beforeEach} from "node:test";
-  2 | beforeEach({only: true}, () => {});
-
-`;
-
-exports[`no-only-test > invalid(7): import {beforeEach} from \"node:test\";\nbeforeEach({only: true}, () => {}); 2`] = `
-
-Message:
-  1 | import {beforeEach} from "node:test";
-> 2 | beforeEach({only: true}, () => {});
-    |             ^^^^^^^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
-
-`;
-
-exports[`no-only-test > invalid(8): import * as nt from \"node:test\";\nimport test from \"node:test\";\nnt.only(\"a\", () => {}); 1`] = `
+exports[`no-only-test > invalid(6): import * as nt from \"node:test\";\nimport test from \"node:test\";\nnt.only(\"a\", () => {}); 1`] = `
 
   1 | import * as nt from "node:test";
   2 | import test from "node:test";
@@ -350,7 +278,7 @@ exports[`no-only-test > invalid(8): import * as nt from \"node:test\";\nimport t
 
 `;
 
-exports[`no-only-test > invalid(8): import * as nt from \"node:test\";\nimport test from \"node:test\";\nnt.only(\"a\", () => {}); 2`] = `
+exports[`no-only-test > invalid(6): import * as nt from \"node:test\";\nimport test from \"node:test\";\nnt.only(\"a\", () => {}); 2`] = `
 
 Message:
   1 | import * as nt from "node:test";
@@ -360,7 +288,7 @@ Message:
 
 `;
 
-exports[`no-only-test > invalid(9): import test from \"node:test\";\nimport * as nt from \"node:test\";\nnt.only(\"a\", () => {}); 1`] = `
+exports[`no-only-test > invalid(7): import test from \"node:test\";\nimport * as nt from \"node:test\";\nnt.only(\"a\", () => {}); 1`] = `
 
   1 | import test from "node:test";
   2 | import * as nt from "node:test";
@@ -368,12 +296,52 @@ exports[`no-only-test > invalid(9): import test from \"node:test\";\nimport * as
 
 `;
 
-exports[`no-only-test > invalid(9): import test from \"node:test\";\nimport * as nt from \"node:test\";\nnt.only(\"a\", () => {}); 2`] = `
+exports[`no-only-test > invalid(7): import test from \"node:test\";\nimport * as nt from \"node:test\";\nnt.only(\"a\", () => {}); 2`] = `
 
 Message:
   1 | import test from "node:test";
   2 | import * as nt from "node:test";
 > 3 | nt.only("a", () => {});
     |    ^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
+
+`;
+
+exports[`no-only-test > invalid(8): import test from \"node:test\";\ntest.only(\"title\", () => {}); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test.only("title", () => {});
+
+`;
+
+exports[`no-only-test > invalid(8): import test from \"node:test\";\ntest.only(\"title\", () => {}); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test.only("title", () => {});
+    |      ^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
+
+Suggestion 1/1: Remove \`.only\`.:
+  1 | import test from "node:test";
+  2 | test("title", () => {});
+
+`;
+
+exports[`no-only-test > invalid(9): import {it} from \"node:test\";\nit.only(\"title\", () => {}); 1`] = `
+
+  1 | import {it} from "node:test";
+  2 | it.only("title", () => {});
+
+`;
+
+exports[`no-only-test > invalid(9): import {it} from \"node:test\";\nit.only(\"title\", () => {}); 2`] = `
+
+Message:
+  1 | import {it} from "node:test";
+> 2 | it.only("title", () => {});
+    |    ^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
+
+Suggestion 1/1: Remove \`.only\`.:
+  1 | import {it} from "node:test";
+  2 | it("title", () => {});
 
 `;

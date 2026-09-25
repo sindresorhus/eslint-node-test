@@ -89,3 +89,43 @@ Message:
   3 | test("x", () => {});
 
 `;
+
+exports[`no-export > invalid(6): import {test} from 'node:test';\nconst helper = 1;\nexport = helper;\ntest(\"x\", () => {}); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | const helper = 1;
+  3 | export = helper;
+  4 | test("x", () => {});
+
+`;
+
+exports[`no-export > invalid(6): import {test} from 'node:test';\nconst helper = 1;\nexport = helper;\ntest(\"x\", () => {}); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+  2 | const helper = 1;
+> 3 | export = helper;
+    | ^^^^^^^^^^^^^^^^ Do not export from a test file.
+  4 | test("x", () => {});
+
+`;
+
+exports[`no-export > invalid(7): import {test} from 'node:test';\ndeclare namespace N {}\nexport as namespace N;\ntest(\"x\", () => {}); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | declare namespace N {}
+  3 | export as namespace N;
+  4 | test("x", () => {});
+
+`;
+
+exports[`no-export > invalid(7): import {test} from 'node:test';\ndeclare namespace N {}\nexport as namespace N;\ntest(\"x\", () => {}); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+  2 | declare namespace N {}
+> 3 | export as namespace N;
+    | ^^^^^^^^^^^^^^^^^^^^^^ Do not export from a test file.
+  4 | test("x", () => {});
+
+`;

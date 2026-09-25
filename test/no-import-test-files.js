@@ -18,7 +18,6 @@ test.snapshot({
 		// case-sensitive one, so their result is platform-dependent and cannot be snapshotted.
 		'import \'./TESTS.js\';',
 		'import \'./TESTING/helper.js\';',
-		String.raw`import '.\\test\\helpers.js';`,
 		String.raw`import '..\\example.test.js';`,
 		'import \'../example.test.js\';',
 		{
@@ -52,6 +51,9 @@ test.snapshot({
 		},
 	],
 	invalid: [
+		// A Windows-style specifier resolves the same way as a POSIX one
+		String.raw`import '.\\test\\helpers.js';`,
+		String.raw`import '.\\example.test.js';`,
 		'import \'./test.js\';',
 		'import \'./test-example.cjs\';',
 		'import \'./example.test.mjs\';',

@@ -48,7 +48,7 @@ const create = context => {
 			frames.push({
 				node,
 				contextName: tracker.current(),
-				concurrencyProperty: findEnabledOptionsProperty(getTestOptions(node), 'concurrency'),
+				concurrencyProperty: findEnabledOptionsProperty(getTestOptions(node), 'concurrency', context),
 				hasSubtest: false,
 			});
 		}

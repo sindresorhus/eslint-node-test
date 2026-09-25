@@ -60,7 +60,9 @@ const create = context => {
 		}
 
 		const titleValue = getStaticString(titleNode, context);
-		if (titleValue === undefined) {
+		// An empty title is not the name the runner uses: `node:test` falls back to the callback's
+		// function name, so two empty titles are usually two different names.
+		if (titleValue === undefined || titleValue === '') {
 			return;
 		}
 

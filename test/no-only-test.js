@@ -42,6 +42,17 @@ test.snapshot({
 
 		// `void 0` is `undefined`, so node:test does not treat it as only
 		'import test from \'node:test\';\ntest(\'a\', {only: void 0}, () => {});',
+
+		// `only` is a plain truthiness check, so a falsy value leaves it off
+		'import test from \'node:test\';\ntest(\'a\', {only: 0}, () => {});',
+		'import test from \'node:test\';\ntest(\'a\', {only: \'\'}, () => {});',
+		// A hook's options carry no modifier, so an inert `skip`/`todo`/`only` there is an unknown
+		// key for `no-unknown-test-options`, not a conflicting or disallowed modifier
+		'import {beforeEach} from "node:test";\nbeforeEach(() => {}, {only: true});',
+		// A hook's options carry no modifier: `TestHook` reads only `hookType`, `loc`, `parent`,
+		// `timeout` and `signal`, so an inert `{only: true}` there is an unknown key for
+		// `no-unknown-test-options` rather than a disallowed modifier
+		'import {beforeEach} from "node:test";\nbeforeEach({only: true}, () => {});',
 	],
 	invalid: [
 		// Options in the slot the runner actually reads
@@ -50,9 +61,6 @@ test.snapshot({
 		'import test from "node:test";\ntest("title", {fn() {}, only: true});',
 		'import test from "node:test";\ntest("title", {only: true}, () => {}, 1);',
 		'import test from "node:test";\ntest("title", {...rest, only: true}, () => {});',
-		// A hook reads its options last, whichever order they are passed in
-		'import {beforeEach} from "node:test";\nbeforeEach(() => {}, {only: true});',
-		'import {beforeEach} from "node:test";\nbeforeEach({only: true}, () => {});',
 		// The namespace binding works whichever import comes first
 		'import * as nt from "node:test";\nimport test from "node:test";\nnt.only("a", () => {});',
 		'import test from "node:test";\nimport * as nt from "node:test";\nnt.only("a", () => {});',

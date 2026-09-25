@@ -90,6 +90,12 @@ test.snapshot({
 
 		// `getTestContext().assert.ok(…)` is a real context assertion, exactly like `t.assert.ok(…)`
 		'import test, {getTestContext} from \'node:test\';\ntest(\'a\', () => { getTestContext().assert.ok(1); });',
+
+		// `test.getTestContext()` is the same context, however the test function is bound
+		'import {test} from \'node:test\';\ntest(\'a\', () => { test.getTestContext().assert.equal(1, 1); });',
+		'import {it} from \'node:test\';\nit(\'a\', () => { it.getTestContext().assert.equal(1, 1); });',
+		'import {test as check} from \'node:test\';\ncheck(\'a\', () => { check.getTestContext().assert.equal(1, 1); });',
+		'import * as nodeTest from \'node:test\';\nnodeTest.test(\'a\', () => { nodeTest.test.getTestContext().assert.equal(1, 1); });',
 	],
 	invalid: [
 		// Only the assertion shapes the shared helper accepts count; a deeper chain is not one
@@ -169,5 +175,7 @@ test.snapshot({
 		'import test from "node:test";\ntest("t1", ({assert: {strict: s}}) => { s.equal(1, 1); });',
 		'import test from "node:test";\ntest("t1", ({assert}) => { assert(1); });',
 		'import test from "node:test";\ntest("t1", (t) => { t.assert.strict(1); });',
+		// An unrelated object with the same method is not a test context
+		'import {test} from \'node:test\';\ntest(\'a\', () => { foo.getTestContext().assert.equal(1, 1); });',
 	],
 });

@@ -9,7 +9,7 @@
 
 A test file is run by the test runner for its side effects (registering and running tests); it is not a module meant to be imported elsewhere. Exporting from it is almost always a mistake — for example, leaving an `export` on a helper that should live in a separate file, or accidentally exporting test internals.
 
-This rule reports `export` declarations (including re-exports and default exports) in a file that imports `node:test`.
+This rule reports `export` declarations (including re-exports and default exports) in a file that imports `node:test`, along with TypeScript's own export forms, `export = value` and `export as namespace Name`.
 
 ## Examples
 

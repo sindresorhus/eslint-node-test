@@ -119,8 +119,13 @@ const create = context => {
 			};
 		}
 
-		// A descriptor with no `name` is an object first argument that carries no title.
-		if (firstArgument.type === 'ObjectExpression') {
+		// A descriptor with no `name` is an object first argument that carries no title. A spread or
+		// computed key could supply one, and `node:test` spreads the descriptor, so the title is not
+		// statically known.
+		if (
+			firstArgument.type === 'ObjectExpression'
+			&& firstArgument.properties.every(property => property.type !== 'SpreadElement' && !property.computed)
+		) {
 			return {
 				node,
 				messageId: MESSAGE_ID_MISSING,

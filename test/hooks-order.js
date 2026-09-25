@@ -80,5 +80,9 @@ test.snapshot({
 
 		// A hook declared through `getTestContext()` is the same hook
 		'import {test, getTestContext} from \'node:test\';\ntest(\'p\', t => { getTestContext().afterEach(() => {}); getTestContext().beforeEach(() => {}); });',
+
+		// A statement written as `(hook(…))` continues the expression above it once the two are
+		// adjacent, so the reorder gives it a leading semicolon
+		'import {before, afterEach, test} from \'node:test\';\n\n(afterEach(() => {}))\nbefore(() => {})\n\ntest(\'a\', () => {});',
 	],
 });

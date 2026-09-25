@@ -43,5 +43,15 @@ test.snapshot({
 			code: withImport('export type Foo = string;\ntest("x", () => {});'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// TypeScript's own export forms are exports too
+		{
+			code: withImport('const helper = 1;\nexport = helper;\ntest("x", () => {});'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withImport('declare namespace N {}\nexport as namespace N;\ntest("x", () => {});'),
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

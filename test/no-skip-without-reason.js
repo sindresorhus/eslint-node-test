@@ -29,6 +29,9 @@ test.snapshot({
 
 		// A hook callback shadowing the context name is not the test context either
 		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { function helper() { const t = {skip() {}}; t.skip(); } });',
+
+		// A hook's options carry no modifier, so an inert `{skip: true}` there is an unknown key
+		'import {beforeEach} from \'node:test\';\nbeforeEach(() => {}, {skip: true});',
 	],
 	invalid: [
 		// `{skip: true}` / `{todo: true}`

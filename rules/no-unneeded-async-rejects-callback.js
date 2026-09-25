@@ -141,7 +141,9 @@ const create = context => {
 			!isFunction(callback)
 			|| !callback.async
 			|| callback.generator
-			|| (callback.type === 'ArrowFunctionExpression' && callback.typeParameters)
+			// A generic callback is left alone whatever its shape, so an arrow and a function
+			// expression with type parameters read the same way.
+			|| callback.typeParameters
 			|| callback.params.length > 0
 		) {
 			return;

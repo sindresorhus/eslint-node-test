@@ -67,9 +67,15 @@ function getReorderFix(block, hooks, sourceCode) {
 
 	return function * (fixer) {
 		for (const [index, hook] of hooks.entries()) {
-			if (sorted[index].statement !== hook.statement) {
-				yield fixer.replaceText(hook.statement, sourceCode.getText(sorted[index].statement));
+			if (sorted[index].statement === hook.statement) {
+				continue;
 			}
+
+			// A statement written as `(afterEach(…))` or `[…]` continues the expression above it
+			// when the two end up adjacent, so it needs a leading semicolon of its own.
+			const text = sourceCode.getText(sorted[index].statement);
+			const isBracketed = /^[([]/.test(text) && index > 0;
+			yield fixer.replaceText(hook.statement, `${isBracketed ? ';' : ''}${text}`);
 		}
 	};
 }

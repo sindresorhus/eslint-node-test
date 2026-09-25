@@ -31,14 +31,17 @@ const create = context => {
 	context.on('CallExpression', node => {
 		// Query the tracker before it learns about this call, so the receiver is the enclosing context.
 		const isContextHook = isContextHookCall(node, tracker.isContextReceiver);
+		// A subtest (`t.test(…)`) is a test registered through a context, which a hook drops the same
+		// way it drops an imported `test(…)` call.
+		const isSubtest = tracker.isSubtestCall(node);
 		tracker.update(node);
 
 		const parsed = parseTestCall(node, imports);
-		if (!parsed && !isContextHook) {
+		if (!parsed && !isContextHook && !isSubtest) {
 			return;
 		}
 
-		const kind = isContextHook ? 'hook' : parsed.kind;
+		const kind = isContextHook ? 'hook' : (parsed ? parsed.kind : 'test');
 
 		if ((kind === 'test' || kind === 'suite') && hookCallbackStack.length > 0) {
 			return {

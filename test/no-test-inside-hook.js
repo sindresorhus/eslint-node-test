@@ -50,5 +50,10 @@ test.snapshot({
 
 		// A hook declared through `getTestContext()` is the same hook
 		'import {test, getTestContext} from \'node:test\';\ntest(\'o\', t => { getTestContext().after(() => { test(\'inner\', () => {}); }); });',
+
+		// A subtest inside a hook is dropped the same way an imported `test()` call is
+		'import {test} from \'node:test\';\ntest(\'a\', t => { t.beforeEach(() => { t.test(\'b\', () => {}); }); });',
+		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { t.test(\'b\', () => {}); });',
+		'import {before} from \'node:test\';\nbefore(t => { t.test(\'b\', () => {}); });',
 	],
 });

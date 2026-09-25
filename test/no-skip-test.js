@@ -10,9 +10,7 @@ test.snapshot({
 		// callback and ignores a trailing object, so the test is not actually modified.
 		'import test from "node:test";\ntest("title", () => {}, {skip: true});',
 		'import test from "node:test";\ntest("title", {skip: false}, () => {});',
-		// `node:test` treats the option as falsy, so the test is not actually skipped.
-		'import test from "node:test";\ntest("title", {skip: ""}, () => {});',
-		'import test from "node:test";\ntest("title", {skip: 0}, () => {});',
+		// Only `false` and `undefined` leave the option off.
 		'import test from "node:test";\ntest("title", {skip: undefined}, () => {});',
 		{
 			code: 'import test from "node:test";\ntest("title", {skip: false as boolean}, () => {});',
@@ -25,6 +23,20 @@ test.snapshot({
 
 		// `void 0` is `undefined`, so node:test does not skip
 		'import test from \'node:test\';\ntest(\'a\', {skip: void 0}, () => {});',
+		// A value that resolves to `false` leaves the option off, however it is spelled
+		'import test from \'node:test\';\ntest("title", {skip: (true, false)}, () => {});',
+
+		// A trailing object is only options when nothing before it is the callback. The runner reads
+		// options from the argument before the callback, so an object past it is never read.
+		'import test from \'node:test\';\ntest(\'title\', fn, {skip: true});',
+		'import test from \'node:test\';\ntest(\'title\', obj.method, {skip: true});',
+		'import test from \'node:test\';\ntest(\'title\', \'x\', {skip: true});',
+		'import test from \'node:test\';\ntest(\'title\', {}, {skip: true});',
+
+		// A hook's options carry no modifier: `TestHook` reads only `hookType`, `loc`, `parent`,
+		// `timeout` and `signal`, so an inert `{skip: true}` there is an unknown key for
+		// `no-unknown-test-options` rather than a skipped test
+		'import {beforeEach} from \'node:test\';\nbeforeEach(() => {}, {skip: true});',
 	],
 	invalid: [
 		'import test from "node:test";\ntest.skip("title", () => {});',
@@ -39,5 +51,11 @@ test.snapshot({
 
 		// A subtest carries the same modifier options as an imported test
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'c\', {skip: true}, () => {}); });',
+
+		// `node:test` skips for any value that is neither `undefined` nor `false`
+		'import test from \'node:test\';\ntest("title", {skip: 0}, () => {});',
+		'import test from \'node:test\';\ntest("title", {skip: ""}, () => {});',
+		'import test from \'node:test\';\ntest("title", {skip: null}, () => {});',
+		'import test from \'node:test\';\ntest("title", {skip: Number.NaN}, () => {});',
 	],
 });

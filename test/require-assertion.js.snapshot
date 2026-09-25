@@ -374,6 +374,22 @@ Message:
 
 `;
 
+exports[`require-assertion > invalid(30): import {test} from 'node:test';\ntest('a', () => { foo.getTestContext().assert.equal(1, 1); }); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | test('a', () => { foo.getTestContext().assert.equal(1, 1); });
+
+`;
+
+exports[`require-assertion > invalid(30): import {test} from 'node:test';\ntest('a', () => { foo.getTestContext().assert.equal(1, 1); }); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | test('a', () => { foo.getTestContext().assert.equal(1, 1); });
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+
+`;
+
 exports[`require-assertion > invalid(4): import test from \"node:test\";\ntest(\"t1\", ({assert: {ok}}) => { f(); }); 1`] = `
 
   1 | import test from "node:test";

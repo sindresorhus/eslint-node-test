@@ -35,6 +35,9 @@ test.snapshot({
 
 		// No modifiers
 		withImport('test("x", () => {});'),
+		// A hook's options carry no modifier, so an inert `skip`/`todo`/`only` there is an unknown
+		// key for `no-unknown-test-options`, not a conflicting or disallowed modifier
+		'import {beforeEach} from \'node:test\';\nbeforeEach({skip: true, todo: true}, () => {});',
 	],
 	invalid: [
 		// Chained conflict
@@ -60,7 +63,6 @@ test.snapshot({
 		withImport('describe.skip.only("s", () => {});'),
 
 		// Hook with conflicting options
-		'import {beforeEach} from \'node:test\';\nbeforeEach({skip: true, todo: true}, () => {});',
 
 		// String-literal option key
 		withImport('test("x", {"skip": true, only: true}, () => {});'),
@@ -77,5 +79,9 @@ test.snapshot({
 		// A subtest carries the same modifier options as an imported test
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'c\', {skip: true, only: true}, () => {}); });',
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'c\', {only: true, todo: true}, () => {}); });',
+
+		// `expectFailure` and `skip` are enabled by any value that is neither `undefined` nor `false`
+		'import {test} from \'node:test\';\ntest(\'a\', {expectFailure: 0, skip: true}, () => {});',
+		'import {test} from \'node:test\';\ntest(\'a\', {skip: 0, only: true}, () => {});',
 	],
 });

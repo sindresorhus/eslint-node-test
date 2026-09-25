@@ -28,7 +28,8 @@ const create = context => {
 		tracker.update(node);
 
 		const parsed = parseTestCall(node, imports);
-		if (!parsed && !isSubtest) {
+		// A hook's options carry no modifier, so they cannot conflict.
+		if ((!parsed && !isSubtest) || parsed?.kind === 'hook') {
 			return;
 		}
 
@@ -47,12 +48,12 @@ const create = context => {
 		// Options form: `test('t', {skip: true, only: true}, …)`.
 		const options = getTestOptions(node);
 		for (const name of MODIFIERS) {
-			if (findEnabledOptionsProperty(options, name)) {
+			if (findEnabledOptionsProperty(options, name, context)) {
 				active.add(name);
 			}
 		}
 
-		if (findEnabledOptionsProperty(options, 'expectFailure')) {
+		if (findEnabledOptionsProperty(options, 'expectFailure', context)) {
 			active.add('expectFailure');
 		}
 

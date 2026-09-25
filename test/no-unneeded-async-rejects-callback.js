@@ -91,6 +91,11 @@ test.snapshot({
 			code: withAssert('assert.rejects(async <Value>() => await operation<Value>());'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		// A generic callback is left alone in either shape
+		{
+			code: withAssert('assert.rejects(async function <Value>() { await operation(); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
 
 		// Other assertion forms are unaffected
 		withAssert('assert.doesNotReject(async () => await operation());'),

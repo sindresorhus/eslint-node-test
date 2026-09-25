@@ -94,5 +94,11 @@ test.snapshot({
 			code: inTest('object.method = t.mock.fn() as any;'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// A sequence expression in the receiver or the implementation is re-emitted without its
+		// parentheses, which would turn one argument into several, so no suggestion is offered
+		inTest('(a, object).method = t.mock.fn(() => \'stubbed\');'),
+		inTest('object.method = t.mock.fn((a, b));'),
+		inTest('object[(a, b)] = t.mock.fn(() => \'stubbed\');'),
 	],
 });

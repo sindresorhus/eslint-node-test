@@ -10,8 +10,7 @@ test.snapshot({
 		// callback and ignores a trailing object, so the test is not actually modified.
 		'import test from "node:test";\ntest("title", () => {}, {todo: "wip"});',
 		'import test from "node:test";\ntest("title", {todo: false}, () => {});',
-		// `node:test` treats the option as falsy, so the test is not actually a todo.
-		'import test from "node:test";\ntest("title", {todo: 0}, () => {});',
+		// Only `false` and `undefined` leave the option off.
 		'import test from "node:test";\ntest("title", {todo: undefined}, () => {});',
 		{
 			code: 'import test from "node:test";\ntest("title", {todo: false as boolean}, () => {});',
@@ -25,6 +24,8 @@ test.snapshot({
 
 		// `void 0` is `undefined`, so node:test does not mark it todo
 		'import test from \'node:test\';\ntest(\'a\', {todo: void 0}, () => {});',
+		// A value that resolves to `false` leaves the option off, however it is spelled
+		'import test from \'node:test\';\ntest("title", {todo: (true, false)}, () => {});',
 	],
 	invalid: [
 		'import test from "node:test";\ntest.todo("title");',
@@ -39,5 +40,10 @@ test.snapshot({
 
 		// A subtest carries the same modifier options as an imported test
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'c\', {todo: true}, () => {}); });',
+
+		// `node:test` marks a todo for any value that is neither `undefined` nor `false`
+		'import test from \'node:test\';\ntest("title", {todo: 0}, () => {});',
+		'import test from \'node:test\';\ntest("title", {todo: ""}, () => {});',
+		'import test from \'node:test\';\ntest("title", {todo: null}, () => {});',
 	],
 });

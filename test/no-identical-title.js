@@ -29,6 +29,10 @@ test.snapshot({
 		'import test from "node:test";\ntest("a", () => {});\ntest("a", {name: "b"}, () => {});',
 		// Same for the object form, where the descriptor wins over every later argument
 		'import test from "node:test";\ntest({name: "a"}, () => {});\ntest({name: "b"}, {name: "a"}, () => {});',
+
+		// An empty title is not the name the runner uses: it falls back to the callback's function name
+		'import test from \'node:test\';\ntest(\'\', function alpha() {});\ntest(\'\', function beta() {});',
+		'import test from \'node:test\';\ntest(\'a\', {name: \'\'}, function alpha() {});\ntest(\'b\', {name: \'\'}, function beta() {});',
 	],
 	invalid: [
 		// Duplicate top-level titles

@@ -160,7 +160,8 @@ function getMockTimersReceiverKey(node, imports, sourceCode, contextVariables) {
 }
 
 function getMockTimersCall(callExpression, imports, sourceCode, contextVariables) {
-	const {callee} = callExpression;
+	// A TypeScript wrapper on the callee (`enable!(…)`, `(enable as any)(…)`) must not hide the call.
+	const callee = unwrapTypeScriptExpression(callExpression.callee);
 	if (
 		callee.type !== 'MemberExpression'
 		|| callee.computed
@@ -220,7 +221,7 @@ function getContextCallKind(node, sourceCode, contextVariables) {
 		return receiverVariable && contextVariables.includes(receiverVariable) ? 'test' : undefined;
 	}
 
-	const {callee} = node;
+	const callee = unwrapTypeScriptExpression(node.callee);
 	if (
 		callee.type !== 'MemberExpression'
 		|| callee.computed

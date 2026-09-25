@@ -271,13 +271,19 @@ export function isGetTestContextCall(node, imports) {
 	}
 
 	const {root, members} = chain;
+	// `import {getTestContext}` binds the function itself; `test.getTestContext()` reads the same
+	// function off the test binding, which a default, named, or namespace import all provide.
+	const isTestBinding = imports.namespaces.has(root.name)
+		|| TEST_FUNCTIONS.has(imports.locals.get(root.name));
+	// `nodeTest.test.getTestContext()` is the same call through a namespace's test export.
+	const isNamespaceTestChain = members.length === 2
+		&& members[0].name === 'test'
+		&& members[1].name === 'getTestContext'
+		&& imports.namespaces.has(root.name);
 	return (
 		(imports.locals.get(root.name) === 'getTestContext' && members.length === 0)
-		|| (
-			members.length === 1
-			&& members[0].name === 'getTestContext'
-			&& imports.namespaces.has(root.name)
-		)
+		|| (members.length === 1 && members[0].name === 'getTestContext' && isTestBinding)
+		|| isNamespaceTestChain
 	);
 }
 
@@ -1151,27 +1157,24 @@ export function getEffectiveArity(parameters) {
 /**
 Get the options `ObjectExpression` argument of a test/suite/hook call, if any.
 
-The object is only read from the slot `node:test` actually reads it from, because the runner ignores a trailing object on a test that also passes a callback: `test('name', fn, {only: true})` runs like a plain `test('name', fn)`, so the object must not be treated as options.
+`node:test` reads the options from one fixed slot, so no scan is needed:
 
-- a test/suite reads options before its callback, so a last-position object is only options when the call has no callback (`test('name', {skip: true})`)
-- a hook reads options last, so a last-position object is always its options (`beforeEach(fn, options)`). A hook is told apart by its first argument being the callback; a test or suite always starts with a title.
+- a test/suite reads a leading object as the descriptor, and otherwise reads its second argument
+- a hook takes its callback first, so it reads its second argument
+
+Nothing past that slot is ever read, because the runner takes the argument before the callback as the
+options: `test('a', fn, {skip: true})` runs `fn` and ignores the object entirely, whether `fn` is an
+inline function, an identifier, or a member expression.
 */
 export function getTestOptions(callExpression) {
 	const {arguments: arguments_} = callExpression;
-	const lastIndex = arguments_.length - 1;
-	// A hook's callback is first, so its trailing object is options even though a function is present.
-	// With no function at all, the call has no callback and the trailing object is options too.
-	const hasFunction = arguments_.some(argument => isFunction(unwrapTypeScriptExpression(argument)));
-	const isTrailingObjectOptions = isCallbackFirst(callExpression) || !hasFunction;
-
-	for (const [index, argument] of arguments_.entries()) {
-		const unwrapped = unwrapTypeScriptExpression(argument);
-		if (unwrapped.type === 'ObjectExpression' && (index !== lastIndex || isTrailingObjectOptions)) {
-			return unwrapped;
-		}
-	}
-
-	return undefined;
+	const isDescriptor = !isCallbackFirst(callExpression)
+		&& arguments_[0]
+		&& unwrapTypeScriptExpression(arguments_[0]).type === 'ObjectExpression';
+	const options = arguments_[isDescriptor ? 0 : 1];
+	return options && unwrapTypeScriptExpression(options).type === 'ObjectExpression'
+		? unwrapTypeScriptExpression(options)
+		: undefined;
 }
 
 /**
@@ -1200,23 +1203,35 @@ export function findOptionsProperty(optionsObject, name) {
 }
 
 /**
-Find an options property (`only`/`skip`/`todo`) that is set to an *enabled* value, i.e. present and not a statically-falsy value. `node:test` checks these options for truthiness, so `false`, `null`, `0`, `''`, and `undefined` all mean disabled; a truthy literal (`true`), a skip/todo reason string, or a dynamic value all count as enabled. Returns the property node, or `undefined`.
+Find an options property that `node:test` acts on, or `undefined` when the value leaves it off.
+
+The modifiers do not share one enablement rule:
+
+- `only` is a plain truthiness check, so only a truthy value marks a test as the one to run.
+- `skip`, `todo` and `expectFailure` are enabled by any value that is neither `undefined` nor
+  `false`, so `{skip: 0}`, `{skip: ''}` and `{skip: null}` really do skip a test, while
+  `{skip: false}` and `{skip: undefined}` do not.
+
+A value that cannot be resolved statically counts as enabled, which is the safe answer for a dynamic
+option: the rules have always reported it, and it is more often on than off.
 */
-export function findEnabledOptionsProperty(optionsObject, name) {
+export function findEnabledOptionsProperty(optionsObject, name, context) {
 	const property = findOptionsProperty(optionsObject, name);
-	const value = property && unwrapTypeScriptExpression(property.value);
-	// `undefined` and `void …` are the only expressions that statically evaluate to `undefined`.
-	const isUndefined = (value?.type === 'Identifier' && value.name === 'undefined')
-		|| (value?.type === 'UnaryExpression' && value.operator === 'void');
-	if (
-		property
-		&& !isUndefined
-		&& (value.type !== 'Literal' || value.value)
-	) {
+	if (!property) {
+		return undefined;
+	}
+
+	const value = unwrapTypeScriptExpression(property.value);
+	const staticValue = getStaticValue(value, context.sourceCode.getScope(value));
+	if (staticValue === null) {
 		return property;
 	}
 
-	return undefined;
+	const isEnabled = name === 'only'
+		? Boolean(staticValue.value)
+		: staticValue.value !== undefined && staticValue.value !== false;
+
+	return isEnabled ? property : undefined;
 }
 
 /*

@@ -25,6 +25,9 @@ const create = context => {
 	});
 	context.on('ExportDefaultDeclaration', report);
 	context.on('ExportAllDeclaration', report);
+	// TypeScript's own export forms, which the parser reports as their own node types.
+	context.on('TSExportAssignment', report);
+	context.on('TSNamespaceExportDeclaration', report);
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

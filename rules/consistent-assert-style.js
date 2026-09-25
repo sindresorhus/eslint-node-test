@@ -68,6 +68,38 @@ function addCallableAssertReferences(sourceCode, specifier, references) {
 	}
 }
 
+/**
+The text of the callable assert a call reaches, or `undefined` when it is not one.
+
+`node:assert` exposes two callable forms: the module itself (`assert(…)`, `assert.ok(…)`) and its
+strict view (`assert.strict(…)`, `assert.strict.ok(…)`). Both are truthiness assertions, so the rule
+covers both in each style.
+*/
+function getCallableAssertText(callee, context, callableAssertReferences) {
+	const {sourceCode} = context;
+
+	if (
+		callee.type === 'Identifier'
+		&& !isParenthesized(callee, context)
+		&& callableAssertReferences.has(callee)
+	) {
+		return sourceCode.getText(callee);
+	}
+
+	if (
+		callee.type === 'MemberExpression'
+		&& !callee.computed
+		&& !callee.optional
+		&& callee.property.type === 'Identifier'
+		&& callee.property.name === 'strict'
+		&& callee.object.type === 'Identifier'
+		&& !isParenthesized(callee.object, context)
+		&& callableAssertReferences.has(callee.object)
+	) {
+		return sourceCode.getText(callee);
+	}
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -82,12 +114,12 @@ const create = context => {
 		const {callee} = node;
 
 		if (style === 'assert-ok') {
-			if (
-				node.optional
-				|| callee.type !== 'Identifier'
-				|| isParenthesized(callee, context)
-				|| !callableAssertReferences.has(callee)
-			) {
+			if (node.optional) {
+				return;
+			}
+
+			const callableText = getCallableAssertText(callee, context, callableAssertReferences);
+			if (!callableText) {
 				return;
 			}
 
@@ -95,8 +127,8 @@ const create = context => {
 				node: callee,
 				messageId: MESSAGE_ID,
 				data: {
-					expected: `${callee.name}.ok(…)`,
-					actual: `${callee.name}(…)`,
+					expected: `${callableText}.ok(…)`,
+					actual: `${callableText}(…)`,
 				},
 				fix: fixer => fixer.insertTextAfter(callee, '.ok'),
 			};
@@ -108,12 +140,14 @@ const create = context => {
 			|| isParenthesized(callee, context)
 			|| callee.optional
 			|| callee.computed
-			|| callee.object.type !== 'Identifier'
 			|| callee.property.type !== 'Identifier'
 			|| callee.property.name !== 'ok'
-			|| isParenthesized(callee.object, context)
-			|| !callableAssertReferences.has(callee.object)
 		) {
+			return;
+		}
+
+		const callableText = getCallableAssertText(callee.object, context, callableAssertReferences);
+		if (!callableText) {
 			return;
 		}
 
@@ -121,8 +155,8 @@ const create = context => {
 			node: callee.property,
 			messageId: MESSAGE_ID,
 			data: {
-				expected: `${callee.object.name}(…)`,
-				actual: `${callee.object.name}.ok(…)`,
+				expected: `${callableText}(…)`,
+				actual: `${callableText}.ok(…)`,
 			},
 		};
 

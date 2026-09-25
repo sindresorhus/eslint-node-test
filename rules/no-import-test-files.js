@@ -12,17 +12,17 @@ const messages = {
 
 function getSpecifierPath(specifier) {
 	specifier = specifier.split(/[#?]/, 1)[0];
-	if (
-		(
-			!specifier.startsWith('./')
-			&& !specifier.startsWith('../')
-		)
-		|| /%2f|%5c/i.test(specifier)
-	) {
+	// An encoded separator could point anywhere, so nothing is inferred from the path.
+	if (/%2f|%5c/i.test(specifier)) {
 		return;
 	}
 
+	// Windows accepts a backslash in a specifier, so normalize it before deciding whether the
+	// specifier is relative at all.
 	specifier = specifier.replaceAll('\\', '/');
+	if (!specifier.startsWith('./') && !specifier.startsWith('../')) {
+		return;
+	}
 
 	try {
 		return path.posix.normalize(decodeURIComponent(specifier));

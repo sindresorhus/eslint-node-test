@@ -9,6 +9,27 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Replace with `{{base}}.method()`.',
 };
 
+/**
+Whether the assignment can be rewritten to `mock.method(…)`: a resolvable key, at most one argument
+(the implementation, which becomes the third argument), and no inner comments to drop.
+
+`<obj>.method = mock.fn()` evaluates to the mock function, but `mock.method(…)` returns the original
+method, so the suggestion stands down when the assignment's value is used.
+
+The receiver and the computed key are re-emitted with `getText`, which drops the parentheses around a
+sequence expression. Dropping them would turn one argument into several, so `(a, b).method` and
+`obj[(a, b)]` get no suggestion.
+*/
+function canRewriteMethodCall({node, left, key, mockArguments, sourceCode}) {
+	return key !== undefined
+		&& mockArguments.length <= 1
+		&& isValueNotUsable(node)
+		&& sourceCode.getCommentsInside(node).length === 0
+		&& left.object.type !== 'SequenceExpression'
+		&& (!left.computed || left.property.type !== 'SequenceExpression')
+		&& mockArguments.every(argument => argument.type !== 'SequenceExpression');
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -81,20 +102,9 @@ const create = context => {
 			key = sourceCode.getText(left.property);
 		}
 
-		// Only suggest a rewrite for the simple cases: a resolvable key, at most one argument (the
-		// implementation, which becomes `mock.method`'s third argument), and no inner comments to drop.
-		// `<obj>.method = mock.fn()` evaluates to the mock function, but `mock.method(…)` returns the
-		// original method, so skip the suggestion when the assignment's value is used.
-		const canRewrite = key !== undefined
-			&& mockArguments.length <= 1
-			&& isValueNotUsable(node)
-			&& sourceCode.getCommentsInside(node).length === 0
-			// The receiver is re-emitted with `getText`, which drops the parentheses around a
-			// sequence expression. Dropping them would turn one argument into several.
-			&& left.object.type !== 'SequenceExpression'
-			&& mockArguments.every(argument => argument.type !== 'SequenceExpression');
-
-		if (canRewrite) {
+		if (canRewriteMethodCall({
+			node, left, key, mockArguments, sourceCode,
+		})) {
 			const objectText = sourceCode.getText(left.object);
 			const implementation = mockArguments.length === 1 ? `, ${sourceCode.getText(mockArguments[0])}` : '';
 			const replacement = `${base}.method(${objectText}, ${key}${implementation})`;
