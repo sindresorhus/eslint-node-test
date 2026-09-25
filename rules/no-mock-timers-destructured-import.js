@@ -6,6 +6,7 @@ import {
 	isGlobalMock,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
+import {getStaticPropertyName} from './utils/is-same-reference.js';
 
 const MESSAGE_ID = 'no-mock-timers-destructured-import';
 const MESSAGE_ID_NAMESPACE = 'no-mock-timers-destructured-import/namespace';
@@ -30,32 +31,54 @@ const FUNCTION_TO_API = new Map([
 /** The APIs that mock a timer function, which is every enabled API but `Date`. */
 const TIMER_APIS = new Set(FUNCTION_TO_API.values());
 
+/** Whether a node is `undefined`, `void …` or `null`, which the runner reads the same as a value that is left out. */
+function isNoValue(node) {
+	return (node.type === 'Identifier' && node.name === 'undefined')
+		|| (node.type === 'UnaryExpression' && node.operator === 'void')
+		|| (node.type === 'Literal' && node.value === null);
+}
+
 /*
 What an `enable()` call enables:
 
 - `all`: no `apis` list at all, so every timer API is mocked
 - `list`: a statically known `apis` array
-- `unknown`: an `apis` value that cannot be resolved at lint time, so nothing can be proven
+- `unknown`: an options argument or an `apis` value that cannot be resolved at lint time, so nothing can be proven
 
 `findOptionsProperty` reads the last one the runner sees and gives up when a later spread could
 override it, which is the same contract every other option-reading rule uses.
 */
 function getEnabledApis(callExpression) {
-	const [argument] = callExpression.arguments;
-	if (argument?.type !== 'ObjectExpression') {
+	// A TypeScript wrapper (`{apis: ['Date']} as const`) is erased at runtime, so it must not hide the options.
+	const argument = unwrapTypeScriptExpression(callExpression.arguments[0]);
+	// `undefined`, `void 0` and `null` are ways to write "no options given", like leaving the argument out, and the runner then mocks every timer API.
+	if (!argument || isNoValue(argument)) {
 		return {all: true};
+	}
+
+	// An identifier, a call or a spread holds options that cannot be read at lint time.
+	if (argument.type !== 'ObjectExpression') {
+		return {unknown: true};
 	}
 
 	const apisProperty = findOptionsProperty(argument, 'apis');
 	if (!apisProperty) {
 		// A spread or computed key can hide or replace `apis`, in which case the list is not
-		// statically known. Without one, the runner mocks every timer API.
-		return argument.properties.some(property => property.type === 'SpreadElement' || property.computed)
+		// statically known. Without one, the runner mocks every timer API. A computed key that
+		// folds to a constant names a known property, the way `findOptionsProperty` reads it.
+		return argument.properties.some(property => property.type === 'SpreadElement' || getStaticPropertyName(property) === undefined)
 			? {unknown: true}
 			: {all: true};
 	}
 
-	if (apisProperty.value.type !== 'ArrayExpression') {
+	// `undefined`, `void 0` and `null` are three ways to write "no `apis` given", and the runner
+	// takes that as every timer API rather than rejecting it.
+	const {value} = apisProperty;
+	if (isNoValue(value)) {
+		return {all: true};
+	}
+
+	if (value.type !== 'ArrayExpression') {
 		return {unknown: true};
 	}
 
@@ -129,13 +152,17 @@ const create = context => {
 			);
 	};
 
-	const isMockTimers = node =>
-		node.type === 'MemberExpression'
-		&& !node.computed
-		&& node.property.type === 'Identifier'
-		&& node.property.name === 'timers'
-		// `mock.timers` (global import) or `t.mock.timers` (context).
-		&& (isGlobalMock(node.object, imports) || isContextMock(node.object));
+	// A TypeScript wrapper on the receiver must not hide the call, the way it does not hide
+	// `mock.method(…)` in every other mock rule.
+	const isMockTimers = node => {
+		const expression = unwrapTypeScriptExpression(node);
+		return expression.type === 'MemberExpression'
+			&& !expression.computed
+			&& expression.property.type === 'Identifier'
+			&& expression.property.name === 'timers'
+			// `mock.timers` (global import) or `t.mock.timers` (context).
+			&& (isGlobalMock(expression.object, imports) || isContextMock(expression.object));
+	};
 
 	const enabledApis = new Set();
 	let isAllEnabled = false;

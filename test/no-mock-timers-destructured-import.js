@@ -27,6 +27,19 @@ test.snapshot({
 		`${head}import {setTimeout} from 'node:timers';\ntest('a', () => { mock.timers.enable({apis: []}); });`,
 		`${head}import {setTimeout} from 'node:timers';\nconst extra = {apis: ['setTimeout']};\ntest('a', () => { mock.timers.enable({apis: ['setInterval'], ...extra}); });`,
 		`${head}import {setTimeout} from 'node:timers';\ntest('a', () => { mock.timers.enable({...config, apis: ['setInterval']}); });`,
+		// An options argument that is not an object literal is not statically known either
+		`${head}import {setTimeout} from 'node:timers';\nconst options = {apis: ['Date']};\nmock.timers.enable(options);`,
+		`${head}import {setTimeout} from 'node:timers';\nmock.timers.enable(getOptions());`,
+		`${head}import {setTimeout} from 'node:timers';\nmock.timers.enable(...args);`,
+		// A cast on the options is unwrapped, so its `apis` list is read
+		{
+			code: `${head}import {setTimeout} from 'node:timers';\nmock.timers.enable({apis: ['Date']} as const);`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: `${head}import {setTimeout} from 'node:timers';\nmock.timers.enable({apis: ['Date']} satisfies object);`,
+			languageOptions: {parser: parsers.typescript},
+		},
 		// Not a test file
 		'import {setTimeout} from \'node:timers\';\nmock.timers.enable();',
 
@@ -130,6 +143,32 @@ test.snapshot({
 		},
 		{
 			code: head + 'import {setTimeout} from \'node:timers\';\ntest(\'a\', (t: any) => { (t.mock.timers.enable as any)({apis: [\'setTimeout\']}); setTimeout(f, 1); });',
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// `undefined`, `void 0` and `null` are three ways to write "no apis given", and the runner
+		// takes that as every timer API
+		`${head}import {setTimeout} from 'node:timers';\ntest('a', () => { mock.timers.enable({apis: undefined}); setTimeout(f, 1); });`,
+		`${head}import {setTimeout} from 'node:timers';\ntest('a', () => { mock.timers.enable({apis: null}); setTimeout(f, 1); });`,
+		`${head}import {setTimeout} from 'node:timers';\ntest('a', () => { mock.timers.enable({apis: void 0}); setTimeout(f, 1); });`,
+		// The same goes for the whole options argument
+		`${head}import {setTimeout} from 'node:timers';\nmock.timers.enable(undefined);`,
+		`${head}import {setTimeout} from 'node:timers';\nmock.timers.enable(null);`,
+		`${head}import {setTimeout} from 'node:timers';\nmock.timers.enable(void 0);`,
+		// A computed key that folds to a constant hides no `apis`, so every timer API is mocked
+		`${head}import {setTimeout} from 'node:timers';\nmock.timers.enable({['now']: 1000});`,
+
+		// A TypeScript wrapper on the receiver must not hide the call
+		{
+			code: `${head}import {setTimeout} from 'node:timers';\ntest('a', () => { (mock.timers as any).enable({apis: ['setTimeout']}); setTimeout(f, 1); });`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: `${head}import {setTimeout} from 'node:timers';\ntest('a', t => { (t.mock.timers as any).enable({apis: ['setTimeout']}); setTimeout(f, 1); });`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: `${head}import {setTimeout} from 'node:timers';\ntest('a', () => { (mock!.timers).enable({apis: ['setTimeout']}); setTimeout(f, 1); });`,
 			languageOptions: {parser: parsers.typescript},
 		},
 	],
