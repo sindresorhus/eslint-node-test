@@ -11,6 +11,28 @@ const messages = {
 
 const CONSOLE_METHODS = new Set(['log', 'info', 'debug']);
 
+/*
+The `globalThis` / `global` identifier a node reaches `console` through, or `undefined` when it
+is not that shape. Only the shape is checked here; the caller checks whether the receiver is the real
+global, the way it does for a bare `console`. The receiver is unwrapped, so a cast or a non-null
+assertion reads the same as the bare form.
+*/
+function getGlobalConsoleObject(node) {
+	if (
+		node?.type !== 'MemberExpression'
+		|| node.computed
+		|| node.property.type !== 'Identifier'
+		|| node.property.name !== 'console'
+	) {
+		return;
+	}
+
+	const object = unwrapExpression(node.object);
+	return object.type === 'Identifier' && (object.name === 'globalThis' || object.name === 'global')
+		? object
+		: undefined;
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const imports = resolveImports(context);
@@ -36,10 +58,15 @@ const create = context => {
 			return;
 		}
 
-		const object = unwrapExpression(callee.object);
 		// A local `console` — a parameter, a declaration, a catch binding — is some other object, and
-		// its `log` is not the global's.
-		if (!isUnshadowedGlobal(context, object, 'console')) {
+		// its `log` is not the global's. `globalThis.console` and `global.console` are the same object
+		// as the bare global, the way `globalThis.process` is the same as `process`, so long as the
+		// receiver is the real global.
+		const object = unwrapExpression(callee.object);
+		const globalObject = getGlobalConsoleObject(object);
+		const isGlobalConsoleMember = globalObject !== undefined
+			&& isUnshadowedGlobal(context, globalObject, globalObject.name);
+		if (!isGlobalConsoleMember && !isUnshadowedGlobal(context, object, 'console')) {
 			return;
 		}
 

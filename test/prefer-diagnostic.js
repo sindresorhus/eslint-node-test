@@ -6,6 +6,11 @@ const inTest = code => `import test from 'node:test';\ntest('t', t => {\n\t${cod
 
 test.snapshot({
 	valid: [
+		// A local `globalThis` / `global` is some other object
+		'import test from \'node:test\';\ntest(\'t\', function (globalThis) { globalThis.console.log(\'x\'); });',
+		'import test from \'node:test\';\ntest(\'t\', function (global) { global.console.log(\'x\'); });',
+		inTest('const globalThis = {console: {log() {}}};\nglobalThis.console.log(\'x\');'),
+
 		// The doc covers a hook on the test's context; a top-level hook is registration-time code
 		'import {beforeEach, test} from \'node:test\';\nbeforeEach(t => { console.log(\'x\'); });',
 		// A `var` that re-binds the context parameter resolves to the same variable, so the name no
@@ -63,6 +68,12 @@ test.snapshot({
 	],
 	invalid: [
 		// Replacing the whole callee would drop the comment inside it, so no suggestion
+		// `globalThis.console` and `global.console` are the same object as the bare global, the way
+		// `globalThis.process` is the same as `process`
+		inTest('globalThis.console.log(\'x\');'),
+		inTest('global.console.log(\'x\');'),
+		inTest('globalThis.console.info(\'x\');'),
+
 		inTest('console./* keep me */log(\'hi\');'),
 		inTest('console/* keep me */.log(\'hi\');'),
 
@@ -123,5 +134,15 @@ test.snapshot({
 		// `getTestContext` under any local alias is the same import
 		'import {test, getTestContext as gtc} from \'node:test\';\ntest(\'a\', () => { console.log(\'x\'); });',
 		'import {test} from \'node:test\';\ntest(\'a\', t => { function inner() { console.log(\'x\'); } inner(); });',
+
+		// A TypeScript wrapper on the `globalThis` / `global` receiver is still the real global
+		{
+			code: inTest('(globalThis as any).console.log(\'x\');'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: inTest('global!.console.log(\'x\');'),
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
