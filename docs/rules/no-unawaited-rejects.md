@@ -11,6 +11,8 @@
 
 `assert.rejects()` and `assert.doesNotReject()` return a `Promise` that must be `await`ed or `return`ed. Calling them without `await` means the assertion may never execute and the test can pass silently even if the code under test throws the wrong error or no error at all.
 
+A call in an operand position whose value a statement throws away is just as unhandled, so a conditional, logical, or sequence expression that hands the `Promise` to such a statement is reported as well.
+
 Discarding the `Promise` with `void` does not help — it still leaves the assertion unhandled — so it is reported too (without an autofix).
 
 ## Examples

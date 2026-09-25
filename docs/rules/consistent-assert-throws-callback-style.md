@@ -53,6 +53,14 @@ assert.throws(() => {
 With `{style: 'expression'}`:
 
 ```js
+/* eslint
+	node-test/consistent-assert-throws-callback-style: [
+		'error',
+		{
+			style: 'expression'
+		}
+	]
+*/
 import assert from 'node:assert';
 
 // ❌

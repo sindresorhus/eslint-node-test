@@ -27,9 +27,17 @@ This rule reports `describe`/`suite` blocks nested beyond a configurable depth (
 ## Examples
 
 ```js
+/* eslint
+	node-test/max-nested-describe: [
+		'error',
+		{
+			max: 2
+		}
+	]
+*/
 import {describe, it} from 'node:test';
 
-// ❌ (with max: 2)
+// ❌
 describe('a', () => {
 	describe('b', () => {
 		describe('c', () => {
@@ -38,7 +46,7 @@ describe('a', () => {
 	});
 });
 
-// ✅ (with max: 2)
+// ✅
 describe('a', () => {
 	describe('b', () => {
 		it('is fine', () => {});

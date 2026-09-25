@@ -26,6 +26,10 @@ test.snapshot({
 		inAsyncTest('await load().then(value => assert.ok(value));'),
 		inTest('return load().catch(error => assert.ifError(error));'),
 		inTest('const promise = load().finally(() => assert.ok(cleanedUp));'),
+		// Awaited or returned, a combinator is not floating
+		inAsyncTest('await Promise.all([load().then(() => { throw error; })]);'),
+		inAsyncTest('return Promise.all([load().then(() => { throw error; })]);'),
+
 		inTest('const promise = condition && load().then(() => assert.ok(value));'),
 		inTest('return condition ? load().then(() => assert.ok(value)) : undefined;'),
 		inAsyncTest('await new Promise(resolve => { setTimeout(() => { assert.ok(value); resolve(); }, 10); });'),
@@ -105,6 +109,18 @@ test.snapshot({
 		inTest('setImmediate(() => { throw new Error(\'late\'); });'),
 		inTest('queueMicrotask(() => assert.equal(value, 1));'),
 		withImport('test(\'parent\', t => {\n\tsetTimeout(() => t.test(\'child\', () => {}), 10);\n});'),
+		withImport('test(\'parent\', t => {\n\tPromise.all([load().then(() => t.test(\'child\', () => {}))]);\n});'),
+
+		// A floating combinator leaves the chains inside its array just as late as a floating chain,
+		// so a throw or a subtest in one of them is late activity too
+		inTest('Promise.all([load().then(() => { throw error; })]);'),
+		inTest('Promise.allSettled([load().then(() => { throw error; })]);'),
+		inTest('Promise.race([load().then(() => { throw error; })]);'),
+		inTest('Promise.any([load().then(() => { throw error; })]);'),
+		inTest('Promise.all([load().then(() => { throw error; }), other.then(() => { throw error; })]);'),
+		inTest('Promise.all([load().then(() => { throw error; })]).then(() => { throw error; });'),
+		inTest('Promise.all([[load().then(() => { throw error; })]]);'),
+		inTest('Promise.all([load().catch(() => { throw error; })]);'),
 		withImport('test(\'parent\', t => {\n\tsetTimeout(() => { t.test(\'child\', () => {}); }, 10);\n});'),
 		withImport('test(\'example\', t => {\n\tsetImmediate(() => t.assert.ok(value));\n});'),
 		withImport('test(\'example\', t => {\n\tt.plan(1, {wait: false});\n\tsetTimeout(() => t.assert.ok(value), 10);\n});'),

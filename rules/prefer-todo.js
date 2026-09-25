@@ -9,11 +9,15 @@ import {
 import {removeArgument} from './fix/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-todo/error';
+const MESSAGE_ID_ERROR_SUBTEST = 'prefer-todo/error-subtest';
 const MESSAGE_ID_SUGGESTION = 'prefer-todo/suggestion';
+const MESSAGE_ID_SUGGESTION_SUBTEST = 'prefer-todo/suggestion-subtest';
 
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Empty placeholder test. Use `.todo` to mark it as unfinished.',
+	[MESSAGE_ID_ERROR_SUBTEST]: 'Empty placeholder subtest. Use the `todo` option to mark it as unfinished.',
 	[MESSAGE_ID_SUGGESTION]: 'Mark as `.todo`.',
+	[MESSAGE_ID_SUGGESTION_SUBTEST]: 'Mark with `{todo: true}`.',
 };
 
 /** Whether a comment sits in the argument gap that removing `argument` would take with it. */
@@ -45,8 +49,9 @@ function hasIntentOptions(callExpression) {
 /**
 The context identifier of a `t.test(…)` callee, or `undefined` when the callee is not that shape.
 
-A subtest's TODO form is the context's own `t.todo(…)`, because `t.test` has no `.todo` method, so
-the suggestion rewrites the member instead of extending it.
+A subtest's TODO form is the `todo` option on the subtest call itself: `t.test` has no `.todo`
+method, and `t.todo(…)` is the enclosing test's TODO marker rather than a subtest registrar, so it
+would drop the subtest.
 */
 function getSubtestReceiver(callee) {
 	if (
@@ -71,7 +76,7 @@ const create = context => {
 	}
 
 	// A subtest (`t.test(…)`) is a test too, so an empty one is reported. Its TODO form is the
-	// context's own `t.todo(…)`, since `t.test` has no `.todo` method.
+	// `todo` option on the subtest call, since `t.test` has no `.todo` method.
 	const tracker = createContextTracker(imports, {trackHooks: true});
 
 	context.on('CallExpression', node => {
@@ -111,7 +116,10 @@ const create = context => {
 		// Dropping the function also drops the gaps on either side of it, so a comment in either one
 		// would be left behind describing the title instead.
 		const subtestReceiver = isSubtest ? getSubtestReceiver(callee) : undefined;
-		const canFix = (isSubtest ? Boolean(subtestReceiver) : true) && (!callback || (
+		// The subtest rewrite puts `{todo: true}` where the callback stands, so the callback has to be
+		// a positional argument rather than an `fn` inside the options object.
+		const isPositionalCallback = !callback || node.arguments.includes(callback);
+		const canFix = (isSubtest ? Boolean(subtestReceiver) && isPositionalCallback : true) && (!callback || (
 			sourceCode.getCommentsInside(callback).length === 0
 			&& !hasCommentBefore(callback, sourceCode)
 			&& sourceCode.getCommentsAfter(callback).length === 0
@@ -119,19 +127,25 @@ const create = context => {
 
 		const problem = {
 			node,
-			messageId: MESSAGE_ID_ERROR,
+			messageId: isSubtest ? MESSAGE_ID_ERROR_SUBTEST : MESSAGE_ID_ERROR,
 		};
 
 		if (canFix) {
 			problem.suggest = [
 				{
-					messageId: MESSAGE_ID_SUGGESTION,
+					messageId: subtestReceiver ? MESSAGE_ID_SUGGESTION_SUBTEST : MESSAGE_ID_SUGGESTION,
 					* fix(fixer) {
-						// `t.test(…)` becomes `t.todo(…)`, and a test binding `test(…)` becomes
-						// `test.todo(…)`.
-						yield subtestReceiver
-							? fixer.replaceText(callee, `${sourceCode.getText(subtestReceiver)}.todo`)
-							: fixer.insertTextAfter(callee, '.todo');
+						if (subtestReceiver) {
+							// `t.test('a', …)` becomes `t.test('a', {todo: true})`, which keeps the
+							// subtest and reports it as a pending TODO.
+							yield callback
+								? fixer.replaceText(callback, '{todo: true}')
+								: fixer.insertTextAfter(node.arguments.at(-1), ', {todo: true}');
+							return;
+						}
+
+						// A test binding `test(…)` becomes `test.todo(…)`.
+						yield fixer.insertTextAfter(callee, '.todo');
 						if (callback) {
 							yield removeArgument(fixer, callback, context);
 						}

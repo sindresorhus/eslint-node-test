@@ -69,7 +69,7 @@ const create = context => {
 	const tracker = createContextTracker(imports);
 	// A test with no context parameter can still reach its context through `getTestContext()`, so the
 	// message and its suggestion name that import, under whatever local name the file bound it to.
-	const getTestContextName = [...imports.locals].find(([, canonicalName]) => canonicalName === 'getTestContext')?.[0];
+	const {getTestContextName} = imports;
 
 	// One frame per enclosing test/subtest. Assertions attach to the innermost; the frame is
 	// reported only if its test called `plan()`.

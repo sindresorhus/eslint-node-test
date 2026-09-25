@@ -120,6 +120,78 @@ Message:
 
 `;
 
+exports[`no-identical-title > invalid(16): import test from \"node:test\";\nconst body = () => { test(\"a\", () => {}); test(\"a\", () => {}); };\ntest(\"x\", body); 1`] = `
+
+  1 | import test from "node:test";
+  2 | const body = () => { test("a", () => {}); test("a", () => {}); };
+  3 | test("x", body);
+
+`;
+
+exports[`no-identical-title > invalid(16): import test from \"node:test\";\nconst body = () => { test(\"a\", () => {}); test(\"a\", () => {}); };\ntest(\"x\", body); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | const body = () => { test("a", () => {}); test("a", () => {}); };
+    |                                                ^^^ Test title is already used by another test in the same scope.
+  3 | test("x", body);
+
+`;
+
+exports[`no-identical-title > invalid(17): import {describe, test} from \"node:test\";\nconst body = () => { test(\"a\", () => {}); test(\"a\", () => {}); };\ndescribe(\"s\", body); 1`] = `
+
+  1 | import {describe, test} from "node:test";
+  2 | const body = () => { test("a", () => {}); test("a", () => {}); };
+  3 | describe("s", body);
+
+`;
+
+exports[`no-identical-title > invalid(17): import {describe, test} from \"node:test\";\nconst body = () => { test(\"a\", () => {}); test(\"a\", () => {}); };\ndescribe(\"s\", body); 2`] = `
+
+Message:
+  1 | import {describe, test} from "node:test";
+> 2 | const body = () => { test("a", () => {}); test("a", () => {}); };
+    |                                                ^^^ Test title is already used by another test in the same scope.
+  3 | describe("s", body);
+
+`;
+
+exports[`no-identical-title > invalid(18): import test from \"node:test\";\nconst body = () => { test(\"a\", () => {}); test(\"a\", () => {}); };\nrun(body); 1`] = `
+
+  1 | import test from "node:test";
+  2 | const body = () => { test("a", () => {}); test("a", () => {}); };
+  3 | run(body);
+
+`;
+
+exports[`no-identical-title > invalid(18): import test from \"node:test\";\nconst body = () => { test(\"a\", () => {}); test(\"a\", () => {}); };\nrun(body); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | const body = () => { test("a", () => {}); test("a", () => {}); };
+    |                                                ^^^ Test title is already used by another test in the same scope.
+  3 | run(body);
+
+`;
+
+exports[`no-identical-title > invalid(19): import test from \"node:test\";\nconst body = () => { test(\"a\", () => {}); };\ntest({name: \"a\", other: body}); 1`] = `
+
+  1 | import test from "node:test";
+  2 | const body = () => { test("a", () => {}); };
+  3 | test({name: "a", other: body});
+
+`;
+
+exports[`no-identical-title > invalid(19): import test from \"node:test\";\nconst body = () => { test(\"a\", () => {}); };\ntest({name: \"a\", other: body}); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+  2 | const body = () => { test("a", () => {}); };
+> 3 | test({name: "a", other: body});
+    |             ^^^ Test title is already used by another test in the same scope.
+
+`;
+
 exports[`no-identical-title > invalid(2): import {it} from \"node:test\";\nit(\"a\", () => {});\nit(\"a\", () => {}); 1`] = `
 
   1 | import {it} from "node:test";

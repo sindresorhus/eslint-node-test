@@ -1,7 +1,7 @@
-import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	resolveImports,
 	createContextTracker,
+	isGetTestContextInScope,
 	parseAssertionCall,
 	LOOSE_TO_STRICT_METHODS,
 } from './utils/node-test.js';
@@ -79,17 +79,8 @@ const create = context => {
 
 	const tracker = createContextTracker(imports);
 	// A test that declares no context parameter can still reach its context through
-	// `getTestContext()`, so the file has to import that name. The suggestion has to spell the local
-	// name the file actually bound, which is not `getTestContext` under an alias.
-	const getTestContextName = [...imports.locals].find(([, canonicalName]) => canonicalName === 'getTestContext')?.[0];
-	const isGetTestContextInScope = node => {
-		if (!getTestContextName) {
-			return false;
-		}
-
-		const variable = findVariable(sourceCode.getScope(node), getTestContextName);
-		return variable?.defs.some(definition => definition.type === 'ImportBinding') ?? false;
-	};
+	// `getTestContext()`, so the file has to import that name.
+	const {getTestContextName} = imports;
 
 	context.on('CallExpression', node => {
 		tracker.update(node);
@@ -118,7 +109,7 @@ const create = context => {
 			if (!tracker.isContextNameInScope(contextName, node)) {
 				return;
 			}
-		} else if (!isGetTestContextInScope(node)) {
+		} else if (!isGetTestContextInScope(imports, node)) {
 			return;
 		}
 

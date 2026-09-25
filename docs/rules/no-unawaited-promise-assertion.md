@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Assertions inside a floating Promise callback are not connected to the Promise returned by the test callback. A failure can be swallowed by a downstream rejection handler or escape as unhandled asynchronous activity instead of failing the test.
+Assertions inside a floating Promise callback are not connected to the Promise returned by the test callback. A failure can be swallowed by a downstream rejection handler or escape as unhandled asynchronous activity instead of failing the test. A floating `Promise.all([…])`, `allSettled`, `race`, or `any` is floating in the same way, so an assertion in a chain inside its array counts too.
 
 Return or await the Promise chain so `node:test` waits for the assertion.
 

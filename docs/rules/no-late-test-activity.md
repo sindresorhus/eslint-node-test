@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Detached `setTimeout()`, `setImmediate()`, `queueMicrotask()`, and floating Promise callbacks can run after a test or hook finishes. This rule reports assertions in scheduler callbacks and throws or subtests in any supported callback. [`no-unawaited-promise-assertion`](no-unawaited-promise-assertion.md) reports assertions in floating Promise callbacks.
+Detached `setTimeout()`, `setImmediate()`, `queueMicrotask()`, and floating Promise callbacks can run after a test or hook finishes. A floating `Promise.all([…])`, `allSettled`, `race`, or `any` counts too: nothing awaits it, so the chains inside its array are just as detached. This rule reports assertions in scheduler callbacks and throws or subtests in any supported callback. [`no-unawaited-promise-assertion`](no-unawaited-promise-assertion.md) reports assertions in floating Promise callbacks.
 
 Return or await asynchronous work so the test runner waits for it. Consumed Promise chains and scheduler callbacks inside a consumed `new Promise()` are allowed. Throws are also allowed when a downstream rejection callback handles them. The rule skips callback-style tests and hooks, and tests whose first relevant statement is a statically recognizable `t.plan(..., {wait: <truthy>})` call.
 

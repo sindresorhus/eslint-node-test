@@ -39,6 +39,17 @@ test.snapshot({
 		// A nested subtest is one level deeper again
 		'import test from \'node:test\';\ntest(\'a\', t => { t.test(\'b\', t2 => { t2.test(\'b\', () => {}); }); });',
 		'import test, {getTestContext} from \'node:test\';\ntest(\'a\', () => { getTestContext().test(\'a\', () => {}); });',
+
+		// A callback the call names out of line is the test's body wherever it is declared, so its own
+		// tests are a scope of their own
+		'import test from \'node:test\';\nconst body = () => { test(\'a\', () => {}); };\ntest(\'a\', body);',
+		'import test from \'node:test\';\ntest(\'a\', body);\nconst body = () => { test(\'a\', () => {}); };',
+		'import test from \'node:test\';\nconst body = () => { test(\'a\', () => {}); };\ntest({name: \'a\', fn: body});',
+		'import test from \'node:test\';\nconst body = () => { test(\'a\', () => {}); };\ntest(\'a\', {fn: body});',
+		'import test from \'node:test\';\nfunction body() { test(\'a\', () => {}); }\ntest(\'a\', body);',
+		'import {describe, test} from \'node:test\';\nconst body = () => { test(\'a\', () => {}); };\ndescribe(\'s\', body);',
+		// Two out-of-line bodies are two scopes, so the same title in each is fine
+		'import test from \'node:test\';\nconst first = () => { test(\'a\', () => {}); };\nconst second = () => { test(\'a\', () => {}); };\ntest(\'x\', first);\ntest(\'y\', second);',
 	],
 	invalid: [
 		// Duplicate top-level titles
@@ -74,5 +85,11 @@ test.snapshot({
 		'import test from "node:test";\ntest("parent", t => { t.test("same", () => {}); t.test("same", () => {}); });',
 		// A subtest and a test registered in the same test callback
 		'import test from "node:test";\ntest("parent", t => { t.test("a", () => {}); t.test("a", () => {}); });',
+		// Duplicates inside an out-of-line callback are still duplicates
+		'import test from "node:test";\nconst body = () => { test("a", () => {}); test("a", () => {}); };\ntest("x", body);',
+		'import {describe, test} from "node:test";\nconst body = () => { test("a", () => {}); test("a", () => {}); };\ndescribe("s", body);',
+		// A function that is not a callback shares the enclosing scope
+		'import test from "node:test";\nconst body = () => { test("a", () => {}); test("a", () => {}); };\nrun(body);',
+		'import test from "node:test";\nconst body = () => { test("a", () => {}); };\ntest({name: "a", other: body});',
 	],
 });

@@ -7,7 +7,12 @@ import {
 	getContextParameterIdentifier,
 	MODIFIERS,
 } from './utils/node-test.js';
-import {unwrapExpression, getEnclosingFunction, isGlobalProcessMember} from './utils/index.js';
+import {
+	unwrapExpression,
+	getEnclosingFunction,
+	isGlobalProcessMember,
+	isUnshadowedGlobal,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'no-process-env-mutation';
 
@@ -69,15 +74,6 @@ const getImportSpecifierName = specifier => {
 	if (typeof specifier.imported.value === 'string') {
 		return specifier.imported.value;
 	}
-};
-
-const isUnshadowedGlobal = (context, node, name) => {
-	if (node.type !== 'Identifier' || node.name !== name) {
-		return false;
-	}
-
-	const variable = findVariable(context.sourceCode.getScope(node), node);
-	return !variable || variable.defs.length === 0;
 };
 
 const isImportBinding = (context, node, names) => {
@@ -321,13 +317,11 @@ const create = context => {
 		testStack.pop();
 	};
 
+	// Any test or subtest callback on the stack, not only the innermost one: a subtest's options
+	// object is evaluated inside the parent test's callback, so a mutation there is in a test body too.
 	const isInsideTestCallback = node => {
-		const test = testStack.at(-1);
-		if (!test) {
-			return false;
-		}
-
-		return getEnclosingFunction(node) === test.callback;
+		const enclosingFunction = getEnclosingFunction(node);
+		return enclosingFunction !== undefined && testStack.some(test => test.callback === enclosingFunction);
 	};
 
 	const getMutatingProcessEnvironmentTarget = node => {

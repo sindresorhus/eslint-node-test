@@ -112,15 +112,19 @@ const create = context => {
 
 	// `t.mock.timers` (a test context) or `getTestContext().mock.timers`. An unrelated
 	// `<anything>.mock.timers` is another object's API and has nothing to do with the global tracker.
-	const isContextMock = node =>
-		node.type === 'MemberExpression'
-		&& !node.computed
-		&& node.property.type === 'Identifier'
-		&& node.property.name === 'mock'
-		&& (
-			tracker.isContextIdentifier(node.object)
-			|| isGetTestContextCall(node.object, imports)
-		);
+	// A TypeScript wrapper on the receiver (`(t as any).mock`) is erased at runtime, so the
+	// receiver is unwrapped before it is matched against the context.
+	const isContextMock = node => {
+		node = unwrapTypeScriptExpression(node);
+		return node?.type === 'MemberExpression'
+			&& !node.computed
+			&& node.property.type === 'Identifier'
+			&& node.property.name === 'mock'
+			&& (
+				tracker.isContextIdentifier(unwrapTypeScriptExpression(node.object))
+				|| isGetTestContextCall(node.object, imports)
+			);
+	};
 
 	const isMockTimers = node =>
 		node.type === 'MemberExpression'

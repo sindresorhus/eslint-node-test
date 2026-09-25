@@ -47,6 +47,14 @@ test.skip('t', () => {});
 With `{style: 'options'}`:
 
 ```js
+/* eslint
+	node-test/consistent-modifier-style: [
+		'error',
+		{
+			style: 'options'
+		}
+	]
+*/
 import test from 'node:test';
 
 // ❌

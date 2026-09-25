@@ -1,5 +1,6 @@
 import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
 import isFunction from '../ast/is-function.js';
+import {getStaticPropertyName} from './is-same-reference.js';
 import unwrapTypeScriptExpression, {isTypeScriptExpressionWrapper} from './unwrap-typescript-expression.js';
 
 /*
@@ -49,6 +50,7 @@ Scan a file's top-level imports and resolve the local bindings for
 	assertNamed: Map<string, string>,
 	strictAssertLocals: Set<string>,
 	mockLocals: Set<string>,
+	getTestContextName: string | undefined,
 	sourceCode: import('eslint').SourceCode,
 	isTestFile: boolean,
 	hasAssert: boolean,
@@ -212,6 +214,9 @@ function scanImports(context) {
 		sourceCode: context.sourceCode,
 		// Local names bound to the `mock` export (`import {mock} from 'node:test'`, renamed too).
 		mockLocals: new Set([...locals].filter(([, canonical]) => canonical === 'mock').map(([local]) => local)),
+		// The local name bound to the `getTestContext` export, which is not `getTestContext` itself
+		// under an alias, so a rule that names the call must spell the name the file actually bound.
+		getTestContextName: [...locals].find(([, canonical]) => canonical === 'getTestContext')?.[0],
 		isTestFile,
 		hasAssert,
 		// Assertion rules activate on either: a `node:assert` import, or a test file (where `t.assert.*`
@@ -920,6 +925,73 @@ export function createSuiteDepthTracker() {
 			depth -= 1;
 		},
 	};
+}
+
+/**
+Whether `node` is the callback of a test, suite, or subtest call that names it out of line, as in
+`test('a', body)` with `const body = () => {}` declared somewhere else. The runner runs that function
+as the test's body, so a rule that scopes what a callback declares has to treat it like an inline
+callback. The traversal reaches the function in declaration order, so the call naming it may be
+visited before or after it, which is why the check runs from the function.
+
+@param {import('estree').Node} node The function to check.
+@param {import('eslint').Rule.RuleContext} context
+@param {object} imports The result of `resolveImports`.
+@returns {boolean}
+*/
+export function isOutOfLineCallback(node, context, imports) {
+	if (!isFunction(node)) {
+		return false;
+	}
+
+	// Only a named binding can be referenced out of line, and the shape check keeps the scope
+	// resolution below for the few functions that could be one.
+	const declarator = node.parent?.type === 'VariableDeclarator' && node.parent.init === node ? node.parent : undefined;
+	const identifier = node.type === 'FunctionDeclaration' ? node.id : declarator?.id;
+	if (identifier?.type !== 'Identifier') {
+		return false;
+	}
+
+	const variable = findVariable(context.sourceCode.getScope(node.parent), identifier);
+	return variable?.references.some(reference => isCallbackArgument(reference.identifier, context, imports)) ?? false;
+}
+
+/** Whether `identifier` is the callback of a test, suite, subtest, or hook call. */
+function isCallbackArgument(identifier, context, imports) {
+	let {parent} = identifier;
+	// The object form names the callback `fn` in a descriptor property, so the call is one level
+	// further out and the identifier is inside the object rather than a bare argument.
+	if (parent?.type === 'Property' && parent.value === identifier) {
+		if (getStaticPropertyName(parent) !== 'fn') {
+			return false;
+		}
+
+		parent = parent.parent?.parent;
+		if (parent?.type !== 'CallExpression') {
+			return false;
+		}
+	} else if (parent?.type !== 'CallExpression' || !parent.arguments.includes(identifier)) {
+		return false;
+	}
+
+	return parseTestCall(parent, imports) !== undefined || getSubtestReceiver(parent) !== undefined;
+}
+
+/**
+Whether the file's `getTestContext` import still reaches `node`, i.e. no local binding shadows it.
+The import is a binding like any other, so a declaration in a test body hides it.
+
+@param {object} imports The result of `resolveImports`.
+@param {import('estree').Node} node The node the name has to resolve at.
+@returns {boolean}
+*/
+export function isGetTestContextInScope(imports, node) {
+	if (!imports.getTestContextName) {
+		return false;
+	}
+
+	const variable = findVariable(imports.sourceCode.getScope(node), imports.getTestContextName);
+	return variable?.defs.some(definition => definition.type === 'ImportBinding') ?? false;
 }
 
 /**

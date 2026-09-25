@@ -102,8 +102,14 @@ test.snapshot({
 		// A comment in the gap after the callback would be left behind describing the title
 		'import test from \'node:test\';\ntest(\'placeholder\', () => {} /* keep me */);',
 		'import test from \'node:test\';\ntest(\'placeholder\', () => {\n} /* keep me */);',
-		// A subtest is a test too, but has no `.todo` method, so it is reported without a suggestion
+		// A subtest is a test too, and `t.test` has no `.todo` method, so its TODO form is the
+		// `todo` option on the subtest call
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\', () => {}); });',
+		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\'); });',
+		'import {test, getTestContext} from \'node:test\';\ntest(\'p\', async () => { await getTestContext().test(\'a\', () => {}); });',
+		// An `fn` in the options object is not a positional argument, so there is nowhere to put the
+		// option: reported without a suggestion
+		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\', {fn() {}}); });',
 
 		// A hook callback is handed the context of the test it runs for, so an empty subtest created
 		// there is the same placeholder

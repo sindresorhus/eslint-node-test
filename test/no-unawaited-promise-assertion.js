@@ -26,6 +26,9 @@ test.snapshot({
 		// Handled chains.
 		inAsyncTest('await load().then(value => { assert.strictEqual(value, 42); });'),
 		inTest('return load().then(value => { assert.strictEqual(value, 42); });'),
+		// A floating combinator leaves the chains inside its array just as late as a floating chain
+		inAsyncTest('await Promise.all([load().then(value => { assert.strictEqual(value, 42); })]);'),
+		inAsyncTest('return Promise.all([load().then(value => { assert.strictEqual(value, 42); })]);'),
 		inTest('const promise = load().then(value => { assert.strictEqual(value, 42); });'),
 		withImport('test(\'loads\', () => load().then(value => { assert.strictEqual(value, 42); }));'),
 
@@ -81,6 +84,15 @@ test.snapshot({
 		// the same rule as `t.assert.*` and the imported module
 		'import test from "node:test";\ntest("a", async ({assert}) => {\n\tload().then(v => { assert.strictEqual(v, 42); });\n});',
 		'import test from "node:test";\ntest("a", async ({assert: {strictEqual}}) => {\n\tload().then(v => { strictEqual(v, 42); });\n});',
+
+		// A floating combinator leaves the chains inside its array just as late as a floating chain,
+		// so an assertion in one of them is just as unawaited
+		inAsyncTest('Promise.all([load().then(value => { assert.strictEqual(value, 42); })]);'),
+		inAsyncTest('Promise.allSettled([load().then(value => { assert.strictEqual(value, 42); })]);'),
+		inAsyncTest('Promise.race([load().then(value => { assert.strictEqual(value, 42); })]);'),
+		inAsyncTest('Promise.any([load().then(value => { assert.strictEqual(value, 42); })]);'),
+		inAsyncTest('Promise.all([[load().then(value => { assert.strictEqual(value, 42); })]]);'),
+		inAsyncTest('Promise.all([load().then(value => { assert.strictEqual(value, 42); }), other.catch(error => { assert.ok(error); })]);'),
 
 		// Imported assert namespace.
 		inAsyncTest('load().then(value => { assert.strictEqual(value, 42); });'),

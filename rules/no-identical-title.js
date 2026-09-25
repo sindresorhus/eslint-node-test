@@ -5,6 +5,7 @@ import {
 	getStaticString,
 	getTestCallback,
 	createContextTracker,
+	isOutOfLineCallback,
 } from './utils/node-test.js';
 
 const MESSAGE_ID = 'no-identical-title/duplicate';
@@ -78,21 +79,24 @@ const create = context => {
 		currentScope.add(titleValue);
 	});
 
-	// Push/pop a scope around each suite or test callback body.
-	const functionTypes = ['FunctionExpression', 'ArrowFunctionExpression'];
+	// Push/pop a scope around each suite or test callback body, including one the call names out of
+	// line (`test('a', body)`), which the traversal reaches wherever it is declared.
+	const functionTypes = ['FunctionExpression', 'ArrowFunctionExpression', 'FunctionDeclaration'];
+
+	const opensScope = node => scopeCallbackNodes.has(node) || isOutOfLineCallback(node, context, imports);
 
 	context.onExit('CallExpression', node => {
 		tracker.leave(node);
 	});
 
 	context.on(functionTypes, node => {
-		if (scopeCallbackNodes.has(node)) {
+		if (opensScope(node)) {
 			scopeStack.push(new Set());
 		}
 	});
 
 	context.onExit(functionTypes, node => {
-		if (scopeCallbackNodes.has(node)) {
+		if (opensScope(node)) {
 			scopeStack.pop();
 		}
 	});

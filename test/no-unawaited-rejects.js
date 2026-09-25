@@ -91,6 +91,14 @@ test.snapshot({
 		`${ASSERT_IMPORT}\nvoid assert.rejects(fn);`,
 		`${ASSERT_IMPORT}\nasync function test() {\n\tvoid assert.rejects(fn);\n}`,
 		`${ASSERT_IMPORT}\nasync function test() {\n\tvoid assert.doesNotReject(fn);\n}`,
+		// A conditional, logical, or sequence expression that hands the assertion's value to a
+		// statement discards it, exactly as a bare statement does
+		`${ASSERT_IMPORT}\nasync function test() {\n\tcondition ? assert.rejects(fn) : null;\n}`,
+		`${ASSERT_IMPORT}\nasync function test() {\n\tcondition && assert.rejects(fn);\n}`,
+		`${ASSERT_IMPORT}\nasync function test() {\n\t(0, assert.rejects(fn));\n}`,
+		`${ASSERT_IMPORT}\nasync function test() {\n\tvoid (condition ? assert.rejects(fn) : null);\n}`,
+		`${ASSERT_IMPORT}\nasync function test() {\n\tassert.rejects(fn) ? 1 : 2;\n}`,
+		`${ASSERT_IMPORT}\nasync function test() {\n\tcondition ? assert.doesNotReject(fn) : null;\n}`,
 
 		// Voided context assertion in a test file (no `node:assert` import)
 		'import test from \'node:test\';\ntest(\'t\', async t => {\n\tvoid t.assert.rejects(fn);\n});',

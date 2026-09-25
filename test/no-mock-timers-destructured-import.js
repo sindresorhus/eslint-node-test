@@ -60,6 +60,20 @@ test.snapshot({
 		// Enable() inside a test, via context mock
 		head + 'import {setTimeout} from \'node:timers\';\ntest("a", t => { t.mock.timers.enable({apis: ["setTimeout"]}); });',
 
+		// A TypeScript wrapper on the receiver is erased at runtime
+		{
+			code: head + 'import {setTimeout} from \'node:timers\';\ntest("a", (t: any) => { (t as any).mock.timers.enable({apis: ["setTimeout"]}); });',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: head + 'import {setTimeout} from \'node:timers\';\ntest("a", t => { t!.mock.timers.enable({apis: ["setTimeout"]}); });',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: head + 'import {setTimeout} from \'node:timers\';\ntest("a", t => { (t.mock satisfies any).timers.enable({apis: ["setTimeout"]}); });',
+			languageOptions: {parser: parsers.typescript},
+		},
+
 		// Namespace import — `nodeTest.mock.timers.enable()`
 		'import * as nodeTest from \'node:test\';\nimport {setTimeout} from \'node:timers\';\nnodeTest.mock.timers.enable();',
 

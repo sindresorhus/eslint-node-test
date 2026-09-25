@@ -1,16 +1,17 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 
 /**
-Whether `node` is an identifier that resolves to the unshadowed global of the same name, i.e. one
-with no definitions at all. A local declaration or parameter of that name is a different binding, so
-a rule that targets a global must not match it.
+Whether `node` is an identifier named `name` that resolves to the unshadowed global of that name, i.e.
+one with no definitions at all. A local declaration or parameter of that name is a different binding,
+so a rule that targets a global must not match it.
 
 @param {import('eslint').Rule.RuleContext} context
 @param {import('estree').Node | undefined} node
+@param {string} name
 @returns {boolean}
 */
-export default function isUnshadowedGlobal(context, node) {
-	if (node?.type !== 'Identifier') {
+export default function isUnshadowedGlobal(context, node, name) {
+	if (node?.type !== 'Identifier' || node.name !== name) {
 		return false;
 	}
 

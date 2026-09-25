@@ -68,6 +68,15 @@ test.snapshot({
 		// `only` does run, so a duplicate enable there is still a real problem
 		`${withNamedImport('only')}\nonly('title', () => { mock.timers.enable(); mock.timers.enable(); });`,
 
+		// The global tracker and a context tracker share one `Date` mock, so enabling through the
+		// other receiver while one is enabled throws. A `reset()` only clears its own receiver.
+		withImport('test("title", t => { mock.timers.enable(); t.mock.timers.enable(); });'),
+		withImport('test("title", t => { t.mock.timers.enable(); mock.timers.enable(); });'),
+		withImport('test("title", t => { mock.timers.enable(); t.mock.timers.reset(); t.mock.timers.enable(); });'),
+		withImport('test("title", t => { t.mock.timers.enable(); mock.timers.reset(); t.mock.timers.enable(); });'),
+		withImport('test("title", t => { t.mock.timers.enable(); mock.timers.reset(); mock.timers.enable(); });'),
+		'import {test, mock, getTestContext} from \'node:test\';\ntest(\'a\', t => {\n\tgetTestContext().mock.timers.enable();\n\tmock.timers.enable();\n});',
+
 		// Global mock tracker.
 		withImport('mock.timers.enable();\nmock.timers.enable();'),
 		withImport('mock.timers.enable();\ntest.mock.timers.enable();'),

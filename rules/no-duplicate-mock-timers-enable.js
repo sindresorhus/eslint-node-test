@@ -272,7 +272,11 @@ const create = context => {
 		for (const segment of codePath.activeSegments) {
 			const enabledReceivers = codePath.enabledReceiversBySegment.get(segment);
 			if (action.method === 'enable') {
-				isDuplicate ||= enabledReceivers.has(action.receiver);
+				// While any tracker has its timers enabled, `Date` is already mocked, so enabling
+				// through another receiver — the global `mock.timers` or a context's `t.mock.timers` —
+				// throws `ERR_INVALID_STATE` just as enabling the same one twice does. A `reset()` only
+				// clears the receiver it is called on, so a receiver enabled earlier stays enabled.
+				isDuplicate ||= enabledReceivers.size > 0;
 				enabledReceivers.add(action.receiver);
 			} else {
 				enabledReceivers.delete(action.receiver);

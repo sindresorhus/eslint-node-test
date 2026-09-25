@@ -59,6 +59,12 @@ test.snapshot({
 		'import {describe} from \'node:test\';\ndescribe(\'s\', () => { process.env.NODE_ENV = \'test\'; });',
 	],
 	invalid: [
+		// A subtest's options object is evaluated inside the parent test's callback, so a mutation
+		// there is in a test body and leaks into every later test just the same
+		withTestImport('test(\'parent\', t => {\n\tt.test(\'child\', {skip: (process.env.NODE_ENV = \'production\', false)}, () => {});\n});'),
+		withTestImport('test(\'parent\', t => {\n\tt.test(\'child\', (process.env.NODE_ENV = \'production\', \'child\'), () => {});\n});'),
+		withTestImport('test(\'parent\', t => {\n\tt.test(\'child\', () => {\n\t\tt.test(\'grandchild\', {skip: (process.env.NODE_ENV = \'production\', false)}, () => {});\n\t});\n});'),
+
 		// Direct member mutations
 		inTest('process.env.NODE_ENV = \'production\';'),
 		// `globalThis.process` / `global.process` are the same object as the bare global

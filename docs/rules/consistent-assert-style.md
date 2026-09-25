@@ -54,6 +54,14 @@ assert.ok(value);
 With `style: 'assert'`:
 
 ```js
+/* eslint
+	node-test/consistent-assert-style: [
+		'error',
+		{
+			style: 'assert'
+		}
+	]
+*/
 import assert from 'node:assert/strict';
 
 // ❌

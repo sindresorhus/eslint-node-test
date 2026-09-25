@@ -233,8 +233,6 @@ test.snapshot({
 		withAssert('assert.rejects();'),
 		withAssert('assert.doesNotReject();'),
 
-
-
 		// Message arg not a string
 		withAssert('assert.ok(value, 123);'),
 		withAssert('assert.strictEqual(a, b, false);'),

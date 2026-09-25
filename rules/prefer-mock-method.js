@@ -1,4 +1,9 @@
-import {resolveImports, createContextTracker, isGlobalMock} from './utils/node-test.js';
+import {
+	resolveImports,
+	createContextTracker,
+	getStaticString,
+	isGlobalMock,
+} from './utils/node-test.js';
 import {isValueNotUsable, unwrapExpression} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-mock-method/error';
@@ -94,11 +99,13 @@ const create = context => {
 		const {left} = node;
 		const mockArguments = right.arguments;
 
-		// Resolve the property name to a `mock.method` second argument.
+		// Resolve the property name to a `mock.method` second argument. That argument must be a
+		// string, so a computed key is only rewritten when it is statically one: a number, boolean,
+		// `null`, or symbol key would make the rewritten call throw.
 		let key;
 		if (!left.computed && left.property.type === 'Identifier') {
 			key = `'${left.property.name}'`;
-		} else if (left.computed) {
+		} else if (left.computed && getStaticString(left.property, context) !== undefined) {
 			key = sourceCode.getText(left.property);
 		}
 

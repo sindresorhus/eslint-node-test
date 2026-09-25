@@ -269,47 +269,99 @@ exports[`prefer-todo > invalid(21): import {test} from 'node:test';\ntest('p', a
 Message:
   1 | import {test} from 'node:test';
 > 2 | test('p', async t => { await t.test('a', () => {}); });
-    |                              ^^^^^^^^^^^^^^^^^^^^^ Empty placeholder test. Use \`.todo\` to mark it as unfinished.
+    |                              ^^^^^^^^^^^^^^^^^^^^^ Empty placeholder subtest. Use the \`todo\` option to mark it as unfinished.
 
-Suggestion 1/1: Mark as \`.todo\`.:
+Suggestion 1/1: Mark with \`{todo: true}\`.:
   1 | import {test} from 'node:test';
-  2 | test('p', async t => { await t.todo('a'); });
+  2 | test('p', async t => { await t.test('a', {todo: true}); });
 
 `;
 
-exports[`prefer-todo > invalid(22): import {beforeEach} from 'node:test';\nbeforeEach(t => { t.test('c', () => {}); }); 1`] = `
+exports[`prefer-todo > invalid(22): import {test} from 'node:test';\ntest('p', async t => { await t.test('a'); }); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | test('p', async t => { await t.test('a'); });
+
+`;
+
+exports[`prefer-todo > invalid(22): import {test} from 'node:test';\ntest('p', async t => { await t.test('a'); }); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | test('p', async t => { await t.test('a'); });
+    |                              ^^^^^^^^^^^ Empty placeholder subtest. Use the \`todo\` option to mark it as unfinished.
+
+Suggestion 1/1: Mark with \`{todo: true}\`.:
+  1 | import {test} from 'node:test';
+  2 | test('p', async t => { await t.test('a', {todo: true}); });
+
+`;
+
+exports[`prefer-todo > invalid(23): import {test, getTestContext} from 'node:test';\ntest('p', async () => { await getTestContext().test('a', () => {}); }); 1`] = `
+
+  1 | import {test, getTestContext} from 'node:test';
+  2 | test('p', async () => { await getTestContext().test('a', () => {}); });
+
+`;
+
+exports[`prefer-todo > invalid(23): import {test, getTestContext} from 'node:test';\ntest('p', async () => { await getTestContext().test('a', () => {}); }); 2`] = `
+
+Message:
+  1 | import {test, getTestContext} from 'node:test';
+> 2 | test('p', async () => { await getTestContext().test('a', () => {}); });
+    |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Empty placeholder subtest. Use the \`todo\` option to mark it as unfinished.
+
+`;
+
+exports[`prefer-todo > invalid(24): import {test} from 'node:test';\ntest('p', async t => { await t.test('a', {fn() {}}); }); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | test('p', async t => { await t.test('a', {fn() {}}); });
+
+`;
+
+exports[`prefer-todo > invalid(24): import {test} from 'node:test';\ntest('p', async t => { await t.test('a', {fn() {}}); }); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | test('p', async t => { await t.test('a', {fn() {}}); });
+    |                              ^^^^^^^^^^^^^^^^^^^^^^ Empty placeholder subtest. Use the \`todo\` option to mark it as unfinished.
+
+`;
+
+exports[`prefer-todo > invalid(25): import {beforeEach} from 'node:test';\nbeforeEach(t => { t.test('c', () => {}); }); 1`] = `
 
   1 | import {beforeEach} from 'node:test';
   2 | beforeEach(t => { t.test('c', () => {}); });
 
 `;
 
-exports[`prefer-todo > invalid(22): import {beforeEach} from 'node:test';\nbeforeEach(t => { t.test('c', () => {}); }); 2`] = `
+exports[`prefer-todo > invalid(25): import {beforeEach} from 'node:test';\nbeforeEach(t => { t.test('c', () => {}); }); 2`] = `
 
 Message:
   1 | import {beforeEach} from 'node:test';
 > 2 | beforeEach(t => { t.test('c', () => {}); });
-    |                   ^^^^^^^^^^^^^^^^^^^^^ Empty placeholder test. Use \`.todo\` to mark it as unfinished.
+    |                   ^^^^^^^^^^^^^^^^^^^^^ Empty placeholder subtest. Use the \`todo\` option to mark it as unfinished.
 
-Suggestion 1/1: Mark as \`.todo\`.:
+Suggestion 1/1: Mark with \`{todo: true}\`.:
   1 | import {beforeEach} from 'node:test';
-  2 | beforeEach(t => { t.todo('c'); });
+  2 | beforeEach(t => { t.test('c', {todo: true}); });
 
 `;
 
-exports[`prefer-todo > invalid(23): import {getTestContext, beforeEach} from 'node:test';\nbeforeEach(t => { getTestContext().test('c', () => {}); }); 1`] = `
+exports[`prefer-todo > invalid(26): import {getTestContext, beforeEach} from 'node:test';\nbeforeEach(t => { getTestContext().test('c', () => {}); }); 1`] = `
 
   1 | import {getTestContext, beforeEach} from 'node:test';
   2 | beforeEach(t => { getTestContext().test('c', () => {}); });
 
 `;
 
-exports[`prefer-todo > invalid(23): import {getTestContext, beforeEach} from 'node:test';\nbeforeEach(t => { getTestContext().test('c', () => {}); }); 2`] = `
+exports[`prefer-todo > invalid(26): import {getTestContext, beforeEach} from 'node:test';\nbeforeEach(t => { getTestContext().test('c', () => {}); }); 2`] = `
 
 Message:
   1 | import {getTestContext, beforeEach} from 'node:test';
 > 2 | beforeEach(t => { getTestContext().test('c', () => {}); });
-    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Empty placeholder test. Use \`.todo\` to mark it as unfinished.
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Empty placeholder subtest. Use the \`todo\` option to mark it as unfinished.
 
 `;
 

@@ -13,7 +13,7 @@ export {default as unwrapTypeScriptExpression, isTypeScriptExpressionWrapper} fr
 export {
 	default as skipExpressionWrappers, unwrapExpression, outermostExpressionWrapper, isExpressionWrapper,
 } from './skip-expression-wrappers.js';
-export {default as getFloatingStatement} from './get-floating-statement.js';
+export {default as getFloatingStatement, getExpressionValuePropagation} from './get-floating-statement.js';
 export {isUnknownType} from './types.js';
 export {default as isConditionalBranch} from './is-conditional-branch.js';
 export {default as getEnclosingFunction} from './get-enclosing-function.js';

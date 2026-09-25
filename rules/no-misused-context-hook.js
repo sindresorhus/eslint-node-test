@@ -70,7 +70,9 @@ function isStaticallySkipped(callExpression, sourceCode) {
 	return staticValue !== null && Boolean(staticValue.value);
 }
 
-const ITERATION_METHODS = new Set(['every', 'filter', 'find', 'flatMap', 'forEach', 'map', 'some']);
+// Array methods that call a predicate over their elements, so a subtest registered in one of those
+// callbacks still runs and the hook around it still applies.
+const ITERATION_METHODS = new Set(['every', 'filter', 'find', 'findIndex', 'findLast', 'findLastIndex', 'flatMap', 'forEach', 'map', 'reduce', 'some']);
 
 /** Stands in for a `getTestContext()` receiver, which has no identifier to resolve. */
 const GET_TEST_CONTEXT = Symbol('getTestContext receiver');
@@ -107,6 +109,15 @@ function isInvokedIterationCallback(node, parent) {
 		&& parent.arguments[0] === node;
 }
 
+/*
+A function that is called where it is written — an immediately invoked function expression, with or
+without `new` — runs as part of the enclosing statement, so a subtest inside it is a subtest of the
+test. Only a function that is merely passed somewhere else is a real scope boundary.
+*/
+function isInvokedImmediately(node, parent) {
+	return (parent?.type === 'CallExpression' || parent?.type === 'NewExpression') && parent.callee === node;
+}
+
 function isWithinIterationCallbackOf(node, ancestor) {
 	let current = node;
 
@@ -116,6 +127,7 @@ function isWithinIterationCallbackOf(node, ancestor) {
 			isFunction(current)
 			&& (
 				isInvokedIterationCallback(current, parent)
+				|| isInvokedImmediately(current, parent)
 				|| parent?.type === 'ForOfStatement'
 				|| parent?.type === 'ForStatement'
 				|| parent?.type === 'WhileStatement'

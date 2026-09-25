@@ -53,9 +53,20 @@ test.snapshot({
 
 		// Computed string key
 		withMock('object[\'method\'] = mock.fn();'),
+		withMock('object[`method`] = mock.fn();'),
+		withMock('const name = \'method\';\nobject[name] = mock.fn();'),
+		withMock('const methodName = \'method\';\nobject[methodName] = mock.fn();'),
 
-		// Computed dynamic key — suggestion uses the expression
-		withMock('object[name] = mock.fn();'),
+		// `mock.method()` needs a string method name, so a computed key is only rewritten when it is
+		// statically one. An unresolvable identifier may hold anything, so it gets no suggestion.
+		withMock('object[methodName] = mock.fn();'),
+		withMock('function f(methodName) { object[methodName] = mock.fn(); }'),
+		withMock('object[0] = mock.fn();'),
+		withMock('object[-1] = mock.fn();'),
+		withMock('object[1.5] = mock.fn();'),
+		withMock('object[true] = mock.fn();'),
+		withMock('object[null] = mock.fn();'),
+		withMock('object[Symbol.iterator] = mock.fn();'),
 
 		// Nested object path
 		withMock('a.b.c.run = mock.fn();'),

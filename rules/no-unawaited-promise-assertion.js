@@ -26,6 +26,7 @@ import {
 	skipExpressionWrappers,
 	outermostExpressionWrapper,
 	isExpressionWrapper,
+	getExpressionValuePropagation,
 } from './utils/index.js';
 import {hasLooserBindThanAwait} from './utils/unwrap-typescript-expression.js';
 
@@ -41,22 +42,6 @@ const WAIT_PLAN_PREFIX_STATEMENT_TYPES = new Set(['VariableDeclaration', 'Functi
 const messages = {
 	[MESSAGE_ID]: 'Assertion in a floating `{{method}}()` callback is not awaited by the test. Await or return the Promise chain.',
 };
-
-function getExpressionValuePropagation(parent, child) {
-	if (parent?.type === 'SequenceExpression') {
-		return parent.expressions.at(-1) === child;
-	}
-
-	if (parent?.type === 'LogicalExpression') {
-		return parent.right === child;
-	}
-
-	if (parent?.type === 'ConditionalExpression') {
-		return parent.test !== child;
-	}
-
-	return undefined;
-}
 
 function getFloatingExpression(node) {
 	const expression = outermostExpressionWrapper(node);
@@ -130,6 +115,52 @@ function getPromiseChainCalls(node) {
 	}
 
 	return calls;
+}
+
+const COMBINATOR_METHODS = new Set(['all', 'allSettled', 'race', 'any']);
+
+/*
+The elements of a `Promise.all([…])`-style call, when they are written out as an array literal. Each
+one is a promise whose chain callbacks run just as late as the combinator's own would, since nothing
+awaits the combinator either.
+*/
+function getCombinatorElements(node) {
+	const callee = unwrapExpression(node?.callee);
+	if (
+		callee?.type !== 'MemberExpression'
+		|| callee.computed
+		|| callee.property.type !== 'Identifier'
+		|| !COMBINATOR_METHODS.has(callee.property.name)
+		|| unwrapExpression(callee.object)?.name !== 'Promise'
+	) {
+		return [];
+	}
+
+	const [firstArgument] = node.arguments.map(argument => unwrapTypeScriptExpression(argument));
+	return firstArgument?.type === 'ArrayExpression' ? flattenArrayElements(firstArgument) : [];
+}
+
+/*
+The elements of a written-out array, nested arrays included: `Promise.resolve([p])` settles with the
+array itself rather than waiting for `p`, so a chain inside a nested array is not awaited either.
+*/
+function flattenArrayElements(arrayExpression) {
+	return arrayExpression.elements
+		.filter(Boolean)
+		.map(element => unwrapExpression(element))
+		.flatMap(element => element?.type === 'ArrayExpression' ? flattenArrayElements(element) : [element]);
+}
+
+/*
+The promise chains whose callbacks a floating expression leaves detached: the chain on the expression
+itself, and the chains inside a combinator's array, each kept as its own chain so a downstream
+rejection handler is only looked for within one.
+*/
+function getFloatingPromiseChains(node) {
+	return [
+		getPromiseChainCalls(node),
+		...getCombinatorElements(node).map(element => getPromiseChainCalls(element)),
+	].filter(chainCalls => chainCalls.length > 0);
 }
 
 function isInlineCallback(node) {
@@ -848,9 +879,11 @@ export function trackDetachedCallbacks(context) {
 			return;
 		}
 
-		for (const call of getPromiseChainCalls(floatingExpression.expression)) {
-			for (const callback of getPromiseCallbackArguments(call)) {
-				detachedCallbacks.add(callback);
+		for (const chainCalls of getFloatingPromiseChains(floatingExpression.expression)) {
+			for (const call of chainCalls) {
+				for (const callback of getPromiseCallbackArguments(call)) {
+					detachedCallbacks.add(callback);
+				}
 			}
 		}
 	});
@@ -917,18 +950,19 @@ export function createLateTestActivity(context, {assertionsOnly = false, message
 			return;
 		}
 
-		const chainCalls = getPromiseChainCalls(floatingExpression.expression);
-		if (chainCalls.length === 0) {
+		const chains = getFloatingPromiseChains(floatingExpression.expression);
+		if (chains.length === 0) {
 			return;
 		}
 
-		const problems = getPromiseProblems(chainCalls, {
+		const state = {
 			imports,
 			contextParameters,
 			assertBindings,
 			sourceCode,
 			visitorKeys,
-		}, assertionsOnly, messageId);
+		};
+		const problems = chains.flatMap(chainCalls => getPromiseProblems(chainCalls, state, assertionsOnly, messageId));
 		if (problems.length === 0) {
 			return;
 		}
