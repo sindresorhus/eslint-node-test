@@ -27,6 +27,9 @@ test.snapshot({
 		// Spread could expand to a matcher
 		withAssert('assert.throws(...args);'),
 
+		// A member expression is some other object's property, not a primitive literal
+		withAssert('assert.throws(fn, Number.NaN);'),
+
 		// Zero arguments is handled by assertion-arguments, not here
 		withAssert('assert.throws();'),
 
@@ -82,5 +85,16 @@ test.snapshot({
 			code: withAssert('assert.throws(fn as () => void);'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// A primitive is rejected whatever it is written as, and `void 0` is `undefined`
+		withAssert('assert.throws(fn, -1);'),
+		withAssert('assert.throws(fn, !0);'),
+		withAssert('assert.throws(fn, NaN);'),
+		withAssert('assert.throws(fn, Infinity);'),
+		withAssert('assert.throws(fn, void 0);'),
+		withAssert('assert.throws(fn, void fn());'),
+		withAssert('assert.rejects(asyncFn, !0);'),
+		withNamedImport('throws', 'throws(fn, -1);'),
+
 	],
 });

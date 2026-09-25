@@ -9,7 +9,7 @@
 
 `assert.throws(fn)` and `assert.rejects(asyncFn)` with no second argument pass for *any* thrown value. So does an explicit `undefined` or `null` matcher, which `node:assert` reads the same way. That makes the assertion weak: a typo, a `ReferenceError`, or an unrelated failure all satisfy it, so the test can pass for the wrong reason. Pass an error matcher — an error class, a `RegExp` for the message, a validation object, or a validation function — to assert that the *expected* error is thrown.
 
-This rule reports a matcher that is missing, `undefined`, or `null`, and one `node:assert` rejects outright: a primitive (a number, a boolean, a bigint) or an empty object or array, which throw `ERR_INVALID_ARG_TYPE` or `ERR_INVALID_ARG_VALUE` before any error is matched. A string second argument is the failure message, which [`no-assert-throws-string`](no-assert-throws-string.md) reports instead. A string second argument is reported by [`no-assert-throws-string`](no-assert-throws-string.md) instead.
+This rule reports a matcher that is missing, `undefined`, or `null`, and one `node:assert` rejects: a primitive (a number, a boolean, a bigint) or an empty object or array. A primitive is rejected with `ERR_INVALID_ARG_TYPE`, but only after the function has run. An empty object or array is not rejected up front at all: it behaves like no matcher until an error is caught, and then throws `ERR_INVALID_ARG_VALUE`. A string second argument is the failure message, which [`no-assert-throws-string`](no-assert-throws-string.md) reports instead.
 
 ## Examples
 

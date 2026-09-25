@@ -38,7 +38,7 @@ test('parent', async t => {
 // ✅ (returned)
 test('parent', t => t.test('child', () => {}));
 
-// ✅ (run concurrently, then awaited)
+// ✅ (collected together, then awaited; the `concurrency` option is what runs them at the same time)
 test('parent', async t => {
 	await Promise.all([
 		t.test('a', () => {}),

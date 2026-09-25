@@ -7,6 +7,9 @@ import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js'
 
 const MESSAGE_ID = 'require-throws-expectation';
 
+// The two primitives that are identifiers rather than literals, so the literal check above misses them.
+const PRIMITIVE_IDENTIFIERS = new Set(['NaN', 'Infinity']);
+
 const messages = {
 	[MESSAGE_ID]: '`{{method}}()` accepts any thrown value. Pass an error matcher (error class, `RegExp`, validation object, or function) as the second argument.',
 };
@@ -45,9 +48,11 @@ const create = context => {
 		}
 
 		// `undefined` is an identifier in the AST and `null` a literal; both are what `node:assert`
-		// reads as "no matcher", which matches any thrown value.
+		// reads as "no matcher", which matches any thrown value. `void anything` evaluates to
+		// `undefined`, so it reads the same way.
 		const isNoMatcher = second === undefined
 			|| (second.type === 'Identifier' && second.name === 'undefined')
+			|| (second.type === 'UnaryExpression' && second.operator === 'void')
 			|| (second.type === 'Literal' && second.value === null);
 		if (isNoMatcher) {
 			return {
@@ -58,12 +63,18 @@ const create = context => {
 		}
 
 		// `node:assert` accepts a function, an `Error`, a `RegExp`, a validation object, or the failure
-		// message string there, and rejects a primitive matcher with `ERR_INVALID_ARG_TYPE` and an empty
-		// object or array with `ERR_INVALID_ARG_VALUE`. A string is `no-assert-throws-string`'s case; the
-		// empty containers are checked as well, since Node rejects them outright.
+		// message string there, and rejects a primitive matcher with `ERR_INVALID_ARG_TYPE` once the
+		// function has run, and an empty object or array with `ERR_INVALID_ARG_VALUE` once an error has
+		// been caught. A string is `no-assert-throws-string`'s case; the empty containers are checked as
+		// well, since Node has no matcher to match against.
+		// A primitive is rejected whatever it is written as, so `-1`, `!0` and `NaN` are matchers
+		// `node:assert` refuses just as `0` is. Every unary expression but `void`, which is the
+		// "no matcher" case above, evaluates to a primitive.
 		const isUnusableMatcher = second.type === 'Literal'
 			? !second.regex && typeof second.value !== 'string'
-			: (second.type === 'ObjectExpression' && second.properties.length === 0)
+			: (second.type === 'Identifier' && PRIMITIVE_IDENTIFIERS.has(second.name))
+				|| (second.type === 'UnaryExpression' && second.operator !== 'void')
+				|| (second.type === 'ObjectExpression' && second.properties.length === 0)
 				|| (second.type === 'ArrayExpression' && second.elements.length === 0);
 		if (isUnusableMatcher) {
 			return {
