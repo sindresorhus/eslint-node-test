@@ -11,7 +11,7 @@
 
 A statically skipped child, such as one with `{skip: true}`, does not count as runnable. A child with `{todo: true}` is still runnable, so its hooks are meaningful. `t.test` is a plain function with no `skip`, `only` or `todo` method, so a chained call like `t.test.only(…)` is a `TypeError` that registers nothing, and the hook is reported.
 
-The rule also ignores callbacks of statically skipped tests and suites, because Node does not execute them.
+The rule also ignores callbacks of statically skipped tests and suites, because Node does not execute them. A subtest written in an array-method callback, in `Array.from`'s mapping argument, or in a suite body still counts: each runs synchronously, so the subtest is registered before the test body finishes and the hooks really do run around it.
 
 This rule considers subtest calls in the same inline test callback, including ones written in a function the callback invokes right there (an immediately invoked function) or in an array-method iteration callback, a loop body, or a `switch` case. A context hook written inside such a function is not found, so it is not reported. It does not follow a call to a declared helper, and does not model control flow or registration order.
 

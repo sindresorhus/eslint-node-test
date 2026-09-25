@@ -74,7 +74,12 @@ function isStaticallySkipped(callExpression, sourceCode) {
 
 // Array methods that call a predicate over their elements, so a subtest registered in one of those
 // callbacks still runs and the hook around it still applies.
-const ITERATION_METHODS = new Set(['every', 'filter', 'find', 'findIndex', 'findLast', 'findLastIndex', 'flatMap', 'forEach', 'map', 'reduce', 'some']);
+const ITERATION_METHODS = new Set(['every', 'filter', 'find', 'findIndex', 'findLast', 'findLastIndex', 'flatMap', 'forEach', 'map', 'reduce', 'some', 'sort']);
+
+// The argument slot a method runs its callback from, for the two that do not use the first. Only
+// `Array.from(items, fn)` is here: `Array.of(…)` takes no callback at all, it makes an array of its
+// arguments.
+const CALLBACK_ARGUMENT_INDEX = new Map([['from', 1]]);
 
 /** Stands in for a `getTestContext()` receiver, which has no identifier to resolve. */
 const GET_TEST_CONTEXT = Symbol('getTestContext receiver');
@@ -99,16 +104,36 @@ body, so the enclosing function of the subtest is the iteration callback rather 
 callback. This walks out of those callbacks; any other function (a declared helper) is a real
 scope boundary and ends the walk.
 
-Only the first argument is the callback. A second argument is `thisArg`, which the array methods
-pass to the callback rather than calling itself, so a subtest written there never runs.
+For the array methods only the first argument is the callback. A second argument is `thisArg`,
+which they pass to the callback rather than calling itself, so a subtest written there never runs.
+`Array.from(items, fn)` is the one that runs its second argument, once per item.
 */
 function isInvokedIterationCallback(node, parent) {
+	if (
+		parent?.type !== 'CallExpression'
+		|| parent.callee.type !== 'MemberExpression'
+		|| parent.callee.computed
+		|| parent.callee.property.type !== 'Identifier'
+	) {
+		return false;
+	}
+
+	const method = parent.callee.property.name;
+	if (!ITERATION_METHODS.has(method) && !CALLBACK_ARGUMENT_INDEX.has(method)) {
+		return false;
+	}
+
+	return parent.arguments[CALLBACK_ARGUMENT_INDEX.get(method) ?? 0] === node;
+}
+
+/*
+A suite callback runs while the file is being collected, so a subtest written in one is registered
+before the test body finishes and the test's hooks really do run around it.
+*/
+function isSuiteCallback(node, parent, imports) {
 	return parent?.type === 'CallExpression'
-		&& parent.callee.type === 'MemberExpression'
-		&& !parent.callee.computed
-		&& parent.callee.property.type === 'Identifier'
-		&& ITERATION_METHODS.has(parent.callee.property.name)
-		&& parent.arguments[0] === node;
+		&& parseTestCall(parent, imports)?.kind === 'suite'
+		&& getTestCallback(parent, imports) === node;
 }
 
 /*
@@ -120,7 +145,7 @@ function isInvokedImmediately(node, parent) {
 	return (parent?.type === 'CallExpression' || parent?.type === 'NewExpression') && parent.callee === node;
 }
 
-function isWithinIterationCallbackOf(node, ancestor) {
+function isWithinIterationCallbackOf(node, ancestor, imports) {
 	let current = node;
 
 	while (current && current !== ancestor) {
@@ -130,6 +155,7 @@ function isWithinIterationCallbackOf(node, ancestor) {
 			&& (
 				isInvokedIterationCallback(current, parent)
 				|| isInvokedImmediately(current, parent)
+				|| isSuiteCallback(current, parent, imports)
 				|| parent?.type === 'ForOfStatement'
 				|| parent?.type === 'ForStatement'
 				|| parent?.type === 'WhileStatement'
@@ -206,7 +232,7 @@ const create = context => {
 		const frame = getFrame(receiver);
 		if (
 			!frame
-			|| !isWithinIterationCallbackOf(node, frame.callback)
+			|| !isWithinIterationCallbackOf(node, frame.callback, imports)
 			|| isInsideSkippedCallback(node)
 			|| isStaticallySkipped(node, sourceCode)
 		) {
