@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Returning a Promise chain from a test callback is harder to read and debug than using `async`/`await`. This rule flags non-async test callbacks that return a `.then()` chain or a variable that was assigned from one.
+Returning a Promise chain from a test callback is harder to read and debug than using `async`/`await`. This rule flags non-async test callbacks that return a `.then()` chain or a variable that was assigned from one, by declaration or by reassignment.
 
 ## Examples
 

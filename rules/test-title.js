@@ -63,10 +63,20 @@ function getStaticTitleProblem(titleNode, context) {
 	}
 
 	if (titleValue !== titleValue.trim()) {
-		const trimmed = titleValue.trim();
+		// A statically resolved title is written back as a fresh string literal, which would take any
+		// comment inside the expression it came from with it. A string literal or an
+		// expression-free template literal cannot hold one, so only a computed title needs the check.
+		if (sourceCode.getCommentsInside(titleNode).length > 0) {
+			return {
+				node: titleNode,
+				messageId: MESSAGE_ID_WHITESPACE,
+			};
+		}
+
 		// Preserve the original string delimiter; a template literal (no expressions here) becomes
 		// a normal single-quoted string.
 		const quote = titleNode.type === 'Literal' ? titleNode.raw[0] : '\'';
+		const trimmed = titleValue.trim();
 		return {
 			node: titleNode,
 			messageId: MESSAGE_ID_WHITESPACE,

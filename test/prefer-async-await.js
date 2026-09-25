@@ -7,6 +7,9 @@ const withHookImport = code => `import test, {beforeEach} from 'node:test';\n${c
 
 test.snapshot({
 	valid: [
+		// A compound assignment produces a string, whatever the chain on its right returns
+		withImport('test("title", t => { let bar; bar += foo().then(fn); return bar; });'),
+
 		// Not a test file — no import from node:test
 		'test(t => { return foo().then(fn); });',
 		// Does not return anything
@@ -55,6 +58,10 @@ test.snapshot({
 		withImport('test(\'title\', t => { t.beforeEach({fn() { return p.then(x => x); }}); });'),
 	],
 	invalid: [
+		// A variable reassigned from a chain holds it just as a declaration does
+		withImport('test("title", t => { let bar; bar = foo().then(fn); return bar; });'),
+		withImport('test("title", t => { let bar = other; bar = foo().then(fn); return bar; });'),
+
 		// Basic: return .then()
 		withImport('test("title", t => { return foo().then(fn); });'),
 		// Function expression

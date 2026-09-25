@@ -1,27 +1,59 @@
-exports[`prefer-async-await > invalid(1): import test from 'node:test';\ntest(\"title\", t => { return foo().then(fn); }); 1`] = `
+exports[`prefer-async-await > invalid(1): import test from 'node:test';\ntest(\"title\", t => { let bar; bar = foo().then(fn); return bar; }); 1`] = `
 
   1 | import test from 'node:test';
-  2 | test("title", t => { return foo().then(fn); });
+  2 | test("title", t => { let bar; bar = foo().then(fn); return bar; });
 
 `;
 
-exports[`prefer-async-await > invalid(1): import test from 'node:test';\ntest(\"title\", t => { return foo().then(fn); }); 2`] = `
+exports[`prefer-async-await > invalid(1): import test from 'node:test';\ntest(\"title\", t => { let bar; bar = foo().then(fn); return bar; }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
-> 2 | test("title", t => { return foo().then(fn); });
-    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer async/await instead of returning a Promise.
+> 2 | test("title", t => { let bar; bar = foo().then(fn); return bar; });
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer async/await instead of returning a Promise.
 
 `;
 
-exports[`prefer-async-await > invalid(10): import test from 'node:test';\ntest(\"title\", t => { return foo?.bar().then(fn); }); 1`] = `
+exports[`prefer-async-await > invalid(10): import test from 'node:test';\ntest(\"title\", t => { return promise?.then(fn); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("title", t => { return promise?.then(fn); });
+
+`;
+
+exports[`prefer-async-await > invalid(10): import test from 'node:test';\ntest(\"title\", t => { return promise?.then(fn); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("title", t => { return promise?.then(fn); });
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer async/await instead of returning a Promise.
+
+`;
+
+exports[`prefer-async-await > invalid(11): import test from 'node:test';\ntest(\"title\", t => { return foo?.().then(fn); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("title", t => { return foo?.().then(fn); });
+
+`;
+
+exports[`prefer-async-await > invalid(11): import test from 'node:test';\ntest(\"title\", t => { return foo?.().then(fn); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("title", t => { return foo?.().then(fn); });
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer async/await instead of returning a Promise.
+
+`;
+
+exports[`prefer-async-await > invalid(12): import test from 'node:test';\ntest(\"title\", t => { return foo?.bar().then(fn); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test("title", t => { return foo?.bar().then(fn); });
 
 `;
 
-exports[`prefer-async-await > invalid(10): import test from 'node:test';\ntest(\"title\", t => { return foo?.bar().then(fn); }); 2`] = `
+exports[`prefer-async-await > invalid(12): import test from 'node:test';\ntest(\"title\", t => { return foo?.bar().then(fn); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -30,14 +62,14 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(11): import test from 'node:test';\ntest(\"title\", t => { return foo?.bar()?.then(fn); }); 1`] = `
+exports[`prefer-async-await > invalid(13): import test from 'node:test';\ntest(\"title\", t => { return foo?.bar()?.then(fn); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test("title", t => { return foo?.bar()?.then(fn); });
 
 `;
 
-exports[`prefer-async-await > invalid(11): import test from 'node:test';\ntest(\"title\", t => { return foo?.bar()?.then(fn); }); 2`] = `
+exports[`prefer-async-await > invalid(13): import test from 'node:test';\ntest(\"title\", t => { return foo?.bar()?.then(fn); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -46,14 +78,14 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(12): import test from 'node:test';\ntest(\"title\", t => { const bar = foo?.().then(fn); return bar; }); 1`] = `
+exports[`prefer-async-await > invalid(14): import test from 'node:test';\ntest(\"title\", t => { const bar = foo?.().then(fn); return bar; }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test("title", t => { const bar = foo?.().then(fn); return bar; });
 
 `;
 
-exports[`prefer-async-await > invalid(12): import test from 'node:test';\ntest(\"title\", t => { const bar = foo?.().then(fn); return bar; }); 2`] = `
+exports[`prefer-async-await > invalid(14): import test from 'node:test';\ntest(\"title\", t => { const bar = foo?.().then(fn); return bar; }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -62,14 +94,14 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(13): import test from 'node:test';\ntest(\"title\", t => { if (cond) { return bar.then(fn); } }); 1`] = `
+exports[`prefer-async-await > invalid(15): import test from 'node:test';\ntest(\"title\", t => { if (cond) { return bar.then(fn); } }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test("title", t => { if (cond) { return bar.then(fn); } });
 
 `;
 
-exports[`prefer-async-await > invalid(13): import test from 'node:test';\ntest(\"title\", t => { if (cond) { return bar.then(fn); } }); 2`] = `
+exports[`prefer-async-await > invalid(15): import test from 'node:test';\ntest(\"title\", t => { if (cond) { return bar.then(fn); } }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -78,14 +110,14 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(14): import test from 'node:test';\ntest(\"title\", t => { if (cond) { return; } else { return bar.then(fn); } }); 1`] = `
+exports[`prefer-async-await > invalid(16): import test from 'node:test';\ntest(\"title\", t => { if (cond) { return; } else { return bar.then(fn); } }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test("title", t => { if (cond) { return; } else { return bar.then(fn); } });
 
 `;
 
-exports[`prefer-async-await > invalid(14): import test from 'node:test';\ntest(\"title\", t => { if (cond) { return; } else { return bar.then(fn); } }); 2`] = `
+exports[`prefer-async-await > invalid(16): import test from 'node:test';\ntest(\"title\", t => { if (cond) { return; } else { return bar.then(fn); } }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -94,14 +126,14 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(15): import test from 'node:test';\ntest(\"title\", t => { switch (x) { case 1: return bar.then(fn); } }); 1`] = `
+exports[`prefer-async-await > invalid(17): import test from 'node:test';\ntest(\"title\", t => { switch (x) { case 1: return bar.then(fn); } }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test("title", t => { switch (x) { case 1: return bar.then(fn); } });
 
 `;
 
-exports[`prefer-async-await > invalid(15): import test from 'node:test';\ntest(\"title\", t => { switch (x) { case 1: return bar.then(fn); } }); 2`] = `
+exports[`prefer-async-await > invalid(17): import test from 'node:test';\ntest(\"title\", t => { switch (x) { case 1: return bar.then(fn); } }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -110,14 +142,14 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(16): import test from 'node:test';\ntest(\"title\", t => { try { return bar.then(fn); } catch {} }); 1`] = `
+exports[`prefer-async-await > invalid(18): import test from 'node:test';\ntest(\"title\", t => { try { return bar.then(fn); } catch {} }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test("title", t => { try { return bar.then(fn); } catch {} });
 
 `;
 
-exports[`prefer-async-await > invalid(16): import test from 'node:test';\ntest(\"title\", t => { try { return bar.then(fn); } catch {} }); 2`] = `
+exports[`prefer-async-await > invalid(18): import test from 'node:test';\ntest(\"title\", t => { try { return bar.then(fn); } catch {} }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -126,14 +158,14 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(17): import test from 'node:test';\ntest(\"title\", t => { try {} catch { return bar.then(fn); } }); 1`] = `
+exports[`prefer-async-await > invalid(19): import test from 'node:test';\ntest(\"title\", t => { try {} catch { return bar.then(fn); } }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test("title", t => { try {} catch { return bar.then(fn); } });
 
 `;
 
-exports[`prefer-async-await > invalid(17): import test from 'node:test';\ntest(\"title\", t => { try {} catch { return bar.then(fn); } }); 2`] = `
+exports[`prefer-async-await > invalid(19): import test from 'node:test';\ntest(\"title\", t => { try {} catch { return bar.then(fn); } }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -142,14 +174,30 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(18): import test from 'node:test';\ntest(\"title\", t => { try {} finally { return bar.then(fn); } }); 1`] = `
+exports[`prefer-async-await > invalid(2): import test from 'node:test';\ntest(\"title\", t => { let bar = other; bar = foo().then(fn); return bar; }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("title", t => { let bar = other; bar = foo().then(fn); return bar; });
+
+`;
+
+exports[`prefer-async-await > invalid(2): import test from 'node:test';\ntest(\"title\", t => { let bar = other; bar = foo().then(fn); return bar; }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("title", t => { let bar = other; bar = foo().then(fn); return bar; });
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer async/await instead of returning a Promise.
+
+`;
+
+exports[`prefer-async-await > invalid(20): import test from 'node:test';\ntest(\"title\", t => { try {} finally { return bar.then(fn); } }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test("title", t => { try {} finally { return bar.then(fn); } });
 
 `;
 
-exports[`prefer-async-await > invalid(18): import test from 'node:test';\ntest(\"title\", t => { try {} finally { return bar.then(fn); } }); 2`] = `
+exports[`prefer-async-await > invalid(20): import test from 'node:test';\ntest(\"title\", t => { try {} finally { return bar.then(fn); } }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -158,14 +206,14 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(19): import test from 'node:test';\ntest(\"title\", t => { for (let i = 0; i < 10; i++) { return bar.then(fn); } }); 1`] = `
+exports[`prefer-async-await > invalid(21): import test from 'node:test';\ntest(\"title\", t => { for (let i = 0; i < 10; i++) { return bar.then(fn); } }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test("title", t => { for (let i = 0; i < 10; i++) { return bar.then(fn); } });
 
 `;
 
-exports[`prefer-async-await > invalid(19): import test from 'node:test';\ntest(\"title\", t => { for (let i = 0; i < 10; i++) { return bar.then(fn); } }); 2`] = `
+exports[`prefer-async-await > invalid(21): import test from 'node:test';\ntest(\"title\", t => { for (let i = 0; i < 10; i++) { return bar.then(fn); } }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -174,30 +222,14 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(2): import test from 'node:test';\ntest(\"title\", function(t) { return foo().then(fn); }); 1`] = `
-
-  1 | import test from 'node:test';
-  2 | test("title", function(t) { return foo().then(fn); });
-
-`;
-
-exports[`prefer-async-await > invalid(2): import test from 'node:test';\ntest(\"title\", function(t) { return foo().then(fn); }); 2`] = `
-
-Message:
-  1 | import test from 'node:test';
-> 2 | test("title", function(t) { return foo().then(fn); });
-    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer async/await instead of returning a Promise.
-
-`;
-
-exports[`prefer-async-await > invalid(20): import test from 'node:test';\ntest(\"title\", t => { while (true) { return bar.then(fn); } }); 1`] = `
+exports[`prefer-async-await > invalid(22): import test from 'node:test';\ntest(\"title\", t => { while (true) { return bar.then(fn); } }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test("title", t => { while (true) { return bar.then(fn); } });
 
 `;
 
-exports[`prefer-async-await > invalid(20): import test from 'node:test';\ntest(\"title\", t => { while (true) { return bar.then(fn); } }); 2`] = `
+exports[`prefer-async-await > invalid(22): import test from 'node:test';\ntest(\"title\", t => { while (true) { return bar.then(fn); } }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -206,14 +238,14 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(21): import test from 'node:test';\ntest(\"title\", t => { do { return bar.then(fn); } while (cond); }); 1`] = `
+exports[`prefer-async-await > invalid(23): import test from 'node:test';\ntest(\"title\", t => { do { return bar.then(fn); } while (cond); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test("title", t => { do { return bar.then(fn); } while (cond); });
 
 `;
 
-exports[`prefer-async-await > invalid(21): import test from 'node:test';\ntest(\"title\", t => { do { return bar.then(fn); } while (cond); }); 2`] = `
+exports[`prefer-async-await > invalid(23): import test from 'node:test';\ntest(\"title\", t => { do { return bar.then(fn); } while (cond); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -222,14 +254,14 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(22): import test from 'node:test';\ntest(\"title\", t => { for (const item of list) { return item.then(fn); } }); 1`] = `
+exports[`prefer-async-await > invalid(24): import test from 'node:test';\ntest(\"title\", t => { for (const item of list) { return item.then(fn); } }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test("title", t => { for (const item of list) { return item.then(fn); } });
 
 `;
 
-exports[`prefer-async-await > invalid(22): import test from 'node:test';\ntest(\"title\", t => { for (const item of list) { return item.then(fn); } }); 2`] = `
+exports[`prefer-async-await > invalid(24): import test from 'node:test';\ntest(\"title\", t => { for (const item of list) { return item.then(fn); } }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -238,14 +270,14 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(23): import test from 'node:test';\ntest(\"title\", t => { for (const key in object) { return key.then(fn); } }); 1`] = `
+exports[`prefer-async-await > invalid(25): import test from 'node:test';\ntest(\"title\", t => { for (const key in object) { return key.then(fn); } }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test("title", t => { for (const key in object) { return key.then(fn); } });
 
 `;
 
-exports[`prefer-async-await > invalid(23): import test from 'node:test';\ntest(\"title\", t => { for (const key in object) { return key.then(fn); } }); 2`] = `
+exports[`prefer-async-await > invalid(25): import test from 'node:test';\ntest(\"title\", t => { for (const key in object) { return key.then(fn); } }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -254,14 +286,14 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(24): import test from 'node:test';\ntest(\"title\", t => { outer: { return bar.then(fn); } }); 1`] = `
+exports[`prefer-async-await > invalid(26): import test from 'node:test';\ntest(\"title\", t => { outer: { return bar.then(fn); } }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test("title", t => { outer: { return bar.then(fn); } });
 
 `;
 
-exports[`prefer-async-await > invalid(24): import test from 'node:test';\ntest(\"title\", t => { outer: { return bar.then(fn); } }); 2`] = `
+exports[`prefer-async-await > invalid(26): import test from 'node:test';\ntest(\"title\", t => { outer: { return bar.then(fn); } }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -270,14 +302,14 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(25): import test from 'node:test';\ntest(\"title\", t => { while (again) { if (done) { return bar.then(fn); } } }); 1`] = `
+exports[`prefer-async-await > invalid(27): import test from 'node:test';\ntest(\"title\", t => { while (again) { if (done) { return bar.then(fn); } } }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test("title", t => { while (again) { if (done) { return bar.then(fn); } } });
 
 `;
 
-exports[`prefer-async-await > invalid(25): import test from 'node:test';\ntest(\"title\", t => { while (again) { if (done) { return bar.then(fn); } } }); 2`] = `
+exports[`prefer-async-await > invalid(27): import test from 'node:test';\ntest(\"title\", t => { while (again) { if (done) { return bar.then(fn); } } }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -286,14 +318,14 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(26): import test from 'node:test';\ntest(\"title\", t => { switch (x) { default: return bar.then(fn); } }); 1`] = `
+exports[`prefer-async-await > invalid(28): import test from 'node:test';\ntest(\"title\", t => { switch (x) { default: return bar.then(fn); } }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test("title", t => { switch (x) { default: return bar.then(fn); } });
 
 `;
 
-exports[`prefer-async-await > invalid(26): import test from 'node:test';\ntest(\"title\", t => { switch (x) { default: return bar.then(fn); } }); 2`] = `
+exports[`prefer-async-await > invalid(28): import test from 'node:test';\ntest(\"title\", t => { switch (x) { default: return bar.then(fn); } }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -302,14 +334,14 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(27): import {it} from \"node:test\";\nit(\"title\", t => { return foo().then(fn); }); 1`] = `
+exports[`prefer-async-await > invalid(29): import {it} from \"node:test\";\nit(\"title\", t => { return foo().then(fn); }); 1`] = `
 
   1 | import {it} from "node:test";
   2 | it("title", t => { return foo().then(fn); });
 
 `;
 
-exports[`prefer-async-await > invalid(27): import {it} from \"node:test\";\nit(\"title\", t => { return foo().then(fn); }); 2`] = `
+exports[`prefer-async-await > invalid(29): import {it} from \"node:test\";\nit(\"title\", t => { return foo().then(fn); }); 2`] = `
 
 Message:
   1 | import {it} from "node:test";
@@ -318,14 +350,30 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(28): import test from \"node:test\";\ntest({name: \"title\", fn() { return foo().then(fn); }}); 1`] = `
+exports[`prefer-async-await > invalid(3): import test from 'node:test';\ntest(\"title\", t => { return foo().then(fn); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("title", t => { return foo().then(fn); });
+
+`;
+
+exports[`prefer-async-await > invalid(3): import test from 'node:test';\ntest(\"title\", t => { return foo().then(fn); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("title", t => { return foo().then(fn); });
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer async/await instead of returning a Promise.
+
+`;
+
+exports[`prefer-async-await > invalid(30): import test from \"node:test\";\ntest({name: \"title\", fn() { return foo().then(fn); }}); 1`] = `
 
   1 | import test from "node:test";
   2 | test({name: "title", fn() { return foo().then(fn); }});
 
 `;
 
-exports[`prefer-async-await > invalid(28): import test from \"node:test\";\ntest({name: \"title\", fn() { return foo().then(fn); }}); 2`] = `
+exports[`prefer-async-await > invalid(30): import test from \"node:test\";\ntest({name: \"title\", fn() { return foo().then(fn); }}); 2`] = `
 
 Message:
   1 | import test from "node:test";
@@ -334,14 +382,14 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(29): import test from 'node:test';\ntest(\"title\", {skip: true}, t => { return foo().then(fn); }); 1`] = `
+exports[`prefer-async-await > invalid(31): import test from 'node:test';\ntest(\"title\", {skip: true}, t => { return foo().then(fn); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test("title", {skip: true}, t => { return foo().then(fn); });
 
 `;
 
-exports[`prefer-async-await > invalid(29): import test from 'node:test';\ntest(\"title\", {skip: true}, t => { return foo().then(fn); }); 2`] = `
+exports[`prefer-async-await > invalid(31): import test from 'node:test';\ntest(\"title\", {skip: true}, t => { return foo().then(fn); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -350,30 +398,14 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(3): import test from 'node:test';\ntest(\"title\", t => { return foo().then(fn).catch(fn2); }); 1`] = `
-
-  1 | import test from 'node:test';
-  2 | test("title", t => { return foo().then(fn).catch(fn2); });
-
-`;
-
-exports[`prefer-async-await > invalid(3): import test from 'node:test';\ntest(\"title\", t => { return foo().then(fn).catch(fn2); }); 2`] = `
-
-Message:
-  1 | import test from 'node:test';
-> 2 | test("title", t => { return foo().then(fn).catch(fn2); });
-    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer async/await instead of returning a Promise.
-
-`;
-
-exports[`prefer-async-await > invalid(30): import test from 'node:test';\ntest(\"title\", {fn: t => { return foo().then(fn); }}, t => {}); 1`] = `
+exports[`prefer-async-await > invalid(32): import test from 'node:test';\ntest(\"title\", {fn: t => { return foo().then(fn); }}, t => {}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test("title", {fn: t => { return foo().then(fn); }}, t => {});
 
 `;
 
-exports[`prefer-async-await > invalid(30): import test from 'node:test';\ntest(\"title\", {fn: t => { return foo().then(fn); }}, t => {}); 2`] = `
+exports[`prefer-async-await > invalid(32): import test from 'node:test';\ntest(\"title\", {fn: t => { return foo().then(fn); }}, t => {}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -382,14 +414,14 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(31): import {before} from \"node:test\";\nbefore(() => { return setup().then(fn); }); 1`] = `
+exports[`prefer-async-await > invalid(33): import {before} from \"node:test\";\nbefore(() => { return setup().then(fn); }); 1`] = `
 
   1 | import {before} from "node:test";
   2 | before(() => { return setup().then(fn); });
 
 `;
 
-exports[`prefer-async-await > invalid(31): import {before} from \"node:test\";\nbefore(() => { return setup().then(fn); }); 2`] = `
+exports[`prefer-async-await > invalid(33): import {before} from \"node:test\";\nbefore(() => { return setup().then(fn); }); 2`] = `
 
 Message:
   1 | import {before} from "node:test";
@@ -398,14 +430,14 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(32): import {beforeEach} from \"node:test\";\nbeforeEach(() => { return setup().then(fn); }); 1`] = `
+exports[`prefer-async-await > invalid(34): import {beforeEach} from \"node:test\";\nbeforeEach(() => { return setup().then(fn); }); 1`] = `
 
   1 | import {beforeEach} from "node:test";
   2 | beforeEach(() => { return setup().then(fn); });
 
 `;
 
-exports[`prefer-async-await > invalid(32): import {beforeEach} from \"node:test\";\nbeforeEach(() => { return setup().then(fn); }); 2`] = `
+exports[`prefer-async-await > invalid(34): import {beforeEach} from \"node:test\";\nbeforeEach(() => { return setup().then(fn); }); 2`] = `
 
 Message:
   1 | import {beforeEach} from "node:test";
@@ -414,14 +446,14 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(33): import * as nodeTest from \"node:test\";\nnodeTest.test(\"title\", t => { return foo().then(fn); }); 1`] = `
+exports[`prefer-async-await > invalid(35): import * as nodeTest from \"node:test\";\nnodeTest.test(\"title\", t => { return foo().then(fn); }); 1`] = `
 
   1 | import * as nodeTest from "node:test";
   2 | nodeTest.test("title", t => { return foo().then(fn); });
 
 `;
 
-exports[`prefer-async-await > invalid(33): import * as nodeTest from \"node:test\";\nnodeTest.test(\"title\", t => { return foo().then(fn); }); 2`] = `
+exports[`prefer-async-await > invalid(35): import * as nodeTest from \"node:test\";\nnodeTest.test(\"title\", t => { return foo().then(fn); }); 2`] = `
 
 Message:
   1 | import * as nodeTest from "node:test";
@@ -430,14 +462,14 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(34): import {test as t} from \"node:test\";\nt(\"title\", fn => { return foo().then(fn); }); 1`] = `
+exports[`prefer-async-await > invalid(36): import {test as t} from \"node:test\";\nt(\"title\", fn => { return foo().then(fn); }); 1`] = `
 
   1 | import {test as t} from "node:test";
   2 | t("title", fn => { return foo().then(fn); });
 
 `;
 
-exports[`prefer-async-await > invalid(34): import {test as t} from \"node:test\";\nt(\"title\", fn => { return foo().then(fn); }); 2`] = `
+exports[`prefer-async-await > invalid(36): import {test as t} from \"node:test\";\nt(\"title\", fn => { return foo().then(fn); }); 2`] = `
 
 Message:
   1 | import {test as t} from "node:test";
@@ -446,14 +478,14 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(35): import test from \"node:test\";\ntest(\"title\", (t => { return foo().then(fn); }) as any); 1`] = `
+exports[`prefer-async-await > invalid(37): import test from \"node:test\";\ntest(\"title\", (t => { return foo().then(fn); }) as any); 1`] = `
 
   1 | import test from "node:test";
   2 | test("title", (t => { return foo().then(fn); }) as any);
 
 `;
 
-exports[`prefer-async-await > invalid(35): import test from \"node:test\";\ntest(\"title\", (t => { return foo().then(fn); }) as any); 2`] = `
+exports[`prefer-async-await > invalid(37): import test from \"node:test\";\ntest(\"title\", (t => { return foo().then(fn); }) as any); 2`] = `
 
 Message:
   1 | import test from "node:test";
@@ -462,14 +494,14 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(36): import test from \"node:test\";\ntest(\"title\", t => { return (foo().then(fn)) as Promise<void>; }); 1`] = `
+exports[`prefer-async-await > invalid(38): import test from \"node:test\";\ntest(\"title\", t => { return (foo().then(fn)) as Promise<void>; }); 1`] = `
 
   1 | import test from "node:test";
   2 | test("title", t => { return (foo().then(fn)) as Promise<void>; });
 
 `;
 
-exports[`prefer-async-await > invalid(36): import test from \"node:test\";\ntest(\"title\", t => { return (foo().then(fn)) as Promise<void>; }); 2`] = `
+exports[`prefer-async-await > invalid(38): import test from \"node:test\";\ntest(\"title\", t => { return (foo().then(fn)) as Promise<void>; }); 2`] = `
 
 Message:
   1 | import test from "node:test";
@@ -478,14 +510,14 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(37): import test from \"node:test\";\ntest(\"title\", t => { return <Promise<void>>foo().then(fn); }); 1`] = `
+exports[`prefer-async-await > invalid(39): import test from \"node:test\";\ntest(\"title\", t => { return <Promise<void>>foo().then(fn); }); 1`] = `
 
   1 | import test from "node:test";
   2 | test("title", t => { return <Promise<void>>foo().then(fn); });
 
 `;
 
-exports[`prefer-async-await > invalid(37): import test from \"node:test\";\ntest(\"title\", t => { return <Promise<void>>foo().then(fn); }); 2`] = `
+exports[`prefer-async-await > invalid(39): import test from \"node:test\";\ntest(\"title\", t => { return <Promise<void>>foo().then(fn); }); 2`] = `
 
 Message:
   1 | import test from "node:test";
@@ -494,14 +526,30 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(38): import test from \"node:test\";\ntest(\"title\", t => { const bar = (foo().then(fn)) as any; return bar; }); 1`] = `
+exports[`prefer-async-await > invalid(4): import test from 'node:test';\ntest(\"title\", function(t) { return foo().then(fn); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("title", function(t) { return foo().then(fn); });
+
+`;
+
+exports[`prefer-async-await > invalid(4): import test from 'node:test';\ntest(\"title\", function(t) { return foo().then(fn); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("title", function(t) { return foo().then(fn); });
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer async/await instead of returning a Promise.
+
+`;
+
+exports[`prefer-async-await > invalid(40): import test from \"node:test\";\ntest(\"title\", t => { const bar = (foo().then(fn)) as any; return bar; }); 1`] = `
 
   1 | import test from "node:test";
   2 | test("title", t => { const bar = (foo().then(fn)) as any; return bar; });
 
 `;
 
-exports[`prefer-async-await > invalid(38): import test from \"node:test\";\ntest(\"title\", t => { const bar = (foo().then(fn)) as any; return bar; }); 2`] = `
+exports[`prefer-async-await > invalid(40): import test from \"node:test\";\ntest(\"title\", t => { const bar = (foo().then(fn)) as any; return bar; }); 2`] = `
 
 Message:
   1 | import test from "node:test";
@@ -510,14 +558,14 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(39): import test from \"node:test\";\ntest(\"title\", t => { return foo!.then(fn); }); 1`] = `
+exports[`prefer-async-await > invalid(41): import test from \"node:test\";\ntest(\"title\", t => { return foo!.then(fn); }); 1`] = `
 
   1 | import test from "node:test";
   2 | test("title", t => { return foo!.then(fn); });
 
 `;
 
-exports[`prefer-async-await > invalid(39): import test from \"node:test\";\ntest(\"title\", t => { return foo!.then(fn); }); 2`] = `
+exports[`prefer-async-await > invalid(41): import test from \"node:test\";\ntest(\"title\", t => { return foo!.then(fn); }); 2`] = `
 
 Message:
   1 | import test from "node:test";
@@ -526,30 +574,14 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(4): import test from 'node:test';\ntest(\"title\", t => { return foo().catch(fn2).then(fn); }); 1`] = `
-
-  1 | import test from 'node:test';
-  2 | test("title", t => { return foo().catch(fn2).then(fn); });
-
-`;
-
-exports[`prefer-async-await > invalid(4): import test from 'node:test';\ntest(\"title\", t => { return foo().catch(fn2).then(fn); }); 2`] = `
-
-Message:
-  1 | import test from 'node:test';
-> 2 | test("title", t => { return foo().catch(fn2).then(fn); });
-    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer async/await instead of returning a Promise.
-
-`;
-
-exports[`prefer-async-await > invalid(40): import test from 'node:test';\ntest('x', async t => { await t.test('y', () => { return f().then(d => d); }); }); 1`] = `
+exports[`prefer-async-await > invalid(42): import test from 'node:test';\ntest('x', async t => { await t.test('y', () => { return f().then(d => d); }); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('x', async t => { await t.test('y', () => { return f().then(d => d); }); });
 
 `;
 
-exports[`prefer-async-await > invalid(40): import test from 'node:test';\ntest('x', async t => { await t.test('y', () => { return f().then(d => d); }); }); 2`] = `
+exports[`prefer-async-await > invalid(42): import test from 'node:test';\ntest('x', async t => { await t.test('y', () => { return f().then(d => d); }); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -558,7 +590,7 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(41): import {test} from 'node:test';\ntest('o', t => {\n\tt.beforeEach(() => {\n\t\treturn setup().then(fn);\n\t});\n}); 1`] = `
+exports[`prefer-async-await > invalid(43): import {test} from 'node:test';\ntest('o', t => {\n\tt.beforeEach(() => {\n\t\treturn setup().then(fn);\n\t});\n}); 1`] = `
 
   1 | import {test} from 'node:test';
   2 | test('o', t => {
@@ -569,7 +601,7 @@ exports[`prefer-async-await > invalid(41): import {test} from 'node:test';\ntest
 
 `;
 
-exports[`prefer-async-await > invalid(41): import {test} from 'node:test';\ntest('o', t => {\n\tt.beforeEach(() => {\n\t\treturn setup().then(fn);\n\t});\n}); 2`] = `
+exports[`prefer-async-await > invalid(43): import {test} from 'node:test';\ntest('o', t => {\n\tt.beforeEach(() => {\n\t\treturn setup().then(fn);\n\t});\n}); 2`] = `
 
 Message:
   1 | import {test} from 'node:test';
@@ -584,7 +616,7 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(42): import {test} from 'node:test';\ntest('o', t => {\n\tt.after(() => {\n\t\treturn setup().then(fn);\n\t});\n}); 1`] = `
+exports[`prefer-async-await > invalid(44): import {test} from 'node:test';\ntest('o', t => {\n\tt.after(() => {\n\t\treturn setup().then(fn);\n\t});\n}); 1`] = `
 
   1 | import {test} from 'node:test';
   2 | test('o', t => {
@@ -595,7 +627,7 @@ exports[`prefer-async-await > invalid(42): import {test} from 'node:test';\ntest
 
 `;
 
-exports[`prefer-async-await > invalid(42): import {test} from 'node:test';\ntest('o', t => {\n\tt.after(() => {\n\t\treturn setup().then(fn);\n\t});\n}); 2`] = `
+exports[`prefer-async-await > invalid(44): import {test} from 'node:test';\ntest('o', t => {\n\tt.after(() => {\n\t\treturn setup().then(fn);\n\t});\n}); 2`] = `
 
 Message:
   1 | import {test} from 'node:test';
@@ -610,7 +642,7 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(43): import {test} from 'node:test';\ntest('o', t => {\n\tt.afterEach(() => {\n\t\treturn setup().then(fn);\n\t});\n}); 1`] = `
+exports[`prefer-async-await > invalid(45): import {test} from 'node:test';\ntest('o', t => {\n\tt.afterEach(() => {\n\t\treturn setup().then(fn);\n\t});\n}); 1`] = `
 
   1 | import {test} from 'node:test';
   2 | test('o', t => {
@@ -621,7 +653,7 @@ exports[`prefer-async-await > invalid(43): import {test} from 'node:test';\ntest
 
 `;
 
-exports[`prefer-async-await > invalid(43): import {test} from 'node:test';\ntest('o', t => {\n\tt.afterEach(() => {\n\t\treturn setup().then(fn);\n\t});\n}); 2`] = `
+exports[`prefer-async-await > invalid(45): import {test} from 'node:test';\ntest('o', t => {\n\tt.afterEach(() => {\n\t\treturn setup().then(fn);\n\t});\n}); 2`] = `
 
 Message:
   1 | import {test} from 'node:test';
@@ -636,14 +668,46 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(5): import test from 'node:test';\ntest(\"title\", t => { const bar = foo().then(fn); return bar; }); 1`] = `
+exports[`prefer-async-await > invalid(5): import test from 'node:test';\ntest(\"title\", t => { return foo().then(fn).catch(fn2); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("title", t => { return foo().then(fn).catch(fn2); });
+
+`;
+
+exports[`prefer-async-await > invalid(5): import test from 'node:test';\ntest(\"title\", t => { return foo().then(fn).catch(fn2); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("title", t => { return foo().then(fn).catch(fn2); });
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer async/await instead of returning a Promise.
+
+`;
+
+exports[`prefer-async-await > invalid(6): import test from 'node:test';\ntest(\"title\", t => { return foo().catch(fn2).then(fn); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("title", t => { return foo().catch(fn2).then(fn); });
+
+`;
+
+exports[`prefer-async-await > invalid(6): import test from 'node:test';\ntest(\"title\", t => { return foo().catch(fn2).then(fn); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("title", t => { return foo().catch(fn2).then(fn); });
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer async/await instead of returning a Promise.
+
+`;
+
+exports[`prefer-async-await > invalid(7): import test from 'node:test';\ntest(\"title\", t => { const bar = foo().then(fn); return bar; }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test("title", t => { const bar = foo().then(fn); return bar; });
 
 `;
 
-exports[`prefer-async-await > invalid(5): import test from 'node:test';\ntest(\"title\", t => { const bar = foo().then(fn); return bar; }); 2`] = `
+exports[`prefer-async-await > invalid(7): import test from 'node:test';\ntest(\"title\", t => { const bar = foo().then(fn); return bar; }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -652,14 +716,14 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(6): import test from 'node:test';\ntest(\"title\", t => { let bar = foo().then(fn); return bar; }); 1`] = `
+exports[`prefer-async-await > invalid(8): import test from 'node:test';\ntest(\"title\", t => { let bar = foo().then(fn); return bar; }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test("title", t => { let bar = foo().then(fn); return bar; });
 
 `;
 
-exports[`prefer-async-await > invalid(6): import test from 'node:test';\ntest(\"title\", t => { let bar = foo().then(fn); return bar; }); 2`] = `
+exports[`prefer-async-await > invalid(8): import test from 'node:test';\ntest(\"title\", t => { let bar = foo().then(fn); return bar; }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -668,50 +732,18 @@ Message:
 
 `;
 
-exports[`prefer-async-await > invalid(7): import test from 'node:test';\ntest(\"title\", t => { const bar = foo(); return bar.then(fn); }); 1`] = `
+exports[`prefer-async-await > invalid(9): import test from 'node:test';\ntest(\"title\", t => { const bar = foo(); return bar.then(fn); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test("title", t => { const bar = foo(); return bar.then(fn); });
 
 `;
 
-exports[`prefer-async-await > invalid(7): import test from 'node:test';\ntest(\"title\", t => { const bar = foo(); return bar.then(fn); }); 2`] = `
+exports[`prefer-async-await > invalid(9): import test from 'node:test';\ntest(\"title\", t => { const bar = foo(); return bar.then(fn); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
 > 2 | test("title", t => { const bar = foo(); return bar.then(fn); });
     |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer async/await instead of returning a Promise.
-
-`;
-
-exports[`prefer-async-await > invalid(8): import test from 'node:test';\ntest(\"title\", t => { return promise?.then(fn); }); 1`] = `
-
-  1 | import test from 'node:test';
-  2 | test("title", t => { return promise?.then(fn); });
-
-`;
-
-exports[`prefer-async-await > invalid(8): import test from 'node:test';\ntest(\"title\", t => { return promise?.then(fn); }); 2`] = `
-
-Message:
-  1 | import test from 'node:test';
-> 2 | test("title", t => { return promise?.then(fn); });
-    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer async/await instead of returning a Promise.
-
-`;
-
-exports[`prefer-async-await > invalid(9): import test from 'node:test';\ntest(\"title\", t => { return foo?.().then(fn); }); 1`] = `
-
-  1 | import test from 'node:test';
-  2 | test("title", t => { return foo?.().then(fn); });
-
-`;
-
-exports[`prefer-async-await > invalid(9): import test from 'node:test';\ntest(\"title\", t => { return foo?.().then(fn); }); 2`] = `
-
-Message:
-  1 | import test from 'node:test';
-> 2 | test("title", t => { return foo?.().then(fn); });
-    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer async/await instead of returning a Promise.
 
 `;

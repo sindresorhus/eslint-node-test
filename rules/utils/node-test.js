@@ -1083,6 +1083,12 @@ export function getTestTitleNode(callExpression) {
 		return undefined;
 	}
 
+	// In the function-first form the first argument is the implementation, not a positional title, so
+	// an options object with no `name` leaves the test with no title at all.
+	if (!nameProperty && isFunction(first)) {
+		return undefined;
+	}
+
 	return nameProperty ? nameProperty.value : first;
 }
 

@@ -72,6 +72,13 @@ test.snapshot({
 		'import test from "node:test";\ntest(\' foo \', () => {});',
 		// Template literal title becomes a single-quoted string after fixing
 		'import test from "node:test";\ntest(`  foo  `, () => {});',
+		// A statically resolved title is rewritten as a fresh string literal, which would drop a
+		// comment inside the expression it came from, so the fix is withheld.
+		'import test from "node:test";\ntest("foo" /* keep me */ + " ", () => {});',
+		'import test from "node:test";\nconst titles = {a: " foo "};\ntest(titles /* keep me */.a, () => {});',
+		'import test from "node:test";\ntest((0 /* keep me */, " foo "), () => {});',
+		'import test from "node:test";\ntest("foo" + /* keep me */ " ", () => {});',
+		'import test from "node:test";\nconst name = " foo ";\ntest(name, () => {});',
 		// Named imports
 		'import {it} from "node:test";\nit(() => {});',
 		'import {describe} from "node:test";\ndescribe(() => {});',
@@ -109,6 +116,16 @@ test.snapshot({
 		'import test from "node:test";\ntest(\'pos\', {name: 5}, () => {});',
 		'import test from "node:test";\ntest(\'pos\', {name: undefined}, () => {});',
 		'import test from "node:test";\ntest(() => {}, {name: 5});',
+		// An options object with no `name` leaves the function-first form with no title either
+		'import test from "node:test";\ntest(() => {}, {skip: true});',
+		'import test from "node:test";\ntest(() => {}, {});',
+		'import {describe} from "node:test";\ndescribe(() => {}, {skip: true});',
+		'import {suite} from "node:test";\nsuite(() => {}, {skip: true});',
+		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(() => {}, {skip: true}); });',
+		{
+			code: 'import test from \'node:test\';\ntest((() => {}) as any, {skip: true});',
+			languageOptions: {parser: parsers.typescript},
+		},
 
 		// A TypeScript wrapper around the implementation must not hide the missing title
 		{

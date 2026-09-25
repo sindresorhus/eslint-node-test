@@ -14,6 +14,7 @@ import {
 } from './utils/node-test.js';
 import {isSkippedTestCall, isInsideSkippedCallback} from './shared/skipped-test.js';
 import {getEnclosingFunction} from './utils/index.js';
+import {isFunction} from './ast/index.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
 const MESSAGE_ID = 'no-duplicate-mock-timers-enable';
@@ -150,11 +151,36 @@ function getEnabledReceivers(segment, enabledReceiversBySegment) {
 }
 
 /*
-Whether a code path runs while the file is being loaded, where the mock timers are enabled for every
-test in it: the module body, and a class static block, which is module-level code in its own path.
+A class static field initializer runs when the class is defined, like a static block does, and ESLint
+gives it its own code path whose node is the initialized expression itself.
 */
-function isLoadTimeCodePath(node) {
-	return node.type === 'Program' || node.type === 'StaticBlock';
+function isStaticFieldInitializer(node) {
+	const {parent} = node;
+	// A function value is its own code path, and its body runs when it is called, not when the class is defined.
+	return parent?.type === 'PropertyDefinition' && parent.static && parent.value === node && !isFunction(node);
+}
+
+/*
+A class static block and a static field initializer are not a scope of their own: they run as part of
+the flow of the code that declares the class, in a code path of their own only because ESLint
+analyzes them separately.
+*/
+function isStaticPath(node) {
+	return node.type === 'StaticBlock' || isStaticFieldInitializer(node);
+}
+
+/*
+Whether a code path runs while the file is being loaded, where the mock timers are enabled for every
+test in it: the module body, and a class static block or static field initializer that the module body
+declares. A class declared inside a test, suite or hook callback is defined while that callback runs
+instead, which is not load time.
+*/
+function isLoadTimeCodePath(node, contextTracker) {
+	if (node.type === 'Program') {
+		return true;
+	}
+
+	return isStaticPath(node) && !contextTracker.isTrackedCallback(getEnclosingFunction(node));
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -234,9 +260,13 @@ const create = context => {
 	};
 
 	context.on('onCodePathStart', (codePath, node) => {
+		const isLoadTime = isLoadTimeCodePath(node, contextTracker);
 		codePathStack.push({
 			node,
-			isTracked: isLoadTimeCodePath(node) || trackedCallbacks.has(node),
+			// A static block or static field initializer declared in a callback the runner executes
+			// belongs to that callback, so it is tracked with it.
+			isTracked: isLoadTime || trackedCallbacks.has(node) || (isStaticPath(node) && trackedCallbacks.has(getEnclosingFunction(node))),
+			isLoadTime,
 			activeSegments: new Set(),
 			enabledReceiversBySegment: new Map(),
 		});
@@ -266,7 +296,7 @@ const create = context => {
 		const codePath = codePathStack.at(-1);
 		if (
 			!codePath?.isTracked
-			|| (!isLoadTimeCodePath(codePath.node) && getEnclosingFunction(node) !== codePath.node)
+			|| (!isStaticPath(codePath.node) && !codePath.isLoadTime && getEnclosingFunction(node) !== codePath.node)
 		) {
 			return;
 		}
@@ -276,18 +306,40 @@ const create = context => {
 			return;
 		}
 
+		// A static block or static field initializer runs as part of the flow of the code that declares
+		// the class, so the trackers it enables are enabled for that code too. A tracked callback runs
+		// at a time of its own, so nothing outside it shares the state, and a helper function is not
+		// tracked at all.
+		const codePaths = [codePath];
+		if (isStaticPath(codePath.node)) {
+			for (let index = codePathStack.length - 2; index >= 0; index--) {
+				const enclosing = codePathStack[index];
+				if (!enclosing.isTracked) {
+					break;
+				}
+
+				codePaths.push(enclosing);
+				if (!enclosing.isLoadTime) {
+					break;
+				}
+			}
+		}
+
 		let isDuplicate = false;
-		for (const segment of codePath.activeSegments) {
-			const enabledReceivers = codePath.enabledReceiversBySegment.get(segment);
-			if (action.method === 'enable') {
-				// While any tracker has its timers enabled, `Date` is already mocked, so enabling
-				// through another receiver — the global `mock.timers` or a context's `t.mock.timers` —
-				// throws `ERR_INVALID_STATE` just as enabling the same one twice does. A `reset()` only
-				// clears the receiver it is called on, so a receiver enabled earlier stays enabled.
-				isDuplicate ||= enabledReceivers.size > 0;
-				enabledReceivers.add(action.receiver);
-			} else {
-				enabledReceivers.delete(action.receiver);
+		for (const path of codePaths) {
+			for (const segment of path.activeSegments) {
+				const enabledReceivers = path.enabledReceiversBySegment.get(segment);
+				if (action.method === 'enable') {
+					// While any tracker has its timers enabled, `Date` is already mocked, so enabling
+					// through another receiver — the global `mock.timers` or a context's
+					// `t.mock.timers` — throws `ERR_INVALID_STATE` just as enabling the same one twice
+					// does. A `reset()` only clears the receiver it is called on, so a receiver enabled
+					// earlier stays enabled.
+					isDuplicate ||= enabledReceivers.size > 0;
+					enabledReceivers.add(action.receiver);
+				} else {
+					enabledReceivers.delete(action.receiver);
+				}
 			}
 		}
 

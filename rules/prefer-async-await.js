@@ -193,7 +193,21 @@ const create = context => {
 
 			const assignedFromThen = variable.defs.some(
 				definition => definition.type === 'Variable' && containsThen(definition.node.init),
-			);
+			) || variable.references.some(reference => {
+				// A reassignment holds the value just as a declaration does, and it is a write reference
+				// rather than a definition, so the assigned expression comes from the assignment.
+				if (!reference.isWrite()) {
+					return false;
+				}
+
+				const {identifier} = reference;
+				const {parent} = identifier;
+				// Only a plain `=` assigns the chain itself; `bar += p.then(f)` produces a string.
+				return parent?.type === 'AssignmentExpression'
+					&& parent.operator === '='
+					&& parent.left === identifier
+					&& containsThen(parent.right);
+			});
 			if (assignedFromThen) {
 				return {
 					node: callback,

@@ -8,6 +8,22 @@ const withNamedImport = names => `import {mock, ${names}} from 'node:test';`;
 test.snapshot({
 	valid: [
 		withImport('class A {\n\tstatic {\n\t\tmock.timers.enable();\n\t\tmock.timers.reset();\n\t\tmock.timers.enable();\n\t}\n}'),
+		// A reset in a static block or static field initializer clears the module body's state, and the
+		// other way round.
+		withImport('class A {\n\tstatic {\n\t\tmock.timers.enable();\n\t}\n}\nmock.timers.reset();\nmock.timers.enable();'),
+		withImport('mock.timers.enable();\nclass A {\n\tstatic {\n\t\tmock.timers.reset();\n\t}\n}\nmock.timers.enable();'),
+		withImport('class A {\n\tstatic timers = mock.timers.enable();\n}\nmock.timers.reset();\nmock.timers.enable();'),
+		withImport('mock.timers.enable();\nclass A {\n\tstatic timers = mock.timers.reset();\n}\nmock.timers.enable();'),
+		// A function in a static field runs when it is called, not when the class is defined
+		withImport('mock.timers.enable();\nclass A {\n\tstatic f = () => {\n\t\tmock.timers.enable();\n\t};\n}'),
+		withImport('mock.timers.enable();\nclass A {\n\tstatic f = function () {\n\t\tmock.timers.enable();\n\t};\n}'),
+
+		// A callback that never runs leaves its class undefined, so nothing throws.
+		withImport('test.skip("title", () => { class A { static { mock.timers.enable(); mock.timers.enable(); } } });'),
+		withImport('test("title", {skip: "why"}, () => { class A { static { mock.timers.enable(); mock.timers.enable(); } } });'),
+		// A reset in the static block clears the callback's state
+		withImport('test("title", () => { mock.timers.enable(); class A { static { mock.timers.reset(); } } mock.timers.enable(); });'),
+		withImport('test("title", () => { class A { static { mock.timers.enable(); } } mock.timers.reset(); mock.timers.enable(); });'),
 		// A standalone `only` still runs unless the options slot says otherwise
 		`${withNamedImport('only')}\nonly('t', {skip: true}, () => { mock.timers.enable(); mock.timers.enable(); });`,
 		`${withNamedImport('only')}\nonly({name: 't', skip: true, fn() { mock.timers.enable(); mock.timers.enable(); }});`,
@@ -105,6 +121,29 @@ test.snapshot({
 		withImport('class A {\n\tstatic {\n\t\tmock.timers.enable();\n\t\tmock.timers.enable();\n\t}\n}'),
 		withImport('mock.timers.enable();\ntest.mock.timers.enable();'),
 		withImport('mock.timers.enable();\nmock.timers.enable();\nmock.timers.enable();'),
+
+		// A class static block or static field initializer runs while the file loads, in the middle of
+		// the module body, so it shares the module body's enabled state.
+		withImport('mock.timers.enable();\nclass A {\n\tstatic {\n\t\tmock.timers.enable();\n\t}\n}'),
+		withImport('class A {\n\tstatic {\n\t\tmock.timers.enable();\n\t}\n}\nmock.timers.enable();'),
+		withImport('mock.timers.enable();\nclass A {\n\tstatic timers = mock.timers.enable();\n}'),
+		withImport('class A {\n\tstatic timers = mock.timers.enable();\n}\nmock.timers.enable();'),
+		withImport('class A {\n\tstatic timers = [mock.timers.enable(), mock.timers.enable()];\n}'),
+		// The innermost load-time path is nested in the outer one, and shares its state too
+		withImport('mock.timers.enable();\nclass A {\n\tstatic {\n\t\tclass B {\n\t\t\tstatic {\n\t\t\t\tmock.timers.enable();\n\t\t\t}\n\t\t}\n\t}\n}'),
+		withImport('mock.timers.enable();\nclass A {\n\tstatic {\n\t\tclass B {\n\t\t\tstatic timers = mock.timers.enable();\n\t\t}\n\t}\n}'),
+
+		// A class declared in a callback is defined while that callback runs, so a static block in it
+		// shares the callback's state.
+		withImport('test("title", () => { class A { static { mock.timers.enable(); mock.timers.enable(); } } });'),
+		withImport('test("title", () => { class A { static timers = [mock.timers.enable(), mock.timers.enable()]; } });'),
+		withImport('test("title", () => { mock.timers.enable(); class A { static { mock.timers.enable(); } } });'),
+		withImport('test("title", () => { class A { static { mock.timers.enable(); } } mock.timers.enable(); });'),
+		withImport('test("title", () => { class A { static { mock.timers.enable(); } } class B { static { mock.timers.enable(); } } });'),
+		'import {describe, mock} from \'node:test\';\ndescribe("suite", () => { class A { static { mock.timers.enable(); } } mock.timers.enable(); });',
+		'import {beforeEach, mock} from \'node:test\';\nbeforeEach(() => { class A { static { mock.timers.enable(); mock.timers.enable(); } } });',
+		// The static block reads the context parameter the callback was given
+		withImport('test("title", t => { class A { static { t.mock.timers.enable(); t.mock.timers.enable(); } } });'),
 
 		// Default and namespace forms refer to the same global tracker.
 		'import test from \'node:test\';\ntest.mock.timers.enable();\ntest.mock.timers.enable();',
