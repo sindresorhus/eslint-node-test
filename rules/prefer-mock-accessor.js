@@ -1,4 +1,4 @@
-import {resolveImports, createContextTracker, isGlobalMock} from './utils/node-test.js';
+import {resolveImports, createContextTracker, isGetTestContextCall, isGlobalMock} from './utils/node-test.js';
 import {isFunction} from './ast/index.js';
 import {unwrapTypeScriptExpression, unwrapExpression} from './utils/index.js';
 
@@ -100,8 +100,11 @@ const create = context => {
 			return false;
 		}
 
+		// The receiver is either a context parameter or a `getTestContext()` call, which is the same
+		// context.
 		const object = unwrapExpression(node.object);
-		return object.type === 'Identifier' && tracker.isContextIdentifier(object);
+		return (object.type === 'Identifier' && tracker.isContextIdentifier(object))
+			|| isGetTestContextCall(object, imports);
 	};
 
 	context.on('CallExpression', node => {

@@ -3,11 +3,17 @@ import {getTester, parsers} from './utils/test.js';
 const {test} = getTester(import.meta);
 
 const withTest = code => `import test from 'node:test';\ntest('t', t => {\n\t${code}\n});`;
+const withTestContext = code => `import test, {getTestContext} from 'node:test';\ntest('t', () => {\n\t${code}\n});`;
 
 test.snapshot({
 	valid: [
 		// Snapshot outside a loop.
 		withTest('t.assert.snapshot(value);'),
+		withTestContext('getTestContext().assert.snapshot(value);'),
+		// An unrelated object's `assert` is not the test context's
+		withTestContext('for (const item of items) { other.assert.snapshot(item); }'),
+		// Another context assertion is not a positional snapshot
+		withTestContext('for (const item of items) { getTestContext().assert.ok(item); }'),
 
 		// Not a test file.
 		'for (const item of items) { t.assert.snapshot(item); }',
@@ -65,6 +71,10 @@ test.snapshot({
 		withTest('items.forEach(item => { t.assert.snapshot(item); });'),
 	],
 	invalid: [
+		// `getTestContext()` is the same context, so its snapshot is the test's own
+		withTestContext('for (const item of items) { getTestContext().assert.snapshot(item); }'),
+		withTestContext('while (hasMore()) { getTestContext().assert.snapshot(item); }'),
+		withTestContext('for (let index = 0; index < 3; index++) { getTestContext().assert.snapshot(index); }'),
 		// For-of loop body.
 		withTest('for (const item of items) { t.assert.snapshot(item); }'),
 		withTest('for (const item of items) t.assert.snapshot(item);'),

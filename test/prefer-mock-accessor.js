@@ -3,6 +3,7 @@ import {getTester, parsers} from './utils/test.js';
 const {test} = getTester(import.meta);
 const withMock = code => `import {mock} from 'node:test';\n${code}`;
 const inTest = code => `import test from 'node:test';\ntest('t', t => {\n\t${code}\n});`;
+const inTestWithContext = code => `import test, {getTestContext} from 'node:test';\ntest('t', () => {\n\t${code}\n});`;
 
 test.snapshot({
 	valid: [
@@ -51,6 +52,10 @@ test.snapshot({
 		},
 	],
 	invalid: [
+		// `getTestContext()` is the same context, so its `mock` is the context's too
+		inTestWithContext('getTestContext().mock.method(object, \'value\', {getter: true});'),
+		inTestWithContext('getTestContext().mock.method(object, \'value\', {setter: true});'),
+		inTestWithContext('getTestContext().mock.method(object, \'value\', () => \'stubbed\', {getter: true});'),
 		// Global mock getter.
 		withMock('mock.method(object, \'value\', {getter: true});'),
 		withMock('mock.method(object, \'value\', {getter: false, getter: true});'),

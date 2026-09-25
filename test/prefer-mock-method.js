@@ -37,6 +37,9 @@ test.snapshot({
 
 		// Hook callbacks receive a real test context, so `t.mock.fn()` is trackable there too
 		'import {before} from \'node:test\';\nbefore(t => { object.method = t.mock.fn(); });',
+		// `getTestContext()` is the same context, so its `mock` is the context's too
+		'import {test, getTestContext} from \'node:test\';\ntest(\'t\', () => { object.method = getTestContext().mock.fn(); });',
+		'import {test, getTestContext} from \'node:test\';\ntest(\'t\', () => { object.method = getTestContext().mock.fn(() => 42); });',
 		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { object.method = t.mock.fn(); });',
 		'import {after} from \'node:test\';\nafter(t => { object.method = t.mock.fn(); });',
 		'import {afterEach} from \'node:test\';\nafterEach(t => { object.method = t.mock.fn(); });',

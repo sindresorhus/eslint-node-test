@@ -2,6 +2,7 @@ import {
 	resolveImports,
 	createContextTracker,
 	getStaticString,
+	isGetTestContextCall,
 	isGlobalMock,
 } from './utils/node-test.js';
 import {isValueNotUsable, unwrapExpression} from './utils/index.js';
@@ -58,8 +59,11 @@ const create = context => {
 			return false;
 		}
 
+		// The receiver is either a context parameter or a `getTestContext()` call, which is the same
+		// context.
 		const object = unwrapExpression(node.object);
-		return object.type === 'Identifier' && tracker.isContextIdentifier(object);
+		return (object.type === 'Identifier' && tracker.isContextIdentifier(object))
+			|| isGetTestContextCall(object, imports);
 	};
 
 	// Keep the context-name stack in sync as we enter and leave test callbacks.

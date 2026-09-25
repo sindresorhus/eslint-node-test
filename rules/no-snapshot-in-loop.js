@@ -4,8 +4,10 @@ import {
 	createContextTracker,
 	getCalleeChain,
 	getContextParameterIdentifier,
+	isGetTestContextCall,
 } from './utils/node-test.js';
 import {isLoop, isFunction} from './ast/index.js';
+import {unwrapExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'no-snapshot-in-loop';
 
@@ -48,7 +50,32 @@ function isCurrentContextReference(node, tracker, sourceCode) {
 	return variable?.defs.some(definition => definition.name === parameter) ?? false;
 }
 
-function isCurrentContextSnapshotCall(node, tracker, sourceCode) {
+// `getTestContext().assert.snapshot(…)` is the same call reached through a call rather than an
+// identifier, so the callee chain cannot be walked down to a context parameter.
+function isGetTestContextSnapshotCall(node, imports) {
+	const callee = unwrapExpression(node.callee);
+	if (
+		callee?.type !== 'MemberExpression'
+		|| callee.computed
+		|| callee.property.type !== 'Identifier'
+		|| callee.property.name !== 'snapshot'
+	) {
+		return false;
+	}
+
+	const assert = unwrapExpression(callee.object);
+	return assert?.type === 'MemberExpression'
+		&& !assert.computed
+		&& assert.property.type === 'Identifier'
+		&& assert.property.name === 'assert'
+		&& isGetTestContextCall(unwrapExpression(assert.object), imports);
+}
+
+function isCurrentContextSnapshotCall(node, tracker, sourceCode, imports) {
+	if (isGetTestContextSnapshotCall(node, imports)) {
+		return isInCurrentCallback(node, tracker);
+	}
+
 	const chain = getCalleeChain(node.callee);
 	return (
 		chain?.members.length === 2
@@ -96,7 +123,7 @@ const create = context => {
 		let problem;
 
 		if (
-			isCurrentContextSnapshotCall(node, tracker, sourceCode)
+			isCurrentContextSnapshotCall(node, tracker, sourceCode, imports)
 			&& isInLoopBody(node)
 		) {
 			problem = {

@@ -18,14 +18,54 @@ Message:
 
 `;
 
-exports[`prefer-mock-method > invalid(10): import {mock} from 'node:test';\nobject.method = mock.fn(); 1`] = `
+exports[`prefer-mock-method > invalid(10): import {beforeEach} from 'node:test';\nbeforeEach(function (t) { object.method = t.mock.fn(); }); 1`] = `
+
+  1 | import {beforeEach} from 'node:test';
+  2 | beforeEach(function (t) { object.method = t.mock.fn(); });
+
+`;
+
+exports[`prefer-mock-method > invalid(10): import {beforeEach} from 'node:test';\nbeforeEach(function (t) { object.method = t.mock.fn(); }); 2`] = `
+
+Message:
+  1 | import {beforeEach} from 'node:test';
+> 2 | beforeEach(function (t) { object.method = t.mock.fn(); });
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`t.mock.method()\` over assigning \`t.mock.fn()\` to a property, so the original method is tracked and can be restored.
+
+Suggestion 1/1: Replace with \`t.mock.method()\`.:
+  1 | import {beforeEach} from 'node:test';
+  2 | beforeEach(function (t) { t.mock.method(object, 'method'); });
+
+`;
+
+exports[`prefer-mock-method > invalid(11): import {beforeEach} from 'node:test';\nbeforeEach(t => { object.method = t.mock.fn(() => 42); }); 1`] = `
+
+  1 | import {beforeEach} from 'node:test';
+  2 | beforeEach(t => { object.method = t.mock.fn(() => 42); });
+
+`;
+
+exports[`prefer-mock-method > invalid(11): import {beforeEach} from 'node:test';\nbeforeEach(t => { object.method = t.mock.fn(() => 42); }); 2`] = `
+
+Message:
+  1 | import {beforeEach} from 'node:test';
+> 2 | beforeEach(t => { object.method = t.mock.fn(() => 42); });
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`t.mock.method()\` over assigning \`t.mock.fn()\` to a property, so the original method is tracked and can be restored.
+
+Suggestion 1/1: Replace with \`t.mock.method()\`.:
+  1 | import {beforeEach} from 'node:test';
+  2 | beforeEach(t => { t.mock.method(object, 'method', () => 42); });
+
+`;
+
+exports[`prefer-mock-method > invalid(12): import {mock} from 'node:test';\nobject.method = mock.fn(); 1`] = `
 
   1 | import {mock} from 'node:test';
   2 | object.method = mock.fn();
 
 `;
 
-exports[`prefer-mock-method > invalid(10): import {mock} from 'node:test';\nobject.method = mock.fn(); 2`] = `
+exports[`prefer-mock-method > invalid(12): import {mock} from 'node:test';\nobject.method = mock.fn(); 2`] = `
 
 Message:
   1 | import {mock} from 'node:test';
@@ -38,14 +78,14 @@ Suggestion 1/1: Replace with \`mock.method()\`.:
 
 `;
 
-exports[`prefer-mock-method > invalid(11): import {mock} from 'node:test';\nobject.method = mock.fn(() => 42); 1`] = `
+exports[`prefer-mock-method > invalid(13): import {mock} from 'node:test';\nobject.method = mock.fn(() => 42); 1`] = `
 
   1 | import {mock} from 'node:test';
   2 | object.method = mock.fn(() => 42);
 
 `;
 
-exports[`prefer-mock-method > invalid(11): import {mock} from 'node:test';\nobject.method = mock.fn(() => 42); 2`] = `
+exports[`prefer-mock-method > invalid(13): import {mock} from 'node:test';\nobject.method = mock.fn(() => 42); 2`] = `
 
 Message:
   1 | import {mock} from 'node:test';
@@ -58,14 +98,14 @@ Suggestion 1/1: Replace with \`mock.method()\`.:
 
 `;
 
-exports[`prefer-mock-method > invalid(12): import {mock} from 'node:test';\nobject['method'] = mock.fn(); 1`] = `
+exports[`prefer-mock-method > invalid(14): import {mock} from 'node:test';\nobject['method'] = mock.fn(); 1`] = `
 
   1 | import {mock} from 'node:test';
   2 | object['method'] = mock.fn();
 
 `;
 
-exports[`prefer-mock-method > invalid(12): import {mock} from 'node:test';\nobject['method'] = mock.fn(); 2`] = `
+exports[`prefer-mock-method > invalid(14): import {mock} from 'node:test';\nobject['method'] = mock.fn(); 2`] = `
 
 Message:
   1 | import {mock} from 'node:test';
@@ -78,14 +118,14 @@ Suggestion 1/1: Replace with \`mock.method()\`.:
 
 `;
 
-exports[`prefer-mock-method > invalid(13): import {mock} from 'node:test';\nobject[\`method\`] = mock.fn(); 1`] = `
+exports[`prefer-mock-method > invalid(15): import {mock} from 'node:test';\nobject[\`method\`] = mock.fn(); 1`] = `
 
   1 | import {mock} from 'node:test';
   2 | object[\`method\`] = mock.fn();
 
 `;
 
-exports[`prefer-mock-method > invalid(13): import {mock} from 'node:test';\nobject[\`method\`] = mock.fn(); 2`] = `
+exports[`prefer-mock-method > invalid(15): import {mock} from 'node:test';\nobject[\`method\`] = mock.fn(); 2`] = `
 
 Message:
   1 | import {mock} from 'node:test';
@@ -98,7 +138,7 @@ Suggestion 1/1: Replace with \`mock.method()\`.:
 
 `;
 
-exports[`prefer-mock-method > invalid(14): import {mock} from 'node:test';\nconst name = 'method';\nobject[name] = mock.fn(); 1`] = `
+exports[`prefer-mock-method > invalid(16): import {mock} from 'node:test';\nconst name = 'method';\nobject[name] = mock.fn(); 1`] = `
 
   1 | import {mock} from 'node:test';
   2 | const name = 'method';
@@ -106,7 +146,7 @@ exports[`prefer-mock-method > invalid(14): import {mock} from 'node:test';\ncons
 
 `;
 
-exports[`prefer-mock-method > invalid(14): import {mock} from 'node:test';\nconst name = 'method';\nobject[name] = mock.fn(); 2`] = `
+exports[`prefer-mock-method > invalid(16): import {mock} from 'node:test';\nconst name = 'method';\nobject[name] = mock.fn(); 2`] = `
 
 Message:
   1 | import {mock} from 'node:test';
@@ -121,7 +161,7 @@ Suggestion 1/1: Replace with \`mock.method()\`.:
 
 `;
 
-exports[`prefer-mock-method > invalid(15): import {mock} from 'node:test';\nconst methodName = 'method';\nobject[methodName] = mock.fn(); 1`] = `
+exports[`prefer-mock-method > invalid(17): import {mock} from 'node:test';\nconst methodName = 'method';\nobject[methodName] = mock.fn(); 1`] = `
 
   1 | import {mock} from 'node:test';
   2 | const methodName = 'method';
@@ -129,7 +169,7 @@ exports[`prefer-mock-method > invalid(15): import {mock} from 'node:test';\ncons
 
 `;
 
-exports[`prefer-mock-method > invalid(15): import {mock} from 'node:test';\nconst methodName = 'method';\nobject[methodName] = mock.fn(); 2`] = `
+exports[`prefer-mock-method > invalid(17): import {mock} from 'node:test';\nconst methodName = 'method';\nobject[methodName] = mock.fn(); 2`] = `
 
 Message:
   1 | import {mock} from 'node:test';
@@ -144,14 +184,14 @@ Suggestion 1/1: Replace with \`mock.method()\`.:
 
 `;
 
-exports[`prefer-mock-method > invalid(16): import {mock} from 'node:test';\nobject[methodName] = mock.fn(); 1`] = `
+exports[`prefer-mock-method > invalid(18): import {mock} from 'node:test';\nobject[methodName] = mock.fn(); 1`] = `
 
   1 | import {mock} from 'node:test';
   2 | object[methodName] = mock.fn();
 
 `;
 
-exports[`prefer-mock-method > invalid(16): import {mock} from 'node:test';\nobject[methodName] = mock.fn(); 2`] = `
+exports[`prefer-mock-method > invalid(18): import {mock} from 'node:test';\nobject[methodName] = mock.fn(); 2`] = `
 
 Message:
   1 | import {mock} from 'node:test';
@@ -160,51 +200,19 @@ Message:
 
 `;
 
-exports[`prefer-mock-method > invalid(17): import {mock} from 'node:test';\nfunction f(methodName) { object[methodName] = mock.fn(); } 1`] = `
+exports[`prefer-mock-method > invalid(19): import {mock} from 'node:test';\nfunction f(methodName) { object[methodName] = mock.fn(); } 1`] = `
 
   1 | import {mock} from 'node:test';
   2 | function f(methodName) { object[methodName] = mock.fn(); }
 
 `;
 
-exports[`prefer-mock-method > invalid(17): import {mock} from 'node:test';\nfunction f(methodName) { object[methodName] = mock.fn(); } 2`] = `
+exports[`prefer-mock-method > invalid(19): import {mock} from 'node:test';\nfunction f(methodName) { object[methodName] = mock.fn(); } 2`] = `
 
 Message:
   1 | import {mock} from 'node:test';
 > 2 | function f(methodName) { object[methodName] = mock.fn(); }
     |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`mock.method()\` over assigning \`mock.fn()\` to a property, so the original method is tracked and can be restored.
-
-`;
-
-exports[`prefer-mock-method > invalid(18): import {mock} from 'node:test';\nobject[0] = mock.fn(); 1`] = `
-
-  1 | import {mock} from 'node:test';
-  2 | object[0] = mock.fn();
-
-`;
-
-exports[`prefer-mock-method > invalid(18): import {mock} from 'node:test';\nobject[0] = mock.fn(); 2`] = `
-
-Message:
-  1 | import {mock} from 'node:test';
-> 2 | object[0] = mock.fn();
-    | ^^^^^^^^^^^^^^^^^^^^^ Prefer \`mock.method()\` over assigning \`mock.fn()\` to a property, so the original method is tracked and can be restored.
-
-`;
-
-exports[`prefer-mock-method > invalid(19): import {mock} from 'node:test';\nobject[-1] = mock.fn(); 1`] = `
-
-  1 | import {mock} from 'node:test';
-  2 | object[-1] = mock.fn();
-
-`;
-
-exports[`prefer-mock-method > invalid(19): import {mock} from 'node:test';\nobject[-1] = mock.fn(); 2`] = `
-
-Message:
-  1 | import {mock} from 'node:test';
-> 2 | object[-1] = mock.fn();
-    | ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`mock.method()\` over assigning \`mock.fn()\` to a property, so the original method is tracked and can be restored.
 
 `;
 
@@ -228,14 +236,46 @@ Message:
 
 `;
 
-exports[`prefer-mock-method > invalid(20): import {mock} from 'node:test';\nobject[1.5] = mock.fn(); 1`] = `
+exports[`prefer-mock-method > invalid(20): import {mock} from 'node:test';\nobject[0] = mock.fn(); 1`] = `
+
+  1 | import {mock} from 'node:test';
+  2 | object[0] = mock.fn();
+
+`;
+
+exports[`prefer-mock-method > invalid(20): import {mock} from 'node:test';\nobject[0] = mock.fn(); 2`] = `
+
+Message:
+  1 | import {mock} from 'node:test';
+> 2 | object[0] = mock.fn();
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer \`mock.method()\` over assigning \`mock.fn()\` to a property, so the original method is tracked and can be restored.
+
+`;
+
+exports[`prefer-mock-method > invalid(21): import {mock} from 'node:test';\nobject[-1] = mock.fn(); 1`] = `
+
+  1 | import {mock} from 'node:test';
+  2 | object[-1] = mock.fn();
+
+`;
+
+exports[`prefer-mock-method > invalid(21): import {mock} from 'node:test';\nobject[-1] = mock.fn(); 2`] = `
+
+Message:
+  1 | import {mock} from 'node:test';
+> 2 | object[-1] = mock.fn();
+    | ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`mock.method()\` over assigning \`mock.fn()\` to a property, so the original method is tracked and can be restored.
+
+`;
+
+exports[`prefer-mock-method > invalid(22): import {mock} from 'node:test';\nobject[1.5] = mock.fn(); 1`] = `
 
   1 | import {mock} from 'node:test';
   2 | object[1.5] = mock.fn();
 
 `;
 
-exports[`prefer-mock-method > invalid(20): import {mock} from 'node:test';\nobject[1.5] = mock.fn(); 2`] = `
+exports[`prefer-mock-method > invalid(22): import {mock} from 'node:test';\nobject[1.5] = mock.fn(); 2`] = `
 
 Message:
   1 | import {mock} from 'node:test';
@@ -244,14 +284,14 @@ Message:
 
 `;
 
-exports[`prefer-mock-method > invalid(21): import {mock} from 'node:test';\nobject[true] = mock.fn(); 1`] = `
+exports[`prefer-mock-method > invalid(23): import {mock} from 'node:test';\nobject[true] = mock.fn(); 1`] = `
 
   1 | import {mock} from 'node:test';
   2 | object[true] = mock.fn();
 
 `;
 
-exports[`prefer-mock-method > invalid(21): import {mock} from 'node:test';\nobject[true] = mock.fn(); 2`] = `
+exports[`prefer-mock-method > invalid(23): import {mock} from 'node:test';\nobject[true] = mock.fn(); 2`] = `
 
 Message:
   1 | import {mock} from 'node:test';
@@ -260,14 +300,14 @@ Message:
 
 `;
 
-exports[`prefer-mock-method > invalid(22): import {mock} from 'node:test';\nobject[null] = mock.fn(); 1`] = `
+exports[`prefer-mock-method > invalid(24): import {mock} from 'node:test';\nobject[null] = mock.fn(); 1`] = `
 
   1 | import {mock} from 'node:test';
   2 | object[null] = mock.fn();
 
 `;
 
-exports[`prefer-mock-method > invalid(22): import {mock} from 'node:test';\nobject[null] = mock.fn(); 2`] = `
+exports[`prefer-mock-method > invalid(24): import {mock} from 'node:test';\nobject[null] = mock.fn(); 2`] = `
 
 Message:
   1 | import {mock} from 'node:test';
@@ -276,14 +316,14 @@ Message:
 
 `;
 
-exports[`prefer-mock-method > invalid(23): import {mock} from 'node:test';\nobject[Symbol.iterator] = mock.fn(); 1`] = `
+exports[`prefer-mock-method > invalid(25): import {mock} from 'node:test';\nobject[Symbol.iterator] = mock.fn(); 1`] = `
 
   1 | import {mock} from 'node:test';
   2 | object[Symbol.iterator] = mock.fn();
 
 `;
 
-exports[`prefer-mock-method > invalid(23): import {mock} from 'node:test';\nobject[Symbol.iterator] = mock.fn(); 2`] = `
+exports[`prefer-mock-method > invalid(25): import {mock} from 'node:test';\nobject[Symbol.iterator] = mock.fn(); 2`] = `
 
 Message:
   1 | import {mock} from 'node:test';
@@ -292,14 +332,14 @@ Message:
 
 `;
 
-exports[`prefer-mock-method > invalid(24): import {mock} from 'node:test';\na.b.c.run = mock.fn(); 1`] = `
+exports[`prefer-mock-method > invalid(26): import {mock} from 'node:test';\na.b.c.run = mock.fn(); 1`] = `
 
   1 | import {mock} from 'node:test';
   2 | a.b.c.run = mock.fn();
 
 `;
 
-exports[`prefer-mock-method > invalid(24): import {mock} from 'node:test';\na.b.c.run = mock.fn(); 2`] = `
+exports[`prefer-mock-method > invalid(26): import {mock} from 'node:test';\na.b.c.run = mock.fn(); 2`] = `
 
 Message:
   1 | import {mock} from 'node:test';
@@ -312,7 +352,7 @@ Suggestion 1/1: Replace with \`mock.method()\`.:
 
 `;
 
-exports[`prefer-mock-method > invalid(25): import test from 'node:test';\ntest('t', t => {\n\tt.mock.fn();\nobject.method = t.mock.fn();\n}); 1`] = `
+exports[`prefer-mock-method > invalid(27): import test from 'node:test';\ntest('t', t => {\n\tt.mock.fn();\nobject.method = t.mock.fn();\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', t => {
@@ -322,7 +362,7 @@ exports[`prefer-mock-method > invalid(25): import test from 'node:test';\ntest('
 
 `;
 
-exports[`prefer-mock-method > invalid(25): import test from 'node:test';\ntest('t', t => {\n\tt.mock.fn();\nobject.method = t.mock.fn();\n}); 2`] = `
+exports[`prefer-mock-method > invalid(27): import test from 'node:test';\ntest('t', t => {\n\tt.mock.fn();\nobject.method = t.mock.fn();\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -341,7 +381,7 @@ Suggestion 1/1: Replace with \`t.mock.method()\`.:
 
 `;
 
-exports[`prefer-mock-method > invalid(26): import test from 'node:test';\ntest('t', t => {\n\tobject.method = t.mock.fn(() => 42);\n}); 1`] = `
+exports[`prefer-mock-method > invalid(28): import test from 'node:test';\ntest('t', t => {\n\tobject.method = t.mock.fn(() => 42);\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', t => {
@@ -350,7 +390,7 @@ exports[`prefer-mock-method > invalid(26): import test from 'node:test';\ntest('
 
 `;
 
-exports[`prefer-mock-method > invalid(26): import test from 'node:test';\ntest('t', t => {\n\tobject.method = t.mock.fn(() => 42);\n}); 2`] = `
+exports[`prefer-mock-method > invalid(28): import test from 'node:test';\ntest('t', t => {\n\tobject.method = t.mock.fn(() => 42);\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -367,14 +407,14 @@ Suggestion 1/1: Replace with \`t.mock.method()\`.:
 
 `;
 
-exports[`prefer-mock-method > invalid(27): import {test} from 'node:test';\nobject.method = test.mock.fn(); 1`] = `
+exports[`prefer-mock-method > invalid(29): import {test} from 'node:test';\nobject.method = test.mock.fn(); 1`] = `
 
   1 | import {test} from 'node:test';
   2 | object.method = test.mock.fn();
 
 `;
 
-exports[`prefer-mock-method > invalid(27): import {test} from 'node:test';\nobject.method = test.mock.fn(); 2`] = `
+exports[`prefer-mock-method > invalid(29): import {test} from 'node:test';\nobject.method = test.mock.fn(); 2`] = `
 
 Message:
   1 | import {test} from 'node:test';
@@ -384,42 +424,6 @@ Message:
 Suggestion 1/1: Replace with \`test.mock.method()\`.:
   1 | import {test} from 'node:test';
   2 | test.mock.method(object, 'method');
-
-`;
-
-exports[`prefer-mock-method > invalid(28): import {mock as m} from 'node:test';\nobject.method = m.fn(); 1`] = `
-
-  1 | import {mock as m} from 'node:test';
-  2 | object.method = m.fn();
-
-`;
-
-exports[`prefer-mock-method > invalid(28): import {mock as m} from 'node:test';\nobject.method = m.fn(); 2`] = `
-
-Message:
-  1 | import {mock as m} from 'node:test';
-> 2 | object.method = m.fn();
-    | ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`m.method()\` over assigning \`m.fn()\` to a property, so the original method is tracked and can be restored.
-
-Suggestion 1/1: Replace with \`m.method()\`.:
-  1 | import {mock as m} from 'node:test';
-  2 | m.method(object, 'method');
-
-`;
-
-exports[`prefer-mock-method > invalid(29): import {mock} from 'node:test';\nobject.method = mock.fn(original, () => 42); 1`] = `
-
-  1 | import {mock} from 'node:test';
-  2 | object.method = mock.fn(original, () => 42);
-
-`;
-
-exports[`prefer-mock-method > invalid(29): import {mock} from 'node:test';\nobject.method = mock.fn(original, () => 42); 2`] = `
-
-Message:
-  1 | import {mock} from 'node:test';
-> 2 | object.method = mock.fn(original, () => 42);
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`mock.method()\` over assigning \`mock.fn()\` to a property, so the original method is tracked and can be restored.
 
 `;
 
@@ -443,14 +447,50 @@ Suggestion 1/1: Replace with \`t.mock.method()\`.:
 
 `;
 
-exports[`prefer-mock-method > invalid(30): import {mock} from 'node:test';\nconst spy = object.method = mock.fn(); 1`] = `
+exports[`prefer-mock-method > invalid(30): import {mock as m} from 'node:test';\nobject.method = m.fn(); 1`] = `
+
+  1 | import {mock as m} from 'node:test';
+  2 | object.method = m.fn();
+
+`;
+
+exports[`prefer-mock-method > invalid(30): import {mock as m} from 'node:test';\nobject.method = m.fn(); 2`] = `
+
+Message:
+  1 | import {mock as m} from 'node:test';
+> 2 | object.method = m.fn();
+    | ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`m.method()\` over assigning \`m.fn()\` to a property, so the original method is tracked and can be restored.
+
+Suggestion 1/1: Replace with \`m.method()\`.:
+  1 | import {mock as m} from 'node:test';
+  2 | m.method(object, 'method');
+
+`;
+
+exports[`prefer-mock-method > invalid(31): import {mock} from 'node:test';\nobject.method = mock.fn(original, () => 42); 1`] = `
+
+  1 | import {mock} from 'node:test';
+  2 | object.method = mock.fn(original, () => 42);
+
+`;
+
+exports[`prefer-mock-method > invalid(31): import {mock} from 'node:test';\nobject.method = mock.fn(original, () => 42); 2`] = `
+
+Message:
+  1 | import {mock} from 'node:test';
+> 2 | object.method = mock.fn(original, () => 42);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`mock.method()\` over assigning \`mock.fn()\` to a property, so the original method is tracked and can be restored.
+
+`;
+
+exports[`prefer-mock-method > invalid(32): import {mock} from 'node:test';\nconst spy = object.method = mock.fn(); 1`] = `
 
   1 | import {mock} from 'node:test';
   2 | const spy = object.method = mock.fn();
 
 `;
 
-exports[`prefer-mock-method > invalid(30): import {mock} from 'node:test';\nconst spy = object.method = mock.fn(); 2`] = `
+exports[`prefer-mock-method > invalid(32): import {mock} from 'node:test';\nconst spy = object.method = mock.fn(); 2`] = `
 
 Message:
   1 | import {mock} from 'node:test';
@@ -459,14 +499,14 @@ Message:
 
 `;
 
-exports[`prefer-mock-method > invalid(31): import {mock} from 'node:test';\nobject.method = mock.fn() as typeof object.method; 1`] = `
+exports[`prefer-mock-method > invalid(33): import {mock} from 'node:test';\nobject.method = mock.fn() as typeof object.method; 1`] = `
 
   1 | import {mock} from 'node:test';
   2 | object.method = mock.fn() as typeof object.method;
 
 `;
 
-exports[`prefer-mock-method > invalid(31): import {mock} from 'node:test';\nobject.method = mock.fn() as typeof object.method; 2`] = `
+exports[`prefer-mock-method > invalid(33): import {mock} from 'node:test';\nobject.method = mock.fn() as typeof object.method; 2`] = `
 
 Message:
   1 | import {mock} from 'node:test';
@@ -479,14 +519,14 @@ Suggestion 1/1: Replace with \`mock.method()\`.:
 
 `;
 
-exports[`prefer-mock-method > invalid(32): import {mock} from 'node:test';\nobject.method = mock.fn(() => 42) as any; 1`] = `
+exports[`prefer-mock-method > invalid(34): import {mock} from 'node:test';\nobject.method = mock.fn(() => 42) as any; 1`] = `
 
   1 | import {mock} from 'node:test';
   2 | object.method = mock.fn(() => 42) as any;
 
 `;
 
-exports[`prefer-mock-method > invalid(32): import {mock} from 'node:test';\nobject.method = mock.fn(() => 42) as any; 2`] = `
+exports[`prefer-mock-method > invalid(34): import {mock} from 'node:test';\nobject.method = mock.fn(() => 42) as any; 2`] = `
 
 Message:
   1 | import {mock} from 'node:test';
@@ -499,7 +539,7 @@ Suggestion 1/1: Replace with \`mock.method()\`.:
 
 `;
 
-exports[`prefer-mock-method > invalid(33): import test from 'node:test';\ntest('t', t => {\n\tobject.method = t.mock.fn() as any;\n}); 1`] = `
+exports[`prefer-mock-method > invalid(35): import test from 'node:test';\ntest('t', t => {\n\tobject.method = t.mock.fn() as any;\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', t => {
@@ -508,7 +548,7 @@ exports[`prefer-mock-method > invalid(33): import test from 'node:test';\ntest('
 
 `;
 
-exports[`prefer-mock-method > invalid(33): import test from 'node:test';\ntest('t', t => {\n\tobject.method = t.mock.fn() as any;\n}); 2`] = `
+exports[`prefer-mock-method > invalid(35): import test from 'node:test';\ntest('t', t => {\n\tobject.method = t.mock.fn() as any;\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -525,7 +565,7 @@ Suggestion 1/1: Replace with \`t.mock.method()\`.:
 
 `;
 
-exports[`prefer-mock-method > invalid(34): import test from 'node:test';\ntest('t', t => {\n\t(a, object).method = t.mock.fn(() => 'stubbed');\n}); 1`] = `
+exports[`prefer-mock-method > invalid(36): import test from 'node:test';\ntest('t', t => {\n\t(a, object).method = t.mock.fn(() => 'stubbed');\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', t => {
@@ -534,7 +574,7 @@ exports[`prefer-mock-method > invalid(34): import test from 'node:test';\ntest('
 
 `;
 
-exports[`prefer-mock-method > invalid(34): import test from 'node:test';\ntest('t', t => {\n\t(a, object).method = t.mock.fn(() => 'stubbed');\n}); 2`] = `
+exports[`prefer-mock-method > invalid(36): import test from 'node:test';\ntest('t', t => {\n\t(a, object).method = t.mock.fn(() => 'stubbed');\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -545,7 +585,7 @@ Message:
 
 `;
 
-exports[`prefer-mock-method > invalid(35): import test from 'node:test';\ntest('t', t => {\n\tobject.method = t.mock.fn((a, b));\n}); 1`] = `
+exports[`prefer-mock-method > invalid(37): import test from 'node:test';\ntest('t', t => {\n\tobject.method = t.mock.fn((a, b));\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', t => {
@@ -554,7 +594,7 @@ exports[`prefer-mock-method > invalid(35): import test from 'node:test';\ntest('
 
 `;
 
-exports[`prefer-mock-method > invalid(35): import test from 'node:test';\ntest('t', t => {\n\tobject.method = t.mock.fn((a, b));\n}); 2`] = `
+exports[`prefer-mock-method > invalid(37): import test from 'node:test';\ntest('t', t => {\n\tobject.method = t.mock.fn((a, b));\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -565,7 +605,7 @@ Message:
 
 `;
 
-exports[`prefer-mock-method > invalid(36): import test from 'node:test';\ntest('t', t => {\n\tobject[(a, b)] = t.mock.fn(() => 'stubbed');\n}); 1`] = `
+exports[`prefer-mock-method > invalid(38): import test from 'node:test';\ntest('t', t => {\n\tobject[(a, b)] = t.mock.fn(() => 'stubbed');\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', t => {
@@ -574,7 +614,7 @@ exports[`prefer-mock-method > invalid(36): import test from 'node:test';\ntest('
 
 `;
 
-exports[`prefer-mock-method > invalid(36): import test from 'node:test';\ntest('t', t => {\n\tobject[(a, b)] = t.mock.fn(() => 'stubbed');\n}); 2`] = `
+exports[`prefer-mock-method > invalid(38): import test from 'node:test';\ntest('t', t => {\n\tobject[(a, b)] = t.mock.fn(() => 'stubbed');\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -585,14 +625,54 @@ Message:
 
 `;
 
-exports[`prefer-mock-method > invalid(4): import {beforeEach} from 'node:test';\nbeforeEach(t => { object.method = t.mock.fn(); }); 1`] = `
+exports[`prefer-mock-method > invalid(4): import {test, getTestContext} from 'node:test';\ntest('t', () => { object.method = getTestContext().mock.fn(); }); 1`] = `
+
+  1 | import {test, getTestContext} from 'node:test';
+  2 | test('t', () => { object.method = getTestContext().mock.fn(); });
+
+`;
+
+exports[`prefer-mock-method > invalid(4): import {test, getTestContext} from 'node:test';\ntest('t', () => { object.method = getTestContext().mock.fn(); }); 2`] = `
+
+Message:
+  1 | import {test, getTestContext} from 'node:test';
+> 2 | test('t', () => { object.method = getTestContext().mock.fn(); });
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`getTestContext().mock.method()\` over assigning \`getTestContext().mock.fn()\` to a property, so the original method is tracked and can be restored.
+
+Suggestion 1/1: Replace with \`getTestContext().mock.method()\`.:
+  1 | import {test, getTestContext} from 'node:test';
+  2 | test('t', () => { getTestContext().mock.method(object, 'method'); });
+
+`;
+
+exports[`prefer-mock-method > invalid(5): import {test, getTestContext} from 'node:test';\ntest('t', () => { object.method = getTestContext().mock.fn(() => 42); }); 1`] = `
+
+  1 | import {test, getTestContext} from 'node:test';
+  2 | test('t', () => { object.method = getTestContext().mock.fn(() => 42); });
+
+`;
+
+exports[`prefer-mock-method > invalid(5): import {test, getTestContext} from 'node:test';\ntest('t', () => { object.method = getTestContext().mock.fn(() => 42); }); 2`] = `
+
+Message:
+  1 | import {test, getTestContext} from 'node:test';
+> 2 | test('t', () => { object.method = getTestContext().mock.fn(() => 42); });
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`getTestContext().mock.method()\` over assigning \`getTestContext().mock.fn()\` to a property, so the original method is tracked and can be restored.
+
+Suggestion 1/1: Replace with \`getTestContext().mock.method()\`.:
+  1 | import {test, getTestContext} from 'node:test';
+  2 | test('t', () => { getTestContext().mock.method(object, 'method', () => 42); });
+
+`;
+
+exports[`prefer-mock-method > invalid(6): import {beforeEach} from 'node:test';\nbeforeEach(t => { object.method = t.mock.fn(); }); 1`] = `
 
   1 | import {beforeEach} from 'node:test';
   2 | beforeEach(t => { object.method = t.mock.fn(); });
 
 `;
 
-exports[`prefer-mock-method > invalid(4): import {beforeEach} from 'node:test';\nbeforeEach(t => { object.method = t.mock.fn(); }); 2`] = `
+exports[`prefer-mock-method > invalid(6): import {beforeEach} from 'node:test';\nbeforeEach(t => { object.method = t.mock.fn(); }); 2`] = `
 
 Message:
   1 | import {beforeEach} from 'node:test';
@@ -605,14 +685,14 @@ Suggestion 1/1: Replace with \`t.mock.method()\`.:
 
 `;
 
-exports[`prefer-mock-method > invalid(5): import {after} from 'node:test';\nafter(t => { object.method = t.mock.fn(); }); 1`] = `
+exports[`prefer-mock-method > invalid(7): import {after} from 'node:test';\nafter(t => { object.method = t.mock.fn(); }); 1`] = `
 
   1 | import {after} from 'node:test';
   2 | after(t => { object.method = t.mock.fn(); });
 
 `;
 
-exports[`prefer-mock-method > invalid(5): import {after} from 'node:test';\nafter(t => { object.method = t.mock.fn(); }); 2`] = `
+exports[`prefer-mock-method > invalid(7): import {after} from 'node:test';\nafter(t => { object.method = t.mock.fn(); }); 2`] = `
 
 Message:
   1 | import {after} from 'node:test';
@@ -625,14 +705,14 @@ Suggestion 1/1: Replace with \`t.mock.method()\`.:
 
 `;
 
-exports[`prefer-mock-method > invalid(6): import {afterEach} from 'node:test';\nafterEach(t => { object.method = t.mock.fn(); }); 1`] = `
+exports[`prefer-mock-method > invalid(8): import {afterEach} from 'node:test';\nafterEach(t => { object.method = t.mock.fn(); }); 1`] = `
 
   1 | import {afterEach} from 'node:test';
   2 | afterEach(t => { object.method = t.mock.fn(); });
 
 `;
 
-exports[`prefer-mock-method > invalid(6): import {afterEach} from 'node:test';\nafterEach(t => { object.method = t.mock.fn(); }); 2`] = `
+exports[`prefer-mock-method > invalid(8): import {afterEach} from 'node:test';\nafterEach(t => { object.method = t.mock.fn(); }); 2`] = `
 
 Message:
   1 | import {afterEach} from 'node:test';
@@ -645,14 +725,14 @@ Suggestion 1/1: Replace with \`t.mock.method()\`.:
 
 `;
 
-exports[`prefer-mock-method > invalid(7): import test from 'node:test';\ntest.beforeEach(t => { object.method = t.mock.fn(); }); 1`] = `
+exports[`prefer-mock-method > invalid(9): import test from 'node:test';\ntest.beforeEach(t => { object.method = t.mock.fn(); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test.beforeEach(t => { object.method = t.mock.fn(); });
 
 `;
 
-exports[`prefer-mock-method > invalid(7): import test from 'node:test';\ntest.beforeEach(t => { object.method = t.mock.fn(); }); 2`] = `
+exports[`prefer-mock-method > invalid(9): import test from 'node:test';\ntest.beforeEach(t => { object.method = t.mock.fn(); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -662,45 +742,5 @@ Message:
 Suggestion 1/1: Replace with \`t.mock.method()\`.:
   1 | import test from 'node:test';
   2 | test.beforeEach(t => { t.mock.method(object, 'method'); });
-
-`;
-
-exports[`prefer-mock-method > invalid(8): import {beforeEach} from 'node:test';\nbeforeEach(function (t) { object.method = t.mock.fn(); }); 1`] = `
-
-  1 | import {beforeEach} from 'node:test';
-  2 | beforeEach(function (t) { object.method = t.mock.fn(); });
-
-`;
-
-exports[`prefer-mock-method > invalid(8): import {beforeEach} from 'node:test';\nbeforeEach(function (t) { object.method = t.mock.fn(); }); 2`] = `
-
-Message:
-  1 | import {beforeEach} from 'node:test';
-> 2 | beforeEach(function (t) { object.method = t.mock.fn(); });
-    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`t.mock.method()\` over assigning \`t.mock.fn()\` to a property, so the original method is tracked and can be restored.
-
-Suggestion 1/1: Replace with \`t.mock.method()\`.:
-  1 | import {beforeEach} from 'node:test';
-  2 | beforeEach(function (t) { t.mock.method(object, 'method'); });
-
-`;
-
-exports[`prefer-mock-method > invalid(9): import {beforeEach} from 'node:test';\nbeforeEach(t => { object.method = t.mock.fn(() => 42); }); 1`] = `
-
-  1 | import {beforeEach} from 'node:test';
-  2 | beforeEach(t => { object.method = t.mock.fn(() => 42); });
-
-`;
-
-exports[`prefer-mock-method > invalid(9): import {beforeEach} from 'node:test';\nbeforeEach(t => { object.method = t.mock.fn(() => 42); }); 2`] = `
-
-Message:
-  1 | import {beforeEach} from 'node:test';
-> 2 | beforeEach(t => { object.method = t.mock.fn(() => 42); });
-    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`t.mock.method()\` over assigning \`t.mock.fn()\` to a property, so the original method is tracked and can be restored.
-
-Suggestion 1/1: Replace with \`t.mock.method()\`.:
-  1 | import {beforeEach} from 'node:test';
-  2 | beforeEach(t => { t.mock.method(object, 'method', () => 42); });
 
 `;
