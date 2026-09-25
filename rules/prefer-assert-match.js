@@ -4,7 +4,7 @@ import {
 	createContextTracker,
 } from './utils/node-test.js';
 import {isRegexLiteral, isBooleanLiteral, isFunction} from './ast/index.js';
-import {isParenthesized} from './utils/index.js';
+import {isParenthesized, unwrapExpression, isExpressionWrapper} from './utils/index.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
 const MESSAGE_ID = 'prefer-assert-match/error';
@@ -43,7 +43,23 @@ Returns `{regex, string, methodName}` or `undefined`.
 so `assert.ok(str.search(re))` is truthy for *no* match and falsy for a match at index `0` —
 the opposite polarity of `re.test()` / `str.match()`, so it cannot be rewritten to `assert.match`.
 */
+/*
+Whether the call runs through an optional chain, which is what decides whether it can return
+`undefined`. A `?.` anywhere in the chain short-circuits all of it (`str?.trim().match(re)`, `getString?.().match(re)`), and the whole chain is one `ChainExpression`, so the question is only whether one wraps the call. TypeScript can put a wrapper between them (`str?.match(re)!`). A parenthesized chain ends at its parentheses, so `(str?.trim()).match(re)` is an ordinary call.
+*/
+function isInOptionalChain(node) {
+	for (let {parent} = node; isExpressionWrapper(parent); parent = parent.parent) {
+		if (parent.type === 'ChainExpression') {
+			return true;
+		}
+	}
+
+	return false;
+}
+
 function parseRegexCall(node) {
+	// An optional chain puts the call inside a `ChainExpression`, which is unwrapped here.
+	node = unwrapExpression(node);
 	if (
 		node.type !== 'CallExpression'
 		|| node.callee.type !== 'MemberExpression'
@@ -52,6 +68,11 @@ function parseRegexCall(node) {
 	) {
 		return;
 	}
+
+	// `str?.match(re)` and `re?.test(str)` return `undefined` when the receiver is nullish, so the
+	// truthiness form of those is a nullish check rather than a match, and rewriting it would change
+	// what the assertion means.
+	const isOptional = isInOptionalChain(node);
 
 	const {name} = node.callee.property;
 	const {object} = node.callee;
@@ -63,7 +84,9 @@ function parseRegexCall(node) {
 			return;
 		}
 
-		return {regex: object, string: stringNode, methodName: 'test'};
+		return {
+			regex: object, string: stringNode, methodName: 'test', isOptional,
+		};
 	}
 
 	if (name === 'match' && node.arguments.length > 0) {
@@ -77,7 +100,9 @@ function parseRegexCall(node) {
 			return;
 		}
 
-		return {regex: regexArgument, string: object, methodName: name};
+		return {
+			regex: regexArgument, string: object, methodName: name, isOptional,
+		};
 	}
 }
 
@@ -193,6 +218,7 @@ function canAutofix(node, context, regexCall) {
 		// turns one argument into several, so do not rewrite at all.
 		&& !isSequenceExpression(regexCall.string)
 		&& !isSequenceExpression(regexCall.regex)
+		&& !regexCall.isOptional
 		&& !isStaticallyNonString(regexCall.string);
 }
 
@@ -282,12 +308,12 @@ const create = context => {
 				return;
 			}
 
-			let target = unwrapTypeScriptExpression(firstArgument);
+			let target = unwrapExpression(firstArgument);
 			let assertMethod = 'match';
 
 			// Negated: `assert.ok(!re.test(str))` asserts no match.
 			if (target.type === 'UnaryExpression' && target.operator === '!') {
-				target = unwrapTypeScriptExpression(target.argument);
+				target = unwrapExpression(target.argument);
 				assertMethod = 'doesNotMatch';
 			}
 

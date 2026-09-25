@@ -4,6 +4,11 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
+		// An unrelated object's `test` method registers nothing, so a conditional assertion in the
+		// callback it takes is that object's own business, not a test body
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\n'
+		+ 'const helper = {test(body) { body(); }};\nhelper.test(() => {\n\tif (g) {\n\t\tassert.ok(1);\n\t\tassert.ok(2);\n\t}\n});',
+
 		// Not a test file
 		'test("title", () => { if (x) { assert.ok(1); } });',
 

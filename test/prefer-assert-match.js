@@ -194,5 +194,26 @@ assert.strictEqual(/\d+/.test('foo'), (true));`,
 		ASSERT_IMPORT + '\nassert.ok(/a/.test(JSON.parse(body)));',
 		ASSERT_IMPORT + '\nassert.ok(/class/.test(class Foo {}));',
 		ASSERT_IMPORT + '\nassert.ok(/a/.test(value = {}));',
+		// An optional chain makes the call return `undefined` for a nullish receiver, so the truthiness
+		// form is a nullish check rather than a match, and the rewrite would change it
+		ASSERT_IMPORT + '\nassert.ok(str?.match(/a/));',
+		ASSERT_IMPORT + '\nassert.ok(/a/.test?.(str));',
+		ASSERT_IMPORT + '\nassert.ok(obj?.deep.match(/a/));',
+		ASSERT_IMPORT + '\nassert.ok(!str?.match(/a/));',
+		// A `?.` anywhere in the chain short-circuits all of it, including one before an intermediate call
+		ASSERT_IMPORT + '\nassert.ok(!str?.trim().match(/a/));',
+		ASSERT_IMPORT + '\nassert.ok(getString?.().match(/a/));',
+		ASSERT_IMPORT + '\nassert.ok(response?.text().match(/a/));',
+		// A parenthesized chain ends there, so the call after it is an ordinary call
+		ASSERT_IMPORT + '\nassert.ok((str?.trim()).match(/a/));',
+		// TypeScript can put a non-null assertion between the call and its chain
+		{
+			code: ASSERT_IMPORT + '\nassert.ok(str?.match(/a/)!);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: ASSERT_IMPORT + '\nassert.ok(str?.trim()!.match(/a/));',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

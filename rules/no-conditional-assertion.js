@@ -2,7 +2,6 @@ import {
 	resolveImports,
 	parseTestCall,
 	getTestCallback,
-	isSubtestCall,
 	parseSupportedAssertionCall,
 	createContextTracker,
 } from './utils/node-test.js';
@@ -19,13 +18,14 @@ The callback that bounds an assertion's scope: a test/hook call, or a subtest (`
 call rather than an imported binding). Returns `undefined` for suites (their bodies only register
 tests, so conditional assertions there are not this rule's concern) and non-test calls.
 */
-function getScopeBoundaryCallback(node, imports) {
+function getScopeBoundaryCallback(node, imports, tracker) {
 	const parsed = parseTestCall(node, imports);
 	if (parsed) {
 		return parsed.kind === 'test' || parsed.kind === 'hook' ? getTestCallback(node) : undefined;
 	}
 
-	return isSubtestCall(node, imports) ? getTestCallback(node) : undefined;
+	// The tracker resolves the receiver, so an unrelated object's `test` method is not a subtest.
+	return tracker.isSubtestCall(node) ? getTestCallback(node) : undefined;
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -44,7 +44,7 @@ const create = context => {
 	context.on('CallExpression', node => {
 		tracker.update(node);
 
-		const boundaryCallback = getScopeBoundaryCallback(node, imports);
+		const boundaryCallback = getScopeBoundaryCallback(node, imports, tracker);
 		if (boundaryCallback) {
 			testCallbackStack.push(boundaryCallback);
 			return;
@@ -82,7 +82,7 @@ const create = context => {
 	context.onExit('CallExpression', node => {
 		tracker.leave(node);
 
-		const boundaryCallback = getScopeBoundaryCallback(node, imports);
+		const boundaryCallback = getScopeBoundaryCallback(node, imports, tracker);
 		if (boundaryCallback && testCallbackStack.at(-1) === boundaryCallback) {
 			testCallbackStack.pop();
 		}
