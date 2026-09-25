@@ -1,5 +1,5 @@
 import {findVariable} from '@eslint-community/eslint-utils';
-import {resolveImports, createContextTracker} from './utils/node-test.js';
+import {resolveImports, createContextTracker, getImportSpecifierName} from './utils/node-test.js';
 import {getEnclosingFunction, unwrapExpression, isGlobalProcessMember} from './utils/index.js';
 
 const MESSAGE_ID = 'no-process-chdir-in-test';
@@ -11,14 +11,6 @@ const messages = {
 const PROCESS_MODULES = new Set(['node:process', 'process']);
 
 const isValueImport = node => node.importKind === undefined || node.importKind === 'value';
-
-const getImportSpecifierName = specifier => {
-	if (specifier.imported.type === 'Identifier') {
-		return specifier.imported.name;
-	}
-
-	return typeof specifier.imported.value === 'string' ? specifier.imported.value : undefined;
-};
 
 const addProcessImport = (specifier, sourceCode, processBindings, chdirBindings) => {
 	if (!isValueImport(specifier)) {

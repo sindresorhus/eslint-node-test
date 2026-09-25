@@ -93,9 +93,16 @@ test.snapshot({
 		inAsyncTest('load().then(function* () { assert.strictEqual(value, 42); });'),
 
 		// A class field initializer is not one of the statements of the test body: an instance field runs on
-		// instantiation, and a static field\'s value is consumed by the field rather than discarded
+		// instantiation, and a static field's value is kept by the field rather than discarded
 		inAsyncTest('class Fixture { field = load().then(value => { assert.strictEqual(value, 42); }); }\nnew Fixture();'),
 		inAsyncTest('class Fixture { static field = load().then(value => { assert.strictEqual(value, 42); }); }'),
+		inAsyncTest('class Fixture { static promise = load().then(value => { assert.ok(value); }); }\n\tawait Fixture.promise;'),
+
+		// A declaration or an assignment in a `for` slot keeps the Promise, so it may be awaited later
+		inAsyncTest('for (let promise = load().then(value => assert.ok(value)), i = 0; i < 1; i++) {\n\t\tawait promise;\n\t}'),
+		inAsyncTest('for (const value = load().then(v => { assert.strictEqual(v, 42); });;) {}'),
+		inAsyncTest('for (holder.value = load().then(v => { assert.strictEqual(v, 42); });;) {}'),
+		inAsyncTest('for (; i < 1; i = load().then(v => { assert.strictEqual(v, 42); })) {}'),
 
 		// Only the four combinators spelled on the global `Promise`, with a written-out array, are read
 		inAsyncTest('Promise[\'all\']([load().then(value => { assert.strictEqual(value, 42); })]);'),
@@ -113,6 +120,14 @@ test.snapshot({
 		+ 'test(\'loads\', (t, done) => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n});',
 	],
 	invalid: [
+		// A `void` discards the chain wherever it stands, a static field initializer included
+		inAsyncTest('class Fixture { static field = void load().then(value => { assert.strictEqual(value, 42); }); }'),
+
+		// A bare expression in a `for` initializer or update slot is discarded, so a chain left in one
+		// is left unhandled
+		inAsyncTest('for (load().then(value => { assert.strictEqual(value, 42); });;) {}'),
+		inAsyncTest('for (; i < 1; load().then(v => { assert.strictEqual(v, 42); })) {}'),
+
 		// A destructured `assert` is the context's assert, so an assertion through it is owned by
 		// the same rule as `t.assert.*` and the imported module
 		'import test from "node:test";\ntest("a", async ({assert}) => {\n\tload().then(v => { assert.strictEqual(v, 42); });\n});',

@@ -102,7 +102,11 @@ function addAssertBinding(bindings, localName, importedName, isStrict) {
 	}
 }
 
-function getImportSpecifierName(specifier) {
+/**
+The name an import specifier brings in, whether it is written bare (`import {strict}`) or as a string
+literal (`import {'strict' as s}`), which are the same export.
+*/
+export function getImportSpecifierName(specifier) {
 	if (specifier.imported.type === 'Identifier') {
 		return specifier.imported.name;
 	}

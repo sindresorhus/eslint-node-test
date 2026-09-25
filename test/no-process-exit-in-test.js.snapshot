@@ -14,14 +14,30 @@ Message:
 
 `;
 
-exports[`no-process-exit-in-test > invalid(10): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\ntest('a', () => { setImmediate(() => { process.exit(0); }); }); 1`] = `
+exports[`no-process-exit-in-test > invalid(10): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nafterEach(() => { process.exit(0); }); 1`] = `
+
+  1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
+  2 | afterEach(() => { process.exit(0); });
+
+`;
+
+exports[`no-process-exit-in-test > invalid(10): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nafterEach(() => { process.exit(0); }); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | afterEach(() => { process.exit(0); });
+    |                   ^^^^^^^^^^^^^^^ Do not call \`process.exit()\` in a test file. Throw an error or use an assertion instead.
+
+`;
+
+exports[`no-process-exit-in-test > invalid(11): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\ntest('a', () => { setImmediate(() => { process.exit(0); }); }); 1`] = `
 
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
   2 | test('a', () => { setImmediate(() => { process.exit(0); }); });
 
 `;
 
-exports[`no-process-exit-in-test > invalid(10): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\ntest('a', () => { setImmediate(() => { process.exit(0); }); }); 2`] = `
+exports[`no-process-exit-in-test > invalid(11): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\ntest('a', () => { setImmediate(() => { process.exit(0); }); }); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
@@ -30,14 +46,14 @@ Message:
 
 `;
 
-exports[`no-process-exit-in-test > invalid(11): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nprocess?.exit(0); 1`] = `
+exports[`no-process-exit-in-test > invalid(12): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nprocess?.exit(0); 1`] = `
 
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
   2 | process?.exit(0);
 
 `;
 
-exports[`no-process-exit-in-test > invalid(11): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nprocess?.exit(0); 2`] = `
+exports[`no-process-exit-in-test > invalid(12): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nprocess?.exit(0); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
@@ -46,14 +62,14 @@ Message:
 
 `;
 
-exports[`no-process-exit-in-test > invalid(12): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nprocess.exit?.(0); 1`] = `
+exports[`no-process-exit-in-test > invalid(13): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nprocess.exit?.(0); 1`] = `
 
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
   2 | process.exit?.(0);
 
 `;
 
-exports[`no-process-exit-in-test > invalid(12): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nprocess.exit?.(0); 2`] = `
+exports[`no-process-exit-in-test > invalid(13): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nprocess.exit?.(0); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
@@ -62,14 +78,14 @@ Message:
 
 `;
 
-exports[`no-process-exit-in-test > invalid(13): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\n(process?.exit)(0); 1`] = `
+exports[`no-process-exit-in-test > invalid(14): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\n(process?.exit)(0); 1`] = `
 
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
   2 | (process?.exit)(0);
 
 `;
 
-exports[`no-process-exit-in-test > invalid(13): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\n(process?.exit)(0); 2`] = `
+exports[`no-process-exit-in-test > invalid(14): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\n(process?.exit)(0); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
@@ -78,14 +94,14 @@ Message:
 
 `;
 
-exports[`no-process-exit-in-test > invalid(14): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nglobalThis.process.exit(0); 1`] = `
+exports[`no-process-exit-in-test > invalid(15): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nglobalThis.process.exit(0); 1`] = `
 
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
   2 | globalThis.process.exit(0);
 
 `;
 
-exports[`no-process-exit-in-test > invalid(14): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nglobalThis.process.exit(0); 2`] = `
+exports[`no-process-exit-in-test > invalid(15): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nglobalThis.process.exit(0); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
@@ -94,14 +110,14 @@ Message:
 
 `;
 
-exports[`no-process-exit-in-test > invalid(15): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nglobalThis.process.exitCode = 1; 1`] = `
+exports[`no-process-exit-in-test > invalid(16): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nglobalThis.process.exitCode = 1; 1`] = `
 
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
   2 | globalThis.process.exitCode = 1;
 
 `;
 
-exports[`no-process-exit-in-test > invalid(15): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nglobalThis.process.exitCode = 1; 2`] = `
+exports[`no-process-exit-in-test > invalid(16): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nglobalThis.process.exitCode = 1; 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
@@ -110,14 +126,14 @@ Message:
 
 `;
 
-exports[`no-process-exit-in-test > invalid(16): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nglobal.process.exit(0); 1`] = `
+exports[`no-process-exit-in-test > invalid(17): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nglobal.process.exit(0); 1`] = `
 
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
   2 | global.process.exit(0);
 
 `;
 
-exports[`no-process-exit-in-test > invalid(16): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nglobal.process.exit(0); 2`] = `
+exports[`no-process-exit-in-test > invalid(17): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nglobal.process.exit(0); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
@@ -126,14 +142,14 @@ Message:
 
 `;
 
-exports[`no-process-exit-in-test > invalid(17): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nglobal.process.exitCode = 1; 1`] = `
+exports[`no-process-exit-in-test > invalid(18): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nglobal.process.exitCode = 1; 1`] = `
 
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
   2 | global.process.exitCode = 1;
 
 `;
 
-exports[`no-process-exit-in-test > invalid(17): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nglobal.process.exitCode = 1; 2`] = `
+exports[`no-process-exit-in-test > invalid(18): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nglobal.process.exitCode = 1; 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
@@ -142,14 +158,14 @@ Message:
 
 `;
 
-exports[`no-process-exit-in-test > invalid(18): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nglobalThis.process.exitCode++; 1`] = `
+exports[`no-process-exit-in-test > invalid(19): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nglobalThis.process.exitCode++; 1`] = `
 
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
   2 | globalThis.process.exitCode++;
 
 `;
 
-exports[`no-process-exit-in-test > invalid(18): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nglobalThis.process.exitCode++; 2`] = `
+exports[`no-process-exit-in-test > invalid(19): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nglobalThis.process.exitCode++; 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
@@ -158,14 +174,32 @@ Message:
 
 `;
 
-exports[`no-process-exit-in-test > invalid(19): import test from 'node:test';\nprocess.exit(0); 1`] = `
+exports[`no-process-exit-in-test > invalid(2): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nimport {exit} from 'node:process';\nexit(1); 1`] = `
+
+  1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
+  2 | import {exit} from 'node:process';
+  3 | exit(1);
+
+`;
+
+exports[`no-process-exit-in-test > invalid(2): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nimport {exit} from 'node:process';\nexit(1); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
+  2 | import {exit} from 'node:process';
+> 3 | exit(1);
+    | ^^^^ Do not call \`process.exit()\` in a test file. Throw an error or use an assertion instead.
+
+`;
+
+exports[`no-process-exit-in-test > invalid(20): import test from 'node:test';\nprocess.exit(0); 1`] = `
 
   1 | import test from 'node:test';
   2 | process.exit(0);
 
 `;
 
-exports[`no-process-exit-in-test > invalid(19): import test from 'node:test';\nprocess.exit(0); 2`] = `
+exports[`no-process-exit-in-test > invalid(20): import test from 'node:test';\nprocess.exit(0); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -174,30 +208,14 @@ Message:
 
 `;
 
-exports[`no-process-exit-in-test > invalid(2): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\ntest('a', () => { process.exit(0); }); 1`] = `
-
-  1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
-  2 | test('a', () => { process.exit(0); });
-
-`;
-
-exports[`no-process-exit-in-test > invalid(2): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\ntest('a', () => { process.exit(0); }); 2`] = `
-
-Message:
-  1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
-> 2 | test('a', () => { process.exit(0); });
-    |                   ^^^^^^^^^^^^^^^ Do not call \`process.exit()\` in a test file. Throw an error or use an assertion instead.
-
-`;
-
-exports[`no-process-exit-in-test > invalid(20): import * as nodeTest from 'node:test';\nprocess.exit(0); 1`] = `
+exports[`no-process-exit-in-test > invalid(21): import * as nodeTest from 'node:test';\nprocess.exit(0); 1`] = `
 
   1 | import * as nodeTest from 'node:test';
   2 | process.exit(0);
 
 `;
 
-exports[`no-process-exit-in-test > invalid(20): import * as nodeTest from 'node:test';\nprocess.exit(0); 2`] = `
+exports[`no-process-exit-in-test > invalid(21): import * as nodeTest from 'node:test';\nprocess.exit(0); 2`] = `
 
 Message:
   1 | import * as nodeTest from 'node:test';
@@ -206,14 +224,14 @@ Message:
 
 `;
 
-exports[`no-process-exit-in-test > invalid(21): import {test as nodeTest} from 'node:test';\nprocess.exit(0); 1`] = `
+exports[`no-process-exit-in-test > invalid(22): import {test as nodeTest} from 'node:test';\nprocess.exit(0); 1`] = `
 
   1 | import {test as nodeTest} from 'node:test';
   2 | process.exit(0);
 
 `;
 
-exports[`no-process-exit-in-test > invalid(21): import {test as nodeTest} from 'node:test';\nprocess.exit(0); 2`] = `
+exports[`no-process-exit-in-test > invalid(22): import {test as nodeTest} from 'node:test';\nprocess.exit(0); 2`] = `
 
 Message:
   1 | import {test as nodeTest} from 'node:test';
@@ -222,14 +240,14 @@ Message:
 
 `;
 
-exports[`no-process-exit-in-test > invalid(22): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nprocess.exitCode = 1; 1`] = `
+exports[`no-process-exit-in-test > invalid(23): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nprocess.exitCode = 1; 1`] = `
 
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
   2 | process.exitCode = 1;
 
 `;
 
-exports[`no-process-exit-in-test > invalid(22): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nprocess.exitCode = 1; 2`] = `
+exports[`no-process-exit-in-test > invalid(23): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nprocess.exitCode = 1; 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
@@ -238,14 +256,14 @@ Message:
 
 `;
 
-exports[`no-process-exit-in-test > invalid(23): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\ntest('a', () => { process.exitCode = 1; }); 1`] = `
+exports[`no-process-exit-in-test > invalid(24): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\ntest('a', () => { process.exitCode = 1; }); 1`] = `
 
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
   2 | test('a', () => { process.exitCode = 1; });
 
 `;
 
-exports[`no-process-exit-in-test > invalid(23): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\ntest('a', () => { process.exitCode = 1; }); 2`] = `
+exports[`no-process-exit-in-test > invalid(24): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\ntest('a', () => { process.exitCode = 1; }); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
@@ -254,14 +272,14 @@ Message:
 
 `;
 
-exports[`no-process-exit-in-test > invalid(24): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nbeforeEach(() => { process.exitCode = 1; }); 1`] = `
+exports[`no-process-exit-in-test > invalid(25): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nbeforeEach(() => { process.exitCode = 1; }); 1`] = `
 
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
   2 | beforeEach(() => { process.exitCode = 1; });
 
 `;
 
-exports[`no-process-exit-in-test > invalid(24): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nbeforeEach(() => { process.exitCode = 1; }); 2`] = `
+exports[`no-process-exit-in-test > invalid(25): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nbeforeEach(() => { process.exitCode = 1; }); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
@@ -270,14 +288,14 @@ Message:
 
 `;
 
-exports[`no-process-exit-in-test > invalid(25): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nprocess.exitCode += 1; 1`] = `
+exports[`no-process-exit-in-test > invalid(26): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nprocess.exitCode += 1; 1`] = `
 
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
   2 | process.exitCode += 1;
 
 `;
 
-exports[`no-process-exit-in-test > invalid(25): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nprocess.exitCode += 1; 2`] = `
+exports[`no-process-exit-in-test > invalid(26): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nprocess.exitCode += 1; 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
@@ -286,14 +304,14 @@ Message:
 
 `;
 
-exports[`no-process-exit-in-test > invalid(26): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nprocess.exitCode &&= 1; 1`] = `
+exports[`no-process-exit-in-test > invalid(27): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nprocess.exitCode &&= 1; 1`] = `
 
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
   2 | process.exitCode &&= 1;
 
 `;
 
-exports[`no-process-exit-in-test > invalid(26): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nprocess.exitCode &&= 1; 2`] = `
+exports[`no-process-exit-in-test > invalid(27): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nprocess.exitCode &&= 1; 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
@@ -302,14 +320,14 @@ Message:
 
 `;
 
-exports[`no-process-exit-in-test > invalid(27): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nprocess.exitCode ||= 1; 1`] = `
+exports[`no-process-exit-in-test > invalid(28): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nprocess.exitCode ||= 1; 1`] = `
 
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
   2 | process.exitCode ||= 1;
 
 `;
 
-exports[`no-process-exit-in-test > invalid(27): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nprocess.exitCode ||= 1; 2`] = `
+exports[`no-process-exit-in-test > invalid(28): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nprocess.exitCode ||= 1; 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
@@ -318,14 +336,14 @@ Message:
 
 `;
 
-exports[`no-process-exit-in-test > invalid(28): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nprocess.exitCode ??= 1; 1`] = `
+exports[`no-process-exit-in-test > invalid(29): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nprocess.exitCode ??= 1; 1`] = `
 
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
   2 | process.exitCode ??= 1;
 
 `;
 
-exports[`no-process-exit-in-test > invalid(28): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nprocess.exitCode ??= 1; 2`] = `
+exports[`no-process-exit-in-test > invalid(29): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nprocess.exitCode ??= 1; 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
@@ -334,14 +352,30 @@ Message:
 
 `;
 
-exports[`no-process-exit-in-test > invalid(29): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nprocess.exitCode++; 1`] = `
+exports[`no-process-exit-in-test > invalid(3): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\ntest('a', () => { process.exit(0); }); 1`] = `
+
+  1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
+  2 | test('a', () => { process.exit(0); });
+
+`;
+
+exports[`no-process-exit-in-test > invalid(3): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\ntest('a', () => { process.exit(0); }); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | test('a', () => { process.exit(0); });
+    |                   ^^^^^^^^^^^^^^^ Do not call \`process.exit()\` in a test file. Throw an error or use an assertion instead.
+
+`;
+
+exports[`no-process-exit-in-test > invalid(30): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nprocess.exitCode++; 1`] = `
 
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
   2 | process.exitCode++;
 
 `;
 
-exports[`no-process-exit-in-test > invalid(29): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nprocess.exitCode++; 2`] = `
+exports[`no-process-exit-in-test > invalid(30): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nprocess.exitCode++; 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
@@ -350,30 +384,14 @@ Message:
 
 `;
 
-exports[`no-process-exit-in-test > invalid(3): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nit('a', () => { process.exit(0); }); 1`] = `
-
-  1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
-  2 | it('a', () => { process.exit(0); });
-
-`;
-
-exports[`no-process-exit-in-test > invalid(3): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nit('a', () => { process.exit(0); }); 2`] = `
-
-Message:
-  1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
-> 2 | it('a', () => { process.exit(0); });
-    |                 ^^^^^^^^^^^^^^^ Do not call \`process.exit()\` in a test file. Throw an error or use an assertion instead.
-
-`;
-
-exports[`no-process-exit-in-test > invalid(30): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\n++process.exitCode; 1`] = `
+exports[`no-process-exit-in-test > invalid(31): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\n++process.exitCode; 1`] = `
 
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
   2 | ++process.exitCode;
 
 `;
 
-exports[`no-process-exit-in-test > invalid(30): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\n++process.exitCode; 2`] = `
+exports[`no-process-exit-in-test > invalid(31): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\n++process.exitCode; 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
@@ -382,7 +400,7 @@ Message:
 
 `;
 
-exports[`no-process-exit-in-test > invalid(31): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nimport process from 'node:process';\nprocess.exit(0); 1`] = `
+exports[`no-process-exit-in-test > invalid(32): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nimport process from 'node:process';\nprocess.exit(0); 1`] = `
 
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
   2 | import process from 'node:process';
@@ -390,7 +408,7 @@ exports[`no-process-exit-in-test > invalid(31): import {test, it, describe, suit
 
 `;
 
-exports[`no-process-exit-in-test > invalid(31): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nimport process from 'node:process';\nprocess.exit(0); 2`] = `
+exports[`no-process-exit-in-test > invalid(32): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nimport process from 'node:process';\nprocess.exit(0); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
@@ -400,14 +418,14 @@ Message:
 
 `;
 
-exports[`no-process-exit-in-test > invalid(32): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nfunction helper(process) { process.exit(0); } 1`] = `
+exports[`no-process-exit-in-test > invalid(33): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nfunction helper(process) { process.exit(0); } 1`] = `
 
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
   2 | function helper(process) { process.exit(0); }
 
 `;
 
-exports[`no-process-exit-in-test > invalid(32): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nfunction helper(process) { process.exit(0); } 2`] = `
+exports[`no-process-exit-in-test > invalid(33): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nfunction helper(process) { process.exit(0); } 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
@@ -416,14 +434,14 @@ Message:
 
 `;
 
-exports[`no-process-exit-in-test > invalid(33): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nfunction helper(process) { process.exitCode = 1; } 1`] = `
+exports[`no-process-exit-in-test > invalid(34): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nfunction helper(process) { process.exitCode = 1; } 1`] = `
 
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
   2 | function helper(process) { process.exitCode = 1; }
 
 `;
 
-exports[`no-process-exit-in-test > invalid(33): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nfunction helper(process) { process.exitCode = 1; } 2`] = `
+exports[`no-process-exit-in-test > invalid(34): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nfunction helper(process) { process.exitCode = 1; } 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
@@ -432,14 +450,14 @@ Message:
 
 `;
 
-exports[`no-process-exit-in-test > invalid(34): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\ntest('a', () => { (process as NodeJS.Process).exit(0); }); 1`] = `
+exports[`no-process-exit-in-test > invalid(35): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\ntest('a', () => { (process as NodeJS.Process).exit(0); }); 1`] = `
 
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
   2 | test('a', () => { (process as NodeJS.Process).exit(0); });
 
 `;
 
-exports[`no-process-exit-in-test > invalid(34): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\ntest('a', () => { (process as NodeJS.Process).exit(0); }); 2`] = `
+exports[`no-process-exit-in-test > invalid(35): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\ntest('a', () => { (process as NodeJS.Process).exit(0); }); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
@@ -448,14 +466,14 @@ Message:
 
 `;
 
-exports[`no-process-exit-in-test > invalid(35): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\ntest('a', () => { (process.exit as typeof process.exit)(0); }); 1`] = `
+exports[`no-process-exit-in-test > invalid(36): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\ntest('a', () => { (process.exit as typeof process.exit)(0); }); 1`] = `
 
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
   2 | test('a', () => { (process.exit as typeof process.exit)(0); });
 
 `;
 
-exports[`no-process-exit-in-test > invalid(35): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\ntest('a', () => { (process.exit as typeof process.exit)(0); }); 2`] = `
+exports[`no-process-exit-in-test > invalid(36): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\ntest('a', () => { (process.exit as typeof process.exit)(0); }); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
@@ -464,14 +482,14 @@ Message:
 
 `;
 
-exports[`no-process-exit-in-test > invalid(36): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\ntest('a', () => { (process.exitCode as number) = 1; }); 1`] = `
+exports[`no-process-exit-in-test > invalid(37): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\ntest('a', () => { (process.exitCode as number) = 1; }); 1`] = `
 
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
   2 | test('a', () => { (process.exitCode as number) = 1; });
 
 `;
 
-exports[`no-process-exit-in-test > invalid(36): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\ntest('a', () => { (process.exitCode as number) = 1; }); 2`] = `
+exports[`no-process-exit-in-test > invalid(37): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\ntest('a', () => { (process.exitCode as number) = 1; }); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
@@ -480,14 +498,14 @@ Message:
 
 `;
 
-exports[`no-process-exit-in-test > invalid(37): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\ntest('a', () => { (process as NodeJS.Process).exitCode = 1; }); 1`] = `
+exports[`no-process-exit-in-test > invalid(38): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\ntest('a', () => { (process as NodeJS.Process).exitCode = 1; }); 1`] = `
 
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
   2 | test('a', () => { (process as NodeJS.Process).exitCode = 1; });
 
 `;
 
-exports[`no-process-exit-in-test > invalid(37): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\ntest('a', () => { (process as NodeJS.Process).exitCode = 1; }); 2`] = `
+exports[`no-process-exit-in-test > invalid(38): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\ntest('a', () => { (process as NodeJS.Process).exitCode = 1; }); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
@@ -496,14 +514,86 @@ Message:
 
 `;
 
-exports[`no-process-exit-in-test > invalid(4): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\ndescribe('suite', () => { process.exit(0); }); 1`] = `
+exports[`no-process-exit-in-test > invalid(39): import {exit} from 'node:process';\nimport {test} from 'node:test';\ntest('a', () => { exit(1); }); 1`] = `
+
+  1 | import {exit} from 'node:process';
+  2 | import {test} from 'node:test';
+  3 | test('a', () => { exit(1); });
+
+`;
+
+exports[`no-process-exit-in-test > invalid(39): import {exit} from 'node:process';\nimport {test} from 'node:test';\ntest('a', () => { exit(1); }); 2`] = `
+
+Message:
+  1 | import {exit} from 'node:process';
+  2 | import {test} from 'node:test';
+> 3 | test('a', () => { exit(1); });
+    |                   ^^^^ Do not call \`process.exit()\` in a test file. Throw an error or use an assertion instead.
+
+`;
+
+exports[`no-process-exit-in-test > invalid(4): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nit('a', () => { process.exit(0); }); 1`] = `
+
+  1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
+  2 | it('a', () => { process.exit(0); });
+
+`;
+
+exports[`no-process-exit-in-test > invalid(4): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nit('a', () => { process.exit(0); }); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
+> 2 | it('a', () => { process.exit(0); });
+    |                 ^^^^^^^^^^^^^^^ Do not call \`process.exit()\` in a test file. Throw an error or use an assertion instead.
+
+`;
+
+exports[`no-process-exit-in-test > invalid(40): import {exit as bail} from 'node:process';\nimport {test} from 'node:test';\ntest('a', () => { bail(1); }); 1`] = `
+
+  1 | import {exit as bail} from 'node:process';
+  2 | import {test} from 'node:test';
+  3 | test('a', () => { bail(1); });
+
+`;
+
+exports[`no-process-exit-in-test > invalid(40): import {exit as bail} from 'node:process';\nimport {test} from 'node:test';\ntest('a', () => { bail(1); }); 2`] = `
+
+Message:
+  1 | import {exit as bail} from 'node:process';
+  2 | import {test} from 'node:test';
+> 3 | test('a', () => { bail(1); });
+    |                   ^^^^ Do not call \`process.exit()\` in a test file. Throw an error or use an assertion instead.
+
+`;
+
+exports[`no-process-exit-in-test > invalid(41): import proc from 'process';\nimport {test} from 'node:test';\nimport {exit} from 'node:process';\ntest('a', () => { exit(1); }); 1`] = `
+
+  1 | import proc from 'process';
+  2 | import {test} from 'node:test';
+  3 | import {exit} from 'node:process';
+  4 | test('a', () => { exit(1); });
+
+`;
+
+exports[`no-process-exit-in-test > invalid(41): import proc from 'process';\nimport {test} from 'node:test';\nimport {exit} from 'node:process';\ntest('a', () => { exit(1); }); 2`] = `
+
+Message:
+  1 | import proc from 'process';
+  2 | import {test} from 'node:test';
+  3 | import {exit} from 'node:process';
+> 4 | test('a', () => { exit(1); });
+    |                   ^^^^ Do not call \`process.exit()\` in a test file. Throw an error or use an assertion instead.
+
+`;
+
+exports[`no-process-exit-in-test > invalid(5): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\ndescribe('suite', () => { process.exit(0); }); 1`] = `
 
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
   2 | describe('suite', () => { process.exit(0); });
 
 `;
 
-exports[`no-process-exit-in-test > invalid(4): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\ndescribe('suite', () => { process.exit(0); }); 2`] = `
+exports[`no-process-exit-in-test > invalid(5): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\ndescribe('suite', () => { process.exit(0); }); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
@@ -512,14 +602,14 @@ Message:
 
 `;
 
-exports[`no-process-exit-in-test > invalid(5): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nsuite('suite', () => { process.exit(0); }); 1`] = `
+exports[`no-process-exit-in-test > invalid(6): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nsuite('suite', () => { process.exit(0); }); 1`] = `
 
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
   2 | suite('suite', () => { process.exit(0); });
 
 `;
 
-exports[`no-process-exit-in-test > invalid(5): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nsuite('suite', () => { process.exit(0); }); 2`] = `
+exports[`no-process-exit-in-test > invalid(6): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nsuite('suite', () => { process.exit(0); }); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
@@ -528,14 +618,14 @@ Message:
 
 `;
 
-exports[`no-process-exit-in-test > invalid(6): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nbefore(() => { process.exit(0); }); 1`] = `
+exports[`no-process-exit-in-test > invalid(7): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nbefore(() => { process.exit(0); }); 1`] = `
 
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
   2 | before(() => { process.exit(0); });
 
 `;
 
-exports[`no-process-exit-in-test > invalid(6): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nbefore(() => { process.exit(0); }); 2`] = `
+exports[`no-process-exit-in-test > invalid(7): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nbefore(() => { process.exit(0); }); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
@@ -544,14 +634,14 @@ Message:
 
 `;
 
-exports[`no-process-exit-in-test > invalid(7): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nafter(() => { process.exit(0); }); 1`] = `
+exports[`no-process-exit-in-test > invalid(8): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nafter(() => { process.exit(0); }); 1`] = `
 
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
   2 | after(() => { process.exit(0); });
 
 `;
 
-exports[`no-process-exit-in-test > invalid(7): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nafter(() => { process.exit(0); }); 2`] = `
+exports[`no-process-exit-in-test > invalid(8): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nafter(() => { process.exit(0); }); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
@@ -560,34 +650,18 @@ Message:
 
 `;
 
-exports[`no-process-exit-in-test > invalid(8): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nbeforeEach(() => { process.exit(0); }); 1`] = `
+exports[`no-process-exit-in-test > invalid(9): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nbeforeEach(() => { process.exit(0); }); 1`] = `
 
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
   2 | beforeEach(() => { process.exit(0); });
 
 `;
 
-exports[`no-process-exit-in-test > invalid(8): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nbeforeEach(() => { process.exit(0); }); 2`] = `
+exports[`no-process-exit-in-test > invalid(9): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nbeforeEach(() => { process.exit(0); }); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
 > 2 | beforeEach(() => { process.exit(0); });
     |                    ^^^^^^^^^^^^^^^ Do not call \`process.exit()\` in a test file. Throw an error or use an assertion instead.
-
-`;
-
-exports[`no-process-exit-in-test > invalid(9): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nafterEach(() => { process.exit(0); }); 1`] = `
-
-  1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
-  2 | afterEach(() => { process.exit(0); });
-
-`;
-
-exports[`no-process-exit-in-test > invalid(9): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nafterEach(() => { process.exit(0); }); 2`] = `
-
-Message:
-  1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';
-> 2 | afterEach(() => { process.exit(0); });
-    |                   ^^^^^^^^^^^^^^^ Do not call \`process.exit()\` in a test file. Throw an error or use an assertion instead.
 
 `;

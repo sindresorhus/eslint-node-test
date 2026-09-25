@@ -63,6 +63,9 @@ function getFloatingExpression(node) {
 		return {expression, canFix: false};
 	}
 
+	// A bare expression in a `for` initializer or update slot is discarded the way a floating
+	// statement is. A declaration or an assignment there keeps the Promise, as a static field does, so
+	// something may still await it.
 	if (
 		parent?.type === 'ForStatement'
 		&& (parent.init === container || parent.update === container)

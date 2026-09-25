@@ -7,6 +7,7 @@ import {
 	getTestCallback,
 	getFirstContextParameter,
 	MODIFIERS,
+	getImportSpecifierName,
 } from './utils/node-test.js';
 import {
 	unwrapExpression,
@@ -64,16 +65,6 @@ const getMemberPropertyName = node => {
 
 	if (node.computed) {
 		return getStaticExpressionPropertyName(unwrapExpression(node.property));
-	}
-};
-
-const getImportSpecifierName = specifier => {
-	if (specifier.imported.type === 'Identifier') {
-		return specifier.imported.name;
-	}
-
-	if (typeof specifier.imported.value === 'string') {
-		return specifier.imported.value;
 	}
 };
 

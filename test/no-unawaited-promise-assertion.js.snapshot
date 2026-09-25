@@ -1,30 +1,125 @@
-exports[`no-unawaited-promise-assertion > invalid(1): import test from \"node:test\";\ntest(\"a\", async ({assert}) => {\n\tload().then(v => { assert.strictEqual(v, 42); });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(1): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tclass Fixture { static field = void load().then(value => { assert.strictEqual(value, 42); }); }\n}); 1`] = `
 
-  1 | import test from "node:test";
-  2 | test("a", async ({assert}) => {
-  3 | 	load().then(v => { assert.strictEqual(v, 42); });
-  4 | });
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	class Fixture { static field = void load().then(value => { assert.strictEqual(value, 42); }); }
+  5 | });
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(1): import test from \"node:test\";\ntest(\"a\", async ({assert}) => {\n\tload().then(v => { assert.strictEqual(v, 42); });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(1): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tclass Fixture { static field = void load().then(value => { assert.strictEqual(value, 42); }); }\n}); 2`] = `
 
 Message:
-  1 | import test from "node:test";
-  2 | test("a", async ({assert}) => {
-> 3 | 	load().then(v => { assert.strictEqual(v, 42); });
-    | 	                   ^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
-  4 | });
-
-Output:
-  1 | import test from "node:test";
-  2 | test("a", async ({assert}) => {
-  3 | 	await load().then(v => { assert.strictEqual(v, 42); });
-  4 | });
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+> 4 | 	class Fixture { static field = void load().then(value => { assert.strictEqual(value, 42); }); }
+    | 	                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
+  5 | });
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(10): import * as nodeTest from 'node:test';\nimport assert from 'node:assert';\nnodeTest.test('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(10): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tPromise.all([[load().then(value => { assert.strictEqual(value, 42); })]]);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	Promise.all([[load().then(value => { assert.strictEqual(value, 42); })]]);
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(10): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tPromise.all([[load().then(value => { assert.strictEqual(value, 42); })]]);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+> 4 | 	Promise.all([[load().then(value => { assert.strictEqual(value, 42); })]]);
+    | 	                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
+  5 | });
+
+Output:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	await Promise.all([[load().then(value => { assert.strictEqual(value, 42); })]]);
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(11): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tPromise.all([load().then(value => { assert.strictEqual(value, 42); }), other.catch(error => { assert.ok(error); })]);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	Promise.all([load().then(value => { assert.strictEqual(value, 42); }), other.catch(error => { assert.ok(error); })]);
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(11): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tPromise.all([load().then(value => { assert.strictEqual(value, 42); }), other.catch(error => { assert.ok(error); })]);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+> 4 | 	Promise.all([load().then(value => { assert.strictEqual(value, 42); }), other.catch(error => { assert.ok(error); })]);
+    | 	                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
+  5 | });
+
+Output:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	await Promise.all([load().then(value => { assert.strictEqual(value, 42); }), other.catch(error => { assert.ok(error); })]);
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(11): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tPromise.all([load().then(value => { assert.strictEqual(value, 42); }), other.catch(error => { assert.ok(error); })]);\n}); 3`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+> 4 | 	Promise.all([load().then(value => { assert.strictEqual(value, 42); }), other.catch(error => { assert.ok(error); })]);
+    | 	                                                                                              ^^^^^^^^^^^^^^^^ Assertion in a floating \`catch()\` callback is not awaited by the test. Await or return the Promise chain.
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(12): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	load().then(value => { assert.strictEqual(value, 42); });
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(12): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+> 4 | 	load().then(value => { assert.strictEqual(value, 42); });
+    | 	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
+  5 | });
+
+Output:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	await load().then(value => { assert.strictEqual(value, 42); });
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(13): import * as nodeTest from 'node:test';\nimport assert from 'node:assert';\nnodeTest.test('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
 
   1 | import * as nodeTest from 'node:test';
   2 | import assert from 'node:assert';
@@ -34,7 +129,7 @@ exports[`no-unawaited-promise-assertion > invalid(10): import * as nodeTest from
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(10): import * as nodeTest from 'node:test';\nimport assert from 'node:assert';\nnodeTest.test('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(13): import * as nodeTest from 'node:test';\nimport assert from 'node:assert';\nnodeTest.test('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
 
 Message:
   1 | import * as nodeTest from 'node:test';
@@ -53,7 +148,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(11): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => assert.strictEqual(value, 42));\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(14): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => assert.strictEqual(value, 42));\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -63,7 +158,7 @@ exports[`no-unawaited-promise-assertion > invalid(11): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(11): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => assert.strictEqual(value, 42));\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(14): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => assert.strictEqual(value, 42));\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -82,7 +177,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(12): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { assert(value); });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(15): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { assert(value); });\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -92,7 +187,7 @@ exports[`no-unawaited-promise-assertion > invalid(12): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(12): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { assert(value); });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(15): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { assert(value); });\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -111,7 +206,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(13): import {it} from 'node:test';\nimport assert from 'node:assert';\nit('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(16): import {it} from 'node:test';\nimport assert from 'node:assert';\nit('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
 
   1 | import {it} from 'node:test';
   2 | import assert from 'node:assert';
@@ -121,7 +216,7 @@ exports[`no-unawaited-promise-assertion > invalid(13): import {it} from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(13): import {it} from 'node:test';\nimport assert from 'node:assert';\nit('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(16): import {it} from 'node:test';\nimport assert from 'node:assert';\nit('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
 
 Message:
   1 | import {it} from 'node:test';
@@ -140,7 +235,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(14): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('loads', async () => {\n\tload().then(value => { assert.equal(value, 42); });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(17): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('loads', async () => {\n\tload().then(value => { assert.equal(value, 42); });\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert/strict';
@@ -150,7 +245,7 @@ exports[`no-unawaited-promise-assertion > invalid(14): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(14): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('loads', async () => {\n\tload().then(value => { assert.equal(value, 42); });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(17): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('loads', async () => {\n\tload().then(value => { assert.equal(value, 42); });\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -169,7 +264,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(15): import test from 'node:test';\nimport {strictEqual} from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { strictEqual(value, 42); });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(18): import test from 'node:test';\nimport {strictEqual} from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { strictEqual(value, 42); });\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import {strictEqual} from 'node:assert';
@@ -179,7 +274,7 @@ exports[`no-unawaited-promise-assertion > invalid(15): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(15): import test from 'node:test';\nimport {strictEqual} from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { strictEqual(value, 42); });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(18): import test from 'node:test';\nimport {strictEqual} from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { strictEqual(value, 42); });\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -198,7 +293,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(16): import test from 'node:test';\nimport {strictEqual as equal} from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { equal(value, 42); });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(19): import test from 'node:test';\nimport {strictEqual as equal} from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { equal(value, 42); });\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import {strictEqual as equal} from 'node:assert';
@@ -208,7 +303,7 @@ exports[`no-unawaited-promise-assertion > invalid(16): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(16): import test from 'node:test';\nimport {strictEqual as equal} from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { equal(value, 42); });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(19): import test from 'node:test';\nimport {strictEqual as equal} from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { equal(value, 42); });\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -227,7 +322,29 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(17): import test from 'node:test';\ntest('loads', async t => {\n\tload().then(value => { t.assert.strictEqual(value, 42); });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(2): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tfor (load().then(value => { assert.strictEqual(value, 42); });;) {}\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	for (load().then(value => { assert.strictEqual(value, 42); });;) {}
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(2): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tfor (load().then(value => { assert.strictEqual(value, 42); });;) {}\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+> 4 | 	for (load().then(value => { assert.strictEqual(value, 42); });;) {}
+    | 	                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(20): import test from 'node:test';\ntest('loads', async t => {\n\tload().then(value => { t.assert.strictEqual(value, 42); });\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('loads', async t => {
@@ -236,7 +353,7 @@ exports[`no-unawaited-promise-assertion > invalid(17): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(17): import test from 'node:test';\ntest('loads', async t => {\n\tload().then(value => { t.assert.strictEqual(value, 42); });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(20): import test from 'node:test';\ntest('loads', async t => {\n\tload().then(value => { t.assert.strictEqual(value, 42); });\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -253,7 +370,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(18): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(undefined, error => { assert.ifError(error); });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(21): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(undefined, error => { assert.ifError(error); });\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -263,7 +380,7 @@ exports[`no-unawaited-promise-assertion > invalid(18): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(18): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(undefined, error => { assert.ifError(error); });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(21): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(undefined, error => { assert.ifError(error); });\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -282,7 +399,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(19): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().catch(error => { assert.ifError(error); });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(22): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().catch(error => { assert.ifError(error); });\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -292,7 +409,7 @@ exports[`no-unawaited-promise-assertion > invalid(19): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(19): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().catch(error => { assert.ifError(error); });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(22): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().catch(error => { assert.ifError(error); });\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -311,33 +428,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(2): import test from \"node:test\";\ntest(\"a\", async ({assert: {strictEqual}}) => {\n\tload().then(v => { strictEqual(v, 42); });\n}); 1`] = `
-
-  1 | import test from "node:test";
-  2 | test("a", async ({assert: {strictEqual}}) => {
-  3 | 	load().then(v => { strictEqual(v, 42); });
-  4 | });
-
-`;
-
-exports[`no-unawaited-promise-assertion > invalid(2): import test from \"node:test\";\ntest(\"a\", async ({assert: {strictEqual}}) => {\n\tload().then(v => { strictEqual(v, 42); });\n}); 2`] = `
-
-Message:
-  1 | import test from "node:test";
-  2 | test("a", async ({assert: {strictEqual}}) => {
-> 3 | 	load().then(v => { strictEqual(v, 42); });
-    | 	                   ^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
-  4 | });
-
-Output:
-  1 | import test from "node:test";
-  2 | test("a", async ({assert: {strictEqual}}) => {
-  3 | 	await load().then(v => { strictEqual(v, 42); });
-  4 | });
-
-`;
-
-exports[`no-unawaited-promise-assertion > invalid(20): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().finally(() => { assert.ok(cleanedUp); });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(23): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().finally(() => { assert.ok(cleanedUp); });\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -347,7 +438,7 @@ exports[`no-unawaited-promise-assertion > invalid(20): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(20): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().finally(() => { assert.ok(cleanedUp); });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(23): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().finally(() => { assert.ok(cleanedUp); });\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -366,7 +457,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(21): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); }).catch(error => { assert.ifError(error); });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(24): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); }).catch(error => { assert.ifError(error); });\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -376,7 +467,7 @@ exports[`no-unawaited-promise-assertion > invalid(21): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(21): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); }).catch(error => { assert.ifError(error); });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(24): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); }).catch(error => { assert.ifError(error); });\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -388,7 +479,7 @@ Message:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(21): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); }).catch(error => { assert.ifError(error); });\n}); 3`] = `
+exports[`no-unawaited-promise-assertion > invalid(24): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); }).catch(error => { assert.ifError(error); });\n}); 3`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -407,7 +498,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(22): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { assert.ok(value); assert.strictEqual(value, 42); });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(25): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { assert.ok(value); assert.strictEqual(value, 42); });\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -417,7 +508,7 @@ exports[`no-unawaited-promise-assertion > invalid(22): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(22): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { assert.ok(value); assert.strictEqual(value, 42); });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(25): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { assert.ok(value); assert.strictEqual(value, 42); });\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -436,7 +527,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(23): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tpromise?.then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(26): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tpromise?.then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -446,7 +537,7 @@ exports[`no-unawaited-promise-assertion > invalid(23): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(23): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tpromise?.then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(26): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tpromise?.then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -465,7 +556,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(24): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload?.().then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(27): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload?.().then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -475,7 +566,7 @@ exports[`no-unawaited-promise-assertion > invalid(24): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(24): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload?.().then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(27): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload?.().then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -494,7 +585,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(25): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tvoid load().then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(28): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tvoid load().then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -504,7 +595,7 @@ exports[`no-unawaited-promise-assertion > invalid(25): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(25): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tvoid load().then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(28): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tvoid load().then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -516,7 +607,7 @@ Message:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(26): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(29): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -526,7 +617,7 @@ exports[`no-unawaited-promise-assertion > invalid(26): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(26): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(29): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -538,7 +629,29 @@ Message:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(27): import {before} from 'node:test';\nimport assert from 'node:assert';\nbefore(async () => {\n\tsetup().then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(3): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tfor (; i < 1; load().then(v => { assert.strictEqual(v, 42); })) {}\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	for (; i < 1; load().then(v => { assert.strictEqual(v, 42); })) {}
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(3): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tfor (; i < 1; load().then(v => { assert.strictEqual(v, 42); })) {}\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+> 4 | 	for (; i < 1; load().then(v => { assert.strictEqual(v, 42); })) {}
+    | 	                                 ^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(30): import {before} from 'node:test';\nimport assert from 'node:assert';\nbefore(async () => {\n\tsetup().then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
 
   1 | import {before} from 'node:test';
   2 | import assert from 'node:assert';
@@ -548,7 +661,7 @@ exports[`no-unawaited-promise-assertion > invalid(27): import {before} from 'nod
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(27): import {before} from 'node:test';\nimport assert from 'node:assert';\nbefore(async () => {\n\tsetup().then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(30): import {before} from 'node:test';\nimport assert from 'node:assert';\nbefore(async () => {\n\tsetup().then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
 
 Message:
   1 | import {before} from 'node:test';
@@ -567,7 +680,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(28): import {beforeEach} from 'node:test';\nbeforeEach(async t => {\n\tsetup().then(value => { t.assert.strictEqual(value, 42); });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(31): import {beforeEach} from 'node:test';\nbeforeEach(async t => {\n\tsetup().then(value => { t.assert.strictEqual(value, 42); });\n}); 1`] = `
 
   1 | import {beforeEach} from 'node:test';
   2 | beforeEach(async t => {
@@ -576,7 +689,7 @@ exports[`no-unawaited-promise-assertion > invalid(28): import {beforeEach} from 
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(28): import {beforeEach} from 'node:test';\nbeforeEach(async t => {\n\tsetup().then(value => { t.assert.strictEqual(value, 42); });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(31): import {beforeEach} from 'node:test';\nbeforeEach(async t => {\n\tsetup().then(value => { t.assert.strictEqual(value, 42); });\n}); 2`] = `
 
 Message:
   1 | import {beforeEach} from 'node:test';
@@ -593,7 +706,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(29): import {afterEach} from 'node:test';\nimport assert from 'node:assert';\nafterEach(async () => {\n\tteardown().then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(32): import {afterEach} from 'node:test';\nimport assert from 'node:assert';\nafterEach(async () => {\n\tteardown().then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
 
   1 | import {afterEach} from 'node:test';
   2 | import assert from 'node:assert';
@@ -603,7 +716,7 @@ exports[`no-unawaited-promise-assertion > invalid(29): import {afterEach} from '
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(29): import {afterEach} from 'node:test';\nimport assert from 'node:assert';\nafterEach(async () => {\n\tteardown().then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(32): import {afterEach} from 'node:test';\nimport assert from 'node:assert';\nafterEach(async () => {\n\tteardown().then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
 
 Message:
   1 | import {afterEach} from 'node:test';
@@ -622,36 +735,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(3): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tPromise.all([load().then(value => { assert.strictEqual(value, 42); })]);\n}); 1`] = `
-
-  1 | import test from 'node:test';
-  2 | import assert from 'node:assert';
-  3 | test('loads', async () => {
-  4 | 	Promise.all([load().then(value => { assert.strictEqual(value, 42); })]);
-  5 | });
-
-`;
-
-exports[`no-unawaited-promise-assertion > invalid(3): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tPromise.all([load().then(value => { assert.strictEqual(value, 42); })]);\n}); 2`] = `
-
-Message:
-  1 | import test from 'node:test';
-  2 | import assert from 'node:assert';
-  3 | test('loads', async () => {
-> 4 | 	Promise.all([load().then(value => { assert.strictEqual(value, 42); })]);
-    | 	                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
-  5 | });
-
-Output:
-  1 | import test from 'node:test';
-  2 | import assert from 'node:assert';
-  3 | test('loads', async () => {
-  4 | 	await Promise.all([load().then(value => { assert.strictEqual(value, 42); })]);
-  5 | });
-
-`;
-
-exports[`no-unawaited-promise-assertion > invalid(30): import test from 'node:test';\nimport assert from 'node:assert';\ntest('parent', async t => {\n\tawait t.test('child', async () => {\n\t\tload().then(value => { assert.strictEqual(value, 42); });\n\t});\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(33): import test from 'node:test';\nimport assert from 'node:assert';\ntest('parent', async t => {\n\tawait t.test('child', async () => {\n\t\tload().then(value => { assert.strictEqual(value, 42); });\n\t});\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -663,7 +747,7 @@ exports[`no-unawaited-promise-assertion > invalid(30): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(30): import test from 'node:test';\nimport assert from 'node:assert';\ntest('parent', async t => {\n\tawait t.test('child', async () => {\n\t\tload().then(value => { assert.strictEqual(value, 42); });\n\t});\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(33): import test from 'node:test';\nimport assert from 'node:assert';\ntest('parent', async t => {\n\tawait t.test('child', async () => {\n\t\tload().then(value => { assert.strictEqual(value, 42); });\n\t});\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -686,7 +770,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(31): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tclass Fixture {\n\t\tstatic {\n\t\t\tload().then(value => { assert.strictEqual(value, 42); });\n\t\t}\n\t}\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(34): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tclass Fixture {\n\t\tstatic {\n\t\t\tload().then(value => { assert.strictEqual(value, 42); });\n\t\t}\n\t}\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -700,7 +784,7 @@ exports[`no-unawaited-promise-assertion > invalid(31): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(31): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tclass Fixture {\n\t\tstatic {\n\t\t\tload().then(value => { assert.strictEqual(value, 42); });\n\t\t}\n\t}\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(34): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tclass Fixture {\n\t\tstatic {\n\t\t\tload().then(value => { assert.strictEqual(value, 42); });\n\t\t}\n\t}\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -716,7 +800,7 @@ Message:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(32): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then((value => { assert.strictEqual(value, 42); }) as (value: number) => void);\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(35): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then((value => { assert.strictEqual(value, 42); }) as (value: number) => void);\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -726,7 +810,7 @@ exports[`no-unawaited-promise-assertion > invalid(32): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(32): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then((value => { assert.strictEqual(value, 42); }) as (value: number) => void);\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(35): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then((value => { assert.strictEqual(value, 42); }) as (value: number) => void);\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -745,7 +829,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(33): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then((value => { assert.strictEqual(value, 42); }) satisfies (value: number) => void);\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(36): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then((value => { assert.strictEqual(value, 42); }) satisfies (value: number) => void);\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -755,7 +839,7 @@ exports[`no-unawaited-promise-assertion > invalid(33): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(33): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then((value => { assert.strictEqual(value, 42); }) satisfies (value: number) => void);\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(36): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then((value => { assert.strictEqual(value, 42); }) satisfies (value: number) => void);\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -774,7 +858,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(34): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then((value => { assert.strictEqual(value, 42); })!);\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(37): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then((value => { assert.strictEqual(value, 42); })!);\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -784,7 +868,7 @@ exports[`no-unawaited-promise-assertion > invalid(34): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(34): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then((value => { assert.strictEqual(value, 42); })!);\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(37): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then((value => { assert.strictEqual(value, 42); })!);\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -803,7 +887,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(35): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\t(load().then(value => { assert.strictEqual(value, 42); }) as Promise<void>);\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(38): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\t(load().then(value => { assert.strictEqual(value, 42); }) as Promise<void>);\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -813,7 +897,7 @@ exports[`no-unawaited-promise-assertion > invalid(35): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(35): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\t(load().then(value => { assert.strictEqual(value, 42); }) as Promise<void>);\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(38): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\t(load().then(value => { assert.strictEqual(value, 42); }) as Promise<void>);\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -825,7 +909,7 @@ Message:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(36): import test from 'node:test';\nimport assert from 'node:assert';\n(test as typeof test)('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(39): import test from 'node:test';\nimport assert from 'node:assert';\n(test as typeof test)('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -835,7 +919,7 @@ exports[`no-unawaited-promise-assertion > invalid(36): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(36): import test from 'node:test';\nimport assert from 'node:assert';\n(test as typeof test)('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(39): import test from 'node:test';\nimport assert from 'node:assert';\n(test as typeof test)('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -854,7 +938,33 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(37): import {test, getTestContext} from 'node:test';\ntest('loads', async () => {\n\tload().then(value => { getTestContext().assert.strictEqual(value, 42); });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(4): import test from \"node:test\";\ntest(\"a\", async ({assert}) => {\n\tload().then(v => { assert.strictEqual(v, 42); });\n}); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("a", async ({assert}) => {
+  3 | 	load().then(v => { assert.strictEqual(v, 42); });
+  4 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(4): import test from \"node:test\";\ntest(\"a\", async ({assert}) => {\n\tload().then(v => { assert.strictEqual(v, 42); });\n}); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+  2 | test("a", async ({assert}) => {
+> 3 | 	load().then(v => { assert.strictEqual(v, 42); });
+    | 	                   ^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
+  4 | });
+
+Output:
+  1 | import test from "node:test";
+  2 | test("a", async ({assert}) => {
+  3 | 	await load().then(v => { assert.strictEqual(v, 42); });
+  4 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(40): import {test, getTestContext} from 'node:test';\ntest('loads', async () => {\n\tload().then(value => { getTestContext().assert.strictEqual(value, 42); });\n}); 1`] = `
 
   1 | import {test, getTestContext} from 'node:test';
   2 | test('loads', async () => {
@@ -863,7 +973,7 @@ exports[`no-unawaited-promise-assertion > invalid(37): import {test, getTestCont
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(37): import {test, getTestContext} from 'node:test';\ntest('loads', async () => {\n\tload().then(value => { getTestContext().assert.strictEqual(value, 42); });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(40): import {test, getTestContext} from 'node:test';\ntest('loads', async () => {\n\tload().then(value => { getTestContext().assert.strictEqual(value, 42); });\n}); 2`] = `
 
 Message:
   1 | import {test, getTestContext} from 'node:test';
@@ -880,7 +990,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(38): import {test, getTestContext} from 'node:test';\ntest('loads', async () => {\n\tload().then(() => { getTestContext().assert.rejects(load()); });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(41): import {test, getTestContext} from 'node:test';\ntest('loads', async () => {\n\tload().then(() => { getTestContext().assert.rejects(load()); });\n}); 1`] = `
 
   1 | import {test, getTestContext} from 'node:test';
   2 | test('loads', async () => {
@@ -889,7 +999,7 @@ exports[`no-unawaited-promise-assertion > invalid(38): import {test, getTestCont
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(38): import {test, getTestContext} from 'node:test';\ntest('loads', async () => {\n\tload().then(() => { getTestContext().assert.rejects(load()); });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(41): import {test, getTestContext} from 'node:test';\ntest('loads', async () => {\n\tload().then(() => { getTestContext().assert.rejects(load()); });\n}); 2`] = `
 
 Message:
   1 | import {test, getTestContext} from 'node:test';
@@ -906,7 +1016,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(39): import {test, getTestContext} from 'node:test';\nimport assert from 'node:assert';\ntest('o', async () => {\n\tawait getTestContext().test('s', () => { load().then(v => { assert.equal(v, 1); }); });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(42): import {test, getTestContext} from 'node:test';\nimport assert from 'node:assert';\ntest('o', async () => {\n\tawait getTestContext().test('s', () => { load().then(v => { assert.equal(v, 1); }); });\n}); 1`] = `
 
   1 | import {test, getTestContext} from 'node:test';
   2 | import assert from 'node:assert';
@@ -916,7 +1026,7 @@ exports[`no-unawaited-promise-assertion > invalid(39): import {test, getTestCont
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(39): import {test, getTestContext} from 'node:test';\nimport assert from 'node:assert';\ntest('o', async () => {\n\tawait getTestContext().test('s', () => { load().then(v => { assert.equal(v, 1); }); });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(42): import {test, getTestContext} from 'node:test';\nimport assert from 'node:assert';\ntest('o', async () => {\n\tawait getTestContext().test('s', () => { load().then(v => { assert.equal(v, 1); }); });\n}); 2`] = `
 
 Message:
   1 | import {test, getTestContext} from 'node:test';
@@ -928,36 +1038,7 @@ Message:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(4): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tPromise.allSettled([load().then(value => { assert.strictEqual(value, 42); })]);\n}); 1`] = `
-
-  1 | import test from 'node:test';
-  2 | import assert from 'node:assert';
-  3 | test('loads', async () => {
-  4 | 	Promise.allSettled([load().then(value => { assert.strictEqual(value, 42); })]);
-  5 | });
-
-`;
-
-exports[`no-unawaited-promise-assertion > invalid(4): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tPromise.allSettled([load().then(value => { assert.strictEqual(value, 42); })]);\n}); 2`] = `
-
-Message:
-  1 | import test from 'node:test';
-  2 | import assert from 'node:assert';
-  3 | test('loads', async () => {
-> 4 | 	Promise.allSettled([load().then(value => { assert.strictEqual(value, 42); })]);
-    | 	                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
-  5 | });
-
-Output:
-  1 | import test from 'node:test';
-  2 | import assert from 'node:assert';
-  3 | test('loads', async () => {
-  4 | 	await Promise.allSettled([load().then(value => { assert.strictEqual(value, 42); })]);
-  5 | });
-
-`;
-
-exports[`no-unawaited-promise-assertion > invalid(40): // A \`getTestContext()\` hook is the same hook, so its callback is the same boundary\nimport {test, getTestContext} from 'node:test';\nimport assert from 'node:assert';\ntest('a', t => {\n\tgetTestContext().beforeEach(() => {\n\t\tfoo().then(() => { assert.ok(x); });\n\t});\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(43): // A \`getTestContext()\` hook is the same hook, so its callback is the same boundary\nimport {test, getTestContext} from 'node:test';\nimport assert from 'node:assert';\ntest('a', t => {\n\tgetTestContext().beforeEach(() => {\n\t\tfoo().then(() => { assert.ok(x); });\n\t});\n}); 1`] = `
 
   1 | // A \`getTestContext()\` hook is the same hook, so its callback is the same boundary
   2 | import {test, getTestContext} from 'node:test';
@@ -970,7 +1051,7 @@ exports[`no-unawaited-promise-assertion > invalid(40): // A \`getTestContext()\`
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(40): // A \`getTestContext()\` hook is the same hook, so its callback is the same boundary\nimport {test, getTestContext} from 'node:test';\nimport assert from 'node:assert';\ntest('a', t => {\n\tgetTestContext().beforeEach(() => {\n\t\tfoo().then(() => { assert.ok(x); });\n\t});\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(43): // A \`getTestContext()\` hook is the same hook, so its callback is the same boundary\nimport {test, getTestContext} from 'node:test';\nimport assert from 'node:assert';\ntest('a', t => {\n\tgetTestContext().beforeEach(() => {\n\t\tfoo().then(() => { assert.ok(x); });\n\t});\n}); 2`] = `
 
 Message:
   1 | // A \`getTestContext()\` hook is the same hook, so its callback is the same boundary
@@ -985,7 +1066,7 @@ Message:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(41): import test from 'node:test';\nimport assert from 'node:assert';\ntest('a', async t => {\n\tt.plan(1, {wait: false});\n\tload().then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(44): import test from 'node:test';\nimport assert from 'node:assert';\ntest('a', async t => {\n\tt.plan(1, {wait: false});\n\tload().then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -996,7 +1077,7 @@ exports[`no-unawaited-promise-assertion > invalid(41): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(41): import test from 'node:test';\nimport assert from 'node:assert';\ntest('a', async t => {\n\tt.plan(1, {wait: false});\n\tload().then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(44): import test from 'node:test';\nimport assert from 'node:assert';\ntest('a', async t => {\n\tt.plan(1, {wait: false});\n\tload().then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1017,7 +1098,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(42): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tflag || load().then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(45): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tflag || load().then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -1027,7 +1108,7 @@ exports[`no-unawaited-promise-assertion > invalid(42): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(42): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tflag || load().then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(45): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tflag || load().then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1046,7 +1127,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(43): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); }) && flag;\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(46): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); }) && flag;\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -1056,7 +1137,7 @@ exports[`no-unawaited-promise-assertion > invalid(43): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(43): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); }) && flag;\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(46): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); }) && flag;\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1068,7 +1149,7 @@ Message:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(44): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\ttry { load().then(value => { assert.strictEqual(value, 42); }); } catch (error) { report(error); }\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(47): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\ttry { load().then(value => { assert.strictEqual(value, 42); }); } catch (error) { report(error); }\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -1078,7 +1159,7 @@ exports[`no-unawaited-promise-assertion > invalid(44): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(44): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\ttry { load().then(value => { assert.strictEqual(value, 42); }); } catch (error) { report(error); }\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(47): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\ttry { load().then(value => { assert.strictEqual(value, 42); }); } catch (error) { report(error); }\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1097,7 +1178,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(45): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { try { assert.strictEqual(value, 42); } finally { cleanup(); } });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(48): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { try { assert.strictEqual(value, 42); } finally { cleanup(); } });\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -1107,7 +1188,7 @@ exports[`no-unawaited-promise-assertion > invalid(45): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(45): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { try { assert.strictEqual(value, 42); } finally { cleanup(); } });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(48): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { try { assert.strictEqual(value, 42); } finally { cleanup(); } });\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1126,7 +1207,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(46): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(() => { try { assert.rejects(load()); } catch (error) { report(error); } });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(49): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(() => { try { assert.rejects(load()); } catch (error) { report(error); } });\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -1136,7 +1217,7 @@ exports[`no-unawaited-promise-assertion > invalid(46): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(46): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(() => { try { assert.rejects(load()); } catch (error) { report(error); } });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(49): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(() => { try { assert.rejects(load()); } catch (error) { report(error); } });\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1155,7 +1236,33 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(47): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(async () => { await assert.rejects(load()); });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(5): import test from \"node:test\";\ntest(\"a\", async ({assert: {strictEqual}}) => {\n\tload().then(v => { strictEqual(v, 42); });\n}); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("a", async ({assert: {strictEqual}}) => {
+  3 | 	load().then(v => { strictEqual(v, 42); });
+  4 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(5): import test from \"node:test\";\ntest(\"a\", async ({assert: {strictEqual}}) => {\n\tload().then(v => { strictEqual(v, 42); });\n}); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+  2 | test("a", async ({assert: {strictEqual}}) => {
+> 3 | 	load().then(v => { strictEqual(v, 42); });
+    | 	                   ^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
+  4 | });
+
+Output:
+  1 | import test from "node:test";
+  2 | test("a", async ({assert: {strictEqual}}) => {
+  3 | 	await load().then(v => { strictEqual(v, 42); });
+  4 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(50): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(async () => { await assert.rejects(load()); });\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -1165,7 +1272,7 @@ exports[`no-unawaited-promise-assertion > invalid(47): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(47): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(async () => { await assert.rejects(load()); });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(50): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(async () => { await assert.rejects(load()); });\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1184,7 +1291,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(48): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(() => { assert.doesNotReject(load()); });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(51): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(() => { assert.doesNotReject(load()); });\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -1194,7 +1301,7 @@ exports[`no-unawaited-promise-assertion > invalid(48): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(48): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(() => { assert.doesNotReject(load()); });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(51): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(() => { assert.doesNotReject(load()); });\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1213,7 +1320,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(49): import test from 'node:test';\nimport * as nodeAssert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { nodeAssert.strictEqual(value, 42); });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(52): import test from 'node:test';\nimport * as nodeAssert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { nodeAssert.strictEqual(value, 42); });\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import * as nodeAssert from 'node:assert';
@@ -1223,7 +1330,7 @@ exports[`no-unawaited-promise-assertion > invalid(49): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(49): import test from 'node:test';\nimport * as nodeAssert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { nodeAssert.strictEqual(value, 42); });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(52): import test from 'node:test';\nimport * as nodeAssert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { nodeAssert.strictEqual(value, 42); });\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1242,36 +1349,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(5): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tPromise.race([load().then(value => { assert.strictEqual(value, 42); })]);\n}); 1`] = `
-
-  1 | import test from 'node:test';
-  2 | import assert from 'node:assert';
-  3 | test('loads', async () => {
-  4 | 	Promise.race([load().then(value => { assert.strictEqual(value, 42); })]);
-  5 | });
-
-`;
-
-exports[`no-unawaited-promise-assertion > invalid(5): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tPromise.race([load().then(value => { assert.strictEqual(value, 42); })]);\n}); 2`] = `
-
-Message:
-  1 | import test from 'node:test';
-  2 | import assert from 'node:assert';
-  3 | test('loads', async () => {
-> 4 | 	Promise.race([load().then(value => { assert.strictEqual(value, 42); })]);
-    | 	                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
-  5 | });
-
-Output:
-  1 | import test from 'node:test';
-  2 | import assert from 'node:assert';
-  3 | test('loads', async () => {
-  4 | 	await Promise.race([load().then(value => { assert.strictEqual(value, 42); })]);
-  5 | });
-
-`;
-
-exports[`no-unawaited-promise-assertion > invalid(50): import test from 'node:test';\nimport assert from 'node:assert';\ntest.afterEach(async () => {\n\tteardown().then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(53): import test from 'node:test';\nimport assert from 'node:assert';\ntest.afterEach(async () => {\n\tteardown().then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -1281,7 +1359,7 @@ exports[`no-unawaited-promise-assertion > invalid(50): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(50): import test from 'node:test';\nimport assert from 'node:assert';\ntest.afterEach(async () => {\n\tteardown().then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(53): import test from 'node:test';\nimport assert from 'node:assert';\ntest.afterEach(async () => {\n\tteardown().then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1300,7 +1378,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(51): import test from 'node:test';\nimport assert from 'node:assert';\ntest('parent', t => {\n\tt.beforeEach(() => {\n\t\tsetup().then(value => { assert.strictEqual(value, 42); });\n\t});\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(54): import test from 'node:test';\nimport assert from 'node:assert';\ntest('parent', t => {\n\tt.beforeEach(() => {\n\t\tsetup().then(value => { assert.strictEqual(value, 42); });\n\t});\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -1312,7 +1390,7 @@ exports[`no-unawaited-promise-assertion > invalid(51): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(51): import test from 'node:test';\nimport assert from 'node:assert';\ntest('parent', t => {\n\tt.beforeEach(() => {\n\t\tsetup().then(value => { assert.strictEqual(value, 42); });\n\t});\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(54): import test from 'node:test';\nimport assert from 'node:assert';\ntest('parent', t => {\n\tt.beforeEach(() => {\n\t\tsetup().then(value => { assert.strictEqual(value, 42); });\n\t});\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1326,7 +1404,7 @@ Message:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(52): import test from 'node:test';\nimport assert from 'node:assert';\ntest.only('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(55): import test from 'node:test';\nimport assert from 'node:assert';\ntest.only('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -1336,7 +1414,7 @@ exports[`no-unawaited-promise-assertion > invalid(52): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(52): import test from 'node:test';\nimport assert from 'node:assert';\ntest.only('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(55): import test from 'node:test';\nimport assert from 'node:assert';\ntest.only('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1355,7 +1433,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(53): import test from 'node:test';\nimport assert from 'node:assert';\ntest({name: 'loads', fn: async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n}}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(56): import test from 'node:test';\nimport assert from 'node:assert';\ntest({name: 'loads', fn: async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n}}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -1365,7 +1443,7 @@ exports[`no-unawaited-promise-assertion > invalid(53): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(53): import test from 'node:test';\nimport assert from 'node:assert';\ntest({name: 'loads', fn: async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n}}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(56): import test from 'node:test';\nimport assert from 'node:assert';\ntest({name: 'loads', fn: async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n}}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1384,7 +1462,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(54): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async t => {\n\tload().then(value => { (t as any).assert.strictEqual(value, 42); });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(57): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async t => {\n\tload().then(value => { (t as any).assert.strictEqual(value, 42); });\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -1394,7 +1472,7 @@ exports[`no-unawaited-promise-assertion > invalid(54): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(54): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async t => {\n\tload().then(value => { (t as any).assert.strictEqual(value, 42); });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(57): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async t => {\n\tload().then(value => { (t as any).assert.strictEqual(value, 42); });\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1413,7 +1491,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(55): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\t(load().then(value => { assert.strictEqual(value, 42); }))!;\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(58): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\t(load().then(value => { assert.strictEqual(value, 42); }))!;\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -1423,7 +1501,7 @@ exports[`no-unawaited-promise-assertion > invalid(55): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(55): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\t(load().then(value => { assert.strictEqual(value, 42); }))!;\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(58): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\t(load().then(value => { assert.strictEqual(value, 42); }))!;\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1442,7 +1520,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(56): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); }) satisfies unknown;\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(59): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); }) satisfies unknown;\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -1452,7 +1530,7 @@ exports[`no-unawaited-promise-assertion > invalid(56): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(56): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); }) satisfies unknown;\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(59): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); }) satisfies unknown;\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1464,7 +1542,36 @@ Message:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(57): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\t(load().then(value => { assert.strictEqual(value, 42); }));\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(6): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tPromise.all([load().then(value => { assert.strictEqual(value, 42); })]);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	Promise.all([load().then(value => { assert.strictEqual(value, 42); })]);
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(6): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tPromise.all([load().then(value => { assert.strictEqual(value, 42); })]);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+> 4 | 	Promise.all([load().then(value => { assert.strictEqual(value, 42); })]);
+    | 	                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
+  5 | });
+
+Output:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	await Promise.all([load().then(value => { assert.strictEqual(value, 42); })]);
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(60): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\t(load().then(value => { assert.strictEqual(value, 42); }));\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -1474,7 +1581,7 @@ exports[`no-unawaited-promise-assertion > invalid(57): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(57): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\t(load().then(value => { assert.strictEqual(value, 42); }));\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(60): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\t(load().then(value => { assert.strictEqual(value, 42); }));\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1493,7 +1600,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(58): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload() /* keep */.then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(61): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload() /* keep */.then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -1503,7 +1610,7 @@ exports[`no-unawaited-promise-assertion > invalid(58): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(58): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload() /* keep */.then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(61): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload() /* keep */.then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1522,7 +1629,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(59): import {test, getTestContext} from 'node:test';\ntest('parent', async ({assert}) => {\n\tawait getTestContext().test('child', async () => {\n\t\tload().then(value => { assert.ok(value); });\n\t});\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(62): import {test, getTestContext} from 'node:test';\ntest('parent', async ({assert}) => {\n\tawait getTestContext().test('child', async () => {\n\t\tload().then(value => { assert.ok(value); });\n\t});\n}); 1`] = `
 
   1 | import {test, getTestContext} from 'node:test';
   2 | test('parent', async ({assert}) => {
@@ -1533,7 +1640,7 @@ exports[`no-unawaited-promise-assertion > invalid(59): import {test, getTestCont
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(59): import {test, getTestContext} from 'node:test';\ntest('parent', async ({assert}) => {\n\tawait getTestContext().test('child', async () => {\n\t\tload().then(value => { assert.ok(value); });\n\t});\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(62): import {test, getTestContext} from 'node:test';\ntest('parent', async ({assert}) => {\n\tawait getTestContext().test('child', async () => {\n\t\tload().then(value => { assert.ok(value); });\n\t});\n}); 2`] = `
 
 Message:
   1 | import {test, getTestContext} from 'node:test';
@@ -1554,36 +1661,7 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(6): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tPromise.any([load().then(value => { assert.strictEqual(value, 42); })]);\n}); 1`] = `
-
-  1 | import test from 'node:test';
-  2 | import assert from 'node:assert';
-  3 | test('loads', async () => {
-  4 | 	Promise.any([load().then(value => { assert.strictEqual(value, 42); })]);
-  5 | });
-
-`;
-
-exports[`no-unawaited-promise-assertion > invalid(6): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tPromise.any([load().then(value => { assert.strictEqual(value, 42); })]);\n}); 2`] = `
-
-Message:
-  1 | import test from 'node:test';
-  2 | import assert from 'node:assert';
-  3 | test('loads', async () => {
-> 4 | 	Promise.any([load().then(value => { assert.strictEqual(value, 42); })]);
-    | 	                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
-  5 | });
-
-Output:
-  1 | import test from 'node:test';
-  2 | import assert from 'node:assert';
-  3 | test('loads', async () => {
-  4 | 	await Promise.any([load().then(value => { assert.strictEqual(value, 42); })]);
-  5 | });
-
-`;
-
-exports[`no-unawaited-promise-assertion > invalid(60): import test from 'node:test';\nimport assert from 'node:assert';\ntest('a', async (this: void, t) => { p().then(() => { t.assert.ok(1); }); }); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(63): import test from 'node:test';\nimport assert from 'node:assert';\ntest('a', async (this: void, t) => { p().then(() => { t.assert.ok(1); }); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -1591,7 +1669,7 @@ exports[`no-unawaited-promise-assertion > invalid(60): import test from 'node:te
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(60): import test from 'node:test';\nimport assert from 'node:assert';\ntest('a', async (this: void, t) => { p().then(() => { t.assert.ok(1); }); }); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(63): import test from 'node:test';\nimport assert from 'node:assert';\ntest('a', async (this: void, t) => { p().then(() => { t.assert.ok(1); }); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -1606,23 +1684,52 @@ Output:
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(7): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tPromise.all([[load().then(value => { assert.strictEqual(value, 42); })]]);\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(7): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tPromise.allSettled([load().then(value => { assert.strictEqual(value, 42); })]);\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
   3 | test('loads', async () => {
-  4 | 	Promise.all([[load().then(value => { assert.strictEqual(value, 42); })]]);
+  4 | 	Promise.allSettled([load().then(value => { assert.strictEqual(value, 42); })]);
   5 | });
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(7): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tPromise.all([[load().then(value => { assert.strictEqual(value, 42); })]]);\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(7): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tPromise.allSettled([load().then(value => { assert.strictEqual(value, 42); })]);\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
   3 | test('loads', async () => {
-> 4 | 	Promise.all([[load().then(value => { assert.strictEqual(value, 42); })]]);
+> 4 | 	Promise.allSettled([load().then(value => { assert.strictEqual(value, 42); })]);
+    | 	                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
+  5 | });
+
+Output:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	await Promise.allSettled([load().then(value => { assert.strictEqual(value, 42); })]);
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(8): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tPromise.race([load().then(value => { assert.strictEqual(value, 42); })]);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	Promise.race([load().then(value => { assert.strictEqual(value, 42); })]);
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(8): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tPromise.race([load().then(value => { assert.strictEqual(value, 42); })]);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+> 4 | 	Promise.race([load().then(value => { assert.strictEqual(value, 42); })]);
     | 	                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
   5 | });
 
@@ -1630,28 +1737,28 @@ Output:
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
   3 | test('loads', async () => {
-  4 | 	await Promise.all([[load().then(value => { assert.strictEqual(value, 42); })]]);
+  4 | 	await Promise.race([load().then(value => { assert.strictEqual(value, 42); })]);
   5 | });
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(8): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tPromise.all([load().then(value => { assert.strictEqual(value, 42); }), other.catch(error => { assert.ok(error); })]);\n}); 1`] = `
+exports[`no-unawaited-promise-assertion > invalid(9): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tPromise.any([load().then(value => { assert.strictEqual(value, 42); })]);\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
   3 | test('loads', async () => {
-  4 | 	Promise.all([load().then(value => { assert.strictEqual(value, 42); }), other.catch(error => { assert.ok(error); })]);
+  4 | 	Promise.any([load().then(value => { assert.strictEqual(value, 42); })]);
   5 | });
 
 `;
 
-exports[`no-unawaited-promise-assertion > invalid(8): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tPromise.all([load().then(value => { assert.strictEqual(value, 42); }), other.catch(error => { assert.ok(error); })]);\n}); 2`] = `
+exports[`no-unawaited-promise-assertion > invalid(9): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tPromise.any([load().then(value => { assert.strictEqual(value, 42); })]);\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
   3 | test('loads', async () => {
-> 4 | 	Promise.all([load().then(value => { assert.strictEqual(value, 42); }), other.catch(error => { assert.ok(error); })]);
+> 4 | 	Promise.any([load().then(value => { assert.strictEqual(value, 42); })]);
     | 	                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
   5 | });
 
@@ -1659,48 +1766,7 @@ Output:
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
   3 | test('loads', async () => {
-  4 | 	await Promise.all([load().then(value => { assert.strictEqual(value, 42); }), other.catch(error => { assert.ok(error); })]);
-  5 | });
-
-`;
-
-exports[`no-unawaited-promise-assertion > invalid(8): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tPromise.all([load().then(value => { assert.strictEqual(value, 42); }), other.catch(error => { assert.ok(error); })]);\n}); 3`] = `
-
-Message:
-  1 | import test from 'node:test';
-  2 | import assert from 'node:assert';
-  3 | test('loads', async () => {
-> 4 | 	Promise.all([load().then(value => { assert.strictEqual(value, 42); }), other.catch(error => { assert.ok(error); })]);
-    | 	                                                                                              ^^^^^^^^^^^^^^^^ Assertion in a floating \`catch()\` callback is not awaited by the test. Await or return the Promise chain.
-  5 | });
-
-`;
-
-exports[`no-unawaited-promise-assertion > invalid(9): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
-
-  1 | import test from 'node:test';
-  2 | import assert from 'node:assert';
-  3 | test('loads', async () => {
-  4 | 	load().then(value => { assert.strictEqual(value, 42); });
-  5 | });
-
-`;
-
-exports[`no-unawaited-promise-assertion > invalid(9): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
-
-Message:
-  1 | import test from 'node:test';
-  2 | import assert from 'node:assert';
-  3 | test('loads', async () => {
-> 4 | 	load().then(value => { assert.strictEqual(value, 42); });
-    | 	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
-  5 | });
-
-Output:
-  1 | import test from 'node:test';
-  2 | import assert from 'node:assert';
-  3 | test('loads', async () => {
-  4 | 	await load().then(value => { assert.strictEqual(value, 42); });
+  4 | 	await Promise.any([load().then(value => { assert.strictEqual(value, 42); })]);
   5 | });
 
 `;

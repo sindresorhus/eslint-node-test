@@ -26,17 +26,27 @@ test.snapshot({
 		withSetup('const {exit} = process; exit(1);'),
 		withSetup('let {exitCode} = process; exitCode = 1;'),
 		withSetup('({exitCode: process.exitCode} = result);'),
-		withSetup('import {exit} from \'node:process\';\nexit(1);'),
 		withSetup('new process.exit(1);'),
 
 		// A bare `test` package is not Node's test runner.
 		'import test from \'test\';\nprocess.exit(0);',
 		'import {test as bareTest} from \'test\';\nprocess.exitCode = 1;',
 		'import * as bareTest from \'test\';\nprocess.exit(0);',
+		// A type-only import binds no value
+		{
+			code: 'import type {exit} from \'node:process\';\nimport {test} from \'node:test\';\ntest(\'a\', () => { exit(1); });',
+			languageOptions: {parser: parsers.typescript},
+		},
+		// A parameter of the same name shadows the import
+		'import {exit} from \'node:process\';\nimport {test} from \'node:test\';\ntest(\'a\', function (exit) { exit(1); });',
+		// Another named export is not `process.exit`
+		'import {env} from \'node:process\';\nimport {test} from \'node:test\';\ntest(\'a\', () => { env(1); });',
 	],
 	invalid: [
 		// `process.exit()` anywhere in a test file
 		withSetup('process.exit();'),
+		// The named import is the same function, wherever the call is
+		withSetup('import {exit} from \'node:process\';\nexit(1);'),
 		withSetup('test(\'a\', () => { process.exit(0); });'),
 		withSetup('it(\'a\', () => { process.exit(0); });'),
 		withSetup('describe(\'suite\', () => { process.exit(0); });'),
@@ -93,5 +103,10 @@ test.snapshot({
 			code: withSetup('test(\'a\', () => { (process as NodeJS.Process).exitCode = 1; });'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// A named import of the export is the same function, as the two sibling rules already read it
+		'import {exit} from \'node:process\';\nimport {test} from \'node:test\';\ntest(\'a\', () => { exit(1); });',
+		'import {exit as bail} from \'node:process\';\nimport {test} from \'node:test\';\ntest(\'a\', () => { bail(1); });',
+		'import proc from \'process\';\nimport {test} from \'node:test\';\nimport {exit} from \'node:process\';\ntest(\'a\', () => { exit(1); });',
 	],
 });
