@@ -7,7 +7,7 @@ import {
 	HOOK_FUNCTIONS,
 	isGlobalMock,
 	MODIFIERS,
-	getContextParameterIdentifier,
+	getFirstContextParameter,
 	isGetTestContextCall,
 } from './utils/node-test.js';
 import {getEnclosingFunction} from './utils/index.js';
@@ -188,7 +188,7 @@ function satisfyPending(scope, receiverKey) {
 }
 
 function getContextVariable(callback, sourceCode) {
-	const parameter = getContextParameterIdentifier(callback.params[0]);
+	const parameter = getFirstContextParameter(callback.params);
 	if (!parameter) {
 		return;
 	}

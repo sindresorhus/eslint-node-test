@@ -18,6 +18,11 @@ test.snapshot({
 		// Assertion inside a helper function defined in the body — not directly in the suite
 		withImport('describe("s", () => { function check() { assert.ok(x); } it("a", () => check()); });'),
 
+		// An out-of-line test body is a test body, not a suite body
+		withImport('describe("s", () => body());\nconst body = () => { assert.ok(x); };'),
+		withImport('test("t", body);\nfunction body() { assert.ok(x); }'),
+		withImport('describe("s", t => { it("a", body); });\nfunction body() { assert.ok(x); }'),
+
 		// Assertion in a subtest
 		withImport('test("a", async t => { await t.test("child", () => { assert.ok(x); }); });'),
 
@@ -45,6 +50,12 @@ test.snapshot({
 
 		// A concise arrow body is still the suite body
 		withImport('describe("s", () => assert.ok(x));'),
+
+		// A suite body the call names out of line runs while the suite is built
+		withImport('describe("s", body);\nfunction body() { assert.ok(x); it("a", () => {}); }'),
+		withImport('const body = () => { assert.ok(x); };\ndescribe("s", body);'),
+		'import {suite} from \'node:test\';\nimport assert from \'node:assert\';\nsuite("s", body);\nfunction body() { assert.ok(x); }',
+		withImport('describe("s", {fn: body});\nfunction body() { assert.ok(x); }'),
 
 		// Conditionally in the describe body (still runs at collection)
 		withImport('describe("s", () => { if (y) { assert.strictEqual(a, b); } });'),

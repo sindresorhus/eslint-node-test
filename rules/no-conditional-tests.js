@@ -62,7 +62,7 @@ const create = context => {
 		// A definition inside a hook is `no-test-inside-hook`'s to report. Its fix (move the definition
 		// out of the hook) has to come first, and this rule's advice (move the condition into the
 		// body) would leave that report in place, so reporting both leaves no state the user can reach.
-		if (nearestTestCallbackKind(node, imports, tracker.isContextReceiver) === 'hook') {
+		if (nearestTestCallbackKind(node, imports, tracker.isContextReceiver, context) === 'hook') {
 			return;
 		}
 

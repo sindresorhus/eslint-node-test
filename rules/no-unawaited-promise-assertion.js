@@ -10,7 +10,7 @@ import {
 	getContextHookName,
 	isSubtestCall,
 	getCalleeChain,
-	getContextParameterIdentifier,
+	getFirstContextParameter,
 	getDestructuredAssertBindings,
 	parseDestructuredAssertCall,
 	isHookMemberTestCall,
@@ -829,7 +829,7 @@ function createBoundaryStack(context, imports) {
 				return false;
 			}
 
-			const contextParameter = getContextParameterIdentifier(callback.params[0]);
+			const contextParameter = getFirstContextParameter(callback.params);
 			frames.push({
 				node,
 				callback,

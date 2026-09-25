@@ -518,6 +518,26 @@ Message:
 
 `;
 
+exports[`no-snapshot-in-loop > invalid(35): import test from 'node:test';\ntest('t', (this: void, t) => {\n\tfor (const x of xs) { t.assert.snapshot(x); }\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', (this: void, t) => {
+  3 | 	for (const x of xs) { t.assert.snapshot(x); }
+  4 | });
+
+`;
+
+exports[`no-snapshot-in-loop > invalid(35): import test from 'node:test';\ntest('t', (this: void, t) => {\n\tfor (const x of xs) { t.assert.snapshot(x); }\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', (this: void, t) => {
+> 3 | 	for (const x of xs) { t.assert.snapshot(x); }
+    | 	                      ^^^^^^^^^^^^^^^^^^^^ Do not use positional snapshots inside loops. Changing the iteration count shifts every following snapshot.
+  4 | });
+
+`;
+
 exports[`no-snapshot-in-loop > invalid(4): import test from 'node:test';\ntest('t', t => {\n\tfor (const item of items) { t.assert.snapshot(item); }\n}); 1`] = `
 
   1 | import test from 'node:test';

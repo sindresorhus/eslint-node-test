@@ -5,7 +5,7 @@ import {
 	getSubtestReceiver,
 	isGetTestContextSubtestCall,
 	getTestCallback,
-	getContextParameterIdentifier,
+	getFirstContextParameter,
 	MODIFIERS,
 } from './utils/node-test.js';
 import {
@@ -257,7 +257,7 @@ const create = context => {
 
 	const getContextVariable = callback => {
 		// A defaulted parameter (`(t = getTestContext())`) declares the context just the same.
-		const parameter = getContextParameterIdentifier(callback.params[0]);
+		const parameter = getFirstContextParameter(callback.params);
 		if (!parameter) {
 			return;
 		}

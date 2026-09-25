@@ -89,5 +89,11 @@ test.snapshot({
 
 		// A hook declared through `getTestContext()` is the same hook
 		'import {test, getTestContext} from \'node:test\';\nif (x) { getTestContext().beforeEach(() => {}); }',
+
+		// A TypeScript `this` parameter is erased at compile time, so the subtest is still a subtest
+		{
+			code: withImport('test(\'a\', (this: void, t) => { if (x) { t.test(\'b\', () => {}); } });'),
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

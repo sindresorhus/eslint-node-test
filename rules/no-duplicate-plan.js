@@ -9,7 +9,7 @@ import {
 	getTestOptions,
 	findOptionsProperty,
 	hasEnabledPlanOption,
-	getContextParameterIdentifier,
+	getFirstContextParameter,
 	isGetTestContextCall,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
@@ -104,7 +104,7 @@ const create = context => {
 
 			// A test without a context parameter still has a context, reachable through
 			// `getTestContext()`, so the frame is pushed either way.
-			const parameter = getContextParameterIdentifier(getTestCallback(node)?.params[0]);
+			const parameter = getFirstContextParameter(getTestCallback(node)?.params);
 			const hasPlanOption = hasEnabledPlanOption(node, context);
 			const frame = {
 				node,

@@ -558,6 +558,26 @@ Message:
 
 `;
 
+exports[`no-parent-test-context > invalid(37): import test from 'node:test';\ntest('a', (this: void, t) => { t.test('b', (this: void, t2) => { t.diagnostic('x'); }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('a', (this: void, t) => { t.test('b', (this: void, t2) => { t.diagnostic('x'); }); });
+
+`;
+
+exports[`no-parent-test-context > invalid(37): import test from 'node:test';\ntest('a', (this: void, t) => { t.test('b', (this: void, t2) => { t.diagnostic('x'); }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('a', (this: void, t) => { t.test('b', (this: void, t2) => { t.diagnostic('x'); }); });
+    |                                                                  ^ Do not use the parent test context \`t\` inside this subtest. Use this subtest's own context instead.
+
+Suggestion 1/1: Replace \`t\` with \`t2\`.:
+  1 | import test from 'node:test';
+  2 | test('a', (this: void, t) => { t.test('b', (this: void, t2) => { t2.diagnostic('x'); }); });
+
+`;
+
 exports[`no-parent-test-context > invalid(4): import test from 'node:test';\ntest('parent', async t => { await t.test('child', async () => { await t.test('grandchild', () => {}); }); }); 1`] = `
 
   1 | import test from 'node:test';

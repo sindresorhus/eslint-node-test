@@ -1,4 +1,4 @@
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -51,6 +51,12 @@ test.snapshot({
 		// A `concurrency` value that cannot be resolved statically is left to `node:test`
 		withTest('test(\'t\', {concurrency: limit}, () => {});'),
 		withTest('test(\'t\', {concurrency: process.env.LIMIT}, () => {});'),
+
+		// A TypeScript `this` parameter is erased at compile time, so the subtest is still a subtest
+		{
+			code: withTest('test(\'a\', {concurrency: true}, (this: void, t) => { t.test(\'b\', () => {}); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		// Concurrency on a leaf test
@@ -81,5 +87,12 @@ test.snapshot({
 
 		// A test inside a suite is still a test
 		'import {describe, test} from \'node:test\';\ndescribe(\'s\', () => { test(\'t\', {concurrency: true}, () => {}); });',
+
+		// A TypeScript `this` parameter is erased at compile time, so `t` is the context and `t.todo`
+		// renames this test rather than registering a subtest
+		{
+			code: withTest('test(\'a\', {concurrency: true}, (this: void, t) => { t.todo(\'b\'); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

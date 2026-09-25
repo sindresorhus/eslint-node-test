@@ -97,3 +97,19 @@ Message:
     |           ^ Name the test context parameter \`context\` instead of \`t\`.
 
 `;
+
+exports[`consistent-test-context-name > invalid(7): import test from 'node:test';\ntest('t', (this: void, ctx) => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', (this: void, ctx) => {});
+
+`;
+
+exports[`consistent-test-context-name > invalid(7): import test from 'node:test';\ntest('t', (this: void, ctx) => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', (this: void, ctx) => {});
+    |                        ^^^ Name the test context parameter \`t\` instead of \`ctx\`.
+
+`;

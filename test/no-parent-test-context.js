@@ -129,5 +129,11 @@ test.snapshot({
 		// The parent context is still the parent when the subtest is made through getTestContext()
 		'import {test, getTestContext} from \'node:test\';\n'
 		+ 'test(\'p\', async t => {\n\tawait getTestContext().test(\'c\', () => { t.mock.method(fs, \'x\'); });\n});',
+
+		// A TypeScript `this` parameter is erased at compile time, so the subtest context is `t2`
+		{
+			code: withImport('test(\'a\', (this: void, t) => { t.test(\'b\', (this: void, t2) => { t.diagnostic(\'x\'); }); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

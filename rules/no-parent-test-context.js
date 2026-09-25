@@ -6,6 +6,7 @@ import {
 	getSubtestReceiver,
 	isSubtestCall,
 	getContextParameterIdentifier,
+	getFirstContextParameter,
 	isUnreboundParameter,
 } from './utils/node-test.js';
 
@@ -177,13 +178,13 @@ const create = context => {
 			return receiverProblem;
 		}
 
-		const contextParameter = callback.params[0];
+		const contextParameter = getFirstContextParameter(callback.params);
 		const contextVariable = getParameterVariable(contextParameter, sourceCode);
 
 		frames.push({
 			node,
 			callback,
-			contextParameter: getContextParameterIdentifier(contextParameter),
+			contextParameter,
 			contextVariable,
 			isSubtest,
 		});

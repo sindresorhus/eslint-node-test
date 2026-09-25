@@ -3,7 +3,7 @@ import {
 	resolveImports,
 	createContextTracker,
 	getCalleeChain,
-	getContextParameterIdentifier,
+	getFirstContextParameter,
 	isGetTestContextCall,
 } from './utils/node-test.js';
 import {isLoop, isFunction} from './ast/index.js';
@@ -38,7 +38,7 @@ function isInCurrentCallback(node, tracker) {
 }
 
 function isCurrentContextReference(node, tracker, sourceCode) {
-	const parameter = getContextParameterIdentifier(tracker.currentCallback()?.params[0]);
+	const parameter = getFirstContextParameter(tracker.currentCallback()?.params);
 	if (
 		!parameter
 		|| node.name !== parameter.name

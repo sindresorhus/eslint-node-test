@@ -10,7 +10,7 @@ import {
 const MESSAGE_ID = 'no-conflicting-modifiers';
 
 const messages = {
-	[MESSAGE_ID]: 'Conflicting modifiers {{modifiers}}. `node:test` resolves them by precedence rather than reporting both: `skip` wins over everything, and `todo` and `expectFailure` both apply.',
+	[MESSAGE_ID]: 'Conflicting modifiers {{modifiers}}. `node:test` resolves them by precedence rather than reporting both: `skip` wins over everything, and `todo` wins over `expectFailure`.',
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -57,13 +57,12 @@ const create = context => {
 			active.add('expectFailure');
 		}
 
-		// `expectFailure` composes with `only` and with `todo`: the runner applies both, so a test that
-		// both fails as expected and carries the TODO marker means what it says. Every other pair has a
-		// winner that swallows the loser.
-		const doesComposeWithExpectFailure = active.size === 2
-			&& active.has('expectFailure')
-			&& (active.has('only') || active.has('todo'));
-		if (active.size < 2 || doesComposeWithExpectFailure) {
+		// `only` composes with `todo` and with `expectFailure`: the runner applies each alongside it, so
+		// a test that is both exclusive-only and a TODO, or both exclusive-only and expected to fail,
+		// means what it says. Every other pair has a winner that swallows the loser: `skip` beats
+		// everything, and `todo` beats `expectFailure`.
+		const isComposingPair = active.size === 2 && active.has('only') && !active.has('skip');
+		if (active.size < 2 || isComposingPair) {
 			return;
 		}
 

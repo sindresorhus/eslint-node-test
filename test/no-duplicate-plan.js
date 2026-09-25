@@ -206,5 +206,11 @@ test.snapshot({
 
 		// The `plan` option message names the context the way the call spells it
 		'import {test, getTestContext} from \'node:test\';\ntest(\'x\', {plan: 1}, () => { getTestContext().plan(1); });',
+
+		// A TypeScript `this` parameter is erased at compile time, so `t` is the context
+		{
+			code: withImport('test(\'a\', (this: void, t) => { t.plan(1); t.plan(2); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

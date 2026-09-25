@@ -209,5 +209,11 @@ test.snapshot({
 				+ 'test(\'a\', t => { t.mock.timers.enable!({apis: [\'setTimeout\']}); setTimeout(fn, 1); });',
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// A TypeScript `this` parameter is erased at compile time, so `t` is the context
+		{
+			code: withImport('test(\'a\', (this: void, t) => { t.mock.timers.enable({apis: [\'setTimeout\']}); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

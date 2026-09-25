@@ -284,5 +284,11 @@ test.snapshot({
 		+ 'test(\'parent\', async ({assert}) => {\n'
 		+ '\tawait getTestContext().test(\'child\', async () => {\n'
 		+ '\t\tload().then(value => { assert.ok(value); });\n\t});\n});',
+
+		// A TypeScript `this` parameter is erased at compile time, so `t` is the context
+		{
+			code: withImport('test(\'a\', async (this: void, t) => { p().then(() => { t.assert.ok(1); }); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

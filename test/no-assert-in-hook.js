@@ -48,6 +48,12 @@ test.snapshot({
 		// A hook declared inside a subtest is still a hook
 		'import {test, beforeEach} from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'p\', async t => { await t.test(\'c\', () => { beforeEach(() => { assert.ok(value); }); }); });',
 
+		// A hook body the call names out of line runs as a hook
+		withSetup('beforeEach(body);\nfunction body() { assert.ok(value); }'),
+		withSetup('const body = () => { assert.ok(value); };\nbefore(body);'),
+		withSetup('beforeEach({fn: body});\nfunction body() { assert.ok(value); }'),
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest.afterEach(body);\nfunction body() { assert.ok(value); }',
+
 		// Nested inside a conditional within the hook body
 		withSetup('beforeEach(() => { if (x) { assert.ok(value); } });'),
 

@@ -75,6 +75,12 @@ test.snapshot({
 		withAssert('assert.strict?.(value);'),
 		withAssert('(assert).strict(value);'),
 
+		// The fix would delete the range between `assert.strict` and `ok`, and a parenthesis around
+		// the strict view sits inside it
+		withAssert('(assert.strict).ok(value);'),
+		withAssert('((assert.strict)).ok(value);'),
+		withAssert('(  assert.strict  ).ok(value);'),
+
 		// The strict view already carries `.ok` in the preferred form
 		withAssert('assert.strict.ok(value);'),
 

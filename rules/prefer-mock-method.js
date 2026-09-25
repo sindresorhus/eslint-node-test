@@ -5,7 +5,15 @@ import {
 	isGetTestContextCall,
 	isGlobalMock,
 } from './utils/node-test.js';
-import {isValueNotUsable, unwrapExpression} from './utils/index.js';
+import {getParenthesizedRange, isValueNotUsable, unwrapExpression} from './utils/index.js';
+
+/*
+The source text of a node as written, parentheses included. `getText` leaves them out, and a node
+that needs them back is one a TypeScript wrapper sits under: `t.mock as any.method(…)` does not parse,
+`(t.mock as any).method(…)` does. A sequence expression is re-emitted with its parentheses too, which
+is why `canRewriteMethodCall` still declines those.
+*/
+const getWrittenText = (node, context) => context.sourceCode.text.slice(...getParenthesizedRange(node, context));
 
 const MESSAGE_ID_ERROR = 'prefer-mock-method/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-mock-method/suggestion';
@@ -93,7 +101,7 @@ const create = context => {
 			return;
 		}
 
-		const base = sourceCode.getText(callee.object);
+		const base = getWrittenText(callee.object, context);
 		const problem = {
 			node,
 			messageId: MESSAGE_ID_ERROR,
@@ -124,7 +132,7 @@ const create = context => {
 		if (hasImplementation && canRewriteMethodCall({
 			node, left, key, mockArguments, sourceCode,
 		})) {
-			const objectText = sourceCode.getText(left.object);
+			const objectText = getWrittenText(left.object, context);
 			const implementation = mockArguments.length === 1 ? `, ${sourceCode.getText(mockArguments[0])}` : '';
 			const replacement = `${base}.method(${objectText}, ${key}${implementation})`;
 			problem.suggest = [

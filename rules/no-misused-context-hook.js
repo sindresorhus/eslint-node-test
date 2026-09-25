@@ -5,7 +5,7 @@ import {
 	MODIFIERS,
 	getCalleeChain,
 	getSubtestReceiver,
-	getContextParameterIdentifier,
+	getFirstContextParameter,
 	getTestCallback,
 	getTestOptions,
 	findOptionsProperty,
@@ -162,7 +162,7 @@ const create = context => {
 	const skippedCallbacks = new Set();
 
 	const getContextVariable = callback => {
-		const parameter = getContextParameterIdentifier(callback.params[0]);
+		const parameter = getFirstContextParameter(callback.params);
 		return parameter
 			? findVariable(sourceCode.getScope(parameter), parameter)
 			: undefined;

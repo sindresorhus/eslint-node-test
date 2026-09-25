@@ -4,6 +4,7 @@ const {test} = getTester(import.meta);
 
 const withTest = code => `import test from 'node:test';\ntest('t', t => {\n\t${code}\n});`;
 const withTestContext = code => `import test, {getTestContext} from 'node:test';\ntest('t', () => {\n\t${code}\n});`;
+const withThisParameter = code => `import test from 'node:test';\ntest('t', (this: void, t) => {\n\t${code}\n});`;
 
 test.snapshot({
 	valid: [
@@ -175,5 +176,11 @@ test.snapshot({
 
 		// An optional call on the snapshot method.
 		withTest('for (const item of items) { t.assert?.snapshot?.(item); }'),
+
+		// A TypeScript `this` parameter is erased at compile time, so `t` is the context
+		{
+			code: withThisParameter('for (const x of xs) { t.assert.snapshot(x); }'),
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

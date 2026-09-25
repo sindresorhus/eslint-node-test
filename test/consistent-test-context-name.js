@@ -1,4 +1,4 @@
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -37,6 +37,16 @@ test.snapshot({
 
 		// Hook callbacks also receive a context but are intentionally excluded
 		'import {beforeEach} from \'node:test\';\nbeforeEach(ctx => {});',
+
+		// A TypeScript `this` parameter is erased at compile time, so it is not the context
+		{
+			code: withTest('test(\'t\', (this: void, t) => {});'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withTest('test(\'t\', (this: void) => {});'),
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		// Non-`t` parameter
@@ -56,6 +66,12 @@ test.snapshot({
 		{
 			code: withTest('test(\'t\', t => {});'),
 			options: [{name: 'context'}],
+		},
+
+		// The context is the parameter after an erased `this` one, not the `this` itself
+		{
+			code: withTest('test(\'t\', (this: void, ctx) => {});'),
+			languageOptions: {parser: parsers.typescript},
 		},
 	],
 });

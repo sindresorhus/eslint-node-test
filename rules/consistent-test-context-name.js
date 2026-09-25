@@ -3,7 +3,7 @@ import {
 	parseTestCall,
 	createContextTracker,
 	getTestCallback,
-	getContextParameterIdentifier,
+	getFirstContextParameter,
 } from './utils/node-test.js';
 
 const MESSAGE_ID = 'consistent-test-context-name';
@@ -31,7 +31,7 @@ const create = context => {
 			return;
 		}
 
-		const parameter = getContextParameterIdentifier(getTestCallback(node)?.params[0]);
+		const parameter = getFirstContextParameter(getTestCallback(node)?.params);
 		if (parameter && parameter.name !== expected) {
 			return {
 				node: parameter,

@@ -5,7 +5,7 @@ import {
 	parseAssertionCall,
 	createContextTracker,
 	getTestCallback,
-	getContextParameterIdentifier,
+	getFirstContextParameter,
 	isGetTestContextCall,
 	hasEnabledPlanOption,
 	isEnabledPlanCount,
@@ -21,7 +21,7 @@ const messages = {
 
 /** The variable a callback's context parameter binds, or `undefined` when it declares none. */
 function getContextVariable(callback, sourceCode) {
-	const parameter = getContextParameterIdentifier(callback?.params[0]);
+	const parameter = getFirstContextParameter(callback?.params);
 	return parameter ? findVariable(sourceCode.getScope(parameter), parameter) : undefined;
 }
 

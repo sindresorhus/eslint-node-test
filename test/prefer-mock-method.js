@@ -118,6 +118,29 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 
+		// TypeScript: a cast written on the receiver keeps its parentheses, without which
+		// `t.mock as any.method(…)` does not parse
+		{
+			code: inTest('object.method = (t.mock as any).fn(() => 42);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: inTest('object.method = (t.mock satisfies M).fn(() => 42);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withMock('object.method = (mock as any).fn(() => 42);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: inTest('(object as any).method = t.mock.fn(() => 42);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: inTest('object[(key as any)] = t.mock.fn(() => 42);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+
 		// A sequence expression in the receiver or the implementation is re-emitted without its
 		// parentheses, which would turn one argument into several, so no suggestion is offered
 		inTest('(a, object).method = t.mock.fn(() => \'stubbed\');'),

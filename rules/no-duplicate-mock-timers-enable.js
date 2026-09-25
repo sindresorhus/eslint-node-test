@@ -1,7 +1,7 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	createContextTracker,
-	getContextParameterIdentifier,
+	getFirstContextParameter,
 	getHookCallback,
 	getSubtestReceiver,
 	getTestCallback,
@@ -218,7 +218,7 @@ const create = context => {
 			return;
 		}
 
-		const identifier = getContextParameterIdentifier(callback.params[0]);
+		const identifier = getFirstContextParameter(callback.params);
 		if (identifier?.type === 'Identifier') {
 			const variable = findVariable(sourceCode.getScope(identifier), identifier);
 			if (variable) {

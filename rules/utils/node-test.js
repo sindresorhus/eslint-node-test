@@ -668,6 +668,26 @@ export function getContextParameterIdentifier(parameter) {
 	return undefined;
 }
 
+// A TypeScript `this` parameter is erased at compile time, so it is not one of the emitted function's
+// arguments.
+const isTypeScriptThisParameter = parameter => parameter.type === 'Identifier' && parameter.name === 'this';
+
+/**
+Get the identifier a callback binds its test context to, or `undefined`.
+
+A TypeScript `this` parameter is erased at compile time, so the parameter after it is the first one
+the compiled function has, and the only one that can be the context.
+*/
+export function getFirstContextParameter(parameters) {
+	for (const parameter of parameters ?? []) {
+		if (!isTypeScriptThisParameter(parameter)) {
+			return getContextParameterIdentifier(parameter);
+		}
+	}
+
+	return undefined;
+}
+
 /**
 Track the test-context parameter names (`t`) introduced by enclosing test, subtest, and optionally hook callbacks, including hooks declared from a test context.
 
@@ -825,7 +845,7 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 
 			const callback = isHook ? getHookCallback(node) : getTestCallback(node, imports);
 			if (callback) {
-				const parameter = getContextParameterIdentifier(callback.params[0]);
+				const parameter = getFirstContextParameter(callback.params);
 
 				names.push(parameter?.name);
 				variables.push(parameter ? getDeclaredVariable(parameter, callback, imports) : undefined);
@@ -959,9 +979,17 @@ export function isUnreboundParameter(variable) {
 		&& variable.defs[0].type === 'Parameter';
 }
 
-export function isOutOfLineCallback(node, context, imports) {
+/*
+The test, suite, subtest or hook call that runs the function `node` as its callback, when the call
+names it out of line (`test('a', body)`). The function is traversed where it is DECLARED, so the call
+has to be found by resolving the binding back to the reference that passes it.
+
+`isContextReceiver` is what tells a context hook (`t.beforeEach(…)`) from an ordinary method call, and
+is only needed by a rule that already has a context tracker.
+*/
+export function getOutOfLineCallbackCall(node, context, imports, isContextReceiver) {
 	if (!isFunction(node)) {
-		return false;
+		return undefined;
 	}
 
 	// Only a named binding can be referenced out of line, and the shape check keeps the scope
@@ -969,32 +997,41 @@ export function isOutOfLineCallback(node, context, imports) {
 	const declarator = node.parent?.type === 'VariableDeclarator' && node.parent.init === node ? node.parent : undefined;
 	const identifier = node.type === 'FunctionDeclaration' ? node.id : declarator?.id;
 	if (identifier?.type !== 'Identifier') {
-		return false;
+		return undefined;
 	}
 
 	const variable = findVariable(context.sourceCode.getScope(node.parent), identifier);
-	return variable?.references.some(reference => isCallbackArgument(reference.identifier, context, imports)) ?? false;
+	return variable?.references
+		.map(reference => getCallbackArgumentCall(reference.identifier, imports, isContextReceiver))
+		.find(Boolean);
 }
 
-/** Whether `identifier` is the callback of a test, suite, subtest, or hook call. */
-function isCallbackArgument(identifier, context, imports) {
+export function isOutOfLineCallback(node, context, imports, isContextReceiver) {
+	return getOutOfLineCallbackCall(node, context, imports, isContextReceiver) !== undefined;
+}
+
+/** The test, suite, subtest or hook call `identifier` is passed to as its callback, if any. */
+function getCallbackArgumentCall(identifier, imports, isContextReceiver) {
 	let {parent} = identifier;
 	// The object form names the callback `fn` in a descriptor property, so the call is one level
 	// further out and the identifier is inside the object rather than a bare argument.
 	if (parent?.type === 'Property' && parent.value === identifier) {
 		if (getStaticPropertyName(parent) !== 'fn') {
-			return false;
+			return undefined;
 		}
 
 		parent = parent.parent?.parent;
 		if (parent?.type !== 'CallExpression') {
-			return false;
+			return undefined;
 		}
 	} else if (parent?.type !== 'CallExpression' || !parent.arguments.includes(identifier)) {
-		return false;
+		return undefined;
 	}
 
-	return parseTestCall(parent, imports) !== undefined || getSubtestReceiver(parent) !== undefined;
+	const isCallbackCall = parseTestCall(parent, imports) !== undefined
+		|| getSubtestReceiver(parent) !== undefined
+		|| (Boolean(isContextReceiver) && isContextHookCall(parent, isContextReceiver));
+	return isCallbackCall ? parent : undefined;
 }
 
 /**
@@ -1286,7 +1323,7 @@ export function getEffectiveArity(parameters) {
 			break;
 		}
 
-		if (parameter.type === 'Identifier' && parameter.name === 'this') {
+		if (isTypeScriptThisParameter(parameter)) {
 			continue;
 		}
 
@@ -1417,36 +1454,39 @@ export function isEnabledPlanCount(staticValue) {
 /**
 Determine the kind (`test`/`suite`/`hook`) of the nearest enclosing test-related callback.
 
-Returns `undefined` when the nearest enclosing function is a regular function (e.g. a helper), or there is none. Subtests (`t.test(…)`) are method calls rather than imported bindings, so they are recognized structurally and classified as `'test'`.
+Returns `undefined` when the nearest enclosing function is a regular function (e.g. a helper), or there is none. Subtests (`t.test(…)`) are method calls rather than imported bindings, so they are recognized structurally and classified as `'test'`. A callback the call names out of line (`test('a', body)`) is recognized by resolving the binding back to the call.
 */
-export function nearestTestCallbackKind(node, imports, isContextReceiver) {
+export function nearestTestCallbackKind(node, imports, isContextReceiver, context) {
 	let current = node.parent;
 	while (current) {
 		if (isFunction(current)) {
-			const call = getParentCallExpression(current);
-			if (call) {
+			const call = getParentCallExpression(current) ?? (context && getOutOfLineCallbackCall(current, context, imports, isContextReceiver));
+			// Whether `call` runs `current` as its callback: from an argument slot it can only be the
+			// function node itself, and out of line it is the function the binding resolves to.
+			const isCallback = call !== undefined && (
+				getHookCallback(call) === current
+				|| getTestCallback(call, imports) === current
+				|| getOutOfLineCallbackCall(current, context, imports, isContextReceiver) === call
+			);
+			if (isCallback) {
 				const parsed = parseTestCall(call, imports);
-				if (
-					parsed?.kind === 'hook'
-					&& parsed.modifiers.length === 0
-					&& getHookCallback(call) === current
-				) {
+				if (parsed?.kind === 'hook' && parsed.modifiers.length === 0) {
 					return 'hook';
 				}
 
-				if (isHookMemberTestCall(parsed) && getHookCallback(call) === current) {
+				if (isHookMemberTestCall(parsed)) {
 					return 'hook';
 				}
 
-				if (isContextReceiver && isContextHookCall(call, isContextReceiver) && getHookCallback(call) === current) {
+				if (isContextReceiver && isContextHookCall(call, isContextReceiver)) {
 					return 'hook';
 				}
 
-				if (parsed && getTestCallback(call, imports) === current) {
+				if (parsed) {
 					return parsed.kind;
 				}
 
-				if (getSubtestReceiver(call) !== undefined && getTestCallback(call, imports) === current) {
+				if (getSubtestReceiver(call) !== undefined) {
 					return 'test';
 				}
 			}

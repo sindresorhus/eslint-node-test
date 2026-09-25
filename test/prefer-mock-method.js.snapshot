@@ -554,22 +554,28 @@ Message:
 
 `;
 
-exports[`prefer-mock-method > invalid(39): import test from 'node:test';\ntest('t', t => {\n\t(a, object).method = t.mock.fn(() => 'stubbed');\n}); 1`] = `
+exports[`prefer-mock-method > invalid(39): import test from 'node:test';\ntest('t', t => {\n\tobject.method = (t.mock as any).fn(() => 42);\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', t => {
-  3 | 	(a, object).method = t.mock.fn(() => 'stubbed');
+  3 | 	object.method = (t.mock as any).fn(() => 42);
   4 | });
 
 `;
 
-exports[`prefer-mock-method > invalid(39): import test from 'node:test';\ntest('t', t => {\n\t(a, object).method = t.mock.fn(() => 'stubbed');\n}); 2`] = `
+exports[`prefer-mock-method > invalid(39): import test from 'node:test';\ntest('t', t => {\n\tobject.method = (t.mock as any).fn(() => 42);\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
   2 | test('t', t => {
-> 3 | 	(a, object).method = t.mock.fn(() => 'stubbed');
-    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`t.mock.method()\` over assigning \`t.mock.fn()\` to a property, so the original method is tracked and can be restored.
+> 3 | 	object.method = (t.mock as any).fn(() => 42);
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`(t.mock as any).method()\` over assigning \`(t.mock as any).fn()\` to a property, so the original method is tracked and can be restored.
+  4 | });
+
+Suggestion 1/1: Replace with \`(t.mock as any).method()\`.:
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+  3 | 	(t.mock as any).method(object, 'method', () => 42);
   4 | });
 
 `;
@@ -590,7 +596,119 @@ Message:
 
 `;
 
-exports[`prefer-mock-method > invalid(40): import test from 'node:test';\ntest('t', t => {\n\tobject.method = t.mock.fn((a, b));\n}); 1`] = `
+exports[`prefer-mock-method > invalid(40): import test from 'node:test';\ntest('t', t => {\n\tobject.method = (t.mock satisfies M).fn(() => 42);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+  3 | 	object.method = (t.mock satisfies M).fn(() => 42);
+  4 | });
+
+`;
+
+exports[`prefer-mock-method > invalid(40): import test from 'node:test';\ntest('t', t => {\n\tobject.method = (t.mock satisfies M).fn(() => 42);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+> 3 | 	object.method = (t.mock satisfies M).fn(() => 42);
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`(t.mock satisfies M).method()\` over assigning \`(t.mock satisfies M).fn()\` to a property, so the original method is tracked and can be restored.
+  4 | });
+
+Suggestion 1/1: Replace with \`(t.mock satisfies M).method()\`.:
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+  3 | 	(t.mock satisfies M).method(object, 'method', () => 42);
+  4 | });
+
+`;
+
+exports[`prefer-mock-method > invalid(41): import {mock} from 'node:test';\nobject.method = (mock as any).fn(() => 42); 1`] = `
+
+  1 | import {mock} from 'node:test';
+  2 | object.method = (mock as any).fn(() => 42);
+
+`;
+
+exports[`prefer-mock-method > invalid(41): import {mock} from 'node:test';\nobject.method = (mock as any).fn(() => 42); 2`] = `
+
+Message:
+  1 | import {mock} from 'node:test';
+> 2 | object.method = (mock as any).fn(() => 42);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`(mock as any).method()\` over assigning \`(mock as any).fn()\` to a property, so the original method is tracked and can be restored.
+
+Suggestion 1/1: Replace with \`(mock as any).method()\`.:
+  1 | import {mock} from 'node:test';
+  2 | (mock as any).method(object, 'method', () => 42);
+
+`;
+
+exports[`prefer-mock-method > invalid(42): import test from 'node:test';\ntest('t', t => {\n\t(object as any).method = t.mock.fn(() => 42);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+  3 | 	(object as any).method = t.mock.fn(() => 42);
+  4 | });
+
+`;
+
+exports[`prefer-mock-method > invalid(42): import test from 'node:test';\ntest('t', t => {\n\t(object as any).method = t.mock.fn(() => 42);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+> 3 | 	(object as any).method = t.mock.fn(() => 42);
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`t.mock.method()\` over assigning \`t.mock.fn()\` to a property, so the original method is tracked and can be restored.
+  4 | });
+
+Suggestion 1/1: Replace with \`t.mock.method()\`.:
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+  3 | 	t.mock.method((object as any), 'method', () => 42);
+  4 | });
+
+`;
+
+exports[`prefer-mock-method > invalid(43): import test from 'node:test';\ntest('t', t => {\n\tobject[(key as any)] = t.mock.fn(() => 42);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+  3 | 	object[(key as any)] = t.mock.fn(() => 42);
+  4 | });
+
+`;
+
+exports[`prefer-mock-method > invalid(43): import test from 'node:test';\ntest('t', t => {\n\tobject[(key as any)] = t.mock.fn(() => 42);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+> 3 | 	object[(key as any)] = t.mock.fn(() => 42);
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`t.mock.method()\` over assigning \`t.mock.fn()\` to a property, so the original method is tracked and can be restored.
+  4 | });
+
+`;
+
+exports[`prefer-mock-method > invalid(44): import test from 'node:test';\ntest('t', t => {\n\t(a, object).method = t.mock.fn(() => 'stubbed');\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+  3 | 	(a, object).method = t.mock.fn(() => 'stubbed');
+  4 | });
+
+`;
+
+exports[`prefer-mock-method > invalid(44): import test from 'node:test';\ntest('t', t => {\n\t(a, object).method = t.mock.fn(() => 'stubbed');\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+> 3 | 	(a, object).method = t.mock.fn(() => 'stubbed');
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`t.mock.method()\` over assigning \`t.mock.fn()\` to a property, so the original method is tracked and can be restored.
+  4 | });
+
+`;
+
+exports[`prefer-mock-method > invalid(45): import test from 'node:test';\ntest('t', t => {\n\tobject.method = t.mock.fn((a, b));\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', t => {
@@ -599,7 +717,7 @@ exports[`prefer-mock-method > invalid(40): import test from 'node:test';\ntest('
 
 `;
 
-exports[`prefer-mock-method > invalid(40): import test from 'node:test';\ntest('t', t => {\n\tobject.method = t.mock.fn((a, b));\n}); 2`] = `
+exports[`prefer-mock-method > invalid(45): import test from 'node:test';\ntest('t', t => {\n\tobject.method = t.mock.fn((a, b));\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -610,7 +728,7 @@ Message:
 
 `;
 
-exports[`prefer-mock-method > invalid(41): import test from 'node:test';\ntest('t', t => {\n\tobject[(a, b)] = t.mock.fn(() => 'stubbed');\n}); 1`] = `
+exports[`prefer-mock-method > invalid(46): import test from 'node:test';\ntest('t', t => {\n\tobject[(a, b)] = t.mock.fn(() => 'stubbed');\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', t => {
@@ -619,7 +737,7 @@ exports[`prefer-mock-method > invalid(41): import test from 'node:test';\ntest('
 
 `;
 
-exports[`prefer-mock-method > invalid(41): import test from 'node:test';\ntest('t', t => {\n\tobject[(a, b)] = t.mock.fn(() => 'stubbed');\n}); 2`] = `
+exports[`prefer-mock-method > invalid(46): import test from 'node:test';\ntest('t', t => {\n\tobject[(a, b)] = t.mock.fn(() => 'stubbed');\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
