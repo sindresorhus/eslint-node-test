@@ -9,7 +9,7 @@
 
 A test should exercise one specific scenario and behave the same way on every run. Conditional logic (`if`, `switch`, or a ternary) inside a test body means different code runs depending on the environment or input, which makes failures harder to reproduce and can hide assertions that never execute. Usually the branches should be separate tests, or the value should be computed before the test.
 
-This rule reports `if`/`switch` statements and ternary expressions inside a test or hook body. Conditionals inside a `describe` body are about _registering_ tests and are covered by [`no-conditional-tests`](./no-conditional-tests.md) instead.
+This rule reports `if`/`switch` statements and ternary expressions inside a test or hook body, and stops at the first nested function: a conditional in a function the body declares or calls is that function's own logic. Conditionals inside a `describe` body are about _registering_ tests and are covered by [`no-conditional-tests`](./no-conditional-tests.md) instead.
 
 This is a broad, opinionated rule, so it is off by default. For the narrower case of an assertion that may never run, see [`no-conditional-assertion`](./no-conditional-assertion.md).
 

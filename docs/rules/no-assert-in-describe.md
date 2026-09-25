@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-A `describe`/`suite` callback runs once, synchronously, while the runner is _building_ the suite — not when its tests run. An assertion placed directly in that body therefore executes at collection time: it runs once regardless of which tests are selected, and if it throws the suite fails and its own children never run, while sibling tests still report. Assertions belong inside a `test`/`it` or a hook.
+A `describe`/`suite` callback runs once, while the runner is _building_ the suite — synchronously for a normal callback, and after each `await` for an `async` one (see [`no-async-describe`](./no-async-describe.md)) — not when its tests run. An assertion placed directly in that body therefore executes at collection time: it runs once regardless of which tests are selected, and if it throws the suite fails and its own children never run, while sibling tests still report. Assertions belong inside a `test`/`it` or a hook.
 
 This rule reports an assertion whose nearest enclosing function is a `describe`/`suite` callback. Assertions inside a test, a hook, or a helper function are not reported.
 

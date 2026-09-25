@@ -181,6 +181,11 @@ test.snapshot({
 		withAssert('assert.ok(value, null);'),
 		withAssert('assert.match(str, /re/, null);'),
 		withAssert('assert.doesNotMatch(str, /re/, null);'),
+		// `match()` only asks whether its message is truthy, so any falsy value is accepted there
+		withAssert('assert.match(str, /re/, 0);'),
+		withAssert('assert.match(str, /re/, false);'),
+		withAssert('assert.match(str, /re/, "");'),
+		withAssert('assert.doesNotMatch(str, /re/, 0);'),
 		withAssert('assert.throws(fn, Error, null);'),
 		withAssert('assert.doesNotThrow(fn, null);'),
 
@@ -269,6 +274,10 @@ test.snapshot({
 
 		// The two-operand comparisons reject a `null` message as soon as the assertion fails
 		withAssert('assert.strictEqual(a, b, null);'),
+		withAssert('assert.equal(a, b, 0);'),
+		withAssert('assert.match(str, /re/, 42);'),
+		withAssert('assert.match(str, /re/, true);'),
+		withAssert('assert.doesNotMatch(str, /re/, {});'),
 		withAssert('assert.equal(a, b, null);'),
 		withAssert('assert.notStrictEqual(a, b, null);'),
 		withAssert('assert.deepStrictEqual(a, b, null);'),

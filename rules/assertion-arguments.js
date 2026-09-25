@@ -49,6 +49,13 @@ methods it only matters once the assertion fails.
 const METHODS_ACCEPTING_NULL_MESSAGE = new Set(['ok', 'match', 'doesNotMatch']);
 
 /*
+`match()` and `doesNotMatch()` only ask whether their message is truthy, so any falsy value is
+accepted there and the assertion simply fails with the default message. Every other method type-checks
+the message, and rejects even a falsy `0`.
+*/
+const METHODS_ACCEPTING_FALSY_MESSAGE = new Set(['match', 'doesNotMatch']);
+
+/*
 `throws()`, `doesNotThrow()`, `rejects()` and `doesNotReject()` take exactly `(fn, error, message)`:
 `node:assert` never type-checks that message (it is stringified into the failure text) and silently
 drops anything past it, so an extra argument there is a mistake and a message of any value is fine.
@@ -72,10 +79,21 @@ function isInvalidMessageArgument(node, method) {
 		return true;
 	}
 
-	// A function is called to build the message, so only a non-string literal is rejected.
-	return node.type === 'Literal'
-		&& typeof node.value !== 'string'
-		&& !(node.value === null && METHODS_ACCEPTING_NULL_MESSAGE.has(method));
+	// A function is called to build the message, and any other expression may be a string at runtime,
+	// so only a literal is judged here.
+	if (node.type !== 'Literal') {
+		return false;
+	}
+
+	if (node.value === null) {
+		return !METHODS_ACCEPTING_NULL_MESSAGE.has(method);
+	}
+
+	if (typeof node.value === 'string') {
+		return false;
+	}
+
+	return !(METHODS_ACCEPTING_FALSY_MESSAGE.has(method) && !node.value);
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */

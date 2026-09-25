@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-`assert.rejects()` and `assert.doesNotReject()` return a `Promise` that must be `await`ed or `return`ed. Calling them without `await` means the assertion may never execute and the test can pass silently even if the code under test throws the wrong error or no error at all.
+`assert.rejects()` and `assert.doesNotReject()` return a `Promise` that must be `await`ed or `return`ed. Calling them without `await` leaves the assertion unhandled. The test itself still reports as passing, but `node:test` notices the activity that ran after the test ended, reports the file as failed with a diagnostic naming the unhandled rejection, and exits non-zero — so the assertion still runs, just after the test it was meant to guard is over.
 
 A call in an operand position whose value a statement throws away is just as unhandled, so a conditional, logical, or sequence expression that hands the `Promise` to such a statement is reported as well.
 
@@ -22,7 +22,7 @@ import assert from 'node:assert';
 
 // ❌
 async function bare() {
-	assert.rejects(fn); // Promise is unhandled — assertion never executes
+	assert.rejects(fn); // The assertion runs only after the test ends, as an unhandled rejection
 }
 
 // ❌

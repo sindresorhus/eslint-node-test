@@ -22,6 +22,16 @@ test.snapshot({
 		// A hook's trailing options must not hide its body
 		withImport('beforeEach(() => { return 42; }, {timeout: 1000});'),
 
+		// A type parameter stands for whatever the caller passes, so nothing is knowable about it
+		typed('function setup<T>(value: T): void { beforeEach(() => { return value; }); } setup(Promise.resolve());'),
+		typed('function setup<T>(value: T): void { beforeEach(() => value); } setup(Promise.resolve());'),
+		typed('function setup<T>(value: T): void { beforeEach(() => { return value; }); } setup("text");'),
+		typed('function setup<T>(value: T | undefined): void { beforeEach(() => { return value; }); } setup(Promise.resolve());'),
+		// An intersection with a type parameter is as unknown as the type parameter itself
+		typed('function setup<T>(value: T & {}): void { beforeEach(() => value); } setup(Promise.resolve());'),
+		typed('function setup<T>(value: T & {tag: string}): void { beforeEach(() => value); }'),
+		typed('function setup<T>(value: NonNullable<T>): void { beforeEach(() => value); }'),
+
 		// Returning a Promise
 		typed('test("x", () => { return Promise.resolve(); });'),
 		typed('test("x", async () => { return Promise.resolve(1); });'),
@@ -68,6 +78,10 @@ test.snapshot({
 		typed('test("x", t => { t.afterEach(() => { const helper = () => { return 1; }; helper(); }, {timeout: 1000}); });'),
 	],
 	invalid: [
+		// A `node:test` context type is a concrete value, which the typed parser now resolves
+		typed('test("x", t => { return t.name; });'),
+		typed('test("x", t => { return t; });'),
+
 		// Returning a number
 		typed('test("x", () => { return 42; });'),
 		typed('test("x", () => 42);'),
@@ -136,5 +150,8 @@ test.snapshot({
 		// Renamed hook import
 		typedCode('import {beforeEach as setup} from \'node:test\';\nsetup(() => { return 1; });'),
 		typedCode('import {beforeEach as setup} from \'node:test\';\nsetup(() => { return 1; }, {timeout: 1000});'),
+
+		// A type parameter inside an object type does not make the object a promise
+		typed('type Box<T> = {value: T};\nfunction setup<T>(value: Box<T>): void { beforeEach(() => value); }'),
 	],
 });

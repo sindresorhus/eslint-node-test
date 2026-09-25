@@ -12,7 +12,7 @@ const MESSAGE_ID = 'no-async-fn-without-await/error';
 const MESSAGE_ID_SUGGESTION = 'no-async-fn-without-await/suggestion';
 
 const messages = {
-	[MESSAGE_ID]: 'Async test/hook function has no `await`, `for await` or `yield`.',
+	[MESSAGE_ID]: 'Async test/hook function has no `await`, `for await`, `await using` or `yield`.',
 	[MESSAGE_ID_SUGGESTION]: 'Remove the `async` keyword.',
 };
 

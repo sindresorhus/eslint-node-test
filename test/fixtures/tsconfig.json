@@ -4,6 +4,10 @@
 		"skipLibCheck": true,
 		"target": "esnext",
 		"module": "esnext",
-		"moduleResolution": "bundler"
+		"moduleResolution": "bundler",
+		// The type-aware cases reason about `node:test` and `node:assert`, which come from
+		// `@types/node`; without this the module resolves to `any` and every typed case passes for
+		// the wrong reason.
+		"types": ["node"]
 	}
 }

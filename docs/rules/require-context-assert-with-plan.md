@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-The test context's `plan()` method declares how many assertions and subtests a test expects to run. Only assertions made through the test context (`t.assert.*`) and subtests are counted toward the plan. Assertions from the separately-imported `node:assert` module are invisible to the runner, so they do not count, and the test fails with a plan mismatch (`plan expected N assertions but received fewer`).
+The test context's `plan()` method declares how many assertions and subtests a test expects to run. Only assertions made through the test context (`t.assert.*`) and subtests are counted toward the plan. Assertions from the separately-imported `node:assert` module are invisible to the runner, so they do not count, and the test fails with a plan mismatch (`plan expected 1 assertions but received 0`).
 
 This rule reports imported `node:assert` assertions (namespace, named, or bare `assert()`) inside any test that calls `plan()` or sets the `plan` option. Switch them to the test context's `t.assert` so they count. A test with no context parameter can still reach its context through `getTestContext()`, so the rule names that call when the file imports it. See also [`prefer-test-context-assert`](./prefer-test-context-assert.md), which can perform that conversion.
 

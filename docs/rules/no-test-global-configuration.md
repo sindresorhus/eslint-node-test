@@ -6,7 +6,7 @@
 
 <!-- end auto-generated rule header -->
 
-`snapshot.setDefaultSnapshotSerializers()`, `snapshot.setResolveSnapshotPath()`, and `assert.register()` configure `node:test` process-wide state. Calling them from a test, subtest, or suite-local hook makes later tests depend on execution order, especially when tests run concurrently.
+`snapshot.setDefaultSnapshotSerializers()`, `snapshot.setResolveSnapshotPath()`, and `assert.register()` (the `assert` exported by `node:test`, not by `node:assert`, which has no such method) configure `node:test` process-wide state. Calling them from a test, subtest, or suite-local hook makes later tests depend on execution order, especially when tests run concurrently.
 
 Prefer configuring these APIs before test registration in a setup module preloaded with `--import` or `--require`.
 

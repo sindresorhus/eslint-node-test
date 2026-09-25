@@ -143,7 +143,7 @@ const config = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Require subtests created in a loop callback to be awaited.',
+			description: 'Require subtests created in an array-iteration callback to be awaited.',
 			recommended: 'unopinionated',
 		},
 		schema: [],

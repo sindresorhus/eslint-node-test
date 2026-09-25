@@ -1,6 +1,6 @@
 # require-await-concurrent-subtests
 
-📝 Require subtests created in a loop callback to be awaited.
+📝 Require subtests created in an array-iteration callback to be awaited.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-node-test#preset-configs): ✅ `recommended`, ☑️ `unopinionated`.
 
