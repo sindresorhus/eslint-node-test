@@ -3,7 +3,7 @@ import {
 	parseSupportedAssertionCall,
 	createContextTracker,
 } from './utils/node-test.js';
-import {unwrapExpression} from './utils/index.js';
+import {unwrapExpression, getStaticPropertyName} from './utils/index.js';
 import isFunction from './ast/is-function.js';
 
 const MESSAGE_ID_ERROR = 'no-assert-throws-call/error';
@@ -19,10 +19,8 @@ function isBindCall(node) {
 	// is the same function-producing call as `parse?.bind(null)`.
 	const callee = unwrapExpression(node.callee);
 
-	return callee.type === 'MemberExpression'
-		&& !callee.computed
-		&& callee.property.type === 'Identifier'
-		&& callee.property.name === 'bind';
+	// `fn['bind'](null)` is the same function-producing call as `fn.bind(null)`.
+	return callee.type === 'MemberExpression' && getStaticPropertyName(callee) === 'bind';
 }
 
 function isFunctionConstructorCall(node) {
@@ -137,12 +135,18 @@ const create = context => {
 			messageId: MESSAGE_ID_ERROR,
 			data: {method: assertion.method},
 			// A `yield` cannot live in an arrow, so that form is reported without a suggestion.
-			suggest: yields
+			// An `await` in the argument cannot go inside the arrow without making it `async`, and
+			// `assert.throws()` never calls an async function, so that shape is reported without a
+			// suggestion (`no-assert-throws-async` owns turning it into `assert.rejects()`). A `yield`
+			// cannot go in an arrow at all.
+			suggest: awaits || yields
 				? undefined
 				: [
 					{
 						messageId: MESSAGE_ID_SUGGESTION,
-						fix: fixer => fixer.replaceText(firstArgument, `${awaits ? 'async ' : ''}() => ${sourceCode.getText(firstArgument)}`),
+						// The argument goes in parentheses: a `{` or `function` at the start of the
+						// arrow body would otherwise parse as a block or a declaration.
+						fix: fixer => fixer.replaceText(firstArgument, `() => (${sourceCode.getText(firstArgument)})`),
 					},
 				],
 		};

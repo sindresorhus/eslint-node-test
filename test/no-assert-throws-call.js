@@ -11,6 +11,11 @@ const withTest = code => `import test from 'node:test';\n${code}`;
 
 test.snapshot({
 	valid: [
+		// `fn['bind'](null)` and `fn[`bind`](null)` produce the function to hand over, just as
+		// `fn.bind(null)` does
+		withAssert('assert.throws(fn[\'bind\'](null));'),
+		withAssert('assert.throws(fn[`bind`](null));'),
+		withAssert('assert.throws(fn[\'bi\' + \'nd\'](null));'),
 		// Not an assert import, ignored
 		'assert.throws(parse(input));',
 
@@ -60,6 +65,16 @@ test.snapshot({
 		withAssert('const custom = {assert: {throws() {}}};\ncustom.assert.throws(parse(input));'),
 	],
 	invalid: [
+		// An object literal at the start of the arrow body would parse as a block, so the argument
+		// goes in parentheses
+		withAssert('assert.throws({}.constructor());'),
+		withAssert('assert.throws({a: 1}.a.toString());'),
+		withAssert('assert.throws((setup(), parse(b)), SyntaxError);'),
+		// `await` in the argument cannot go inside a synchronous arrow, and a `yield` cannot go in an
+		// arrow at all, so both are reported without a suggestion
+		withAssert('async function main() { assert.throws(await getCallback(), /boom/); }'),
+		withAssert('function* generate() { assert.throws(yield getCallback()); }'),
+
 		// Whatever the argument does while it is evaluated escapes the assertion, not just a
 		// top-level call
 		withAssert('assert.throws(new Parser(input));'),

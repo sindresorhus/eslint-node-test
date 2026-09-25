@@ -13,7 +13,7 @@
 
 This rule reports a first argument that does work while it is evaluated, whether that work is the argument itself (`assert.throws(parse(input))`, `assert.throws(new Parser(input))`, `assert.throws(tag`input`)`) or somewhere inside it (`assert.throws(flag ? parse(a) : parse(b))`, `assert.throws(await getCallback())`). Calls that obviously produce the function to hand over, like `.bind()`, `Function()`, and `new Function()`, are ignored. A nested function is not evaluated here, so `assert.throws(() => parse(input))` is the fix rather than a problem. Other function factories are intentionally not guessed; if a factory call is valid in your test, assign the factory result to a variable before passing it or disable the rule for that line.
 
-The suggestion wraps the argument in an arrow function, which is `async` when the argument awaits. An argument that contains a `yield` is reported without a suggestion, since an arrow cannot hold one.
+The suggestion wraps the argument in an arrow function. An argument that contains an `await` or a `yield` is reported without one: an `await` would need an `async` arrow, and `assert.throws()` never calls an async function, while a `yield` cannot go in an arrow at all. A first character that would parse as a block or a declaration (`{`, `function`) is safe because the argument goes in parentheses.
 
 ## Examples
 
