@@ -15,7 +15,7 @@ const messages = {
 };
 
 // Two-operand `node:assert` comparisons. The negated ones always fail on identical operands.
-const POSITIVE_METHODS = new Set(['equal', 'strictEqual', 'deepEqual', 'deepStrictEqual']);
+const POSITIVE_METHODS = new Set(['equal', 'strictEqual', 'deepEqual', 'deepStrictEqual', 'partialDeepStrictEqual']);
 const NEGATED_METHODS = new Set(['notEqual', 'notStrictEqual', 'notDeepEqual', 'notDeepStrictEqual']);
 
 // The deep methods compare structure, so two identical `RegExp` literals are the same value to them.

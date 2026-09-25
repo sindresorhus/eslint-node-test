@@ -143,5 +143,8 @@ test.snapshot({
 		withImport('assert.deepEqual(/a/, /a/);'),
 		withImport('assert.notDeepStrictEqual(/a/, /a/);'),
 		withImport('assert.notDeepEqual(/a/, /a/);'),
+		// `partialDeepStrictEqual` compares the same reference to itself, so it always passes
+		withImport('const x = [1];\nassert.partialDeepStrictEqual(x, x);'),
+
 	],
 });
