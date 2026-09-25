@@ -84,5 +84,10 @@ test.snapshot({
 		// A statement written as `(hook(…))` continues the expression above it once the two are
 		// adjacent, so the reorder gives it a leading semicolon
 		'import {before, afterEach, test} from \'node:test\';\n\n(afterEach(() => {}))\nbefore(() => {})\n\ntest(\'a\', () => {});',
+
+		// A statement below the block that starts with a bracket continues the moved statement unless
+		// the moved statement keeps its own semicolon
+		'import {after, before, beforeEach} from \'node:test\';\n\nafter(() => {})\nbefore(() => {});\nbeforeEach(() => {});\n(async () => {\n\tawait Promise.resolve();\n})();',
+		'import {after, before} from \'node:test\';\n\nafter(() => {})\nbefore(() => {});\n[1].forEach(f);',
 	],
 });

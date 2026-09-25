@@ -1,12 +1,10 @@
-import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
+import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	createContextTracker,
-	findOptionsProperty,
 	getContextParameterIdentifier,
 	getHookCallback,
 	getSubtestReceiver,
 	getTestCallback,
-	getTestOptions,
 	HOOK_FUNCTIONS,
 	isGetTestContextCall,
 	isGlobalMock,
@@ -14,6 +12,7 @@ import {
 	parseTestCall,
 	resolveImports,
 } from './utils/node-test.js';
+import {isSkippedTestCall, isInsideSkippedCallback} from './shared/skipped-test.js';
 import {getEnclosingFunction} from './utils/index.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
@@ -139,54 +138,6 @@ function getContextHookCallback(callExpression, contextTracker) {
 		: undefined;
 }
 
-function hasSkipModifier(node) {
-	node = unwrapTypeScriptExpression(node);
-	while (node.type === 'MemberExpression') {
-		if (!node.computed && getStaticPropertyName(node.property) === 'skip') {
-			return true;
-		}
-
-		node = unwrapTypeScriptExpression(node.object);
-	}
-
-	return false;
-}
-
-function isSkippedTestCall(node, sourceCode, parsed) {
-	if (hasSkipModifier(node.callee)) {
-		return true;
-	}
-
-	// The standalone `skip(…)`/`todo(…)` exports have an `Identifier` callee, so the member walk
-	// above cannot see them. `parseTestCall` records the modifier for that form. Only those two
-	// decide on their own; `only(…)` runs unless the options slot says otherwise, so fall through.
-	if (
-		parsed?.hasStandaloneModifier
-		&& parsed.modifiers.some(modifier => modifier.name === 'skip' || modifier.name === 'todo')
-	) {
-		return true;
-	}
-
-	const skipOption = findOptionsProperty(getTestOptions(node), 'skip');
-	const staticValue = skipOption && getStaticValue(skipOption.value, sourceCode.getScope(skipOption.value));
-	return Boolean(staticValue?.value);
-}
-
-function isInsideSkippedCallback(node, skippedCallbacks) {
-	// Walking to the root is the expensive part of visiting a call, and most files skip nothing.
-	if (skippedCallbacks.size === 0) {
-		return false;
-	}
-
-	for (let current = node.parent; current; current = current.parent) {
-		if (skippedCallbacks.has(current)) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
 function getEnabledReceivers(segment, enabledReceiversBySegment) {
 	const enabledReceivers = new Set();
 	for (const previousSegment of segment.prevSegments) {
@@ -217,7 +168,7 @@ const create = context => {
 		if (
 			callback
 			&& (isTestOrSuite || isSubtest)
-			&& isSkippedTestCall(node, sourceCode, parsed)
+			&& isSkippedTestCall(node, parsed, context)
 		) {
 			skippedCallbacks.add(callback);
 		}

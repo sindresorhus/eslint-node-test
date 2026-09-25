@@ -186,6 +186,10 @@ test.snapshot({
 
 		// Late activity in a getTestContext() subtest is late activity
 		'import {test, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\n'
-		+ 'test(\'o\', async () => {\n\tawait getTestContext().test(\'s\', () => { setTimeout(() => { assert.ok(1); }, 1); });\n});'
+		+ 'test(\'o\', async () => {\n\tawait getTestContext().test(\'s\', () => { setTimeout(() => { assert.ok(1); }, 1); });\n});',
+
+		// A `getTestContext()` hook is the same hook, so its callback is the same boundary
+		'import {test, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\n'
+		+ 'test(\'a\', t => {\n\tgetTestContext().beforeEach(() => {\n\t\tsetTimeout(() => { assert.ok(x); }, 1);\n\t});\n});',
 	],
 });

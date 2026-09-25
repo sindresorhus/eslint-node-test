@@ -7,6 +7,10 @@ import {
 import {skipExpressionWrappers} from './utils/index.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
+// A statement starting with `(` or `[` continues the expression above it when the two end up
+// adjacent, so the reorder has to separate them.
+const STARTS_WITH_BRACKET = /^[([]/;
+
 const MESSAGE_ID = 'hooks-order/error';
 
 const messages = {
@@ -71,11 +75,16 @@ function getReorderFix(block, hooks, sourceCode) {
 				continue;
 			}
 
-			// A statement written as `(afterEach(…))` or `[…]` continues the expression above it
-			// when the two end up adjacent, so it needs a leading semicolon of its own.
+			// The statement can be glued to either neighbour once it lands here: a leading `(`/`[`
+			// continues the expression above it, and a missing trailing `;` lets the statement below
+			// continue this one.
 			const text = sourceCode.getText(sorted[index].statement);
-			const isBracketed = /^[([]/.test(text) && index > 0;
-			yield fixer.replaceText(hook.statement, `${isBracketed ? ';' : ''}${text}`);
+			const prefix = index > 0 && STARTS_WITH_BRACKET.test(text) ? ';' : '';
+			// The statement that lands below is the next hook, or the first statement after the block.
+			const next = sorted[index + 1]?.statement ?? block.body[max + 1];
+			const nextText = next ? sourceCode.getText(next) : '';
+			const suffix = !text.endsWith(';') && STARTS_WITH_BRACKET.test(nextText) ? ';' : '';
+			yield fixer.replaceText(hook.statement, `${prefix}${text}${suffix}`);
 		}
 	};
 }

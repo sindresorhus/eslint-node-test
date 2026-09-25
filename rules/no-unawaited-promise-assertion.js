@@ -7,6 +7,7 @@ import {
 	getEffectiveArity,
 	parseAssertionCall,
 	getSubtestReceiver,
+	getContextHookName,
 	isSubtestCall,
 	getCalleeChain,
 	getContextParameterIdentifier,
@@ -207,17 +208,26 @@ function isTrackedSubtestCall(node, imports, contextParameters, sourceCode) {
 }
 
 /*
-Whether a call is a hook declared on a tracked test context (`t.beforeEach(…)`). It is a method
-call on the context parameter, not an imported binding, so `parseTestCall` does not classify it, but
-its callback is still a boundary whose late activity the runner reports.
+Whether a call is a hook declared on a tracked test context (`t.beforeEach(…)`, or the
+`getTestContext()` form that names the same context). It is a method call on the context, not an
+imported binding, so `parseTestCall` does not classify it, but its callback is still a boundary whose
+late activity the runner reports.
 */
-function isTrackedContextHookCall(node, contextParameters, sourceCode) {
-	const chain = getCalleeChain(node.callee);
-	if (!chain || chain.members.length !== 1 || !HOOK_FUNCTIONS.has(chain.members[0].name)) {
+function isTrackedContextHookCall(node, imports, contextParameters, sourceCode) {
+	if (getContextHookName(node) === undefined) {
 		return false;
 	}
 
-	const variable = findVariable(sourceCode.getScope(chain.root), chain.root);
+	const receiver = unwrapTypeScriptExpression(unwrapTypeScriptExpression(node.callee).object);
+	if (isGetTestContextCall(receiver, imports)) {
+		return true;
+	}
+
+	if (receiver.type !== 'Identifier') {
+		return false;
+	}
+
+	const variable = findVariable(sourceCode.getScope(receiver), receiver);
 	return variable?.identifiers.some(identifier => contextParameters.includes(identifier)) === true;
 }
 
@@ -683,7 +693,7 @@ function getTestBoundaryCallback(node, imports, contextParameters, sourceCode) {
 		return isInlineCallback(callback) && getEffectiveArity(callback.params) < 2 ? callback : undefined;
 	}
 
-	if (isTrackedContextHookCall(node, contextParameters, sourceCode)) {
+	if (isTrackedContextHookCall(node, imports, contextParameters, sourceCode)) {
 		const callback = getHookCallback(node);
 		return isInlineCallback(callback) && getEffectiveArity(callback.params) < 2 ? callback : undefined;
 	}

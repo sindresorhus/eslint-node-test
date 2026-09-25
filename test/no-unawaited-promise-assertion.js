@@ -167,6 +167,8 @@ test.snapshot({
 
 		// A getTestContext() subtest is its own boundary
 		'import {test, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\n'
-		+ 'test(\'o\', async () => {\n\tawait getTestContext().test(\'s\', () => { load().then(v => { assert.equal(v, 1); }); });\n});'
+		+ 'test(\'o\', async () => {\n\tawait getTestContext().test(\'s\', () => { load().then(v => { assert.equal(v, 1); }); });\n});',
+		'// A `getTestContext()` hook is the same hook, so its callback is the same boundary\nimport {test, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\n'
+		+ 'test(\'a\', t => {\n\tgetTestContext().beforeEach(() => {\n\t\tfoo().then(() => { assert.ok(x); });\n\t});\n});',
 	],
 });

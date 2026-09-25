@@ -5,7 +5,7 @@ import {
 	createContextTracker,
 	isContextHookCall,
 } from './utils/node-test.js';
-import {getEnclosingFunction} from './utils/index.js';
+import isFunction from './ast/is-function.js';
 
 const MESSAGE_ID = 'no-conditional-in-test';
 
@@ -49,11 +49,17 @@ const create = context => {
 	});
 
 	const report = node => {
-		// The conditional must sit directly in the test body, not in a sibling argument like the
-		// options object (`{skip: a ? … : …}`) or inside a nested helper function.
-		const enclosing = getEnclosingFunction(node);
-		if (enclosing && testCallbacks.has(enclosing)) {
-			return {node, messageId: MESSAGE_ID};
+		// The conditional must sit inside the test callback itself, not in a sibling argument like the
+		// options object (`{skip: a ? … : …}`) or inside a nested helper function. A call between the
+		// two means the conditional is an argument of that call, which the test body only evaluates.
+		for (let current = node; current; current = current.parent) {
+			if (isFunction(current)) {
+				return testCallbacks.has(current) ? {node, messageId: MESSAGE_ID} : undefined;
+			}
+
+			if (current.type === 'CallExpression') {
+				return undefined;
+			}
 		}
 	};
 

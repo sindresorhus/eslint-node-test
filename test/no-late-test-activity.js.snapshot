@@ -1114,6 +1114,32 @@ Message:
 
 `;
 
+exports[`no-late-test-activity > invalid(57): import {test, getTestContext} from 'node:test';\nimport assert from 'node:assert';\ntest('a', t => {\n\tgetTestContext().beforeEach(() => {\n\t\tsetTimeout(() => { assert.ok(x); }, 1);\n\t});\n}); 1`] = `
+
+  1 | import {test, getTestContext} from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('a', t => {
+  4 | 	getTestContext().beforeEach(() => {
+  5 | 		setTimeout(() => { assert.ok(x); }, 1);
+  6 | 	});
+  7 | });
+
+`;
+
+exports[`no-late-test-activity > invalid(57): import {test, getTestContext} from 'node:test';\nimport assert from 'node:assert';\ntest('a', t => {\n\tgetTestContext().beforeEach(() => {\n\t\tsetTimeout(() => { assert.ok(x); }, 1);\n\t});\n}); 2`] = `
+
+Message:
+  1 | import {test, getTestContext} from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('a', t => {
+  4 | 	getTestContext().beforeEach(() => {
+> 5 | 		setTimeout(() => { assert.ok(x); }, 1);
+    | 		                   ^^^^^^^^^^^^ Assertion in a detached \`setTimeout()\` callback can run after the test or hook has finished.
+  6 | 	});
+  7 | });
+
+`;
+
 exports[`no-late-test-activity > invalid(6): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', t => {\n\tsetImmediate(() => t.assert.ok(value));\n}); 1`] = `
 
   1 | import test from 'node:test';

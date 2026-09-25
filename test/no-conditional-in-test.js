@@ -34,6 +34,13 @@ test.snapshot({
 
 		// Conditional in a hook's options object, not inside the hook body
 		withImport('beforeEach(() => {}, {timeout: a ? 1 : 2});'),
+
+		// A conditional in a nested call's argument slot is evaluated by the enclosing test, not by
+		// the nested callback, exactly as at the top level
+		withImport('test("outer", async t => { await t.test("x", {skip: a ? 1 : 2}, () => {}); });'),
+		withImport('test("outer", t => { t.beforeEach(() => {}, {timeout: a ? 1 : 2}); });'),
+		'import {test, getTestContext} from \'node:test\';\n'
+		+ 'test("outer", () => { getTestContext().beforeEach(() => {}, {timeout: a ? 1 : 2}); });',
 	],
 	invalid: [
 		// Only the options slot's `fn` runs, so a conditional in a trailing object's `fn` is dead code

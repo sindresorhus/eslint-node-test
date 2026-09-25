@@ -18,6 +18,8 @@ test.snapshot({
 		// `concurrency: false` is the option turned off, the default, so there is nothing to misuse
 		withTest('test(\'t\', {concurrency: false}, () => {});'),
 		withTest('test(\'t\', {concurrency: undefined}, () => {});'),
+		// `node:test` keeps its default for `null` too, so the option is not set
+		withTest('test(\'t\', {concurrency: null}, () => {});'),
 
 		// Concurrency on a subtest that itself has subtests
 		withTest('test(\'t\', async t => { await t.test(\'inner\', {concurrency: true}, async s => { await s.test(\'a\', () => {}); }); });'),

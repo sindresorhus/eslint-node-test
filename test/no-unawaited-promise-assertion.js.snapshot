@@ -754,6 +754,34 @@ Message:
 
 `;
 
+exports[`no-unawaited-promise-assertion > invalid(34): // A \`getTestContext()\` hook is the same hook, so its callback is the same boundary\nimport {test, getTestContext} from 'node:test';\nimport assert from 'node:assert';\ntest('a', t => {\n\tgetTestContext().beforeEach(() => {\n\t\tfoo().then(() => { assert.ok(x); });\n\t});\n}); 1`] = `
+
+  1 | // A \`getTestContext()\` hook is the same hook, so its callback is the same boundary
+  2 | import {test, getTestContext} from 'node:test';
+  3 | import assert from 'node:assert';
+  4 | test('a', t => {
+  5 | 	getTestContext().beforeEach(() => {
+  6 | 		foo().then(() => { assert.ok(x); });
+  7 | 	});
+  8 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(34): // A \`getTestContext()\` hook is the same hook, so its callback is the same boundary\nimport {test, getTestContext} from 'node:test';\nimport assert from 'node:assert';\ntest('a', t => {\n\tgetTestContext().beforeEach(() => {\n\t\tfoo().then(() => { assert.ok(x); });\n\t});\n}); 2`] = `
+
+Message:
+  1 | // A \`getTestContext()\` hook is the same hook, so its callback is the same boundary
+  2 | import {test, getTestContext} from 'node:test';
+  3 | import assert from 'node:assert';
+  4 | test('a', t => {
+  5 | 	getTestContext().beforeEach(() => {
+> 6 | 		foo().then(() => { assert.ok(x); });
+    | 		                   ^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
+  7 | 	});
+  8 | });
+
+`;
+
 exports[`no-unawaited-promise-assertion > invalid(4): import * as nodeTest from 'node:test';\nimport assert from 'node:assert';\nnodeTest.test('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
 
   1 | import * as nodeTest from 'node:test';
