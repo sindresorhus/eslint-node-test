@@ -113,7 +113,15 @@ const create = context => {
 			key = sourceCode.getText(left.property);
 		}
 
-		if (canRewriteMethodCall({
+		// `mock.method()` falls back to the ORIGINAL method when no implementation is passed, while
+		// `mock.fn()` returns `undefined`, so the rewrite only preserves behavior with an implementation.
+		// Passing `undefined` explicitly does not help: the default parameter still applies.
+		const [mockArgument] = mockArguments;
+		const unwrappedArgument = mockArgument && unwrapExpression(mockArgument);
+		const isUndefinedArgument = unwrappedArgument?.type === 'Identifier' && unwrappedArgument.name === 'undefined';
+		const hasImplementation = mockArguments.length === 1 && !isUndefinedArgument;
+
+		if (hasImplementation && canRewriteMethodCall({
 			node, left, key, mockArguments, sourceCode,
 		})) {
 			const objectText = sourceCode.getText(left.object);

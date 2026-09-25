@@ -9,7 +9,9 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Replacing an object's method by assigning a `mock.fn()` to it (`object.method = mock.fn()`) discards the original implementation and leaves no way for the runner to restore it. `mock.method(object, 'method')` records the original, tracks calls, and restores it automatically (when using the test context's `t.mock`) or via `mock.restoreAll()`.
+Replacing an object's method by assigning a `mock.fn()` to it (`object.method = mock.fn()`) discards the original implementation and leaves no way for the runner to restore it. `mock.method(object, 'method', implementation)` records the original, tracks calls, and restores it automatically (when using the test context's `t.mock`) or via `mock.restoreAll()`.
+
+The suggestion therefore needs an implementation to pass along: without one, `mock.method()` falls back to the original method while `mock.fn()` returns `undefined`, so such a call is reported without a suggestion.
 
 This rule reports assignments of `mock.fn()` / `t.mock.fn()` to a member expression and suggests the equivalent `mock.method()` call. Any implementation passed to `mock.fn()` becomes the implementation argument of `mock.method()`. See also [`prefer-context-mock`](./prefer-context-mock.md), which prefers the auto-restoring `t.mock` over the global `mock`.
 

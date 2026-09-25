@@ -60,6 +60,15 @@ test.snapshot({
 		withMock('const name = \'method\';\nobject[name] = mock.fn();'),
 		withMock('const methodName = \'method\';\nobject[methodName] = mock.fn();'),
 
+		// `mock.method()` falls back to the ORIGINAL method when it gets no implementation, while
+		// `mock.fn()` returns `undefined`, so only an implementation makes the rewrite equivalent
+		withMock('object.method = mock.fn();'),
+		withMock('object.method = mock.fn(undefined);'),
+		{
+			code: withMock('object.method = mock.fn(undefined as never);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+
 		// `mock.method()` needs a string method name, so a computed key is only rewritten when it is
 		// statically one. An unresolvable identifier may hold anything, so it gets no suggestion.
 		withMock('object[methodName] = mock.fn();'),

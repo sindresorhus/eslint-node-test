@@ -30,6 +30,9 @@ test.snapshot({
 		'// it.each([1, 2])("foo", () => {})',
 		'// test.config({ timeout: 1 })',
 		'// describe.configure()',
+		// `name` is not a `node:test` export, so a chain through it is prose
+		'// test.name(x)',
+		'// test.it.name(x)',
 		// `Function.prototype` has no node:test export names, so a `describe.name(…)` call is prose
 		'// describe.name(x)',
 		'// test.await("foo", () => {})',
@@ -39,6 +42,11 @@ test.snapshot({
 		'// getTestContext().test("foo", () => {});',
 	],
 	invalid: [
+		// `test.test(…)` and `test.it(…)` register a test exactly as `test(…)` does
+		'// test.test(\'a\', () => {});',
+		'// test.it(\'a\', () => {});',
+		'// it.it(\'a\', () => {});',
+		'import * as nodeTest from \'node:test\';\n// nodeTest.test(\'a\', () => {});',
 		// Line comment with test(
 		'// test("foo", () => {',
 		// Line comment with it(

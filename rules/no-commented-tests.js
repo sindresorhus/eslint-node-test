@@ -25,7 +25,9 @@ const TEST_EXPORTS_SET = new Set(TEST_EXPORTS);
 // A leading `await` is part of the real spelling of a top-level test in an ES module.
 // No space is allowed before the `(`, because real code never writes `test (` while prose
 // routinely does — `// test (the runner entry point)` is a sentence, not a commented-out test.
-const CHAINED_NAME = '(?:only|skip|todo|describe|suite|before|after|beforeEach|afterEach|expectFailure)';
+// The statics a test function carries: `test.test()` and `test.it()` register a test exactly as
+// `test()` does, and the rest are the modifiers and the other entry points.
+const CHAINED_NAME = '(?:only|skip|todo|test|it|describe|suite|before|after|beforeEach|afterEach|expectFailure)';
 
 /**
 Build the pattern for one file, whose `node:test` imports may bind an export to another name.
