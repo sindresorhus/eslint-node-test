@@ -7,6 +7,12 @@ const withHookImport = code => `import {beforeEach, afterEach} from 'node:test';
 
 test.snapshot({
 	valid: [
+		// A definition inside a hook is `no-test-inside-hook`'s to report, since its fix has to come
+		// first and this rule's advice would leave that report in place
+		'import {test, before} from \'node:test\';\nbefore(() => { if (x) { test("a", () => {}); } });',
+		'import {test, beforeEach} from \'node:test\';\nbeforeEach(() => { if (x) { test("a", () => {}); } });',
+		'import test from \'node:test\';\ntest("a", t => { t.beforeEach(() => { if (x) { t.test("b", () => {}); } }); });',
+
 		// Not a test file
 		'if (x) { test("a", () => {}); }',
 
