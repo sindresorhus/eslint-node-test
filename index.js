@@ -4,20 +4,17 @@ import packageJson from './package.json' with {type: 'json'};
 
 const rules = toEslintRules(rawRules);
 
-const recommendedRules = Object.fromEntries(Object.entries(rules).map(([id, rule]) => [
+// A deprecated rule is off in every preset, whichever level it was declared at.
+const presetRules = isEnabled => Object.fromEntries(Object.entries(rules).map(([id, rule]) => [
 	`node-test/${id}`,
-	rule.meta.docs.recommended ? 'error' : 'off',
+	!rule.meta.deprecated && isEnabled(rule) ? 'error' : 'off',
 ]));
 
-const unopinionatedRules = Object.fromEntries(Object.entries(rules).map(([id, rule]) => [
-	`node-test/${id}`,
-	rule.meta.docs.recommended === 'unopinionated' ? 'error' : 'off',
-]));
+const recommendedRules = presetRules(rule => Boolean(rule.meta.docs.recommended));
 
-const allRules = Object.fromEntries(Object.entries(rules).map(([id, rule]) => [
-	`node-test/${id}`,
-	rule.meta.deprecated ? 'off' : 'error',
-]));
+const unopinionatedRules = presetRules(rule => rule.meta.docs.recommended === 'unopinionated');
+
+const allRules = presetRules(() => true);
 
 const createConfig = (rules, flatConfigName) => ({
 	name: flatConfigName,

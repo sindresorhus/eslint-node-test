@@ -16,9 +16,14 @@ test.snapshot({
 		'import test from "node:test";\ntest("a", async ({assert}) => {\n\tawait load().then(v => { assert.strictEqual(v, 42); });\n});',
 
 		// `t.plan(n, {wait: true})` makes the runner block until the plan is fulfilled, so the
-		// assertion is awaited even though the callback is floating
+		// assertion is awaited even though the callback is floating. The runner reads the plan when
+		// it is set, so it counts wherever it stands in the body.
 		'import test from "node:test";\nimport assert from "node:assert";\n'
 		+ 'test("a", async t => {\n\tt.plan(1, {wait: true});\n\tload().then(value => {\n\t\tassert.strictEqual(value, 42);\n\t});\n});',
+		'import test from "node:test";\n'
+		+ 'test("a", async t => {\n\tawait setup();\n\tt.plan(1, {wait: true});\n\tload().then(value => {\n\t\tt.assert.strictEqual(value, 42);\n\t});\n});',
+		'import test from "node:test";\n'
+		+ 'test("a", async t => {\n\tt.diagnostic("loading");\n\tt.plan(1, {wait: true});\n\tload().then(value => {\n\t\tt.assert.strictEqual(value, 42);\n\t});\n});',
 
 		// Not a test file.
 		'import assert from \'node:assert\';\nload().then(value => { assert.strictEqual(value, 42); });',

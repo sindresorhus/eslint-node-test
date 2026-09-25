@@ -38,7 +38,6 @@ const REJECTION_HANDLER_INDEXES = new Map([['then', 1], ['catch', 0]]);
 const PROMISE_ASSERTION_METHODS = new Set(['rejects', 'doesNotReject']);
 const SCHEDULER_NAMES = new Set(['setTimeout', 'setImmediate', 'queueMicrotask']);
 const TIMER_MODULES = new Set(['node:timers', 'timers']);
-const WAIT_PLAN_PREFIX_STATEMENT_TYPES = new Set(['VariableDeclaration', 'FunctionDeclaration', 'EmptyStatement']);
 
 const messages = {
 	[MESSAGE_ID]: 'Assertion in a floating `{{method}}()` callback is not awaited by the test. Await or return the Promise chain.',
@@ -680,30 +679,32 @@ function hasWaitPlan(callback, contextParameter, sourceCode, imports) {
 		return false;
 	}
 
+	// The runner reads the plan when it is set and waits from then on, so a `plan(…)` counts wherever
+	// it stands in the body, not only as one of its first statements. Nothing after a statement that
+	// always leaves the body runs, so a plan there is not one the runner ever reads.
 	for (const statement of callback.body.body) {
-		if (WAIT_PLAN_PREFIX_STATEMENT_TYPES.has(statement.type)) {
-			continue;
+		if (statement.type === 'ReturnStatement' || statement.type === 'ThrowStatement') {
+			return false;
 		}
 
 		const node = statement.type === 'ExpressionStatement' ? unwrapTypeScriptExpression(statement.expression) : undefined;
 		if (
-			node?.type === 'CallExpression'
-			&& node.callee.type === 'MemberExpression'
-			&& !node.callee.computed
-			&& node.callee.property.type === 'Identifier'
-			&& node.callee.property.name === 'plan'
+			node?.type !== 'CallExpression'
+			|| node.callee.type !== 'MemberExpression'
+			|| node.callee.computed
+			|| node.callee.property.type !== 'Identifier'
+			|| node.callee.property.name !== 'plan'
 		) {
-			// The receiver is the test's own context parameter, or a `getTestContext()` call that
-			// returns it.
-			const receiver = unwrapTypeScriptExpression(node.callee.object);
-			const isOwnContext = (contextParameter && receiver.type === 'Identifier' && isSameVariable(receiver, contextParameter, sourceCode))
-				|| isGetTestContextCall(receiver, imports);
-			if (isOwnContext) {
-				return hasStaticallyTruthyWaitOption(node.arguments[1], sourceCode);
-			}
+			continue;
 		}
 
-		return false;
+		// The receiver is the test's own context parameter, or a `getTestContext()` call that returns it.
+		const receiver = unwrapTypeScriptExpression(node.callee.object);
+		const isOwnContext = (contextParameter && receiver.type === 'Identifier' && isSameVariable(receiver, contextParameter, sourceCode))
+			|| isGetTestContextCall(receiver, imports);
+		if (isOwnContext && hasStaticallyTruthyWaitOption(node.arguments[1], sourceCode)) {
+			return true;
+		}
 	}
 
 	return false;
