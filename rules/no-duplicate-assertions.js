@@ -4,11 +4,13 @@ import {
 	parseSupportedAssertionCall,
 	getTestCallback,
 	getOutOfLineCallbackCall,
+	getRegistrationKind,
 	createContextTracker,
 	LOOSE_TO_STRICT_METHODS,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 import {unwrapExpression} from './utils/index.js';
+import {functionTypes} from './ast/index.js';
 
 const MESSAGE_ID = 'no-duplicate-assertions';
 
@@ -99,11 +101,10 @@ const create = context => {
 	// A test body the call names out of line is entered where it is declared, which the call's own
 	// traversal does not cover, so duplicate assertions in it went unseen. The body is registered the
 	// same way, and the block exit below does the rest.
-	const functionTypes = ['FunctionExpression', 'ArrowFunctionExpression', 'FunctionDeclaration'];
 
 	context.on(functionTypes, node => {
 		const call = getOutOfLineCallbackCall(node, context, imports);
-		if (!call || parseTestCall(call, imports)?.kind !== 'test' || node.body.type !== 'BlockStatement') {
+		if (getRegistrationKind(call, imports, tracker.isContextReceiver) !== 'test' || node.body.type !== 'BlockStatement') {
 			return;
 		}
 

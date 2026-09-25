@@ -17,6 +17,7 @@ import {
 	isGetTestContextCall,
 	MODIFIERS,
 	HOOK_FUNCTIONS,
+	getImportSpecifierName,
 } from './utils/node-test.js';
 import {isFunction} from './ast/index.js';
 import {
@@ -531,12 +532,8 @@ function getTimerImports(sourceCode) {
 		}
 
 		for (const specifier of node.specifiers) {
-			if (
-				specifier.type === 'ImportSpecifier'
-				&& specifier.imported.type === 'Identifier'
-				&& SCHEDULER_NAMES.has(specifier.imported.name)
-			) {
-				named.set(specifier.local.name, specifier.imported.name);
+			if (specifier.type === 'ImportSpecifier' && SCHEDULER_NAMES.has(getImportSpecifierName(specifier))) {
+				named.set(specifier.local.name, getImportSpecifierName(specifier));
 			} else if (specifier.type === 'ImportNamespaceSpecifier' || specifier.type === 'ImportDefaultSpecifier') {
 				// Both are the whole timer module, so `timers.setTimeout(…)` is the same scheduler.
 				namespaces.add(specifier.local.name);

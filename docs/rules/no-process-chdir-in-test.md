@@ -11,7 +11,7 @@
 
 Prefer absolute paths. If changing the working directory is unavoidable, use setup and restoration hooks only when tests run serially. Hooks are unsafe with concurrent tests, even when they restore the directory.
 
-This rule reports direct calls in `test`/`it` and `t.test()` callbacks, including imports from `node:process` or `process` and the same calls reached through `globalThis.process` or `global.process`. It ignores hooks, suite bodies, top-level setup, nested helpers, computed properties, CommonJS imports, aliases, and indirect calls.
+This rule reports direct calls in `test`/`it` and `t.test()` callbacks, inline or named out of line (`test('a', body)`), including imports from `node:process` or `process` and the same calls reached through `globalThis.process` or `global.process`. It ignores hooks, suite bodies, top-level setup, nested helpers, computed properties, CommonJS imports, aliases, and indirect calls.
 
 ## Examples
 

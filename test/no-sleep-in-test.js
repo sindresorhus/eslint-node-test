@@ -79,6 +79,13 @@ test.snapshot({
 		// `skip` enables on anything that is neither `undefined` nor `false`, so `0` skips too
 		// A hook takes its callback first, so the runner never runs an options `fn`
 		'import {beforeEach} from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\nbeforeEach({fn: async () => {\n\tawait delay(1);\n}});',
+		'// A skipped test never runs its body, out of line exactly as inline\n'
+		+ 'import {test} from \'node:test\';\n'
+		+ 'import {setTimeout as delay} from \'node:timers/promises\';\n'
+		+ 'const body = async () => {\n'
+		+ '	await delay(500);\n'
+		+ '};\n'
+		+ 'test(\'a\', {skip: true}, body);',
 	],
 	invalid: [
 		withTest('await new Promise(resolve => setTimeout(resolve, 500));'),
@@ -245,5 +252,16 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 
+		// A string-literal name is the same export, and it sleeps the same way
+		'import test from \'node:test\';\nimport {\'setTimeout\' as st} from \'node:timers\';\ntest(\'waits\', async () => { await new Promise(resolve => st(resolve, 500)); });',
+		'// A body the call names out of line is the subtest\'s body\n'
+		+ 'import {test} from \'node:test\';\n'
+		+ 'import {setTimeout as delay} from \'node:timers/promises\';\n'
+		+ 'const body = async () => {\n'
+		+ '	await delay(500);\n'
+		+ '};\n'
+		+ 'test(\'a\', async t => {\n'
+		+ '	await t.test(\'sub\', body);\n'
+		+ '});',
 	],
 });

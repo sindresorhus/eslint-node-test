@@ -162,5 +162,15 @@ test.snapshot({
 			code: withTest('\tassert.strictEqual(user.id, 1)!;\n\tassert.strictEqual(user.id, 1)!;'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		'// A body the call names out of line is the subtest\'s body\n'
+		+ 'import {test} from \'node:test\';\n'
+		+ 'import assert from \'node:assert\';\n'
+		+ 'const body = () => {\n'
+		+ '	assert.ok(x);\n'
+		+ '	assert.ok(x);\n'
+		+ '};\n'
+		+ 'test(\'a\', t => {\n'
+		+ '	t.test(\'sub\', body);\n'
+		+ '});',
 	],
 });

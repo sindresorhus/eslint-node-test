@@ -76,6 +76,10 @@ test.snapshot({
 
 		// Outside every tracked callback, `t` is just a name.
 		'import test from \'node:test\';\nfor (const item of items) { t.assert.snapshot(item); }',
+		// A body named out of line that is not a test body, or a snapshot on a name that is not its context
+		'import {beforeEach} from \'node:test\';\nfunction setup(t) { for (const item of items) { t.assert.snapshot(item); } }\nbeforeEach(setup);',
+		'import test from \'node:test\';\nfunction helper(t) { for (const item of items) { t.assert.snapshot(item); } }\ntest(\'t\', t => { helper(t); });',
+		'import test from \'node:test\';\nconst body = t => { for (const item of items) { other.assert.snapshot(item); } };\ntest(\'t\', body);',
 	],
 	invalid: [
 		// `getTestContext()` is the same context, so its snapshot is the test's own
@@ -182,5 +186,10 @@ test.snapshot({
 			code: withThisParameter('for (const x of xs) { t.assert.snapshot(x); }'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		// A test body named out of line, declared before or after the call, and a subtest body
+		'import test from \'node:test\';\nconst body = t => { for (const item of items) { t.assert.snapshot(item); } };\ntest(\'t\', body);',
+		'import test from \'node:test\';\ntest(\'t\', body);\nfunction body(t) { for (const item of items) { t.assert.snapshot(item); } }',
+		'import test from \'node:test\';\nfunction body(context) { for (const item of items) { context.assert.snapshot(item); } }\ntest(\'t\', t => { t.test(\'u\', body); });',
+		'import test, {getTestContext} from \'node:test\';\nfunction body() { for (const item of items) { getTestContext().assert.snapshot(item); } }\ntest(\'t\', body);',
 	],
 });

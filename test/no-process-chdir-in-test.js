@@ -60,6 +60,11 @@ test.snapshot({
 		withTestImport('test(\'changes directory\', function (global) { global.process.chdir(\'fixtures\'); });'),
 		withTestImport('test(\'changes directory\', (globalThis) => { globalThis.process.chdir(\'fixtures\'); });'),
 		inTest('const globalThis = {process: {}};\nglobalThis.process.chdir(\'fixtures\');'),
+		// A suite or hook body named out of line is not a test body, the same as inline
+		'import {describe} from \'node:test\';\nconst body = () => { process.chdir(\'fixtures\'); };\ndescribe(\'suite\', body);',
+		'import {beforeEach} from \'node:test\';\nfunction setup() { process.chdir(\'fixtures\'); }\nbeforeEach(setup);',
+		// A helper the test body only calls is not its body
+		withTestImport('function helper() { process.chdir(\'fixtures\'); }\ntest(\'changes directory\', () => { helper(); });'),
 	],
 	invalid: [
 		// Direct calls in test callbacks
@@ -67,6 +72,15 @@ test.snapshot({
 		// `globalThis.process` / `global.process` are the same object as the bare global
 		inTest('globalThis.process.chdir(\'fixtures\');'),
 		inTest('global.process.chdir(\'fixtures\');'),
+		// A TypeScript wrapper on `globalThis` is erased at runtime
+		{
+			code: inTest('(globalThis as any).process.chdir(\'fixtures\');'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: inTest('globalThis!.process.chdir(\'fixtures\');'),
+			languageOptions: {parser: parsers.typescript},
+		},
 		'import {it} from \'node:test\';\nit(\'changes directory\', () => { process.chdir(\'fixtures\'); });',
 		'import * as nodeTest from \'node:test\';\nnodeTest.test(\'changes directory\', () => { process.chdir(\'fixtures\'); });',
 		withTestImport('test.only(\'changes directory\', () => { process.chdir(\'fixtures\'); });'),
@@ -102,5 +116,9 @@ test.snapshot({
 			code: inTest('process!.chdir(\'fixtures\');'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		// A test body named out of line, declared before or after the call, and a subtest body
+		withTestImport('const body = () => { process.chdir(\'fixtures\'); };\ntest(\'changes directory\', body);'),
+		withTestImport('test(\'changes directory\', body);\nfunction body() { process.chdir(\'fixtures\'); }'),
+		withTestImport('function body() { process.chdir(\'fixtures\'); }\ntest(\'parent\', t => { t.test(\'changes directory\', body); });'),
 	],
 });

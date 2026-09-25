@@ -147,5 +147,16 @@ test.snapshot({
 			code: 'import test from "node:test";\nimport assert from "node:assert";\ntest("t1", (): void => { if (x) { assert.ok(1); } });',
 			languageOptions: {parser: parsers.typescript},
 		},
+		'// A body the call names out of line is the subtest\'s body\n'
+		+ 'import {test} from \'node:test\';\n'
+		+ 'import assert from \'node:assert\';\n'
+		+ 'const body = () => {\n'
+		+ '	if (x) {\n'
+		+ '		assert.ok(1);\n'
+		+ '	}\n'
+		+ '};\n'
+		+ 'test(\'a\', t => {\n'
+		+ '	t.test(\'sub\', body);\n'
+		+ '});',
 	],
 });

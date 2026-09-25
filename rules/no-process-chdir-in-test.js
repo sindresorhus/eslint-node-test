@@ -1,5 +1,11 @@
 import {findVariable} from '@eslint-community/eslint-utils';
-import {resolveImports, createContextTracker, getImportSpecifierName} from './utils/node-test.js';
+import {
+	resolveImports,
+	createContextTracker,
+	getImportSpecifierName,
+	getOutOfLineCallbackCall,
+	getRegistrationKind,
+} from './utils/node-test.js';
 import {
 	getEnclosingFunction,
 	unwrapExpression,
@@ -103,12 +109,19 @@ const create = context => {
 		}
 	};
 
+	// A test body the call names out of line (`test('a', body)`) is entered where it is declared, which
+	// the call's own frame does not cover, so it is resolved from its binding instead.
+	const isOutOfLineTestBody = node => getRegistrationKind(getOutOfLineCallbackCall(node, context, imports), imports, context) === 'test';
+
 	context.on('CallExpression', node => {
 		const enclosingFunction = getEnclosingFunction(node);
 		const target = getChdirTarget(node);
 		tracker.update(node);
 
-		if (target && tracker.isTrackedCallback(enclosingFunction)) {
+		if (
+			target
+			&& (tracker.isTrackedCallback(enclosingFunction) || isOutOfLineTestBody(enclosingFunction))
+		) {
 			return {
 				node: target,
 				messageId: MESSAGE_ID,

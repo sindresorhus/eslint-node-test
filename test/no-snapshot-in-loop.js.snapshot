@@ -538,6 +538,78 @@ Message:
 
 `;
 
+exports[`no-snapshot-in-loop > invalid(36): import test from 'node:test';\nconst body = t => { for (const item of items) { t.assert.snapshot(item); } };\ntest('t', body); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | const body = t => { for (const item of items) { t.assert.snapshot(item); } };
+  3 | test('t', body);
+
+`;
+
+exports[`no-snapshot-in-loop > invalid(36): import test from 'node:test';\nconst body = t => { for (const item of items) { t.assert.snapshot(item); } };\ntest('t', body); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | const body = t => { for (const item of items) { t.assert.snapshot(item); } };
+    |                                                 ^^^^^^^^^^^^^^^^^^^^^^^ Do not use positional snapshots inside loops. Changing the iteration count shifts every following snapshot.
+  3 | test('t', body);
+
+`;
+
+exports[`no-snapshot-in-loop > invalid(37): import test from 'node:test';\ntest('t', body);\nfunction body(t) { for (const item of items) { t.assert.snapshot(item); } } 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', body);
+  3 | function body(t) { for (const item of items) { t.assert.snapshot(item); } }
+
+`;
+
+exports[`no-snapshot-in-loop > invalid(37): import test from 'node:test';\ntest('t', body);\nfunction body(t) { for (const item of items) { t.assert.snapshot(item); } } 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', body);
+> 3 | function body(t) { for (const item of items) { t.assert.snapshot(item); } }
+    |                                                ^^^^^^^^^^^^^^^^^^^^^^^ Do not use positional snapshots inside loops. Changing the iteration count shifts every following snapshot.
+
+`;
+
+exports[`no-snapshot-in-loop > invalid(38): import test from 'node:test';\nfunction body(context) { for (const item of items) { context.assert.snapshot(item); } }\ntest('t', t => { t.test('u', body); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | function body(context) { for (const item of items) { context.assert.snapshot(item); } }
+  3 | test('t', t => { t.test('u', body); });
+
+`;
+
+exports[`no-snapshot-in-loop > invalid(38): import test from 'node:test';\nfunction body(context) { for (const item of items) { context.assert.snapshot(item); } }\ntest('t', t => { t.test('u', body); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | function body(context) { for (const item of items) { context.assert.snapshot(item); } }
+    |                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use positional snapshots inside loops. Changing the iteration count shifts every following snapshot.
+  3 | test('t', t => { t.test('u', body); });
+
+`;
+
+exports[`no-snapshot-in-loop > invalid(39): import test, {getTestContext} from 'node:test';\nfunction body() { for (const item of items) { getTestContext().assert.snapshot(item); } }\ntest('t', body); 1`] = `
+
+  1 | import test, {getTestContext} from 'node:test';
+  2 | function body() { for (const item of items) { getTestContext().assert.snapshot(item); } }
+  3 | test('t', body);
+
+`;
+
+exports[`no-snapshot-in-loop > invalid(39): import test, {getTestContext} from 'node:test';\nfunction body() { for (const item of items) { getTestContext().assert.snapshot(item); } }\ntest('t', body); 2`] = `
+
+Message:
+  1 | import test, {getTestContext} from 'node:test';
+> 2 | function body() { for (const item of items) { getTestContext().assert.snapshot(item); } }
+    |                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use positional snapshots inside loops. Changing the iteration count shifts every following snapshot.
+  3 | test('t', body);
+
+`;
+
 exports[`no-snapshot-in-loop > invalid(4): import test from 'node:test';\ntest('t', t => {\n\tfor (const item of items) { t.assert.snapshot(item); }\n}); 1`] = `
 
   1 | import test from 'node:test';

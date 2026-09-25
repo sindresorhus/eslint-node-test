@@ -18,7 +18,43 @@ Message:
 
 `;
 
-exports[`no-process-chdir-in-test > invalid(10): import {default as nodeProcess} from 'node:process';\nimport test from 'node:test';\ntest('changes directory', () => { nodeProcess.chdir('fixtures'); }); 1`] = `
+exports[`no-process-chdir-in-test > invalid(10): import process from 'node:process';\nimport test from 'node:test';\ntest('changes directory', () => { process.chdir('fixtures'); }); 1`] = `
+
+  1 | import process from 'node:process';
+  2 | import test from 'node:test';
+  3 | test('changes directory', () => { process.chdir('fixtures'); });
+
+`;
+
+exports[`no-process-chdir-in-test > invalid(10): import process from 'node:process';\nimport test from 'node:test';\ntest('changes directory', () => { process.chdir('fixtures'); }); 2`] = `
+
+Message:
+  1 | import process from 'node:process';
+  2 | import test from 'node:test';
+> 3 | test('changes directory', () => { process.chdir('fixtures'); });
+    |                                   ^^^^^^^^^^^^^ Do not call \`process.chdir()\` inside a test. Use absolute paths instead.
+
+`;
+
+exports[`no-process-chdir-in-test > invalid(11): import * as nodeProcess from 'process';\nimport test from 'node:test';\ntest('changes directory', () => { nodeProcess.chdir('fixtures'); }); 1`] = `
+
+  1 | import * as nodeProcess from 'process';
+  2 | import test from 'node:test';
+  3 | test('changes directory', () => { nodeProcess.chdir('fixtures'); });
+
+`;
+
+exports[`no-process-chdir-in-test > invalid(11): import * as nodeProcess from 'process';\nimport test from 'node:test';\ntest('changes directory', () => { nodeProcess.chdir('fixtures'); }); 2`] = `
+
+Message:
+  1 | import * as nodeProcess from 'process';
+  2 | import test from 'node:test';
+> 3 | test('changes directory', () => { nodeProcess.chdir('fixtures'); });
+    |                                   ^^^^^^^^^^^^^^^^^ Do not call \`process.chdir()\` inside a test. Use absolute paths instead.
+
+`;
+
+exports[`no-process-chdir-in-test > invalid(12): import {default as nodeProcess} from 'node:process';\nimport test from 'node:test';\ntest('changes directory', () => { nodeProcess.chdir('fixtures'); }); 1`] = `
 
   1 | import {default as nodeProcess} from 'node:process';
   2 | import test from 'node:test';
@@ -26,7 +62,7 @@ exports[`no-process-chdir-in-test > invalid(10): import {default as nodeProcess}
 
 `;
 
-exports[`no-process-chdir-in-test > invalid(10): import {default as nodeProcess} from 'node:process';\nimport test from 'node:test';\ntest('changes directory', () => { nodeProcess.chdir('fixtures'); }); 2`] = `
+exports[`no-process-chdir-in-test > invalid(12): import {default as nodeProcess} from 'node:process';\nimport test from 'node:test';\ntest('changes directory', () => { nodeProcess.chdir('fixtures'); }); 2`] = `
 
 Message:
   1 | import {default as nodeProcess} from 'node:process';
@@ -36,7 +72,7 @@ Message:
 
 `;
 
-exports[`no-process-chdir-in-test > invalid(11): import {chdir as changeDirectory} from 'node:process';\nimport test from 'node:test';\ntest('changes directory', () => { changeDirectory('fixtures'); }); 1`] = `
+exports[`no-process-chdir-in-test > invalid(13): import {chdir as changeDirectory} from 'node:process';\nimport test from 'node:test';\ntest('changes directory', () => { changeDirectory('fixtures'); }); 1`] = `
 
   1 | import {chdir as changeDirectory} from 'node:process';
   2 | import test from 'node:test';
@@ -44,7 +80,7 @@ exports[`no-process-chdir-in-test > invalid(11): import {chdir as changeDirector
 
 `;
 
-exports[`no-process-chdir-in-test > invalid(11): import {chdir as changeDirectory} from 'node:process';\nimport test from 'node:test';\ntest('changes directory', () => { changeDirectory('fixtures'); }); 2`] = `
+exports[`no-process-chdir-in-test > invalid(13): import {chdir as changeDirectory} from 'node:process';\nimport test from 'node:test';\ntest('changes directory', () => { changeDirectory('fixtures'); }); 2`] = `
 
 Message:
   1 | import {chdir as changeDirectory} from 'node:process';
@@ -54,7 +90,7 @@ Message:
 
 `;
 
-exports[`no-process-chdir-in-test > invalid(12): import {'chdir' as changeDirectory} from 'node:process';\nimport test from 'node:test';\ntest('changes directory', () => { changeDirectory('fixtures'); }); 1`] = `
+exports[`no-process-chdir-in-test > invalid(14): import {'chdir' as changeDirectory} from 'node:process';\nimport test from 'node:test';\ntest('changes directory', () => { changeDirectory('fixtures'); }); 1`] = `
 
   1 | import {'chdir' as changeDirectory} from 'node:process';
   2 | import test from 'node:test';
@@ -62,7 +98,7 @@ exports[`no-process-chdir-in-test > invalid(12): import {'chdir' as changeDirect
 
 `;
 
-exports[`no-process-chdir-in-test > invalid(12): import {'chdir' as changeDirectory} from 'node:process';\nimport test from 'node:test';\ntest('changes directory', () => { changeDirectory('fixtures'); }); 2`] = `
+exports[`no-process-chdir-in-test > invalid(14): import {'chdir' as changeDirectory} from 'node:process';\nimport test from 'node:test';\ntest('changes directory', () => { changeDirectory('fixtures'); }); 2`] = `
 
 Message:
   1 | import {'chdir' as changeDirectory} from 'node:process';
@@ -72,7 +108,7 @@ Message:
 
 `;
 
-exports[`no-process-chdir-in-test > invalid(13): import {chdir as changeDirectory} from 'process';\nimport test from 'node:test';\ntest('changes directory', () => { changeDirectory('fixtures'); }); 1`] = `
+exports[`no-process-chdir-in-test > invalid(15): import {chdir as changeDirectory} from 'process';\nimport test from 'node:test';\ntest('changes directory', () => { changeDirectory('fixtures'); }); 1`] = `
 
   1 | import {chdir as changeDirectory} from 'process';
   2 | import test from 'node:test';
@@ -80,7 +116,7 @@ exports[`no-process-chdir-in-test > invalid(13): import {chdir as changeDirector
 
 `;
 
-exports[`no-process-chdir-in-test > invalid(13): import {chdir as changeDirectory} from 'process';\nimport test from 'node:test';\ntest('changes directory', () => { changeDirectory('fixtures'); }); 2`] = `
+exports[`no-process-chdir-in-test > invalid(15): import {chdir as changeDirectory} from 'process';\nimport test from 'node:test';\ntest('changes directory', () => { changeDirectory('fixtures'); }); 2`] = `
 
 Message:
   1 | import {chdir as changeDirectory} from 'process';
@@ -90,7 +126,7 @@ Message:
 
 `;
 
-exports[`no-process-chdir-in-test > invalid(14): import test from 'node:test';\ntest('parent', async t => {\n\tawait t.test('changes directory', () => {\n\t\tprocess.chdir('fixtures');\n\t});\n}); 1`] = `
+exports[`no-process-chdir-in-test > invalid(16): import test from 'node:test';\ntest('parent', async t => {\n\tawait t.test('changes directory', () => {\n\t\tprocess.chdir('fixtures');\n\t});\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('parent', async t => {
@@ -101,7 +137,7 @@ exports[`no-process-chdir-in-test > invalid(14): import test from 'node:test';\n
 
 `;
 
-exports[`no-process-chdir-in-test > invalid(14): import test from 'node:test';\ntest('parent', async t => {\n\tawait t.test('changes directory', () => {\n\t\tprocess.chdir('fixtures');\n\t});\n}); 2`] = `
+exports[`no-process-chdir-in-test > invalid(16): import test from 'node:test';\ntest('parent', async t => {\n\tawait t.test('changes directory', () => {\n\t\tprocess.chdir('fixtures');\n\t});\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -114,7 +150,7 @@ Message:
 
 `;
 
-exports[`no-process-chdir-in-test > invalid(15): import test from 'node:test';\ntest('parent', async t => {\n\tawait t.test.only('changes directory', () => {\n\t\tprocess.chdir('fixtures');\n\t});\n}); 1`] = `
+exports[`no-process-chdir-in-test > invalid(17): import test from 'node:test';\ntest('parent', async t => {\n\tawait t.test.only('changes directory', () => {\n\t\tprocess.chdir('fixtures');\n\t});\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('parent', async t => {
@@ -125,7 +161,7 @@ exports[`no-process-chdir-in-test > invalid(15): import test from 'node:test';\n
 
 `;
 
-exports[`no-process-chdir-in-test > invalid(15): import test from 'node:test';\ntest('parent', async t => {\n\tawait t.test.only('changes directory', () => {\n\t\tprocess.chdir('fixtures');\n\t});\n}); 2`] = `
+exports[`no-process-chdir-in-test > invalid(17): import test from 'node:test';\ntest('parent', async t => {\n\tawait t.test.only('changes directory', () => {\n\t\tprocess.chdir('fixtures');\n\t});\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -138,7 +174,7 @@ Message:
 
 `;
 
-exports[`no-process-chdir-in-test > invalid(16): import test from 'node:test';\ntest('parent', t => {\n\tt.test('child', {skip: process.chdir('fixtures')}, () => {});\n}); 1`] = `
+exports[`no-process-chdir-in-test > invalid(18): import test from 'node:test';\ntest('parent', t => {\n\tt.test('child', {skip: process.chdir('fixtures')}, () => {});\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('parent', t => {
@@ -147,7 +183,7 @@ exports[`no-process-chdir-in-test > invalid(16): import test from 'node:test';\n
 
 `;
 
-exports[`no-process-chdir-in-test > invalid(16): import test from 'node:test';\ntest('parent', t => {\n\tt.test('child', {skip: process.chdir('fixtures')}, () => {});\n}); 2`] = `
+exports[`no-process-chdir-in-test > invalid(18): import test from 'node:test';\ntest('parent', t => {\n\tt.test('child', {skip: process.chdir('fixtures')}, () => {});\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -158,7 +194,7 @@ Message:
 
 `;
 
-exports[`no-process-chdir-in-test > invalid(17): import test from 'node:test';\ntest('changes directory', t => {\n\tprocess?.chdir('fixtures');\n}); 1`] = `
+exports[`no-process-chdir-in-test > invalid(19): import test from 'node:test';\ntest('changes directory', t => {\n\tprocess?.chdir('fixtures');\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('changes directory', t => {
@@ -167,53 +203,13 @@ exports[`no-process-chdir-in-test > invalid(17): import test from 'node:test';\n
 
 `;
 
-exports[`no-process-chdir-in-test > invalid(17): import test from 'node:test';\ntest('changes directory', t => {\n\tprocess?.chdir('fixtures');\n}); 2`] = `
+exports[`no-process-chdir-in-test > invalid(19): import test from 'node:test';\ntest('changes directory', t => {\n\tprocess?.chdir('fixtures');\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
   2 | test('changes directory', t => {
 > 3 | 	process?.chdir('fixtures');
     | 	^^^^^^^^^^^^^^ Do not call \`process.chdir()\` inside a test. Use absolute paths instead.
-  4 | });
-
-`;
-
-exports[`no-process-chdir-in-test > invalid(18): import test from 'node:test';\ntest('changes directory', t => {\n\tprocess.chdir?.('fixtures');\n}); 1`] = `
-
-  1 | import test from 'node:test';
-  2 | test('changes directory', t => {
-  3 | 	process.chdir?.('fixtures');
-  4 | });
-
-`;
-
-exports[`no-process-chdir-in-test > invalid(18): import test from 'node:test';\ntest('changes directory', t => {\n\tprocess.chdir?.('fixtures');\n}); 2`] = `
-
-Message:
-  1 | import test from 'node:test';
-  2 | test('changes directory', t => {
-> 3 | 	process.chdir?.('fixtures');
-    | 	^^^^^^^^^^^^^ Do not call \`process.chdir()\` inside a test. Use absolute paths instead.
-  4 | });
-
-`;
-
-exports[`no-process-chdir-in-test > invalid(19): import test from 'node:test';\ntest('changes directory', t => {\n\t(process as NodeJS.Process).chdir('fixtures');\n}); 1`] = `
-
-  1 | import test from 'node:test';
-  2 | test('changes directory', t => {
-  3 | 	(process as NodeJS.Process).chdir('fixtures');
-  4 | });
-
-`;
-
-exports[`no-process-chdir-in-test > invalid(19): import test from 'node:test';\ntest('changes directory', t => {\n\t(process as NodeJS.Process).chdir('fixtures');\n}); 2`] = `
-
-Message:
-  1 | import test from 'node:test';
-  2 | test('changes directory', t => {
-> 3 | 	(process as NodeJS.Process).chdir('fixtures');
-    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not call \`process.chdir()\` inside a test. Use absolute paths instead.
   4 | });
 
 `;
@@ -238,7 +234,47 @@ Message:
 
 `;
 
-exports[`no-process-chdir-in-test > invalid(20): import test from 'node:test';\ntest('changes directory', t => {\n\t(process.chdir as typeof process.chdir)('fixtures');\n}); 1`] = `
+exports[`no-process-chdir-in-test > invalid(20): import test from 'node:test';\ntest('changes directory', t => {\n\tprocess.chdir?.('fixtures');\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('changes directory', t => {
+  3 | 	process.chdir?.('fixtures');
+  4 | });
+
+`;
+
+exports[`no-process-chdir-in-test > invalid(20): import test from 'node:test';\ntest('changes directory', t => {\n\tprocess.chdir?.('fixtures');\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('changes directory', t => {
+> 3 | 	process.chdir?.('fixtures');
+    | 	^^^^^^^^^^^^^ Do not call \`process.chdir()\` inside a test. Use absolute paths instead.
+  4 | });
+
+`;
+
+exports[`no-process-chdir-in-test > invalid(21): import test from 'node:test';\ntest('changes directory', t => {\n\t(process as NodeJS.Process).chdir('fixtures');\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('changes directory', t => {
+  3 | 	(process as NodeJS.Process).chdir('fixtures');
+  4 | });
+
+`;
+
+exports[`no-process-chdir-in-test > invalid(21): import test from 'node:test';\ntest('changes directory', t => {\n\t(process as NodeJS.Process).chdir('fixtures');\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('changes directory', t => {
+> 3 | 	(process as NodeJS.Process).chdir('fixtures');
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not call \`process.chdir()\` inside a test. Use absolute paths instead.
+  4 | });
+
+`;
+
+exports[`no-process-chdir-in-test > invalid(22): import test from 'node:test';\ntest('changes directory', t => {\n\t(process.chdir as typeof process.chdir)('fixtures');\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('changes directory', t => {
@@ -247,7 +283,7 @@ exports[`no-process-chdir-in-test > invalid(20): import test from 'node:test';\n
 
 `;
 
-exports[`no-process-chdir-in-test > invalid(20): import test from 'node:test';\ntest('changes directory', t => {\n\t(process.chdir as typeof process.chdir)('fixtures');\n}); 2`] = `
+exports[`no-process-chdir-in-test > invalid(22): import test from 'node:test';\ntest('changes directory', t => {\n\t(process.chdir as typeof process.chdir)('fixtures');\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -258,7 +294,7 @@ Message:
 
 `;
 
-exports[`no-process-chdir-in-test > invalid(21): import test from 'node:test';\ntest('changes directory', t => {\n\tprocess!.chdir('fixtures');\n}); 1`] = `
+exports[`no-process-chdir-in-test > invalid(23): import test from 'node:test';\ntest('changes directory', t => {\n\tprocess!.chdir('fixtures');\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('changes directory', t => {
@@ -267,7 +303,7 @@ exports[`no-process-chdir-in-test > invalid(21): import test from 'node:test';\n
 
 `;
 
-exports[`no-process-chdir-in-test > invalid(21): import test from 'node:test';\ntest('changes directory', t => {\n\tprocess!.chdir('fixtures');\n}); 2`] = `
+exports[`no-process-chdir-in-test > invalid(23): import test from 'node:test';\ntest('changes directory', t => {\n\tprocess!.chdir('fixtures');\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -275,6 +311,60 @@ Message:
 > 3 | 	process!.chdir('fixtures');
     | 	^^^^^^^^^^^^^^ Do not call \`process.chdir()\` inside a test. Use absolute paths instead.
   4 | });
+
+`;
+
+exports[`no-process-chdir-in-test > invalid(24): import test from 'node:test';\nconst body = () => { process.chdir('fixtures'); };\ntest('changes directory', body); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | const body = () => { process.chdir('fixtures'); };
+  3 | test('changes directory', body);
+
+`;
+
+exports[`no-process-chdir-in-test > invalid(24): import test from 'node:test';\nconst body = () => { process.chdir('fixtures'); };\ntest('changes directory', body); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | const body = () => { process.chdir('fixtures'); };
+    |                      ^^^^^^^^^^^^^ Do not call \`process.chdir()\` inside a test. Use absolute paths instead.
+  3 | test('changes directory', body);
+
+`;
+
+exports[`no-process-chdir-in-test > invalid(25): import test from 'node:test';\ntest('changes directory', body);\nfunction body() { process.chdir('fixtures'); } 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('changes directory', body);
+  3 | function body() { process.chdir('fixtures'); }
+
+`;
+
+exports[`no-process-chdir-in-test > invalid(25): import test from 'node:test';\ntest('changes directory', body);\nfunction body() { process.chdir('fixtures'); } 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('changes directory', body);
+> 3 | function body() { process.chdir('fixtures'); }
+    |                   ^^^^^^^^^^^^^ Do not call \`process.chdir()\` inside a test. Use absolute paths instead.
+
+`;
+
+exports[`no-process-chdir-in-test > invalid(26): import test from 'node:test';\nfunction body() { process.chdir('fixtures'); }\ntest('parent', t => { t.test('changes directory', body); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | function body() { process.chdir('fixtures'); }
+  3 | test('parent', t => { t.test('changes directory', body); });
+
+`;
+
+exports[`no-process-chdir-in-test > invalid(26): import test from 'node:test';\nfunction body() { process.chdir('fixtures'); }\ntest('parent', t => { t.test('changes directory', body); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | function body() { process.chdir('fixtures'); }
+    |                   ^^^^^^^^^^^^^ Do not call \`process.chdir()\` inside a test. Use absolute paths instead.
+  3 | test('parent', t => { t.test('changes directory', body); });
 
 `;
 
@@ -298,14 +388,54 @@ Message:
 
 `;
 
-exports[`no-process-chdir-in-test > invalid(4): import {it} from 'node:test';\nit('changes directory', () => { process.chdir('fixtures'); }); 1`] = `
+exports[`no-process-chdir-in-test > invalid(4): import test from 'node:test';\ntest('changes directory', t => {\n\t(globalThis as any).process.chdir('fixtures');\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('changes directory', t => {
+  3 | 	(globalThis as any).process.chdir('fixtures');
+  4 | });
+
+`;
+
+exports[`no-process-chdir-in-test > invalid(4): import test from 'node:test';\ntest('changes directory', t => {\n\t(globalThis as any).process.chdir('fixtures');\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('changes directory', t => {
+> 3 | 	(globalThis as any).process.chdir('fixtures');
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not call \`process.chdir()\` inside a test. Use absolute paths instead.
+  4 | });
+
+`;
+
+exports[`no-process-chdir-in-test > invalid(5): import test from 'node:test';\ntest('changes directory', t => {\n\tglobalThis!.process.chdir('fixtures');\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('changes directory', t => {
+  3 | 	globalThis!.process.chdir('fixtures');
+  4 | });
+
+`;
+
+exports[`no-process-chdir-in-test > invalid(5): import test from 'node:test';\ntest('changes directory', t => {\n\tglobalThis!.process.chdir('fixtures');\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('changes directory', t => {
+> 3 | 	globalThis!.process.chdir('fixtures');
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^ Do not call \`process.chdir()\` inside a test. Use absolute paths instead.
+  4 | });
+
+`;
+
+exports[`no-process-chdir-in-test > invalid(6): import {it} from 'node:test';\nit('changes directory', () => { process.chdir('fixtures'); }); 1`] = `
 
   1 | import {it} from 'node:test';
   2 | it('changes directory', () => { process.chdir('fixtures'); });
 
 `;
 
-exports[`no-process-chdir-in-test > invalid(4): import {it} from 'node:test';\nit('changes directory', () => { process.chdir('fixtures'); }); 2`] = `
+exports[`no-process-chdir-in-test > invalid(6): import {it} from 'node:test';\nit('changes directory', () => { process.chdir('fixtures'); }); 2`] = `
 
 Message:
   1 | import {it} from 'node:test';
@@ -314,14 +444,14 @@ Message:
 
 `;
 
-exports[`no-process-chdir-in-test > invalid(5): import * as nodeTest from 'node:test';\nnodeTest.test('changes directory', () => { process.chdir('fixtures'); }); 1`] = `
+exports[`no-process-chdir-in-test > invalid(7): import * as nodeTest from 'node:test';\nnodeTest.test('changes directory', () => { process.chdir('fixtures'); }); 1`] = `
 
   1 | import * as nodeTest from 'node:test';
   2 | nodeTest.test('changes directory', () => { process.chdir('fixtures'); });
 
 `;
 
-exports[`no-process-chdir-in-test > invalid(5): import * as nodeTest from 'node:test';\nnodeTest.test('changes directory', () => { process.chdir('fixtures'); }); 2`] = `
+exports[`no-process-chdir-in-test > invalid(7): import * as nodeTest from 'node:test';\nnodeTest.test('changes directory', () => { process.chdir('fixtures'); }); 2`] = `
 
 Message:
   1 | import * as nodeTest from 'node:test';
@@ -330,14 +460,14 @@ Message:
 
 `;
 
-exports[`no-process-chdir-in-test > invalid(6): import test from 'node:test';\ntest.only('changes directory', () => { process.chdir('fixtures'); }); 1`] = `
+exports[`no-process-chdir-in-test > invalid(8): import test from 'node:test';\ntest.only('changes directory', () => { process.chdir('fixtures'); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test.only('changes directory', () => { process.chdir('fixtures'); });
 
 `;
 
-exports[`no-process-chdir-in-test > invalid(6): import test from 'node:test';\ntest.only('changes directory', () => { process.chdir('fixtures'); }); 2`] = `
+exports[`no-process-chdir-in-test > invalid(8): import test from 'node:test';\ntest.only('changes directory', () => { process.chdir('fixtures'); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -346,54 +476,18 @@ Message:
 
 `;
 
-exports[`no-process-chdir-in-test > invalid(7): import test from 'node:test';\ntest.test('changes directory', () => { process.chdir('fixtures'); }); 1`] = `
+exports[`no-process-chdir-in-test > invalid(9): import test from 'node:test';\ntest.test('changes directory', () => { process.chdir('fixtures'); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test.test('changes directory', () => { process.chdir('fixtures'); });
 
 `;
 
-exports[`no-process-chdir-in-test > invalid(7): import test from 'node:test';\ntest.test('changes directory', () => { process.chdir('fixtures'); }); 2`] = `
+exports[`no-process-chdir-in-test > invalid(9): import test from 'node:test';\ntest.test('changes directory', () => { process.chdir('fixtures'); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
 > 2 | test.test('changes directory', () => { process.chdir('fixtures'); });
     |                                        ^^^^^^^^^^^^^ Do not call \`process.chdir()\` inside a test. Use absolute paths instead.
-
-`;
-
-exports[`no-process-chdir-in-test > invalid(8): import process from 'node:process';\nimport test from 'node:test';\ntest('changes directory', () => { process.chdir('fixtures'); }); 1`] = `
-
-  1 | import process from 'node:process';
-  2 | import test from 'node:test';
-  3 | test('changes directory', () => { process.chdir('fixtures'); });
-
-`;
-
-exports[`no-process-chdir-in-test > invalid(8): import process from 'node:process';\nimport test from 'node:test';\ntest('changes directory', () => { process.chdir('fixtures'); }); 2`] = `
-
-Message:
-  1 | import process from 'node:process';
-  2 | import test from 'node:test';
-> 3 | test('changes directory', () => { process.chdir('fixtures'); });
-    |                                   ^^^^^^^^^^^^^ Do not call \`process.chdir()\` inside a test. Use absolute paths instead.
-
-`;
-
-exports[`no-process-chdir-in-test > invalid(9): import * as nodeProcess from 'process';\nimport test from 'node:test';\ntest('changes directory', () => { nodeProcess.chdir('fixtures'); }); 1`] = `
-
-  1 | import * as nodeProcess from 'process';
-  2 | import test from 'node:test';
-  3 | test('changes directory', () => { nodeProcess.chdir('fixtures'); });
-
-`;
-
-exports[`no-process-chdir-in-test > invalid(9): import * as nodeProcess from 'process';\nimport test from 'node:test';\ntest('changes directory', () => { nodeProcess.chdir('fixtures'); }); 2`] = `
-
-Message:
-  1 | import * as nodeProcess from 'process';
-  2 | import test from 'node:test';
-> 3 | test('changes directory', () => { nodeProcess.chdir('fixtures'); });
-    |                                   ^^^^^^^^^^^^^^^^^ Do not call \`process.chdir()\` inside a test. Use absolute paths instead.
 
 `;

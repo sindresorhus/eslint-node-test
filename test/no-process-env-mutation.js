@@ -192,5 +192,13 @@ test.snapshot({
 			code: inTest('Object.assign(process.env as NodeJS.ProcessEnv, values);'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		'// A body the call names out of line is the subtest\'s body\n'
+		+ 'import {test} from \'node:test\';\n'
+		+ 'const body = () => {\n'
+		+ '\tprocess.env.X = \'1\';\n'
+		+ '};\n'
+		+ 'test(\'a\', t => {\n'
+		+ '\tt.test(\'sub\', body);\n'
+		+ '});',
 	],
 });

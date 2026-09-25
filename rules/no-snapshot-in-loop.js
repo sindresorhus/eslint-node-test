@@ -4,10 +4,12 @@ import {
 	createContextTracker,
 	getCalleeChain,
 	getFirstContextParameter,
+	getOutOfLineCallbackCall,
+	getRegistrationKind,
 	isGetTestContextCall,
 } from './utils/node-test.js';
 import {isLoop, isFunction} from './ast/index.js';
-import {unwrapExpression} from './utils/index.js';
+import {getEnclosingFunction, unwrapExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'no-snapshot-in-loop';
 
@@ -15,30 +17,8 @@ const messages = {
 	[MESSAGE_ID]: 'Do not use positional snapshots inside loops. Changing the iteration count shifts every following snapshot.',
 };
 
-function isInCurrentCallback(node, tracker) {
-	const callback = tracker.currentCallback();
-	if (!callback) {
-		return false;
-	}
-
-	let current = node.parent;
-	while (current) {
-		if (current === callback) {
-			return true;
-		}
-
-		if (isFunction(current)) {
-			return false;
-		}
-
-		current = current.parent;
-	}
-
-	return false;
-}
-
-function isCurrentContextReference(node, tracker, sourceCode) {
-	const parameter = getFirstContextParameter(tracker.currentCallback()?.params);
+function isCurrentContextReference(node, callback, sourceCode) {
+	const parameter = getFirstContextParameter(callback.params);
 	if (
 		!parameter
 		|| node.name !== parameter.name
@@ -71,19 +51,39 @@ function isGetTestContextSnapshotCall(node, imports) {
 		&& isGetTestContextCall(unwrapExpression(assert.object), imports);
 }
 
-function isCurrentContextSnapshotCall(node, tracker, sourceCode, imports) {
+/*
+The test callback a snapshot call sits directly in: the tracked one, or a test body the call names out of line (`test('a', body)`), which is entered where it is declared, outside the call's frame, so it is resolved from its binding instead.
+*/
+function getEnclosingTestCallback(node, tracker, context, imports) {
+	const callback = getEnclosingFunction(node);
+	if (!callback) {
+		return;
+	}
+
+	if (
+		callback === tracker.currentCallback()
+		|| getRegistrationKind(getOutOfLineCallbackCall(callback, context, imports), imports, context) === 'test'
+	) {
+		return callback;
+	}
+}
+
+function isCurrentContextSnapshotCall(node, tracker, context, imports) {
 	if (isGetTestContextSnapshotCall(node, imports)) {
-		return isInCurrentCallback(node, tracker);
+		return getEnclosingTestCallback(node, tracker, context, imports) !== undefined;
 	}
 
 	const chain = getCalleeChain(node.callee);
-	return (
-		chain?.members.length === 2
-		&& chain.members[0].name === 'assert'
-		&& chain.members[1].name === 'snapshot'
-		&& isInCurrentCallback(node, tracker)
-		&& isCurrentContextReference(chain.root, tracker, sourceCode)
-	);
+	if (
+		chain?.members.length !== 2
+		|| chain.members[0].name !== 'assert'
+		|| chain.members[1].name !== 'snapshot'
+	) {
+		return false;
+	}
+
+	const callback = getEnclosingTestCallback(node, tracker, context, imports);
+	return callback !== undefined && isCurrentContextReference(chain.root, callback, context.sourceCode);
 }
 
 function isInLoopBody(node) {
@@ -111,7 +111,6 @@ function isInLoopBody(node) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {sourceCode} = context;
 	const imports = resolveImports(context);
 	if (!imports.isTestFile) {
 		return;
@@ -123,7 +122,7 @@ const create = context => {
 		let problem;
 
 		if (
-			isCurrentContextSnapshotCall(node, tracker, sourceCode, imports)
+			isCurrentContextSnapshotCall(node, tracker, context, imports)
 			&& isInLoopBody(node)
 		) {
 			problem = {

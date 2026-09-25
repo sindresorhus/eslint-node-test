@@ -114,5 +114,9 @@ test.snapshot({
 			code: 'import test from "node:test";\ntest("a" satisfies string, () => {});\ntest("a" satisfies string, () => {});',
 			languageOptions: {parser: parsers.typescript},
 		},
+		'// A computed key that folds to a constant cannot hide `name`, so both tests are named `dup`\n'
+		+ 'import {test} from \'node:test\';\n'
+		+ 'test(\'dup\', {skip: true}, () => {});\n'
+		+ 'test(\'dup\', {[\'skip\']: true}, () => {});',
 	],
 });

@@ -3,8 +3,9 @@ import {
 	parseTestCall,
 	getTestCallback,
 	getOutOfLineCallbackCall,
-	getSubtestReceiver,
+	getRegistrationKind,
 } from './utils/node-test.js';
+import {functionTypes} from './ast/index.js';
 
 const MESSAGE_ID = 'no-nested-tests/error';
 
@@ -62,12 +63,11 @@ const create = context => {
 	// the call's own frame does not cover, so a test inside it is still nested in that test. Only a test
 	// body nests: a suite or a hook body legitimately holds tests and suites, exactly as its inline
 	// spelling does.
-	const functionTypes = ['FunctionExpression', 'ArrowFunctionExpression', 'FunctionDeclaration'];
 	const outOfLineCallbacks = new WeakSet();
 
 	context.on(functionTypes, node => {
 		const call = getOutOfLineCallbackCall(node, context, imports);
-		if (!call || (parseTestCall(call, imports)?.kind !== 'test' && getSubtestReceiver(call) === undefined)) {
+		if (getRegistrationKind(call, imports) !== 'test') {
 			return;
 		}
 

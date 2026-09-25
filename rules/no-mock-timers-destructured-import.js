@@ -4,6 +4,7 @@ import {
 	createContextTracker,
 	isGetTestContextCall,
 	isGlobalMock,
+	getImportSpecifierName,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 import {getStaticPropertyName} from './utils/is-same-reference.js';
@@ -122,8 +123,7 @@ const create = context => {
 			} else if (
 				specifier.type === 'ImportSpecifier'
 				&& specifier.importKind !== 'type'
-				&& specifier.imported.type === 'Identifier'
-				&& FUNCTION_TO_API.has(specifier.imported.name)
+				&& FUNCTION_TO_API.has(getImportSpecifierName(specifier))
 			) {
 				timerImports.push(specifier);
 			}
@@ -200,11 +200,11 @@ const create = context => {
 		}
 
 		const problems = timerImports
-			.filter(specifier => isAllEnabled || enabledApis.has(FUNCTION_TO_API.get(specifier.imported.name)))
+			.filter(specifier => isAllEnabled || enabledApis.has(FUNCTION_TO_API.get(getImportSpecifierName(specifier))))
 			.map(specifier => ({
 				node: specifier,
 				messageId: MESSAGE_ID,
-				data: {name: specifier.imported.name},
+				data: {name: getImportSpecifierName(specifier)},
 			}));
 
 		// A namespace import holds the real timer functions for every API, so any enabled timer API

@@ -66,6 +66,15 @@ test.snapshot({
 		withSetup('global.process.exit(0);'),
 		withSetup('global.process.exitCode = 1;'),
 		withSetup('globalThis.process.exitCode++;'),
+		// A TypeScript wrapper on `globalThis` is erased at runtime
+		{
+			code: withSetup('(globalThis as any).process.exit(1);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withSetup('globalThis!.process.exit(1);'),
+			languageOptions: {parser: parsers.typescript},
+		},
 
 		// Import shapes that mark a file as a `node:test` file
 		'import test from \'node:test\';\nprocess.exit(0);',

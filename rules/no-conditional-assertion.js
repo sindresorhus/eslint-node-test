@@ -3,10 +3,12 @@ import {
 	parseTestCall,
 	getTestCallback,
 	getOutOfLineCallbackCall,
+	getRegistrationKind,
 	parseSupportedAssertionCall,
 	createContextTracker,
 } from './utils/node-test.js';
 import isConditionalBranch from './utils/is-conditional-branch.js';
+import {functionTypes} from './ast/index.js';
 
 const MESSAGE_ID = 'no-conditional-assertion/error';
 
@@ -45,11 +47,10 @@ const create = context => {
 
 	// A callback the call names out of line is entered where it is declared, which the call's own frame
 	// does not cover, so an assertion in it was checked against no scope at all.
-	const functionTypes = ['FunctionExpression', 'ArrowFunctionExpression', 'FunctionDeclaration'];
 
 	context.on(functionTypes, node => {
-		const call = getOutOfLineCallbackCall(node, context, imports);
-		const kind = call && parseTestCall(call, imports)?.kind;
+		const call = getOutOfLineCallbackCall(node, context, imports, tracker.isContextReceiver);
+		const kind = getRegistrationKind(call, imports, tracker.isContextReceiver);
 		if (kind !== 'test' && kind !== 'hook') {
 			return;
 		}

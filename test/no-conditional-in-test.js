@@ -52,6 +52,8 @@ test.snapshot({
 		// A helper the test body calls is a separate case
 		withImport('const body = () => {\n\tif (x) {\n\t\tf();\n\t}\n};\ntest("x", () => { body(); });'),
 		withImport('function helper() {\n\tif (x) {\n\t\tf();\n\t}\n}\ntest("x", () => { helper(); });'),
+		'// A hook callback is only ever its first argument, so a dead one runs nothing\nimport {beforeEach} from \'node:test\';\nbeforeEach({}, () => {\n	if (x) {\n		doSomething();\n	}\n});',
+		'import {beforeEach} from \'node:test\';\nbeforeEach({fn: () => {\n	if (x) {\n		doSomething();\n	}\n}});',
 	],
 	invalid: [
 		// A conditional in an argument of a call the test body runs is the body's own logic
@@ -126,5 +128,6 @@ test.snapshot({
 		withImport('function body() {\n\tif (x) {\n\t\tf();\n\t}\n}\ntest("x", body);'),
 		withImport('const body = () => {\n\tif (x) {\n\t\tf();\n\t}\n};\ntest("x", body);'),
 		'import {before} from \'node:test\';\nbefore(setup);\nfunction setup() {\n\tif (x) {\n\t\tf();\n\t}\n}',
+		'// A body the call names out of line is the subtest\'s body\nimport {test} from \'node:test\';\nconst body = () => {\n	if (x) {}\n};\ntest(\'a\', t => {\n	t.test(\'sub\', body);\n});',
 	],
 });

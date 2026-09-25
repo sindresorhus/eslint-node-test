@@ -679,16 +679,17 @@ export function getContextParameterIdentifier(parameter) {
 const isTypeScriptThisParameter = parameter => parameter.type === 'Identifier' && parameter.name === 'this';
 
 /*
-The first parameter of a callback that the compiled function still has, or `undefined` when it has
-none. A TypeScript `this` parameter is erased at compile time, so it takes no argument slot.
+The parameter at `index` that the compiled function still has, or `undefined` when it has fewer.
+A TypeScript `this` parameter is erased at compile time, so it takes no argument slot.
 */
-function getFirstRuntimeParameter(parameters) {
-	return (parameters ?? []).find(parameter => !isTypeScriptThisParameter(parameter));
+export function getRuntimeParameter(parameters, index) {
+	return (parameters ?? [])
+		.filter(parameter => !isTypeScriptThisParameter(parameter))[index];
 }
 
 /** Get the identifier a callback binds its test context to, or `undefined`. */
 export function getFirstContextParameter(parameters) {
-	const parameter = getFirstRuntimeParameter(parameters);
+	const parameter = getRuntimeParameter(parameters, 0);
 	return parameter && getContextParameterIdentifier(parameter);
 }
 
@@ -1138,9 +1139,13 @@ export function getTestTitleNode(callExpression) {
 
 	const nameProperty = findOptionsProperty(options, 'name');
 	// `findOptionsProperty` answers `undefined` both when there is no `name` and when a later spread
-	// or computed key could have added or replaced one. Only the former may fall back to the
-	// positional title; `node:test` still prefers `options.name` over it either way.
-	if (!nameProperty && options.properties.some(property => property.type === 'SpreadElement' || property.computed)) {
+	// or an uninspectable computed key could have added or replaced one. Only the former may fall
+	// back to the positional title; `node:test` still prefers `options.name` over it either way. A
+	// computed key that folds to a constant names the same property a plain one does, so
+	// `{['skip']: true}` cannot hide a name and does not throw the title away.
+	if (!nameProperty && options.properties.some(property =>
+		property.type === 'SpreadElement'
+		|| (property.computed && getStaticPropertyName(property) === undefined))) {
 		return undefined;
 	}
 
@@ -1344,7 +1349,7 @@ A method's name comes from the property it was destructured from, not from the l
 export function getDestructuredAssertBindings(callback, imports) {
 	// A TypeScript `this` parameter is erased at compile time, so the pattern that binds `assert` is
 	// the next one along, the same way `getFirstContextParameter` reads it everywhere else.
-	const parameter = getFirstRuntimeParameter(callback.params);
+	const parameter = getRuntimeParameter(callback.params, 0);
 	if (parameter?.type !== 'ObjectPattern') {
 		return new Map();
 	}
@@ -1534,6 +1539,39 @@ export function isEnabledPlanCount(staticValue) {
 }
 
 /**
+The kind of callback a registration call runs, or `undefined` when the call is not a registration.
+
+A subtest (`t.test(…)`) and a context hook (`t.beforeEach(…)`) are method calls rather than imported
+bindings, so telling them from an unrelated method call of the same shape needs `isContextReceiver`,
+which is the tracker's `isContextReceiver`. A subtest is recognised structurally, the way
+`getSubtestReceiver` already recognises it elsewhere.
+*/
+export function getRegistrationKind(call, imports, isContextReceiver) {
+	if (!call) {
+		return undefined;
+	}
+
+	const parsed = parseTestCall(call, imports);
+	if (parsed?.kind === 'hook' && parsed.modifiers.length === 0) {
+		return 'hook';
+	}
+
+	if (isHookMemberTestCall(parsed)) {
+		return 'hook';
+	}
+
+	if (isContextReceiver && isContextHookCall(call, isContextReceiver)) {
+		return 'hook';
+	}
+
+	if (parsed) {
+		return parsed.kind;
+	}
+
+	return getSubtestReceiver(call) === undefined ? undefined : 'test';
+}
+
+/**
 Determine the kind (`test`/`suite`/`hook`) of the nearest enclosing test-related callback.
 
 Returns `undefined` when the nearest enclosing function is a regular function (e.g. a helper), or there is none. Subtests (`t.test(…)`) are method calls rather than imported bindings, so they are recognized structurally and classified as `'test'`. A callback the call names out of line (`test('a', body)`) is recognized by resolving the binding back to the call.
@@ -1550,31 +1588,8 @@ export function nearestTestCallbackKind(node, imports, isContextReceiver, contex
 				|| getTestCallback(call, imports) === current
 				|| getOutOfLineCallbackCall(current, context, imports, isContextReceiver) === call
 			);
-			if (isCallback) {
-				const parsed = parseTestCall(call, imports);
-				if (parsed?.kind === 'hook' && parsed.modifiers.length === 0) {
-					return 'hook';
-				}
-
-				if (isHookMemberTestCall(parsed)) {
-					return 'hook';
-				}
-
-				if (isContextReceiver && isContextHookCall(call, isContextReceiver)) {
-					return 'hook';
-				}
-
-				if (parsed) {
-					return parsed.kind;
-				}
-
-				if (getSubtestReceiver(call) !== undefined) {
-					return 'test';
-				}
-			}
-
 			// Inside some other function — not directly in a test/suite/hook body.
-			return undefined;
+			return isCallback ? getRegistrationKind(call, imports, isContextReceiver) : undefined;
 		}
 
 		current = current.parent;

@@ -76,6 +76,10 @@ test.snapshot({
 		// Destructured setTimeout + enable all
 		head + 'import {setTimeout} from \'node:timers\';\nmock.timers.enable();',
 
+		// A string-literal name is the same export, and `mock.timers` cannot intercept it either
+		head + 'import {\'setTimeout\' as st} from \'node:timers\';\nmock.timers.enable();',
+		head + 'import {\'setImmediate\' as si} from \'node:timers\';\nmock.timers.enable({apis: [\'setImmediate\']});',
+
 		// Specific api enabled
 		head + 'import {setTimeout} from \'node:timers\';\nmock.timers.enable({apis: ["setTimeout"]});',
 
@@ -171,5 +175,6 @@ test.snapshot({
 			code: `${head}import {setTimeout} from 'node:timers';\ntest('a', () => { (mock!.timers).enable({apis: ['setTimeout']}); setTimeout(f, 1); });`,
 			languageOptions: {parser: parsers.typescript},
 		},
+
 	],
 });

@@ -6,6 +6,7 @@ import {
 	getHookCallback,
 	getTestCallback,
 	getOutOfLineCallbackCall,
+	getRegistrationKind,
 	getTestOptions,
 	getFirstContextParameter,
 	findEnabledOptionsProperty,
@@ -13,10 +14,11 @@ import {
 	isHookMemberTestCall,
 	isSubtestCall,
 	MODIFIERS,
+	getImportSpecifierName,
 } from './utils/node-test.js';
 import {hasEnabledSkipOption} from './shared/skipped-test.js';
 import {getEnclosingFunction, unwrapExpression} from './utils/index.js';
-import {isFunction} from './ast/index.js';
+import {functionTypes, isFunction} from './ast/index.js';
 
 const MESSAGE_ID = 'no-sleep-in-test';
 
@@ -138,11 +140,7 @@ function getTimerImportBindings(sourceCode) {
 		}
 
 		for (const specifier of node.specifiers) {
-			if (
-				specifier.type === 'ImportSpecifier'
-				&& specifier.imported.type === 'Identifier'
-				&& specifier.imported.name === 'setTimeout'
-			) {
+			if (specifier.type === 'ImportSpecifier' && getImportSpecifierName(specifier) === 'setTimeout') {
 				const variable = findVariable(sourceCode.getScope(specifier.local), specifier.local);
 				if (variable) {
 					(isPromiseTimerModule ? promiseNamed : named).add(variable);
@@ -446,13 +444,13 @@ const create = context => {
 
 	// A test body the call names out of line is entered where it is declared, which the call's own
 	// frame does not cover, so a sleep in it sat outside every tracked scope.
-	const functionTypes = ['FunctionExpression', 'ArrowFunctionExpression', 'FunctionDeclaration'];
 	const outOfLineTestBodies = new WeakSet();
 
 	context.on(functionTypes, node => {
 		const call = getOutOfLineCallbackCall(node, context, imports);
-		const kind = call && parseTestCall(call, imports)?.kind;
-		if (kind !== 'test' && kind !== 'hook') {
+		// The body is only ever run when the test is not skipped, exactly as the inline path checks.
+		const kind = getRegistrationKind(call, imports);
+		if ((kind !== 'test' && kind !== 'hook') || hasInactiveTestOptions(call, context)) {
 			return;
 		}
 

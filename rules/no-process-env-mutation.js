@@ -6,6 +6,7 @@ import {
 	isGetTestContextSubtestCall,
 	getTestCallback,
 	getOutOfLineCallbackCall,
+	getRegistrationKind,
 	getFirstContextParameter,
 	MODIFIERS,
 	getImportSpecifierName,
@@ -16,6 +17,7 @@ import {
 	getGlobalProcessObject,
 	isUnshadowedGlobal,
 } from './utils/index.js';
+import {functionTypes} from './ast/index.js';
 
 const MESSAGE_ID = 'no-process-env-mutation';
 
@@ -316,7 +318,6 @@ const create = context => {
 
 	// A test body the call names out of line is entered where it is declared, which the call's own
 	// frame does not cover, so a mutation in it sat outside every tracked scope.
-	const functionTypes = ['FunctionExpression', 'ArrowFunctionExpression', 'FunctionDeclaration'];
 	const outOfLineTestBodies = new WeakSet();
 
 	const enterOutOfLineTestBody = node => {
@@ -325,8 +326,10 @@ const create = context => {
 			return;
 		}
 
+		// The kind comes from the shared classifier, so a subtest counts as a test too. Only an
+		// imported call has modifiers to check, which a subtest never does.
 		const parsed = parseTestCall(call, imports);
-		if (parsed?.kind !== 'test' || parsed.modifiers.some(modifier => !MODIFIERS.has(modifier.name))) {
+		if (getRegistrationKind(call, imports) !== 'test' || parsed?.modifiers.some(modifier => !MODIFIERS.has(modifier.name))) {
 			return;
 		}
 

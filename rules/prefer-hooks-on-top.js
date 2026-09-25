@@ -8,6 +8,7 @@ import {
 	getContextHookName,
 } from './utils/node-test.js';
 import {getEnclosingFunction} from './utils/index.js';
+import {functionTypes} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-hooks-on-top';
 
@@ -77,7 +78,6 @@ const create = context => {
 
 	// A callback the call names out of line (`describe('s', body)`) is entered where it is declared,
 	// which the call's own scope does not cover, so a hook after a test in it is still out of order.
-	const functionTypes = ['FunctionExpression', 'ArrowFunctionExpression', 'FunctionDeclaration'];
 	const outOfLineCallbacks = new WeakSet();
 
 	context.on(functionTypes, node => {

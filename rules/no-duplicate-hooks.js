@@ -8,6 +8,7 @@ import {
 	isContextHookCall,
 	getContextHookName,
 } from './utils/node-test.js';
+import {functionTypes} from './ast/index.js';
 
 const MESSAGE_ID = 'no-duplicate-hooks';
 
@@ -91,7 +92,6 @@ const create = context => {
 
 	// A callback the call names out of line (`describe('s', body)`) is entered where it is declared,
 	// which the call's own scope does not cover, so its hooks are scoped to that suite as well.
-	const functionTypes = ['FunctionExpression', 'ArrowFunctionExpression', 'FunctionDeclaration'];
 	const outOfLineCallbacks = new WeakSet();
 
 	context.on(functionTypes, node => {

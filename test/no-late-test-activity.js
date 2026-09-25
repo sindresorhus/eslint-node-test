@@ -218,5 +218,8 @@ test.snapshot({
 		'import test from \'node:test\';\nimport assert from \'node:assert\';\n'
 		+ 'import timers from \'node:timers\';\n'
 		+ 'test(\'t\', () => { timers.setImmediate(() => { assert.ok(x); }); });',
+
+		// A string-literal name is the same export, so the scheduler is the same detached one
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\nimport {\'setImmediate\' as si} from \'node:timers\';\ntest(\'a\', () => { new Promise(resolve => { si(() => assert.ok(1)); }); });',
 	],
 });

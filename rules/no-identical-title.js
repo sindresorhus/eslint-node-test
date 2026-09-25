@@ -7,6 +7,7 @@ import {
 	createContextTracker,
 	isOutOfLineCallback,
 } from './utils/node-test.js';
+import {functionTypes} from './ast/index.js';
 
 const MESSAGE_ID = 'no-identical-title/duplicate';
 
@@ -81,7 +82,6 @@ const create = context => {
 
 	// Push/pop a scope around each suite or test callback body, including one the call names out of
 	// line (`test('a', body)`), which the traversal reaches wherever it is declared.
-	const functionTypes = ['FunctionExpression', 'ArrowFunctionExpression', 'FunctionDeclaration'];
 
 	const opensScope = node => scopeCallbackNodes.has(node) || isOutOfLineCallback(node, context, imports);
 

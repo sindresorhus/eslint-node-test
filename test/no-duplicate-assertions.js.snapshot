@@ -340,6 +340,38 @@ Message:
 
 `;
 
+exports[`no-duplicate-assertions > invalid(22): // A body the call names out of line is the subtest's body\nimport {test} from 'node:test';\nimport assert from 'node:assert';\nconst body = () => {\n\tassert.ok(x);\n\tassert.ok(x);\n};\ntest('a', t => {\n\tt.test('sub', body);\n}); 1`] = `
+
+   1 | // A body the call names out of line is the subtest's body
+   2 | import {test} from 'node:test';
+   3 | import assert from 'node:assert';
+   4 | const body = () => {
+   5 | 	assert.ok(x);
+   6 | 	assert.ok(x);
+   7 | };
+   8 | test('a', t => {
+   9 | 	t.test('sub', body);
+  10 | });
+
+`;
+
+exports[`no-duplicate-assertions > invalid(22): // A body the call names out of line is the subtest's body\nimport {test} from 'node:test';\nimport assert from 'node:assert';\nconst body = () => {\n\tassert.ok(x);\n\tassert.ok(x);\n};\ntest('a', t => {\n\tt.test('sub', body);\n}); 2`] = `
+
+Message:
+   1 | // A body the call names out of line is the subtest's body
+   2 | import {test} from 'node:test';
+   3 | import assert from 'node:assert';
+   4 | const body = () => {
+   5 | 	assert.ok(x);
+>  6 | 	assert.ok(x);
+     | 	^^^^^^^^^^^^^ Duplicate adjacent assertion.
+   7 | };
+   8 | test('a', t => {
+   9 | 	t.test('sub', body);
+  10 | });
+
+`;
+
 exports[`no-duplicate-assertions > invalid(3): import test from 'node:test';\nimport assert from 'node:assert';\nconst body = () => {\n\tassert.strictEqual(user.id, 1);\n\tassert.strictEqual(user.id, 1);\n};\ntest('user', body); 1`] = `
 
   1 | import test from 'node:test';

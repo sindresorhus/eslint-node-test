@@ -1,4 +1,4 @@
-import unwrapExpression from './skip-expression-wrappers.js';
+import {unwrapExpression} from './skip-expression-wrappers.js';
 
 /*
 Whether a node is the global `process` object reached through `globalThis.process` or
@@ -17,12 +17,18 @@ global `process` has to check the identifier it gets back, the way it checks its
 */
 export function getGlobalProcessObject(node) {
 	node = unwrapExpression(node);
-	return node?.type === 'MemberExpression'
-		&& !node.computed
-		&& node.property.type === 'Identifier'
-		&& node.property.name === 'process'
-		&& node.object.type === 'Identifier'
-		&& (node.object.name === 'globalThis' || node.object.name === 'global')
-		? node.object
+	if (
+		node?.type !== 'MemberExpression'
+		|| node.computed
+		|| node.property.type !== 'Identifier'
+		|| node.property.name !== 'process'
+	) {
+		return;
+	}
+
+	// The receiver is unwrapped too, so a cast or a non-null assertion reads the same as the bare form.
+	const object = unwrapExpression(node.object);
+	return object?.type === 'Identifier' && (object.name === 'globalThis' || object.name === 'global')
+		? object
 		: undefined;
 }

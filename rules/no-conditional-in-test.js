@@ -3,10 +3,12 @@ import {
 	parseTestCall,
 	getTestCallback,
 	getOutOfLineCallbackCall,
+	getRegistrationKind,
 	createContextTracker,
 	isContextHookCall,
 } from './utils/node-test.js';
 import isFunction from './ast/is-function.js';
+import {functionTypes} from './ast/index.js';
 
 const MESSAGE_ID = 'no-conditional-in-test';
 
@@ -37,7 +39,7 @@ const create = context => {
 			return;
 		}
 
-		const callback = getTestCallback(node);
+		const callback = getTestCallback(node, imports);
 		if (callback) {
 			testCallbacks.add(callback);
 		}
@@ -75,12 +77,11 @@ const create = context => {
 	// A callback the call names out of line is entered where it is declared, which the call's own frame
 	// does not cover, so a conditional in it is still inside the test body. A suite body is about test
 	// registration, so it stays excluded the way the inline form is.
-	const functionTypes = ['FunctionExpression', 'ArrowFunctionExpression', 'FunctionDeclaration'];
 	const outOfLineTestCallbacks = new WeakSet();
 
 	context.on(functionTypes, node => {
-		const call = getOutOfLineCallbackCall(node, context, imports);
-		const kind = call && parseTestCall(call, imports)?.kind;
+		const call = getOutOfLineCallbackCall(node, context, imports, tracker.isContextReceiver);
+		const kind = getRegistrationKind(call, imports, tracker.isContextReceiver);
 		if (kind !== 'test' && kind !== 'hook') {
 			return;
 		}
