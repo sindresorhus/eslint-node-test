@@ -1,22 +1,80 @@
-exports[`require-hook > invalid(1): import {test, describe, beforeEach} from 'node:test';\nstartServer();\ntest(\"x\", () => {}); 1`] = `
+exports[`require-hook > invalid(1): import {test, describe, beforeEach} from 'node:test';\n(function () {\n\tstartServer();\n})(); 1`] = `
 
   1 | import {test, describe, beforeEach} from 'node:test';
-  2 | startServer();
-  3 | test("x", () => {});
+  2 | (function () {
+  3 | 	startServer();
+  4 | })();
 
 `;
 
-exports[`require-hook > invalid(1): import {test, describe, beforeEach} from 'node:test';\nstartServer();\ntest(\"x\", () => {}); 2`] = `
+exports[`require-hook > invalid(1): import {test, describe, beforeEach} from 'node:test';\n(function () {\n\tstartServer();\n})(); 2`] = `
 
 Message:
   1 | import {test, describe, beforeEach} from 'node:test';
-> 2 | startServer();
-    | ^^^^^^^^^^^^^^ This runs when the file is loaded, not as part of a test. Move it into a \`before\`, \`beforeEach\`, \`after\`, or \`afterEach\` hook.
+> 2 | (function () {
+    | ^^^^^^^^^^^^^^
+> 3 | 	startServer();
+    | ^^^^^^^^^^^^^^^
+> 4 | })();
+    | ^^^^^ This runs when the file is loaded, not as part of a test. Move it into a \`before\`, \`beforeEach\`, \`after\`, or \`afterEach\` hook.
+
+`;
+
+exports[`require-hook > invalid(10): import {test, describe, beforeEach} from 'node:test';\nawait startServer();\ntest(\"x\", () => {}); 1`] = `
+
+  1 | import {test, describe, beforeEach} from 'node:test';
+  2 | await startServer();
   3 | test("x", () => {});
 
 `;
 
-exports[`require-hook > invalid(10): import {test, describe, beforeEach} from 'node:test';\n!startServer();\ntest(\"x\", () => {}); 1`] = `
+exports[`require-hook > invalid(10): import {test, describe, beforeEach} from 'node:test';\nawait startServer();\ntest(\"x\", () => {}); 2`] = `
+
+Message:
+  1 | import {test, describe, beforeEach} from 'node:test';
+> 2 | await startServer();
+    | ^^^^^^^^^^^^^^^^^^^^ This runs when the file is loaded, not as part of a test. Move it into a \`before\`, \`beforeEach\`, \`after\`, or \`afterEach\` hook.
+  3 | test("x", () => {});
+
+`;
+
+exports[`require-hook > invalid(11): import {test, describe, beforeEach} from 'node:test';\nawait database.connect();\ntest(\"x\", () => {}); 1`] = `
+
+  1 | import {test, describe, beforeEach} from 'node:test';
+  2 | await database.connect();
+  3 | test("x", () => {});
+
+`;
+
+exports[`require-hook > invalid(11): import {test, describe, beforeEach} from 'node:test';\nawait database.connect();\ntest(\"x\", () => {}); 2`] = `
+
+Message:
+  1 | import {test, describe, beforeEach} from 'node:test';
+> 2 | await database.connect();
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ This runs when the file is loaded, not as part of a test. Move it into a \`before\`, \`beforeEach\`, \`after\`, or \`afterEach\` hook.
+  3 | test("x", () => {});
+
+`;
+
+exports[`require-hook > invalid(12): import {test, describe, beforeEach} from 'node:test';\nvoid startServer();\ntest(\"x\", () => {}); 1`] = `
+
+  1 | import {test, describe, beforeEach} from 'node:test';
+  2 | void startServer();
+  3 | test("x", () => {});
+
+`;
+
+exports[`require-hook > invalid(12): import {test, describe, beforeEach} from 'node:test';\nvoid startServer();\ntest(\"x\", () => {}); 2`] = `
+
+Message:
+  1 | import {test, describe, beforeEach} from 'node:test';
+> 2 | void startServer();
+    | ^^^^^^^^^^^^^^^^^^^ This runs when the file is loaded, not as part of a test. Move it into a \`before\`, \`beforeEach\`, \`after\`, or \`afterEach\` hook.
+  3 | test("x", () => {});
+
+`;
+
+exports[`require-hook > invalid(13): import {test, describe, beforeEach} from 'node:test';\n!startServer();\ntest(\"x\", () => {}); 1`] = `
 
   1 | import {test, describe, beforeEach} from 'node:test';
   2 | !startServer();
@@ -24,7 +82,7 @@ exports[`require-hook > invalid(10): import {test, describe, beforeEach} from 'n
 
 `;
 
-exports[`require-hook > invalid(10): import {test, describe, beforeEach} from 'node:test';\n!startServer();\ntest(\"x\", () => {}); 2`] = `
+exports[`require-hook > invalid(13): import {test, describe, beforeEach} from 'node:test';\n!startServer();\ntest(\"x\", () => {}); 2`] = `
 
 Message:
   1 | import {test, describe, beforeEach} from 'node:test';
@@ -34,7 +92,7 @@ Message:
 
 `;
 
-exports[`require-hook > invalid(11): import {test, describe, beforeEach} from 'node:test';\nvoid database.connect();\ntest(\"x\", () => {}); 1`] = `
+exports[`require-hook > invalid(14): import {test, describe, beforeEach} from 'node:test';\nvoid database.connect();\ntest(\"x\", () => {}); 1`] = `
 
   1 | import {test, describe, beforeEach} from 'node:test';
   2 | void database.connect();
@@ -42,7 +100,7 @@ exports[`require-hook > invalid(11): import {test, describe, beforeEach} from 'n
 
 `;
 
-exports[`require-hook > invalid(11): import {test, describe, beforeEach} from 'node:test';\nvoid database.connect();\ntest(\"x\", () => {}); 2`] = `
+exports[`require-hook > invalid(14): import {test, describe, beforeEach} from 'node:test';\nvoid database.connect();\ntest(\"x\", () => {}); 2`] = `
 
 Message:
   1 | import {test, describe, beforeEach} from 'node:test';
@@ -52,14 +110,14 @@ Message:
 
 `;
 
-exports[`require-hook > invalid(12): import {test, describe, beforeEach} from 'node:test';\ndescribe(\"s\", async () => { await seedData(); test(\"x\", () => {}); }); 1`] = `
+exports[`require-hook > invalid(15): import {test, describe, beforeEach} from 'node:test';\ndescribe(\"s\", async () => { await seedData(); test(\"x\", () => {}); }); 1`] = `
 
   1 | import {test, describe, beforeEach} from 'node:test';
   2 | describe("s", async () => { await seedData(); test("x", () => {}); });
 
 `;
 
-exports[`require-hook > invalid(12): import {test, describe, beforeEach} from 'node:test';\ndescribe(\"s\", async () => { await seedData(); test(\"x\", () => {}); }); 2`] = `
+exports[`require-hook > invalid(15): import {test, describe, beforeEach} from 'node:test';\ndescribe(\"s\", async () => { await seedData(); test(\"x\", () => {}); }); 2`] = `
 
 Message:
   1 | import {test, describe, beforeEach} from 'node:test';
@@ -68,14 +126,14 @@ Message:
 
 `;
 
-exports[`require-hook > invalid(13): import {test, describe, beforeEach} from 'node:test';\ndescribe(\"s\", () => { void seedData(); test(\"x\", () => {}); }); 1`] = `
+exports[`require-hook > invalid(16): import {test, describe, beforeEach} from 'node:test';\ndescribe(\"s\", () => { void seedData(); test(\"x\", () => {}); }); 1`] = `
 
   1 | import {test, describe, beforeEach} from 'node:test';
   2 | describe("s", () => { void seedData(); test("x", () => {}); });
 
 `;
 
-exports[`require-hook > invalid(13): import {test, describe, beforeEach} from 'node:test';\ndescribe(\"s\", () => { void seedData(); test(\"x\", () => {}); }); 2`] = `
+exports[`require-hook > invalid(16): import {test, describe, beforeEach} from 'node:test';\ndescribe(\"s\", () => { void seedData(); test(\"x\", () => {}); }); 2`] = `
 
 Message:
   1 | import {test, describe, beforeEach} from 'node:test';
@@ -84,7 +142,7 @@ Message:
 
 `;
 
-exports[`require-hook > invalid(14): import {test, describe, beforeEach} from 'node:test';\nawait log(\"loaded\");\ntest(\"x\", () => {}); 1`] = `
+exports[`require-hook > invalid(17): import {test, describe, beforeEach} from 'node:test';\nawait log(\"loaded\");\ntest(\"x\", () => {}); 1`] = `
 
 Options:
 - allow:
@@ -97,7 +155,7 @@ Code:
 
 `;
 
-exports[`require-hook > invalid(14): import {test, describe, beforeEach} from 'node:test';\nawait log(\"loaded\");\ntest(\"x\", () => {}); 2`] = `
+exports[`require-hook > invalid(17): import {test, describe, beforeEach} from 'node:test';\nawait log(\"loaded\");\ntest(\"x\", () => {}); 2`] = `
 
 Message:
   1 | import {test, describe, beforeEach} from 'node:test';
@@ -107,7 +165,7 @@ Message:
 
 `;
 
-exports[`require-hook > invalid(15): import {test, describe, beforeEach} from 'node:test';\nawait server?.start();\ntest(\"x\", () => {}); 1`] = `
+exports[`require-hook > invalid(18): import {test, describe, beforeEach} from 'node:test';\nawait server?.start();\ntest(\"x\", () => {}); 1`] = `
 
   1 | import {test, describe, beforeEach} from 'node:test';
   2 | await server?.start();
@@ -115,7 +173,7 @@ exports[`require-hook > invalid(15): import {test, describe, beforeEach} from 'n
 
 `;
 
-exports[`require-hook > invalid(15): import {test, describe, beforeEach} from 'node:test';\nawait server?.start();\ntest(\"x\", () => {}); 2`] = `
+exports[`require-hook > invalid(18): import {test, describe, beforeEach} from 'node:test';\nawait server?.start();\ntest(\"x\", () => {}); 2`] = `
 
 Message:
   1 | import {test, describe, beforeEach} from 'node:test';
@@ -125,7 +183,7 @@ Message:
 
 `;
 
-exports[`require-hook > invalid(16): import {test, describe, beforeEach} from 'node:test';\nvoid server?.start();\ntest(\"x\", () => {}); 1`] = `
+exports[`require-hook > invalid(19): import {test, describe, beforeEach} from 'node:test';\nvoid server?.start();\ntest(\"x\", () => {}); 1`] = `
 
   1 | import {test, describe, beforeEach} from 'node:test';
   2 | void server?.start();
@@ -133,7 +191,7 @@ exports[`require-hook > invalid(16): import {test, describe, beforeEach} from 'n
 
 `;
 
-exports[`require-hook > invalid(16): import {test, describe, beforeEach} from 'node:test';\nvoid server?.start();\ntest(\"x\", () => {}); 2`] = `
+exports[`require-hook > invalid(19): import {test, describe, beforeEach} from 'node:test';\nvoid server?.start();\ntest(\"x\", () => {}); 2`] = `
 
 Message:
   1 | import {test, describe, beforeEach} from 'node:test';
@@ -143,7 +201,32 @@ Message:
 
 `;
 
-exports[`require-hook > invalid(17): import {test, describe, beforeEach} from 'node:test';\n!server?.start();\ntest(\"x\", () => {}); 1`] = `
+exports[`require-hook > invalid(2): import {test, describe, beforeEach} from 'node:test';\n(() => {\n\tstartServer();\n\ttest(\"x\", () => {});\n})(); 1`] = `
+
+  1 | import {test, describe, beforeEach} from 'node:test';
+  2 | (() => {
+  3 | 	startServer();
+  4 | 	test("x", () => {});
+  5 | })();
+
+`;
+
+exports[`require-hook > invalid(2): import {test, describe, beforeEach} from 'node:test';\n(() => {\n\tstartServer();\n\ttest(\"x\", () => {});\n})(); 2`] = `
+
+Message:
+  1 | import {test, describe, beforeEach} from 'node:test';
+> 2 | (() => {
+    | ^^^^^^^^
+> 3 | 	startServer();
+    | ^^^^^^^^^^^^^^^
+> 4 | 	test("x", () => {});
+    | ^^^^^^^^^^^^^^^^^^^^^
+> 5 | })();
+    | ^^^^^ This runs when the file is loaded, not as part of a test. Move it into a \`before\`, \`beforeEach\`, \`after\`, or \`afterEach\` hook.
+
+`;
+
+exports[`require-hook > invalid(20): import {test, describe, beforeEach} from 'node:test';\n!server?.start();\ntest(\"x\", () => {}); 1`] = `
 
   1 | import {test, describe, beforeEach} from 'node:test';
   2 | !server?.start();
@@ -151,7 +234,7 @@ exports[`require-hook > invalid(17): import {test, describe, beforeEach} from 'n
 
 `;
 
-exports[`require-hook > invalid(17): import {test, describe, beforeEach} from 'node:test';\n!server?.start();\ntest(\"x\", () => {}); 2`] = `
+exports[`require-hook > invalid(20): import {test, describe, beforeEach} from 'node:test';\n!server?.start();\ntest(\"x\", () => {}); 2`] = `
 
 Message:
   1 | import {test, describe, beforeEach} from 'node:test';
@@ -161,7 +244,7 @@ Message:
 
 `;
 
-exports[`require-hook > invalid(18): import {test, describe, beforeEach} from 'node:test';\ntypeof server?.start?.();\ntest(\"x\", () => {}); 1`] = `
+exports[`require-hook > invalid(21): import {test, describe, beforeEach} from 'node:test';\ntypeof server?.start?.();\ntest(\"x\", () => {}); 1`] = `
 
   1 | import {test, describe, beforeEach} from 'node:test';
   2 | typeof server?.start?.();
@@ -169,7 +252,7 @@ exports[`require-hook > invalid(18): import {test, describe, beforeEach} from 'n
 
 `;
 
-exports[`require-hook > invalid(18): import {test, describe, beforeEach} from 'node:test';\ntypeof server?.start?.();\ntest(\"x\", () => {}); 2`] = `
+exports[`require-hook > invalid(21): import {test, describe, beforeEach} from 'node:test';\ntypeof server?.start?.();\ntest(\"x\", () => {}); 2`] = `
 
 Message:
   1 | import {test, describe, beforeEach} from 'node:test';
@@ -179,7 +262,7 @@ Message:
 
 `;
 
-exports[`require-hook > invalid(19): import {test, describe, beforeEach} from 'node:test';\nawait (startServer() as Promise<void>);\ntest(\"x\", () => {}); 1`] = `
+exports[`require-hook > invalid(22): import {test, describe, beforeEach} from 'node:test';\nawait (startServer() as Promise<void>);\ntest(\"x\", () => {}); 1`] = `
 
   1 | import {test, describe, beforeEach} from 'node:test';
   2 | await (startServer() as Promise<void>);
@@ -187,7 +270,7 @@ exports[`require-hook > invalid(19): import {test, describe, beforeEach} from 'n
 
 `;
 
-exports[`require-hook > invalid(19): import {test, describe, beforeEach} from 'node:test';\nawait (startServer() as Promise<void>);\ntest(\"x\", () => {}); 2`] = `
+exports[`require-hook > invalid(22): import {test, describe, beforeEach} from 'node:test';\nawait (startServer() as Promise<void>);\ntest(\"x\", () => {}); 2`] = `
 
 Message:
   1 | import {test, describe, beforeEach} from 'node:test';
@@ -197,23 +280,7 @@ Message:
 
 `;
 
-exports[`require-hook > invalid(2): import {test, describe, beforeEach} from 'node:test';\ndescribe(\"s\", () => { seedData(); test(\"x\", () => {}); }); 1`] = `
-
-  1 | import {test, describe, beforeEach} from 'node:test';
-  2 | describe("s", () => { seedData(); test("x", () => {}); });
-
-`;
-
-exports[`require-hook > invalid(2): import {test, describe, beforeEach} from 'node:test';\ndescribe(\"s\", () => { seedData(); test(\"x\", () => {}); }); 2`] = `
-
-Message:
-  1 | import {test, describe, beforeEach} from 'node:test';
-> 2 | describe("s", () => { seedData(); test("x", () => {}); });
-    |                       ^^^^^^^^^^^ This runs when the file is loaded, not as part of a test. Move it into a \`before\`, \`beforeEach\`, \`after\`, or \`afterEach\` hook.
-
-`;
-
-exports[`require-hook > invalid(20): import {test, describe, beforeEach} from 'node:test';\nvoid (startServer() as unknown);\ntest(\"x\", () => {}); 1`] = `
+exports[`require-hook > invalid(23): import {test, describe, beforeEach} from 'node:test';\nvoid (startServer() as unknown);\ntest(\"x\", () => {}); 1`] = `
 
   1 | import {test, describe, beforeEach} from 'node:test';
   2 | void (startServer() as unknown);
@@ -221,7 +288,7 @@ exports[`require-hook > invalid(20): import {test, describe, beforeEach} from 'n
 
 `;
 
-exports[`require-hook > invalid(20): import {test, describe, beforeEach} from 'node:test';\nvoid (startServer() as unknown);\ntest(\"x\", () => {}); 2`] = `
+exports[`require-hook > invalid(23): import {test, describe, beforeEach} from 'node:test';\nvoid (startServer() as unknown);\ntest(\"x\", () => {}); 2`] = `
 
 Message:
   1 | import {test, describe, beforeEach} from 'node:test';
@@ -231,14 +298,14 @@ Message:
 
 `;
 
-exports[`require-hook > invalid(21): import {describe} from 'node:test';\ndescribe({name: 'a', fn() { setup(); }}); 1`] = `
+exports[`require-hook > invalid(24): import {describe} from 'node:test';\ndescribe({name: 'a', fn() { setup(); }}); 1`] = `
 
   1 | import {describe} from 'node:test';
   2 | describe({name: 'a', fn() { setup(); }});
 
 `;
 
-exports[`require-hook > invalid(21): import {describe} from 'node:test';\ndescribe({name: 'a', fn() { setup(); }}); 2`] = `
+exports[`require-hook > invalid(24): import {describe} from 'node:test';\ndescribe({name: 'a', fn() { setup(); }}); 2`] = `
 
 Message:
   1 | import {describe} from 'node:test';
@@ -247,14 +314,14 @@ Message:
 
 `;
 
-exports[`require-hook > invalid(22): import {describe} from 'node:test';\ndescribe('a', {fn() { setup(); }}); 1`] = `
+exports[`require-hook > invalid(25): import {describe} from 'node:test';\ndescribe('a', {fn() { setup(); }}); 1`] = `
 
   1 | import {describe} from 'node:test';
   2 | describe('a', {fn() { setup(); }});
 
 `;
 
-exports[`require-hook > invalid(22): import {describe} from 'node:test';\ndescribe('a', {fn() { setup(); }}); 2`] = `
+exports[`require-hook > invalid(25): import {describe} from 'node:test';\ndescribe('a', {fn() { setup(); }}); 2`] = `
 
 Message:
   1 | import {describe} from 'node:test';
@@ -263,14 +330,14 @@ Message:
 
 `;
 
-exports[`require-hook > invalid(23): import {suite} from 'node:test';\nsuite('a', {fn() { setup(); }}); 1`] = `
+exports[`require-hook > invalid(26): import {suite} from 'node:test';\nsuite('a', {fn() { setup(); }}); 1`] = `
 
   1 | import {suite} from 'node:test';
   2 | suite('a', {fn() { setup(); }});
 
 `;
 
-exports[`require-hook > invalid(23): import {suite} from 'node:test';\nsuite('a', {fn() { setup(); }}); 2`] = `
+exports[`require-hook > invalid(26): import {suite} from 'node:test';\nsuite('a', {fn() { setup(); }}); 2`] = `
 
 Message:
   1 | import {suite} from 'node:test';
@@ -279,7 +346,57 @@ Message:
 
 `;
 
-exports[`require-hook > invalid(3): import {test, describe, beforeEach} from 'node:test';\ndatabase.connect();\ntest(\"x\", () => {}); 1`] = `
+exports[`require-hook > invalid(3): import {test, describe, beforeEach} from 'node:test';\n[1].forEach(() => { startServer(); }); 1`] = `
+
+  1 | import {test, describe, beforeEach} from 'node:test';
+  2 | [1].forEach(() => { startServer(); });
+
+`;
+
+exports[`require-hook > invalid(3): import {test, describe, beforeEach} from 'node:test';\n[1].forEach(() => { startServer(); }); 2`] = `
+
+Message:
+  1 | import {test, describe, beforeEach} from 'node:test';
+> 2 | [1].forEach(() => { startServer(); });
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This runs when the file is loaded, not as part of a test. Move it into a \`before\`, \`beforeEach\`, \`after\`, or \`afterEach\` hook.
+
+`;
+
+exports[`require-hook > invalid(4): import {test, describe, beforeEach} from 'node:test';\nstartServer();\ntest(\"x\", () => {}); 1`] = `
+
+  1 | import {test, describe, beforeEach} from 'node:test';
+  2 | startServer();
+  3 | test("x", () => {});
+
+`;
+
+exports[`require-hook > invalid(4): import {test, describe, beforeEach} from 'node:test';\nstartServer();\ntest(\"x\", () => {}); 2`] = `
+
+Message:
+  1 | import {test, describe, beforeEach} from 'node:test';
+> 2 | startServer();
+    | ^^^^^^^^^^^^^^ This runs when the file is loaded, not as part of a test. Move it into a \`before\`, \`beforeEach\`, \`after\`, or \`afterEach\` hook.
+  3 | test("x", () => {});
+
+`;
+
+exports[`require-hook > invalid(5): import {test, describe, beforeEach} from 'node:test';\ndescribe(\"s\", () => { seedData(); test(\"x\", () => {}); }); 1`] = `
+
+  1 | import {test, describe, beforeEach} from 'node:test';
+  2 | describe("s", () => { seedData(); test("x", () => {}); });
+
+`;
+
+exports[`require-hook > invalid(5): import {test, describe, beforeEach} from 'node:test';\ndescribe(\"s\", () => { seedData(); test(\"x\", () => {}); }); 2`] = `
+
+Message:
+  1 | import {test, describe, beforeEach} from 'node:test';
+> 2 | describe("s", () => { seedData(); test("x", () => {}); });
+    |                       ^^^^^^^^^^^ This runs when the file is loaded, not as part of a test. Move it into a \`before\`, \`beforeEach\`, \`after\`, or \`afterEach\` hook.
+
+`;
+
+exports[`require-hook > invalid(6): import {test, describe, beforeEach} from 'node:test';\ndatabase.connect();\ntest(\"x\", () => {}); 1`] = `
 
   1 | import {test, describe, beforeEach} from 'node:test';
   2 | database.connect();
@@ -287,7 +404,7 @@ exports[`require-hook > invalid(3): import {test, describe, beforeEach} from 'no
 
 `;
 
-exports[`require-hook > invalid(3): import {test, describe, beforeEach} from 'node:test';\ndatabase.connect();\ntest(\"x\", () => {}); 2`] = `
+exports[`require-hook > invalid(6): import {test, describe, beforeEach} from 'node:test';\ndatabase.connect();\ntest(\"x\", () => {}); 2`] = `
 
 Message:
   1 | import {test, describe, beforeEach} from 'node:test';
@@ -297,14 +414,14 @@ Message:
 
 `;
 
-exports[`require-hook > invalid(4): import {test, describe, beforeEach} from 'node:test';\ndescribe(\"s\", () => { describe(\"inner\", () => { seedData(); test(\"x\", () => {}); }); }); 1`] = `
+exports[`require-hook > invalid(7): import {test, describe, beforeEach} from 'node:test';\ndescribe(\"s\", () => { describe(\"inner\", () => { seedData(); test(\"x\", () => {}); }); }); 1`] = `
 
   1 | import {test, describe, beforeEach} from 'node:test';
   2 | describe("s", () => { describe("inner", () => { seedData(); test("x", () => {}); }); });
 
 `;
 
-exports[`require-hook > invalid(4): import {test, describe, beforeEach} from 'node:test';\ndescribe(\"s\", () => { describe(\"inner\", () => { seedData(); test(\"x\", () => {}); }); }); 2`] = `
+exports[`require-hook > invalid(7): import {test, describe, beforeEach} from 'node:test';\ndescribe(\"s\", () => { describe(\"inner\", () => { seedData(); test(\"x\", () => {}); }); }); 2`] = `
 
 Message:
   1 | import {test, describe, beforeEach} from 'node:test';
@@ -313,7 +430,7 @@ Message:
 
 `;
 
-exports[`require-hook > invalid(5): import {test, describe, beforeEach} from 'node:test';\nlog(\"loaded\");\ntest(\"x\", () => {}); 1`] = `
+exports[`require-hook > invalid(8): import {test, describe, beforeEach} from 'node:test';\nlog(\"loaded\");\ntest(\"x\", () => {}); 1`] = `
 
 Options:
 - allow:
@@ -326,7 +443,7 @@ Code:
 
 `;
 
-exports[`require-hook > invalid(5): import {test, describe, beforeEach} from 'node:test';\nlog(\"loaded\");\ntest(\"x\", () => {}); 2`] = `
+exports[`require-hook > invalid(8): import {test, describe, beforeEach} from 'node:test';\nlog(\"loaded\");\ntest(\"x\", () => {}); 2`] = `
 
 Message:
   1 | import {test, describe, beforeEach} from 'node:test';
@@ -336,7 +453,7 @@ Message:
 
 `;
 
-exports[`require-hook > invalid(6): import {test, describe, beforeEach} from 'node:test';\nstartServer();\ntest(\"x\", () => {}); 1`] = `
+exports[`require-hook > invalid(9): import {test, describe, beforeEach} from 'node:test';\nstartServer();\ntest(\"x\", () => {}); 1`] = `
 
   1 | import {test, describe, beforeEach} from 'node:test';
   2 | startServer();
@@ -344,66 +461,12 @@ exports[`require-hook > invalid(6): import {test, describe, beforeEach} from 'no
 
 `;
 
-exports[`require-hook > invalid(6): import {test, describe, beforeEach} from 'node:test';\nstartServer();\ntest(\"x\", () => {}); 2`] = `
+exports[`require-hook > invalid(9): import {test, describe, beforeEach} from 'node:test';\nstartServer();\ntest(\"x\", () => {}); 2`] = `
 
 Message:
   1 | import {test, describe, beforeEach} from 'node:test';
 > 2 | startServer();
     | ^^^^^^^^^^^^^^ This runs when the file is loaded, not as part of a test. Move it into a \`before\`, \`beforeEach\`, \`after\`, or \`afterEach\` hook.
-  3 | test("x", () => {});
-
-`;
-
-exports[`require-hook > invalid(7): import {test, describe, beforeEach} from 'node:test';\nawait startServer();\ntest(\"x\", () => {}); 1`] = `
-
-  1 | import {test, describe, beforeEach} from 'node:test';
-  2 | await startServer();
-  3 | test("x", () => {});
-
-`;
-
-exports[`require-hook > invalid(7): import {test, describe, beforeEach} from 'node:test';\nawait startServer();\ntest(\"x\", () => {}); 2`] = `
-
-Message:
-  1 | import {test, describe, beforeEach} from 'node:test';
-> 2 | await startServer();
-    | ^^^^^^^^^^^^^^^^^^^^ This runs when the file is loaded, not as part of a test. Move it into a \`before\`, \`beforeEach\`, \`after\`, or \`afterEach\` hook.
-  3 | test("x", () => {});
-
-`;
-
-exports[`require-hook > invalid(8): import {test, describe, beforeEach} from 'node:test';\nawait database.connect();\ntest(\"x\", () => {}); 1`] = `
-
-  1 | import {test, describe, beforeEach} from 'node:test';
-  2 | await database.connect();
-  3 | test("x", () => {});
-
-`;
-
-exports[`require-hook > invalid(8): import {test, describe, beforeEach} from 'node:test';\nawait database.connect();\ntest(\"x\", () => {}); 2`] = `
-
-Message:
-  1 | import {test, describe, beforeEach} from 'node:test';
-> 2 | await database.connect();
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^ This runs when the file is loaded, not as part of a test. Move it into a \`before\`, \`beforeEach\`, \`after\`, or \`afterEach\` hook.
-  3 | test("x", () => {});
-
-`;
-
-exports[`require-hook > invalid(9): import {test, describe, beforeEach} from 'node:test';\nvoid startServer();\ntest(\"x\", () => {}); 1`] = `
-
-  1 | import {test, describe, beforeEach} from 'node:test';
-  2 | void startServer();
-  3 | test("x", () => {});
-
-`;
-
-exports[`require-hook > invalid(9): import {test, describe, beforeEach} from 'node:test';\nvoid startServer();\ntest(\"x\", () => {}); 2`] = `
-
-Message:
-  1 | import {test, describe, beforeEach} from 'node:test';
-> 2 | void startServer();
-    | ^^^^^^^^^^^^^^^^^^^ This runs when the file is loaded, not as part of a test. Move it into a \`before\`, \`beforeEach\`, \`after\`, or \`afterEach\` hook.
   3 | test("x", () => {});
 
 `;

@@ -9,7 +9,7 @@
 
 Code placed directly at the top level of a test file or inside a `describe` body runs when the file is _loaded_ (while tests are being collected), not as part of any test. Setup written there runs once, in collection order, before any test or hook — a common source of surprising, order-dependent failures. Putting setup and teardown in a `before`/`beforeEach`/`after`/`afterEach` hook makes the timing explicit and lets the runner manage it per test or per suite.
 
-This rule reports a bare function call that is the whole statement at the module top level or directly inside a `describe`/`suite` body. The same call nested one level deeper, in an `if`, a loop or a `try`, inside a `describe` callback with an expression body, or on the right of an assignment, is not reported. The test, suite, and hook registration calls themselves are allowed, as are assertions (reported by [`no-assert-in-describe`](./no-assert-in-describe.md)) and variable declarations. Use the `allow` option to permit specific calls.
+This rule reports a bare function call that is the whole statement at the module top level or directly inside a `describe`/`suite` body. The same call nested one level deeper, in an `if`, a loop or a `try`, inside a `describe` callback with an expression body, or on the right of an assignment, is not reported. A function that only registers tests, suites, and hooks is allowed wherever it is written, since moving it into a hook would drop the registrations. The test, suite, and hook registration calls themselves are allowed, as are assertions (reported by [`no-assert-in-describe`](./no-assert-in-describe.md)) and variable declarations. Use the `allow` option to permit specific calls.
 
 ## Options
 

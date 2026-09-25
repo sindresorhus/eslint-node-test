@@ -58,7 +58,11 @@ const create = context => {
 		}
 
 		if (isSubtest || parsed?.kind === 'test' || parsed?.kind === 'suite') {
-			scope.seenTest = true;
+			// A test inside another function shares no scope with a hook in this one, exactly as a hook
+			// inside another function does not count against a test here.
+			if (isInScope) {
+				scope.seenTest = true;
+			}
 
 			const callback = getTestCallback(node);
 			if (callback) {

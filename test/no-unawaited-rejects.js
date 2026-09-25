@@ -99,6 +99,8 @@ test.snapshot({
 		`${ASSERT_IMPORT}\nasync function test() {\n\tvoid (condition ? assert.rejects(fn) : null);\n}`,
 		`${ASSERT_IMPORT}\nasync function test() {\n\tassert.rejects(fn) ? 1 : 2;\n}`,
 		`${ASSERT_IMPORT}\nasync function test() {\n\tcondition ? assert.doesNotReject(fn) : null;\n}`,
+		`${ASSERT_IMPORT}\nasync function test() {\n\t0, void assert.rejects(fn);\n}`,
+		`${ASSERT_IMPORT}\nasync function test() {\n\tcondition && void assert.doesNotReject(fn);\n}`,
 
 		// Voided context assertion in a test file (no `node:assert` import)
 		'import test from \'node:test\';\ntest(\'t\', async t => {\n\tvoid t.assert.rejects(fn);\n});',

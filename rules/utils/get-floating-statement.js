@@ -46,29 +46,37 @@ export default function getFloatingStatement(node) {
 	// `outermostExpressionWrapper`) is read the same as the call inside it.
 	let container = node;
 	let parent = skipExpressionWrappers(container.parent);
-	// Walk out of the conditional, logical, and sequence expressions that pass this call's value on, to
-	// the statement that discards it. A step that does not pass the value on still leaves the call
-	// discarded, but one that cannot take an `await` in front of it.
+	// Walk out of the `void`, conditional, logical, and sequence expressions that discard or pass on
+	// this call's value, to the statement that discards it. A step that does not pass the value on
+	// still leaves the call discarded, but one that cannot take an `await` in front of it.
 	let canAwait = true;
 
-	let valuePropagates;
-	while ((valuePropagates = getExpressionValuePropagation(parent, container)) !== undefined) {
-		// The walk continues either way: the call is still discarded by the statement at the end. Only
-		// an operand whose value the surrounding expression does not pass on cannot take an `await`.
+	while (true) {
+		// A `void` discards the value, so whatever the enclosing expression takes is still discarded.
+		// It cannot take an `await`, which would be left as a pointless `void await …`.
+		if (parent?.type === 'UnaryExpression' && parent.operator === 'void') {
+			canAwait = false;
+			container = parent;
+			parent = skipExpressionWrappers(container.parent);
+			continue;
+		}
+
+		const valuePropagates = getExpressionValuePropagation(parent, container);
+		if (valuePropagates === undefined) {
+			break;
+		}
+
 		canAwait &&= valuePropagates;
 		container = outermostExpressionWrapper(parent);
 		parent = skipExpressionWrappers(container.parent);
 	}
 
-	const isVoided = parent?.type === 'UnaryExpression' && parent.operator === 'void';
-	const statement = isVoided ? skipExpressionWrappers(parent.parent) : parent;
-
-	if (statement?.type !== 'ExpressionStatement') {
+	if (parent?.type !== 'ExpressionStatement') {
 		return undefined;
 	}
 
 	return {
-		statement,
-		canAwait: canAwait && !isVoided && !hasLooserBindThanAwait(statement.expression),
+		statement: parent,
+		canAwait: canAwait && !hasLooserBindThanAwait(parent.expression),
 	};
 }

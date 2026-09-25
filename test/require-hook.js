@@ -22,6 +22,13 @@ test.snapshot({
 		withImport('test("x", () => {});'),
 		withImport('describe("s", () => { test("x", () => {}); });'),
 
+		// A function that only registers is not setup, wherever it is written: moving it into a hook
+		// would drop the registrations
+		withImport('(function () {\n\ttest("x", () => {});\n})();'),
+		withImport('(() => {\n\tdescribe("s", () => {\n\t\ttest("x", () => {});\n\t});\n})();'),
+		withImport('(() => { beforeEach(() => {}); })();'),
+		withImport('[1].forEach(() => { test("x", () => {}); });'),
+
 		// Variable declarations are allowed (only bare calls are flagged)
 		withImport('const server = startServer();\ntest("x", () => {});'),
 
@@ -50,6 +57,11 @@ test.snapshot({
 		},
 	],
 	invalid: [
+		// An immediately invoked function that does real setup still runs at load time
+		withImport('(function () {\n\tstartServer();\n})();'),
+		withImport('(() => {\n\tstartServer();\n\ttest("x", () => {});\n})();'),
+		withImport('[1].forEach(() => { startServer(); });'),
+
 		// Bare setup call at the module top level
 		withImport('startServer();\ntest("x", () => {});'),
 

@@ -83,6 +83,10 @@ test.snapshot({
 
 		// Explicitly discarded with `void` — still unawaited, reported without an autofix
 		withImport('test("parent", async t => { void t.test("child", () => {}); });'),
+		// A `void` inside a conditional, logical, or sequence expression still discards the subtest
+		withImport('test("parent", async t => {\n\t0, void t.test("child", () => {});\n});'),
+		withImport('test("parent", async t => {\n\tcondition && void t.test("child", () => {});\n});'),
+		withImport('test("parent", async t => {\n\tcondition ? void t.test("child", () => {}) : null;\n});'),
 		// A conditional, logical, or sequence expression that hands the subtest's value to a statement
 		// discards it, exactly as a bare statement does
 		withImport('test("parent", async t => {\n\tcondition ? t.test("child", () => {}) : null;\n});'),

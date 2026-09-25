@@ -64,6 +64,28 @@ function isInRegistrationScope(statement, imports) {
 	return parseTestCall(call, imports)?.kind === 'suite';
 }
 
+/*
+Whether a function handed to this call does nothing but register tests, suites, and hooks. That is not
+setup that belongs in a hook: it is the same shape as a `describe` body, which the rule leaves alone.
+An immediately invoked function or a callback passed to a method is only as suspicious as the calls
+inside it, so a body of registrations is left alone wherever it appears.
+*/
+function isOnlyRegistrations(call, imports) {
+	const isRegistration = expression => {
+		const called = expression.type === 'ExpressionStatement' ? getCalledExpression(expression) : expression;
+		return called.type === 'CallExpression' && Boolean(parseTestCall(called, imports));
+	};
+
+	const functions = [call.callee, ...call.arguments]
+		.map(argument => unwrapExpression(argument))
+		.filter(candidate => isFunction(candidate));
+
+	return functions.length > 0 && functions.every(candidate =>
+		(candidate.body.type === 'BlockStatement'
+			? candidate.body.body.every(statement => isRegistration(statement))
+			: isRegistration(candidate.body)));
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -93,6 +115,10 @@ const create = context => {
 		// Check the scope before the `allow` list: it is a few parent lookups, while the list is
 		// keyed by callee source text, which has to be materialized for every call it is given.
 		if (!isInRegistrationScope(node, imports)) {
+			return;
+		}
+
+		if (isOnlyRegistrations(call, imports)) {
 			return;
 		}
 
