@@ -3,6 +3,7 @@ import {
 	parseTestCall,
 	getTestCallback,
 	getTestOptions,
+	findOptionsProperty,
 	getTestTitle,
 	createContextTracker,
 } from './utils/node-test.js';
@@ -20,10 +21,15 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION_SUBTEST]: 'Mark with `{todo: true}`.',
 };
 
-/** Whether a comment sits in the argument gap that removing `argument` would take with it. */
+/*
+Whether a comment sits in the argument gap that removing `argument` would take with it.
+
+The comparison is inclusive because a comment may begin exactly where the previous token ends, which
+is what a comment written flush against the comma after the title does.
+*/
 function hasCommentBefore(argument, sourceCode) {
 	const previousTokenEnd = sourceCode.getRange(sourceCode.getTokenBefore(argument))[1];
-	return sourceCode.getCommentsBefore(argument).some(comment => sourceCode.getRange(comment)[0] > previousTokenEnd);
+	return sourceCode.getCommentsBefore(argument).some(comment => sourceCode.getRange(comment)[0] >= previousTokenEnd);
 }
 
 /** The object-form descriptor keys, which carry no intent of their own. */
@@ -44,6 +50,16 @@ function hasIntentOptions(callExpression) {
 		|| property.computed
 		|| !DESCRIPTOR_KEYS.has(property.key.name ?? property.key.value),
 	);
+}
+
+/**
+Whether a call names its implementation through an `fn` in the options, whatever the value is.
+
+`getTestCallback` can only return a function node, so a bare binding in an `fn` slot reads as no
+callback at all. `node:test` runs the binding, so the test is not a placeholder.
+*/
+function hasNamedImplementation(callExpression) {
+	return findOptionsProperty(getTestOptions(callExpression), 'fn') !== undefined;
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -82,7 +98,7 @@ const create = context => {
 		const callback = getTestCallback(node);
 
 		// `test('title')` — only a title, no implementation.
-		const isTitleOnly = !callback && node.arguments.length === 1;
+		const isTitleOnly = !callback && !hasNamedImplementation(node) && node.arguments.length === 1;
 
 		// `test('title', () => {})` — an empty implementation body.
 		const hasEmptyBody = callback?.body.type === 'BlockStatement' && callback.body.body.length === 0;

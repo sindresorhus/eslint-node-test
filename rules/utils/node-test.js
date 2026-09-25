@@ -1092,8 +1092,24 @@ export function getTestTitle(callExpression, context) {
 /**
 Get the node `node:test` reads a test's or suite's title from, whether or not it holds a static string, or `undefined` when the call names it with nothing at all.
 
-This is `getTestTitle` without the static-string requirement, so a rule that has to report a *bad* title (not just read a good one) can reach the node. `undefined` means the call names the test from a slot this helper cannot pin down (a later spread or computed key) or names it not at all (a descriptor with no `name`).
+This is `getTestTitle` without the static-string requirement, so a rule that has to report a *bad* title (not just read a good one) can reach the node. `undefined` means the call names the test from a slot this helper cannot pin down (a later spread or computed key, or an options argument that is not an object literal and so may carry a `name` of its own) or names it not at all (a descriptor with no `name`).
 */
+/*
+Whether a node sitting in the options slot could be the object `node:test` reads a `name` from. A
+function there is the implementation, which is read as no options at all, and only a value that cannot
+be an object rules the rest out: a literal or a template literal is a primitive, `undefined` and `NaN`
+are primitives, and `-1`/`!x`/`void 0` evaluate to one. Everything else may hold an object, and a
+`name` on it wins over the positional title.
+*/
+function couldBeOptionsObject(node) {
+	node = unwrapTypeScriptExpression(node);
+	return !isFunction(node)
+		&& node.type !== 'Literal'
+		&& node.type !== 'TemplateLiteral'
+		&& node.type !== 'UnaryExpression'
+		&& !(node.type === 'Identifier' && (node.name === 'undefined' || node.name === 'NaN'));
+}
+
 export function getTestTitleNode(callExpression) {
 	const first = callExpression.arguments[0] && unwrapTypeScriptExpression(callExpression.arguments[0]);
 
@@ -1104,7 +1120,16 @@ export function getTestTitleNode(callExpression) {
 	if (!options) {
 		// A function in the first position is the implementation (`test(fn)` / `beforeEach(fn)`), never
 		// a positional title. A call with no arguments has no first argument to return.
-		return isFunction(first) ? undefined : first;
+		if (isFunction(first)) {
+			return undefined;
+		}
+
+		// `getTestOptions` answered `undefined` either because the slot is empty or because it holds
+		// something other than an object literal, and `node:test` still reads `options.name` from
+		// whatever is there. A slot that could hold an object may carry a name that beats the
+		// positional title, so this helper cannot say which node holds it.
+		const optionsArgument = callExpression.arguments[1];
+		return optionsArgument && couldBeOptionsObject(optionsArgument) ? undefined : first;
 	}
 
 	const nameProperty = findOptionsProperty(options, 'name');
@@ -1387,9 +1412,11 @@ Find an options property that `node:test` acts on, or `undefined` when the value
 The modifiers do not share one enablement rule:
 
 - `only` is a plain truthiness check, so only a truthy value marks a test as the one to run.
-- `skip`, `todo` and `expectFailure` are enabled by any value that is neither `undefined` nor
-  `false`, so `{skip: 0}`, `{skip: ''}` and `{skip: null}` really do skip a test, while
-  `{skip: false}` and `{skip: undefined}` do not.
+- `skip`, `todo` and `expectFailure` mark a test with any value that is neither `undefined` nor
+  `false`, so `{skip: 0}`, `{skip: ''}` and `{skip: null}` all carry the `# SKIP` directive that
+  `{skip: true}` does, while `{skip: false}` and `{skip: undefined}` carry nothing. That is the
+  directive, though, and not the body: only a truthy `skip` stops the callback from running, which is
+  what `hasEnabledSkipOption` in `shared/skipped-test.js` asks about instead.
 
 A value that cannot be resolved statically counts as enabled, which is the safe answer for a dynamic
 option: the rules have always reported it, and it is more often on than off. A getter is the one

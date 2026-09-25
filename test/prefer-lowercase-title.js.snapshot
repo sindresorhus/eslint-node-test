@@ -361,6 +361,26 @@ Message:
 
 `;
 
+exports[`prefer-lowercase-title > invalid(26): import {test} from 'node:test';\ntest('Uppercase', 'str', () => {}); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | test('Uppercase', 'str', () => {});
+
+`;
+
+exports[`prefer-lowercase-title > invalid(26): import {test} from 'node:test';\ntest('Uppercase', 'str', () => {}); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | test('Uppercase', 'str', () => {});
+    |      ^^^^^^^^^^^ Start the title with a lowercase letter.
+
+Output:
+  1 | import {test} from 'node:test';
+  2 | test('uppercase', 'str', () => {});
+
+`;
+
 exports[`prefer-lowercase-title > invalid(3): import {test, it, describe, suite, before} from 'node:test';\nit(\"Should work\", () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';

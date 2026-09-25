@@ -115,7 +115,7 @@ const create = context => {
 
 		// The object form carries its title in the descriptor's `name`, and `options.name` overrides
 		// a positional title, so resolve the title node from every slot `node:test` reads it from.
-		const titleNode = getTestTitleNode(node);
+		const titleNode = getTestTitleNode(node, context);
 		if (titleNode) {
 			return getStaticTitleProblem(titleNode, context);
 		}

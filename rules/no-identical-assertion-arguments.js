@@ -1,5 +1,5 @@
 import {findVariable} from '@eslint-community/eslint-utils';
-import {getStaticPropertyName, isSameReference} from './utils/index.js';
+import {getStaticPropertyName, isSameReference, unwrapExpression} from './utils/index.js';
 import {
 	resolveImports,
 	parseSupportedAssertionCall,
@@ -82,6 +82,9 @@ the operands being the same reference. This is the property-read equivalent of t
 skipping operands that contain a call.
 */
 function readsAccessor(node, sourceCode) {
+	// Unwrapped, the way `isSameReference` unwraps the operands it compares, so `a?.b` and `(a as any).b`
+	// are read as the same property access as `a.b` rather than escaping the check.
+	node = unwrapExpression(node);
 	if (node.type !== 'MemberExpression') {
 		return false;
 	}
@@ -94,7 +97,8 @@ function readsAccessor(node, sourceCode) {
 		return false;
 	}
 
-	const {object} = node;
+	// A wrapper on the receiver is unwrapped too: `(o as any).value` reads the same getter as `o.value`.
+	const object = unwrapExpression(node.object);
 
 	// `new C().value` — the receiver is the constructed class, not a variable.
 	if (hasGetterDeclaration(getConstructedClass(object, sourceCode), propertyName)) {

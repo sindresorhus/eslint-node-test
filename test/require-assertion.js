@@ -14,11 +14,12 @@ test.snapshot({
 		'import test from "node:test";\nimport assert from "node:assert";\ntest("t", function* () { assert.ok(1); });',
 
 		// A skipped callback never runs, so it cannot pass vacuously. A `todo` callback does run, so it
-		// is still checked.
+		// is still checked. A `skip` option only stops the body for a truthy value: `0`, `''` and
+		// `null` all carry the `# SKIP` directive and still run it.
 		'import test from "node:test";\ntest.skip("t", () => { doSomething(); });',
 		'import test from "node:test";\ntest("t", {skip: true}, () => { doSomething(); });',
 		'import test from "node:test";\ntest("t", {skip: "flaky"}, () => { doSomething(); });',
-		'import test from "node:test";\ntest("t", {skip: 0}, () => { doSomething(); });',
+		'import test from "node:test";\ntest("t", {skip: {}}, () => { doSomething(); });',
 		'import {it, skip} from "node:test";\nit.skip("t", () => { doSomething(); });\nskip("u", () => { doSomething(); });',
 
 		// The assert.* form
@@ -195,5 +196,10 @@ test.snapshot({
 		'import test from "node:test";\ntest("t1", (t) => { t.assert.strict(1); });',
 		// An unrelated object with the same method is not a test context
 		'import {test} from \'node:test\';\ntest(\'a\', () => { foo.getTestContext().assert.equal(1, 1); });',
+
+		// A skip enabled by a falsy value still runs the body, so the test can pass vacuously
+		'import test from "node:test";\ntest("t", {skip: 0}, () => { doSomething(); });',
+		'import test from "node:test";\ntest("t", {skip: \'\'}, () => { doSomething(); });',
+		'import test from "node:test";\ntest("t", {skip: null}, () => { doSomething(); });',
 	],
 });

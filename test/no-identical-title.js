@@ -57,6 +57,9 @@ test.snapshot({
 		'import test from \'node:test\';\ntest("a", {...rest}, () => {});\ntest("a", {...rest}, () => {});',
 		// A function in the first position is the implementation, not a title
 		'import test from \'node:test\';\ntest(() => {});\ntest(() => {});',
+
+		// `options.name` still wins from an options slot the rule cannot see into
+		'import {test} from \'node:test\';\nconst options = {name: \'other\'};\ntest(\'a\', options, () => {});\ntest(\'a\', () => {});',
 	],
 	invalid: [
 		// Duplicate top-level titles

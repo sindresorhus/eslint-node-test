@@ -608,6 +608,22 @@ Message:
 
 `;
 
+exports[`no-duplicate-plan > invalid(43): import {test} from 'node:test';\ntest('a', {skip: 0}, t => { t.plan(1); t.plan(2); }); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | test('a', {skip: 0}, t => { t.plan(1); t.plan(2); });
+
+`;
+
+exports[`no-duplicate-plan > invalid(43): import {test} from 'node:test';\ntest('a', {skip: 0}, t => { t.plan(1); t.plan(2); }); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | test('a', {skip: 0}, t => { t.plan(1); t.plan(2); });
+    |                                        ^^^^^^^^^ Do not call \`t.plan()\` more than once in the same test.
+
+`;
+
 exports[`no-duplicate-plan > invalid(5): import {todo} from 'node:test';\ntodo(\"x\", t => { t.plan(1); t.plan(2); }); 1`] = `
 
   1 | import {todo} from 'node:test';

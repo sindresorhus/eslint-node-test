@@ -73,7 +73,6 @@ test.snapshot({
 		// The object form puts the options first, and `skip` reads the same there
 		'import test from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\ntest({name: \'waits\', skip: true, fn: async () => {\n\tawait delay(500);\n}});',
 		// `skip` enables on anything that is neither `undefined` nor `false`, so `0` skips too
-		'import test from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\ntest(\'waits\', {skip: 0}, async () => {\n\tawait delay(500);\n});',
 		// A hook takes its callback first, so the runner never runs an options `fn`
 		'import {beforeEach} from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\nbeforeEach({fn: async () => {\n\tawait delay(1);\n}});',
 	],
@@ -82,6 +81,10 @@ test.snapshot({
 		withTest('return new Promise(resolve => setTimeout(resolve, 500));'),
 		'import test from \'node:test\';\ntest(\'waits\', {timeout: 1000}, async () => {\n\tawait new Promise(resolve => setTimeout(resolve, 500));\n});',
 		'import test from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\ntest(\'waits\', {skip: undefined}, async () => {\n\tawait delay(500);\n});',
+		// A skip enabled by a falsy value carries the `# SKIP` directive and still runs the body
+		'import test from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\ntest(\'waits\', {skip: 0}, async () => {\n\tawait delay(500);\n});',
+		'import test from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\ntest(\'waits\', {skip: \'\'}, async () => {\n\tawait delay(500);\n});',
+		'import test from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\ntest(\'waits\', {skip: null}, async () => {\n\tawait delay(500);\n});',
 		'import test from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\ntest(\'waits\', () => delay(500));',
 		'import test from \'node:test\';\ntest.only(\'waits\', async () => {\n\tawait new Promise(resolve => setTimeout(resolve, 500));\n});',
 		'import test from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\ntest.expectFailure(\'waits\', async () => {\n\tawait delay(500);\n});',
@@ -232,5 +235,6 @@ test.snapshot({
 			code: withPromiseTimerImport('await (delay as (milliseconds: number) => Promise<void>)(500);'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
 	],
 });

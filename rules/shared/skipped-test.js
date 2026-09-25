@@ -32,19 +32,25 @@ function hasSkipModifier(node) {
 }
 
 /*
-`node:test` skips for any value that is neither `undefined` nor `false`, so `{skip: 0}` skips and
-`{skip: false}` does not. A value that cannot be resolved proves nothing, so the test is treated as
-running: these rules report what is inside a test body, and code that may never run has no plan to
-get wrong.
+`node:test` marks a test `# SKIP` for any value that is neither `undefined` nor `false`, so `{skip: 0}`
+carries the directive. Only a truthy value stops the body from running, though, and a body that runs is
+a body these rules can reason about: `{skip: 0}`, `{skip: ''}` and `{skip: null}` all still run their
+callback. The result still carries `# SKIP`, so a throw in one is reported as `not ok … # SKIP` without
+counting as a failure, but the code in the body really runs. A value that cannot be resolved statically proves
+nothing either way, so the test is treated as running.
+
+@param {object | undefined} optionsObject The options object of the call, as `getTestOptions` returns it.
+@param {import('eslint').Rule.RuleContext} context
+@returns {boolean} Whether the options object skips the test body.
 */
-function hasEnabledSkipOption(node, context) {
-	const property = findOptionsProperty(getTestOptions(node), 'skip');
+export function hasEnabledSkipOption(optionsObject, context) {
+	const property = findOptionsProperty(optionsObject, 'skip');
 	if (property === undefined) {
 		return false;
 	}
 
 	const staticValue = getStaticValue(property.value, context.sourceCode.getScope(property.value));
-	return staticValue !== null && staticValue.value !== undefined && staticValue.value !== false;
+	return staticValue !== null && Boolean(staticValue.value);
 }
 
 /**
@@ -61,7 +67,7 @@ export function isSkippedTestCall(node, parsed, context) {
 	// `todo(…)` run unless the options slot says otherwise.
 	return hasSkipModifier(node.callee)
 		|| parsed?.modifiers.some(modifier => modifier.name === 'skip')
-		|| hasEnabledSkipOption(node, context);
+		|| hasEnabledSkipOption(getTestOptions(node), context);
 }
 
 /** Whether `node` sits inside one of the callbacks collected in `skippedCallbacks`. */

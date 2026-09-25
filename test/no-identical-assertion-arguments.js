@@ -11,6 +11,17 @@ test.snapshot({
 		'import assert from \'node:assert\';\nlet n = 0;\nconst o = {get [\'value\']() { return n++; }};\nassert.strictEqual(o.value, o.value);',
 		'import assert from \'node:assert\';\nlet n = 0;\nconst o = {get [`value`]() { return n++; }};\nassert.strictEqual(o.value, o.value);',
 		'import assert from \'node:assert\';\nclass C { get [\'value\']() { return Math.random(); } }\nconst c = new C();\nassert.strictEqual(c.value, c.value);',
+		// An optional chain or a TypeScript wrapper around the read is still the same property read
+		'import assert from \'node:assert\';\nlet n = 0;\nconst o = {get value() { return n++; }};\nassert.strictEqual(o?.value, o?.value);',
+		'import assert from \'node:assert\';\nlet n = 0;\nconst o = {get value() { return n++; }};\nassert.strictEqual(o?.[\'value\'], o?.[\'value\']);',
+		{
+			code: 'import assert from \'node:assert\';\nlet n = 0;\nconst o = {get value() { return n++; }};\nassert.strictEqual((o as any).value, (o as any).value);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import assert from \'node:assert\';\nlet n = 0;\nconst o = {get value() { return n++; }};\nassert.strictEqual(o?.value!, o?.value!);',
+			languageOptions: {parser: parsers.typescript},
+		},
 
 		// A getter runs on every read, so the two operands are not the same value. This is the
 		// property-read equivalent of the rule already skipping operands that contain a call.

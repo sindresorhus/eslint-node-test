@@ -49,6 +49,12 @@ test.snapshot({
 		// The object past the callback is not the options slot, so it does not name the test
 		withImport('test(\'a\', \'x\', {name: \'UPPERCASE\'});'),
 		withImport('test(\'a\', fn, {name: \'UPPERCASE\'});'),
+
+		// An options slot holding an object the rule cannot see into may carry a `name`, which wins
+		// over the positional title, so the positional title is not the test's name
+		'import {test} from \'node:test\';\nconst options = {name: \'lowercase\'};\ntest(\'Uppercase positional\', options, () => {});',
+		'import {test} from \'node:test\';\nconst options = {name: \'lowercase\'};\ntest(\'Uppercase\', options, {skip: true}, () => {});',
+		'import {test} from \'node:test\';\nconst body = () => {};\ntest(\'Uppercase\', body);',
 	],
 	invalid: [
 		// The object form title is the descriptor's `name`
@@ -111,5 +117,6 @@ test.snapshot({
 		withImport('test("\u{10400}bc", () => {});'),
 		// No lowercase form exists for this one, so it is reported without a fix.
 		withImport('test("\u{1D400}bc", () => {});'),
+		'import {test} from \'node:test\';\ntest(\'Uppercase\', \'str\', () => {});',
 	],
 });

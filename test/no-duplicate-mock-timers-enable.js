@@ -90,10 +90,6 @@ test.snapshot({
 		// `getTestContext()` names the same tracker as the context parameter
 		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', t => {\n\tt.mock.timers.enable();\n\tgetTestContext().mock.timers.reset();\n\tt.mock.timers.enable();\n});',
 		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', t => {\n\tgetTestContext().mock.timers.enable();\n\tt.mock.timers.reset();\n\tgetTestContext().mock.timers.enable();\n});',
-
-		// `{skip: 0}` really does skip, so the body never runs and is not analyzed
-		withImport('test(\'a\', {skip: 0}, () => { mock.timers.enable(); mock.timers.enable(); });'),
-		withImport('test(\'a\', {skip: \'\'}, () => { mock.timers.enable(); mock.timers.enable(); });'),
 	],
 	invalid: [
 		// A standalone `only` with no skip does run
@@ -120,6 +116,11 @@ test.snapshot({
 		// A class static block is module-level code, so the same duplicate applies there
 		withImport('class A {\n\tstatic {\n\t\tmock.timers.enable();\n\t\tmock.timers.enable();\n\t}\n}'),
 		withImport('mock.timers.enable();\ntest.mock.timers.enable();'),
+
+		// A skip enabled by a falsy value carries the `# SKIP` directive and still runs the body
+		// A skip enabled by a falsy value carries the `# SKIP` directive and still runs the body
+		withImport('test(\'a\', {skip: 0}, () => { mock.timers.enable(); mock.timers.enable(); });'),
+		withImport('test(\'a\', {skip: \'\'}, () => { mock.timers.enable(); mock.timers.enable(); });'),
 		withImport('mock.timers.enable();\nmock.timers.enable();\nmock.timers.enable();'),
 
 		// A class static block or static field initializer runs while the file loads, in the middle of

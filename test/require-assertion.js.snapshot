@@ -438,6 +438,54 @@ Message:
 
 `;
 
+exports[`require-assertion > invalid(34): import test from \"node:test\";\ntest(\"t\", {skip: 0}, () => { doSomething(); }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("t", {skip: 0}, () => { doSomething(); });
+
+`;
+
+exports[`require-assertion > invalid(34): import test from \"node:test\";\ntest(\"t\", {skip: 0}, () => { doSomething(); }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test("t", {skip: 0}, () => { doSomething(); });
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
+
+`;
+
+exports[`require-assertion > invalid(35): import test from \"node:test\";\ntest(\"t\", {skip: ''}, () => { doSomething(); }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("t", {skip: ''}, () => { doSomething(); });
+
+`;
+
+exports[`require-assertion > invalid(35): import test from \"node:test\";\ntest(\"t\", {skip: ''}, () => { doSomething(); }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test("t", {skip: ''}, () => { doSomething(); });
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
+
+`;
+
+exports[`require-assertion > invalid(36): import test from \"node:test\";\ntest(\"t\", {skip: null}, () => { doSomething(); }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("t", {skip: null}, () => { doSomething(); });
+
+`;
+
+exports[`require-assertion > invalid(36): import test from \"node:test\";\ntest(\"t\", {skip: null}, () => { doSomething(); }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test("t", {skip: null}, () => { doSomething(); });
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
+
+`;
+
 exports[`require-assertion > invalid(4): import test from 'node:test';\ntest(\"x\", ({assert}) => { assert.a.b.c.d(); }); 1`] = `
 
   1 | import test from 'node:test';

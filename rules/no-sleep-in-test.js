@@ -13,6 +13,7 @@ import {
 	isSubtestCall,
 	MODIFIERS,
 } from './utils/node-test.js';
+import {hasEnabledSkipOption} from './shared/skipped-test.js';
 import {getEnclosingFunction, unwrapExpression} from './utils/index.js';
 import {isFunction} from './ast/index.js';
 
@@ -63,8 +64,8 @@ function areActiveModifiers(modifiers) {
 }
 
 function hasInactiveTestOptions(node, context) {
-	const options = getTestOptions(node);
-	return Boolean(findEnabledOptionsProperty(options, 'skip', context));
+	// The same check the shared skip detection uses: only a truthy `skip` stops the body from running.
+	return hasEnabledSkipOption(getTestOptions(node), context);
 }
 
 function getSubtestModifiers(node) {

@@ -11,6 +11,11 @@ test.snapshot({
 		'import test from \'node:test\';\ntest(\'t\', {skip: true}, () => {});',
 		'import test from \'node:test\';\ntest({name: \'t\', timeout: 1, fn() {}});',
 		'import test from \'node:test\';\ntest(\'t\', {fn: other});',
+
+		// A descriptor names its implementation whether the `fn` is inline or a bare binding, and
+		// `node:test` runs the binding, so the test is not a placeholder.
+		'import test from \'node:test\';\nfunction body() {}\ntest({name: \'t\', fn: body});',
+		'import test from \'node:test\';\nconst body = () => {};\ntest({fn: body});',
 		'import test from \'node:test\';\ntest(\'t\', {});',
 		// A computed key or a spread is a property the rule cannot read as a bare descriptor key
 		'import test from \'node:test\';\ntest(\'t\', {[\'skip\']: true}, () => {});',
@@ -79,6 +84,7 @@ test.snapshot({
 		// A comment in the argument gap or the body would be removed with the callback,
 		// so the test is reported but no fix is offered
 		'import test from \'node:test\';\ntest(\'placeholder\', /* keep me */ () => {});',
+		'import test from \'node:test\';\ntest(\'placeholder\',/* keep me */ () => {});',
 		'import test from \'node:test\';\ntest(\'placeholder\', () => { /* keep me */ });',
 		'import test from \'node:test\';\ntest(\'placeholder\', () => {\n  // keep me\n});',
 
