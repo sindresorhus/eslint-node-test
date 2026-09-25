@@ -10,7 +10,7 @@ import {
 	getFirstContextParameter,
 	isGetTestContextCall,
 } from './utils/node-test.js';
-import {getEnclosingFunction} from './utils/index.js';
+import {getEnclosingFunction, getStaticPropertyName} from './utils/index.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
 const MESSAGE_ID = 'require-mock-timers-advance';
@@ -20,27 +20,14 @@ const messages = {
 
 const ADVANCE_METHODS = new Set(['tick', 'runAll']);
 
-function getStaticPropertyName(node) {
+/** The name a key node spells, bare or quoted. A computed key is not read. */
+function getKeyName(node) {
 	if (node.type === 'Identifier') {
 		return node.name;
 	}
 
 	if (node.type === 'Literal' && typeof node.value === 'string') {
 		return node.value;
-	}
-}
-
-function getPropertyName(property) {
-	if (property.type !== 'Property') {
-		return;
-	}
-
-	if (!property.computed) {
-		return getStaticPropertyName(property.key);
-	}
-
-	if (property.key.type === 'Literal' && typeof property.key.value === 'string') {
-		return property.key.value;
 	}
 }
 
@@ -64,7 +51,7 @@ function mayEnableTimerApis(callExpression) {
 			continue;
 		}
 
-		if (getPropertyName(property) === 'apis') {
+		if (getStaticPropertyName(property) === 'apis') {
 			apisValue = property.value;
 		} else if (apisValue && isDynamicProperty(property)) {
 			return true;
@@ -113,7 +100,7 @@ function getContextMockKey(mockObject, imports, sourceCode, contextVariables) {
 		mockObject?.type !== 'MemberExpression'
 		|| mockObject.computed
 		|| mockObject.optional
-		|| getStaticPropertyName(mockObject.property) !== 'mock'
+		|| getKeyName(mockObject.property) !== 'mock'
 	) {
 		return;
 	}
@@ -146,7 +133,7 @@ function getMockTimersReceiverKey(node, imports, sourceCode, contextVariables) {
 		node.type !== 'MemberExpression'
 		|| node.computed
 		|| node.optional
-		|| getStaticPropertyName(node.property) !== 'timers'
+		|| getKeyName(node.property) !== 'timers'
 	) {
 		return;
 	}
@@ -170,7 +157,7 @@ function getMockTimersCall(callExpression, imports, sourceCode, contextVariables
 		return;
 	}
 
-	const method = getStaticPropertyName(callee.property);
+	const method = getKeyName(callee.property);
 	const receiverKey = getMockTimersReceiverKey(callee.object, imports, sourceCode, contextVariables);
 	if (!method || !receiverKey) {
 		return;
@@ -228,7 +215,7 @@ function getContextCallKind(node, imports, sourceCode, scopeStack) {
 	}
 
 	const object = unwrapTypeScriptExpression(callee.object);
-	const property = getStaticPropertyName(callee.property);
+	const property = getKeyName(callee.property);
 
 	// `getTestContext().test(…)` and `getTestContext().beforeEach(…)` name the innermost context, the
 	// same one a context parameter would, whether or not the enclosing test declared one.

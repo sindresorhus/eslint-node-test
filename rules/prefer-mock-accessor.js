@@ -5,7 +5,7 @@ import {
 	isGlobalMock,
 } from './utils/node-test.js';
 import {isFunction} from './ast/index.js';
-import {unwrapTypeScriptExpression, unwrapExpression} from './utils/index.js';
+import {unwrapTypeScriptExpression, unwrapExpression, getStaticPropertyName} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-mock-accessor';
 const ACCESSORS = new Set(['getter', 'setter']);
@@ -13,24 +13,19 @@ const messages = {
 	[MESSAGE_ID]: 'Prefer `mock.{{accessor}}()` over `mock.method()` with `{{accessor}}: true`.',
 };
 
-function getPropertyName(property) {
-	if (property.type !== 'Property') {
-		return undefined;
-	}
-
-	if (property.key.type === 'Identifier') {
-		return property.key.name;
-	}
-
-	return property.key.type === 'Literal' && typeof property.key.value === 'string' ? property.key.value : undefined;
-}
-
 function getEnabledAccessor(options) {
 	const properties = new Map();
 
 	for (let index = options.properties.length - 1; index >= 0; index -= 1) {
 		const property = options.properties[index];
-		if (property.type === 'SpreadElement' || property.computed) {
+		// A spread, or a computed key that does not fold to a constant, can name an accessor this scan
+		// never saw, or override one it did, so the effective options stay unreadable. A key that does
+		// fold names the same property a bare one does, which real `mock.method()` also reads, so
+		// `{['getter']: true}` is the `{getter: true}` this rule reports.
+		if (
+			property.type === 'SpreadElement'
+			|| (property.computed && getStaticPropertyName(property) === undefined)
+		) {
 			return undefined;
 		}
 
@@ -39,7 +34,7 @@ function getEnabledAccessor(options) {
 			return undefined;
 		}
 
-		const name = getPropertyName(property);
+		const name = getStaticPropertyName(property);
 		if (name === '__proto__') {
 			return undefined;
 		}

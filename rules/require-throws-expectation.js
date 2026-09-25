@@ -16,6 +16,39 @@ const messages = {
 
 const THROWS_METHODS = new Set(['throws', 'rejects']);
 
+/**
+Whether the matcher slot holds what `node:assert` reads as no matcher at all, which matches any
+thrown value. `undefined` is an identifier in the AST and `null` a literal, and `void anything`
+evaluates to `undefined`, so all three read the same way.
+*/
+function isNoMatcher(node) {
+	return node === undefined
+		|| (node.type === 'Identifier' && node.name === 'undefined')
+		|| (node.type === 'UnaryExpression' && node.operator === 'void')
+		|| (node.type === 'Literal' && node.value === null);
+}
+
+/**
+Whether the matcher slot holds something `node:assert` refuses: a primitive, which it rejects with
+`ERR_INVALID_ARG_TYPE` once the function has run, or an empty object or array, which it rejects with
+`ERR_INVALID_ARG_VALUE` once an error has been caught.
+
+A primitive is rejected however it is written, so `-1`, `!0` and `NaN` are unusable matchers just as
+`0` is; every unary expression but `void`, which is the no-matcher case, evaluates to one. A `RegExp`
+literal and a string are the two literals `node:assert` does accept; a string is
+`no-assert-throws-string`'s case, and a `RegExp` is a real matcher.
+*/
+function isUnusableMatcher(node) {
+	if (node.type === 'Literal') {
+		return !node.regex && typeof node.value !== 'string';
+	}
+
+	return (node.type === 'Identifier' && PRIMITIVE_IDENTIFIERS.has(node.name))
+		|| (node.type === 'UnaryExpression' && node.operator !== 'void')
+		|| (node.type === 'ObjectExpression' && node.properties.length === 0)
+		|| (node.type === 'ArrayExpression' && node.elements.length === 0);
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const imports = resolveImports(context);
@@ -47,14 +80,7 @@ const create = context => {
 			return;
 		}
 
-		// `undefined` is an identifier in the AST and `null` a literal; both are what `node:assert`
-		// reads as "no matcher", which matches any thrown value. `void anything` evaluates to
-		// `undefined`, so it reads the same way.
-		const isNoMatcher = second === undefined
-			|| (second.type === 'Identifier' && second.name === 'undefined')
-			|| (second.type === 'UnaryExpression' && second.operator === 'void')
-			|| (second.type === 'Literal' && second.value === null);
-		if (isNoMatcher) {
+		if (isNoMatcher(second)) {
 			return {
 				node,
 				messageId: MESSAGE_ID,
@@ -62,21 +88,7 @@ const create = context => {
 			};
 		}
 
-		// `node:assert` accepts a function, an `Error`, a `RegExp`, a validation object, or the failure
-		// message string there, and rejects a primitive matcher with `ERR_INVALID_ARG_TYPE` once the
-		// function has run, and an empty object or array with `ERR_INVALID_ARG_VALUE` once an error has
-		// been caught. A string is `no-assert-throws-string`'s case; the empty containers are checked as
-		// well, since Node has no matcher to match against.
-		// A primitive is rejected whatever it is written as, so `-1`, `!0` and `NaN` are matchers
-		// `node:assert` refuses just as `0` is. Every unary expression but `void`, which is the
-		// "no matcher" case above, evaluates to a primitive.
-		const isUnusableMatcher = second.type === 'Literal'
-			? !second.regex && typeof second.value !== 'string'
-			: (second.type === 'Identifier' && PRIMITIVE_IDENTIFIERS.has(second.name))
-				|| (second.type === 'UnaryExpression' && second.operator !== 'void')
-				|| (second.type === 'ObjectExpression' && second.properties.length === 0)
-				|| (second.type === 'ArrayExpression' && second.elements.length === 0);
-		if (isUnusableMatcher) {
+		if (isUnusableMatcher(second)) {
 			return {
 				node: second,
 				messageId: MESSAGE_ID,

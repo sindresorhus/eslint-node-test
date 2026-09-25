@@ -11,7 +11,7 @@
 
 `mock.getter()` and `mock.setter()` are the dedicated forms of `mock.method()` for accessor properties. They make the kind of property being mocked clear at the call site.
 
-This rule reports `mock.method()` and `t.mock.method()` calls whose statically analyzable options set exactly one accessor to `true`. Four-argument calls require an inline implementation to preserve overload resolution. It skips dynamic options and object getters, where the replacement could alter behavior. The autofix changes only `.method`; remove the redundant flag separately if desired.
+This rule reports `mock.method()` and `t.mock.method()` calls whose statically analyzable options set exactly one accessor to `true`. Four-argument calls require an inline implementation to preserve overload resolution. It skips dynamic options and object getters, where the replacement could alter behavior. A key written as a computed key that folds to a constant, such as `{['getter']: true}`, names the same property a bare one does and is reported; one that does not fold, like a spread or `{[key]: value}`, makes the options dynamic and is skipped. The autofix changes only `.method`; remove the redundant flag separately if desired.
 
 See also [`prefer-context-mock`](./prefer-context-mock.md), which prefers the automatically restored test context tracker over the global `mock` tracker.
 

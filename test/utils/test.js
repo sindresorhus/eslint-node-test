@@ -137,32 +137,8 @@ function getTester(importMeta) {
 	};
 }
 
-const addComment = (testCase, comment) => {
-	testCase = normalizeTestCase(testCase, /* shouldNormalizeLanguageOptions */ false);
-	const {code, output} = testCase;
-	const fixedTest = {
-		...testCase,
-		code: `${code}\n/* ${comment} */`,
-	};
-	if (Object.hasOwn(fixedTest, 'output') && typeof output === 'string') {
-		fixedTest.output = `${output}\n/* ${comment} */`;
-	}
-
-	return fixedTest;
-};
-
-const avoidTestTitleConflict = (tests, comment) => {
-	const {valid, invalid} = tests;
-	return {
-		...tests,
-		valid: valid.map(testCase => addComment(testCase, comment)),
-		invalid: invalid.map(testCase => addComment(testCase, comment)),
-	};
-};
-
 export {
 	normalizeTestCase,
 	getTester,
-	avoidTestTitleConflict,
 };
 export {default as parsers} from './parsers.js';

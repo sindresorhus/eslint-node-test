@@ -35,9 +35,11 @@ test.snapshot({
 		withMock('mock.method(object, \'value\', {getter: true, get unrelated() { return true; }});'),
 		withMock('mock.method(object, \'value\', {__proto__: {setter: true}, getter: true});'),
 
-		// Computed option keys can override the literal accessor option.
-		withMock('mock.method(object, \'value\', {[\'getter\']: true});'),
+		// A computed key that folds to a constant can override the literal accessor option.
 		withMock('mock.method(object, \'value\', {getter: true, [\'getter\']: false});'),
+
+		// A computed key that does not fold to a constant could name any option, so the effective options stay unreadable.
+		withMock('mock.method(object, \'value\', {[unknown]: true});'),
 
 		// Shadowed mock imports are ignored.
 		withMock('const fn = mock => mock.method(object, \'value\', {getter: true});'),
@@ -56,8 +58,11 @@ test.snapshot({
 		inTestWithContext('getTestContext().mock.method(object, \'value\', {getter: true});'),
 		inTestWithContext('getTestContext().mock.method(object, \'value\', {setter: true});'),
 		inTestWithContext('getTestContext().mock.method(object, \'value\', () => \'stubbed\', {getter: true});'),
-		// Global mock getter.
+		// A computed key that folds to a constant names the same property, which is the accessor
+		// real `mock.method()` reads too
 		withMock('mock.method(object, \'value\', {getter: true});'),
+		withMock('mock.method(object, \'value\', {[\'getter\']: true});'),
+		withMock('mock.method(object, \'value\', {[`getter`]: true});'),
 		withMock('mock.method(object, \'value\', {getter: false, getter: true});'),
 		withMock('mock?.method?.(object, \'value\', {getter: true});'),
 		withMock('(mock?.method)?.(object, \'value\', {getter: true});'),

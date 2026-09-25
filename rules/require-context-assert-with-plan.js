@@ -81,6 +81,31 @@ const create = context => {
 	// The callbacks of statically skipped tests, subtests, and suites, which never run.
 	const skippedCallbacks = new WeakSet();
 
+	// Open the frame for a test, subtest, or hook call, which is what its assertions and its plan
+	// attach to.
+	const openFrame = (node, isHook) => {
+		const callback = isHook ? getHookCallback(node) : getTestCallback(node);
+		const contextVariable = getContextVariable(callback, sourceCode);
+		// `t.plan(1)` and the test-level `plan` option set the same expected count, so the option
+		// counts here too.
+		const hasPlanOption = hasEnabledPlanOption(node, context);
+		const contextName = tracker.current();
+		frames.push({
+			node,
+			contextName,
+			// A test that declares no context parameter still has one, reachable through
+			// `getTestContext()`, so the frame stands in as its own key.
+			contextKey: contextVariable ?? undefined,
+			hasPlan: hasPlanOption,
+			// The message names the context to convert to. A test with no declared parameter can
+			// only name the `getTestContext()` import, and only when the file has one.
+			planName: hasPlanOption
+				? (contextName ?? (getTestContextName ? `${getTestContextName}()` : undefined))
+				: undefined,
+			assertions: [],
+		});
+	};
+
 	// A skipped test, subtest, or suite never runs its callback, so neither its plan nor its
 	// assertions exist. Returns the callback when the call was skipped.
 	const markSkipped = (node, parsed, isSubtest) => {
@@ -110,26 +135,7 @@ const create = context => {
 		}
 
 		if (isTest) {
-			const callback = isHook ? getHookCallback(node) : getTestCallback(node);
-			const contextVariable = getContextVariable(callback, sourceCode);
-			// `t.plan(1)` and the test-level `plan` option set the same expected count, so the
-			// option counts here too.
-			const hasPlanOption = hasEnabledPlanOption(node, context);
-			const contextName = tracker.current();
-			frames.push({
-				node,
-				contextName,
-				// A test that declares no context parameter still has one, reachable through
-				// `getTestContext()`, so the frame stands in as its own key.
-				contextKey: contextVariable ?? undefined,
-				hasPlan: hasPlanOption,
-				// The message names the context to convert to. A test with no declared parameter can
-				// only name the `getTestContext()` import, and only when the file has one.
-				planName: hasPlanOption
-					? (contextName ?? (getTestContextName ? `${getTestContextName}()` : undefined))
-					: undefined,
-				assertions: [],
-			});
+			openFrame(node, isHook);
 			return;
 		}
 
