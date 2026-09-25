@@ -15,12 +15,24 @@ before(async () => {
 	ruleFiles = files.filter(file => path.extname(file) === '.js' && path.basename(file) !== 'index.js');
 });
 
-test('Every rule is defined in index file in alphabetical order', () => {
-	const exportedNames = Object.keys(eslintNodeTest.rules);
+test('Every rule is defined in index file in alphabetical order', async () => {
+	// Read the file, not the namespace it is imported as: an ES module namespace object sorts its
+	// own keys, so `Object.keys(…)` is in order whatever the file says and the check cannot fail.
+	const source = await fsAsync.readFile('rules/index.js', 'utf8');
+	const declaredNames = Array.from(source.matchAll(/^export \{default as '(.+?)'\}/gm), match => match[1]);
+	assert.ok(declaredNames.length > 0, 'No rules were found in rules/index.js');
+	// The generator sorts the file names, extension included, so that is the order to check against.
+	// A locale-aware sort of the bare rule names is a different one: it puts `test-title` before
+	// `test-title-format`, where the generator puts the longer name first.
+	const expectedNames = ruleFiles
+		.toSorted((first, second) => first.localeCompare(second))
+		.map(file => path.basename(file, '.js'));
+	assert.deepStrictEqual(declaredNames, expectedNames, 'The rules are not exported in alphabetical order.');
+	// Compared as sets, not in order: the file's order is the generator's, not a locale-aware one.
 	assert.deepStrictEqual(
-		exportedNames,
-		exportedNames.toSorted((a, b) => a.localeCompare(b)),
-		'The rules are not exported in alphabetical order.',
+		declaredNames.toSorted((first, second) => first.localeCompare(second)),
+		Object.keys(eslintNodeTest.rules).toSorted((first, second) => first.localeCompare(second)),
+		'rules/index.js does not export exactly the rules the plugin exposes.',
 	);
 
 	for (const file of ruleFiles) {
@@ -121,6 +133,23 @@ test('Every rule has valid meta.type', () => {
 		assert.notStrictEqual(rule.meta, null, `${name} has no meta`);
 		assert.strictEqual(typeof rule.meta.type, 'string', `${name} meta.type is not string`);
 		assert.ok(validTypes.includes(rule.meta.type), `${name} meta.type is not one of [${validTypes.join(', ')}]`);
+	}
+});
+
+test('No rule test narrows itself to one case', async () => {
+	// A narrowed case runs alone and the runner does not even count the rest as skipped, so the file
+	// would go green with almost nothing covered. The tester's `test.only(…)` is a case in the `valid` or `invalid` list, so it starts its own line, whatever it takes: a tagged template, a string, a case object, or a helper call such as `withTest('…')`. A `test.only` in test data sits inside a string after other code on its line, a subtest's `t.test.only` follows a dot, and a mention in a comment follows the comment marker.
+	const files = await fsAsync.readdir('test');
+	const sources = await Promise.all(
+		files
+			.filter(file => file.endsWith('.js'))
+			.map(async file => [file, await fsAsync.readFile(path.join('test', file), 'utf8')]),
+	);
+	for (const [file, source] of sources) {
+		assert.doesNotMatch(source, /^[\t ]*test\.only\b/m, `'test/${file}' narrows a case, so its other cases never run`);
+		// A case's own `only` is a property on its own line, where `{only: true}` in test data is
+		// always inside a string.
+		assert.doesNotMatch(source, /^\t+only: true,?$/m, `'test/${file}' marks a case as the only one, so its other cases never run`);
 	}
 });
 

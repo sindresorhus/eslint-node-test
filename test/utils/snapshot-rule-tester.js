@@ -217,6 +217,15 @@ export default class SnapshotRuleTester {
 
 					assert.notDeepStrictEqual(messages, [], 'Invalid case should have at least one error.');
 
+					// A fix may leave the problems it did not address, but it may not trade the one it
+					// did for another: the rewritten code has to report strictly fewer problems.
+					const assertProgress = remaining => {
+						assert.ok(
+							remaining.length < messages.length,
+							`A fix should leave fewer problems than it started with: ${messages.length} before, ${remaining.length} after.`,
+						);
+					};
+
 					const inputSnapshotParts = [];
 					let shouldPrintCodeHead = false;
 
@@ -257,7 +266,7 @@ export default class SnapshotRuleTester {
 						if (fixable && message.fix) {
 							const output = applyFix(input, message);
 							if (output !== input) {
-								runVerify(output);
+								assertProgress(runVerify(output));
 
 								snapshotParts.push(outdent`
 									Output:
@@ -272,7 +281,7 @@ export default class SnapshotRuleTester {
 							const output = applyFix(input, suggestion);
 							assert.notStrictEqual(output, input, 'Suggestion should provide different output.');
 
-							runVerify(output);
+							assertProgress(runVerify(output));
 
 							snapshotParts.push(outdent`
 								Suggestion ${index + 1}/${suggestions.length}: ${suggestion.desc}:

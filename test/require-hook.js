@@ -151,5 +151,7 @@ test.snapshot({
 		'import {describe} from \'node:test\';\ndescribe({name: \'a\', fn() { setup(); }});',
 		'import {describe} from \'node:test\';\ndescribe(\'a\', {fn() { setup(); }});',
 		'import {suite} from \'node:test\';\nsuite(\'a\', {fn() { setup(); }});',
+		// A bare call at the top level is what the default `allow` is about
+		'import {test} from \'node:test\';\nconsole.log(\'top level\');\ntest(\'a\', () => {});',
 	],
 });

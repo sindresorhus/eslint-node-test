@@ -6,6 +6,9 @@ const head = 'import {describe, test, it, before, beforeEach} from \'node:test\'
 
 test.snapshot({
 	valid: [
+		// The cap is opt-in: with no options, any number of top-level describes is fine
+		{code: 'import {describe} from \'node:test\';\ndescribe("a", () => {});\ndescribe("b", () => {});\ndescribe("c", () => {});'},
+
 		// Not a test file
 		'test("a", () => {});',
 
