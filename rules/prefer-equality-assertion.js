@@ -57,9 +57,14 @@ function isZeroOperand(node) {
 		return node.value === 0;
 	}
 
-	return node.type === 'UnaryExpression'
-		&& (node.operator === '-' || node.operator === '+')
-		&& isNumericLiteral(unwrapTypeScriptExpression(node.argument));
+	// A signed literal is only a zero when the literal is zero: `-1` is an ordinary number on which
+	// `===` and `Object.is` agree, so it must not block the fix.
+	if (node.type === 'UnaryExpression' && (node.operator === '-' || node.operator === '+')) {
+		const argument = unwrapTypeScriptExpression(node.argument);
+		return isNumericLiteral(argument) && argument.value === 0;
+	}
+
+	return false;
 }
 
 /*
@@ -121,7 +126,9 @@ const create = context => {
 			return;
 		}
 
-		const {callee} = node;
+		// A TypeScript wrapper on the callee (`assert!`, `(assert as any)`) is not part of the assert
+		// call, so rewrite the callee inside it and leave the wrapper in place.
+		const callee = unwrapTypeScriptExpression(node.callee);
 		const method = callee.type === 'MemberExpression' ? callee.property.name : 'ok';
 
 		const problem = {

@@ -28,6 +28,15 @@ test.snapshot({
 		'import test from \'node:test\';\ntest(\'t\', t => { try { f(); } catch (t) { console.log(\'value\'); } });',
 		'import test from \'node:test\';\ntest(\'t\', t => { for (const t of xs) { console.log(\'value\'); } });',
 
+		// A local `console` is some other object, so `t.diagnostic(…)` is not a replacement
+		'import test from \'node:test\';\ntest(\'t\', t => { const console = {log() {}}; console.log(\'x\'); });',
+		'import test from \'node:test\';\ntest(\'t\', function (t, console) { console.log(\'x\'); });',
+		'import test from \'node:test\';\ntest(\'t\', t => { function inner(console) { console.log(\'x\'); } inner(console); });',
+		'import test from \'node:test\';\ntest(\'t\', t => { try { f(); } catch (console) { console.log(\'x\'); } });',
+
+		// A local binding shadows an aliased `getTestContext` import just as it shadows the context parameter
+		'import {test, getTestContext as gtc} from \'node:test\';\ntest(\'a\', () => { const gtc = () => {}; console.log(\'x\'); });',
+
 		// `console.error`/`console.warn` are not targeted
 		inTest('console.error(\'real error\');'),
 		inTest('console.warn(\'warning\');'),

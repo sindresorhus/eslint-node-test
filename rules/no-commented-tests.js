@@ -1,3 +1,4 @@
+import {resolveImports} from './utils/node-test.js';
 import getComments from './utils/get-comments.js';
 
 const MESSAGE_ID = 'no-commented-tests/error';
@@ -5,6 +6,11 @@ const MESSAGE_ID = 'no-commented-tests/error';
 const messages = {
 	[MESSAGE_ID]: 'Use `.skip()` or remove the commented-out test instead of commenting it out.',
 };
+
+// The `node:test` exports whose calls are tests, suites, or hooks. A commented-out call names the
+// *local* binding, so an aliased import is covered by adding the alias to the pattern.
+const TEST_EXPORTS = ['test', 'it', 'describe', 'suite', 'before', 'after', 'beforeEach', 'afterEach'];
+const TEST_EXPORTS_SET = new Set(TEST_EXPORTS);
 
 // Matches lines that look like commented-out test/hook calls from node:test.
 // Anchored at start-of-line (with optional leading whitespace and block comment asterisk).
@@ -20,17 +26,37 @@ const messages = {
 // No space is allowed before the `(`, because real code never writes `test (` while prose
 // routinely does — `// test (the runner entry point)` is a sentence, not a commented-out test.
 const CHAINED_NAME = '(?:only|skip|todo|describe|suite|before|after|beforeEach|afterEach|expectFailure)';
-const COMMENTED_TEST_PATTERN = new RegExp(
-	String.raw`^\s*\*?\s*(?:await\s+)?(?:test|it|describe|suite|before|after|beforeEach|afterEach)(?:\s*\.\s*${CHAINED_NAME}\s*)*\(`,
-	'v',
-);
+
+/**
+Build the pattern for one file, whose `node:test` imports may bind an export to another name.
+*/
+function createPattern(imports) {
+	// A local binding for a test export (`import {test as t}`) is what the commented-out call names,
+	// and a namespace binding carries the same exports as the test function.
+	const names = new Set(TEST_EXPORTS);
+	for (const [local, canonical] of imports.locals) {
+		if (TEST_EXPORTS_SET.has(canonical)) {
+			names.add(local);
+		}
+	}
+
+	for (const name of imports.namespaces) {
+		names.add(name);
+	}
+
+	return new RegExp(
+		// A long alternation sorts longest-first so an alias like `testCase` cannot shadow `test`.
+		String.raw`^\s*\*?\s*(?:await\s+)?(?:${[...names].toSorted((a, b) => b.length - a.length).join('|')})(?:\s*\.\s*${CHAINED_NAME}\s*)*\(`,
+		'v',
+	);
+}
 
 // Reports the first line of the comment that looks like a commented-out test.
-function reportFirstMatch(context, comment) {
+function reportFirstMatch(context, pattern, comment) {
 	const lines = comment.value.split('\n');
 	const commentStartLine = context.sourceCode.getLoc(comment).start.line;
 	for (const [index, line] of lines.entries()) {
-		if (COMMENTED_TEST_PATTERN.test(line)) {
+		if (pattern.test(line)) {
 			context.report({
 				loc: {
 					line: commentStartLine + index,
@@ -45,6 +71,8 @@ function reportFirstMatch(context, comment) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	const pattern = createPattern(resolveImports(context));
+
 	context.on('Program:exit', () => {
 		for (const comment of getComments(context)) {
 			// Skip JSDoc-style block comments (/** ... */).
@@ -52,7 +80,7 @@ const create = context => {
 				continue;
 			}
 
-			reportFirstMatch(context, comment);
+			reportFirstMatch(context, pattern, comment);
 		}
 	});
 };

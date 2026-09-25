@@ -7,12 +7,14 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-A subtest created with `t.test()` returns a promise. The parent waits for its subtests before it finishes, so a subtest that is never awaited cannot run alongside the rest of the test's work. When you create subtests by iterating with `map`, `forEach`, or `flatMap`, collect and await the resulting promises so they run concurrently:
+A subtest created with `t.test()` returns a promise. A subtest that is never awaited starts immediately and runs alongside the rest of the test's own body; awaiting the promises makes the parent wait for every subtest before it continues. When you create subtests by iterating with `map`, `forEach`, or `flatMap`, collect and await the resulting promises to get that ordering:
 
 - `forEach` discards its callbacks' return values, so the subtest promises are lost entirely.
 - `map`/`flatMap` produce an array of promises that must be consumed, typically with `await Promise.all(...)`.
 
-The `Promise.all(...)` counts as consumed when it is awaited, returned, or assigned. A bare `Promise.all(...)` statement or one discarded with `void` is still flagged, since nothing waits for those subtests where the promise would have been awaited.
+Subtests still run one at a time whichever way the promises are collected. Set the [`concurrency`](https://nodejs.org/api/test.html#concurrency) option to run them at the same time.
+
+The `Promise.all(...)` counts as consumed when it is awaited, returned, or assigned. A bare `Promise.all(...)` statement or one discarded with `void` is still flagged, since nothing there waits for the subtests where the awaited promise would have.
 
 The array has to reach `Promise.all(...)` as a plain argument. The rule does not follow the value any further, so a two-step form that copies it first, as in `await Promise.all([...promises])` or `await Promise.all(promises.slice())`, is still flagged even though the subtests do settle.
 
@@ -24,7 +26,7 @@ This rule complements [`no-unawaited-subtest`](./no-unawaited-subtest.md), which
 import test from 'node:test';
 
 test('table', async t => {
-	// ❌ — the subtests cannot run concurrently
+	// ❌ — the test continues while the subtests run
 	cases.map((input) => t.test(`case ${input}`, () => {}));
 
 	// ❌ — forEach throws the promises away

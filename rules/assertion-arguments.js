@@ -36,7 +36,7 @@ const ASSERTION_ARGS = new Map([
 	['doesNotThrow', {min: 1, max: 3}],
 	['rejects', {min: 1, max: 3}],
 	['doesNotReject', {min: 1, max: 3}],
-	['ifError', {min: 0, max: 1}],
+	['ifError', {min: 0, max: 1, hasMessage: false}],
 ]);
 
 /*
@@ -90,7 +90,7 @@ const create = context => {
 			return;
 		}
 
-		const {min, max} = expected;
+		const {min, max, hasMessage = true} = expected;
 		const count = node.arguments.length;
 
 		if (count < min) {
@@ -111,8 +111,9 @@ const create = context => {
 
 		// If a trailing message argument is present, it must be a string.
 		// The message argument is the last arg when count > min (i.e. it is optional and present).
-		// For methods where max === min there is no message slot — skip.
-		if (count === max && max > min) {
+		// For methods where max === min there is no message slot, and `ifError` has no message slot at
+		// all: its only argument is the value, which may be any expression.
+		if (count === max && max > min && hasMessage) {
 			const lastArg = node.arguments.at(-1);
 			if (isInvalidMessageArgument(lastArg)) {
 				return {

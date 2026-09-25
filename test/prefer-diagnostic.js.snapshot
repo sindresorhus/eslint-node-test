@@ -122,11 +122,11 @@ exports[`prefer-diagnostic > invalid(14): import {test, getTestContext as gtc} f
 Message:
   1 | import {test, getTestContext as gtc} from 'node:test';
 > 2 | test('a', () => { console.log('x'); });
-    |                   ^^^^^^^^^^^ Prefer \`getTestContext().diagnostic()\` over \`console.log()\` inside a test, so the message is attached to the test as a TAP diagnostic.
+    |                   ^^^^^^^^^^^ Prefer \`gtc().diagnostic()\` over \`console.log()\` inside a test, so the message is attached to the test as a TAP diagnostic.
 
-Suggestion 1/1: Replace with \`getTestContext().diagnostic()\`.:
+Suggestion 1/1: Replace with \`gtc().diagnostic()\`.:
   1 | import {test, getTestContext as gtc} from 'node:test';
-  2 | test('a', () => { getTestContext().diagnostic('x'); });
+  2 | test('a', () => { gtc().diagnostic('x'); });
 
 `;
 

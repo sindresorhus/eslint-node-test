@@ -73,7 +73,7 @@ const getAdditionalProperties = (object, properties) =>
 	Object.keys(object).filter(property => !properties.includes(property));
 
 function normalizeTests(tests) {
-	const additionalProperties = getAdditionalProperties(tests, ['valid', 'invalid']);
+	const additionalProperties = getAdditionalProperties(tests, ['valid', 'invalid', 'testerOptions']);
 	if (additionalProperties.length > 0) {
 		throw new Error(`Unexpected snapshot test properties: ${additionalProperties.join(', ')}`);
 	}

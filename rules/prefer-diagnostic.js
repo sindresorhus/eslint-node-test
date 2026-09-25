@@ -1,5 +1,7 @@
+import {findVariable} from '@eslint-community/eslint-utils';
 import {resolveImports, createContextTracker} from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
+import {isUnshadowedGlobal} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-diagnostic/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-diagnostic/suggestion';
@@ -20,8 +22,17 @@ const create = context => {
 
 	const tracker = createContextTracker(imports);
 	// A test that declares no context parameter can still reach its context through
-	// `getTestContext()`, so the file has to import that name under any local alias.
-	const hasGetTestContextImport = imports.locals.values().toArray().includes('getTestContext');
+	// `getTestContext()`, so the file has to import that name. The suggestion has to spell the local
+	// name the file actually bound, which is not `getTestContext` under an alias.
+	const getTestContextName = [...imports.locals].find(([, canonicalName]) => canonicalName === 'getTestContext')?.[0];
+	const isGetTestContextInScope = node => {
+		if (!getTestContextName) {
+			return false;
+		}
+
+		const variable = findVariable(context.sourceCode.getScope(node), getTestContextName);
+		return variable?.defs.some(definition => definition.type === 'ImportBinding') ?? false;
+	};
 
 	context.on('CallExpression', node => {
 		tracker.update(node);
@@ -37,7 +48,9 @@ const create = context => {
 		}
 
 		const object = unwrapTypeScriptExpression(callee.object);
-		if (object?.type !== 'Identifier' || object.name !== 'console') {
+		// A local `console` — a parameter, a declaration, a catch binding — is some other object, and
+		// its `log` is not the global's.
+		if (object?.type !== 'Identifier' || object.name !== 'console' || !isUnshadowedGlobal(context, object)) {
 			return;
 		}
 
@@ -49,7 +62,7 @@ const create = context => {
 			return;
 		}
 
-		const contextName = tracker.current() ?? (hasGetTestContextImport ? 'getTestContext()' : undefined);
+		const contextName = tracker.current() ?? (getTestContextName ? `${getTestContextName}()` : undefined);
 		if (!contextName) {
 			return;
 		}
@@ -61,8 +74,13 @@ const create = context => {
 		}
 
 		// A nested binding of the same name shadows the context, so `t.diagnostic(…)` there would
-		// not reach the test context at all. `getTestContext()` is an import, so it cannot be shadowed.
-		if (contextName !== 'getTestContext()' && !tracker.isContextNameInScope(contextName, node)) {
+		// not reach the test context at all. The `getTestContext` import is a binding like any other,
+		// so a local declaration in the test body shadows it too.
+		if (tracker.current()) {
+			if (!tracker.isContextNameInScope(contextName, node)) {
+				return;
+			}
+		} else if (!isGetTestContextInScope(node)) {
 			return;
 		}
 

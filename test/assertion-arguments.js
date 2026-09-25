@@ -18,6 +18,16 @@ test.snapshot({
 		withAssert('assert.ifError(undefined);'),
 		withAssert('assert.ifError(null);'),
 
+		// `ifError` has no message argument, so its one argument is a value and is never message-checked
+		withAssert('assert.ifError(0);'),
+		withAssert('assert.ifError(false);'),
+		withAssert('assert.ifError(/re/);'),
+		withAssert('assert.ifError({});'),
+		withAssert('assert.ifError([]);'),
+		withNamedImport('ifError', 'ifError(0);'),
+		withStrictAssert('assert.ifError(0);'),
+		'import test from \'node:test\';\ntest(\'t\', t => { t.assert.ifError(0); });',
+
 		// Not a node:assert file — ignored
 		'assert.strictEqual(a, b);',
 

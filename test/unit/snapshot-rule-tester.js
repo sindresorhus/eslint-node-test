@@ -1,6 +1,25 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {visualizeEslintMessage} from '../utils/snapshot-rule-tester.js';
+import plugin from '../../index.js';
+import SnapshotRuleTester, {visualizeEslintMessage} from '../utils/snapshot-rule-tester.js';
+
+// A `test` stand-in that records the cases instead of running them, so a bad option can be
+// asserted on without registering real tests.
+const collect = () => {
+	const cases = [];
+	const record = (name, body) => {
+		cases.push({name, body});
+	};
+	record.only = record;
+	return {record, cases};
+};
+
+const runWithTests = tests => {
+	const {record, cases} = collect();
+	const tester = new SnapshotRuleTester(record, {});
+	tester.run('no-only-test', plugin.rules['no-only-test'], tests);
+	return cases;
+};
 
 test('Snapshot formatter includes diagnostic location', () => {
 	const code = [
@@ -42,4 +61,20 @@ test('Snapshot formatter changes when diagnostic location moves', () => {
 			message: 'Problem.',
 		}),
 	);
+});
+
+test('The tester rejects an unknown top-level option', () => {
+	assert.throws(() => {
+		runWithTests({valid: [], invalid: ['import test from "node:test";'], testerOption: {}});
+	}, /Unexpected snapshot test properties: testerOption/);
+});
+
+test('The tester accepts testerOptions', () => {
+	const cases = runWithTests({
+		valid: [],
+		invalid: ['import test from "node:test";'],
+		testerOptions: {filename: 'with-options.test.js'},
+	});
+
+	assert.strictEqual(cases.length, 1);
 });

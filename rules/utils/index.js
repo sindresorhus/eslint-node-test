@@ -18,4 +18,5 @@ export {isUnknownType} from './types.js';
 export {default as isConditionalBranch} from './is-conditional-branch.js';
 export {default as getEnclosingFunction} from './get-enclosing-function.js';
 export {default as isGlobalProcessMember} from './is-global-process.js';
+export {default as isUnshadowedGlobal} from './is-unshadowed-global.js';
 export {default as isPrimitive} from './is-primitive.js';

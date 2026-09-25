@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Passing the wrong number of arguments to a `node:assert` assertion never compares anything. A two-operand method called with one argument throws `ERR_MISSING_ARGS` before it runs the comparison, so the failure is a missing-argument type error rather than the assertion's own message, and `assert.ok()` throws with no value passed.
+Passing too few arguments to a `node:assert` assertion never compares anything: a two-operand method called with one argument throws `ERR_MISSING_ARGS` before the comparison, and `assert.ok()` throws with no value passed, so the failure is a missing-argument type error rather than the assertion's own message. Passing too many is harmless to the comparison, which runs on the arguments the method takes and ignores the rest, but the surplus is almost always a mistake.
 
 Each `node:assert` method has a fixed set of required positional arguments, plus one optional trailing `message` string. This rule reports when:
 

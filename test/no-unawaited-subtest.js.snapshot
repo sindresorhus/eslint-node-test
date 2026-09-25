@@ -10,7 +10,7 @@ exports[`no-unawaited-subtest > invalid(1): import test from 'node:test';\ntest(
 Message:
   1 | import test from 'node:test';
 > 2 | test("parent", async t => { t.test("child", () => {}); });
-    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, otherwise it cannot run alongside the rest of the test, and it is cancelled if the parent fails.
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, so the test's own work does not run alongside it.
 
 Output:
   1 | import test from 'node:test';
@@ -30,7 +30,7 @@ exports[`no-unawaited-subtest > invalid(10): import test from 'node:test';\ntest
 Message:
   1 | import test from 'node:test';
 > 2 | test("parent", async t => { t?.test("child", () => {}); });
-    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, otherwise it cannot run alongside the rest of the test, and it is cancelled if the parent fails.
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, so the test's own work does not run alongside it.
 
 Output:
   1 | import test from 'node:test';
@@ -50,7 +50,7 @@ exports[`no-unawaited-subtest > invalid(11): import test from 'node:test';\ntest
 Message:
   1 | import test from 'node:test';
 > 2 | test("parent", async t => { void t.test("child", () => {}); });
-    |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, otherwise it cannot run alongside the rest of the test, and it is cancelled if the parent fails.
+    |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, so the test's own work does not run alongside it.
 
 `;
 
@@ -66,7 +66,7 @@ exports[`no-unawaited-subtest > invalid(12): import test from 'node:test';\ntest
 Message:
   1 | import test from 'node:test';
 > 2 | test("parent", t => { void t.test("child", () => {}); });
-    |                            ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, otherwise it cannot run alongside the rest of the test, and it is cancelled if the parent fails.
+    |                            ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, so the test's own work does not run alongside it.
 
 `;
 
@@ -82,7 +82,7 @@ exports[`no-unawaited-subtest > invalid(13): import test from 'node:test';\ntest
 Message:
   1 | import test from 'node:test';
 > 2 | test("parent", async t => { void (t.test("child", () => {}) as any); });
-    |                                   ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, otherwise it cannot run alongside the rest of the test, and it is cancelled if the parent fails.
+    |                                   ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, so the test's own work does not run alongside it.
 
 `;
 
@@ -98,7 +98,7 @@ exports[`no-unawaited-subtest > invalid(14): import test from 'node:test';\ntest
 Message:
   1 | import test from 'node:test';
 > 2 | test("parent", async t => { xs.forEach(x => { t.test(x, () => {}); }); });
-    |                                               ^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, otherwise it cannot run alongside the rest of the test, and it is cancelled if the parent fails.
+    |                                               ^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, so the test's own work does not run alongside it.
 
 `;
 
@@ -114,7 +114,7 @@ exports[`no-unawaited-subtest > invalid(15): import test from 'node:test';\ntest
 Message:
   1 | import test from 'node:test';
 > 2 | test("parent", t => { setTimeout(() => { function create() { t.test("child", () => {}); } create(); }); });
-    |                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, otherwise it cannot run alongside the rest of the test, and it is cancelled if the parent fails.
+    |                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, so the test's own work does not run alongside it.
 
 `;
 
@@ -130,7 +130,7 @@ exports[`no-unawaited-subtest > invalid(16): import test from 'node:test';\ntest
 Message:
   1 | import test from 'node:test';
 > 2 | test("parent", t => { function schedule() { setTimeout(() => { t.test("child", () => {}); }); } schedule(); });
-    |                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, otherwise it cannot run alongside the rest of the test, and it is cancelled if the parent fails.
+    |                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, so the test's own work does not run alongside it.
 
 `;
 
@@ -146,7 +146,7 @@ exports[`no-unawaited-subtest > invalid(17): import test from 'node:test';\ntest
 Message:
   1 | import test from 'node:test';
 > 2 | test("parent", t => { load().then(() => { setTimeout(() => { t.test("child", () => {}); }); }); });
-    |                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, otherwise it cannot run alongside the rest of the test, and it is cancelled if the parent fails.
+    |                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, so the test's own work does not run alongside it.
 
 `;
 
@@ -162,7 +162,7 @@ exports[`no-unawaited-subtest > invalid(18): import test from 'node:test';\ntest
 Message:
   1 | import test from 'node:test';
 > 2 | test("parent", async t => { await new Promise(resolve => { setTimeout(() => { t.test("child", () => {}); resolve(); }); }); });
-    |                                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, otherwise it cannot run alongside the rest of the test, and it is cancelled if the parent fails.
+    |                                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, so the test's own work does not run alongside it.
 
 `;
 
@@ -178,7 +178,7 @@ exports[`no-unawaited-subtest > invalid(19): import test from 'node:test';\ntest
 Message:
   1 | import test from 'node:test';
 > 2 | test("parent", (t, done) => { setTimeout(() => { t.test("child", () => {}); done(); }); });
-    |                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, otherwise it cannot run alongside the rest of the test, and it is cancelled if the parent fails.
+    |                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, so the test's own work does not run alongside it.
 
 `;
 
@@ -194,7 +194,7 @@ exports[`no-unawaited-subtest > invalid(2): import test from 'node:test';\ntest(
 Message:
   1 | import test from 'node:test';
 > 2 | test("parent", t => { t.test("child", () => {}); });
-    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, otherwise it cannot run alongside the rest of the test, and it is cancelled if the parent fails.
+    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, so the test's own work does not run alongside it.
 
 `;
 
@@ -210,7 +210,7 @@ exports[`no-unawaited-subtest > invalid(20): import test from 'node:test';\ntest
 Message:
   1 | import test from 'node:test';
 > 2 | test("parent", (t, done) => { load().then(() => { t.test("child", () => {}); done(); }); });
-    |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, otherwise it cannot run alongside the rest of the test, and it is cancelled if the parent fails.
+    |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, so the test's own work does not run alongside it.
 
 `;
 
@@ -226,7 +226,7 @@ exports[`no-unawaited-subtest > invalid(21): import test from 'node:test';\ntest
 Message:
   1 | import test from 'node:test';
 > 2 | test("parent", t => { t.plan(1, {wait: true}); setTimeout(() => { t.test("child", () => {}); t.assert.ok(true); }); });
-    |                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, otherwise it cannot run alongside the rest of the test, and it is cancelled if the parent fails.
+    |                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, so the test's own work does not run alongside it.
 
 `;
 
@@ -242,7 +242,7 @@ exports[`no-unawaited-subtest > invalid(22): import test from 'node:test';\ntest
 Message:
   1 | import test from 'node:test';
 > 2 | test('p', async t => { class C { static { t.test('c', () => {}); } } });
-    |                                           ^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, otherwise it cannot run alongside the rest of the test, and it is cancelled if the parent fails.
+    |                                           ^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, so the test's own work does not run alongside it.
 
 `;
 
@@ -261,7 +261,7 @@ Message:
   1 | import {test, getTestContext} from 'node:test';
   2 | test('parent', async () => {
 > 3 | 	getTestContext().test('child', () => {});
-    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`getTestContext().test()\` must be awaited or returned, otherwise it cannot run alongside the rest of the test, and it is cancelled if the parent fails.
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`getTestContext().test()\` must be awaited or returned, so the test's own work does not run alongside it.
   4 | });
 
 Output:
@@ -287,7 +287,7 @@ Message:
   1 | import {test, getTestContext} from 'node:test';
   2 | test('parent', () => {
 > 3 | 	getTestContext().test('child', () => {});
-    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`getTestContext().test()\` must be awaited or returned, otherwise it cannot run alongside the rest of the test, and it is cancelled if the parent fails.
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`getTestContext().test()\` must be awaited or returned, so the test's own work does not run alongside it.
   4 | });
 
 `;
@@ -307,7 +307,7 @@ Message:
   1 | import {test, getTestContext} from 'node:test';
   2 | test('parent', async () => {
 > 3 | 	class C { static { getTestContext().test('child', () => {}); } }
-    | 	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`getTestContext().test()\` must be awaited or returned, otherwise it cannot run alongside the rest of the test, and it is cancelled if the parent fails.
+    | 	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`getTestContext().test()\` must be awaited or returned, so the test's own work does not run alongside it.
   4 | });
 
 `;
@@ -324,7 +324,7 @@ exports[`no-unawaited-subtest > invalid(26): import {beforeEach} from 'node:test
 Message:
   1 | import {beforeEach} from 'node:test';
 > 2 | beforeEach(t => { t.test('c', () => {}); });
-    |                   ^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, otherwise it cannot run alongside the rest of the test, and it is cancelled if the parent fails.
+    |                   ^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, so the test's own work does not run alongside it.
 
 `;
 
@@ -340,7 +340,7 @@ exports[`no-unawaited-subtest > invalid(27): import {getTestContext, beforeEach}
 Message:
   1 | import {getTestContext, beforeEach} from 'node:test';
 > 2 | beforeEach(t => { getTestContext().test('c', () => {}); });
-    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`getTestContext().test()\` must be awaited or returned, otherwise it cannot run alongside the rest of the test, and it is cancelled if the parent fails.
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`getTestContext().test()\` must be awaited or returned, so the test's own work does not run alongside it.
 
 `;
 
@@ -356,7 +356,7 @@ exports[`no-unawaited-subtest > invalid(3): import test from 'node:test';\ntest(
 Message:
   1 | import test from 'node:test';
 > 2 | test("parent", async t => { t.test("a", () => {}); t.test("b", () => {}); });
-    |                             ^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, otherwise it cannot run alongside the rest of the test, and it is cancelled if the parent fails.
+    |                             ^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, so the test's own work does not run alongside it.
 
 Output:
   1 | import test from 'node:test';
@@ -369,7 +369,7 @@ exports[`no-unawaited-subtest > invalid(3): import test from 'node:test';\ntest(
 Message:
   1 | import test from 'node:test';
 > 2 | test("parent", async t => { t.test("a", () => {}); t.test("b", () => {}); });
-    |                                                    ^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, otherwise it cannot run alongside the rest of the test, and it is cancelled if the parent fails.
+    |                                                    ^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, so the test's own work does not run alongside it.
 
 Output:
   1 | import test from 'node:test';
@@ -389,7 +389,7 @@ exports[`no-unawaited-subtest > invalid(4): import test from 'node:test';\ntest(
 Message:
   1 | import test from 'node:test';
 > 2 | test("parent", async context => { context.test("child", () => {}); });
-    |                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`context.test()\` must be awaited or returned, otherwise it cannot run alongside the rest of the test, and it is cancelled if the parent fails.
+    |                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`context.test()\` must be awaited or returned, so the test's own work does not run alongside it.
 
 Output:
   1 | import test from 'node:test';
@@ -409,7 +409,7 @@ exports[`no-unawaited-subtest > invalid(5): import test from 'node:test';\ntest(
 Message:
   1 | import test from 'node:test';
 > 2 | test("parent", async t => { t.test.skip("child", () => {}); });
-    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, otherwise it cannot run alongside the rest of the test, and it is cancelled if the parent fails.
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, so the test's own work does not run alongside it.
 
 Output:
   1 | import test from 'node:test';
@@ -429,7 +429,7 @@ exports[`no-unawaited-subtest > invalid(6): import test from 'node:test';\ntest(
 Message:
   1 | import test from 'node:test';
 > 2 | test("parent", async t => { await t.test("child", async t2 => { t2.test("grandchild", () => {}); }); });
-    |                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t2.test()\` must be awaited or returned, otherwise it cannot run alongside the rest of the test, and it is cancelled if the parent fails.
+    |                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t2.test()\` must be awaited or returned, so the test's own work does not run alongside it.
 
 Output:
   1 | import test from 'node:test';
@@ -451,7 +451,7 @@ Message:
   1 | import test from 'node:test';
   2 | import {it} from 'node:test';
 > 3 | it("parent", async t => { t.test("child", () => {}); });
-    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, otherwise it cannot run alongside the rest of the test, and it is cancelled if the parent fails.
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, so the test's own work does not run alongside it.
 
 Output:
   1 | import test from 'node:test';
@@ -472,7 +472,7 @@ exports[`no-unawaited-subtest > invalid(8): import test from 'node:test';\ntest(
 Message:
   1 | import test from 'node:test';
 > 2 | test("parent", async (t: any) => { t.test("child", () => {}); });
-    |                                    ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, otherwise it cannot run alongside the rest of the test, and it is cancelled if the parent fails.
+    |                                    ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, so the test's own work does not run alongside it.
 
 Output:
   1 | import test from 'node:test';
@@ -492,6 +492,6 @@ exports[`no-unawaited-subtest > invalid(9): import test from 'node:test';\ntest(
 Message:
   1 | import test from 'node:test';
 > 2 | test("parent", async t => { t.test("child", () => {}) as Promise<void>; });
-    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, otherwise it cannot run alongside the rest of the test, and it is cancelled if the parent fails.
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, so the test's own work does not run alongside it.
 
 `;

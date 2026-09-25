@@ -80,5 +80,11 @@ test.snapshot({
 		'// it.after(() => {})',
 		// A top-level test awaited from module scope
 		'// await test("foo", async () => {})',
+
+		// A commented-out call names the local binding, so an aliased import has to match too
+		'import {test as t} from \'node:test\';\n// t(\'a\', () => {});',
+		'import {it as check} from \'node:test\';\n// check(\'a\', () => {});',
+		'import {test as t} from \'node:test\';\n// t.skip(\'a\', () => {});',
+		'import {test as testCase} from \'node:test\';\n// testCase(\'a\', () => {});',
 	],
 });

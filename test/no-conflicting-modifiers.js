@@ -38,6 +38,10 @@ test.snapshot({
 		// A hook's options carry no modifier, so an inert `skip`/`todo`/`only` there is an unknown
 		// key for `no-unknown-test-options`, not a conflicting or disallowed modifier
 		'import {beforeEach} from \'node:test\';\nbeforeEach({skip: true, todo: true}, () => {});',
+		// `expectFailure` composes with `todo` and with `only`: the runner applies both, so a test
+		// that both fails as expected and carries the TODO marker means what it says
+		withImport('test.expectFailure("x", {todo: true}, () => {});'),
+		withImport('test("x", {todo: true, expectFailure: true}, () => {});'),
 	],
 	invalid: [
 		// Chained conflict
@@ -48,7 +52,6 @@ test.snapshot({
 		withImport('test("x", {skip: true, only: true}, () => {});'),
 		'import {expectFailure} from \'node:test\';\nexpectFailure("x", {skip: true}, () => {});',
 		withImport('test("x", {expectFailure: true, skip: true}, () => {});'),
-		withImport('test.expectFailure("x", {todo: true}, () => {});'),
 
 		// A skip *reason* string still counts as an active skip, so it conflicts
 		withImport('test("x", {skip: "later", only: true}, () => {});'),

@@ -80,6 +80,33 @@ test.snapshot({
 		// Comment inside the comparison — reported without a fix
 		withAssert('assert.ok(a === /* note */ b);'),
 
+		// A TypeScript wrapper on the callee — the fix rewrites the callee inside the wrapper
+		{
+			code: withAssert('assert!(a === b);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withAssert('assert.ok!(a === b);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withAssert('(assert as any)(a === b);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withAssert('(assert satisfies any)(a !== b);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withAssert('(<typeof assert>assert)(a === b);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		// A bare named import cannot be rewritten to an unimported `strictEqual`, wrapper or not
+		{
+			code: withNamedImport('ok', 'ok!(a === b);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+
 		// TypeScript
 		{
 			code: withAssert('assert.ok((a as number) === b);'),
@@ -97,6 +124,16 @@ test.snapshot({
 		withAssert('assert.ok(NaN === NaN);'),
 		withAssert('assert.ok(x === -0);'),
 		withAssert('assert.ok(x !== 0);'),
+		withAssert('assert.ok(diff === -0.0);'),
+		withAssert('assert.ok(diff === +0);'),
+		// A signed non-zero literal is an ordinary number: `===` and `Object.is` agree on it, so the
+		// rewrite is safe. Only `±0` (and `NaN`) differ.
+		withAssert('assert.ok(diff === -1);'),
+		withAssert('assert.ok(diff === +5);'),
+		withAssert('assert.ok(diff === -1.5);'),
+		withAssert('assert.ok(diff === -0x10);'),
+		withAssert('assert.ok(diff === - 1);'),
+		withAssert('assert.ok(diff !== +1e3);'),
 		// `equal`/`notEqual` treat `NaN` as equal to itself while `==`/`!=` do not, so the loose
 		// rewrite is only reported when a `NaN` operand is present.
 		withAssert('assert.ok(NaN == NaN);'),
