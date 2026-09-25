@@ -96,6 +96,9 @@ test.snapshot({
 		'import {test, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'t\', t => { getTestContext().plan(1); assert.ok(1); });',
 		'import {test, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'t\', () => { getTestContext().plan(1); assert.ok(1); });',
 
+		// A `todo` test still runs its body, so an imported assert inside one does not count
+		'import {todo, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\ntodo(\'a\', () => { getTestContext().plan(1); assert.ok(1); });',
+
 		// A `plan` option is the same plan, and a test with no context parameter reaches its context
 		// through `getTestContext()` just as a `plan()` call does
 		'import {test, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'a\', {plan: 1}, () => { assert.ok(1); });',

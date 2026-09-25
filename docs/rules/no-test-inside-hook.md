@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Tests and suites must be defined while the file is being loaded, not while a hook runs. Defining a `test`, `it`, `describe`, or `suite` inside a `before`/`after`/`beforeEach`/`afterEach` callback registers it after the runner has already built that suite's children, so it runs outside the phase it was declared in: the definition executes late, after the test it belongs to has finished, which the runner reports as asynchronous activity after the test ended, and from a `beforeEach` or `afterEach` it fails the run outright. Move the definition to the top level or into the enclosing `describe`. To create dynamic subtests, use the test context's `t.test()` inside a test body.
+Tests and suites must be defined while the file is being loaded, not while a hook runs. Defining a `test`, `it`, `describe`, or `suite` inside a `before`/`after`/`beforeEach`/`afterEach` callback registers it after the runner has already built that suite's children, so it belongs to no test: its body still runs, but late, and the definition never appears in the report. From a `beforeEach` or `afterEach` that late run is also reported as asynchronous activity after the test ended, which fails the run. Move the definition to the top level or into the enclosing `describe`. To create dynamic subtests, use the test context's `t.test()` inside a test body.
 
 This is the hook counterpart of [`no-nested-tests`](./no-nested-tests.md).
 

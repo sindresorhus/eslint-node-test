@@ -4,10 +4,12 @@ import unwrapTypeScriptExpression from '../utils/unwrap-typescript-expression.js
 
 /*
 Shared detection of a test whose callback `node:test` never runs: `test.skip(…)`, `test('a',
-{skip: true}, …)`, and the standalone `skip(…)`/`todo(…)` exports.
+{skip: true}, …)`, and the standalone `skip(…)` export.
 
 `node:test` swaps the callback for a no-op when the test is skipped, so a rule that reasons about what
-the callback contains (its plan, its assertions) has nothing to say about a skipped one.
+the callback contains (its plan, its assertions) has nothing to say about a skipped one. A `todo` test
+is not skipped: `node:test` runs its body and only marks the test as unfinished, so what the body
+contains is still what runs.
 */
 
 /** Whether the callee chain carries a `.skip` segment, as in `test.skip(…)` or `skip.only(…)`. */
@@ -53,16 +55,10 @@ Whether `node` is a test call that is statically skipped.
 @param {import('eslint').Rule.RuleContext} context
 */
 export function isSkippedTestCall(node, parsed, context) {
-	// The standalone `skip(…)`/`todo(…)` exports have an `Identifier` callee, so the member walk
-	// cannot see them. `parseTestCall` records the modifier for that form. Only those two decide on
-	// their own; `only(…)` runs unless the options slot says otherwise, so fall through.
-	if (
-		parsed?.hasStandaloneModifier
-		&& parsed.modifiers.some(modifier => modifier.name === 'skip' || modifier.name === 'todo')
-	) {
-		return true;
-	}
-
+	// The standalone `skip`/`todo` exports have an `Identifier` callee, so the member walk cannot see
+	// them. `parseTestCall` records the modifier for that form, so the `parsed.modifiers` check covers
+	// it. Only `skip` decides on its own, since a `todo` test still runs its body; `only(…)` and
+	// `todo(…)` run unless the options slot says otherwise.
 	return hasSkipModifier(node.callee)
 		|| parsed?.modifiers.some(modifier => modifier.name === 'skip')
 		|| hasEnabledSkipOption(node, context);

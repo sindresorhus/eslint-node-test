@@ -18,9 +18,8 @@ test.snapshot({
 		withImport('test("first", t => { t.mock.timers.enable(); });\ntest("second", t => { t.mock.timers.enable(); });'),
 		withImport('test("parent", async t => { await t.test("first", child => { child.mock.timers.enable(); }); await t.test("second", child => { child.mock.timers.enable(); }); });'),
 		withImport('test.skip("title", t => { t.mock.timers.enable(); t.mock.timers.enable(); });'),
-		// The standalone `skip`/`todo` exports have an identifier callee, but the body never runs
+		// The standalone `skip` export has an identifier callee, and its body never runs
 		`${withNamedImport('skip')}\nskip('title', () => { mock.timers.enable(); mock.timers.enable(); });`,
-		`${withNamedImport('todo')}\ntodo('title', () => { mock.timers.enable(); mock.timers.enable(); });`,
 		`${withNamedImport('skip as skipped')}\nskipped('title', () => { mock.timers.enable(); mock.timers.enable(); });`,
 		`${withNamedImport('skip')}\nskip('title', t => { t.mock.timers.enable(); t.mock.timers.enable(); });`,
 		withImport('test("title", {skip: true}, t => { t.mock.timers.enable(); t.mock.timers.enable(); });'),
@@ -67,6 +66,9 @@ test.snapshot({
 		`${withNamedImport('only')}\nonly({name: 't', fn() { mock.timers.enable(); mock.timers.enable(); }});`,
 		// `only` does run, so a duplicate enable there is still a real problem
 		`${withNamedImport('only')}\nonly('title', () => { mock.timers.enable(); mock.timers.enable(); });`,
+
+		// A `todo` test still runs its body, so a duplicate enable in one is a real problem
+		`${withNamedImport('todo')}\ntodo('title', () => { mock.timers.enable(); mock.timers.enable(); });`,
 
 		// The global tracker and a context tracker share one `Date` mock, so enabling through the
 		// other receiver while one is enabled throws. A `reset()` only clears its own receiver.

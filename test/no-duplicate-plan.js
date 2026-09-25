@@ -97,6 +97,8 @@ test.snapshot({
 
 		// Test callbacks marked as incomplete do run
 		withImport('test.todo("x", t => { t.plan(1); t.plan(2); });'),
+		// A `todo` test still runs its body, so a second plan in it really throws
+		'import {todo} from \'node:test\';\ntodo("x", t => { t.plan(1); t.plan(2); });',
 		withImport('test("x", {todo: true}, t => { t.plan(1); t.plan(2); });'),
 		withImport('test("x", {todo: "reason"}, t => { t.plan(1); t.plan(2); });'),
 		withImport('test("parent", t => { t.test.todo("child", child => { child.plan(1); child.plan(2); }); });'),
