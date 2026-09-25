@@ -4,6 +4,9 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
+		// A `var` that re-binds the context parameter resolves to the same variable, so the name no
+		// longer reaches the test context
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'t\', t => { var t = other; assert.ok(1); });',
 		// Not a test file
 		'import assert from \'node:assert\';\nassert.ok(x);',
 

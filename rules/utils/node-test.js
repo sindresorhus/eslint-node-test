@@ -705,6 +705,14 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 	// The call nodes whose callbacks are on the stack, in the same order. Exits are nested, so `leave` only ever pops the top one.
 	const calls = [];
 
+	// A `var` that re-binds the callback's parameter resolves to the very same variable, so identity
+	// alone cannot see that the name no longer reaches the test context. A context variable is only
+	// the context while the parameter is its only definition.
+	const isContextVariable = variable => variable !== undefined
+		&& variables.includes(variable)
+		&& variable.defs.length === 1
+		&& variable.defs[0].type === 'Parameter';
+
 	const isContextIdentifier = node => {
 		// Resolving the scope is the expensive part; skip it entirely when no context is on the stack
 		// (the common case for a call outside any tracked test/subtest/hook body).
@@ -712,8 +720,7 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 			return false;
 		}
 
-		const variable = getVariable(node, imports);
-		return variable !== undefined && variables.includes(variable);
+		return isContextVariable(getVariable(node, imports));
 	};
 
 	// A subtest is `<context>.test(…)` on a context this tracker knows, which for the
@@ -774,8 +781,7 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 			return false;
 		}
 
-		const variable = findVariable(imports.sourceCode.getScope(node), name);
-		return variable !== undefined && variables.includes(variable);
+		return isContextVariable(findVariable(imports.sourceCode.getScope(node), name));
 	};
 
 	return {
@@ -939,6 +945,20 @@ visited before or after it, which is why the check runs from the function.
 @param {object} imports The result of `resolveImports`.
 @returns {boolean}
 */
+/**
+Whether `variable` is a function parameter that nothing re-binds. A `var` of the same name in the
+body resolves to the very same variable, so identity alone cannot see that the name no longer reaches
+the parameter's value.
+
+@param {import('eslint').Scope.Variable | undefined} variable
+@returns {boolean}
+*/
+export function isUnreboundParameter(variable) {
+	return variable !== undefined
+		&& variable.defs.length === 1
+		&& variable.defs[0].type === 'Parameter';
+}
+
 export function isOutOfLineCallback(node, context, imports) {
 	if (!isFunction(node)) {
 		return false;

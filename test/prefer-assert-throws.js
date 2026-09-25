@@ -59,6 +59,8 @@ test.snapshot({
 
 		// Async via `for await` in body — also reported as `assert.rejects`
 		`${ASSERT_IMPORT}\ntry {\n\tfor await (const x of stream) { use(x); }\n} catch (err) {\n\tassert.ok(err instanceof Error);\n}`,
+		// An `await using` declaration suspends too, and the throw comes from the async disposer
+		`${ASSERT_IMPORT}\ntry {\n\tawait using resource = getResource();\n} catch (err) {\n\tassert.ok(err instanceof Error);\n}`,
 
 		// `catch` and `finally` together — still reported
 		`${ASSERT_IMPORT}\ntry {\n\tfn();\n} catch (err) {\n\tassert.ok(err);\n} finally {\n\tcleanup();\n}`,

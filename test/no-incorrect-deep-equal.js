@@ -49,6 +49,11 @@ test.snapshot({
 		withAssert('assert.deepEqual(Infinity, b);'),
 		withAssert('assert.deepEqual(-1, b);'),
 		withAssert('assert.deepEqual(-Infinity, b);'),
+		// A signed literal is a primitive, and `+0` is `0`
+		withAssert('assert.deepEqual(+Infinity, b);'),
+		withAssert('assert.deepEqual(-1, b);'),
+		withAssert('assert.deepEqual(+1, b);'),
+		withAssert('assert.deepEqual(+0, b);'),
 		withAssert('assert.deepEqual(42n, b);'),
 
 		// DeepEqual with primitive expected

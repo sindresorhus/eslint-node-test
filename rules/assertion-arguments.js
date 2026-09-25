@@ -43,25 +43,40 @@ const ASSERTION_ARGS = new Map([
 ]);
 
 /*
-The optional trailing `message` argument accepts a string, an `Error`, a function that Node calls to
-produce the message, or `null` (which uses the default message). Only flag values that are statically
-known to be none of those: object/array literals, or non-string literals that are not `null`
-(numbers, booleans, regexes). Identifiers, calls, member expressions, template literals, conditionals,
-logical/binary expressions, and TypeScript casts can all resolve to a valid message at runtime, so
-they are left alone to avoid false positives.
+`node:assert` accepts a `null` message for `ok()`, the `match` family, and the `throws` family, where
+it uses the default message. The two-operand comparisons reject it with `ERR_INVALID_ARG_TYPE` as soon
+as the assertion fails, so there a `null` message is a latent crash. Node validates the message
+lazily, so in every method it only matters once the assertion fails.
 */
-function isInvalidMessageArgument(node) {
+const METHODS_ACCEPTING_NULL_MESSAGE = new Set([
+	'ok',
+	'match',
+	'doesNotMatch',
+	'throws',
+	'doesNotThrow',
+	'rejects',
+	'doesNotReject',
+]);
+
+/*
+The optional trailing `message` argument accepts a string, an `Error`, or a function that Node calls
+to produce the message. Only flag values that are statically known to be none of those: object/array
+literals, or non-string literals (numbers, booleans, regexes, and `null` where the method rejects
+it). Identifiers, calls, member expressions, template literals, conditionals, logical/binary
+expressions, and TypeScript casts can all resolve to a valid message at runtime, so they are left
+alone to avoid false positives.
+*/
+function isInvalidMessageArgument(node, method) {
 	node = unwrapTypeScriptExpression(node);
 
 	if (node.type === 'ArrayExpression' || node.type === 'ObjectExpression') {
 		return true;
 	}
 
-	// `null` is a valid message (Node falls back to the default), and a function is called to build
-	// the message, so only a non-string, non-null literal is rejected.
+	// A function is called to build the message, so only a non-string literal is rejected.
 	return node.type === 'Literal'
-		&& node.value !== null
-		&& typeof node.value !== 'string';
+		&& typeof node.value !== 'string'
+		&& !(node.value === null && METHODS_ACCEPTING_NULL_MESSAGE.has(method));
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -104,15 +119,15 @@ const create = context => {
 			};
 		}
 
-		// If a trailing message argument is present, it must be a string.
-		// The message argument is the last arg when count > min (i.e. it is optional and present).
+		// The message sits in the last slot the method reads, and printf-style substitution arguments
+		// may follow it, so the slot is checked from there on.
 		// For methods where max === min there is no message slot, and `ifError` has no message slot at
 		// all: its only argument is the value, which may be any expression.
-		if (count === max && max > min && hasMessage) {
-			const lastArg = node.arguments.at(-1);
-			if (isInvalidMessageArgument(lastArg)) {
+		if (hasMessage && max > min && count >= max) {
+			const messageArgument = node.arguments[max - 1];
+			if (isInvalidMessageArgument(messageArgument, method)) {
 				return {
-					node: lastArg,
+					node: messageArgument,
 					messageId: MESSAGE_ID_NOT_STRING,
 				};
 			}
@@ -137,7 +152,7 @@ const config = {
 		schema: [],
 		messages: {
 			[MESSAGE_ID_TOO_FEW]: 'Not enough arguments. Expected at least {{min}}.',
-			[MESSAGE_ID_NOT_STRING]: 'Assertion message must be a string, an `Error`, a function, or `null`.',
+			[MESSAGE_ID_NOT_STRING]: 'Assertion message must be a string, an `Error`, or a function.',
 		},
 		languages: ['js/js'],
 	},

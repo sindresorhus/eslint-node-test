@@ -12,7 +12,7 @@ Passing too few arguments to a `node:assert` assertion never compares anything: 
 Each `node:assert` method has a fixed set of required positional arguments, plus an optional trailing `message`. Since Node 26 the message may be a [`util.format`](https://nodejs.org/api/util.html#utilformatformat) format string, so any number of substitution arguments may follow it; `ifError` ignores everything after its value. This rule reports when:
 
 - Too few required arguments are passed.
-- A trailing `message` argument is statically known to be neither a string, an `Error`, a function, nor `null`.
+- A trailing `message` argument is statically known to be neither a string, an `Error`, nor a function. `ok()`, `match()` and `throws()` also accept `null`, which uses the default message; the two-operand comparisons reject it as soon as the assertion fails.
 
 Methods with variable arity (`fail`) and calls that use spread arguments are not checked.
 
@@ -25,6 +25,7 @@ import assert from 'node:assert';
 assert.strictEqual(actual);
 assert.ok();
 assert.ok(value, 42); // message must be a string
+assert.strictEqual(a, b, null); // the comparisons reject a `null` message
 
 // ✅
 assert.strictEqual(actual, expected);

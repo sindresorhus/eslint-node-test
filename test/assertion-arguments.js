@@ -166,6 +166,18 @@ test.snapshot({
 		// A function message is called to produce the message, and `null` uses the default message
 		withAssert('assert.ok(value, () => "x");'),
 		withAssert('assert.ok(value, null);'),
+		withAssert('assert.match(str, /re/, null);'),
+		withAssert('assert.doesNotMatch(str, /re/, null);'),
+		withAssert('assert.throws(fn, Error, null);'),
+		withAssert('assert.doesNotThrow(fn, null);'),
+
+		// A printf-style message is a string, and the substitution arguments after it are not a message
+		withAssert('assert.ok(value, "expected %s", label);'),
+		withAssert('assert.strictEqual(a, b, "m %s", label);'),
+		withAssert('assert.match(str, /re/, "m %s", label);'),
+
+		// A number in the `throws` matcher slot is the matcher Node will reject, not a message
+		withAssert('assert.throws(fn, 42);'),
 	],
 	invalid: [
 		// A destructured `assert` is a real assertion, exactly like `t.assert`
@@ -236,6 +248,18 @@ test.snapshot({
 		// Message arg not a string
 		withAssert('assert.ok(value, 123);'),
 		withAssert('assert.strictEqual(a, b, false);'),
+
+		// The two-operand comparisons reject a `null` message as soon as the assertion fails
+		withAssert('assert.strictEqual(a, b, null);'),
+		withAssert('assert.equal(a, b, null);'),
+		withAssert('assert.notStrictEqual(a, b, null);'),
+		withAssert('assert.deepStrictEqual(a, b, null);'),
+		withAssert('assert.partialDeepStrictEqual(a, b, null);'),
+
+		// The message slot is still the message when substitution arguments follow it
+		withAssert('assert.ok(value, 42, "x");'),
+		withAssert('assert.strictEqual(a, b, 42, "x");'),
+		withAssert('assert.throws(fn, Error, 42);'),
 		// Message arg as an object/array literal — statically not a string, Error, or function
 		withAssert('assert.ok(value, {message: "x"});'),
 		withAssert('assert.ok(value, [1, 2]);'),

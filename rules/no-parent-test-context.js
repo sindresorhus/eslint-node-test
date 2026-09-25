@@ -6,6 +6,7 @@ import {
 	getSubtestReceiver,
 	isSubtestCall,
 	getContextParameterIdentifier,
+	isUnreboundParameter,
 } from './utils/node-test.js';
 
 /**
@@ -28,8 +29,14 @@ function isInsideNode(node, container, sourceCode) {
 
 function getParameterVariable(parameter, sourceCode) {
 	const identifier = getContextParameterIdentifier(parameter);
+	if (!identifier) {
+		return;
+	}
 
-	return identifier ? findVariable(sourceCode.getScope(identifier), identifier) : undefined;
+	// A `var` that re-binds the parameter resolves to the same variable, and the name no longer
+	// reaches the test context, so it names no parent.
+	const variable = findVariable(sourceCode.getScope(identifier), identifier);
+	return isUnreboundParameter(variable) ? variable : undefined;
 }
 
 function getResolvedReference(node, sourceCode) {

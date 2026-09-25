@@ -6,6 +6,9 @@ const withImport = code => `import test from 'node:test';\n${code}`;
 
 test.snapshot({
 	valid: [
+		// A `var` that re-binds the context parameter resolves to the same variable, so the call is not
+		// a subtest of this test
+		'import test from \'node:test\';\ntest(\'a\', async t => { var t = other; t.test(\'b\', () => {}); });',
 		// Not a test file
 		'function f(t) { t.test("x", () => {}); }',
 

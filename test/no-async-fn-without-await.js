@@ -22,6 +22,9 @@ test.snapshot({
 		withImport('test("title", async t => { if (bar) {} else { await foo(); } });'),
 		// For-await-of
 		withImport('test("title", async t => { for await (const x of gen()) {} });'),
+		// An `await using` declaration suspends while it acquires the resource, without an `await`
+		withImport('test("title", async t => { await using resource = getResource(); });'),
+		withImport('test("title", async t => { await using resource = getResource(); using other = getOther(); });'),
 		// Await inside nested async function is NOT counted — but the outer function also awaits
 		withImport('test("title", async t => { await foo(); const helper = async () => { await bar(); }; });'),
 		// Hooks with await are valid

@@ -1,7 +1,7 @@
 import {isFunction} from '../ast/index.js';
 
 /**
-Check whether `node` or any of its descendants, excluding nested functions, is a suspension point (`await`, `for await…of`, or `yield`).
+Check whether `node` or any of its descendants, excluding nested functions, is a suspension point (`await`, an `await using` declaration, `for await…of`, or `yield`).
 
 Nested functions are not descended into, since their suspension points belong to a different function.
 
@@ -17,6 +17,9 @@ export default function containsSuspensionPoint(node, visitorKeys, {includeYield
 		node.type === 'AwaitExpression'
 		|| (includeYield && node.type === 'YieldExpression')
 		|| (node.type === 'ForOfStatement' && node.await)
+		// An `await using` declaration suspends while it acquires the resource, without an
+		// `AwaitExpression` node of its own.
+		|| (node.type === 'VariableDeclaration' && node.kind === 'await using')
 	) {
 		return true;
 	}

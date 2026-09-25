@@ -6,6 +6,9 @@ const inTest = code => `import test from 'node:test';\ntest('t', t => {\n\t${cod
 
 test.snapshot({
 	valid: [
+		// A `var` that re-binds the context parameter resolves to the same variable, so the name no
+		// longer reaches the test context
+		'import test from \'node:test\';\ntest(\'t\', t => { var t = other; console.log(\'x\'); });',
 		// Already using diagnostic
 		inTest('t.diagnostic(\'starting\');'),
 
