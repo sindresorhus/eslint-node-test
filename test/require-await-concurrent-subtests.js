@@ -20,6 +20,20 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 
+		// A cast on the two-step variable is what `Promise.all` receives there too
+		{
+			code: inTest('const promises = xs.map(x => t.test(x, () => {}));\nawait Promise.all(promises!);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: inTest('const promises = xs.map(x => t.test(x, () => {}));\nawait Promise.all(promises as Promise<void>[]);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: inTest('const promises = xs.map(x => t.test(x, () => {}));\nawait Promise.all(promises satisfies Promise<void>[]);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+
 		// Returned `Promise.all` (consumed by the caller)
 		inTest('return Promise.all(xs.map(x => t.test(x, () => {})));'),
 
@@ -47,6 +61,9 @@ test.snapshot({
 
 		// Not a test file
 		'xs.map(x => something(x));',
+
+		// The array is read from its declaration, so a callback parameter of the same name does not hide it
+		inTest('const promises = xs.map(promises => t.test(promises));\n\tawait Promise.all(promises);'),
 	],
 	invalid: [
 		// A same-named variable elsewhere is not the array of subtest promises

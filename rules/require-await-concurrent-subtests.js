@@ -1,4 +1,3 @@
-import {findVariable} from '@eslint-community/eslint-utils';
 import {resolveImports, createContextTracker} from './utils/node-test.js';
 import isFunction from './ast/is-function.js';
 import {skipExpressionWrappers, outermostExpressionWrapper, getFloatingStatement} from './utils/index.js';
@@ -73,7 +72,7 @@ following the value any further is data flow analysis this rule does not do. A t
 copies it on the way, as in `await Promise.all([...promises])`, is reported even though the
 subtests do settle; the rule documentation says so.
 */
-function isAwaitedViaPromiseAll(iterationCall, scope) {
+function isAwaitedViaPromiseAll(iterationCall, sourceCode) {
 	// A cast around the array (`xs.map(…) as Promise<void>[]`) is what `Promise.all()` actually
 	// receives as its argument, so compare against the outermost wrapper.
 	const argument = outermostExpressionWrapper(iterationCall);
@@ -88,8 +87,12 @@ function isAwaitedViaPromiseAll(iterationCall, scope) {
 		return false;
 	}
 
-	const variable = findVariable(scope, parent.id.name);
-	return variable.references.some(reference => isArgumentToConsumedPromiseAll(reference.identifier));
+	// Resolve the name from its declaration, not from the subtest call, where a callback parameter of
+	// the same name (`xs.map(promises => t.test(promises))`) would hide it.
+	const [variable] = sourceCode.getDeclaredVariables(parent);
+	// A cast on the reference (`Promise.all(promises!)`) is what `Promise.all()` receives, so compare
+	// against the outermost wrapper, as the inline form does.
+	return variable.references.some(reference => isArgumentToConsumedPromiseAll(outermostExpressionWrapper(reference.identifier)));
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -114,7 +117,7 @@ const create = context => {
 				const method = iterationCall.callee.property.name;
 				// `forEach` discards its callbacks' results entirely; `map`/`flatMap` are fine only when
 				// the resulting array is awaited via `Promise.all`.
-				const handled = method !== 'forEach' && isAwaitedViaPromiseAll(iterationCall, sourceCode.getScope(node));
+				const handled = method !== 'forEach' && isAwaitedViaPromiseAll(iterationCall, sourceCode);
 				if (!handled) {
 					problem = {
 						node,
