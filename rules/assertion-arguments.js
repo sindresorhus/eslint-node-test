@@ -6,15 +6,13 @@ import {
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
 const MESSAGE_ID_TOO_FEW = 'too-few-arguments';
+const MESSAGE_ID_TOO_MANY = 'too-many-arguments';
 const MESSAGE_ID_NOT_STRING = 'not-string-message';
 
 /*
 Map of node:assert method -> required argument count, and the argument count at which the last one is
 the `message` (so max = required + 1 for the plain comparisons).
 
-Nothing is ever "too many": since Node 26 a message may be followed by printf-style substitution
-arguments (see `util.format`), and every method here accepts them, while `ifError` ignores everything
-after its value.
 `fail` is omitted because it accepts 0 or 1 args (ambiguous) — not checkable.
 `throws`/`doesNotThrow`/`rejects`/`doesNotReject` accept 1 required + optional error + optional message.
 `ifError` is the exception with no trailing message argument — it takes one value and ignores the rest. It also needs no value: it throws only for an argument that is neither `null` nor `undefined`, so a missing argument passes just like an explicit `undefined`.
@@ -43,20 +41,21 @@ const ASSERTION_ARGS = new Map([
 ]);
 
 /*
-`node:assert` accepts a `null` message for `ok()`, the `match` family, and the `throws` family, where
-it uses the default message. The two-operand comparisons reject it with `ERR_INVALID_ARG_TYPE` as soon
-as the assertion fails, so there a `null` message is a latent crash. Node validates the message
-lazily, so in every method it only matters once the assertion fails.
+`node:assert` accepts a `null` message for `ok()` and the `match` family, where it uses the default
+message. The two-operand comparisons reject it with `ERR_INVALID_ARG_TYPE` as soon as the assertion
+fails, so there a `null` message is a latent crash. Node validates the message lazily, so in those
+methods it only matters once the assertion fails.
 */
-const METHODS_ACCEPTING_NULL_MESSAGE = new Set([
-	'ok',
-	'match',
-	'doesNotMatch',
-	'throws',
-	'doesNotThrow',
-	'rejects',
-	'doesNotReject',
-]);
+const METHODS_ACCEPTING_NULL_MESSAGE = new Set(['ok', 'match', 'doesNotMatch']);
+
+/*
+`throws()`, `doesNotThrow()`, `rejects()` and `doesNotReject()` take exactly `(fn, error, message)`:
+`node:assert` never type-checks that message (it is stringified into the failure text) and silently
+drops anything past it, so an extra argument there is a mistake and a message of any value is fine.
+The other methods here declare the message as a rest parameter, so since Node 26 it is a
+`util.format` string and any number of substitution arguments may follow it.
+*/
+const METHODS_WITHOUT_MESSAGE_FORMATTING = new Set(['throws', 'doesNotThrow', 'rejects', 'doesNotReject']);
 
 /*
 The optional trailing `message` argument accepts a string, an `Error`, or a function that Node calls
@@ -119,18 +118,32 @@ const create = context => {
 			};
 		}
 
-		// The message sits in the last slot the method reads, and printf-style substitution arguments
-		// may follow it, so the slot is checked from there on.
 		// For methods where max === min there is no message slot, and `ifError` has no message slot at
 		// all: its only argument is the value, which may be any expression.
-		if (hasMessage && max > min && count >= max) {
-			const messageArgument = node.arguments[max - 1];
-			if (isInvalidMessageArgument(messageArgument, method)) {
+		if (!hasMessage || max <= min) {
+			return;
+		}
+
+		if (METHODS_WITHOUT_MESSAGE_FORMATTING.has(method)) {
+			// Anything past the message is dropped, so it is a surplus argument the runner ignores.
+			if (count > max) {
 				return {
-					node: messageArgument,
-					messageId: MESSAGE_ID_NOT_STRING,
+					node,
+					messageId: MESSAGE_ID_TOO_MANY,
+					data: {max},
 				};
 			}
+
+			return;
+		}
+
+		// The message sits in the last slot the method reads, and printf-style substitution arguments
+		// may follow it, so the slot is checked from there on.
+		if (count >= max && isInvalidMessageArgument(node.arguments[max - 1], method)) {
+			return {
+				node: node.arguments[max - 1],
+				messageId: MESSAGE_ID_NOT_STRING,
+			};
 		}
 	});
 
@@ -152,6 +165,7 @@ const config = {
 		schema: [],
 		messages: {
 			[MESSAGE_ID_TOO_FEW]: 'Not enough arguments. Expected at least {{min}}.',
+			[MESSAGE_ID_TOO_MANY]: 'Too many arguments. Expected at most {{max}}.',
 			[MESSAGE_ID_NOT_STRING]: 'Assertion message must be a string, an `Error`, or a function.',
 		},
 		languages: ['js/js'],

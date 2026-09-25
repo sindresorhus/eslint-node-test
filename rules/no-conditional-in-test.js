@@ -4,6 +4,7 @@ import {
 	getTestCallback,
 	createContextTracker,
 	isContextHookCall,
+	isSubtestCall,
 } from './utils/node-test.js';
 import isFunction from './ast/is-function.js';
 
@@ -48,16 +49,23 @@ const create = context => {
 		tracker.leave(node);
 	});
 
+	// A call that registers a test, subtest, or hook: a conditional in its own arguments (the title,
+	// the options) is registration-time configuration, not logic the test body runs.
+	const isRegistrationCall = node => parseTestCall(node, imports) !== undefined
+		|| isSubtestCall(node, imports)
+		|| isContextHookCall(node, tracker.isContextReceiver);
+
 	const report = node => {
-		// The conditional must sit inside the test callback itself, not in a sibling argument like the
-		// options object (`{skip: a ? … : …}`) or inside a nested helper function. A call between the
-		// two means the conditional is an argument of that call, which the test body only evaluates.
+		// The conditional must sit inside the test callback itself, not in a sibling argument of a
+		// registration call like the options object (`{skip: a ? … : …}`), which is evaluated while the
+		// file loads, nor inside a nested helper function. A conditional in an argument of any other
+		// call is the test body's own logic, so the walk continues past it.
 		for (let current = node; current; current = current.parent) {
 			if (isFunction(current)) {
 				return testCallbacks.has(current) ? {node, messageId: MESSAGE_ID} : undefined;
 			}
 
-			if (current.type === 'CallExpression') {
+			if (current.type === 'CallExpression' && isRegistrationCall(current)) {
 				return undefined;
 			}
 		}

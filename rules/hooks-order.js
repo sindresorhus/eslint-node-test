@@ -88,7 +88,10 @@ function getReorderFix(block, hooks, sourceCode) {
 			// continues the expression above it, and a missing trailing `;` lets the statement below
 			// continue this one.
 			const text = sourceCode.getText(sorted[index].statement);
-			const prefix = index > 0 && STARTS_WITH_BRACKET.test(text) ? ';' : '';
+			// The statement can be glued to whatever is above it: a leading `(`/`[` continues the
+			// expression before it, whether that is the statement this one replaced (`index > 0`) or a
+			// statement above the whole run (`min > 0`). A missing trailing `;` is what makes the glue.
+			const prefix = (index > 0 || min > 0) && STARTS_WITH_BRACKET.test(text) ? ';' : '';
 			// The statement that lands below is the next hook, or the first statement after the block.
 			const next = sorted[index + 1]?.statement ?? statements[max + 1];
 			const nextText = next ? sourceCode.getText(next) : '';

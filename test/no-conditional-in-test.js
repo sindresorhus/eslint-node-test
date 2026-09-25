@@ -6,6 +6,10 @@ const withImport = code => `import {test, describe, beforeEach} from 'node:test'
 
 test.snapshot({
 	valid: [
+		// A conditional in the options of a context hook is registration config, like a test's own
+		withImport('test("outer", t => { t.beforeEach(() => {}, {timeout: a ? 1 : 2}); });'),
+		'import test, {getTestContext} from \'node:test\';\ntest("outer", () => { getTestContext().beforeEach(() => {}, {timeout: a ? 1 : 2}); });',
+
 		// A trailing object after the options is ignored by the runner, so its `fn` never runs
 		'import test from \'node:test\';\ntest("a", {fn() {}}, {fn() { if (c) { f(); } }});',
 		// A helper declared inside a test that also has a subtest is still not a test body
@@ -43,6 +47,12 @@ test.snapshot({
 		+ 'test("outer", () => { getTestContext().beforeEach(() => {}, {timeout: a ? 1 : 2}); });',
 	],
 	invalid: [
+		// A conditional in an argument of a call the test body runs is the body's own logic
+		withImport('test("x", t => {\n\tsetup(a ? 1 : 2);\n});'),
+		withImport('test("x", t => {\n\tconsole.log(a ? 1 : 2);\n});'),
+		withImport('test("x", t => {\n\tassert.ok(a ? 1 : 2);\n});'),
+		withImport('test("x", t => {\n\tsetup(flag ? work() : other());\n});'),
+
 		// Only the options slot's `fn` runs, so a conditional in a trailing object's `fn` is dead code
 		'import test from \'node:test\';\ntest("a", {fn() { if (c) { f(); } }}, {fn() {}});',
 		// A subtest body is a test body, so a conditional there is just as much a problem

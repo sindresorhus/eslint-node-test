@@ -45,19 +45,33 @@ const create = context => {
 		}
 
 		// `undefined` is an identifier in the AST and `null` a literal; both are what `node:assert`
-		// reads as "no matcher".
-		const hasNoMatcher = second === undefined
+		// reads as "no matcher", which matches any thrown value.
+		const isNoMatcher = second === undefined
 			|| (second.type === 'Identifier' && second.name === 'undefined')
 			|| (second.type === 'Literal' && second.value === null);
-		if (!hasNoMatcher) {
-			return;
+		if (isNoMatcher) {
+			return {
+				node,
+				messageId: MESSAGE_ID,
+				data: {method: parsed.method},
+			};
 		}
 
-		return {
-			node,
-			messageId: MESSAGE_ID,
-			data: {method: parsed.method},
-		};
+		// `node:assert` accepts a function, an `Error`, a `RegExp`, a validation object, or the failure
+		// message string there, and rejects a primitive matcher with `ERR_INVALID_ARG_TYPE` and an empty
+		// object or array with `ERR_INVALID_ARG_VALUE`. A string is `no-assert-throws-string`'s case; the
+		// empty containers are checked as well, since Node rejects them outright.
+		const isUnusableMatcher = second.type === 'Literal'
+			? !second.regex && typeof second.value !== 'string'
+			: (second.type === 'ObjectExpression' && second.properties.length === 0)
+				|| (second.type === 'ArrayExpression' && second.elements.length === 0);
+		if (isUnusableMatcher) {
+			return {
+				node: second,
+				messageId: MESSAGE_ID,
+				data: {method: parsed.method},
+			};
+		}
 	});
 
 	context.onExit('CallExpression', node => {

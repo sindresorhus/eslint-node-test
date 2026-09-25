@@ -14,6 +14,14 @@ test.snapshot({
 		withAssert('assert.throws(fn, TypeError);'),
 		withAssert('assert.throws(fn, /pattern/);'),
 		withAssert('assert.throws(fn, {message: "boom"});'),
+		withAssert('assert.throws(fn, error => error.code === \'X\');'),
+		withAssert('assert.throws(fn, expectedError);'),
+		// A string second argument is the failure message, which `no-assert-throws-string` reports
+		withAssert('assert.throws(fn, \'Wrong value\');'),
+		// A spread could expand to a matcher, so it is left alone
+		withAssert('assert.throws(fn, ...args);'),
+		withAssert('assert.throws(fn, /pattern/);'),
+		withAssert('assert.throws(fn, {message: "boom"});'),
 		withAssert('assert.rejects(asyncFn, MyError);'),
 
 		// Spread could expand to a matcher
@@ -26,9 +34,6 @@ test.snapshot({
 		withAssert('assert.throws(fn, maybeError);'),
 		withAssert('assert.throws(fn, ...rest);'),
 		withAssert('assert.throws(fn, "");'),
-		// An empty object or a primitive is a runtime type error, not a missing matcher
-		withAssert('assert.throws(fn, {});'),
-		withAssert('assert.throws(fn, 42);'),
 
 		// Other assertions
 		withAssert('assert.ok(value);'),
@@ -49,6 +54,16 @@ test.snapshot({
 
 		// T.assert
 		'import test from \'node:test\';\ntest(\'t\', t => { t.assert.throws(fn); });',
+
+		// A matcher `node:assert` rejects outright, whatever the error is
+		withAssert('assert.throws(fn, 42);'),
+		withAssert('assert.throws(fn, true);'),
+		withAssert('assert.throws(fn, 0);'),
+		withAssert('assert.throws(fn, 1n);'),
+		withAssert('assert.throws(fn, {});'),
+		withAssert('assert.throws(fn, []);'),
+		withAssert('assert.rejects(asyncFn, 42);'),
+		withAssert('assert.rejects(asyncFn, {});'),
 
 		// An explicit `undefined` or `null` matcher matches any thrown value, exactly like no matcher
 		withAssert('assert.throws(fn, undefined);'),

@@ -518,7 +518,33 @@ Output:
 
 `;
 
-exports[`hooks-order > invalid(26): import {after, before, beforeEach} from 'node:test';\n\nafter(() => {})\nbefore(() => {});\nbeforeEach(() => {});\n(async () => {\n\tawait Promise.resolve();\n})(); 1`] = `
+exports[`hooks-order > invalid(26): import {before, after} from 'node:test';\nconst value = []\nafter(() => {});\n(before(() => {})); 1`] = `
+
+  1 | import {before, after} from 'node:test';
+  2 | const value = []
+  3 | after(() => {});
+  4 | (before(() => {}));
+
+`;
+
+exports[`hooks-order > invalid(26): import {before, after} from 'node:test';\nconst value = []\nafter(() => {});\n(before(() => {})); 2`] = `
+
+Message:
+  1 | import {before, after} from 'node:test';
+  2 | const value = []
+  3 | after(() => {});
+> 4 | (before(() => {}));
+    |  ^^^^^^^^^^^^^^^^ Hook \`before\` must come before \`after\`.
+
+Output:
+  1 | import {before, after} from 'node:test';
+  2 | const value = []
+  3 | ;(before(() => {}));
+  4 | after(() => {});
+
+`;
+
+exports[`hooks-order > invalid(27): import {after, before, beforeEach} from 'node:test';\n\nafter(() => {})\nbefore(() => {});\nbeforeEach(() => {});\n(async () => {\n\tawait Promise.resolve();\n})(); 1`] = `
 
   1 | import {after, before, beforeEach} from 'node:test';
   2 |
@@ -531,7 +557,7 @@ exports[`hooks-order > invalid(26): import {after, before, beforeEach} from 'nod
 
 `;
 
-exports[`hooks-order > invalid(26): import {after, before, beforeEach} from 'node:test';\n\nafter(() => {})\nbefore(() => {});\nbeforeEach(() => {});\n(async () => {\n\tawait Promise.resolve();\n})(); 2`] = `
+exports[`hooks-order > invalid(27): import {after, before, beforeEach} from 'node:test';\n\nafter(() => {})\nbefore(() => {});\nbeforeEach(() => {});\n(async () => {\n\tawait Promise.resolve();\n})(); 2`] = `
 
 Message:
   1 | import {after, before, beforeEach} from 'node:test';
@@ -556,7 +582,7 @@ Output:
 
 `;
 
-exports[`hooks-order > invalid(26): import {after, before, beforeEach} from 'node:test';\n\nafter(() => {})\nbefore(() => {});\nbeforeEach(() => {});\n(async () => {\n\tawait Promise.resolve();\n})(); 3`] = `
+exports[`hooks-order > invalid(27): import {after, before, beforeEach} from 'node:test';\n\nafter(() => {})\nbefore(() => {});\nbeforeEach(() => {});\n(async () => {\n\tawait Promise.resolve();\n})(); 3`] = `
 
 Message:
   1 | import {after, before, beforeEach} from 'node:test';
@@ -581,7 +607,7 @@ Output:
 
 `;
 
-exports[`hooks-order > invalid(27): import {after, before} from 'node:test';\n\nafter(() => {})\nbefore(() => {});\n[1].forEach(f); 1`] = `
+exports[`hooks-order > invalid(28): import {after, before} from 'node:test';\n\nafter(() => {})\nbefore(() => {});\n[1].forEach(f); 1`] = `
 
   1 | import {after, before} from 'node:test';
   2 |
@@ -591,7 +617,7 @@ exports[`hooks-order > invalid(27): import {after, before} from 'node:test';\n\n
 
 `;
 
-exports[`hooks-order > invalid(27): import {after, before} from 'node:test';\n\nafter(() => {})\nbefore(() => {});\n[1].forEach(f); 2`] = `
+exports[`hooks-order > invalid(28): import {after, before} from 'node:test';\n\nafter(() => {})\nbefore(() => {});\n[1].forEach(f); 2`] = `
 
 Message:
   1 | import {after, before} from 'node:test';

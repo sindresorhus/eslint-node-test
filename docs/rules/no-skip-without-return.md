@@ -11,7 +11,7 @@
 
 `t.skip()` and `t.todo()` mark the test as skipped or todo, but they do **not** stop execution — any code after them still runs. From the [Node.js docs](https://nodejs.org/api/test.html#contextskipmessage): the call "does not terminate execution of the test function." So assertions placed after a conditional `t.skip()` run even when the test was meant to be skipped, often failing or causing side effects.
 
-This rule reports a `t.skip()`/`t.todo()` call that is followed by reachable code. The suggestion inserts a `return` after it. Where a test should always be skipped, prefer the `{skip: true}` / `{todo: true}` option instead, which never runs the test body.
+This rule reports a `t.skip()`/`t.todo()` call that is followed by reachable code. The suggestion inserts a `return` after it. Where a test should always be skipped, prefer the `{skip: true}` option instead, which never runs the test body; `{todo: true}` still runs it, and only marks the test as unfinished.
 
 ## Examples
 

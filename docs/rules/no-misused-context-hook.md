@@ -13,7 +13,7 @@ A statically skipped child, such as one with `{skip: true}`, does not count as r
 
 The rule also ignores callbacks of statically skipped tests and suites, because Node does not execute them.
 
-This rule only considers direct context-hook and subtest calls in the same inline test callback. It does not follow helper calls or nested callbacks, and does not model control flow or registration order.
+This rule considers context-hook and subtest calls in the same inline test callback, including ones written in a function the callback invokes right there (an immediately invoked function) or in an array-method iteration callback, a loop body, or a `switch` case. It does not follow a call to a declared helper, and does not model control flow or registration order.
 
 > [!NOTE]
 > `t.before()` and `t.after()` are not reported because they run for the current test, including a test without subtests.

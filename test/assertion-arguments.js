@@ -9,6 +9,21 @@ const withNamedImport = (methods, code) => `import {${methods}} from 'node:asser
 
 test.snapshot({
 	valid: [
+		// The `throws` family never type-checks its message: it is stringified into the failure text
+		withAssert('assert.throws(fn, Error, 42);'),
+		withAssert('assert.throws(fn, Error, {});'),
+		withAssert('assert.throws(fn, Error, []);'),
+		withAssert('assert.throws(fn, Error, false);'),
+		withAssert('assert.doesNotThrow(fn, () => true, 42);'),
+		withAssert('assert.rejects(promise, TypeError, 42);'),
+		withAssert('assert.doesNotReject(promise, () => true, {});'),
+
+		// A primitive in the `throws` matcher slot is the matcher, which `require-throws-expectation`
+		// reports; it is not a message
+		withAssert('assert.throws(fn, 42);'),
+		withAssert('assert.throws(fn, true);'),
+		withAssert('assert.throws(fn, 0);'),
+
 		withAssert('assert.partialDeepStrictEqual(actual, expected);'),
 		withAssert('assert.partialDeepStrictEqual(actual, expected, message);'),
 
@@ -82,8 +97,6 @@ test.snapshot({
 		withAssert('assert.partialDeepStrictEqual(a, b, "msg", extra);'),
 		withAssert('assert.match(str, /re/, "msg", extra);'),
 		withAssert('assert.doesNotMatch(str, /re/, "msg", extra);'),
-		withAssert('assert.throws(fn, Error, "message", extra);'),
-		withAssert('assert.doesNotThrow(fn, "message", extra);'),
 		withAssert('assert.ifError(value, "msg");'),
 		withAssert('assert.ifError(value, "msg", extra);'),
 		withNamedImport('ok', 'ok(value, "message", extra);'),
@@ -175,11 +188,16 @@ test.snapshot({
 		withAssert('assert.ok(value, "expected %s", label);'),
 		withAssert('assert.strictEqual(a, b, "m %s", label);'),
 		withAssert('assert.match(str, /re/, "m %s", label);'),
-
-		// A number in the `throws` matcher slot is the matcher Node will reject, not a message
-		withAssert('assert.throws(fn, 42);'),
 	],
 	invalid: [
+
+		// The `throws` family drops anything past its message instead of formatting it
+		withAssert('assert.throws(fn, Error, "message", extra);'),
+		withAssert('assert.throws(fn, Error, "m %s", label);'),
+		withAssert('assert.throws(fn, Error, "m", "dropped");'),
+		withAssert('assert.doesNotThrow(fn, () => true, "m", "dropped");'),
+		withAssert('assert.rejects(promise, TypeError, "m", "dropped");'),
+		withAssert('assert.doesNotReject(promise, () => true, "m", "dropped");'),
 		// A destructured `assert` is a real assertion, exactly like `t.assert`
 		'import test from \'node:test\';\ntest(\'x\', ({assert}) => { assert.strictEqual(1); });',
 		'import test from \'node:test\';\ntest(\'x\', ({assert: {ok}}) => { ok(); });',
@@ -259,7 +277,7 @@ test.snapshot({
 		// The message slot is still the message when substitution arguments follow it
 		withAssert('assert.ok(value, 42, "x");'),
 		withAssert('assert.strictEqual(a, b, 42, "x");'),
-		withAssert('assert.throws(fn, Error, 42);'),
+
 		// Message arg as an object/array literal — statically not a string, Error, or function
 		withAssert('assert.ok(value, {message: "x"});'),
 		withAssert('assert.ok(value, [1, 2]);'),

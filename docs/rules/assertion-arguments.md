@@ -7,12 +7,12 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Passing too few arguments to a `node:assert` assertion never compares anything: a two-operand method called with one argument throws `ERR_MISSING_ARGS` before the comparison, and `assert.ok()` throws with no value passed, so the failure is a missing-argument type error rather than the assertion's own message.
+Passing too few arguments to a `node:assert` assertion never compares anything: a two-operand method called with one argument throws `ERR_MISSING_ARGS` before the comparison, and `assert.ok()` throws `ERR_ASSERTION` with "No value argument passed to `assert.ok()`", so neither reaches a comparison.
 
-Each `node:assert` method has a fixed set of required positional arguments, plus an optional trailing `message`. Since Node 26 the message may be a [`util.format`](https://nodejs.org/api/util.html#utilformatformat) format string, so any number of substitution arguments may follow it; `ifError` ignores everything after its value. This rule reports when:
+Each `node:assert` method has a fixed set of required positional arguments, plus an optional trailing `message`. Since Node 26 the message of `ok()`, `match()`, and the two-operand comparisons may be a [`util.format`](https://nodejs.org/api/util.html#utilformatformat) format string, so substitution arguments may follow it. The `throws()`/`rejects()` family is the exception: it uses the message verbatim and silently drops anything after it, so an argument past the third is a surplus one, and `ifError` ignores everything after its value. This rule reports when:
 
-- Too few required arguments are passed.
-- A trailing `message` argument is statically known to be neither a string, an `Error`, nor a function. `ok()`, `match()` and `throws()` also accept `null`, which uses the default message; the two-operand comparisons reject it as soon as the assertion fails.
+- Too few required arguments are passed, or more are passed than the `throws()`/`rejects()` family reads.
+- A trailing `message` argument is statically known to be neither a string, an `Error`, nor a function. `ok()` and `match()` also accept `null`, which uses the default message; the two-operand comparisons reject it as soon as the assertion fails. The `throws()`/`rejects()` family is different: `node:assert` never type-checks that message, it is stringified into the failure text.
 
 Methods with variable arity (`fail`) and calls that use spread arguments are not checked.
 

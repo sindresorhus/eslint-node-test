@@ -11,7 +11,7 @@
 
 The legacy `assert.equal`, `assert.deepEqual`, `assert.notEqual`, and `assert.notDeepEqual` methods compare with the `==` operator ([Stability: 3 - Legacy](https://nodejs.org/api/assert.html#comparison-details)). Loose comparison hides real bugs: `assert.equal(1, '1')` passes, as does `assert.deepEqual({a: 1}, {a: '1'})`. Their strict counterparts produce a clear diff on failure, and compare with `Object.is` semantics for the primitive methods (`assert.strictEqual(NaN, NaN)` passes and `assert.strictEqual(0, -0)` fails, which `===` would not do) and a deep structural comparison for `deepStrictEqual`.
 
-This rule reports the loose methods and autofixes them to the strict equivalent.
+This rule reports the loose methods and autofixes them to the strict equivalent. A bare named import (`equal(a, b)`) is reported without a fix, since rewriting it would name a method the file does not import.
 
 | Loose method | Replacement |
 |---|---|

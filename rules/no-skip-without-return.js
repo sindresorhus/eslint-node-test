@@ -29,7 +29,9 @@ function hasCodeAfter(skipStatement) {
 			return false;
 		}
 
-		if (parent.type === 'BlockStatement' || parent.type === 'Program') {
+		// A class static block is a statement list too, so a skip inside one is followed by the same
+		// code the rule inspects in a block or at the top level.
+		if (['BlockStatement', 'Program', 'StaticBlock'].includes(parent.type)) {
 			const next = parent.body[parent.body.indexOf(node) + 1];
 			if (next) {
 				// A `return`/`throw`/`break`/`continue` immediately after the skip itself is the correct

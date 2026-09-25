@@ -43,7 +43,7 @@ test('user permissions', () => {
 
 ### `max`
 
-Type: `number`\
+Type: `integer`\
 Default: `5`
 
 The maximum number of assertions allowed in a test.

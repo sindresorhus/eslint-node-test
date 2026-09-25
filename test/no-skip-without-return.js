@@ -6,6 +6,9 @@ const withImport = code => `import test from 'node:test';\n${code}`;
 
 test.snapshot({
 	valid: [
+		// Nothing follows the skip in that static block, and a `return` after it is the pattern
+		withImport('test("x", t => {\n\tclass A {\n\t\tstatic {\n\t\t\tdoStuff();\n\t\t\tt.skip();\n\t\t}\n\t}\n});'),
+		withImport('test("x", t => {\n\tclass A {\n\t\tstatic {\n\t\t\tt.skip();\n\t\t\tthrow error;\n\t\t}\n\t}\n});'),
 		// Not a test file
 		'function f(t) { t.skip(); doStuff(); }',
 
@@ -36,6 +39,8 @@ test.snapshot({
 		'import test from \'node:test\';\ntest(\'x\', t => {\n\tswitch (k) {\n\t\tcase 1: {\n\t\t\tt.skip(\'x\');\n\t\t\tbreak;\n\t\t}\n\t\tcase 2: {\n\t\t\tother();\n\t\t}\n\t}\n});',
 	],
 	invalid: [
+		// A class static block is a statement list, so a skip in one is followed by the same code
+		withImport('test("x", t => {\n\tclass A {\n\t\tstatic {\n\t\t\tt.skip();\n\t\t\tdoStuff();\n\t\t}\n\t}\n});'),
 		// A `getTestContext()` under any local alias is named by the local name
 		'import {test, getTestContext as gtc} from \'node:test\';\ntest(\'a\', () => { gtc().skip(\'r\'); work(); });',
 		// The inserted `return` must land after a trailing comment, so the comment stays with the skip

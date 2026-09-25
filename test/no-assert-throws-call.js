@@ -31,6 +31,12 @@ test.snapshot({
 		// Obvious function-producing calls
 		withAssert('assert.throws(fn.bind(undefined, input));'),
 		withAssert('assert.throws(Function(\'throw new Error()\'));'),
+		withAssert('assert.throws(new Function(\'throw new Error()\'));'),
+
+		// An argument that only reads a value runs nothing
+		withAssert('assert.throws(flag ? callback : other);'),
+		withAssert('assert.throws(object.method);'),
+		withAssert('assert.throws(object[key]);'),
 		// A parenthesized optional chain wraps the callee in a `ChainExpression`, which must not hide
 		// the same `.bind` call
 		withAssert('assert.throws((parse?.bind)(null), SyntaxError);'),
@@ -46,6 +52,27 @@ test.snapshot({
 		withAssert('const custom = {assert: {throws() {}}};\ncustom.assert.throws(parse(input));'),
 	],
 	invalid: [
+		// Whatever the argument does while it is evaluated escapes the assertion, not just a
+		// top-level call
+		withAssert('assert.throws(new Parser(input));'),
+		withAssert('assert.throws(new Parser(input), SyntaxError);'),
+		withAssert('assert.throws(tag`input`);'),
+		withAssert('assert.throws(flag ? parse(a) : parse(b));'),
+		withAssert('assert.throws(flag && parse(input));'),
+		withAssert('assert.throws((before(), parse(input)));'),
+		withAssert('assert.throws(parse(input)());'),
+		withAssert('async function run() {\n\tassert.throws(await getCallback());\n}'),
+		withAssert('function* generate() {\n\tassert.throws(yield getCallback());\n}'),
+		withAssert('assert.throws(object.parse(input));'),
+		{
+			code: withAssert('assert.throws(new Parser(input) as unknown);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withAssert('assert.throws(parse(input)!);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+
 		withAssert('assert.throws(parse(input));'),
 		withAssert('assert.throws(parser.parse(input), SyntaxError);'),
 		withStrictAssert('assert.throws(parse(input));'),
