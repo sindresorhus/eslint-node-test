@@ -59,6 +59,9 @@ test.snapshot({
 	invalid: [
 		// Direct calls in test callbacks
 		inTest('process.chdir(\'fixtures\');'),
+		// `globalThis.process` / `global.process` are the same object as the bare global
+		inTest('globalThis.process.chdir(\'fixtures\');'),
+		inTest('global.process.chdir(\'fixtures\');'),
 		'import {it} from \'node:test\';\nit(\'changes directory\', () => { process.chdir(\'fixtures\'); });',
 		'import * as nodeTest from \'node:test\';\nnodeTest.test(\'changes directory\', () => { process.chdir(\'fixtures\'); });',
 		withTestImport('test.only(\'changes directory\', () => { process.chdir(\'fixtures\'); });'),

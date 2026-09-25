@@ -6,8 +6,19 @@ const withTest = code => `import test from 'node:test';\nimport assert from 'nod
 
 test.snapshot({
 	valid: [
+		'import test from "node:test";\nimport assert from "node:assert";\ntest("a", {plan: 1}, t => { t.assert.ok(true); });',
+		// Nothing to suggest when the callback has no context parameter to convert to
+		'import test from "node:test";\nimport assert from "node:assert";\ntest("a", {plan: 1}, () => { assert.ok(true); });',
+		'import test from "node:test";\nimport assert from "node:assert";\ntest("a", {skip: true}, t => { assert.ok(true); });',
+
 		// No plan — imported assert is fine
 		withTest('test(\'t\', t => { assert.ok(1); });'),
+		// A `plan` option that is not a usable count declares no plan. `plan: 0` runs the body and
+		// passes, a negative or non-numeric count never completes, and a dynamic one cannot be read.
+		withTest('test(\'t\', {plan: 0}, t => { assert.ok(1); });'),
+		withTest('test(\'t\', {plan: -1}, t => { assert.ok(1); });'),
+		withTest('test(\'t\', {plan: \'nope\'}, t => { assert.ok(1); });'),
+		withTest('function run(plan) {\n\ttest(\'t\', {plan}, t => { assert.ok(1); });\n}'),
 
 		// Plan with context assert — counts toward the plan
 		withTest('test(\'t\', t => { t.plan(1); t.assert.ok(1); });'),

@@ -125,5 +125,16 @@ test.snapshot({
 			code: withImport('test(\'title\', (t: TestContext) => { t.mock.timers.enable({apis: [\'setImmediate\']}); });'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		// A TypeScript-wrapped `t.mock.timers` receiver still needs a tick.
+		{
+			code: withImport('test(\'title\', (t: any) => { (t.mock.timers as any).enable({apis: [\'setTimeout\']}); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withImport('test(\'title\', (t: any) => { (t.mock as any).timers.enable({apis: [\'setTimeout\']}); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		// A defaulted context parameter is still the test context.
+		withImport('test(\'title\', (t = getTestContext()) => { t.mock.timers.enable({apis: [\'setTimeout\']}); });'),
 	],
 });

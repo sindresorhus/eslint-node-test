@@ -1,4 +1,4 @@
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -30,6 +30,10 @@ test.snapshot({
 		'console.log(\'x\');',
 	],
 	invalid: [
+		// Replacing the whole callee would drop the comment inside it, so no suggestion
+		inTest('console./* keep me */log(\'hi\');'),
+		inTest('console/* keep me */.log(\'hi\');'),
+
 		// Single-argument console.log — suggestion offered
 		inTest('console.log(\'value\');'),
 		inTest('console.log(message);'),
@@ -46,5 +50,14 @@ test.snapshot({
 
 		// Namespace import
 		'import * as nodeTest from \'node:test\';\nnodeTest.test(\'t\', t => { console.log(\'value\'); });',
+		// A `console` receiver wrapped in a TypeScript cast is still `console`.
+		{
+			code: inTest('(console as Console).log(\'x\');'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: inTest('console!.log(\'x\');'),
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

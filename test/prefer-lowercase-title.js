@@ -30,8 +30,21 @@ test.snapshot({
 
 		// Ignored function
 		{code: withImport('describe("Foo", () => {});'), options: [{ignore: ['describe']}]},
+
+		// `node:test` names a test after `options.name`, so the positional string is not the title
+		withImport('test("UPPERCASE", {name: "lowercase"}, () => {});'),
+		withImport('describe("UPPERCASE", {name: "lowercase"}, () => {});'),
+		// Same, in the function-first form, where the trailing object is the options slot
+		withImport('test(function inner() {}, {name: "lowercase"});'),
+		// A spread after `name` could override it, so the title is not statically known
+		withImport('test("lowercase", {name: "UPPERCASE", ...rest}, () => {});'),
+		// A trailing object after the callback is not options, so it does not name the test
+		withImport('test("lowercase", () => {}, {name: "UPPERCASE"});'),
 	],
 	invalid: [
+		// The object form title is the descriptor's `name`
+		'import test from \'node:test\';\ntest({name: \'Bad Title\', fn() {}});',
+
 		// Uppercase first letter — test/it/describe/suite
 		withImport('test("Foo", () => {});'),
 		withImport('it("Should work", () => {});'),
@@ -65,5 +78,15 @@ test.snapshot({
 			code: withImport('test("Foo" as string, () => {});'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// A leading descriptor names the test even when arguments follow, which `node:test` ignores
+		'import test from \'node:test\';\ntest({name: \'Bad Title\'}, () => {});',
+		'import test from \'node:test\';\ntest({name: \'Bad Title\'}, {skip: true}, () => {});',
+
+		// `options.name` is the title, so the fix rewrites it and leaves the positional string alone
+		withImport('test("lowercase", {name: "UPPERCASE"}, () => {});'),
+		withImport('test(function inner() {}, {name: "UPPERCASE"});'),
+		// A spread before `name` cannot override it, so the title is still known
+		withImport('test("lowercase", {...rest, name: "UPPERCASE"}, () => {});'),
 	],
 });

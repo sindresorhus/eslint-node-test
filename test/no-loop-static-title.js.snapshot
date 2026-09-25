@@ -80,6 +80,38 @@ Message:
 
 `;
 
+exports[`no-loop-static-title > invalid(14): import {test, it, describe, suite} from 'node:test';\nfor (const x of xs) { it({name: 'static', fn: () => {}}); } 1`] = `
+
+  1 | import {test, it, describe, suite} from 'node:test';
+  2 | for (const x of xs) { it({name: 'static', fn: () => {}}); }
+
+`;
+
+exports[`no-loop-static-title > invalid(14): import {test, it, describe, suite} from 'node:test';\nfor (const x of xs) { it({name: 'static', fn: () => {}}); } 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite} from 'node:test';
+> 2 | for (const x of xs) { it({name: 'static', fn: () => {}}); }
+    |                                 ^^^^^^^^ This title is static but generated in a loop, so every iteration registers the same title. Include the loop variable so each title is unique.
+
+`;
+
+exports[`no-loop-static-title > invalid(15): import {test, it, describe, suite} from 'node:test';\nfor (const x of xs) { it('placeholder', {name: 'static'}, () => {}); } 1`] = `
+
+  1 | import {test, it, describe, suite} from 'node:test';
+  2 | for (const x of xs) { it('placeholder', {name: 'static'}, () => {}); }
+
+`;
+
+exports[`no-loop-static-title > invalid(15): import {test, it, describe, suite} from 'node:test';\nfor (const x of xs) { it('placeholder', {name: 'static'}, () => {}); } 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite} from 'node:test';
+> 2 | for (const x of xs) { it('placeholder', {name: 'static'}, () => {}); }
+    |                                                ^^^^^^^^ This title is static but generated in a loop, so every iteration registers the same title. Include the loop variable so each title is unique.
+
+`;
+
 exports[`no-loop-static-title > invalid(2): import {test, it, describe, suite} from 'node:test';\nfor (let i = 0; i < 3; i++) { test('static', () => {}); } 1`] = `
 
   1 | import {test, it, describe, suite} from 'node:test';

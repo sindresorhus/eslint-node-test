@@ -6,7 +6,7 @@ import {
 	getTestCallback,
 	MODIFIERS,
 } from './utils/node-test.js';
-import {unwrapExpression, getEnclosingFunction} from './utils/index.js';
+import {unwrapExpression, getEnclosingFunction, isGlobalProcessMember} from './utils/index.js';
 
 const MESSAGE_ID = 'no-process-env-mutation';
 
@@ -139,6 +139,10 @@ const create = context => {
 
 	const isProcessObject = node => {
 		node = unwrapExpression(node);
+		if (isGlobalProcessMember(node)) {
+			return true;
+		}
+
 		return node?.type === 'Identifier'
 			&& (
 				isImportBinding(context, node, processNames)
@@ -269,7 +273,7 @@ const create = context => {
 		return root?.type === 'Identifier'
 			&& (
 				isImportBinding(context, root, imports.locals)
-				|| (root.name === imports.namespace && isImportBinding(context, root, new Set([imports.namespace])))
+				|| (imports.namespaces.has(root.name) && isImportBinding(context, root, imports.namespaces))
 			);
 	};
 

@@ -6,6 +6,9 @@ test.snapshot({
 	valid: [
 		'test.skip("title", () => {});',
 		'import test from "node:test";\ntest("title", () => {});',
+		// A trailing object is not the options slot: `node:test` reads options before the
+		// callback and ignores a trailing object, so the test is not actually modified.
+		'import test from "node:test";\ntest("title", () => {}, {skip: true});',
 		'import test from "node:test";\ntest("title", {skip: false}, () => {});',
 		// `node:test` treats the option as falsy, so the test is not actually skipped.
 		'import test from "node:test";\ntest("title", {skip: ""}, () => {});',

@@ -34,10 +34,18 @@ test.snapshot({
 
 		// Subtests are method calls, not matched (out of scope, like no-callback-and-promise)
 		withImport('test("x", t => { t.test("sub", (t, done) => { done(); }); });'),
+
+		// A hook's callback is its first argument, so trailing options never hide a 1-arity function
+		withImport('beforeEach(t => {}, {timeout: 1000});'),
 	],
 	invalid: [
 		// Callback-style test
 		withImport('test("x", (t, done) => { done(); });'),
+
+		// `node:test` reads `fn` from the options object wherever it sits, so a 2-argument call runs
+		// the callback too
+		'import test from \'node:test\';\ntest(\'a\', {fn(t, done) { done(); }});',
+		'import test from \'node:test\';\ntest(\'a\', {name: \'a\', fn(t, done) { done(); }});',
 
 		// Default import
 		'import test from \'node:test\';\ntest("x", (t, done) => { done(); });',
@@ -54,6 +62,16 @@ test.snapshot({
 		// Each hook
 		withImport('beforeEach((t, done) => { done(); });'),
 		'import {before, after, afterEach} from \'node:test\';\nbefore((t, done) => { done(); });\nafter((t, done) => { done(); });\nafterEach((t, done) => { done(); });',
+
+		// A hook's trailing options must not hide its `done` parameter
+		withImport('beforeEach((t, done) => { done(); }, {timeout: 1000});'),
+		'import {before} from \'node:test\';\nbefore((t, done) => { done(); }, {timeout: 1});',
+		'import {after} from \'node:test\';\nafter((t, done) => { done(); }, {timeout: 1});',
+		'import {afterEach} from \'node:test\';\nafterEach((t, done) => { done(); }, {timeout: 1});',
+		'import test from \'node:test\';\ntest.beforeEach((t, done) => { done(); }, {timeout: 1});',
+
+		// A hook whose callback is last has no options to confuse it
+		'import {beforeEach} from \'node:test\';\nbeforeEach((t, done) => { done(); }, {timeout: 1, retry: 2});',
 
 		// `it` alias and renamed parameter
 		'import {it} from \'node:test\';\nit("x", (t, cb) => { cb(); });',

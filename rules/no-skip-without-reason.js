@@ -24,7 +24,8 @@ const create = context => {
 		return;
 	}
 
-	const tracker = createContextTracker(imports);
+	// Hook callbacks receive a test context too, so `t.skip()` / `t.todo()` must be tracked there as well.
+	const tracker = createContextTracker(imports, {trackHooks: true});
 
 	context.on('CallExpression', node => {
 		const problems = [];

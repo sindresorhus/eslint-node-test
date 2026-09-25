@@ -11,6 +11,7 @@ import {
 	findOptionsProperty,
 } from './utils/node-test.js';
 import {getEnclosingFunction} from './utils/index.js';
+import isFunction from './ast/is-function.js';
 
 const MESSAGE_ID = 'no-misused-context-hook';
 const CONTEXT_HOOKS = new Set(['beforeEach', 'afterEach']);
@@ -52,6 +53,57 @@ function isStaticallySkipped(callExpression, sourceCode) {
 
 	const staticValue = getStaticValue(skipProperty.value, sourceCode.getScope(skipProperty.value));
 	return staticValue !== null && Boolean(staticValue.value);
+}
+
+const ITERATION_METHODS = new Set(['every', 'filter', 'find', 'flatMap', 'forEach', 'map', 'some']);
+
+/**
+Whether an iteration callback is invoked by a statement that is itself part of `ancestor`.
+
+A subtest written inside a `xs.map(…)` callback still runs, because the map is part of the test
+body, so the enclosing function of the subtest is the iteration callback rather than the test
+callback. This walks out of those callbacks; any other function (a declared helper) is a real
+scope boundary and ends the walk.
+
+Only the first argument is the callback. A second argument is `thisArg`, which the array methods
+pass to the callback rather than calling itself, so a subtest written there never runs.
+*/
+function isInvokedIterationCallback(node, parent) {
+	return parent?.type === 'CallExpression'
+		&& parent.callee.type === 'MemberExpression'
+		&& !parent.callee.computed
+		&& parent.callee.property.type === 'Identifier'
+		&& ITERATION_METHODS.has(parent.callee.property.name)
+		&& parent.arguments[0] === node;
+}
+
+function isWithinIterationCallbackOf(node, ancestor) {
+	let current = node;
+
+	while (current && current !== ancestor) {
+		const {parent} = current;
+		if (
+			isFunction(current)
+			&& (
+				isInvokedIterationCallback(current, parent)
+				|| parent?.type === 'ForOfStatement'
+				|| parent?.type === 'ForStatement'
+				|| parent?.type === 'WhileStatement'
+				|| parent?.type === 'DoWhileStatement'
+			)
+		) {
+			current = parent;
+			continue;
+		}
+
+		if (isFunction(current)) {
+			return false;
+		}
+
+		current = parent;
+	}
+
+	return current === ancestor;
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -105,7 +157,7 @@ const create = context => {
 		const frame = getFrame(receiver);
 		if (
 			!frame
-			|| enclosingFunction !== frame.callback
+			|| !isWithinIterationCallbackOf(node, frame.callback)
 			|| isInsideSkippedCallback(node)
 			|| isStaticallySkipped(node, sourceCode)
 		) {

@@ -3,12 +3,13 @@ import {
 	parseTestCall,
 	parseAssertionCall,
 	createContextTracker,
+	hasEnabledPlanOption,
 } from './utils/node-test.js';
 
 const MESSAGE_ID = 'require-context-assert-with-plan';
 
 const messages = {
-	[MESSAGE_ID]: 'This assertion is not counted by `{{context}}.plan()`. Use `{{context}}.assert` so the runner counts it toward the plan.',
+	[MESSAGE_ID]: 'This assertion is not counted toward the test\'s plan. Use `{{context}}.assert` so the runner counts it.',
 };
 
 /** Get the context name of a `<context>.plan(…)` call, or `undefined`. */
@@ -29,6 +30,7 @@ function getPlanContextName(node) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	const {sourceCode} = context;
 	const imports = resolveImports(context);
 	// Without a `node:assert` import the only assertions are `t.assert.*` (which count toward the
 	// plan and are excluded below), so there is nothing to report.
@@ -48,7 +50,12 @@ const create = context => {
 
 		if (isTest) {
 			frames.push({
-				node, contextName: tracker.current(), hasPlan: false, assertions: [],
+				node,
+				contextName: tracker.current(),
+				// `t.plan(1)` and the test-level `plan` option set the same expected count, so the
+				// option counts here too.
+				hasPlan: hasEnabledPlanOption(node, context),
+				assertions: [],
 			});
 			return;
 		}

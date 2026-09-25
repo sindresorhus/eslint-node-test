@@ -26,7 +26,7 @@ const HOOK_FUNCTIONS = new Set(['before', 'after', 'beforeEach', 'afterEach']);
 const ALL_TEST_EXPORTS = new Set([...TEST_EXPORTS, ...SUITE_FUNCTIONS, ...HOOK_FUNCTIONS, 'getTestContext', 'mock']);
 const CONFIGURATION_EXPORTS = new Set(['assert', 'snapshot']);
 
-export {TEST_FUNCTIONS, SUITE_FUNCTIONS, HOOK_FUNCTIONS};
+export {TEST_FUNCTIONS, HOOK_FUNCTIONS};
 
 /** Modifier names usable as `test.only()`, `test.skip()`, `test.todo()`. */
 const MODIFIERS = new Set(['only', 'skip', 'todo']);
@@ -42,8 +42,7 @@ Scan a file's top-level imports and resolve the local bindings for
 
 @returns {{
 	locals: Map<string, string>,
-	namespace: string | undefined,
-	namespaceImport: string | undefined,
+	namespaces: Set<string>,
 	configurationLocals: Map<string, string>,
 	testModifierLocals: Map<string, string>,
 	assertNamespace: Set<string>,
@@ -151,7 +150,7 @@ function collectFromImport(node, bindings) {
 
 			if (importedName === 'default') {
 				bindings.locals.set(localName, 'test');
-				bindings.namespace = localName;
+				bindings.namespaces.add(localName);
 			} else if (TEST_MODIFIER_EXPORTS.has(importedName)) {
 				bindings.testModifierLocals.set(localName, importedName);
 			} else if (ALL_TEST_EXPORTS.has(importedName)) {
@@ -167,11 +166,10 @@ function collectFromImport(node, bindings) {
 			// also exposes the named exports as properties. Bind it as both the `test` local (bare
 			// `test(…)`, `test.only(…)`) and a namespace (`test.describe(…)`).
 			bindings.locals.set(localName, 'test');
-			bindings.namespace = localName;
+			bindings.namespaces.add(localName);
 		} else {
 			// `import * as nodeTest from 'node:test'`.
-			bindings.namespace = localName;
-			bindings.namespaceImport = localName;
+			bindings.namespaces.add(localName);
 		}
 	}
 }
@@ -181,10 +179,10 @@ function scanImports(context) {
 		sourceCode: context.sourceCode,
 		// Map of local identifier name -> canonical `node:test` export name.
 		locals: new Map(),
-		// `import * as nodeTest from 'node:test'` -> namespace local name.
-		namespace: undefined,
-		// The local name of an actual namespace import, excluding `import test from 'node:test'`.
-		namespaceImport: undefined,
+		// Local names bound to the whole `node:test` module, whether by `import * as …` or by
+		// `import test from 'node:test'` (the default export carries the named exports too). A file
+		// may have more than one, so this is a set: the last import must not displace the others.
+		namespaces: new Set(),
 		// Map of local identifier name -> process-wide `node:test` configuration object.
 		configurationLocals: new Map(),
 		// Map of local standalone modifier aliases to their canonical modifier names.
@@ -204,9 +202,9 @@ function scanImports(context) {
 		}
 	}
 
-	const {locals, namespace, assertNamespace, assertNamed} = bindings;
+	const {locals, assertNamespace, assertNamed} = bindings;
 	// The file imports test/suite/hook bindings from `node:test`.
-	const isTestFile = locals.size > 0 || namespace !== undefined || bindings.testModifierLocals.size > 0;
+	const isTestFile = locals.size > 0 || bindings.namespaces.size > 0 || bindings.testModifierLocals.size > 0;
 	// The file imports anything from `node:assert`.
 	const hasAssert = assertNamespace.size > 0 || assertNamed.size > 0;
 	return {
@@ -255,7 +253,7 @@ export function isGlobalMock(node, imports) {
 	const object = unwrapTypeScriptExpression(node.object);
 	return object.type === 'Identifier'
 		&& (
-			object.name === imports.namespace
+			imports.namespaces.has(object.name)
 			|| TEST_FUNCTIONS.has(imports.locals.get(object.name))
 		)
 		&& isImportedBindingReference(object, imports);
@@ -278,7 +276,7 @@ export function isGetTestContextCall(node, imports) {
 		|| (
 			members.length === 1
 			&& members[0].name === 'getTestContext'
-			&& root.name === imports.namespaceImport
+			&& imports.namespaces.has(root.name)
 		)
 	);
 }
@@ -358,7 +356,7 @@ Whether an identifier name is bound to any `node:test` import in this file.
 */
 function isTestBindingName(name, imports) {
 	return imports.locals.has(name)
-		|| name === imports.namespace
+		|| imports.namespaces.has(name)
 		|| imports.testModifierLocals.has(name);
 }
 
@@ -400,14 +398,14 @@ function getStaticExportCall(testFunctionName, members) {
 }
 
 function getStaticTestFunctionName(root, firstMember, imports) {
-	if (root.name === imports.namespace && !imports.locals.has(root.name) && firstMember?.name === 'default') {
+	if (imports.namespaces.has(root.name) && !imports.locals.has(root.name) && firstMember?.name === 'default') {
 		return 'test';
 	}
 
 	if (
 		TEST_FUNCTIONS.has(firstMember?.name)
 		&& (
-			root.name === imports.namespace
+			imports.namespaces.has(root.name)
 			|| TEST_FUNCTIONS.has(imports.locals.get(root.name))
 		)
 	) {
@@ -420,7 +418,7 @@ function getStaticTestCall(root, members, imports) {
 	if (
 		TEST_MODIFIER_EXPORTS.has(firstMember?.name)
 		&& members.length === 1
-		&& root.name === imports.namespace
+		&& imports.namespaces.has(root.name)
 		&& !imports.locals.has(root.name)
 	) {
 		return {
@@ -440,7 +438,7 @@ function getStaticTestCall(root, members, imports) {
 		firstMember
 		&& ALL_TEST_EXPORTS.has(firstMember.name)
 		&& (
-			root.name === imports.namespace
+			imports.namespaces.has(root.name)
 			|| TEST_FUNCTIONS.has(imports.locals.get(root.name))
 		)
 	) {
@@ -592,6 +590,11 @@ function getParentCallExpression(node) {
 		parent = nextParent;
 	}
 
+	// The object form puts the callback in a descriptor property, so the call is one level further out.
+	if (parent?.type === 'Property' && parent.parent?.type === 'ObjectExpression') {
+		parent = parent.parent.parent;
+	}
+
 	return parent?.type === 'CallExpression' ? parent : undefined;
 }
 
@@ -627,14 +630,22 @@ Set `trackHooks` to also track hook context parameters.
 	current: () => string | undefined,
 	currentCallback: () => import('estree').Node | undefined,
 	isTrackedCallback: (node: import('estree').Node | undefined) => boolean,
+	assertBinding: () => {getMethodName: (node: import('estree').Node) => string | undefined, isAssertObject: (node: import('estree').Node) => boolean},
 	update: (node: import('estree').Node) => void,
 	leave: (node: import('estree').Node) => void,
 }}
 */
+// Sentinels for the three outcomes of resolving an identifier against the destructured `assert`
+// bindings. A method name is a plain string, so it never collides with either.
+const NOT_ASSERT_BINDING = Symbol('not a destructured assert binding');
+const ASSERT_OBJECT = Symbol('the destructured assert object');
+
 export function createContextTracker(imports, {trackHooks = false} = {}) {
 	const names = [];
 	const variables = [];
 	const callbacks = [];
+	// Per tracked callback, the variables it destructures off the context's `assert`.
+	const assertBindings = [];
 	// The call nodes whose callbacks are on the stack, in the same order. Exits are nested, so `leave` only ever pops the top one.
 	const calls = [];
 
@@ -652,6 +663,32 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 	const isSubtestCall = node => {
 		const receiver = getSubtestReceiver(node);
 		return isContextIdentifier(receiver);
+	};
+
+	// The method name an identifier names, `ASSERT_OBJECT` for the destructured `assert` object
+	// itself, or `NOT_ASSERT_BINDING` when it is not one. The three cases cannot share one return
+	// value on their own, because a frame with no method records `undefined`.
+	//
+	// Every open frame is searched, like `isContextIdentifier` does: a closure over an outer test's
+	// binding still refers to that binding after an inner callback is entered. A nested function
+	// that re-binds the name has a different `Variable` and is not matched.
+	const findAssertMethod = node => {
+		if (assertBindings.length === 0 || node?.type !== 'Identifier') {
+			return NOT_ASSERT_BINDING;
+		}
+
+		const variable = getVariable(node, imports);
+		if (variable === undefined) {
+			return NOT_ASSERT_BINDING;
+		}
+
+		for (const bindings of assertBindings) {
+			if (bindings.has(variable)) {
+				return bindings.get(variable) ?? ASSERT_OBJECT;
+			}
+		}
+
+		return NOT_ASSERT_BINDING;
 	};
 
 	const isTrackedHookCall = (node, parsed) => trackHooks && (
@@ -678,6 +715,16 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 		// the traversal reaches before the callback) is not actually within the context's scope.
 		currentCallback: () => callbacks.at(-1),
 		isTrackedCallback: node => callbacks.includes(node),
+		// Resolves an identifier against the destructured `assert` bindings of every open frame.
+		assertBinding() {
+			return {
+				getMethodName(node) {
+					const method = findAssertMethod(node);
+					return typeof method === 'string' ? method : undefined;
+				},
+				isAssertObject: node => findAssertMethod(node) === ASSERT_OBJECT,
+			};
+		},
 		update(node) {
 			// Classify the call once and reuse the result for every check. This runs for every call in the file, for each of the ~45 rules that track contexts, so avoid re-parsing or re-walking the callee per check. `parseTestCall` is memoized per node, so it is cheap here.
 			const parsed = parseTestCall(node, imports);
@@ -692,6 +739,7 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 
 				names.push(parameter?.name);
 				variables.push(parameter ? getDeclaredVariable(parameter, callback, imports) : undefined);
+				assertBindings.push(getDestructuredAssertBindings(callback, imports));
 				callbacks.push(callback);
 				calls.push(node);
 			}
@@ -705,6 +753,7 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 			calls.pop();
 			names.pop();
 			variables.pop();
+			assertBindings.pop();
 			callbacks.pop();
 		},
 	};
@@ -719,11 +768,45 @@ Assertion rules should prefer this over `parseAssertionCall`, so the context che
 */
 export function parseSupportedAssertionCall(callExpression, imports, tracker) {
 	const parsed = parseAssertionCall(callExpression, imports);
-	if (!parsed || (parsed.contextReceiver !== undefined && !tracker.isContextIdentifier(parsed.contextReceiver))) {
+	if (parsed) {
+		return parsed.contextReceiver !== undefined && !tracker.isContextIdentifier(parsed.contextReceiver)
+			? undefined
+			: parsed;
+	}
+
+	return parseDestructuredAssertCall(callExpression, tracker.assertBinding());
+}
+
+/**
+Classify a call that reaches `TestContext#assert` through a destructured binding.
+
+`({assert}) => assert.ok(…)` and the method form `({assert: {ok}}) => ok(…)` both call a real
+assertion. `TestContext#assert` is always loose mode, it is a plain object rather than a callable,
+and it has no `strict` view, so `assert(…)` and `assert.strict.equal(…)` are both a `TypeError` at
+runtime and are not assertions.
+
+@param {object} callExpression The call to classify.
+@param {object} assertBinding The destructured `assert` bindings, as returned by `getDestructuredAssertBindings`, which tell a method binding from the assert object.
+@returns {{method: string, methodNode: import('estree').Node, isStrict: boolean} | undefined}
+*/
+export function parseDestructuredAssertCall(callExpression, assertBinding) {
+	const callee = unwrapTypeScriptExpression(callExpression.callee);
+
+	// A method destructured straight off `assert`, called on its own.
+	if (callee.type === 'Identifier') {
+		const method = assertBinding.getMethodName(callee);
+		return method === undefined ? undefined : {method, methodNode: callee, isStrict: false};
+	}
+
+	if (callee.type !== 'MemberExpression' || callee.computed || callee.property.type !== 'Identifier') {
 		return undefined;
 	}
 
-	return parsed;
+	// `assert.ok(…)` on the destructured assert object.
+	const object = unwrapTypeScriptExpression(callee.object);
+	return assertBinding.isAssertObject(object)
+		? {method: callee.property.name, methodNode: callee.property, isStrict: false}
+		: undefined;
 }
 
 /**
@@ -757,25 +840,63 @@ export function createSuiteDepthTracker() {
 }
 
 /**
-Get the title argument node of a test/suite call, if its first argument is a static string.
+Get the node holding a statically-known string, or `undefined` when it is not one.
+
+A `TemplateLiteral` is returned even with expressions, because callers read the literal text that
+precedes the first expression.
 */
-export function getTestTitle(callExpression, context) {
-	const {sourceCode} = context;
-	const first = unwrapTypeScriptExpression(callExpression.arguments[0]);
-	if (!first) {
+function getStaticStringNode(node, context) {
+	node &&= unwrapTypeScriptExpression(node);
+	if (!node) {
 		return undefined;
 	}
 
-	if (first.type === 'Literal' && typeof first.value === 'string') {
-		return first;
+	if (node.type === 'Literal' && typeof node.value === 'string') {
+		return node;
 	}
 
-	if (first.type === 'TemplateLiteral') {
-		return first;
+	if (node.type === 'TemplateLiteral') {
+		return node;
 	}
 
-	const staticValue = getStaticValue(first, sourceCode.getScope(first));
-	return typeof staticValue?.value === 'string' ? first : undefined;
+	const staticValue = getStaticValue(node, context.sourceCode.getScope(node));
+	return typeof staticValue?.value === 'string' ? node : undefined;
+}
+
+/**
+Get the title node `node:test` actually names a test/suite with, when it is a static string.
+
+`node:test` picks the title in this order:
+
+- a leading object is the test descriptor, and its `name` is the title. Every later argument is ignored, so `test({name: 'a'}, fn)` is still named `a`.
+- otherwise `options.name` wins over the positional title, so `test('a', {name: 'b'}, fn)` and `test(fn, {name: 'b'})` are both named `b`.
+- otherwise the first argument is the title.
+*/
+export function getTestTitle(callExpression, context) {
+	const first = callExpression.arguments[0] && unwrapTypeScriptExpression(callExpression.arguments[0]);
+
+	// A leading object is the descriptor, which `node:test` reads on its own. A plain options object
+	// comes after the title, or after the callback in the function-first form.
+	const isDescriptor = first?.type === 'ObjectExpression';
+	const options = isDescriptor ? first : getTestOptions(callExpression);
+	if (!options) {
+		return getStaticStringNode(first, context);
+	}
+
+	const nameProperty = findOptionsProperty(options, 'name');
+	// `findOptionsProperty` answers `undefined` both when there is no `name` and when a later spread
+	// or computed key could have added or replaced one. Only the former may fall back to the
+	// positional title; `node:test` still prefers `options.name` over it either way.
+	if (!nameProperty && options.properties.some(property => property.type === 'SpreadElement' || property.computed)) {
+		return undefined;
+	}
+
+	// A descriptor with no `name` means the test has no title, rather than a positional one.
+	if (!nameProperty && isDescriptor) {
+		return undefined;
+	}
+
+	return getStaticStringNode(nameProperty ? nameProperty.value : first, context);
 }
 
 /** Get the static string value of a node, if it resolves to one. */
@@ -814,22 +935,135 @@ export function getHookCallback(callExpression) {
 }
 
 /**
-Get the inline function implementation argument of a test/suite call, or a hook call where the callback is last.
+Whether a call takes its callback first, which is how a hook is spelled: `beforeEach(fn, options)`.
+A test or suite starts with its title, so a function in the first position means a hook.
+
+This is a shape test, not a resolved one. `node:test` also accepts `test(fn, options)`, which looks
+the same but is a test. The two only differ in whether `options.fn` is read, and a function-first
+test that also passes `options.fn` is too obscure to model.
+*/
+function isCallbackFirst(callExpression) {
+	return getHookCallback(callExpression) !== undefined;
+}
+
+/**
+Get the inline function implementation argument of a test, suite, or hook call.
+
+`node:test` builds the test by spreading the options over the positional callback, so an `fn` in
+the options slot wins: `test('a', {fn: first}, second)` runs `first` and never calls `second`. A hook
+is the exception — it takes its callback first and the runner never reads `options.fn` for it.
+
+Otherwise this is the last top-level function argument, which covers every positional `node:test`
+signature: `test(name, fn)`, `test(name, options, fn)`, `test(name, options)`, and the hook forms
+`beforeEach(fn)` / `beforeEach(fn, options)`. The options object is never a function, so a scan
+from the end skips straight past it. A call with no callback (`test(name, {skip: true})`) has none.
 */
 export function getTestCallback(callExpression) {
+	if (!isCallbackFirst(callExpression)) {
+		const optionsCallback = getOptionsCallback(callExpression);
+		if (optionsCallback) {
+			return optionsCallback;
+		}
+	}
+
 	for (let index = callExpression.arguments.length - 1; index >= 0; index -= 1) {
 		const argument = unwrapTypeScriptExpression(callExpression.arguments[index]);
 		if (isFunction(argument)) {
 			return argument;
 		}
-
-		// Stop at the first non-function trailing argument (options/title).
-		if (argument.type !== 'SpreadElement') {
-			return undefined;
-		}
 	}
 
 	return undefined;
+}
+
+/**
+Get the `fn` property of a call's options object, or `undefined` if there is none.
+
+`node:test` reads `options.fn` wherever the options object sits, so `test({name, fn})`,
+`test(name, {fn})` and `test(name, {fn}, other)` all run that function. Only the options slot is
+consulted: a trailing object on a test that also passes a callback is ignored by the runner, so
+`test('a', {fn}, {fn})` runs the first `fn` and not the second.
+*/
+function getOptionsCallback(callExpression) {
+	const options = getTestOptions(callExpression);
+	if (!options) {
+		return undefined;
+	}
+
+	const fnProperty = findOptionsProperty(options, 'fn');
+	const fn = fnProperty && unwrapTypeScriptExpression(fnProperty.value);
+	return fn && isFunction(fn) ? fn : undefined;
+}
+
+/** Get the identifier a destructured property binds, unwrapping a default. */
+function getDestructuredIdentifier(property) {
+	if (property.type === 'Property' && property.value.type === 'Identifier') {
+		return property.value;
+	}
+
+	return property.type === 'Property'
+		&& property.value.type === 'AssignmentPattern'
+		&& property.value.left.type === 'Identifier'
+		? property.value.left
+		: undefined;
+}
+
+/**
+Find the scope variables a test callback destructures off its context's `assert`, each mapped to the
+assertion method it was destructured from.
+
+Covers `({assert})`, `({assert = fallback})` and `({assert: {ok, strictEqual}})`, since all of them
+reach the real `TestContext#assert`. The variable bound to `assert` itself maps to `undefined`,
+because it is the assert object rather than a method, and the two are used differently: `assert.ok(…)`
+is a method call, while calling the object as `assert(…)` is not a call at all.
+
+A method's name comes from the property it was destructured from, not from the local name, so
+`({assert: {ok: check}}) => check(…)` is still recognised as `ok`.
+
+@returns {Map<import('eslint').Scope.Variable, string | undefined>}
+*/
+export function getDestructuredAssertBindings(callback, imports) {
+	const parameter = callback.params[0];
+	if (parameter?.type !== 'ObjectPattern') {
+		return new Map();
+	}
+
+	const property = parameter.properties.find(property =>
+		property.type === 'Property'
+		&& !property.computed
+		&& property.key.type === 'Identifier'
+		&& property.key.name === 'assert');
+
+	if (!property) {
+		return new Map();
+	}
+
+	const bindings = new Map();
+	const addBinding = (identifier, method) => {
+		const variable = getVariable(identifier, imports);
+		if (variable) {
+			bindings.set(variable, method);
+		}
+	};
+
+	const assertIdentifier = getDestructuredIdentifier(property);
+	if (assertIdentifier) {
+		addBinding(assertIdentifier, undefined);
+	}
+
+	// `({assert: {ok}})` destructures the methods straight off `assert`, so each one is its own
+	// binding that a bare `ok(…)` call refers to.
+	const nested = property.value.type === 'AssignmentPattern' ? property.value.left : property.value;
+	if (nested.type === 'ObjectPattern') {
+		for (const nestedProperty of nested.properties) {
+			const nestedIdentifier = getDestructuredIdentifier(nestedProperty);
+			if (nestedIdentifier && nestedProperty.key.type === 'Identifier') {
+				addBinding(nestedIdentifier, nestedProperty.key.name);
+			}
+		}
+	}
+
+	return bindings;
 }
 
 /*
@@ -850,11 +1084,23 @@ export function getEffectiveArity(parameters) {
 
 /**
 Get the options `ObjectExpression` argument of a test/suite/hook call, if any.
+
+The object is only read from the slot `node:test` actually reads it from, because the runner ignores a trailing object on a test that also passes a callback: `test('name', fn, {only: true})` runs like a plain `test('name', fn)`, so the object must not be treated as options.
+
+- a test/suite reads options before its callback, so a last-position object is only options when the call has no callback (`test('name', {skip: true})`)
+- a hook reads options last, so a last-position object is always its options (`beforeEach(fn, options)`). A hook is told apart by its first argument being the callback; a test or suite always starts with a title.
 */
 export function getTestOptions(callExpression) {
-	for (const argument of callExpression.arguments) {
+	const {arguments: arguments_} = callExpression;
+	const lastIndex = arguments_.length - 1;
+	// A hook's callback is first, so its trailing object is options even though a function is present.
+	// With no function at all, the call has no callback and the trailing object is options too.
+	const hasFunction = arguments_.some(argument => isFunction(unwrapTypeScriptExpression(argument)));
+	const isTrailingObjectOptions = isCallbackFirst(callExpression) || !hasFunction;
+
+	for (const [index, argument] of arguments_.entries()) {
 		const unwrapped = unwrapTypeScriptExpression(argument);
-		if (unwrapped.type === 'ObjectExpression') {
+		if (unwrapped.type === 'ObjectExpression' && (index !== lastIndex || isTrailingObjectOptions)) {
 			return unwrapped;
 		}
 	}
@@ -902,6 +1148,34 @@ export function findEnabledOptionsProperty(optionsObject, name) {
 	}
 
 	return undefined;
+}
+
+/*
+`node:test` passes the plan count to the test runner as a `uint32`, so a plan is only real when the
+option is a positive safe integer in that range. `plan: 0` runs the body and passes, and a negative
+or non-numeric count never completes, so none of them declare a plan worth checking assertions
+against.
+*/
+const MAX_PLAN_COUNT = 4_294_967_295;
+
+/**
+Whether a call declares a usable `plan` option, the same way `<context>.plan(n)` does.
+
+The option and the method set the same expected assertion count, so every rule that asks "does this
+test have a plan?" must agree on which values count. A value that cannot be resolved statically is
+not a plan.
+*/
+export function hasEnabledPlanOption(callExpression, context) {
+	const property = findOptionsProperty(getTestOptions(callExpression), 'plan');
+	if (property === undefined) {
+		return false;
+	}
+
+	const staticValue = getStaticValue(property.value, context.sourceCode.getScope(property.value));
+	return typeof staticValue?.value === 'number'
+		&& Number.isSafeInteger(staticValue.value)
+		&& staticValue.value > 0
+		&& staticValue.value <= MAX_PLAN_COUNT;
 }
 
 /**
@@ -1017,6 +1291,7 @@ function parseAssertionMemberCall(callee, imports) {
 		return {
 			method: callee.property.name,
 			methodNode: callee.property,
+			// A destructured context `assert` is `TestContext#assert`, which is always loose.
 			isStrict: imports.strictAssertLocals.has(object.name),
 		};
 	}
@@ -1040,7 +1315,8 @@ function parseAssertionMemberCall(callee, imports) {
 	}
 
 	// `t.assert.strictEqual(…)`: `t.assert` is always loose mode. The receiver must be a plain identifier (a test context parameter); deeper chains like `a.b.assert.equal(…)`, `this.assert`, or `foo().assert` are unrelated objects that merely have an `assert` property.
-	if (isTestContextAssertMember(object)) {
+	// `t.assert.strict` is excluded because the context assert has no `strict` view, so calling it throws.
+	if (isTestContextAssertMember(object) && callee.property.name !== 'strict') {
 		return {
 			method: callee.property.name,
 			methodNode: callee.property,
@@ -1049,6 +1325,17 @@ function parseAssertionMemberCall(callee, imports) {
 		};
 	}
 }
+
+/*
+The legacy loose (`==`) assertion methods and their strict counterparts, which is what a rule needs
+to tell a loose assertion from a strict one that behaves the same way.
+*/
+export const LOOSE_TO_STRICT_METHODS = new Map([
+	['equal', 'strictEqual'],
+	['notEqual', 'notStrictEqual'],
+	['deepEqual', 'deepStrictEqual'],
+	['notDeepEqual', 'notDeepStrictEqual'],
+]);
 
 /**
 Classify a `CallExpression` as a `node:assert` assertion call.

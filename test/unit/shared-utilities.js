@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {Linter} from 'eslint';
+import typescriptParser from '@typescript-eslint/parser';
 import {getStaticStringValue} from '../../rules/ast/index.js';
 import {
 	isTypeScriptExpressionWrapper,
@@ -15,7 +16,7 @@ import {removeArgument} from '../../rules/fix/index.js';
 import {parseAssertionCall, resolveImports} from '../../rules/utils/node-test.js';
 
 // Apply `removeArgument` to the argument at `index` of the `fn(…)` call and return the fixed source.
-const removeArgumentFrom = (code, index) => {
+const removeArgumentFrom = (code, index, languageOptions) => {
 	const linter = new Linter();
 	const rule = {
 		meta: {fixable: 'code'},
@@ -30,7 +31,7 @@ const removeArgumentFrom = (code, index) => {
 	const [message] = linter.verify(code, {
 		plugins: {test: {rules: {removeArgument: rule}}},
 		rules: {'test/removeArgument': 'error'},
-		languageOptions: {ecmaVersion: 'latest'},
+		languageOptions: {ecmaVersion: 'latest', ...languageOptions},
 	});
 	const {range, text} = message.fix;
 	return code.slice(0, range[0]) + text + code.slice(range[1]);
@@ -114,6 +115,18 @@ test('removeArgument removes a middle or last argument with its preceding comma'
 test('removeArgument removes the only argument and a dangling trailing comma', () => {
 	assert.strictEqual(removeArgumentFrom('fn(a);', 0), 'fn();');
 	assert.strictEqual(removeArgumentFrom('fn(a,);', 0), 'fn();');
+});
+
+test('removeArgument removes the whole argument including any expression wrapper', () => {
+	// The call holds the wrapper, not the inner node, so the range has to cover it or the
+	// leftover `as unknown` would stay behind as a dangling argument.
+	const asTypeScript = {parser: typescriptParser};
+	assert.strictEqual(removeArgumentFrom('fn(a as unknown);', 0, asTypeScript), 'fn();');
+	assert.strictEqual(removeArgumentFrom('fn(a satisfies unknown);', 0, asTypeScript), 'fn();');
+	assert.strictEqual(removeArgumentFrom('fn(a!);', 0, asTypeScript), 'fn();');
+	assert.strictEqual(removeArgumentFrom('fn(a as unknown, b);', 0, asTypeScript), 'fn(b);');
+	assert.strictEqual(removeArgumentFrom('fn(b, c as unknown);', 1, asTypeScript), 'fn(b);');
+	assert.strictEqual(removeArgumentFrom('fn(a?.b as unknown);', 0, asTypeScript), 'fn();');
 });
 
 test('skipExpressionWrappers and outermostExpressionWrapper walk past chain and TypeScript wrappers', () => {

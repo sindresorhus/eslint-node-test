@@ -11,6 +11,15 @@ const inParentTest = code => withImport(`test('parent', t => {\n\t${code}\n});`)
 
 test.snapshot({
 	valid: [
+		// An unrelated local that happens to be named `assert` is not the context's assert
+		'import test from "node:test";\ntest("a", async () => {\n\tconst assert = {strictEqual() {}};\n\tload().then(v => { assert.strictEqual(v, 42); });\n});',
+		'import test from "node:test";\ntest("a", async ({assert}) => {\n\tawait load().then(v => { assert.strictEqual(v, 42); });\n});',
+
+		// `t.plan(n, {wait: true})` makes the runner block until the plan is fulfilled, so the
+		// assertion is awaited even though the callback is floating
+		'import test from "node:test";\nimport assert from "node:assert";\n'
+		+ 'test("a", async t => {\n\tt.plan(1, {wait: true});\n\tload().then(value => {\n\t\tassert.strictEqual(value, 42);\n\t});\n});',
+
 		// Not a test file.
 		'import assert from \'node:assert\';\nload().then(value => { assert.strictEqual(value, 42); });',
 
@@ -62,6 +71,11 @@ test.snapshot({
 		withNamespaceImport('function wrapper(nodeTest) {\n\tnodeTest.test(\'not node:test\', () => {\n\t\tload().then(value => { assert.strictEqual(value, 42); });\n\t});\n}\n\nwrapper(fakeTest);'),
 	],
 	invalid: [
+		// A destructured `assert` is the context's assert, so an assertion through it is owned by
+		// the same rule as `t.assert.*` and the imported module
+		'import test from "node:test";\ntest("a", async ({assert}) => {\n\tload().then(v => { assert.strictEqual(v, 42); });\n});',
+		'import test from "node:test";\ntest("a", async ({assert: {strictEqual}}) => {\n\tload().then(v => { strictEqual(v, 42); });\n});',
+
 		// Imported assert namespace.
 		inAsyncTest('load().then(value => { assert.strictEqual(value, 42); });'),
 		withNamespaceImport('nodeTest.test(\'loads\', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n});'),

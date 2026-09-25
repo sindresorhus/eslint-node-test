@@ -30,6 +30,7 @@ const ASSERTION_ARGS = new Map([
 	['notDeepEqual', {min: 2, max: 3}],
 	['deepStrictEqual', {min: 2, max: 3}],
 	['notDeepStrictEqual', {min: 2, max: 3}],
+	['partialDeepStrictEqual', {min: 2, max: 3}],
 	['match', {min: 2, max: 3}],
 	['doesNotMatch', {min: 2, max: 3}],
 	['throws', {min: 1, max: 3}],

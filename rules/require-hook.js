@@ -5,12 +5,31 @@ import {
 	getTestCallback,
 } from './utils/node-test.js';
 import isFunction from './ast/is-function.js';
+import {unwrapExpression} from './utils/skip-expression-wrappers.js';
 
 const MESSAGE_ID = 'require-hook';
 
 const messages = {
 	[MESSAGE_ID]: 'This runs when the file is loaded, not as part of a test. Move it into a `before`, `beforeEach`, `after`, or `afterEach` hook.',
 };
+
+/*
+`await foo()` and `void foo()` still run `foo()` while the file is loading; only the value is
+discarded. Peeling the operators that wrap a call without moving it out of the load phase lets the
+rule see the call. `delete foo()` is excluded: it removes a property instead of invoking one.
+*/
+const VALUE_DISCARDING_OPERATORS = new Set(['void', '!', 'typeof', '+', '-', '~']);
+
+/** Get the call a statement actually invokes, looking through operators that only discard its value. */
+function getCalledExpression(statement) {
+	let expression = unwrapExpression(statement.expression);
+
+	while (expression.type === 'AwaitExpression' || (expression.type === 'UnaryExpression' && VALUE_DISCARDING_OPERATORS.has(expression.operator))) {
+		expression = unwrapExpression(expression.argument);
+	}
+
+	return expression;
+}
 
 /*
 Whether the statement sits directly in a registration-time scope: the module top level or a
@@ -27,15 +46,22 @@ function isInRegistrationScope(statement, imports) {
 	}
 
 	const callback = parent.parent;
-	if (
-		!isFunction(callback)
-		|| callback.parent?.type !== 'CallExpression'
-		|| getTestCallback(callback.parent) !== callback
-	) {
+	if (!isFunction(callback)) {
 		return false;
 	}
 
-	return parseTestCall(callback.parent, imports)?.kind === 'suite';
+	// In the descriptor / `options.fn` forms the callback is the `fn` property of an object that is
+	// itself an argument, so the enclosing call is two levels above the callback.
+	let call = callback.parent;
+	if (call?.type === 'Property' && call.parent?.type === 'ObjectExpression') {
+		call = call.parent.parent;
+	}
+
+	if (call?.type !== 'CallExpression' || getTestCallback(call) !== callback) {
+		return false;
+	}
+
+	return parseTestCall(call, imports)?.kind === 'suite';
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -49,7 +75,7 @@ const create = context => {
 	const allow = new Set(context.options[0].allow);
 
 	context.on('ExpressionStatement', node => {
-		const call = node.expression;
+		const call = getCalledExpression(node);
 		if (call.type !== 'CallExpression') {
 			return;
 		}

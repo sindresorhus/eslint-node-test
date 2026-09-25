@@ -27,6 +27,21 @@ test.snapshot({
 		withMock('let spy;\nspy = mock.fn();'),
 	],
 	invalid: [
+		// A sequence-expression receiver or implementation is re-emitted without its parentheses,
+		// which would turn one argument into several, so the problem is reported but not fixed.
+		inTest('(getObj(), other).method = t.mock.fn();'),
+		inTest('object.method = t.mock.fn((a, b));'),
+
+		// Hook callbacks receive a real test context, so `t.mock.fn()` is trackable there too
+		'import {before} from \'node:test\';\nbefore(t => { object.method = t.mock.fn(); });',
+		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { object.method = t.mock.fn(); });',
+		'import {after} from \'node:test\';\nafter(t => { object.method = t.mock.fn(); });',
+		'import {afterEach} from \'node:test\';\nafterEach(t => { object.method = t.mock.fn(); });',
+		'import test from \'node:test\';\ntest.beforeEach(t => { object.method = t.mock.fn(); });',
+		'import {beforeEach} from \'node:test\';\nbeforeEach(function (t) { object.method = t.mock.fn(); });',
+
+		// A reason in a hook context is honored the same way
+		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { object.method = t.mock.fn(() => 42); });',
 		// Global mock assigned to a property
 		withMock('object.method = mock.fn();'),
 

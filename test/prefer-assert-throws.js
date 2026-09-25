@@ -37,6 +37,12 @@ test.snapshot({
 
 		// Assertion inside a nested function in catch — not executed by the catch itself
 		`${ASSERT_IMPORT}\ntry { fn(); } catch (err) { setTimeout(() => { assert.ok(err); }, 0); }`,
+
+		// An unrelated object's `.assert` is not a test context assertion
+		`${TEST_AND_ASSERT}\ntest('t', () => {\n\ttry {\n\t\tfn();\n\t} catch (err) {\n\t\tmyService.assert.ok(err);\n\t}\n});`,
+
+		// A nested test has its own context, so its assertion is not the outer test's
+		`${TEST_AND_ASSERT}\ntest('outer', (t) => {\n\ttry {\n\t\tfn();\n\t} catch (err) {\n\t\ttest('inner', (i) => {\n\t\t\ti.assert.ok(err);\n\t\t});\n\t}\n});`,
 	],
 	invalid: [
 		// Basic sync: try with assertion in catch
@@ -74,5 +80,25 @@ test.snapshot({
 			code: `${ASSERT_IMPORT}\ntry {\n\tfn();\n} catch (err) {\n\tassert.ok((err as Error).message);\n}`,
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// A generator `yield` suspends synchronously, so the recommendation stays `assert.throws()`.
+		// Verified against `node:test`: the throw is caught by the inner catch, not turned into a rejection.
+		`${ASSERT_IMPORT}\nfunction * generator() {\n\ttry {\n\t\tyield risky();\n\t} catch (err) {\n\t\tassert.ok(err instanceof Error);\n\t}\n}`,
+		`${ASSERT_IMPORT}\nasync function * generator() {\n\ttry {\n\t\tyield 1;\n\t} catch (err) {\n\t\tassert.ok(err instanceof Error);\n\t}\n}`,
+		`${ASSERT_IMPORT}\nfunction * generator() {\n\ttry {\n\t\tyield awaitable();\n\t} catch (err) {\n\t\tassert.ok(err);\n\t}\n}`,
+		// A destructured `assert` in catch
+		`${TEST_AND_ASSERT}\ntest('t', ({ assert }) => {\n\ttry {\n\t\tfn();\n\t} catch (err) {\n\t\tassert.ok(err);\n\t}\n});`,
+
+		// A destructured assertion method in catch
+		`${TEST_AND_ASSERT}\ntest('t', ({assert: {ok}}) => {\n\ttry {\n\t\tfn();\n\t} catch (err) {\n\t\tok(err);\n\t}\n});`,
+	],
+});
+
+test.snapshot({
+	valid: [],
+	invalid: [
+		// A `for await` still selects `assert.rejects()`, so excluding `yield` did not weaken the
+		// async detection
+		`${ASSERT_IMPORT}\nconst runner = async () => {\n\ttry {\n\t\tfor await (const x of stream) { use(x); }\n\t} catch (err) {\n\t\tassert.ok(err instanceof Error);\n\t}\n};`,
 	],
 });

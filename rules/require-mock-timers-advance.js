@@ -7,6 +7,7 @@ import {
 	HOOK_FUNCTIONS,
 	isGlobalMock,
 	MODIFIERS,
+	getContextParameterIdentifier,
 } from './utils/node-test.js';
 import {getEnclosingFunction} from './utils/index.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
@@ -104,6 +105,7 @@ function isImportedIdentifier(node, sourceCode) {
 }
 
 function getMockTimersReceiverKey(node, imports, sourceCode, contextVariables) {
+	node = unwrapTypeScriptExpression(node);
 	if (
 		node.type !== 'MemberExpression'
 		|| node.computed
@@ -113,23 +115,25 @@ function getMockTimersReceiverKey(node, imports, sourceCode, contextVariables) {
 		return;
 	}
 
-	if (isGlobalMock(node.object, imports)) {
+	const mockObject = unwrapTypeScriptExpression(node.object);
+	if (isGlobalMock(mockObject, imports)) {
 		return 'global';
 	}
 
+	const contextObject = mockObject?.type === 'MemberExpression' ? unwrapTypeScriptExpression(mockObject.object) : undefined;
 	if (
-		node.object.type === 'MemberExpression'
-		&& !node.object.computed
-		&& !node.object.optional
-		&& getStaticPropertyName(node.object.property) === 'mock'
-		&& node.object.object.type === 'Identifier'
+		mockObject?.type === 'MemberExpression'
+		&& !mockObject.computed
+		&& !mockObject.optional
+		&& getStaticPropertyName(mockObject.property) === 'mock'
+		&& contextObject?.type === 'Identifier'
 	) {
-		const variable = findVariable(sourceCode.getScope(node.object.object), node.object.object);
+		const variable = findVariable(sourceCode.getScope(contextObject), contextObject);
 		if (!variable || !contextVariables.includes(variable)) {
 			return;
 		}
 
-		return `context:${node.object.object.name}`;
+		return `context:${contextObject.name}`;
 	}
 }
 
@@ -161,8 +165,8 @@ function satisfyPending(scope, receiverKey) {
 }
 
 function getContextVariable(callback, sourceCode) {
-	const [parameter] = callback.params;
-	if (parameter?.type !== 'Identifier') {
+	const parameter = getContextParameterIdentifier(callback.params[0]);
+	if (!parameter) {
 		return;
 	}
 

@@ -12,7 +12,7 @@ Message:
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
 > 3 | test('t', t => { t.plan(1); assert.strictEqual(1, 1); });
-    |                             ^^^^^^^^^^^^^^^^^^^^^^^^ This assertion is not counted by \`t.plan()\`. Use \`t.assert\` so the runner counts it toward the plan.
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^ This assertion is not counted toward the test's plan. Use \`t.assert\` so the runner counts it.
 
 `;
 
@@ -30,7 +30,7 @@ Message:
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
 > 3 | test('t', t => { t.plan(1); assert(1); });
-    |                             ^^^^^^^^^ This assertion is not counted by \`t.plan()\`. Use \`t.assert\` so the runner counts it toward the plan.
+    |                             ^^^^^^^^^ This assertion is not counted toward the test's plan. Use \`t.assert\` so the runner counts it.
 
 `;
 
@@ -48,7 +48,7 @@ Message:
   1 | import test from 'node:test';
   2 | import {strictEqual} from 'node:assert';
 > 3 | test('t', t => { t.plan(1); strictEqual(1, 1); });
-    |                             ^^^^^^^^^^^^^^^^^ This assertion is not counted by \`t.plan()\`. Use \`t.assert\` so the runner counts it toward the plan.
+    |                             ^^^^^^^^^^^^^^^^^ This assertion is not counted toward the test's plan. Use \`t.assert\` so the runner counts it.
 
 `;
 
@@ -66,7 +66,7 @@ Message:
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
 > 3 | test('t', t => { t.plan(2); assert.ok(1); assert.ok(2); });
-    |                             ^^^^^^^^^^^^ This assertion is not counted by \`t.plan()\`. Use \`t.assert\` so the runner counts it toward the plan.
+    |                             ^^^^^^^^^^^^ This assertion is not counted toward the test's plan. Use \`t.assert\` so the runner counts it.
 
 `;
 
@@ -76,7 +76,7 @@ Message:
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
 > 3 | test('t', t => { t.plan(2); assert.ok(1); assert.ok(2); });
-    |                                           ^^^^^^^^^^^^ This assertion is not counted by \`t.plan()\`. Use \`t.assert\` so the runner counts it toward the plan.
+    |                                           ^^^^^^^^^^^^ This assertion is not counted toward the test's plan. Use \`t.assert\` so the runner counts it.
 
 `;
 
@@ -94,7 +94,7 @@ Message:
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
 > 3 | test('t', t => { assert.ok(1); t.plan(1); });
-    |                  ^^^^^^^^^^^^ This assertion is not counted by \`t.plan()\`. Use \`t.assert\` so the runner counts it toward the plan.
+    |                  ^^^^^^^^^^^^ This assertion is not counted toward the test's plan. Use \`t.assert\` so the runner counts it.
 
 `;
 
@@ -112,7 +112,7 @@ Message:
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
 > 3 | test('t', context => { context.plan(1); assert.ok(1); });
-    |                                         ^^^^^^^^^^^^ This assertion is not counted by \`context.plan()\`. Use \`context.assert\` so the runner counts it toward the plan.
+    |                                         ^^^^^^^^^^^^ This assertion is not counted toward the test's plan. Use \`context.assert\` so the runner counts it.
 
 `;
 
@@ -130,7 +130,7 @@ Message:
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
 > 3 | test('t', t => { t.plan(2); t.assert.ok(1); assert.ok(2); });
-    |                                             ^^^^^^^^^^^^ This assertion is not counted by \`t.plan()\`. Use \`t.assert\` so the runner counts it toward the plan.
+    |                                             ^^^^^^^^^^^^ This assertion is not counted toward the test's plan. Use \`t.assert\` so the runner counts it.
 
 `;
 
@@ -148,6 +148,6 @@ Message:
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
 > 3 | test('t', async t => { await t.test('s', s => { s.plan(1); assert.ok(1); }); });
-    |                                                            ^^^^^^^^^^^^ This assertion is not counted by \`s.plan()\`. Use \`s.assert\` so the runner counts it toward the plan.
+    |                                                            ^^^^^^^^^^^^ This assertion is not counted toward the test's plan. Use \`s.assert\` so the runner counts it.
 
 `;

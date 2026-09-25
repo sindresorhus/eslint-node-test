@@ -22,6 +22,23 @@ test.snapshot({
 
 		// Custom pattern
 		{code, filename: 'foo-test.js', options: [{pattern: String.raw`-test\.js$`}]},
+
+		// A character class that is valid in a plain regular expression must not crash the rule.
+		// The `v` flag rejects the unescaped `.`/`-` in a class and the bare `(`/`)` in one.
+		{code, filename: 'foo.test.js', options: [{pattern: String.raw`[\w.-]+\.test\.js$`}]},
+		{code, filename: 'foo.test.js', options: [{pattern: String.raw`[\w-]+\.test\.js$`}]},
+		{code, filename: 'foo.test.js', options: [{pattern: String.raw`[()]?[\w]+\.test\.js$`}]},
+		{code, filename: 'foo.test.js', options: [{pattern: String.raw`[-a]*[\w]+\.test\.js$`}]},
+
+		// An identity escape is valid in a plain regular expression and must not crash the rule.
+		// `u` rejects `\u005f`, so the pattern is retried unflagged.
+		{code, filename: 'my_file.test.js', options: [{pattern: String.raw`^my\_file\.test\.js$`}]},
+		{code, filename: '#foo.test.js', options: [{pattern: String.raw`^#foo\.test\.js$`}]},
+		{code, filename: 'foo,bar.test.js', options: [{pattern: String.raw`^foo,bar\.test\.js$`}]},
+		{code, filename: 'foo bar.test.js', options: [{pattern: String.raw`^foo\ bar\.test\.js$`}]},
+
+		// A Unicode property escape still works, which is the reason for a unicode flag at all
+		{code, filename: 'F.test.js', options: [{pattern: String.raw`^\p{Lu}\w*\.test\.js$`}]},
 	],
 	invalid: [
 		// Missing `.test.` segment

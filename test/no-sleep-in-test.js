@@ -81,6 +81,8 @@ test.snapshot({
 		'import * as nodeTest from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\nnodeTest.test.beforeEach(async () => {\n\tawait delay(500);\n}, {timeout: 1000});',
 		'import {beforeEach} from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\nbeforeEach(async () => {\n\tawait delay(500);\n}, {skip: true});',
 		'import {test} from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\ntest.beforeEach(async () => {\n\tawait delay(500);\n}, {skip: true});',
+		// A trailing object after the callback is not the options slot, so the test still runs
+		'import test from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\ntest(\'waits\', async () => {\n\tawait delay(500);\n}, {skip: true});',
 		'import test from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\ntest.beforeEach(async () => {\n\tawait delay(500);\n}, {skip: true});',
 		withTest('await t.test(\'child\', async () => {\n\tawait new Promise(resolve => setTimeout(resolve, 500));\n});'),
 		'import test from \'node:test\';\ntest(\'waits\', async context => {\n\tawait context.test(\'child\', async () => {\n\t\tawait new Promise(resolve => setTimeout(resolve, 500));\n\t});\n});',
@@ -165,6 +167,11 @@ test.snapshot({
 				'\tawait delay(500);',
 				'});',
 			].join('\n'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		// A TypeScript-wrapped namespace receiver is still the imported setTimeout.
+		{
+			code: 'import test from \'node:test\';\nimport * as timers from \'node:timers/promises\';\ntest(\'a\', async () => { await (timers as any).setTimeout(1); });',
 			languageOptions: {parser: parsers.typescript},
 		},
 	],

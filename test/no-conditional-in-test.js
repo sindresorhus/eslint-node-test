@@ -6,6 +6,11 @@ const withImport = code => `import {test, describe, beforeEach} from 'node:test'
 
 test.snapshot({
 	valid: [
+		// A trailing object after the options is ignored by the runner, so its `fn` never runs
+		'import test from \'node:test\';\ntest("a", {fn() {}}, {fn() { if (c) { f(); } }});',
+		// A helper declared inside a test that also has a subtest is still not a test body
+		withImport('test("a", async t => { const h = () => { if (x) { f(); } }; h(); await t.test("b", () => {}); });'),
+
 		// Not a test file
 		'test("x", () => { if (a) { b(); } });',
 
@@ -26,8 +31,21 @@ test.snapshot({
 
 		// Conditional inside a nested helper function, not directly in the test body
 		withImport('test("x", () => { const helper = () => { if (a) { f(); } }; helper(); });'),
+
+		// Conditional in a hook's options object, not inside the hook body
+		withImport('beforeEach(() => {}, {timeout: a ? 1 : 2});'),
 	],
 	invalid: [
+		// Only the options slot's `fn` runs, so a conditional in a trailing object's `fn` is dead code
+		'import test from \'node:test\';\ntest("a", {fn() { if (c) { f(); } }}, {fn() {}});',
+		// A subtest body is a test body, so a conditional there is just as much a problem
+		withImport('test("a", async t => { await t.test("b", () => { if (x) { f(); } }); });'),
+		withImport('test("a", async t => { await t.test.only("b", () => { if (x) { f(); } }); });'),
+		withImport('test("a", async t => { await t.test("b", () => { const v = x ? 1 : 2; }); });'),
+
+		// The object form body is a test body
+		'import test from \'node:test\';\ntest({name: \'x\', fn() { if (a) { f(); } }});',
+
 		// `if` in a test body
 		withImport('test("x", () => { if (a) { assert.ok(b); } });'),
 
@@ -42,6 +60,15 @@ test.snapshot({
 
 		// Conditional in a hook body
 		withImport('beforeEach(() => { if (a) { setup(); } });'),
+
+		// A hook's trailing options must not hide its body
+		withImport('beforeEach(() => { if (a) { setup(); } }, {timeout: 1000});'),
+		'import {before} from \'node:test\';\nbefore(() => { if (a) { f(); } }, {timeout: 1});',
+		'import {after} from \'node:test\';\nafter(() => { if (a) { f(); } }, {timeout: 1});',
+		'import {afterEach} from \'node:test\';\nafterEach(() => { if (a) { f(); } }, {timeout: 1});',
+		'import test from \'node:test\';\ntest.beforeEach(() => { if (a) { f(); } }, {timeout: 1});',
+		withImport('beforeEach(() => { const value = a ? 1 : 2; }, {timeout: 1000});'),
+		withImport('beforeEach(() => { switch (a) { case 1: break; } }, {timeout: 1000});'),
 
 		// Conditional inside a nested describe -> test body
 		withImport('describe("s", () => { test("x", () => { if (a) { f(); } }); });'),

@@ -1,4 +1,5 @@
 import {resolveImports} from './utils/node-test.js';
+import toRegExp from './utils/to-regexp.js';
 
 const MESSAGE_ID = 'consistent-test-filename';
 
@@ -21,12 +22,7 @@ const create = context => {
 
 	const {pattern} = context.options[0];
 
-	let patternRegExp;
-	try {
-		patternRegExp = new RegExp(pattern, 'v');
-	} catch (error) {
-		throw new Error(`Invalid \`pattern\` option for \`consistent-test-filename\`: ${error.message}`, {cause: error});
-	}
+	const patternRegExp = toRegExp(pattern, 'consistent-test-filename', 'pattern');
 
 	const name = filename.split(/[/\\]/).pop();
 	if (patternRegExp.test(name)) {

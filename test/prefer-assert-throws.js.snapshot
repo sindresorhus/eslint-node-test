@@ -1,3 +1,35 @@
+exports[`prefer-assert-throws > invalid(1): import assert from 'node:assert';\nconst runner = async () => {\n\ttry {\n\t\tfor await (const x of stream) { use(x); }\n\t} catch (err) {\n\t\tassert.ok(err instanceof Error);\n\t}\n}; 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | const runner = async () => {
+  3 | 	try {
+  4 | 		for await (const x of stream) { use(x); }
+  5 | 	} catch (err) {
+  6 | 		assert.ok(err instanceof Error);
+  7 | 	}
+  8 | };
+
+`;
+
+exports[`prefer-assert-throws > invalid(1): import assert from 'node:assert';\nconst runner = async () => {\n\ttry {\n\t\tfor await (const x of stream) { use(x); }\n\t} catch (err) {\n\t\tassert.ok(err instanceof Error);\n\t}\n}; 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+  2 | const runner = async () => {
+> 3 | 	try {
+    | 	^^^^^
+> 4 | 		for await (const x of stream) { use(x); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | 	} catch (err) {
+    | ^^^^^^^^^^^^^^^^
+> 6 | 		assert.ok(err instanceof Error);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 7 | 	}
+    | ^^ Prefer \`assert.rejects()\` over try/catch with an assertion.
+  8 | };
+
+`;
+
 exports[`prefer-assert-throws > invalid(1): import assert from 'node:assert';\ntry {\n\tfn();\n} catch (err) {\n\tassert.ok(err instanceof Error);\n} 1`] = `
 
   1 | import assert from 'node:assert';
@@ -85,6 +117,170 @@ Message:
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 > 6 | }
     | ^ Prefer \`assert.throws()\` over try/catch with an assertion.
+
+`;
+
+exports[`prefer-assert-throws > invalid(12): import assert from 'node:assert';\nfunction * generator() {\n\ttry {\n\t\tyield risky();\n\t} catch (err) {\n\t\tassert.ok(err instanceof Error);\n\t}\n} 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | function * generator() {
+  3 | 	try {
+  4 | 		yield risky();
+  5 | 	} catch (err) {
+  6 | 		assert.ok(err instanceof Error);
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`prefer-assert-throws > invalid(12): import assert from 'node:assert';\nfunction * generator() {\n\ttry {\n\t\tyield risky();\n\t} catch (err) {\n\t\tassert.ok(err instanceof Error);\n\t}\n} 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+  2 | function * generator() {
+> 3 | 	try {
+    | 	^^^^^
+> 4 | 		yield risky();
+    | ^^^^^^^^^^^^^^^^
+> 5 | 	} catch (err) {
+    | ^^^^^^^^^^^^^^^^
+> 6 | 		assert.ok(err instanceof Error);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 7 | 	}
+    | ^^ Prefer \`assert.throws()\` over try/catch with an assertion.
+  8 | }
+
+`;
+
+exports[`prefer-assert-throws > invalid(13): import assert from 'node:assert';\nasync function * generator() {\n\ttry {\n\t\tyield 1;\n\t} catch (err) {\n\t\tassert.ok(err instanceof Error);\n\t}\n} 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | async function * generator() {
+  3 | 	try {
+  4 | 		yield 1;
+  5 | 	} catch (err) {
+  6 | 		assert.ok(err instanceof Error);
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`prefer-assert-throws > invalid(13): import assert from 'node:assert';\nasync function * generator() {\n\ttry {\n\t\tyield 1;\n\t} catch (err) {\n\t\tassert.ok(err instanceof Error);\n\t}\n} 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+  2 | async function * generator() {
+> 3 | 	try {
+    | 	^^^^^
+> 4 | 		yield 1;
+    | ^^^^^^^^^^
+> 5 | 	} catch (err) {
+    | ^^^^^^^^^^^^^^^^
+> 6 | 		assert.ok(err instanceof Error);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 7 | 	}
+    | ^^ Prefer \`assert.throws()\` over try/catch with an assertion.
+  8 | }
+
+`;
+
+exports[`prefer-assert-throws > invalid(14): import assert from 'node:assert';\nfunction * generator() {\n\ttry {\n\t\tyield awaitable();\n\t} catch (err) {\n\t\tassert.ok(err);\n\t}\n} 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | function * generator() {
+  3 | 	try {
+  4 | 		yield awaitable();
+  5 | 	} catch (err) {
+  6 | 		assert.ok(err);
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`prefer-assert-throws > invalid(14): import assert from 'node:assert';\nfunction * generator() {\n\ttry {\n\t\tyield awaitable();\n\t} catch (err) {\n\t\tassert.ok(err);\n\t}\n} 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+  2 | function * generator() {
+> 3 | 	try {
+    | 	^^^^^
+> 4 | 		yield awaitable();
+    | ^^^^^^^^^^^^^^^^^^^^
+> 5 | 	} catch (err) {
+    | ^^^^^^^^^^^^^^^^
+> 6 | 		assert.ok(err);
+    | ^^^^^^^^^^^^^^^^^
+> 7 | 	}
+    | ^^ Prefer \`assert.throws()\` over try/catch with an assertion.
+  8 | }
+
+`;
+
+exports[`prefer-assert-throws > invalid(15): import test from 'node:test';\nimport assert from 'node:assert';\ntest('t', ({ assert }) => {\n\ttry {\n\t\tfn();\n\t} catch (err) {\n\t\tassert.ok(err);\n\t}\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('t', ({ assert }) => {
+  4 | 	try {
+  5 | 		fn();
+  6 | 	} catch (err) {
+  7 | 		assert.ok(err);
+  8 | 	}
+  9 | });
+
+`;
+
+exports[`prefer-assert-throws > invalid(15): import test from 'node:test';\nimport assert from 'node:assert';\ntest('t', ({ assert }) => {\n\ttry {\n\t\tfn();\n\t} catch (err) {\n\t\tassert.ok(err);\n\t}\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('t', ({ assert }) => {
+> 4 | 	try {
+    | 	^^^^^
+> 5 | 		fn();
+    | ^^^^^^^
+> 6 | 	} catch (err) {
+    | ^^^^^^^^^^^^^^^^
+> 7 | 		assert.ok(err);
+    | ^^^^^^^^^^^^^^^^^
+> 8 | 	}
+    | ^^ Prefer \`assert.throws()\` over try/catch with an assertion.
+  9 | });
+
+`;
+
+exports[`prefer-assert-throws > invalid(16): import test from 'node:test';\nimport assert from 'node:assert';\ntest('t', ({assert: {ok}}) => {\n\ttry {\n\t\tfn();\n\t} catch (err) {\n\t\tok(err);\n\t}\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('t', ({assert: {ok}}) => {
+  4 | 	try {
+  5 | 		fn();
+  6 | 	} catch (err) {
+  7 | 		ok(err);
+  8 | 	}
+  9 | });
+
+`;
+
+exports[`prefer-assert-throws > invalid(16): import test from 'node:test';\nimport assert from 'node:assert';\ntest('t', ({assert: {ok}}) => {\n\ttry {\n\t\tfn();\n\t} catch (err) {\n\t\tok(err);\n\t}\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('t', ({assert: {ok}}) => {
+> 4 | 	try {
+    | 	^^^^^
+> 5 | 		fn();
+    | ^^^^^^^
+> 6 | 	} catch (err) {
+    | ^^^^^^^^^^^^^^^^
+> 7 | 		ok(err);
+    | ^^^^^^^^^^
+> 8 | 	}
+    | ^^ Prefer \`assert.throws()\` over try/catch with an assertion.
+  9 | });
 
 `;
 

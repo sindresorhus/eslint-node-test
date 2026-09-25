@@ -63,6 +63,22 @@ function sortReadmeRuleRows(text, ruleId) {
 	return lines.join('\n');
 }
 
+/*
+Rewrite `from` to `to` only where it is a whole rule name.
+
+A plain `replaceAll` also rewrites longer names that start with `from`, so renaming `test-title`
+would turn the untouched `test-title-format` into `<new>-format` everywhere, including its readme
+link and snapshot keys. Rule names are kebab-case, so a match bounded by anything outside
+`[A-Za-z0-9_-]` is a whole name.
+*/
+function replaceRuleName(text, from, to) {
+	const escaped = from.replaceAll(/[$()*+.?[\]^{|}]/g, String.raw`\$&`);
+	return text.replaceAll(
+		new RegExp(String.raw`(?<![\w-])${escaped}(?![\w-])`, 'gu'),
+		() => to,
+	);
+}
+
 function replaceRuleIdInRulesIndex(text, from, to) {
 	const fromLine = `export {default as '${from}'} from './${from}.js';`;
 	const toLine = `export {default as '${to}'} from './${to}.js';`;
@@ -96,7 +112,7 @@ async function renameRule(from, to) {
 		let text = await fsAsync.readFile(file, 'utf8');
 		text = file.pathname.endsWith('/rules/index.js')
 			? replaceRuleIdInRulesIndex(text, from, to)
-			: text.replaceAll(from, () => to);
+			: replaceRuleName(text, from, to);
 		// eslint-disable-next-line no-await-in-loop
 		await fsAsync.writeFile(file, text);
 	}
@@ -137,5 +153,6 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
 
 export {
 	replaceRuleIdInRulesIndex,
+	replaceRuleName,
 	sortReadmeRuleRows,
 };

@@ -33,7 +33,7 @@ For examples:
 @param {ASTNode} node The node to get.
 @returns {string|undefined} The property name if static. Otherwise, undefined.
 */
-function getStaticPropertyName(node) {
+export function getStaticPropertyName(node) {
 	/* c8 ignore next 3 */
 	while (node?.type === 'ChainExpression') {
 		node = node.expression;

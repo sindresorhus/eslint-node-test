@@ -166,5 +166,7 @@ test.snapshot({
 			code: withImport('test("parent", (t: any) => { (t as any).test("child", child => { child.plan(1); child.plan(2); }); });'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		// A defaulted context parameter is still the test context.
+		'import test from \'node:test\';\ntest(\'t\', (t = getContext()) => { t.plan(1); t.plan(2); });',
 	],
 });

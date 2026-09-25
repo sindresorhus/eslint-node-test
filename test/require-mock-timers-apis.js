@@ -66,8 +66,6 @@ test.snapshot({
 			code: 'import type {getTestContext} from \'node:test\';\ngetTestContext().mock.timers.enable();',
 			languageOptions: {parser: parsers.typescript},
 		},
-		'import test from \'node:test\';\ntest.getTestContext().mock.timers.enable();',
-
 		// Shadowed subtest receiver.
 		head + 'test("a", t => { const fn = t => { t.test("b", subtest => { subtest.mock.timers.enable(); }); }; });',
 
@@ -198,6 +196,8 @@ test.snapshot({
 
 		// Namespace current test context.
 		'import * as nodeTest from \'node:test\';\nnodeTest.test("a", () => { nodeTest.getTestContext().mock.timers.enable(); });',
+		// The default import carries `getTestContext` as a property too, so it is a real context
+		'import test from \'node:test\';\ntest(\'a\', () => { test.getTestContext().mock.timers.enable(); });',
 
 		// TypeScript non-null current test context.
 		{

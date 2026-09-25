@@ -6,6 +6,14 @@ const head = 'import {test, mock} from \'node:test\';\n';
 
 test.snapshot({
 	valid: [
+		// An `apis` value that cannot be resolved at lint time proves nothing, so the imported
+		// timer may well not be among the enabled APIs
+		`${head}import {setTimeout} from 'node:timers';\nconst APIS = ['setInterval'];\ntest('a', () => { mock.timers.enable({apis: APIS}); });`,
+		`${head}import {setTimeout} from 'node:timers';\ntest('a', () => { mock.timers.enable({apis: config.apis}); });`,
+		`${head}import {setTimeout} from 'node:timers';\ntest('a', () => { mock.timers.enable({apis: ['setTimeout', ...rest]}); });`,
+		`${head}import {setTimeout} from 'node:timers';\ntest('a', () => { mock.timers.enable({apis: []}); });`,
+		`${head}import {setTimeout} from 'node:timers';\nconst extra = {apis: ['setTimeout']};\ntest('a', () => { mock.timers.enable({apis: ['setInterval'], ...extra}); });`,
+		`${head}import {setTimeout} from 'node:timers';\ntest('a', () => { mock.timers.enable({...config, apis: ['setInterval']}); });`,
 		// Not a test file
 		'import {setTimeout} from \'node:timers\';\nmock.timers.enable();',
 

@@ -50,6 +50,13 @@ test.snapshot({
 		withSetup('process.exit?.(0);'),
 		withSetup('(process?.exit)(0);'),
 
+		// `globalThis.process` / `global.process` are the same object as the bare global
+		withSetup('globalThis.process.exit(0);'),
+		withSetup('globalThis.process.exitCode = 1;'),
+		withSetup('global.process.exit(0);'),
+		withSetup('global.process.exitCode = 1;'),
+		withSetup('globalThis.process.exitCode++;'),
+
 		// Import shapes that mark a file as a `node:test` file
 		'import test from \'node:test\';\nprocess.exit(0);',
 		'import * as nodeTest from \'node:test\';\nprocess.exit(0);',

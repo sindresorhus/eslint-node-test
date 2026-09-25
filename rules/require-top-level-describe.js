@@ -1,4 +1,5 @@
 import {resolveImports, parseTestCall, createSuiteDepthTracker} from './utils/node-test.js';
+import {getEnclosingFunction} from './utils/index.js';
 
 const MESSAGE_ID_NOT_WRAPPED = 'require-top-level-describe/not-wrapped';
 const MESSAGE_ID_TOO_MANY = 'require-top-level-describe/too-many';
@@ -26,8 +27,13 @@ const create = context => {
 			return;
 		}
 
+		// Syntactic depth alone would call a `describe` inside a helper function or a hook
+		// top-level, since neither is nested in another suite. A registration is top-level only
+		// when it sits directly in the module scope.
+		const isTopLevel = tracker.depth === 0 && getEnclosingFunction(node) === undefined;
+
 		let problem;
-		if (tracker.depth === 0) {
+		if (isTopLevel) {
 			if (parsed.kind === 'test' || parsed.kind === 'hook') {
 				problem = {
 					node,

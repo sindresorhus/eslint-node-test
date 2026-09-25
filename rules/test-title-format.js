@@ -4,6 +4,7 @@ import {
 	getTestTitle,
 	getStaticString,
 } from './utils/node-test.js';
+import toRegExp from './utils/to-regexp.js';
 
 const MESSAGE_ID = 'test-title-format/mismatch';
 
@@ -23,12 +24,7 @@ const create = context => {
 		return;
 	}
 
-	let titleRegExp;
-	try {
-		titleRegExp = new RegExp(formatOption, 'v');
-	} catch (error) {
-		throw new Error(`Invalid \`format\` option for \`test-title-format\`: ${error.message}`, {cause: error});
-	}
+	const titleRegExp = toRegExp(formatOption, 'test-title-format', 'format');
 
 	context.on('CallExpression', node => {
 		const parsed = parseTestCall(node, imports);

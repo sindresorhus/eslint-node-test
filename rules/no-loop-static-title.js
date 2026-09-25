@@ -1,4 +1,9 @@
-import {resolveImports, parseTestCall, getStaticString} from './utils/node-test.js';
+import {
+	resolveImports,
+	parseTestCall,
+	getStaticString,
+	getTestTitle,
+} from './utils/node-test.js';
 import {isLoop, isFunction} from './ast/index.js';
 
 const MESSAGE_ID = 'no-loop-static-title';
@@ -58,9 +63,12 @@ const create = context => {
 			return;
 		}
 
+		// Resolve the title `node:test` actually uses, so the descriptor form and `options.name` are
+		// covered and an overridden dynamic name is not mistaken for a static one.
+		const titleNode = getTestTitle(node, context);
 		// A static title resolves to a constant string; a title that interpolates the loop variable
 		// does not, so it is correctly left alone.
-		if (getStaticString(node.arguments[0], context) === undefined) {
+		if (getStaticString(titleNode, context) === undefined) {
 			return;
 		}
 
@@ -69,7 +77,7 @@ const create = context => {
 		}
 
 		return {
-			node: node.arguments[0],
+			node: titleNode,
 			messageId: MESSAGE_ID,
 		};
 	});

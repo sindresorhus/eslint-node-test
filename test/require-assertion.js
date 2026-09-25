@@ -23,6 +23,14 @@ test.snapshot({
 		'import test from "node:test";\ntest("t1", ({assert}) => assert.ok(1));',
 		'import test from "node:test";\ntest("t1", ({assert}) => { assert.strictEqual(1, 1); });',
 		'import test from "node:test";\ntest("t1", ({assert: testAssert}) => { testAssert.strictEqual(1, 1); });',
+		// Destructuring the methods straight off `assert` still calls a real assertion
+		'import test from "node:test";\ntest("t1", ({assert: {ok}}) => { ok(1); });',
+		'import test from "node:test";\ntest("t1", ({assert: {strictEqual}}) => { strictEqual(1, 1); });',
+		// A defaulted `assert` binding is still a real assertion
+		'import test from "node:test";\ntest("t1", ({assert = fallback}) => { assert.ok(1); });',
+		// A renamed destructured method is the method it was destructured from
+		'import test from "node:test";\ntest("t1", ({assert: {ok: check}}) => { check(1); });',
+		'import test from "node:test";\ntest("t1", ({assert: {strictEqual: same}}) => { same(a, b); });',
 
 		// Nested tests each use their own destructured assertion binding
 		'import test from "node:test";\ntest("outer", ({assert}) => { assert.ok(1); test("inner", ({assert}) => { assert.ok(2); }); });',
@@ -66,6 +74,13 @@ test.snapshot({
 		// Async test with assertion
 		'import test from "node:test";\nimport assert from "node:assert";\ntest("t1", async () => { assert.ok(await fetchValue()); });',
 
+		// `node:test` spreads the options over the positional callback, so `options.fn` is the body
+		// that runs and the trailing function is dead code
+		'import test from "node:test";\nimport assert from "node:assert";\ntest("t1", {fn() { assert.ok(true); }}, () => {});',
+		'import test from "node:test";\ntest("t1", {fn(t) { t.assert.ok(1); }}, () => {});',
+		// A hook takes its callback first and the runner never reads `options.fn` for it
+		'import {beforeEach} from "node:test";\nimport assert from "node:assert";\nbeforeEach(() => { assert.ok(true); }, {fn() {}});',
+
 		// Outer test with its own assertion and a subtest
 		'import test from "node:test";\nimport assert from "node:assert";\ntest("outer", t => { assert.ok(1); t.test("inner", () => {}); });',
 		// T.test() subtests are not tracked as import-based test boundaries, so assertions inside them are seen by the outer scope (intentional false negative — keep simple)
@@ -74,6 +89,20 @@ test.snapshot({
 		'import test from "test";\ntest("t1", () => { doSomething(); });',
 	],
 	invalid: [
+		// Only the assertion shapes the shared helper accepts count; a deeper chain is not one
+		'import test from \'node:test\';\ntest("x", ({assert}) => { assert.a.b.c.d(); });',
+		'import test from \'node:test\';\ntest("x", ({assert: {a: {b}}}) => { b(1); });',
+		// A destructured method that is shadowed before use is not a real assertion
+		'import test from "node:test";\ntest("t1", ({assert: {ok}}) => { { const ok = () => {}; } f(); });',
+		// Destructuring a method without calling it is not an assertion
+		'import test from "node:test";\ntest("t1", ({assert: {ok}}) => { f(); });',
+
+		// `node:test` reads `fn` from the options object wherever it sits
+		'import test from \'node:test\';\ntest(\'a\', {fn() {}});',
+
+		// The object form is still a test, so it still needs an assertion
+		'import test from \'node:test\';\ntest({name: \'x\', fn() {}});',
+
 		// No assertion at all
 		'import test from "node:test";\ntest("t1", () => { doSomething(); });',
 
@@ -125,5 +154,17 @@ test.snapshot({
 
 		// A captured context assertion belongs to the nested callback where it is called
 		'import test from "node:test";\ntest("outer", t => { test("inner", () => { t.assert.ok(1); }); });',
+
+		// The trailing function is dead code when the options slot has an `fn`, so an assertion in it
+		// does not count
+		'import test from "node:test";\nimport assert from "node:assert";\ntest("t1", {fn() {}}, () => { assert.ok(true); });',
+		'import test from "node:test";\ntest("t1", {fn() {}}, t => { t.assert.ok(1); });',
+
+		// `TestContext#assert` is a plain object of assertion methods: it has no `strict` view and
+		// is not callable, so these three throw a `TypeError` instead of asserting anything.
+		'import test from "node:test";\ntest("t1", ({assert}) => { assert.strict.equal(1, 1); });',
+		'import test from "node:test";\ntest("t1", ({assert: {strict: s}}) => { s.equal(1, 1); });',
+		'import test from "node:test";\ntest("t1", ({assert}) => { assert(1); });',
+		'import test from "node:test";\ntest("t1", (t) => { t.assert.strict(1); });',
 	],
 });

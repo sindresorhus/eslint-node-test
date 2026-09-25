@@ -9,7 +9,18 @@ test.snapshot({
 		// Not a test file
 		'test("x", {skp: true}, () => {});',
 
+		// The object form passes one descriptor object; `name` and `fn` are known there
+		withImport('test({name: "x", fn() {}});'),
+		withImport('test({name: "x", skip: true, timeout: 1, fn() {}});'),
+		withImport('describe({name: "x", concurrency: 1, fn() {}});'),
+
+		// `node:test` reads `fn` from the options slot too, so it is a known key there as well
+		withImport('test("x", {fn() {}});'),
+		withImport('test("x", {fn(t) { t.assert.ok(1); }});'),
+
 		// Known test options
+		// A trailing object after the callback is not the options slot, so its keys are not options
+		withImport('test("x", () => {}, {notAnOption: 1});'),
 		withImport('test("x", {only: true}, () => {});'),
 		withImport('test("x", {skip: true}, () => {});'),
 		withImport('test("x", {todo: "later"}, () => {});'),
@@ -29,8 +40,23 @@ test.snapshot({
 		// Computed and spread keys cannot be checked statically
 		withImport('test("x", {[key]: true}, () => {});'),
 		withImport('test("x", {...options}, () => {});'),
+
+		// A leading object is the descriptor whenever it appears, and `node:test` names a test after
+		// `options.name` even outside the object form, so `name` is a known key in every slot
+		withImport('test({name: "x", skip: true}, () => {});'),
+		withImport('test({name: "x", skip: true}, {only: true});'),
+		withImport('test("x", {name: "y"}, () => {});'),
+		withImport('test("x", {name: "y"});'),
+		withImport('test(function body() {}, {name: "y"});'),
 	],
 	invalid: [
+		// A hook has no descriptor form, so `before({name})` is a hook with an options object
+		// whose keys the runner ignores
+		'import {before} from \'node:test\';\nbefore({name: "x"});',
+		'import {afterEach} from \'node:test\';\nafterEach({name: "x"});',
+		// A typo inside the object form is still unknown
+		withImport('test({name: "x", skp: true, fn() {}});'),
+
 		// Typo
 		withImport('test("x", {skp: true}, () => {});'),
 
@@ -60,5 +86,11 @@ test.snapshot({
 			code: withImport('test("x", {retry: 3}, () => {});'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// A hook has no title, so `name` is unknown in its trailing options too
+		withImport('beforeEach(() => {}, {name: "x"});'),
+		// A leading descriptor is still checked, with or without trailing arguments
+		withImport('test({name: "x", skp: true}, () => {});'),
+		withImport('test({name: "x", skp: true}, {skip: true});'),
 	],
 });

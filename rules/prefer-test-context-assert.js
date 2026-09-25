@@ -4,7 +4,9 @@ import {
 	createContextTracker,
 	getContextParameterIdentifier,
 	parseAssertionCall,
+	LOOSE_TO_STRICT_METHODS,
 } from './utils/node-test.js';
+import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
 const MESSAGE_ID_ERROR = 'prefer-test-context-assert/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-test-context-assert/suggestion';
@@ -13,15 +15,6 @@ const messages = {
 	[MESSAGE_ID_ERROR]: 'Prefer the test context `{{context}}.assert.{{method}}()` over the imported `node:assert`, so the runner ties the assertion to this test.',
 	[MESSAGE_ID_SUGGESTION]: 'Replace with `{{context}}.assert.{{method}}()`.',
 };
-
-// Under `node:assert/strict` these loose methods behave as their strict counterparts.
-// `t.assert.*` exposes the non-strict functions, so preserve the behavior when converting.
-const LOOSE_TO_STRICT = new Map([
-	['equal', 'strictEqual'],
-	['notEqual', 'notStrictEqual'],
-	['deepEqual', 'deepStrictEqual'],
-	['notDeepEqual', 'notDeepStrictEqual'],
-]);
 
 function isImportedAssertCallee(callee, imports) {
 	if (
@@ -34,37 +27,39 @@ function isImportedAssertCallee(callee, imports) {
 		return true;
 	}
 
+	if (callee.type !== 'MemberExpression' || callee.computed) {
+		return false;
+	}
+
+	// The object may carry a TypeScript wrapper (`assert!.ok`, `(assert as any).ok`).
+	const object = unwrapTypeScriptExpression(callee.object);
 	if (
-		callee.type === 'MemberExpression'
-		&& !callee.computed
-		&& callee.object.type === 'Identifier'
+		object?.type === 'Identifier'
 		&& (
-			imports.assertNamespace.has(callee.object.name)
-			|| imports.assertNamed.get(callee.object.name) === 'strict'
+			imports.assertNamespace.has(object.name)
+			|| imports.assertNamed.get(object.name) === 'strict'
 		)
 	) {
 		return true;
 	}
 
 	return (
-		callee.type === 'MemberExpression'
-		&& !callee.computed
-		&& callee.object.type === 'MemberExpression'
-		&& !callee.object.computed
-		&& callee.object.object.type === 'Identifier'
-		&& callee.object.property.type === 'Identifier'
-		&& callee.object.property.name === 'strict'
-		&& imports.assertNamespace.has(callee.object.object.name)
+		object?.type === 'MemberExpression'
+		&& !object.computed
+		&& object.object.type === 'Identifier'
+		&& object.property.type === 'Identifier'
+		&& object.property.name === 'strict'
+		&& imports.assertNamespace.has(object.object.name)
 	);
 }
 
 function getAssertMethod(node, imports) {
 	const assertion = parseAssertionCall(node, imports);
-	if (!assertion || !isImportedAssertCallee(node.callee, imports)) {
+	if (!assertion || !isImportedAssertCallee(unwrapTypeScriptExpression(node.callee), imports)) {
 		return;
 	}
 
-	return (assertion.isStrict && LOOSE_TO_STRICT.get(assertion.method)) || assertion.method;
+	return (assertion.isStrict && LOOSE_TO_STRICT_METHODS.get(assertion.method)) || assertion.method;
 }
 
 function isInsideCallback(node, callback, sourceCode) {

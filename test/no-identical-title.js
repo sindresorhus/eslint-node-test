@@ -25,6 +25,10 @@ test.snapshot({
 		'import {it} from "node:test";\nit("a", () => {});\nit("b", () => {});',
 		// Renamed import
 		'import {test as t} from "node:test";\nt("a", () => {});\nt("b", () => {});',
+		// `node:test` names a test after `options.name`, so two tests sharing a positional string are not duplicates
+		'import test from "node:test";\ntest("a", () => {});\ntest("a", {name: "b"}, () => {});',
+		// Same for the object form, where the descriptor wins over every later argument
+		'import test from "node:test";\ntest({name: "a"}, () => {});\ntest({name: "b"}, {name: "a"}, () => {});',
 	],
 	invalid: [
 		// Duplicate top-level titles
@@ -54,5 +58,7 @@ test.snapshot({
 			code: 'import test from "node:test";\ntest("a", () => {});\ntest("a", () => {});',
 			languageOptions: {parser: parsers.typescript},
 		},
+		// Duplicate `options.name` — the title each test actually runs under
+		'import test from "node:test";\ntest("a", {name: "same"}, () => {});\ntest("b", {name: "same"}, () => {});',
 	],
 });

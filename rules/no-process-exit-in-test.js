@@ -1,5 +1,5 @@
 import {resolveImports} from './utils/node-test.js';
-import {unwrapExpression} from './utils/index.js';
+import {unwrapExpression, isGlobalProcessMember} from './utils/index.js';
 
 const MESSAGE_ID_PROCESS_EXIT = 'processExit';
 const MESSAGE_ID_PROCESS_EXIT_CODE = 'processExitCode';
@@ -21,7 +21,10 @@ const getProcessProperty = (node, propertyName) => {
 	}
 
 	const object = unwrapExpression(unwrapped.object);
-	if (object?.type === 'Identifier' && object.name === 'process') {
+	if (
+		(object?.type === 'Identifier' && object.name === 'process')
+		|| isGlobalProcessMember(object)
+	) {
 		return unwrapped;
 	}
 };

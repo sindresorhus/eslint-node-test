@@ -167,8 +167,8 @@ function isImportedSetTimeout(node, sourceCode, named, namespace) {
 
 	return node?.type === 'MemberExpression'
 		&& !node.computed
-		&& node.object.type === 'Identifier'
-		&& namespace.has(findVariable(sourceCode.getScope(node.object), node.object))
+		&& unwrapExpression(node.object)?.type === 'Identifier'
+		&& namespace.has(findVariable(sourceCode.getScope(node.object), unwrapExpression(node.object)))
 		&& isIdentifierReference(node.property, 'setTimeout');
 }
 

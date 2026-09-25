@@ -31,8 +31,15 @@ test.snapshot({
 		// Best-effort limitation: code after a skip inside a `switch` case is not detected,
 		// since handling it correctly would require modeling break/return/fall-through control flow.
 		withImport('test("x", t => { switch (cond) { case 1: t.skip(); doStuff(); } });'),
+
+		// A `break` right after the skip leaves the switch, so no test code runs after the skip.
+		'import test from \'node:test\';\ntest(\'x\', t => {\n\tswitch (k) {\n\t\tcase 1: {\n\t\t\tt.skip(\'x\');\n\t\t\tbreak;\n\t\t}\n\t\tcase 2: {\n\t\t\tother();\n\t\t}\n\t}\n});',
 	],
 	invalid: [
+		// The inserted `return` must land after a trailing comment, so the comment stays with the skip
+		withImport('test("x", t => {\n\tt.skip(); // TODO: enable once fixed\n\tcheck();\n});'),
+		withImport('test("x", t => {\n\tt.skip(/* why */);\n\tcheck();\n});'),
+
 		// Code after skip in the same block
 		withImport('test("x", t => { t.skip(); assert.ok(x); });'),
 

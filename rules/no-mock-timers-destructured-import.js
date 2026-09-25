@@ -1,4 +1,4 @@
-import {resolveImports} from './utils/node-test.js';
+import {resolveImports, findOptionsProperty} from './utils/node-test.js';
 
 const MESSAGE_ID = 'no-mock-timers-destructured-import';
 
@@ -19,29 +19,45 @@ const FUNCTION_TO_API = new Map([
 ]);
 
 /*
-The enabled timer APIs, or `null` when `enable()` was called without an `apis` list (all APIs).
+What an `enable()` call enables:
+
+- `all`: no `apis` list at all, so every timer API is mocked
+- `list`: a statically known `apis` array
+- `unknown`: an `apis` value that cannot be resolved at lint time, so nothing can be proven
+
+`findOptionsProperty` reads the last one the runner sees and gives up when a later spread could
+override it, which is the same contract every other option-reading rule uses.
 */
 function getEnabledApis(callExpression) {
 	const [argument] = callExpression.arguments;
 	if (argument?.type !== 'ObjectExpression') {
-		return null;
+		return {all: true};
 	}
 
-	const apisProperty = argument.properties.find(property =>
-		property.type === 'Property'
-		&& !property.computed
-		&& (
-			(property.key.type === 'Identifier' && property.key.name === 'apis')
-			|| (property.key.type === 'Literal' && property.key.value === 'apis')
-		));
-
-	if (apisProperty?.value.type !== 'ArrayExpression') {
-		return null;
+	const apisProperty = findOptionsProperty(argument, 'apis');
+	if (!apisProperty) {
+		// A spread or computed key can hide or replace `apis`, in which case the list is not
+		// statically known. Without one, the runner mocks every timer API.
+		return argument.properties.some(property => property.type === 'SpreadElement' || property.computed)
+			? {unknown: true}
+			: {all: true};
 	}
 
-	return apisProperty.value.elements
-		.filter(element => element?.type === 'Literal' && typeof element.value === 'string')
-		.map(element => element.value);
+	if (apisProperty.value.type !== 'ArrayExpression') {
+		return {unknown: true};
+	}
+
+	const apis = [];
+	for (const element of apisProperty.value.elements) {
+		if (element?.type !== 'Literal' || typeof element.value !== 'string') {
+			// A spread or computed entry makes the list only partly known, which proves nothing.
+			return {unknown: true};
+		}
+
+		apis.push(element.value);
+	}
+
+	return {list: apis};
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -110,10 +126,10 @@ const create = context => {
 			&& isMockTimers(callee.object)
 		) {
 			const apis = getEnabledApis(node);
-			if (apis === null) {
+			if (apis.all) {
 				isAllEnabled = true;
-			} else {
-				for (const api of apis) {
+			} else if (apis.list) {
+				for (const api of apis.list) {
 					enabledApis.add(api);
 				}
 			}

@@ -49,7 +49,7 @@ const createRuleCreateFunction = data => outdent`
 	/** @param {ESLint.Rule.RuleContext} context */
 	const create = context => {
 		const imports = resolveImports(context);
-		if (imports.locals.size === 0 && !imports.namespace) {
+		if (!imports.isTestFile) {
 			return;
 		}
 

@@ -19,6 +19,8 @@ test.snapshot({
 		// No type information available, the rule does nothing.
 		withImport('test("x", () => { return 42; });'),
 		withImport('beforeEach(() => { return 42; });'),
+		// A hook's trailing options must not hide its body
+		withImport('beforeEach(() => { return 42; }, {timeout: 1000});'),
 
 		// Returning a Promise
 		typed('test("x", () => { return Promise.resolve(); });'),

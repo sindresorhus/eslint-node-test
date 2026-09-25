@@ -7,6 +7,7 @@ const withImport = code => `import test from 'node:test';\n${code}`;
 
 test.snapshot({
 	valid: [
+
 		// Not a test file — no import from node:test
 		'test(async t => {});',
 		// Sync callback — no async keyword
@@ -36,12 +37,19 @@ test.snapshot({
 		// Async suite callbacks are out of scope (owned by `no-async-describe`)
 		withImport('import {describe} from "node:test";\ndescribe("s", async () => {});'),
 		withImport('import {suite} from "node:test";\nsuite("s", async () => {});'),
+		// The descriptor method form with an await is valid
+		withImport('test({name: "x", async fn() { await foo(); }});'),
 		// Global assertion configuration is not a test registration.
 		withImport('test.assert.register("custom", async () => {});'),
 		// A bare `test` package is not Node's test runner.
 		'import test from "test";\ntest("title", async t => {});',
 	],
 	invalid: [
+		// A comment between `async` and the callback would be removed with the keyword,
+		// so the test is reported but no fix is offered
+		'import test from \'node:test\';\ntest(\'a\', async /* keep me */ () => { foo(); });',
+		'import test from \'node:test\';\ntest(\'a\', async /* keep me */ function () { foo(); });',
+
 		// Basic async arrow with no await
 		withImport('test("title", async t => {});'),
 		// Basic async function expression with no await
@@ -72,5 +80,31 @@ test.snapshot({
 		},
 		// Two tests: only the second lacks await
 		withImport('test("a", async t => { await foo(); });\ntest("b", async t => {});'),
+		// The descriptor form keeps the `async` keyword on the surrounding property, not on the
+		// function value, so the keyword must be looked up from the property (this used to crash).
+		withImport('test({name: "x", async fn() {}});'),
+		// A comment between `async` and the method name would be removed with the keyword,
+		// so the test is reported but no fix is offered
+		'import test from \'node:test\';\ntest({name: "x", async /* keep me */ fn() {}});',
+	],
+});
+
+test.snapshot({
+	valid: [
+		// A hook's trailing options must not hide a callback that does contain an await
+		'import {beforeEach} from "node:test";\nbeforeEach(async () => { await foo(); }, {timeout: 1000});',
+		'import {before} from "node:test";\nbefore(async () => { await foo(); }, {timeout: 1});',
+
+		// An async generator with only `yield` has no `await`, but removing `async` would break it,
+		// so a `yield` still counts as a suspension point for this rule
+		withImport('test("title", async function * () { yield 1; });'),
+	],
+	invalid: [
+		// A hook's trailing options must not hide an async callback with no await
+		'import {before} from "node:test";\nbefore(async () => {}, {timeout: 1});',
+		'import {beforeEach} from "node:test";\nbeforeEach(async () => { foo(); }, {timeout: 1000});',
+		'import {after} from "node:test";\nafter(async () => {}, {timeout: 1});',
+		'import {afterEach} from "node:test";\nafterEach(async () => {}, {timeout: 1});',
+		'import test from "node:test";\ntest.beforeEach(async () => {}, {timeout: 1});',
 	],
 });

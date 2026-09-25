@@ -1,4 +1,4 @@
-import {resolveImports, parseAssertionCall} from './utils/node-test.js';
+import {resolveImports, createContextTracker, parseSupportedAssertionCall} from './utils/node-test.js';
 import containsSuspensionPoint from './utils/contains-suspension-point.js';
 import isFunction from './ast/is-function.js';
 
@@ -14,8 +14,12 @@ const messages = {
 Return true if the catch block contains at least one assertion call anywhere inside it. `assert.fail()`
 is excluded: a bare `fail()` in a catch asserts that the try body should *not* throw, which is the
 opposite of the `assert.throws()` pattern this rule suggests.
+
+The walk is driven by hand rather than by the traversal, so the assertion is classified through the
+context tracker. That covers every form the other assertion rules see, including a destructured
+`assert`, and rejects an unrelated `something.assert.ok(…)` in the catch.
 */
-function catchHasAssertion(catchClause, imports, visitorKeys) {
+function catchHasAssertion(catchClause, imports, tracker, visitorKeys) {
 	function walk(node) {
 		// Do not descend into nested functions — an assertion defined there is not executed by the
 		// catch itself, so it does not make this try/catch the `assert.throws()` pattern.
@@ -23,7 +27,7 @@ function catchHasAssertion(catchClause, imports, visitorKeys) {
 			return false;
 		}
 
-		const assertion = node.type === 'CallExpression' ? parseAssertionCall(node, imports) : undefined;
+		const assertion = node.type === 'CallExpression' ? parseSupportedAssertionCall(node, imports, tracker) : undefined;
 		if (assertion && assertion.method !== 'fail') {
 			return true;
 		}
@@ -52,6 +56,15 @@ const create = context => {
 	}
 
 	const {visitorKeys} = context.sourceCode;
+	const tracker = createContextTracker(imports, {trackHooks: true});
+
+	context.on('CallExpression', node => {
+		tracker.update(node);
+	});
+
+	context.onExit('CallExpression', node => {
+		tracker.leave(node);
+	});
 
 	context.on('TryStatement', node => {
 		// Must have a catch clause — otherwise there is no assertion to move.
@@ -65,12 +78,13 @@ const create = context => {
 		}
 
 		// The catch clause must contain an assertion.
-		if (!catchHasAssertion(node.handler, imports, visitorKeys)) {
+		if (!catchHasAssertion(node.handler, imports, tracker, visitorKeys)) {
 			return;
 		}
 
-		// A suspension point (`await`, `for await`) in the try body makes it async.
-		const isAsync = node.block.body.some(statement => containsSuspensionPoint(statement, visitorKeys));
+		// An `await` in the try body makes it async. A `yield` does not: a generator suspends
+		// synchronously, so the correct replacement is still `assert.throws()`.
+		const isAsync = node.block.body.some(statement => containsSuspensionPoint(statement, visitorKeys, {includeYield: false}));
 
 		return {
 			node,

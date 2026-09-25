@@ -113,6 +113,11 @@ function buildFix({node, method, regexNode, stringNode, extraArgsToRemove, sourc
 	};
 }
 
+/** Whether an operand is a sequence expression, whose parentheses are significant. */
+function isSequenceExpression(node) {
+	return node?.type === 'SequenceExpression';
+}
+
 /*
 Whether the call can be safely rewritten: a member-expression callee (a named import can't be
 renamed without knowing the local name), no comments inside the call that the argument
@@ -120,15 +125,20 @@ rewrite/removal could drop, and no parenthesized arguments. The rewrite replaces
 argument's inner node and removes the boolean argument up to its own inner node, so surrounding
 parentheses on either would be left behind as stray tokens.
 */
-function canAutofix(node, context) {
+function canAutofix(node, context, regexCall) {
 	return node.callee.type === 'MemberExpression'
 		&& context.sourceCode.getCommentsInside(node).length === 0
-		&& node.arguments.every(argument => !isParenthesized(argument, context));
+		&& node.arguments.every(argument => !isParenthesized(argument, context))
+		// The inner `str`/`regex` are re-emitted with `getText`, which drops the parentheses
+		// around a sequence expression. Keeping them would leave a stray `)`, but dropping them
+		// turns one argument into several, so do not rewrite at all.
+		&& !isSequenceExpression(regexCall.string)
+		&& !isSequenceExpression(regexCall.regex);
 }
 
 /** Build the problem object for a detected regex-result assertion. */
 function makeProblem({node, assertMethod, regexCall, extraArgsToRemove, context}) {
-	const fix = canAutofix(node, context)
+	const fix = canAutofix(node, context, regexCall)
 		? buildFix({
 			node, method: assertMethod, regexNode: regexCall.regex, stringNode: regexCall.string, extraArgsToRemove, sourceCode: context.sourceCode,
 		})

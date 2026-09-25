@@ -25,6 +25,10 @@ test.snapshot({
 		// Duplicate beforeEach
 		withImport('beforeEach(() => {});\nbeforeEach(() => {});'),
 
+		// A hook's trailing options must not make the two calls look different
+		withImport('beforeEach(() => {});\nbeforeEach(() => {}, {timeout: 1});'),
+		withImport('before(() => {});\nbefore(() => {}, {timeout: 1});'),
+
 		// Three of the same — two duplicates reported
 		withImport('after(() => {});\nafter(() => {});\nafter(() => {});'),
 

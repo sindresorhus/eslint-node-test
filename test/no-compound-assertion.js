@@ -18,6 +18,7 @@ const withRenamedTest = code => `import {test as nodeTest} from 'node:test';\n${
 
 test.snapshot({
 	valid: [
+
 		// Not an assert import.
 		'assert.ok(a && b);',
 
@@ -48,8 +49,49 @@ test.snapshot({
 		withTest('function helper(test) {\n\ttest(\'t\', t => {\n\t\tt.assert.ok(a && b);\n\t});\n}'),
 		withHook('function helper(beforeEach) {\n\tbeforeEach(t => {\n\t\tt.assert.ok(a && b);\n\t});\n}'),
 		withHook('beforeEach.custom(t => {\n\tt.assert.ok(a && b);\n});'),
+
+		// `TestContext#assert` has no `strict` view, so `assert.strict.ok(…)` is a `TypeError`
+		// rather than a compound assertion
+		withTest('test(\'t\', ({assert}) => { assert.strict.ok(a && b); });'),
+		withTest('test(\'t\', ({assert}) => { assert.strict.equal(a, b); });'),
 	],
 	invalid: [
+		withTest('test(\'t\', ({assert}) => { assert.ok(a && b); });'),
+		'import {beforeEach} from \'node:test\';\nbeforeEach(({assert}) => { assert.ok(a && b); });',
+
+		// A nested context's `t.plan()` does not apply to the outer one, which stays fixable
+		withTest(`test('t', t => {
+	t.test('s', t2 => {
+		t2.plan(1);
+	});
+	t.assert.ok(a && b);
+});`),
+
+		// A `t.plan(n)` makes the assertion count significant, so splitting one assertion into
+		// several would break the test. Still reported, but not fixed.
+		withTest(`test('t', t => {
+	t.plan(1);
+	t.assert.ok(a && b);
+});`),
+		withTest(`test('t', t => {
+	t.plan(2);
+	t.assert.ok(a && b);
+});`),
+		withTest(`test('t', async t => {
+	t.plan(1);
+	t.assert.ok(await f() && g());
+});`),
+		withHook(`beforeEach(t => {
+	t.plan(1);
+	t.assert.ok(a && b);
+});`),
+		withTest(`test('t', t => {
+	t.plan(1);
+	t.test('s', t2 => {
+		t2.assert.ok(c && d);
+	});
+});`),
+
 		// Bare assert.
 		withAssert('assert(a && b);'),
 
@@ -112,5 +154,19 @@ test.snapshot({
 			code: withAssert('assert.ok((a && b) as boolean);'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// A computed or optional `plan` member is the same call, and fixing it would break the test
+		withTest(`test('t', t => {
+	t['plan'](1);
+	t.assert.ok(a && b);
+});`),
+		withTest(`test('t', t => {
+	t[\`plan\`](1);
+	t.assert.ok(a && b);
+});`),
+		withTest(`test('t', t => {
+	t.plan?.(1);
+	t.assert.ok(a && b);
+});`),
 	],
 });

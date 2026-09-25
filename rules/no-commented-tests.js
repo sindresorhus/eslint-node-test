@@ -12,7 +12,9 @@ const messages = {
 // and dotted modifier variants like test.only(, it.skip(, describe.todo(, etc.
 // Only the real node:test modifiers are allowed in the chain, so unrelated method calls like
 // `it.each(` or `test.config(` are not misidentified as commented-out tests.
-const COMMENTED_TEST_PATTERN = /^\s*\*?\s*(?:test|it|describe|suite|before|after|beforeEach|afterEach)\s*(?:\.\s*(?:only|skip|todo)\s*)*\(/v;
+// No space is allowed before the `(`, because real code never writes `test (` while prose
+// routinely does — `// test (the runner entry point)` is a sentence, not a commented-out test.
+const COMMENTED_TEST_PATTERN = /^\s*\*?\s*(?:test|it|describe|suite|before|after|beforeEach|afterEach)(?:\s*\.\s*(?:only|skip|todo)\s*)*\(/v;
 
 // Reports the first line of the comment that looks like a commented-out test.
 function reportFirstMatch(context, comment) {

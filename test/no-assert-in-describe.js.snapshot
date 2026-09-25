@@ -1,4 +1,22 @@
-exports[`no-assert-in-describe > invalid(1): import {describe, it, test} from 'node:test';\nimport assert from 'node:assert';\ndescribe(\"s\", () => { assert.ok(x); it(\"a\", () => {}); }); 1`] = `
+exports[`no-assert-in-describe > invalid(1): import {describe} from 'node:test';\nimport assert from 'node:assert';\ndescribe('s', {fn() { assert.ok(true); }}); 1`] = `
+
+  1 | import {describe} from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | describe('s', {fn() { assert.ok(true); }});
+
+`;
+
+exports[`no-assert-in-describe > invalid(1): import {describe} from 'node:test';\nimport assert from 'node:assert';\ndescribe('s', {fn() { assert.ok(true); }}); 2`] = `
+
+Message:
+  1 | import {describe} from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | describe('s', {fn() { assert.ok(true); }});
+    |                       ^^^^^^^^^^^^^^^ Assertion runs when the suite is built, not when a test runs. Move it into a test or hook.
+
+`;
+
+exports[`no-assert-in-describe > invalid(2): import {describe, it, test} from 'node:test';\nimport assert from 'node:assert';\ndescribe(\"s\", () => { assert.ok(x); it(\"a\", () => {}); }); 1`] = `
 
   1 | import {describe, it, test} from 'node:test';
   2 | import assert from 'node:assert';
@@ -6,7 +24,7 @@ exports[`no-assert-in-describe > invalid(1): import {describe, it, test} from 'n
 
 `;
 
-exports[`no-assert-in-describe > invalid(1): import {describe, it, test} from 'node:test';\nimport assert from 'node:assert';\ndescribe(\"s\", () => { assert.ok(x); it(\"a\", () => {}); }); 2`] = `
+exports[`no-assert-in-describe > invalid(2): import {describe, it, test} from 'node:test';\nimport assert from 'node:assert';\ndescribe(\"s\", () => { assert.ok(x); it(\"a\", () => {}); }); 2`] = `
 
 Message:
   1 | import {describe, it, test} from 'node:test';
@@ -16,7 +34,7 @@ Message:
 
 `;
 
-exports[`no-assert-in-describe > invalid(2): import {describe, it, test} from 'node:test';\nimport assert from 'node:assert';\ndescribe(\"s\", () => { assert(x); }); 1`] = `
+exports[`no-assert-in-describe > invalid(3): import {describe, it, test} from 'node:test';\nimport assert from 'node:assert';\ndescribe(\"s\", () => { assert(x); }); 1`] = `
 
   1 | import {describe, it, test} from 'node:test';
   2 | import assert from 'node:assert';
@@ -24,7 +42,7 @@ exports[`no-assert-in-describe > invalid(2): import {describe, it, test} from 'n
 
 `;
 
-exports[`no-assert-in-describe > invalid(2): import {describe, it, test} from 'node:test';\nimport assert from 'node:assert';\ndescribe(\"s\", () => { assert(x); }); 2`] = `
+exports[`no-assert-in-describe > invalid(3): import {describe, it, test} from 'node:test';\nimport assert from 'node:assert';\ndescribe(\"s\", () => { assert(x); }); 2`] = `
 
 Message:
   1 | import {describe, it, test} from 'node:test';
@@ -34,7 +52,7 @@ Message:
 
 `;
 
-exports[`no-assert-in-describe > invalid(3): import {describe, it, test} from 'node:test';\nimport assert from 'node:assert';\ndescribe(\"s\", () => { if (y) { assert.strictEqual(a, b); } }); 1`] = `
+exports[`no-assert-in-describe > invalid(4): import {describe, it, test} from 'node:test';\nimport assert from 'node:assert';\ndescribe(\"s\", () => { if (y) { assert.strictEqual(a, b); } }); 1`] = `
 
   1 | import {describe, it, test} from 'node:test';
   2 | import assert from 'node:assert';
@@ -42,7 +60,7 @@ exports[`no-assert-in-describe > invalid(3): import {describe, it, test} from 'n
 
 `;
 
-exports[`no-assert-in-describe > invalid(3): import {describe, it, test} from 'node:test';\nimport assert from 'node:assert';\ndescribe(\"s\", () => { if (y) { assert.strictEqual(a, b); } }); 2`] = `
+exports[`no-assert-in-describe > invalid(4): import {describe, it, test} from 'node:test';\nimport assert from 'node:assert';\ndescribe(\"s\", () => { if (y) { assert.strictEqual(a, b); } }); 2`] = `
 
 Message:
   1 | import {describe, it, test} from 'node:test';
@@ -52,7 +70,7 @@ Message:
 
 `;
 
-exports[`no-assert-in-describe > invalid(4): import {describe, it, test} from 'node:test';\nimport assert from 'node:assert';\nimport {suite} from 'node:test';\nsuite(\"s\", () => { assert.deepStrictEqual(a, b); }); 1`] = `
+exports[`no-assert-in-describe > invalid(5): import {describe, it, test} from 'node:test';\nimport assert from 'node:assert';\nimport {suite} from 'node:test';\nsuite(\"s\", () => { assert.deepStrictEqual(a, b); }); 1`] = `
 
   1 | import {describe, it, test} from 'node:test';
   2 | import assert from 'node:assert';
@@ -61,7 +79,7 @@ exports[`no-assert-in-describe > invalid(4): import {describe, it, test} from 'n
 
 `;
 
-exports[`no-assert-in-describe > invalid(4): import {describe, it, test} from 'node:test';\nimport assert from 'node:assert';\nimport {suite} from 'node:test';\nsuite(\"s\", () => { assert.deepStrictEqual(a, b); }); 2`] = `
+exports[`no-assert-in-describe > invalid(5): import {describe, it, test} from 'node:test';\nimport assert from 'node:assert';\nimport {suite} from 'node:test';\nsuite(\"s\", () => { assert.deepStrictEqual(a, b); }); 2`] = `
 
 Message:
   1 | import {describe, it, test} from 'node:test';
@@ -72,7 +90,7 @@ Message:
 
 `;
 
-exports[`no-assert-in-describe > invalid(5): import {describe, it, test} from 'node:test';\nimport assert from 'node:assert';\ndescribe(\"outer\", () => { describe(\"inner\", () => { assert.ok(x); }); }); 1`] = `
+exports[`no-assert-in-describe > invalid(6): import {describe, it, test} from 'node:test';\nimport assert from 'node:assert';\ndescribe(\"outer\", () => { describe(\"inner\", () => { assert.ok(x); }); }); 1`] = `
 
   1 | import {describe, it, test} from 'node:test';
   2 | import assert from 'node:assert';
@@ -80,7 +98,7 @@ exports[`no-assert-in-describe > invalid(5): import {describe, it, test} from 'n
 
 `;
 
-exports[`no-assert-in-describe > invalid(5): import {describe, it, test} from 'node:test';\nimport assert from 'node:assert';\ndescribe(\"outer\", () => { describe(\"inner\", () => { assert.ok(x); }); }); 2`] = `
+exports[`no-assert-in-describe > invalid(6): import {describe, it, test} from 'node:test';\nimport assert from 'node:assert';\ndescribe(\"outer\", () => { describe(\"inner\", () => { assert.ok(x); }); }); 2`] = `
 
 Message:
   1 | import {describe, it, test} from 'node:test';
@@ -90,7 +108,7 @@ Message:
 
 `;
 
-exports[`no-assert-in-describe > invalid(6): import {describe} from 'node:test';\nimport {ok} from 'node:assert';\ndescribe(\"s\", () => { ok(x); }); 1`] = `
+exports[`no-assert-in-describe > invalid(7): import {describe} from 'node:test';\nimport {ok} from 'node:assert';\ndescribe(\"s\", () => { ok(x); }); 1`] = `
 
   1 | import {describe} from 'node:test';
   2 | import {ok} from 'node:assert';
@@ -98,7 +116,7 @@ exports[`no-assert-in-describe > invalid(6): import {describe} from 'node:test';
 
 `;
 
-exports[`no-assert-in-describe > invalid(6): import {describe} from 'node:test';\nimport {ok} from 'node:assert';\ndescribe(\"s\", () => { ok(x); }); 2`] = `
+exports[`no-assert-in-describe > invalid(7): import {describe} from 'node:test';\nimport {ok} from 'node:assert';\ndescribe(\"s\", () => { ok(x); }); 2`] = `
 
 Message:
   1 | import {describe} from 'node:test';
@@ -108,7 +126,7 @@ Message:
 
 `;
 
-exports[`no-assert-in-describe > invalid(7): import {describe, it, test} from 'node:test';\nimport assert from 'node:assert';\ndescribe(\"s\", () => { assert.ok(x as boolean); }); 1`] = `
+exports[`no-assert-in-describe > invalid(8): import {describe, it, test} from 'node:test';\nimport assert from 'node:assert';\ndescribe(\"s\", () => { assert.ok(x as boolean); }); 1`] = `
 
   1 | import {describe, it, test} from 'node:test';
   2 | import assert from 'node:assert';
@@ -116,7 +134,7 @@ exports[`no-assert-in-describe > invalid(7): import {describe, it, test} from 'n
 
 `;
 
-exports[`no-assert-in-describe > invalid(7): import {describe, it, test} from 'node:test';\nimport assert from 'node:assert';\ndescribe(\"s\", () => { assert.ok(x as boolean); }); 2`] = `
+exports[`no-assert-in-describe > invalid(8): import {describe, it, test} from 'node:test';\nimport assert from 'node:assert';\ndescribe(\"s\", () => { assert.ok(x as boolean); }); 2`] = `
 
 Message:
   1 | import {describe, it, test} from 'node:test';

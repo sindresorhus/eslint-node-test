@@ -1,6 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {resolveImports, createContextTracker} from './utils/node-test.js';
-import {getEnclosingFunction, unwrapExpression} from './utils/index.js';
+import {getEnclosingFunction, unwrapExpression, isGlobalProcessMember} from './utils/index.js';
 
 const MESSAGE_ID = 'no-process-chdir-in-test';
 
@@ -75,6 +75,10 @@ const create = context => {
 
 	const isProcessReference = node => {
 		node = unwrapExpression(node);
+		if (isGlobalProcessMember(node)) {
+			return true;
+		}
+
 		if (node?.type !== 'Identifier') {
 			return false;
 		}

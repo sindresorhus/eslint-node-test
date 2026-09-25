@@ -1,4 +1,4 @@
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -55,5 +55,10 @@ test.snapshot({
 
 		// Suite modifier via options under chained style
 		'import {describe} from \'node:test\';\ndescribe(\'s\', {only: true}, () => {});',
+		// A modifier value wrapped in a TypeScript cast is still `modifier: true`.
+		{
+			code: withTest('test(\'t\', {todo: true as const}, () => {});'),
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

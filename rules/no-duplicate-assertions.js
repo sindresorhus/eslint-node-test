@@ -4,6 +4,7 @@ import {
 	parseSupportedAssertionCall,
 	getTestCallback,
 	createContextTracker,
+	LOOSE_TO_STRICT_METHODS,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 import {unwrapExpression} from './utils/index.js';
@@ -14,16 +15,9 @@ const messages = {
 	[MESSAGE_ID]: 'Duplicate adjacent assertion.',
 };
 
-const STRICT_MODE_METHODS = new Map([
-	['equal', 'strictEqual'],
-	['notEqual', 'notStrictEqual'],
-	['deepEqual', 'deepStrictEqual'],
-	['notDeepEqual', 'notDeepStrictEqual'],
-]);
-
 function getAssertionMethod(assertion) {
-	if (assertion.isStrict && STRICT_MODE_METHODS.has(assertion.method)) {
-		return STRICT_MODE_METHODS.get(assertion.method);
+	if (assertion.isStrict && LOOSE_TO_STRICT_METHODS.has(assertion.method)) {
+		return LOOSE_TO_STRICT_METHODS.get(assertion.method);
 	}
 
 	return assertion.method;

@@ -16,6 +16,10 @@ test.snapshot({
 		'// contest("foo", () => {})',
 		// "test" at start but no parenthesis
 		'// test without parentheses',
+		// Real code never writes `test (`, but prose routinely does
+		'// test (the runner entry point)',
+		'// it (as shown above) is used for subtests',
+		'// test (see docs) runs only in CI',
 		// JSDoc block comment — should be ignored
 		'/**\n * test("example", () => {});\n */',
 		'/**\n * before(() => {});\n */',

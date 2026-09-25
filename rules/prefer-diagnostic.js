@@ -1,4 +1,5 @@
 import {resolveImports, createContextTracker} from './utils/node-test.js';
+import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
 const MESSAGE_ID_ERROR = 'prefer-diagnostic/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-diagnostic/suggestion';
@@ -22,15 +23,18 @@ const create = context => {
 	context.on('CallExpression', node => {
 		tracker.update(node);
 
-		const {callee} = node;
+		const callee = unwrapTypeScriptExpression(node.callee);
 		if (
 			callee.type !== 'MemberExpression'
 			|| callee.computed
-			|| callee.object.type !== 'Identifier'
-			|| callee.object.name !== 'console'
 			|| callee.property.type !== 'Identifier'
 			|| !CONSOLE_METHODS.has(callee.property.name)
 		) {
+			return;
+		}
+
+		const object = unwrapTypeScriptExpression(callee.object);
+		if (object?.type !== 'Identifier' || object.name !== 'console') {
 			return;
 		}
 
@@ -57,7 +61,9 @@ const create = context => {
 		};
 
 		// `diagnostic()` takes a single message, so only suggest a rewrite for a single argument.
-		if (node.arguments.length === 1) {
+		// Replacing the whole callee would also drop any comments inside it, such as
+		// `console./* trace */log(…)`.
+		if (node.arguments.length === 1 && context.sourceCode.getCommentsInside(callee).length === 0) {
 			problem.suggest = [
 				{
 					messageId: MESSAGE_ID_SUGGESTION,

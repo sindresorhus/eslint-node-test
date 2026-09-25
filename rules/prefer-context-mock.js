@@ -20,11 +20,25 @@ const create = context => {
 	context.on('CallExpression', node => {
 		// Unwrap wrappers at each step so a mid-chain cast (`(mock.timers as any).enable()`) does not
 		// break the walk down to the global `mock`.
-		let member = unwrapExpression(node.callee);
+		const callee = unwrapExpression(node.callee);
+		const calledMethod = callee.type === 'MemberExpression'
+			&& !callee.computed
+			&& callee.property.type === 'Identifier'
+			? callee.property.name
+			: undefined;
+
+		let member = callee;
 		while (member.type === 'MemberExpression') {
 			if (isGlobalMock(member.object, imports) && !member.computed && member.property.type === 'Identifier') {
 				const accessor = member.property.name;
 				if (STATEFUL_ACCESSORS.has(accessor)) {
+					// `mock.timers` is only state-creating through `enable`; `reset` restores and
+					// `tick`/`runAll` create no state. `t.mock` is a different tracker, so switching
+					// those to it would be wrong (and throws for a never-enabled context tracker).
+					if (accessor === 'timers' && calledMethod !== 'enable') {
+						return;
+					}
+
 					return {
 						node,
 						messageId: MESSAGE_ID,

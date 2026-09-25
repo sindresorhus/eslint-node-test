@@ -96,5 +96,14 @@ test.snapshot({
 
 		// Defaulted context parameter.
 		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'x\', (t = undefined) => { assert.ok(value); });',
+		// A TypeScript-wrapped assert callee is still the imported assert.
+		{
+			code: 'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'a\', t => { assert!.ok(1); });',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'a\', t => { (assert as any).ok(1); });',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

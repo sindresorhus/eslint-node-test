@@ -14,7 +14,7 @@ exports[`test-title-format > invalid(1): import test from \"node:test\";\ntest(\
 Message:
   1 | import test from "node:test";
 > 2 | test("Test something", () => {});
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test title does not match the required format: \`/^Should/v\`.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test title does not match the required format: \`/^Should/u\`.
 
 `;
 
@@ -34,7 +34,7 @@ exports[`test-title-format > invalid(2): import test from \"node:test\";\ntest(\
 Message:
   1 | import test from "node:test";
 > 2 | test(\`Test something\`, () => {});
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test title does not match the required format: \`/^Should/v\`.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test title does not match the required format: \`/^Should/u\`.
 
 `;
 
@@ -54,7 +54,7 @@ exports[`test-title-format > invalid(3): import {describe} from \"node:test\";\n
 Message:
   1 | import {describe} from "node:test";
 > 2 | describe("My suite", () => {});
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test title does not match the required format: \`/^Should/v\`.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test title does not match the required format: \`/^Should/u\`.
 
 `;
 
@@ -74,7 +74,7 @@ exports[`test-title-format > invalid(4): import {it} from \"node:test\";\nit(\"T
 Message:
   1 | import {it} from "node:test";
 > 2 | it("Test something", () => {});
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test title does not match the required format: \`/^Should/v\`.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test title does not match the required format: \`/^Should/u\`.
 
 `;
 
@@ -94,7 +94,7 @@ exports[`test-title-format > invalid(5): import {test as myTest} from \"node:tes
 Message:
   1 | import {test as myTest} from "node:test";
 > 2 | myTest("Test something", () => {});
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test title does not match the required format: \`/^Should/v\`.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test title does not match the required format: \`/^Should/u\`.
 
 `;
 
@@ -114,7 +114,7 @@ exports[`test-title-format > invalid(6): import * as nodeTest from \"node:test\"
 Message:
   1 | import * as nodeTest from "node:test";
 > 2 | nodeTest.test("Test something", () => {});
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test title does not match the required format: \`/^Should/v\`.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test title does not match the required format: \`/^Should/u\`.
 
 `;
 
@@ -134,6 +134,6 @@ exports[`test-title-format > invalid(7): import test from \"node:test\";\ntest(\
 Message:
   1 | import test from "node:test";
 > 2 | test("Test something", () => {});
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test title does not match the required format: \`/^Should/v\`.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test title does not match the required format: \`/^Should/u\`.
 
 `;

@@ -6,6 +6,13 @@ const withImport = code => `import {test} from 'node:test';\n${code}`;
 
 test.snapshot({
 	valid: [
+		// An options key beside `name`/`fn` is real intent
+		'import test from \'node:test\';\ntest({name: \'t\', skip: true, fn() {}});',
+		'import test from \'node:test\';\ntest(\'t\', {skip: true}, () => {});',
+		'import test from \'node:test\';\ntest({name: \'t\', timeout: 1, fn() {}});',
+		'import test from \'node:test\';\ntest(\'t\', {fn: other});',
+		'import test from \'node:test\';\ntest(\'t\', {});',
+
 		// Not a test file
 		'test("x");',
 
@@ -35,6 +42,31 @@ test.snapshot({
 		'import {describe} from \'node:test\';\ndescribe("s", () => {});',
 	],
 	invalid: [
+		// The object form is an empty placeholder too, and `name`/`fn` carry no intent
+		'import test from \'node:test\';\ntest({name: \'t\', fn() {}});',
+		'import test from \'node:test\';\ntest(\'t\', {fn() {}});',
+		'import test from \'node:test\';\ntest({name: \'t\'});',
+		'import {it} from \'node:test\';\nit({name: \'t\', fn() {}});',
+
+		// A TypeScript wrapper around the callback must not crash the fixer
+		{
+			code: 'import test from "node:test";\ntest("t", (() => {}) satisfies unknown);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import test from "node:test";\ntest("t", (() => {})!);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import test from "node:test";\ntest("t", (() => {}) as unknown);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		// A comment in the argument gap or the body would be removed with the callback,
+		// so the test is reported but no fix is offered
+		'import test from \'node:test\';\ntest(\'placeholder\', /* keep me */ () => {});',
+		'import test from \'node:test\';\ntest(\'placeholder\', () => { /* keep me */ });',
+		'import test from \'node:test\';\ntest(\'placeholder\', () => {\n  // keep me\n});',
+
 		// Title only
 		withImport('test("x");'),
 
@@ -61,5 +93,9 @@ test.snapshot({
 			code: withImport('test("x", (): void => {});'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// A comment in the gap after the callback would be left behind describing the title
+		'import test from \'node:test\';\ntest(\'placeholder\', () => {} /* keep me */);',
+		'import test from \'node:test\';\ntest(\'placeholder\', () => {\n} /* keep me */);',
 	],
 });

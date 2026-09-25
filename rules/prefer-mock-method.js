@@ -17,7 +17,8 @@ const create = context => {
 		return;
 	}
 
-	const tracker = createContextTracker(imports);
+	// Hook callbacks receive a real test context, so `t.mock.fn()` is just as trackable there.
+	const tracker = createContextTracker(imports, {trackHooks: true});
 
 	// The context `<ctx>.mock`, seen through optional chaining and TypeScript wrappers.
 	const isContextMock = node => {
@@ -87,7 +88,11 @@ const create = context => {
 		const canRewrite = key !== undefined
 			&& mockArguments.length <= 1
 			&& isValueNotUsable(node)
-			&& sourceCode.getCommentsInside(node).length === 0;
+			&& sourceCode.getCommentsInside(node).length === 0
+			// The receiver is re-emitted with `getText`, which drops the parentheses around a
+			// sequence expression. Dropping them would turn one argument into several.
+			&& left.object.type !== 'SequenceExpression'
+			&& mockArguments.every(argument => argument.type !== 'SequenceExpression');
 
 		if (canRewrite) {
 			const objectText = sourceCode.getText(left.object);

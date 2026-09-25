@@ -31,6 +31,9 @@ test.snapshot({
 		withImport('describe("s", () => { const f = {assert: {ok() {}}}; f.assert.ok(x); });'),
 	],
 	invalid: [
+		// A suite callback in the descriptor object still runs while the suite is built
+		'import {describe} from \'node:test\';\nimport assert from \'node:assert\';\ndescribe(\'s\', {fn() { assert.ok(true); }});',
+
 		// Assertion directly in a describe body
 		withImport('describe("s", () => { assert.ok(x); it("a", () => {}); });'),
 

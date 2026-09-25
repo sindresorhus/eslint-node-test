@@ -1,4 +1,96 @@
-exports[`prefer-diagnostic > invalid(1): import test from 'node:test';\ntest('t', t => {\n\tconsole.log('value');\n}); 1`] = `
+exports[`prefer-diagnostic > invalid(1): import test from 'node:test';\ntest('t', t => {\n\tconsole./* keep me */log('hi');\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+  3 | 	console./* keep me */log('hi');
+  4 | });
+
+`;
+
+exports[`prefer-diagnostic > invalid(1): import test from 'node:test';\ntest('t', t => {\n\tconsole./* keep me */log('hi');\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+> 3 | 	console./* keep me */log('hi');
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`t.diagnostic()\` over \`console.log()\` inside a test, so the message is attached to the test as a TAP diagnostic.
+  4 | });
+
+`;
+
+exports[`prefer-diagnostic > invalid(10): import test from 'node:test';\ntest('t', t => {\n\t(console as Console).log('x');\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+  3 | 	(console as Console).log('x');
+  4 | });
+
+`;
+
+exports[`prefer-diagnostic > invalid(10): import test from 'node:test';\ntest('t', t => {\n\t(console as Console).log('x');\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+> 3 | 	(console as Console).log('x');
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`t.diagnostic()\` over \`console.log()\` inside a test, so the message is attached to the test as a TAP diagnostic.
+  4 | });
+
+Suggestion 1/1: Replace with \`t.diagnostic()\`.:
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+  3 | 	t.diagnostic('x');
+  4 | });
+
+`;
+
+exports[`prefer-diagnostic > invalid(11): import test from 'node:test';\ntest('t', t => {\n\tconsole!.log('x');\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+  3 | 	console!.log('x');
+  4 | });
+
+`;
+
+exports[`prefer-diagnostic > invalid(11): import test from 'node:test';\ntest('t', t => {\n\tconsole!.log('x');\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+> 3 | 	console!.log('x');
+    | 	^^^^^^^^^^^^ Prefer \`t.diagnostic()\` over \`console.log()\` inside a test, so the message is attached to the test as a TAP diagnostic.
+  4 | });
+
+Suggestion 1/1: Replace with \`t.diagnostic()\`.:
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+  3 | 	t.diagnostic('x');
+  4 | });
+
+`;
+
+exports[`prefer-diagnostic > invalid(2): import test from 'node:test';\ntest('t', t => {\n\tconsole/* keep me */.log('hi');\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+  3 | 	console/* keep me */.log('hi');
+  4 | });
+
+`;
+
+exports[`prefer-diagnostic > invalid(2): import test from 'node:test';\ntest('t', t => {\n\tconsole/* keep me */.log('hi');\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', t => {
+> 3 | 	console/* keep me */.log('hi');
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`t.diagnostic()\` over \`console.log()\` inside a test, so the message is attached to the test as a TAP diagnostic.
+  4 | });
+
+`;
+
+exports[`prefer-diagnostic > invalid(3): import test from 'node:test';\ntest('t', t => {\n\tconsole.log('value');\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', t => {
@@ -7,7 +99,7 @@ exports[`prefer-diagnostic > invalid(1): import test from 'node:test';\ntest('t'
 
 `;
 
-exports[`prefer-diagnostic > invalid(1): import test from 'node:test';\ntest('t', t => {\n\tconsole.log('value');\n}); 2`] = `
+exports[`prefer-diagnostic > invalid(3): import test from 'node:test';\ntest('t', t => {\n\tconsole.log('value');\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -24,7 +116,7 @@ Suggestion 1/1: Replace with \`t.diagnostic()\`.:
 
 `;
 
-exports[`prefer-diagnostic > invalid(2): import test from 'node:test';\ntest('t', t => {\n\tconsole.log(message);\n}); 1`] = `
+exports[`prefer-diagnostic > invalid(4): import test from 'node:test';\ntest('t', t => {\n\tconsole.log(message);\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', t => {
@@ -33,7 +125,7 @@ exports[`prefer-diagnostic > invalid(2): import test from 'node:test';\ntest('t'
 
 `;
 
-exports[`prefer-diagnostic > invalid(2): import test from 'node:test';\ntest('t', t => {\n\tconsole.log(message);\n}); 2`] = `
+exports[`prefer-diagnostic > invalid(4): import test from 'node:test';\ntest('t', t => {\n\tconsole.log(message);\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -50,7 +142,7 @@ Suggestion 1/1: Replace with \`t.diagnostic()\`.:
 
 `;
 
-exports[`prefer-diagnostic > invalid(3): import test from 'node:test';\ntest('t', t => {\n\tconsole.log('value', value);\n}); 1`] = `
+exports[`prefer-diagnostic > invalid(5): import test from 'node:test';\ntest('t', t => {\n\tconsole.log('value', value);\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', t => {
@@ -59,7 +151,7 @@ exports[`prefer-diagnostic > invalid(3): import test from 'node:test';\ntest('t'
 
 `;
 
-exports[`prefer-diagnostic > invalid(3): import test from 'node:test';\ntest('t', t => {\n\tconsole.log('value', value);\n}); 2`] = `
+exports[`prefer-diagnostic > invalid(5): import test from 'node:test';\ntest('t', t => {\n\tconsole.log('value', value);\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -70,7 +162,7 @@ Message:
 
 `;
 
-exports[`prefer-diagnostic > invalid(4): import test from 'node:test';\ntest('t', t => {\n\tconsole.info('info');\n}); 1`] = `
+exports[`prefer-diagnostic > invalid(6): import test from 'node:test';\ntest('t', t => {\n\tconsole.info('info');\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', t => {
@@ -79,7 +171,7 @@ exports[`prefer-diagnostic > invalid(4): import test from 'node:test';\ntest('t'
 
 `;
 
-exports[`prefer-diagnostic > invalid(4): import test from 'node:test';\ntest('t', t => {\n\tconsole.info('info');\n}); 2`] = `
+exports[`prefer-diagnostic > invalid(6): import test from 'node:test';\ntest('t', t => {\n\tconsole.info('info');\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -96,7 +188,7 @@ Suggestion 1/1: Replace with \`t.diagnostic()\`.:
 
 `;
 
-exports[`prefer-diagnostic > invalid(5): import test from 'node:test';\ntest('t', t => {\n\tconsole.debug('debug');\n}); 1`] = `
+exports[`prefer-diagnostic > invalid(7): import test from 'node:test';\ntest('t', t => {\n\tconsole.debug('debug');\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', t => {
@@ -105,7 +197,7 @@ exports[`prefer-diagnostic > invalid(5): import test from 'node:test';\ntest('t'
 
 `;
 
-exports[`prefer-diagnostic > invalid(5): import test from 'node:test';\ntest('t', t => {\n\tconsole.debug('debug');\n}); 2`] = `
+exports[`prefer-diagnostic > invalid(7): import test from 'node:test';\ntest('t', t => {\n\tconsole.debug('debug');\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -122,14 +214,14 @@ Suggestion 1/1: Replace with \`t.diagnostic()\`.:
 
 `;
 
-exports[`prefer-diagnostic > invalid(6): import test from 'node:test';\ntest('t', async t => { await t.test('s', s => { console.log('sub'); }); }); 1`] = `
+exports[`prefer-diagnostic > invalid(8): import test from 'node:test';\ntest('t', async t => { await t.test('s', s => { console.log('sub'); }); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', async t => { await t.test('s', s => { console.log('sub'); }); });
 
 `;
 
-exports[`prefer-diagnostic > invalid(6): import test from 'node:test';\ntest('t', async t => { await t.test('s', s => { console.log('sub'); }); }); 2`] = `
+exports[`prefer-diagnostic > invalid(8): import test from 'node:test';\ntest('t', async t => { await t.test('s', s => { console.log('sub'); }); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -142,14 +234,14 @@ Suggestion 1/1: Replace with \`s.diagnostic()\`.:
 
 `;
 
-exports[`prefer-diagnostic > invalid(7): import * as nodeTest from 'node:test';\nnodeTest.test('t', t => { console.log('value'); }); 1`] = `
+exports[`prefer-diagnostic > invalid(9): import * as nodeTest from 'node:test';\nnodeTest.test('t', t => { console.log('value'); }); 1`] = `
 
   1 | import * as nodeTest from 'node:test';
   2 | nodeTest.test('t', t => { console.log('value'); });
 
 `;
 
-exports[`prefer-diagnostic > invalid(7): import * as nodeTest from 'node:test';\nnodeTest.test('t', t => { console.log('value'); }); 2`] = `
+exports[`prefer-diagnostic > invalid(9): import * as nodeTest from 'node:test';\nnodeTest.test('t', t => { console.log('value'); }); 2`] = `
 
 Message:
   1 | import * as nodeTest from 'node:test';

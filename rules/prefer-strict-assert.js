@@ -2,6 +2,7 @@ import {
 	resolveImports,
 	parseSupportedAssertionCall,
 	createContextTracker,
+	LOOSE_TO_STRICT_METHODS,
 } from './utils/node-test.js';
 
 const MESSAGE_ID = 'prefer-strict-assert';
@@ -9,14 +10,6 @@ const MESSAGE_ID = 'prefer-strict-assert';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `{{replacement}}` over the legacy loose `{{method}}`.',
 };
-
-// Legacy loose (`==`) assertion methods and their strict equivalents.
-const LOOSE_TO_STRICT = new Map([
-	['equal', 'strictEqual'],
-	['notEqual', 'notStrictEqual'],
-	['deepEqual', 'deepStrictEqual'],
-	['notDeepEqual', 'notDeepStrictEqual'],
-]);
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -36,7 +29,7 @@ const create = context => {
 			return;
 		}
 
-		const replacement = LOOSE_TO_STRICT.get(assertion.method);
+		const replacement = LOOSE_TO_STRICT_METHODS.get(assertion.method);
 		if (!replacement) {
 			return;
 		}

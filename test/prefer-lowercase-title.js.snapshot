@@ -1,24 +1,49 @@
-exports[`prefer-lowercase-title > invalid(1): import {test, it, describe, suite, before} from 'node:test';\ntest(\"Foo\", () => {}); 1`] = `
+exports[`prefer-lowercase-title > invalid(1): import test from 'node:test';\ntest({name: 'Bad Title', fn() {}}); 1`] = `
 
-  1 | import {test, it, describe, suite, before} from 'node:test';
-  2 | test("Foo", () => {});
+  1 | import test from 'node:test';
+  2 | test({name: 'Bad Title', fn() {}});
 
 `;
 
-exports[`prefer-lowercase-title > invalid(1): import {test, it, describe, suite, before} from 'node:test';\ntest(\"Foo\", () => {}); 2`] = `
+exports[`prefer-lowercase-title > invalid(1): import test from 'node:test';\ntest({name: 'Bad Title', fn() {}}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test({name: 'Bad Title', fn() {}});
+    |             ^^^^^^^^^^^ Start the title with a lowercase letter.
+
+Output:
+  1 | import test from 'node:test';
+  2 | test({name: 'bad Title', fn() {}});
+
+`;
+
+exports[`prefer-lowercase-title > invalid(10): import {test, it, describe, suite, before} from 'node:test';\ntest(\"Delete user\", () => {}); 1`] = `
+
+Options:
+- allowedPrefixes:
+    - 'GET'
+
+Code:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | test("Delete user", () => {});
+
+`;
+
+exports[`prefer-lowercase-title > invalid(10): import {test, it, describe, suite, before} from 'node:test';\ntest(\"Delete user\", () => {}); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before} from 'node:test';
-> 2 | test("Foo", () => {});
-    |      ^^^^^ Start the title with a lowercase letter.
+> 2 | test("Delete user", () => {});
+    |      ^^^^^^^^^^^^^ Start the title with a lowercase letter.
 
 Output:
   1 | import {test, it, describe, suite, before} from 'node:test';
-  2 | test("foo", () => {});
+  2 | test("delete user", () => {});
 
 `;
 
-exports[`prefer-lowercase-title > invalid(10): import {test, it, describe, suite, before} from 'node:test';\ntest(\"Foo\", () => {}); 1`] = `
+exports[`prefer-lowercase-title > invalid(11): import {test, it, describe, suite, before} from 'node:test';\ntest(\"Foo\", () => {}); 1`] = `
 
 Options:
 - ignore:
@@ -30,7 +55,7 @@ Code:
 
 `;
 
-exports[`prefer-lowercase-title > invalid(10): import {test, it, describe, suite, before} from 'node:test';\ntest(\"Foo\", () => {}); 2`] = `
+exports[`prefer-lowercase-title > invalid(11): import {test, it, describe, suite, before} from 'node:test';\ntest(\"Foo\", () => {}); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before} from 'node:test';
@@ -43,14 +68,14 @@ Output:
 
 `;
 
-exports[`prefer-lowercase-title > invalid(11): import * as nodeTest from 'node:test';\nnodeTest.test(\"Foo\", () => {}); 1`] = `
+exports[`prefer-lowercase-title > invalid(12): import * as nodeTest from 'node:test';\nnodeTest.test(\"Foo\", () => {}); 1`] = `
 
   1 | import * as nodeTest from 'node:test';
   2 | nodeTest.test("Foo", () => {});
 
 `;
 
-exports[`prefer-lowercase-title > invalid(11): import * as nodeTest from 'node:test';\nnodeTest.test(\"Foo\", () => {}); 2`] = `
+exports[`prefer-lowercase-title > invalid(12): import * as nodeTest from 'node:test';\nnodeTest.test(\"Foo\", () => {}); 2`] = `
 
 Message:
   1 | import * as nodeTest from 'node:test';
@@ -63,14 +88,14 @@ Output:
 
 `;
 
-exports[`prefer-lowercase-title > invalid(12): import {test, it, describe, suite, before} from 'node:test';\ntest(\"Foo\" as string, () => {}); 1`] = `
+exports[`prefer-lowercase-title > invalid(13): import {test, it, describe, suite, before} from 'node:test';\ntest(\"Foo\" as string, () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';
   2 | test("Foo" as string, () => {});
 
 `;
 
-exports[`prefer-lowercase-title > invalid(12): import {test, it, describe, suite, before} from 'node:test';\ntest(\"Foo\" as string, () => {}); 2`] = `
+exports[`prefer-lowercase-title > invalid(13): import {test, it, describe, suite, before} from 'node:test';\ntest(\"Foo\" as string, () => {}); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before} from 'node:test';
@@ -83,14 +108,134 @@ Output:
 
 `;
 
-exports[`prefer-lowercase-title > invalid(2): import {test, it, describe, suite, before} from 'node:test';\nit(\"Should work\", () => {}); 1`] = `
+exports[`prefer-lowercase-title > invalid(14): import test from 'node:test';\ntest({name: 'Bad Title'}, () => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test({name: 'Bad Title'}, () => {});
+
+`;
+
+exports[`prefer-lowercase-title > invalid(14): import test from 'node:test';\ntest({name: 'Bad Title'}, () => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test({name: 'Bad Title'}, () => {});
+    |             ^^^^^^^^^^^ Start the title with a lowercase letter.
+
+Output:
+  1 | import test from 'node:test';
+  2 | test({name: 'bad Title'}, () => {});
+
+`;
+
+exports[`prefer-lowercase-title > invalid(15): import test from 'node:test';\ntest({name: 'Bad Title'}, {skip: true}, () => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test({name: 'Bad Title'}, {skip: true}, () => {});
+
+`;
+
+exports[`prefer-lowercase-title > invalid(15): import test from 'node:test';\ntest({name: 'Bad Title'}, {skip: true}, () => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test({name: 'Bad Title'}, {skip: true}, () => {});
+    |             ^^^^^^^^^^^ Start the title with a lowercase letter.
+
+Output:
+  1 | import test from 'node:test';
+  2 | test({name: 'bad Title'}, {skip: true}, () => {});
+
+`;
+
+exports[`prefer-lowercase-title > invalid(16): import {test, it, describe, suite, before} from 'node:test';\ntest(\"lowercase\", {name: \"UPPERCASE\"}, () => {}); 1`] = `
+
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | test("lowercase", {name: "UPPERCASE"}, () => {});
+
+`;
+
+exports[`prefer-lowercase-title > invalid(16): import {test, it, describe, suite, before} from 'node:test';\ntest(\"lowercase\", {name: \"UPPERCASE\"}, () => {}); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+> 2 | test("lowercase", {name: "UPPERCASE"}, () => {});
+    |                          ^^^^^^^^^^^ Start the title with a lowercase letter.
+
+Output:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | test("lowercase", {name: "uPPERCASE"}, () => {});
+
+`;
+
+exports[`prefer-lowercase-title > invalid(17): import {test, it, describe, suite, before} from 'node:test';\ntest(function inner() {}, {name: \"UPPERCASE\"}); 1`] = `
+
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | test(function inner() {}, {name: "UPPERCASE"});
+
+`;
+
+exports[`prefer-lowercase-title > invalid(17): import {test, it, describe, suite, before} from 'node:test';\ntest(function inner() {}, {name: \"UPPERCASE\"}); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+> 2 | test(function inner() {}, {name: "UPPERCASE"});
+    |                                  ^^^^^^^^^^^ Start the title with a lowercase letter.
+
+Output:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | test(function inner() {}, {name: "uPPERCASE"});
+
+`;
+
+exports[`prefer-lowercase-title > invalid(18): import {test, it, describe, suite, before} from 'node:test';\ntest(\"lowercase\", {...rest, name: \"UPPERCASE\"}, () => {}); 1`] = `
+
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | test("lowercase", {...rest, name: "UPPERCASE"}, () => {});
+
+`;
+
+exports[`prefer-lowercase-title > invalid(18): import {test, it, describe, suite, before} from 'node:test';\ntest(\"lowercase\", {...rest, name: \"UPPERCASE\"}, () => {}); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+> 2 | test("lowercase", {...rest, name: "UPPERCASE"}, () => {});
+    |                                   ^^^^^^^^^^^ Start the title with a lowercase letter.
+
+Output:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | test("lowercase", {...rest, name: "uPPERCASE"}, () => {});
+
+`;
+
+exports[`prefer-lowercase-title > invalid(2): import {test, it, describe, suite, before} from 'node:test';\ntest(\"Foo\", () => {}); 1`] = `
+
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | test("Foo", () => {});
+
+`;
+
+exports[`prefer-lowercase-title > invalid(2): import {test, it, describe, suite, before} from 'node:test';\ntest(\"Foo\", () => {}); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+> 2 | test("Foo", () => {});
+    |      ^^^^^ Start the title with a lowercase letter.
+
+Output:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | test("foo", () => {});
+
+`;
+
+exports[`prefer-lowercase-title > invalid(3): import {test, it, describe, suite, before} from 'node:test';\nit(\"Should work\", () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';
   2 | it("Should work", () => {});
 
 `;
 
-exports[`prefer-lowercase-title > invalid(2): import {test, it, describe, suite, before} from 'node:test';\nit(\"Should work\", () => {}); 2`] = `
+exports[`prefer-lowercase-title > invalid(3): import {test, it, describe, suite, before} from 'node:test';\nit(\"Should work\", () => {}); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before} from 'node:test';
@@ -103,14 +248,14 @@ Output:
 
 `;
 
-exports[`prefer-lowercase-title > invalid(3): import {test, it, describe, suite, before} from 'node:test';\ndescribe(\"Foo\", () => {}); 1`] = `
+exports[`prefer-lowercase-title > invalid(4): import {test, it, describe, suite, before} from 'node:test';\ndescribe(\"Foo\", () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';
   2 | describe("Foo", () => {});
 
 `;
 
-exports[`prefer-lowercase-title > invalid(3): import {test, it, describe, suite, before} from 'node:test';\ndescribe(\"Foo\", () => {}); 2`] = `
+exports[`prefer-lowercase-title > invalid(4): import {test, it, describe, suite, before} from 'node:test';\ndescribe(\"Foo\", () => {}); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before} from 'node:test';
@@ -123,14 +268,14 @@ Output:
 
 `;
 
-exports[`prefer-lowercase-title > invalid(4): import {test, it, describe, suite, before} from 'node:test';\nsuite(\"Foo\", () => {}); 1`] = `
+exports[`prefer-lowercase-title > invalid(5): import {test, it, describe, suite, before} from 'node:test';\nsuite(\"Foo\", () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';
   2 | suite("Foo", () => {});
 
 `;
 
-exports[`prefer-lowercase-title > invalid(4): import {test, it, describe, suite, before} from 'node:test';\nsuite(\"Foo\", () => {}); 2`] = `
+exports[`prefer-lowercase-title > invalid(5): import {test, it, describe, suite, before} from 'node:test';\nsuite(\"Foo\", () => {}); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before} from 'node:test';
@@ -143,14 +288,14 @@ Output:
 
 `;
 
-exports[`prefer-lowercase-title > invalid(5): import {test, it, describe, suite, before} from 'node:test';\ndescribe.only(\"Foo\", () => {}); 1`] = `
+exports[`prefer-lowercase-title > invalid(6): import {test, it, describe, suite, before} from 'node:test';\ndescribe.only(\"Foo\", () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';
   2 | describe.only("Foo", () => {});
 
 `;
 
-exports[`prefer-lowercase-title > invalid(5): import {test, it, describe, suite, before} from 'node:test';\ndescribe.only(\"Foo\", () => {}); 2`] = `
+exports[`prefer-lowercase-title > invalid(6): import {test, it, describe, suite, before} from 'node:test';\ndescribe.only(\"Foo\", () => {}); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before} from 'node:test';
@@ -163,14 +308,14 @@ Output:
 
 `;
 
-exports[`prefer-lowercase-title > invalid(6): import {test, it, describe, suite, before} from 'node:test';\ntest(\`Foo \${x}\`, () => {}); 1`] = `
+exports[`prefer-lowercase-title > invalid(7): import {test, it, describe, suite, before} from 'node:test';\ntest(\`Foo \${x}\`, () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';
   2 | test(\`Foo \${x}\`, () => {});
 
 `;
 
-exports[`prefer-lowercase-title > invalid(6): import {test, it, describe, suite, before} from 'node:test';\ntest(\`Foo \${x}\`, () => {}); 2`] = `
+exports[`prefer-lowercase-title > invalid(7): import {test, it, describe, suite, before} from 'node:test';\ntest(\`Foo \${x}\`, () => {}); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before} from 'node:test';
@@ -183,14 +328,14 @@ Output:
 
 `;
 
-exports[`prefer-lowercase-title > invalid(7): import {test, it, describe, suite, before} from 'node:test';\ntest(\"Foo\", {skip: true}, () => {}); 1`] = `
+exports[`prefer-lowercase-title > invalid(8): import {test, it, describe, suite, before} from 'node:test';\ntest(\"Foo\", {skip: true}, () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';
   2 | test("Foo", {skip: true}, () => {});
 
 `;
 
-exports[`prefer-lowercase-title > invalid(7): import {test, it, describe, suite, before} from 'node:test';\ntest(\"Foo\", {skip: true}, () => {}); 2`] = `
+exports[`prefer-lowercase-title > invalid(8): import {test, it, describe, suite, before} from 'node:test';\ntest(\"Foo\", {skip: true}, () => {}); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before} from 'node:test';
@@ -203,14 +348,14 @@ Output:
 
 `;
 
-exports[`prefer-lowercase-title > invalid(8): import {test, it, describe, suite, before} from 'node:test';\ntest(\"Éfoo\", () => {}); 1`] = `
+exports[`prefer-lowercase-title > invalid(9): import {test, it, describe, suite, before} from 'node:test';\ntest(\"Éfoo\", () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';
   2 | test("Éfoo", () => {});
 
 `;
 
-exports[`prefer-lowercase-title > invalid(8): import {test, it, describe, suite, before} from 'node:test';\ntest(\"Éfoo\", () => {}); 2`] = `
+exports[`prefer-lowercase-title > invalid(9): import {test, it, describe, suite, before} from 'node:test';\ntest(\"Éfoo\", () => {}); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before} from 'node:test';
@@ -220,30 +365,5 @@ Message:
 Output:
   1 | import {test, it, describe, suite, before} from 'node:test';
   2 | test("éfoo", () => {});
-
-`;
-
-exports[`prefer-lowercase-title > invalid(9): import {test, it, describe, suite, before} from 'node:test';\ntest(\"Delete user\", () => {}); 1`] = `
-
-Options:
-- allowedPrefixes:
-    - 'GET'
-
-Code:
-  1 | import {test, it, describe, suite, before} from 'node:test';
-  2 | test("Delete user", () => {});
-
-`;
-
-exports[`prefer-lowercase-title > invalid(9): import {test, it, describe, suite, before} from 'node:test';\ntest(\"Delete user\", () => {}); 2`] = `
-
-Message:
-  1 | import {test, it, describe, suite, before} from 'node:test';
-> 2 | test("Delete user", () => {});
-    |      ^^^^^^^^^^^^^ Start the title with a lowercase letter.
-
-Output:
-  1 | import {test, it, describe, suite, before} from 'node:test';
-  2 | test("delete user", () => {});
 
 `;

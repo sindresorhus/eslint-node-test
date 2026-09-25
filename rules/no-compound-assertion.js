@@ -4,6 +4,7 @@ import {
 	createContextTracker,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
+import {getStaticPropertyName} from './utils/index.js';
 
 const MESSAGE_ID = 'no-compound-assertion';
 
@@ -40,10 +41,13 @@ function getOperandText(sourceCode, operand) {
 	return operand.type === 'SequenceExpression' ? `(${text})` : text;
 }
 
-function buildFix({node, operands, sourceCode}) {
+function buildFix({node, operands, sourceCode, hasPlan}) {
 	return fixer => {
 		if (
-			node.arguments.length !== 1
+			// Splitting one assertion into several changes the assertion count, which a
+			// `t.plan(n)` would then fail on.
+			hasPlan
+			|| node.arguments.length !== 1
 			|| node.parent.type !== 'ExpressionStatement'
 			|| !['Program', 'BlockStatement'].includes(node.parent.parent.type)
 			|| sourceCode.getCommentsInside(node.parent).length > 0
@@ -66,6 +70,14 @@ function buildFix({node, operands, sourceCode}) {
 	};
 }
 
+/** Whether a call is `<context>.plan(…)` on a tracked test context. */
+function isPlanCall(node, tracker) {
+	const callee = unwrapTypeScriptExpression(node.callee);
+	return callee?.type === 'MemberExpression'
+		&& getStaticPropertyName(callee) === 'plan'
+		&& tracker.isContextIdentifier(unwrapTypeScriptExpression(callee.object));
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -76,8 +88,20 @@ const create = context => {
 
 	const tracker = createContextTracker(imports, {trackHooks: true});
 
+	// Callbacks whose body declared a `t.plan(n)`. Keyed on the callback node so a plan applies
+	// to its own context only, and a nested context's plan cannot leak out when it exits.
+	const plannedCallbacks = new Set();
+
+	const hasPlan = () => tracker.currentCallback() !== undefined
+		&& plannedCallbacks.has(tracker.currentCallback());
+
 	context.on('CallExpression', node => {
 		tracker.update(node);
+
+		if (isPlanCall(node, tracker)) {
+			plannedCallbacks.add(tracker.currentCallback());
+			return;
+		}
 
 		const assertion = parseSupportedAssertionCall(node, imports, tracker);
 		if (assertion?.method !== 'ok') {
@@ -99,7 +123,12 @@ const create = context => {
 		return {
 			node,
 			messageId: MESSAGE_ID,
-			fix: buildFix({node, operands, sourceCode}),
+			fix: buildFix({
+				node,
+				operands,
+				sourceCode,
+				hasPlan: hasPlan(),
+			}),
 		};
 	});
 

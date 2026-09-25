@@ -82,6 +82,13 @@ test.snapshot({
 		withNamedImport('strictEqual', 'function helper(strictEqual) { strictEqual(1, 1); }'),
 	],
 	invalid: [
+		// A closure over an outer test's binding still refers to that binding, even inside a
+		// nested subtest or a hook — the same capture the context parameter gets
+		'import test from \'node:test\';\ntest("outer", ({assert}) => { test("inner", () => { assert.equal(1, 1); }); });',
+		'import test, {before} from \'node:test\';\ntest("outer", ({assert}) => { before(() => { assert.equal(1, 1); }); });',
+		// A destructured `assert` is a real assertion, exactly like `t.assert`
+		'import test from \'node:test\';\ntest(\'x\', ({assert}) => { assert.equal(\'1\', 1); });',
+
 		// Truthiness assertions
 		withAssert('assert.ok(true);'),
 		withAssert('assert.ok(false);'),

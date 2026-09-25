@@ -33,6 +33,14 @@ test.snapshot({
 
 		// Non-iteration array methods (`find`) are not treated as loops
 		withSetup('xs.find(x => { it(\'static\', () => {}); });'),
+
+		// `options.name` overrides the positional title, so a dynamic name is not a static title
+		// eslint-disable-next-line no-template-curly-in-string
+		withSetup('for (const x of xs) { it(\'placeholder\', {name: `t ${x}`}, () => {}); }'),
+
+		// The descriptor form with a dynamic name is not static either
+		// eslint-disable-next-line no-template-curly-in-string
+		withSetup('for (const x of xs) { it({name: `t ${x}`, fn: () => {}}); }'),
 	],
 	invalid: [
 		// For-of with a static string title
@@ -73,5 +81,11 @@ test.snapshot({
 
 		// Namespace import
 		'import * as nodeTest from \'node:test\';\nfor (const x of xs) { nodeTest.it(\'static\', () => {}); }',
+
+		// The object-descriptor form registers the same static title on every iteration
+		withSetup('for (const x of xs) { it({name: \'static\', fn: () => {}}); }'),
+
+		// A static `options.name` is the title the runner uses
+		withSetup('for (const x of xs) { it(\'placeholder\', {name: \'static\'}, () => {}); }'),
 	],
 });

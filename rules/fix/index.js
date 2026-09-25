@@ -1,5 +1,4 @@
-export {default as removeArgument, getArgumentRemovalRange} from './remove-argument.js';
+export {default as removeArgument} from './remove-argument.js';
 export {
-	replaceMemberExpressionProperty,
 	removeMemberExpressionProperty,
 } from './replace-member-expression-property.js';

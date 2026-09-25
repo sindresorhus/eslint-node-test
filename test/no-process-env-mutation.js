@@ -61,6 +61,9 @@ test.snapshot({
 	invalid: [
 		// Direct member mutations
 		inTest('process.env.NODE_ENV = \'production\';'),
+		// `globalThis.process` / `global.process` are the same object as the bare global
+		inTest('globalThis.process.env.NODE_ENV = \'production\';'),
+		inTest('global.process.env.NODE_ENV = \'production\';'),
 		inTest('process.env[\'NODE_ENV\'] = \'production\';'),
 		inTest('process.env.NODE_ENV = value;'),
 		inTest('{\n\tconst t = {mock: {property() {}}};\n\tprocess.env.NODE_ENV = \'production\';\n}'),

@@ -4,7 +4,7 @@ import {
 	createContextTracker,
 	getSubtestReceiver,
 	getTestOptions,
-	findOptionsProperty,
+	findEnabledOptionsProperty,
 } from './utils/node-test.js';
 
 const MESSAGE_ID = 'no-misused-concurrency';
@@ -44,7 +44,7 @@ const create = context => {
 			frames.push({
 				node,
 				contextName: tracker.current(),
-				concurrencyProperty: findOptionsProperty(getTestOptions(node), 'concurrency'),
+				concurrencyProperty: findEnabledOptionsProperty(getTestOptions(node), 'concurrency'),
 				hasSubtest: false,
 			});
 		}

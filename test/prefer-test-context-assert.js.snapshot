@@ -269,6 +269,52 @@ Suggestion 1/1: Replace with \`t.assert.ok()\`.:
 
 `;
 
+exports[`prefer-test-context-assert > invalid(20): import test from 'node:test';\nimport assert from 'node:assert';\ntest('a', t => { assert!.ok(1); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('a', t => { assert!.ok(1); });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(20): import test from 'node:test';\nimport assert from 'node:assert';\ntest('a', t => { assert!.ok(1); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | test('a', t => { assert!.ok(1); });
+    |                  ^^^^^^^^^^ Prefer the test context \`t.assert.ok()\` over the imported \`node:assert\`, so the runner ties the assertion to this test.
+
+Suggestion 1/1: Replace with \`t.assert.ok()\`.:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('a', t => { t.assert.ok(1); });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(21): import test from 'node:test';\nimport assert from 'node:assert';\ntest('a', t => { (assert as any).ok(1); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('a', t => { (assert as any).ok(1); });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(21): import test from 'node:test';\nimport assert from 'node:assert';\ntest('a', t => { (assert as any).ok(1); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | test('a', t => { (assert as any).ok(1); });
+    |                  ^^^^^^^^^^^^^^^^^^ Prefer the test context \`t.assert.ok()\` over the imported \`node:assert\`, so the runner ties the assertion to this test.
+
+Suggestion 1/1: Replace with \`t.assert.ok()\`.:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('a', t => { t.assert.ok(1); });
+
+`;
+
 exports[`prefer-test-context-assert > invalid(3): import test from 'node:test';\nimport {strictEqual} from 'node:assert';\ntest('x', t => { strictEqual(a, b); }); 1`] = `
 
   1 | import test from 'node:test';

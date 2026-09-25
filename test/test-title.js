@@ -4,6 +4,11 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
+		// The object form's descriptor `name` is a real title
+		'import test from \'node:test\';\ntest({name: \'a\', fn() {}});',
+		'import test from \'node:test\';\ntest({name: \'a\', skip: true, fn() {}});',
+		'import {it} from \'node:test\';\nit({name: \'a\', fn() {}});',
+
 		// Not a test file
 		'test("my test", () => {});',
 		'test(t => {});',
@@ -29,8 +34,18 @@ test.snapshot({
 		'import test from "node:test";\ntest("my test", {timeout: 1000}, () => {});',
 		// Variable title — can't statically validate, skip
 		'import test from "node:test";\nconst title = "foo";\ntest(title, () => {});',
+		// `node:test` names the test after `options.name`, so the untrimmed positional string is not the title
+		'import test from "node:test";\ntest(" my test ", {name: "my test"}, () => {});',
+		'import test from "node:test";\ntest(function body() {}, {name: "my test"});',
+		// A spread after `name` could override it, so the title is not statically known
+		'import test from "node:test";\ntest(" my test ", {name: "ok", ...rest}, () => {});',
 	],
 	invalid: [
+		// The object form carries its title in the descriptor, so a `name` is not a missing title
+		'import test from \'node:test\';\ntest({name: \' a \', fn() {}});',
+		'import test from \'node:test\';\ntest({name: 1, fn() {}});',
+		'import test from \'node:test\';\ntest({fn() {}});',
+
 		// Missing title — first arg is a function
 		'import test from "node:test";\ntest(() => {});',
 		// Missing title — first arg is an options object
@@ -72,5 +87,9 @@ test.snapshot({
 			code: 'import test from "node:test";\ntest(<any>{timeout: 1000}, () => {});',
 			languageOptions: {parser: parsers.typescript},
 		},
+		// A leading descriptor names the test even when arguments follow, which `node:test` ignores
+		'import test from \'node:test\';\ntest({name: \' a \'}, () => {});',
+		// `options.name` is the title, so the fix rewrites it and leaves the positional string alone
+		'import test from "node:test";\ntest("my test", {name: " a "}, () => {});',
 	],
 });

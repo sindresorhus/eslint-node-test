@@ -141,8 +141,18 @@ function hasSkipModifier(node) {
 	return false;
 }
 
-function isSkippedTestCall(node, sourceCode) {
+function isSkippedTestCall(node, sourceCode, parsed) {
 	if (hasSkipModifier(node.callee)) {
+		return true;
+	}
+
+	// The standalone `skip(…)`/`todo(…)` exports have an `Identifier` callee, so the member walk
+	// above cannot see them. `parseTestCall` records the modifier for that form. Only those two
+	// decide on their own; `only(…)` runs unless the options slot says otherwise, so fall through.
+	if (
+		parsed?.hasStandaloneModifier
+		&& parsed.modifiers.some(modifier => modifier.name === 'skip' || modifier.name === 'todo')
+	) {
 		return true;
 	}
 
@@ -196,7 +206,7 @@ const create = context => {
 		if (
 			callback
 			&& (isTestOrSuite || isSubtest)
-			&& isSkippedTestCall(node, sourceCode)
+			&& isSkippedTestCall(node, sourceCode, parsed)
 		) {
 			skippedCallbacks.add(callback);
 		}

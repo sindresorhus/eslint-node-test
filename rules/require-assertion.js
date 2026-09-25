@@ -5,6 +5,7 @@ import {
 	getTestCallback,
 	parseSupportedAssertionCall,
 	getCalleeChain,
+	getDestructuredAssertBindings,
 	createContextTracker,
 } from './utils/node-test.js';
 
@@ -14,34 +15,37 @@ const messages = {
 	[MESSAGE_ID]: 'Test is missing an assertion. Tests without assertions will always pass.',
 };
 
-function getDestructuredAssertVariable(callback, sourceCode) {
-	const parameter = callback.params[0];
-	if (parameter?.type !== 'ObjectPattern') {
-		return undefined;
-	}
+/*
+Whether a call reaches the context `assert` through a destructured binding in one of the open test
+frames.
 
-	const property = parameter.properties.find(property =>
-		property.type === 'Property'
-		&& !property.computed
-		&& property.key.type === 'Identifier'
-		&& property.key.name === 'assert'
-		&& property.value.type === 'Identifier');
-
-	if (!property) {
-		return undefined;
-	}
-
-	return findVariable(sourceCode.getScope(property.value), property.value);
-}
-
+`parseSupportedAssertionCall` resolves this through the context tracker, which only knows the
+innermost callback. A test declared inside another test still sees the outer binding, so the frames
+are searched here instead. The shape is the same one the shared helper accepts: a bare destructured
+method or `assert.method(…)`.
+*/
 function isDestructuredAssertCall(node, testStack, sourceCode) {
 	const chain = getCalleeChain(node.callee);
-	if (!chain || chain.members.length !== 1) {
+	if (!chain || chain.members.length > 1) {
 		return false;
 	}
 
 	const variable = findVariable(sourceCode.getScope(chain.root), chain.root);
-	return variable !== null && testStack.some(test => test.assertVariable === variable);
+	if (variable === null) {
+		return false;
+	}
+
+	const isBareMethodCall = chain.members.length === 0;
+	return testStack.some(test => {
+		if (!test.assertBindings.has(variable)) {
+			return false;
+		}
+
+		// A bare identifier is a destructured method, so its binding records a name. A member call is
+		// a method on the assert object, whose binding records none.
+		const method = test.assertBindings.get(variable);
+		return isBareMethodCall ? typeof method === 'string' : method === undefined;
+	});
 }
 
 function getContainingTestFrame(node, testStack) {
@@ -84,7 +88,7 @@ const create = context => {
 				testStack.push({
 					callNode: node,
 					callback,
-					assertVariable: getDestructuredAssertVariable(callback, sourceCode),
+					assertBindings: getDestructuredAssertBindings(callback, imports),
 					hasAssertion: false,
 				});
 				return;

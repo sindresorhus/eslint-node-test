@@ -14,6 +14,8 @@ A subtest created with `t.test()` returns a promise. Any subtest still outstandi
 
 The `Promise.all(...)` counts as consumed when it is awaited, returned, or assigned. A bare `Promise.all(...)` statement or one discarded with `void` is still flagged, since the parent test finishes before those subtests settle.
 
+The array has to reach `Promise.all(...)` as a plain argument. The rule does not follow the value any further, so a two-step form that copies it first, as in `await Promise.all([...promises])` or `await Promise.all(promises.slice())`, is still flagged even though the subtests do settle.
+
 This rule complements [`no-unawaited-subtest`](./no-unawaited-subtest.md), which covers a subtest used as a bare statement. It reports a subtest returned from (or used as the expression body of) a `map`/`forEach`/`flatMap` callback whose promises are not consumed.
 
 ## Examples

@@ -55,6 +55,14 @@ test.snapshot({
 		withImport('before, after', 'after(() => {});\n// setup\nbefore(() => {});'),
 		// Trailing comment on the last hook — reported but no fix (comment would be misattributed)
 		withImport('before, after', 'after(() => {});\nbefore(() => {}); // comment'),
+		// Leading comment on the first hook — reported but no fix, same reason as the trailing one
+		withImport('before, after', '// teardown\nafter(() => {});\nbefore(() => {});'),
+		// Same, with a block comment on the preceding line
+		withImport('before, after', '/* teardown */\nafter(() => {});\nbefore(() => {});'),
+		// Same, with a block comment on the hook's own line (outside the statement range)
+		withImport('before, after', '/* teardown */ after(() => {});\nbefore(() => {});'),
+		// A block comment separated by a blank line belongs to the block, not the hook, so it is still fixable
+		withImport('before, after', '// file header\n\nafter(() => {});\nbefore(() => {});'),
 		// Out-of-order hooks indented inside a `describe` (fix must preserve indentation)
 		withImport('describe, before, after', 'describe("s", () => {\n\tafter(() => {});\n\tbefore(() => {});\n});'),
 		// Fully reversed four hooks — the fix sorts the whole block in one pass

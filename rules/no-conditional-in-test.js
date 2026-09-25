@@ -1,4 +1,9 @@
-import {resolveImports, parseTestCall, getTestCallback} from './utils/node-test.js';
+import {
+	resolveImports,
+	parseTestCall,
+	getTestCallback,
+	createContextTracker,
+} from './utils/node-test.js';
 import {getEnclosingFunction} from './utils/index.js';
 
 const MESSAGE_ID = 'no-conditional-in-test';
@@ -17,10 +22,13 @@ const create = context => {
 	// Callbacks of test/hook calls. Conditionals inside a `describe` body are about test
 	// registration (see `no-conditional-tests`), so suites are excluded here.
 	const testCallbacks = new Set();
+	// Subtests are method calls rather than imported bindings, so the tracker recognizes them.
+	const tracker = createContextTracker(imports, {trackHooks: true});
 
 	context.on('CallExpression', node => {
 		const parsed = parseTestCall(node, imports);
-		if (parsed?.kind !== 'test' && parsed?.kind !== 'hook') {
+		const isSubtest = tracker.isSubtestCall(node);
+		if (!isSubtest && parsed?.kind !== 'test' && parsed?.kind !== 'hook') {
 			return;
 		}
 
@@ -28,6 +36,12 @@ const create = context => {
 		if (callback) {
 			testCallbacks.add(callback);
 		}
+
+		tracker.update(node);
+	});
+
+	context.onExit('CallExpression', node => {
+		tracker.leave(node);
 	});
 
 	const report = node => {

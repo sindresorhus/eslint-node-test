@@ -6,6 +6,11 @@ const withTest = code => `import test from 'node:test';\n${code}`;
 
 test.snapshot({
 	valid: [
+		// A subtest created inside an iteration callback still runs, so the hook is meaningful.
+		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await Promise.all(items.map(item => t.test(item, () => {}))); });'),
+		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); for (const item of items) { await t.test(item, () => {}); } });'),
+		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); while (hasMore()) { await t.test(\'x\', () => {}); } });'),
+		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); items.forEach(item => { t.test(item, () => {}); }); });'),
 		// Hooks run around ordinary and TODO subtests.
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); t.afterEach(() => {}); await t.test(\'child\', () => {}); });'),
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {todo: true}, () => {}); });'),
@@ -63,6 +68,13 @@ test.snapshot({
 		},
 	],
 	invalid: [
+		// A second argument to an array method is `thisArg`, which the method never calls, so a
+		// subtest written there never runs
+		withTest('test(\'p\', t => { t.beforeEach(() => {}); items.map(() => {}, function () { t.test(\'a\', () => {}); }); });'),
+		withTest('test(\'p\', t => { t.beforeEach(() => {}); items.filter(() => true, function () { t.test(\'a\', () => {}); }); });'),
+		// A declared helper is a real scope boundary, so its subtests do not count even inside a loop
+		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); items.map(item => { function inner() { return t.test(item, () => {}); } }); });'),
+
 		// Leaf test context hooks.
 		withTest('test(\'leaf\', t => { t.beforeEach(() => {}); });'),
 		withTest('test(\'leaf\', t => { t.afterEach(() => {}); });'),

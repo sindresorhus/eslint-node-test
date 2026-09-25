@@ -113,6 +113,8 @@ test.snapshot({
 
 		// Conditional assertion inside a hook is also flagged
 		'import {beforeEach} from "node:test";\nimport assert from "node:assert";\nbeforeEach(() => { if (x) { assert.ok(1); } });',
+		// A hook's trailing options must not hide its body
+		'import {beforeEach} from "node:test";\nimport assert from "node:assert";\nbeforeEach(() => { if (x) { assert.ok(1); } }, {timeout: 1000});',
 
 		// Lexically conditional, even inside a nested helper function (the rule is purely syntactic)
 		'import test from "node:test";\nimport assert from "node:assert";\ntest("t1", () => { const check = () => { if (x) { assert.ok(1); } }; check(); });',

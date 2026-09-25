@@ -11,6 +11,8 @@ const messages = {
 };
 
 const SKIP_METHODS = new Set(['skip', 'todo']);
+// Statements that end the current path, so a skip followed by one of them is already terminal.
+const TERMINAL_STATEMENTS = new Set(['ReturnStatement', 'ThrowStatement', 'BreakStatement', 'ContinueStatement']);
 
 /*
 Whether reachable code follows the skip statement before the enclosing test function ends.
@@ -30,8 +32,10 @@ function hasCodeAfter(skipStatement) {
 		if (parent.type === 'BlockStatement' || parent.type === 'Program') {
 			const next = parent.body[parent.body.indexOf(node) + 1];
 			if (next) {
-				// A `return`/`throw` immediately after the skip itself is the correct pattern.
-				return !(node === skipStatement && (next.type === 'ReturnStatement' || next.type === 'ThrowStatement'));
+				// A `return`/`throw`/`break`/`continue` immediately after the skip itself is the correct
+				// pattern: none of them let further test code run after the skip. A `break` in a `switch`
+				// case, in particular, leaves the switch rather than continuing the test.
+				return !(node === skipStatement && TERMINAL_STATEMENTS.has(next.type));
 			}
 		}
 
@@ -53,7 +57,9 @@ const create = context => {
 		return;
 	}
 
-	const tracker = createContextTracker(imports);
+	// Hook callbacks receive a test context too, so `t.skip()` in a hook body skips the rest of
+	// that hook exactly as it does in a test body.
+	const tracker = createContextTracker(imports, {trackHooks: true});
 
 	context.on('CallExpression', node => {
 		let problem;
@@ -88,10 +94,18 @@ const create = context => {
 						data: {name, method},
 						fix(fixer) {
 							// Insert `return;` on its own line, matching the skip statement's indentation.
+							// Anchor after a trailing comment on the statement's line, so a comment documenting
+							// the skip stays with the skip instead of ending up on the inserted `return`.
 							const [start] = sourceCode.getRange(statement);
 							const lineStart = sourceCode.text.lastIndexOf('\n', start - 1) + 1;
 							const [indentation] = /^\s*/.exec(sourceCode.text.slice(lineStart, start));
-							return fixer.insertTextAfter(statement, `\n${indentation}return;`);
+
+							const [trailingComment] = sourceCode.getCommentsAfter(statement);
+							const hasTrailingComment = trailingComment
+								&& sourceCode.getLoc(trailingComment).start.line === sourceCode.getLoc(statement).end.line;
+							const anchor = hasTrailingComment ? trailingComment : statement;
+
+							return fixer.insertTextAfter(anchor, `\n${indentation}return;`);
 						},
 					},
 				];

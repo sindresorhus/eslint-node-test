@@ -6,6 +6,10 @@ const inTest = code => `import test from 'node:test';\ntest('t', async t => {\n\
 
 test.snapshot({
 	valid: [
+		// The two-step form is consumed just as much as the inline one
+		inTest('const promises = xs.map(x => t.test(x, () => {}));\nawait Promise.all(promises);'),
+		inTest('const promises = xs.map(x => t.test(x, () => {}));\nreturn Promise.allSettled(promises);'),
+
 		// Correctly awaited via Promise.all
 		inTest('await Promise.all(xs.map(x => t.test(x, () => {})));'),
 		inTest('await Promise.allSettled(xs.map(x => t.test(x, () => {})));'),
@@ -45,6 +49,13 @@ test.snapshot({
 		'xs.map(x => something(x));',
 	],
 	invalid: [
+		// A same-named variable elsewhere is not the array of subtest promises
+		inTest('const other = [];\nconst promises = xs.map(x => t.test(x, () => {}));\nawait Promise.all(other);'),
+		// Nor is a shadowing one in an inner scope
+		inTest('const promises = xs.map(x => t.test(x, () => {}));\n{\n\tconst promises = [];\n\tawait Promise.all(promises);\n}'),
+		// And a `Promise.all` that discards the array is still a failure
+		inTest('const promises = xs.map(x => t.test(x, () => {}));\nvoid Promise.all(promises);'),
+
 		// `map` with an expression-body subtest, not awaited
 		inTest('xs.map(x => t.test(x, () => {}));'),
 

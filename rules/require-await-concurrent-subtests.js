@@ -1,3 +1,4 @@
+import {findVariable} from '@eslint-community/eslint-utils';
 import {resolveImports, createContextTracker} from './utils/node-test.js';
 import isFunction from './ast/is-function.js';
 import {skipExpressionWrappers, outermostExpressionWrapper, getFloatingStatement} from './utils/index.js';
@@ -36,36 +37,64 @@ function findEnclosingIterationCall(node) {
 	}
 }
 
-/** Whether the iteration call is an argument to a consumed `Promise.all(…)` / `Promise.allSettled(…)`. */
-function isAwaitedViaPromiseAll(iterationCall) {
-	// A cast around the array (`xs.map(…) as Promise<void>[]`) is what `Promise.all()` actually
-	// receives as its argument, so compare against the outermost wrapper.
-	const argument = outermostExpressionWrapper(iterationCall);
-	const {parent} = argument;
-	if (
-		parent?.type === 'CallExpression'
+/** Whether a `Promise.all(…)` / `Promise.allSettled(…)` call is itself consumed rather than discarded. */
+function isConsumedPromiseAll(promiseAllCall) {
+	// The `Promise.all(…)` itself must be consumed (awaited, returned, or assigned), not discarded —
+	// otherwise the parent test still finishes before the subtests settle. It is discarded when left
+	// as a floating bare statement or explicitly thrown away with `void`.
+	const grandparent = skipExpressionWrappers(promiseAllCall.parent);
+	const isDiscarded = grandparent?.type === 'ExpressionStatement'
+		|| (grandparent?.type === 'UnaryExpression' && grandparent.operator === 'void');
+	return !isDiscarded;
+}
+
+/** Whether `node` is an argument to a consumed `Promise.all(…)` / `Promise.allSettled(…)`. */
+function isArgumentToConsumedPromiseAll(node) {
+	const {parent} = node;
+	return parent?.type === 'CallExpression'
 		&& parent.callee.type === 'MemberExpression'
 		&& !parent.callee.computed
 		&& parent.callee.property.type === 'Identifier'
 		&& (parent.callee.property.name === 'all' || parent.callee.property.name === 'allSettled')
 		&& parent.callee.object.type === 'Identifier'
 		&& parent.callee.object.name === 'Promise'
-		&& parent.arguments.includes(argument)
-	) {
-		// The `Promise.all(…)` itself must be consumed (awaited, returned, or assigned), not discarded —
-		// otherwise the parent test still finishes before the subtests settle. It is discarded when left
-		// as a floating bare statement or explicitly thrown away with `void`.
-		const grandparent = skipExpressionWrappers(parent.parent);
-		const isDiscarded = grandparent?.type === 'ExpressionStatement'
-			|| (grandparent?.type === 'UnaryExpression' && grandparent.operator === 'void');
-		return !isDiscarded;
+		&& parent.arguments.includes(node)
+		&& isConsumedPromiseAll(parent);
+}
+
+/**
+Whether the iteration call's promises are collected by a consumed `Promise.all(…)`.
+
+Both the inline shape (`await Promise.all(xs.map(…))`) and the two-step shape
+(`const promises = xs.map(…); await Promise.all(promises)`) are accepted.
+
+Only those two shapes. The array has to reach `Promise.all(…)` as a plain argument, because
+following the value any further is data flow analysis this rule does not do. A two-step form that
+copies it on the way, as in `await Promise.all([...promises])`, is reported even though the
+subtests do settle; the rule documentation says so.
+*/
+function isAwaitedViaPromiseAll(iterationCall, scope) {
+	// A cast around the array (`xs.map(…) as Promise<void>[]`) is what `Promise.all()` actually
+	// receives as its argument, so compare against the outermost wrapper.
+	const argument = outermostExpressionWrapper(iterationCall);
+	if (isArgumentToConsumedPromiseAll(argument)) {
+		return true;
 	}
 
-	return false;
+	// Two-step form: the array is bound to a variable that is later passed to a consumed
+	// `Promise.all(…)`.
+	const {parent} = argument;
+	if (parent?.type !== 'VariableDeclarator' || parent.init !== argument || parent.id.type !== 'Identifier') {
+		return false;
+	}
+
+	const variable = findVariable(scope, parent.id.name);
+	return variable.references.some(reference => isArgumentToConsumedPromiseAll(reference.identifier));
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	const {sourceCode} = context;
 	const imports = resolveImports(context);
 	if (!imports.isTestFile) {
 		return;
@@ -85,7 +114,7 @@ const create = context => {
 				const method = iterationCall.callee.property.name;
 				// `forEach` discards its callbacks' results entirely; `map`/`flatMap` are fine only when
 				// the resulting array is awaited via `Promise.all`.
-				const handled = method !== 'forEach' && isAwaitedViaPromiseAll(iterationCall);
+				const handled = method !== 'forEach' && isAwaitedViaPromiseAll(iterationCall, sourceCode.getScope(node));
 				if (!handled) {
 					problem = {
 						node,

@@ -66,6 +66,11 @@ test.snapshot({
 		'import test from \'node:test\';\ntest(\'t\', () => { const db = makeDb(); db.assert.ok(/re/.test(s)); });',
 	],
 	invalid: [
+		// The inner `str`/`regex` are re-emitted with `getText`, which drops the parentheses around
+		// a sequence expression, so the problem is reported but the fix is withheld.
+		`${ASSERT_IMPORT}\nassert.ok(/^foo/.test((a, b)));`,
+		`${ASSERT_IMPORT}\nassert.ok((a, b).match(/^foo/));`,
+
 		// Comment inside the call — reported but not autofixed (the fix would drop the comment)
 		`${ASSERT_IMPORT}\nassert.strictEqual(/\\d+/.test('foo'), /* keep */ true);`,
 

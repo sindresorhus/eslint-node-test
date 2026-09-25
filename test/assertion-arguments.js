@@ -9,6 +9,9 @@ const withNamedImport = (methods, code) => `import {${methods}} from 'node:asser
 
 test.snapshot({
 	valid: [
+		withAssert('assert.partialDeepStrictEqual(actual, expected);'),
+		withAssert('assert.partialDeepStrictEqual(actual, expected, message);'),
+
 		// Not a node:assert file — ignored
 		'assert.strictEqual(a, b);',
 
@@ -125,6 +128,13 @@ test.snapshot({
 		'import test from \'node:test\';\nconst obj = {assert: {strictEqual() {}}};\ntest(\'t\', () => { obj.assert.strictEqual(a); });',
 	],
 	invalid: [
+		// A destructured `assert` is a real assertion, exactly like `t.assert`
+		'import test from \'node:test\';\ntest(\'x\', ({assert}) => { assert.strictEqual(1); });',
+		'import test from \'node:test\';\ntest(\'x\', ({assert: {ok}}) => { ok(); });',
+
+		// The object form still gets a real test context
+		'import test from \'node:test\';\ntest({name: \'x\', fn(t) { t.assert.strictEqual(1); }});',
+
 		// Ok — too few
 		withAssert('assert.ok();'),
 		// Ok — too many

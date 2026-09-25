@@ -40,5 +40,9 @@ test.snapshot({
 		'import {test as myTest} from "node:test";\nmyTest("outer", () => {\n  myTest("inner", () => {});\n});',
 		// Namespace import
 		'import * as nodeTest from "node:test";\nnodeTest.test("outer", () => {\n  nodeTest.test("inner", () => {});\n});',
+		// The outer test has options, so the callback is not the last argument
+		'import test from "node:test";\ntest("outer", {timeout: 1}, () => {\n  test("inner", () => {});\n});',
+		// A hook's trailing options must not hide a nested test in a test body
+		'import test from "node:test";\ntest("outer", () => {\n  test("inner", {}, () => {});\n});',
 	],
 });

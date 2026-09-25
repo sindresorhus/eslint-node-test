@@ -9,6 +9,8 @@ import {
 	getSubtestReceiver,
 	getCalleeChain,
 	getContextParameterIdentifier,
+	getDestructuredAssertBindings,
+	parseDestructuredAssertCall,
 	isHookMemberTestCall,
 	MODIFIERS,
 } from './utils/node-test.js';
@@ -220,11 +222,52 @@ function getImportedAssertReference(node, imports) {
 	return undefined;
 }
 
-function parseScopedAssertionCall(node, imports, contextParameters, sourceCode) {
+/*
+Resolve an identifier against the destructured `assert` bindings of the open frames, innermost first,
+so a closure over an outer test's binding still resolves after an inner callback is entered.
+
+The three outcomes cannot share one return value, because a frame with no method records
+`undefined`: the assertion method name, `ASSERT_OBJECT` for the assert object itself, or
+`NOT_ASSERT_BINDING` when the identifier is not one.
+*/
+function findAssertBinding(assertBindings, identifier, sourceCode) {
+	if (assertBindings.length === 0) {
+		return NOT_ASSERT_BINDING;
+	}
+
+	const variable = findVariable(sourceCode.getScope(identifier), identifier);
+	if (variable === null) {
+		return NOT_ASSERT_BINDING;
+	}
+
+	for (let index = assertBindings.length - 1; index >= 0; index -= 1) {
+		const bindings = assertBindings[index];
+		if (bindings.has(variable)) {
+			return bindings.get(variable) ?? ASSERT_OBJECT;
+		}
+	}
+
+	return NOT_ASSERT_BINDING;
+}
+
+const NOT_ASSERT_BINDING = Symbol('not a destructured assert binding');
+const ASSERT_OBJECT = Symbol('the destructured assert object');
+
+function parseScopedAssertionCall(node, imports, sourceCode, parameters) {
+	const {contextParameters, assertBindings} = parameters;
 	const assertionCall = getUnwrappedAssertionCall(node);
+
 	const parsed = parseAssertionCall(assertionCall, imports);
 	if (!parsed) {
-		return undefined;
+		// A call reached through a destructured `assert` binding, as `assert.ok(…)` or a bare
+		// destructured method `ok(…)`.
+		return parseDestructuredAssertCall(assertionCall, {
+			getMethodName(identifier) {
+				const method = findAssertBinding(assertBindings, identifier, sourceCode);
+				return typeof method === 'string' ? method : undefined;
+			},
+			isAssertObject: identifier => findAssertBinding(assertBindings, identifier, sourceCode) === ASSERT_OBJECT,
+		});
 	}
 
 	if (getContextAssertReceiver(assertionCall)) {
@@ -300,8 +343,8 @@ function hasChainedRejectionHandler(node, boundary) {
 }
 
 function getAssertionActivity(node, state) {
-	const {imports, contextParameters, sourceCode} = state;
-	const assertion = parseScopedAssertionCall(node, imports, contextParameters, sourceCode);
+	const {imports, sourceCode} = state;
+	const assertion = parseScopedAssertionCall(node, imports, sourceCode, state);
 	if (!assertion) {
 		return undefined;
 	}
@@ -667,19 +710,26 @@ function createBoundaryStack(context, imports) {
 	const {sourceCode} = context;
 	const frames = [];
 	const contextParameters = [];
+	// One map per frame of the variables a test callback destructures off its context's `assert`, so
+	// `({assert})` and `({assert: {strictEqual}})` reach the same assertion handling as `t.assert.*`.
+	const assertBindings = [];
 
 	context.onExit('CallExpression', node => {
 		if (frames.at(-1)?.node !== node) {
 			return;
 		}
 
-		if (frames.pop().contextParameter) {
+		const frame = frames.pop();
+		if (frame.contextParameter) {
 			contextParameters.pop();
 		}
+
+		assertBindings.pop();
 	});
 
 	return {
 		contextParameters,
+		assertBindings,
 		activeFrame: () => frames.at(-1),
 		// Push a frame when the call is a test boundary directly evaluated by the active callback. Returns whether a frame was pushed.
 		enter(node) {
@@ -702,6 +752,8 @@ function createBoundaryStack(context, imports) {
 				contextParameters.push(contextParameter);
 			}
 
+			assertBindings.push(getDestructuredAssertBindings(callback, imports));
+
 			return true;
 		},
 	};
@@ -713,7 +765,7 @@ export function trackDetachedCallbacks(context) {
 	const timerImports = getTimerImports(sourceCode);
 	const detachedCallbacks = new WeakSet();
 	const stack = createBoundaryStack(context, imports);
-	const {contextParameters} = stack;
+	const {contextParameters, assertBindings} = stack;
 
 	context.on('CallExpression', node => {
 		if (stack.enter(node)) {
@@ -759,7 +811,7 @@ export function createLateTestActivity(context, {assertionsOnly = false, message
 	const {visitorKeys} = sourceCode;
 	const timerImports = getTimerImports(sourceCode);
 	const stack = createBoundaryStack(context, imports);
-	const {contextParameters} = stack;
+	const {contextParameters, assertBindings} = stack;
 
 	context.on('CallExpression', node => {
 		if (stack.enter(node)) {
@@ -776,16 +828,19 @@ export function createLateTestActivity(context, {assertionsOnly = false, message
 			return;
 		}
 
-		if (!assertionsOnly) {
-			if (activeFrame.hasWaitPlan) {
-				return;
-			}
+		// `t.plan(n, {wait: true})` makes the runner block until the plan is fulfilled, so an
+		// assertion in a floating callback is awaited after all. Applies to both passes.
+		if (activeFrame.hasWaitPlan) {
+			return;
+		}
 
+		if (!assertionsOnly) {
 			const detachedScheduler = getDetachedScheduler(node, activeCallback, timerImports, sourceCode);
 			if (detachedScheduler) {
 				return findCallbackActivities(detachedScheduler.callback, {
 					imports,
 					contextParameters,
+					assertBindings,
 					sourceCode,
 					visitorKeys,
 				}).map(activity => ({
@@ -813,6 +868,7 @@ export function createLateTestActivity(context, {assertionsOnly = false, message
 		const problems = getPromiseProblems(chainCalls, {
 			imports,
 			contextParameters,
+			assertBindings,
 			sourceCode,
 			visitorKeys,
 		}, assertionsOnly, messageId);

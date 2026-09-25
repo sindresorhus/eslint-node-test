@@ -101,3 +101,19 @@ Message:
     |                ^^^^^^^^^^ Use the chained modifier \`.only\` instead of the \`only\` option.
 
 `;
+
+exports[`consistent-modifier-style > invalid(7): import test from 'node:test';\ntest('t', {todo: true as const}, () => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', {todo: true as const}, () => {});
+
+`;
+
+exports[`consistent-modifier-style > invalid(7): import test from 'node:test';\ntest('t', {todo: true as const}, () => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', {todo: true as const}, () => {});
+    |            ^^^^^^^^^^^^^^^^^^^ Use the chained modifier \`.todo\` instead of the \`todo\` option.
+
+`;

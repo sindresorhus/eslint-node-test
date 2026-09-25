@@ -36,22 +36,40 @@ const create = context => {
 			return;
 		}
 
-		const asyncToken = sourceCode.getFirstToken(callback, token => token.value === 'async');
+		// A method shorthand (`async fn() {}`) keeps the `async` keyword and the method name on the
+		// surrounding `Property`; the function value's own range starts at the parameter list, so the
+		// keyword is only reachable from the property.
+		const functionNode = callback.parent?.type === 'Property' && callback.parent.value === callback
+			? callback.parent
+			: callback;
 
-		return {
+		const asyncToken = sourceCode.getFirstToken(functionNode, token => token.value === 'async');
+
+		const problem = {
 			node: asyncToken,
 			messageId: MESSAGE_ID,
-			suggest: [
+		};
+
+		// Removing the `async` keyword also removes the gap up to the next token, so a comment there
+		// would be lost with it.
+		const nextToken = sourceCode.getTokenAfter(asyncToken);
+		const asyncEnd = sourceCode.getRange(asyncToken)[1];
+		const hasCommentInGap = sourceCode.getCommentsBefore(nextToken)
+			.some(comment => sourceCode.getRange(comment)[0] >= asyncEnd);
+
+		if (!hasCommentInGap) {
+			problem.suggest = [
 				{
 					messageId: MESSAGE_ID_SUGGESTION,
 					/** @param {import('eslint').Rule.RuleFixer} fixer */
 					fix(fixer) {
-						const nextToken = sourceCode.getTokenAfter(asyncToken);
 						return fixer.removeRange([sourceCode.getRange(asyncToken)[0], sourceCode.getRange(nextToken)[0]]);
 					},
 				},
-			],
-		};
+			];
+		}
+
+		return problem;
 	});
 };
 

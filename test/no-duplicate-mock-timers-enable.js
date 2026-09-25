@@ -3,9 +3,13 @@ import {getTester, parsers} from './utils/test.js';
 const {test} = getTester(import.meta);
 
 const withImport = code => `import test, {mock} from 'node:test';\n${code}`;
+const withNamedImport = names => `import {mock, ${names}} from 'node:test';`;
 
 test.snapshot({
 	valid: [
+		// A standalone `only` still runs unless the options slot says otherwise
+		`${withNamedImport('only')}\nonly('t', {skip: true}, () => { mock.timers.enable(); mock.timers.enable(); });`,
+		`${withNamedImport('only')}\nonly({name: 't', skip: true, fn() { mock.timers.enable(); mock.timers.enable(); }});`,
 		// Not a test file.
 		'mock.timers.enable();\nmock.timers.enable();',
 
@@ -14,6 +18,11 @@ test.snapshot({
 		withImport('test("first", t => { t.mock.timers.enable(); });\ntest("second", t => { t.mock.timers.enable(); });'),
 		withImport('test("parent", async t => { await t.test("first", child => { child.mock.timers.enable(); }); await t.test("second", child => { child.mock.timers.enable(); }); });'),
 		withImport('test.skip("title", t => { t.mock.timers.enable(); t.mock.timers.enable(); });'),
+		// The standalone `skip`/`todo` exports have an identifier callee, but the body never runs
+		`${withNamedImport('skip')}\nskip('title', () => { mock.timers.enable(); mock.timers.enable(); });`,
+		`${withNamedImport('todo')}\ntodo('title', () => { mock.timers.enable(); mock.timers.enable(); });`,
+		`${withNamedImport('skip as skipped')}\nskipped('title', () => { mock.timers.enable(); mock.timers.enable(); });`,
+		`${withNamedImport('skip')}\nskip('title', t => { t.mock.timers.enable(); t.mock.timers.enable(); });`,
 		withImport('test("title", {skip: true}, t => { t.mock.timers.enable(); t.mock.timers.enable(); });'),
 		withImport('test.skip("parent", t => { t.test("child", child => { child.mock.timers.enable(); child.mock.timers.enable(); }); });'),
 		withImport('test.skip("title", t => { t.beforeEach(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); });'),
@@ -45,6 +54,12 @@ test.snapshot({
 		},
 	],
 	invalid: [
+		// A standalone `only` with no skip does run
+		`${withNamedImport('only')}\nonly('t', () => { mock.timers.enable(); mock.timers.enable(); });`,
+		`${withNamedImport('only')}\nonly({name: 't', fn() { mock.timers.enable(); mock.timers.enable(); }});`,
+		// `only` does run, so a duplicate enable there is still a real problem
+		`${withNamedImport('only')}\nonly('title', () => { mock.timers.enable(); mock.timers.enable(); });`,
+
 		// Global mock tracker.
 		withImport('mock.timers.enable();\nmock.timers.enable();'),
 		withImport('mock.timers.enable();\ntest.mock.timers.enable();'),
@@ -64,6 +79,8 @@ test.snapshot({
 		withImport('test("parent", t => { t.test("child", child => { child.mock.timers.enable(); child.mock.timers.enable(); }); });'),
 		withImport('test("title", (t = undefined) => { t.mock.timers.enable(); t.mock.timers.enable(); });'),
 		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { t.mock.timers.enable(); t.mock.timers.enable(); });',
+		// A trailing object after the callback is not the options slot, so the test still runs
+		'import {test} from \'node:test\';\ntest("title", t => { t.mock.timers.enable(); t.mock.timers.enable(); }, {skip: true});',
 		'import {beforeEach} from \'node:test\';\nbeforeEach((t = undefined) => { t.mock.timers.enable(); t.mock.timers.enable(); });',
 		withImport('test("title", t => { t.beforeEach(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); });'),
 		withImport('test("title", t => { t.beforeEach((hookContext = undefined) => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); });'),

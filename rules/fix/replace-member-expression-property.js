@@ -11,7 +11,7 @@ import {getParenthesizedRange} from '../utils/index.js';
 @param {string} text
 @returns {ESLint.Rule.ReportFixer}
 */
-export function replaceMemberExpressionProperty(fixer, memberExpression, context, text) {
+function replaceMemberExpressionProperty(fixer, memberExpression, context, text) {
 	const [, start] = getParenthesizedRange(memberExpression.object, context);
 	const [, end] = context.sourceCode.getRange(memberExpression);
 	return fixer.replaceTextRange([start, end], text);

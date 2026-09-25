@@ -32,7 +32,7 @@ function isNodeTestObjectReference(node, imports, sourceCode) {
 		return false;
 	}
 
-	return node.name === imports.namespace || TEST_FUNCTIONS.has(imports.locals.get(node.name));
+	return imports.namespaces.has(node.name) || TEST_FUNCTIONS.has(imports.locals.get(node.name));
 }
 
 function isConfigurationMethod(configuration, method) {
@@ -50,7 +50,7 @@ function isGlobalConfigurationCall(node, imports, sourceCode) {
 	let {members} = chain;
 	if (
 		(
-			root.name === imports.namespace
+			imports.namespaces.has(root.name)
 			&& !imports.locals.has(root.name)
 			&& firstMember?.name === 'default'
 		)

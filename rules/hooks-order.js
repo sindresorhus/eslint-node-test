@@ -14,7 +14,7 @@ const HOOK_ORDER_INDEX = Object.fromEntries(HOOK_ORDER.map((name, index) => [nam
 /*
 Build the fix that reorders a block's hooks into canonical order in a single pass. Returns
 `undefined` (no fix) when the hooks are not a contiguous run of statements, or a comment sits
-between them — reordering would otherwise drop or misattribute code.
+next to them — reordering would otherwise drop or misattribute code.
 */
 function getReorderFix(block, hooks, sourceCode) {
 	const positions = hooks.map(hook => block.body.indexOf(hook.statement));
@@ -33,9 +33,24 @@ function getReorderFix(block, hooks, sourceCode) {
 		}
 	}
 
+	const firstHook = block.body[min];
+	const lastHook = block.body[max];
+
+	// A comment leading the first hook describes that hook, and the reorder replaces statement
+	// text only, so the comment would end up describing whichever hook moves into first place.
+	// The same reasoning as the trailing comment below. A blank line between them means the
+	// comment belongs to the block rather than to the hook, so that case stays fixable.
+	// The run is in source order, so the comment nearest the hook is the last one, not the first.
+	const leadingComment = sourceCode.getCommentsBefore(firstHook).at(-1);
+	if (
+		leadingComment
+		&& sourceCode.getLoc(firstHook).start.line - sourceCode.getLoc(leadingComment).end.line <= 1
+	) {
+		return undefined;
+	}
+
 	// A trailing comment on the last hook's line would stay put while the statement text moves,
 	// misattributing it to whichever hook ends up last. The reorder replaces statement text only.
-	const lastHook = block.body[max];
 	const [trailingComment] = sourceCode.getCommentsAfter(lastHook);
 	if (trailingComment && sourceCode.getLoc(trailingComment).start.line === sourceCode.getLoc(lastHook).end.line) {
 		return undefined;

@@ -1,116 +1,27 @@
-exports[`no-unknown-test-options > invalid(1): import {test, beforeEach} from 'node:test';\ntest(\"x\", {skp: true}, () => {}); 1`] = `
+exports[`no-unknown-test-options > invalid(1): import {before} from 'node:test';\nbefore({name: \"x\"}); 1`] = `
 
-  1 | import {test, beforeEach} from 'node:test';
-  2 | test("x", {skp: true}, () => {});
+  1 | import {before} from 'node:test';
+  2 | before({name: "x"});
 
 `;
 
-exports[`no-unknown-test-options > invalid(1): import {test, beforeEach} from 'node:test';\ntest(\"x\", {skp: true}, () => {}); 2`] = `
+exports[`no-unknown-test-options > invalid(1): import {before} from 'node:test';\nbefore({name: \"x\"}); 2`] = `
 
 Message:
-  1 | import {test, beforeEach} from 'node:test';
-> 2 | test("x", {skp: true}, () => {});
-    |            ^^^ \`skp\` is not a recognized test option.
+  1 | import {before} from 'node:test';
+> 2 | before({name: "x"});
+    |         ^^^^ \`name\` is not a recognized hook option.
 
 `;
 
-exports[`no-unknown-test-options > invalid(2): import {test, beforeEach} from 'node:test';\ntest(\"x\", {retry: 3}, () => {}); 1`] = `
-
-  1 | import {test, beforeEach} from 'node:test';
-  2 | test("x", {retry: 3}, () => {});
-
-`;
-
-exports[`no-unknown-test-options > invalid(2): import {test, beforeEach} from 'node:test';\ntest(\"x\", {retry: 3}, () => {}); 2`] = `
-
-Message:
-  1 | import {test, beforeEach} from 'node:test';
-> 2 | test("x", {retry: 3}, () => {});
-    |            ^^^^^ \`retry\` is not a recognized test option.
-
-`;
-
-exports[`no-unknown-test-options > invalid(3): import {test, beforeEach} from 'node:test';\ntest(\"x\", {\"skp\": true}, () => {}); 1`] = `
-
-  1 | import {test, beforeEach} from 'node:test';
-  2 | test("x", {"skp": true}, () => {});
-
-`;
-
-exports[`no-unknown-test-options > invalid(3): import {test, beforeEach} from 'node:test';\ntest(\"x\", {\"skp\": true}, () => {}); 2`] = `
-
-Message:
-  1 | import {test, beforeEach} from 'node:test';
-> 2 | test("x", {"skp": true}, () => {});
-    |            ^^^^^ \`skp\` is not a recognized test option.
-
-`;
-
-exports[`no-unknown-test-options > invalid(4): import {test, beforeEach} from 'node:test';\ntest(\"x\", {foo: 1, bar: 2}, () => {}); 1`] = `
-
-  1 | import {test, beforeEach} from 'node:test';
-  2 | test("x", {foo: 1, bar: 2}, () => {});
-
-`;
-
-exports[`no-unknown-test-options > invalid(4): import {test, beforeEach} from 'node:test';\ntest(\"x\", {foo: 1, bar: 2}, () => {}); 2`] = `
-
-Message:
-  1 | import {test, beforeEach} from 'node:test';
-> 2 | test("x", {foo: 1, bar: 2}, () => {});
-    |            ^^^ \`foo\` is not a recognized test option.
-
-`;
-
-exports[`no-unknown-test-options > invalid(4): import {test, beforeEach} from 'node:test';\ntest(\"x\", {foo: 1, bar: 2}, () => {}); 3`] = `
-
-Message:
-  1 | import {test, beforeEach} from 'node:test';
-> 2 | test("x", {foo: 1, bar: 2}, () => {});
-    |                    ^^^ \`bar\` is not a recognized test option.
-
-`;
-
-exports[`no-unknown-test-options > invalid(5): import {test, beforeEach} from 'node:test';\nbeforeEach({only: true}, () => {}); 1`] = `
-
-  1 | import {test, beforeEach} from 'node:test';
-  2 | beforeEach({only: true}, () => {});
-
-`;
-
-exports[`no-unknown-test-options > invalid(5): import {test, beforeEach} from 'node:test';\nbeforeEach({only: true}, () => {}); 2`] = `
-
-Message:
-  1 | import {test, beforeEach} from 'node:test';
-> 2 | beforeEach({only: true}, () => {});
-    |             ^^^^ \`only\` is not a recognized hook option.
-
-`;
-
-exports[`no-unknown-test-options > invalid(6): import {test as myTest} from 'node:test';\nmyTest(\"x\", {skp: true}, () => {}); 1`] = `
-
-  1 | import {test as myTest} from 'node:test';
-  2 | myTest("x", {skp: true}, () => {});
-
-`;
-
-exports[`no-unknown-test-options > invalid(6): import {test as myTest} from 'node:test';\nmyTest(\"x\", {skp: true}, () => {}); 2`] = `
-
-Message:
-  1 | import {test as myTest} from 'node:test';
-> 2 | myTest("x", {skp: true}, () => {});
-    |              ^^^ \`skp\` is not a recognized test option.
-
-`;
-
-exports[`no-unknown-test-options > invalid(7): import {describe} from 'node:test';\ndescribe(\"s\", {foo: 1}, () => {}); 1`] = `
+exports[`no-unknown-test-options > invalid(10): import {describe} from 'node:test';\ndescribe(\"s\", {foo: 1}, () => {}); 1`] = `
 
   1 | import {describe} from 'node:test';
   2 | describe("s", {foo: 1}, () => {});
 
 `;
 
-exports[`no-unknown-test-options > invalid(7): import {describe} from 'node:test';\ndescribe(\"s\", {foo: 1}, () => {}); 2`] = `
+exports[`no-unknown-test-options > invalid(10): import {describe} from 'node:test';\ndescribe(\"s\", {foo: 1}, () => {}); 2`] = `
 
 Message:
   1 | import {describe} from 'node:test';
@@ -119,14 +30,14 @@ Message:
 
 `;
 
-exports[`no-unknown-test-options > invalid(8): import {suite} from 'node:test';\nsuite(\"s\", {foo: 1}, () => {}); 1`] = `
+exports[`no-unknown-test-options > invalid(11): import {suite} from 'node:test';\nsuite(\"s\", {foo: 1}, () => {}); 1`] = `
 
   1 | import {suite} from 'node:test';
   2 | suite("s", {foo: 1}, () => {});
 
 `;
 
-exports[`no-unknown-test-options > invalid(8): import {suite} from 'node:test';\nsuite(\"s\", {foo: 1}, () => {}); 2`] = `
+exports[`no-unknown-test-options > invalid(11): import {suite} from 'node:test';\nsuite(\"s\", {foo: 1}, () => {}); 2`] = `
 
 Message:
   1 | import {suite} from 'node:test';
@@ -135,18 +46,203 @@ Message:
 
 `;
 
-exports[`no-unknown-test-options > invalid(9): import {test, beforeEach} from 'node:test';\ntest(\"x\", {retry: 3}, () => {}); 1`] = `
+exports[`no-unknown-test-options > invalid(12): import {test, beforeEach} from 'node:test';\ntest(\"x\", {retry: 3}, () => {}); 1`] = `
 
   1 | import {test, beforeEach} from 'node:test';
   2 | test("x", {retry: 3}, () => {});
 
 `;
 
-exports[`no-unknown-test-options > invalid(9): import {test, beforeEach} from 'node:test';\ntest(\"x\", {retry: 3}, () => {}); 2`] = `
+exports[`no-unknown-test-options > invalid(12): import {test, beforeEach} from 'node:test';\ntest(\"x\", {retry: 3}, () => {}); 2`] = `
 
 Message:
   1 | import {test, beforeEach} from 'node:test';
 > 2 | test("x", {retry: 3}, () => {});
     |            ^^^^^ \`retry\` is not a recognized test option.
+
+`;
+
+exports[`no-unknown-test-options > invalid(13): import {test, beforeEach} from 'node:test';\nbeforeEach(() => {}, {name: \"x\"}); 1`] = `
+
+  1 | import {test, beforeEach} from 'node:test';
+  2 | beforeEach(() => {}, {name: "x"});
+
+`;
+
+exports[`no-unknown-test-options > invalid(13): import {test, beforeEach} from 'node:test';\nbeforeEach(() => {}, {name: \"x\"}); 2`] = `
+
+Message:
+  1 | import {test, beforeEach} from 'node:test';
+> 2 | beforeEach(() => {}, {name: "x"});
+    |                       ^^^^ \`name\` is not a recognized hook option.
+
+`;
+
+exports[`no-unknown-test-options > invalid(14): import {test, beforeEach} from 'node:test';\ntest({name: \"x\", skp: true}, () => {}); 1`] = `
+
+  1 | import {test, beforeEach} from 'node:test';
+  2 | test({name: "x", skp: true}, () => {});
+
+`;
+
+exports[`no-unknown-test-options > invalid(14): import {test, beforeEach} from 'node:test';\ntest({name: \"x\", skp: true}, () => {}); 2`] = `
+
+Message:
+  1 | import {test, beforeEach} from 'node:test';
+> 2 | test({name: "x", skp: true}, () => {});
+    |                  ^^^ \`skp\` is not a recognized test option.
+
+`;
+
+exports[`no-unknown-test-options > invalid(15): import {test, beforeEach} from 'node:test';\ntest({name: \"x\", skp: true}, {skip: true}); 1`] = `
+
+  1 | import {test, beforeEach} from 'node:test';
+  2 | test({name: "x", skp: true}, {skip: true});
+
+`;
+
+exports[`no-unknown-test-options > invalid(15): import {test, beforeEach} from 'node:test';\ntest({name: \"x\", skp: true}, {skip: true}); 2`] = `
+
+Message:
+  1 | import {test, beforeEach} from 'node:test';
+> 2 | test({name: "x", skp: true}, {skip: true});
+    |                  ^^^ \`skp\` is not a recognized test option.
+
+`;
+
+exports[`no-unknown-test-options > invalid(2): import {afterEach} from 'node:test';\nafterEach({name: \"x\"}); 1`] = `
+
+  1 | import {afterEach} from 'node:test';
+  2 | afterEach({name: "x"});
+
+`;
+
+exports[`no-unknown-test-options > invalid(2): import {afterEach} from 'node:test';\nafterEach({name: \"x\"}); 2`] = `
+
+Message:
+  1 | import {afterEach} from 'node:test';
+> 2 | afterEach({name: "x"});
+    |            ^^^^ \`name\` is not a recognized hook option.
+
+`;
+
+exports[`no-unknown-test-options > invalid(3): import {test, beforeEach} from 'node:test';\ntest({name: \"x\", skp: true, fn() {}}); 1`] = `
+
+  1 | import {test, beforeEach} from 'node:test';
+  2 | test({name: "x", skp: true, fn() {}});
+
+`;
+
+exports[`no-unknown-test-options > invalid(3): import {test, beforeEach} from 'node:test';\ntest({name: \"x\", skp: true, fn() {}}); 2`] = `
+
+Message:
+  1 | import {test, beforeEach} from 'node:test';
+> 2 | test({name: "x", skp: true, fn() {}});
+    |                  ^^^ \`skp\` is not a recognized test option.
+
+`;
+
+exports[`no-unknown-test-options > invalid(4): import {test, beforeEach} from 'node:test';\ntest(\"x\", {skp: true}, () => {}); 1`] = `
+
+  1 | import {test, beforeEach} from 'node:test';
+  2 | test("x", {skp: true}, () => {});
+
+`;
+
+exports[`no-unknown-test-options > invalid(4): import {test, beforeEach} from 'node:test';\ntest(\"x\", {skp: true}, () => {}); 2`] = `
+
+Message:
+  1 | import {test, beforeEach} from 'node:test';
+> 2 | test("x", {skp: true}, () => {});
+    |            ^^^ \`skp\` is not a recognized test option.
+
+`;
+
+exports[`no-unknown-test-options > invalid(5): import {test, beforeEach} from 'node:test';\ntest(\"x\", {retry: 3}, () => {}); 1`] = `
+
+  1 | import {test, beforeEach} from 'node:test';
+  2 | test("x", {retry: 3}, () => {});
+
+`;
+
+exports[`no-unknown-test-options > invalid(5): import {test, beforeEach} from 'node:test';\ntest(\"x\", {retry: 3}, () => {}); 2`] = `
+
+Message:
+  1 | import {test, beforeEach} from 'node:test';
+> 2 | test("x", {retry: 3}, () => {});
+    |            ^^^^^ \`retry\` is not a recognized test option.
+
+`;
+
+exports[`no-unknown-test-options > invalid(6): import {test, beforeEach} from 'node:test';\ntest(\"x\", {\"skp\": true}, () => {}); 1`] = `
+
+  1 | import {test, beforeEach} from 'node:test';
+  2 | test("x", {"skp": true}, () => {});
+
+`;
+
+exports[`no-unknown-test-options > invalid(6): import {test, beforeEach} from 'node:test';\ntest(\"x\", {\"skp\": true}, () => {}); 2`] = `
+
+Message:
+  1 | import {test, beforeEach} from 'node:test';
+> 2 | test("x", {"skp": true}, () => {});
+    |            ^^^^^ \`skp\` is not a recognized test option.
+
+`;
+
+exports[`no-unknown-test-options > invalid(7): import {test, beforeEach} from 'node:test';\ntest(\"x\", {foo: 1, bar: 2}, () => {}); 1`] = `
+
+  1 | import {test, beforeEach} from 'node:test';
+  2 | test("x", {foo: 1, bar: 2}, () => {});
+
+`;
+
+exports[`no-unknown-test-options > invalid(7): import {test, beforeEach} from 'node:test';\ntest(\"x\", {foo: 1, bar: 2}, () => {}); 2`] = `
+
+Message:
+  1 | import {test, beforeEach} from 'node:test';
+> 2 | test("x", {foo: 1, bar: 2}, () => {});
+    |            ^^^ \`foo\` is not a recognized test option.
+
+`;
+
+exports[`no-unknown-test-options > invalid(7): import {test, beforeEach} from 'node:test';\ntest(\"x\", {foo: 1, bar: 2}, () => {}); 3`] = `
+
+Message:
+  1 | import {test, beforeEach} from 'node:test';
+> 2 | test("x", {foo: 1, bar: 2}, () => {});
+    |                    ^^^ \`bar\` is not a recognized test option.
+
+`;
+
+exports[`no-unknown-test-options > invalid(8): import {test, beforeEach} from 'node:test';\nbeforeEach({only: true}, () => {}); 1`] = `
+
+  1 | import {test, beforeEach} from 'node:test';
+  2 | beforeEach({only: true}, () => {});
+
+`;
+
+exports[`no-unknown-test-options > invalid(8): import {test, beforeEach} from 'node:test';\nbeforeEach({only: true}, () => {}); 2`] = `
+
+Message:
+  1 | import {test, beforeEach} from 'node:test';
+> 2 | beforeEach({only: true}, () => {});
+    |             ^^^^ \`only\` is not a recognized hook option.
+
+`;
+
+exports[`no-unknown-test-options > invalid(9): import {test as myTest} from 'node:test';\nmyTest(\"x\", {skp: true}, () => {}); 1`] = `
+
+  1 | import {test as myTest} from 'node:test';
+  2 | myTest("x", {skp: true}, () => {});
+
+`;
+
+exports[`no-unknown-test-options > invalid(9): import {test as myTest} from 'node:test';\nmyTest(\"x\", {skp: true}, () => {}); 2`] = `
+
+Message:
+  1 | import {test as myTest} from 'node:test';
+> 2 | myTest("x", {skp: true}, () => {});
+    |              ^^^ \`skp\` is not a recognized test option.
 
 `;

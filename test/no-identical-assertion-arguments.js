@@ -6,6 +6,12 @@ const withImport = code => `import assert from 'node:assert';\n${code}`;
 
 test.snapshot({
 	valid: [
+		// A getter runs on every read, so the two operands are not the same value. This is the
+		// property-read equivalent of the rule already skipping operands that contain a call.
+		withImport('let n = 0;\nconst counter = {get value() { return n++; }};\nassert.notStrictEqual(counter.value, counter.value);'),
+		withImport('let n = 0;\nconst counter = {get value() { return n++; }};\nassert.strictEqual(counter.value, counter.value);'),
+		withImport('let n = 0;\nclass Counter { get value() { return n++; } }\nconst counter = new Counter();\nassert.notStrictEqual(counter.value, counter.value);'),
+		withImport('let n = 0;\nclass Counter { get value() { return n++; } }\nassert.notStrictEqual(new Counter().value, new Counter().value);'),
 		// Not an assert file
 		'strictEqual(x, x);',
 
@@ -26,8 +32,23 @@ test.snapshot({
 
 		// `.assert.*` on a non-context object — not a test context
 		'import test from \'node:test\';\ntest(\'t\', () => { const db = makeDb(); db.assert.equal(x, x); });',
+		// Two separate `RegExp` literals are distinct objects, so a reference comparison of them
+		// is not the 'always passes / always fails' case the rule reports.
+		withImport('assert.strictEqual(/a/, /a/);'),
+		withImport('assert.equal(/a/, /a/);'),
+		withImport('assert.notStrictEqual(/a/, /a/);'),
+		withImport('assert.notEqual(/a/, /a/);'),
 	],
 	invalid: [
+		// A destructured `assert` is a real assertion, exactly like `t.assert`
+		'import test from \'node:test\';\ntest(\'x\', ({assert}) => { assert.strictEqual(a, a); });',
+		'import test from \'node:test\';\ntest(\'x\', ({assert: {notStrictEqual}}) => { notStrictEqual(a, a); });',
+
+		// A plain data property is a stable read, so this one is still a real mistake
+		withImport('const counter = {value: 1};\nassert.strictEqual(counter.value, counter.value);'),
+		// A setter is not a getter; reading the property twice still yields the same value
+		withImport('const counter = {set value(v) {}};\nassert.strictEqual(counter.value, counter.value);'),
+
 		// Identical identifiers — always passes
 		withImport('assert.strictEqual(x, x);'),
 		withImport('assert.equal(x, x);'),
@@ -60,5 +81,10 @@ test.snapshot({
 			code: withImport('assert.strictEqual(x as Foo, x);'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		// The deep methods compare structure, where two identical patterns are the same value.
+		withImport('assert.deepStrictEqual(/a/, /a/);'),
+		withImport('assert.deepEqual(/a/, /a/);'),
+		withImport('assert.notDeepStrictEqual(/a/, /a/);'),
+		withImport('assert.notDeepEqual(/a/, /a/);'),
 	],
 });

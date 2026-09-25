@@ -22,6 +22,11 @@ test.snapshot({
 
 		// Shadowed import name
 		withImport('function helper(mock) {\n\tmock.fn();\n}\nhelper(localMock);'),
+		// `mock.timers` is only state-creating through `enable`; `tick`/`runAll` create no
+		// state and `reset` restores. `t.mock` is a different tracker, so these are left alone.
+		withImport('mock.timers.tick(100);'),
+		withImport('mock.timers.runAll();'),
+		withImport('mock.timers.reset();'),
 	],
 	invalid: [
 		// Global mock creation methods
@@ -34,9 +39,6 @@ test.snapshot({
 
 		// Global mock timers
 		withImport('mock.timers.enable({apis: ["setTimeout"]});'),
-		// All `mock.timers.*` usage is flagged, not just `enable`
-		withImport('mock.timers.tick(100);'),
-		withImport('mock.timers.reset();'),
 
 		// Inside a test but still using the global
 		withImport('test("a", t => { mock.method(obj, "fn"); });'),

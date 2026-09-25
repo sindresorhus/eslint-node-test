@@ -21,8 +21,14 @@ test.snapshot({
 		// Not a test file
 		'test(\'t\', {skip: true}, () => {});',
 
+		// A reason is honored in a hook context just like in a test body
+		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { t.skip(\'flaky\'); t.todo(\'wip\'); });',
+
 		// A local variable shadowing the context name is not the test context
 		withTest('test(\'outer\', t => { function helper() { const t = {skip() {}}; t.skip(); } });'),
+
+		// A hook callback shadowing the context name is not the test context either
+		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { function helper() { const t = {skip() {}}; t.skip(); } });',
 	],
 	invalid: [
 		// `{skip: true}` / `{todo: true}`
@@ -32,6 +38,14 @@ test.snapshot({
 		// Context methods with no message
 		withTest('test(\'t\', t => { t.skip(); });'),
 		withTest('test(\'t\', t => { t.todo(); });'),
+
+		// Hook contexts expose the same `t.skip()` / `t.todo()` methods as a test context
+		'import {before} from \'node:test\';\nbefore(t => { t.skip(); });',
+		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { t.todo(); });',
+		'import {after} from \'node:test\';\nafter(t => { t.skip(); });',
+		'import {afterEach} from \'node:test\';\nafterEach(t => { t.todo(); });',
+		'import test from \'node:test\';\ntest.beforeEach(t => { t.skip(); });',
+		'import test, {before} from \'node:test\';\nbefore(function (t) { t.todo(); });',
 
 		// Suite with `{skip: true}`
 		'import {describe} from \'node:test\';\ndescribe(\'s\', {skip: true}, () => {});',

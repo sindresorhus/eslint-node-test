@@ -79,16 +79,24 @@ const create = context => {
 			return;
 		}
 
-		// If the first argument is the implementation (callback), title is missing.
+		// The object form carries its title in the descriptor's `name`, and `options.name` overrides
+		// a positional title, so let `getTestTitle` resolve the title from every slot `node:test`
+		// reads it from.
+		const titleNode = getTestTitle(node, context);
+		if (titleNode) {
+			return getStaticTitleProblem(titleNode);
+		}
+
+		// The first argument is the implementation and nothing named the test.
 		const callback = getTestCallback(node);
-		if (callback && callback === firstArgument) {
+		if (callback === firstArgument) {
 			return {
 				node,
 				messageId: MESSAGE_ID_MISSING,
 			};
 		}
 
-		// First arg is an options object (possibly TypeScript-wrapped) with no preceding string title.
+		// A descriptor with no `name` is an object first argument that carries no title.
 		if (unwrapTypeScriptExpression(firstArgument).type === 'ObjectExpression') {
 			return {
 				node,
@@ -96,27 +104,18 @@ const create = context => {
 			};
 		}
 
-		const titleNode = getTestTitle(node, context);
-
 		// First argument exists but is not a string (e.g. a number, boolean).
-		if (!titleNode) {
-			// If first argument is a function or identifier pointing to a fn, that's already handled above.
-			// For non-string literals (numbers, booleans, null), report.
-			if (
-				firstArgument.type === 'Literal'
-				&& typeof firstArgument.value !== 'string'
-			) {
-				return {
-					node: firstArgument,
-					messageId: MESSAGE_ID_NOT_STRING,
-				};
-			}
-
-			// Dynamic/computed title — can't validate statically, skip.
-			return;
+		if (
+			firstArgument.type === 'Literal'
+			&& typeof firstArgument.value !== 'string'
+		) {
+			return {
+				node: firstArgument,
+				messageId: MESSAGE_ID_NOT_STRING,
+			};
 		}
 
-		return getStaticTitleProblem(titleNode);
+		// Dynamic/computed title — can't validate statically, skip.
 	});
 };
 

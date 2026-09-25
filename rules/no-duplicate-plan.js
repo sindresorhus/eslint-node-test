@@ -7,12 +7,13 @@ import {
 	getSubtestReceiver,
 	getTestOptions,
 	findOptionsProperty,
+	hasEnabledPlanOption,
+	getContextParameterIdentifier,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
 const MESSAGE_ID_DUPLICATE_CALL = 'no-duplicate-plan/duplicate-call';
 const MESSAGE_ID_PLAN_OPTION = 'no-duplicate-plan/plan-option';
-const MAX_PLAN_COUNT = 4_294_967_295;
 
 const messages = {
 	[MESSAGE_ID_DUPLICATE_CALL]: 'Do not call `{{context}}.plan()` more than once in the same test.',
@@ -76,16 +77,6 @@ function isSkippedTestCall(node, parsed, sourceCode) {
 	return hasSkipModifier(node.callee) || parsed?.modifiers.some(modifier => modifier.name === 'skip') || hasEnabledSkipOption(node, sourceCode);
 }
 
-function hasEnabledPlanOption(node, sourceCode) {
-	const property = findOptionsProperty(getTestOptions(node), 'plan');
-	if (property === undefined) {
-		return false;
-	}
-
-	const staticValue = getStaticValue(property.value, sourceCode.getScope(property.value));
-	return typeof staticValue?.value === 'number' && Number.isSafeInteger(staticValue.value) && staticValue.value > 0 && staticValue.value <= MAX_PLAN_COUNT;
-}
-
 function isInsideSkippedCallback(node, skippedCallbacks) {
 	let current = node;
 	while (current) {
@@ -135,12 +126,12 @@ const create = context => {
 				return;
 			}
 
-			const parameter = getTestCallback(node)?.params[0];
-			if (parameter?.type !== 'Identifier') {
+			const parameter = getContextParameterIdentifier(getTestCallback(node)?.params[0]);
+			if (!parameter) {
 				return;
 			}
 
-			const hasPlanOption = hasEnabledPlanOption(node, sourceCode);
+			const hasPlanOption = hasEnabledPlanOption(node, context);
 			frames.push({
 				node,
 				contextName: parameter.name,

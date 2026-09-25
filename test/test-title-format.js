@@ -8,6 +8,26 @@ test.snapshot({
 		'test("Test something", () => {});',
 		// No format option — rule is effectively off
 		'import test from "node:test";\ntest("Test something", () => {});',
+		// A character class that is valid in a plain regular expression must not crash the rule.
+		// The `v` flag rejects the unescaped `-`/`a` and the bare `(`/`)` in a class.
+		{
+			code: 'import test from "node:test";\ntest("(paren) title", () => {});',
+			options: [{format: String.raw`^\(paren\) title$`}],
+		},
+		{
+			code: 'import test from "node:test";\ntest("-dash title", () => {});',
+			options: [{format: '^[-a-z ]+$'}],
+		},
+		// An identity escape is valid in a plain regular expression and must not crash the rule
+		{
+			code: 'import test from "node:test";\ntest("It my_helper", () => {});',
+			options: [{format: String.raw`^It\ .*_helper$`}],
+		},
+		// A Unicode property escape still works, which is the reason for a unicode flag at all
+		{
+			code: 'import test from "node:test";\ntest("Ünicode title", () => {});',
+			options: [{format: String.raw`^\p{Lu}[\p{Ll} ]+$`}],
+		},
 		// Matches the pattern
 		{
 			code: 'import test from "node:test";\ntest("Should do something", () => {});',

@@ -14,6 +14,54 @@ Message:
 
 `;
 
+exports[`no-skip-without-reason > invalid(10): import test, {before} from 'node:test';\nbefore(function (t) { t.todo(); }); 1`] = `
+
+  1 | import test, {before} from 'node:test';
+  2 | before(function (t) { t.todo(); });
+
+`;
+
+exports[`no-skip-without-reason > invalid(10): import test, {before} from 'node:test';\nbefore(function (t) { t.todo(); }); 2`] = `
+
+Message:
+  1 | import test, {before} from 'node:test';
+> 2 | before(function (t) { t.todo(); });
+    |                       ^^^^^^^^ Pass a reason message to \`t.todo()\`.
+
+`;
+
+exports[`no-skip-without-reason > invalid(11): import {describe} from 'node:test';\ndescribe('s', {skip: true}, () => {}); 1`] = `
+
+  1 | import {describe} from 'node:test';
+  2 | describe('s', {skip: true}, () => {});
+
+`;
+
+exports[`no-skip-without-reason > invalid(11): import {describe} from 'node:test';\ndescribe('s', {skip: true}, () => {}); 2`] = `
+
+Message:
+  1 | import {describe} from 'node:test';
+> 2 | describe('s', {skip: true}, () => {});
+    |                ^^^^^^^^^^ Give \`skip\` a reason string instead of \`true\` explaining why.
+
+`;
+
+exports[`no-skip-without-reason > invalid(12): import test from 'node:test';\ntest('t', {skip: true as boolean}, () => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', {skip: true as boolean}, () => {});
+
+`;
+
+exports[`no-skip-without-reason > invalid(12): import test from 'node:test';\ntest('t', {skip: true as boolean}, () => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', {skip: true as boolean}, () => {});
+    |            ^^^^^^^^^^^^^^^^^^^^^ Give \`skip\` a reason string instead of \`true\` explaining why.
+
+`;
+
 exports[`no-skip-without-reason > invalid(2): import test from 'node:test';\ntest('t', {todo: true}, () => {}); 1`] = `
 
   1 | import test from 'node:test';
@@ -62,34 +110,82 @@ Message:
 
 `;
 
-exports[`no-skip-without-reason > invalid(5): import {describe} from 'node:test';\ndescribe('s', {skip: true}, () => {}); 1`] = `
+exports[`no-skip-without-reason > invalid(5): import {before} from 'node:test';\nbefore(t => { t.skip(); }); 1`] = `
 
-  1 | import {describe} from 'node:test';
-  2 | describe('s', {skip: true}, () => {});
+  1 | import {before} from 'node:test';
+  2 | before(t => { t.skip(); });
 
 `;
 
-exports[`no-skip-without-reason > invalid(5): import {describe} from 'node:test';\ndescribe('s', {skip: true}, () => {}); 2`] = `
+exports[`no-skip-without-reason > invalid(5): import {before} from 'node:test';\nbefore(t => { t.skip(); }); 2`] = `
 
 Message:
-  1 | import {describe} from 'node:test';
-> 2 | describe('s', {skip: true}, () => {});
-    |                ^^^^^^^^^^ Give \`skip\` a reason string instead of \`true\` explaining why.
+  1 | import {before} from 'node:test';
+> 2 | before(t => { t.skip(); });
+    |               ^^^^^^^^ Pass a reason message to \`t.skip()\`.
 
 `;
 
-exports[`no-skip-without-reason > invalid(6): import test from 'node:test';\ntest('t', {skip: true as boolean}, () => {}); 1`] = `
+exports[`no-skip-without-reason > invalid(6): import {beforeEach} from 'node:test';\nbeforeEach(t => { t.todo(); }); 1`] = `
+
+  1 | import {beforeEach} from 'node:test';
+  2 | beforeEach(t => { t.todo(); });
+
+`;
+
+exports[`no-skip-without-reason > invalid(6): import {beforeEach} from 'node:test';\nbeforeEach(t => { t.todo(); }); 2`] = `
+
+Message:
+  1 | import {beforeEach} from 'node:test';
+> 2 | beforeEach(t => { t.todo(); });
+    |                   ^^^^^^^^ Pass a reason message to \`t.todo()\`.
+
+`;
+
+exports[`no-skip-without-reason > invalid(7): import {after} from 'node:test';\nafter(t => { t.skip(); }); 1`] = `
+
+  1 | import {after} from 'node:test';
+  2 | after(t => { t.skip(); });
+
+`;
+
+exports[`no-skip-without-reason > invalid(7): import {after} from 'node:test';\nafter(t => { t.skip(); }); 2`] = `
+
+Message:
+  1 | import {after} from 'node:test';
+> 2 | after(t => { t.skip(); });
+    |              ^^^^^^^^ Pass a reason message to \`t.skip()\`.
+
+`;
+
+exports[`no-skip-without-reason > invalid(8): import {afterEach} from 'node:test';\nafterEach(t => { t.todo(); }); 1`] = `
+
+  1 | import {afterEach} from 'node:test';
+  2 | afterEach(t => { t.todo(); });
+
+`;
+
+exports[`no-skip-without-reason > invalid(8): import {afterEach} from 'node:test';\nafterEach(t => { t.todo(); }); 2`] = `
+
+Message:
+  1 | import {afterEach} from 'node:test';
+> 2 | afterEach(t => { t.todo(); });
+    |                  ^^^^^^^^ Pass a reason message to \`t.todo()\`.
+
+`;
+
+exports[`no-skip-without-reason > invalid(9): import test from 'node:test';\ntest.beforeEach(t => { t.skip(); }); 1`] = `
 
   1 | import test from 'node:test';
-  2 | test('t', {skip: true as boolean}, () => {});
+  2 | test.beforeEach(t => { t.skip(); });
 
 `;
 
-exports[`no-skip-without-reason > invalid(6): import test from 'node:test';\ntest('t', {skip: true as boolean}, () => {}); 2`] = `
+exports[`no-skip-without-reason > invalid(9): import test from 'node:test';\ntest.beforeEach(t => { t.skip(); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
-> 2 | test('t', {skip: true as boolean}, () => {});
-    |            ^^^^^^^^^^^^^^^^^^^^^ Give \`skip\` a reason string instead of \`true\` explaining why.
+> 2 | test.beforeEach(t => { t.skip(); });
+    |                        ^^^^^^^^ Pass a reason message to \`t.skip()\`.
 
 `;

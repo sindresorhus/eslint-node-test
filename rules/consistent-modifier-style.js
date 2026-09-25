@@ -5,6 +5,7 @@ import {
 	findOptionsProperty,
 	MODIFIERS,
 } from './utils/node-test.js';
+import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
 const MESSAGE_ID_PREFER_CHAINED = 'consistent-modifier-style/prefer-chained';
 const MESSAGE_ID_PREFER_OPTIONS = 'consistent-modifier-style/prefer-options';
@@ -41,7 +42,8 @@ const create = context => {
 			const problems = [];
 			for (const modifier of MODIFIERS) {
 				const property = findOptionsProperty(options, modifier);
-				if (property?.value.type === 'Literal' && property.value.value === true) {
+				const value = property && unwrapTypeScriptExpression(property.value);
+				if (value?.type === 'Literal' && value.value === true) {
 					problems.push({
 						node: property,
 						messageId: MESSAGE_ID_PREFER_CHAINED,

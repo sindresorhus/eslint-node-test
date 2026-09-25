@@ -26,6 +26,9 @@ test.snapshot({
 
 		// Suite callback receives a SuiteContext, not a done callback
 		'import {describe, it} from \'node:test\';\ndescribe("s", async t => { it("x", () => {}); });',
+
+		// A hook's callback is its first argument, so trailing options never hide a 1-arity function
+		withImport('beforeEach(async t => {}, {timeout: 1000});'),
 	],
 	invalid: [
 		// Async test with a callback parameter
@@ -36,6 +39,13 @@ test.snapshot({
 
 		// Hook with callback parameter and async
 		withImport('beforeEach(async (t, done) => { done(); });'),
+
+		// A hook's trailing options must not hide its callback
+		withImport('beforeEach(async (t, done) => { done(); }, {timeout: 1000});'),
+		'import {before} from \'node:test\';\nbefore(async (t, done) => { done(); }, {timeout: 1});',
+		'import {after} from \'node:test\';\nafter(async (t, done) => { done(); }, {timeout: 1});',
+		'import {afterEach} from \'node:test\';\nafterEach(async (t, done) => { done(); }, {timeout: 1});',
+		'import test from \'node:test\';\ntest.beforeEach(async (t, done) => { done(); }, {timeout: 1});',
 
 		// `it` alias
 		'import {it} from \'node:test\';\nit("x", async (t, done) => { done(); });',
