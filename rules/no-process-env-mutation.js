@@ -3,6 +3,7 @@ import {
 	resolveImports,
 	parseTestCall,
 	getSubtestReceiver,
+	isGetTestContextSubtestCall,
 	getTestCallback,
 	getContextParameterIdentifier,
 	MODIFIERS,
@@ -284,7 +285,9 @@ const create = context => {
 	const isSubtestCall = node => {
 		const receiver = getSubtestReceiver(node);
 		if (!receiver) {
-			return false;
+			// A `getTestContext().test(…)` subtest names the innermost test's context, the same one
+			// a context parameter would.
+			return testStack.length > 0 && isGetTestContextSubtestCall(node, imports);
 		}
 
 		const variable = findVariable(sourceCode.getScope(receiver), receiver);

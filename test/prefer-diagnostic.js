@@ -60,6 +60,8 @@ test.snapshot({
 
 		// Multiple arguments — reported but no suggestion (diagnostic takes one message)
 		inTest('console.log(\'value\', value);'),
+		// A spread stands for any number of values, of which `t.diagnostic(…args)` prints one
+		inTest('console.log(...args);'),
 
 		// `console.info` / `console.debug`
 		inTest('console.info(\'info\');'),

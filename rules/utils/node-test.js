@@ -1248,12 +1248,18 @@ export function getDestructuredAssertBindings(callback, imports) {
 
 /*
 The number of parameters before the first default or rest parameter — the same value as `Function.prototype.length`. `node:test` uses this arity to decide whether to pass a `done` callback, so a declared second parameter means the function opted into callback style.
+
+A TypeScript `this` parameter is erased at compile time, so it does not count towards the length of the emitted function and towards the arity the runner sees.
 */
 export function getEffectiveArity(parameters) {
 	let count = 0;
 	for (const parameter of parameters) {
 		if (parameter.type === 'AssignmentPattern' || parameter.type === 'RestElement') {
 			break;
+		}
+
+		if (parameter.type === 'Identifier' && parameter.name === 'this') {
+			continue;
 		}
 
 		count += 1;

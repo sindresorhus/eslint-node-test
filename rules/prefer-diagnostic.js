@@ -82,10 +82,16 @@ const create = context => {
 			data,
 		};
 
-		// `diagnostic()` takes a single message, so only suggest a rewrite for a single argument.
+		// `diagnostic()` takes a single message, so only suggest a rewrite for a single argument. A
+		// spread counts as one argument but stands for any number of values, of which
+		// `t.diagnostic(…args)` would print only the first.
 		// Replacing the whole callee would also drop any comments inside it, such as
 		// `console./* trace */log(…)`.
-		if (node.arguments.length === 1 && context.sourceCode.getCommentsInside(callee).length === 0) {
+		if (
+			node.arguments.length === 1
+			&& node.arguments[0].type !== 'SpreadElement'
+			&& context.sourceCode.getCommentsInside(callee).length === 0
+		) {
 			problem.suggest = [
 				{
 					messageId: MESSAGE_ID_SUGGESTION,
