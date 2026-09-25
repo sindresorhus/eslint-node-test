@@ -44,6 +44,14 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
+			code: head + 'export type {Value} from \'module.js\';\nmock.module(\'module.js\');',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: head + 'export {type Value} from \'module.js\';\nmock.module(\'module.js\');',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
 			code: 'import {type mock} from \'node:test\';\nimport \'module.js\';\nmock.module(\'module.js\');',
 			languageOptions: {parser: parsers.typescript},
 		},
@@ -59,6 +67,15 @@ test.snapshot({
 		head + 'import \'module.js\';\ntest(\'mock\', t => {\n\tfunction helper(t) {\n\t\tt.mock.module(\'module.js\');\n\t}\n});',
 	],
 	invalid: [
+		// A static re-export loads its target just as an import does.
+		head + 'export {value} from \'module.js\';\nmock.module(\'module.js\');',
+		head + 'export * from \'module.js\';\nmock.module(\'module.js\');',
+		head + 'export * as module from \'module.js\';\nmock.module(\'module.js\');',
+		{
+			code: head + 'export {type Value, other} from \'module.js\';\nmock.module(\'module.js\');',
+			languageOptions: {parser: parsers.typescript},
+		},
+
 		// Default, named, namespace, and side-effect imports.
 		head + 'import value from \'module.js\';\nmock.module(\'module.js\');',
 		head + 'import {value} from \'module.js\';\nmock.module(\'module.js\');',

@@ -35,4 +35,4 @@ test('reads a file', async t => {
 });
 ```
 
-Only ESM static imports are checked. CommonJS `require()` calls and dynamic imports are intentionally ignored.
+Static ESM loads are checked, imports and re-exports alike (`export {x} from '…'`, `export * from '…'`). A type-only import or re-export is erased and does not count. CommonJS `require()` calls and dynamic imports are intentionally ignored.

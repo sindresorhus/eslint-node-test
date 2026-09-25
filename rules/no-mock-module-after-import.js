@@ -13,6 +13,17 @@ const messages = {
 	[MESSAGE_ID]: '`mock.module()` cannot affect `{{specifier}}` because it was already imported statically.',
 };
 
+/** Whether a re-export loads its target, which a type-only one does not, at either level. */
+function isRuntimeExport(node) {
+	if (node.exportKind === 'type') {
+		return false;
+	}
+
+	// `export * from '…'` has no specifiers, and it loads its target.
+	const {specifiers = []} = node;
+	return specifiers.length === 0 || specifiers.some(specifier => specifier.exportKind !== 'type');
+}
+
 function isRuntimeImport(node) {
 	if (node.importKind === 'type') {
 		return false;
@@ -35,11 +46,13 @@ const create = context => {
 
 	const staticImports = new Set();
 	for (const node of sourceCode.ast.body) {
-		if (
-			node.type === 'ImportDeclaration'
-			&& typeof node.source.value === 'string'
-			&& isRuntimeImport(node)
-		) {
+		// A static re-export loads the target just as an import does, and its bindings are just as
+		// unmockable: `export {x} from 'os'`, `export * from 'os'`, `export * as os from 'os'`.
+		const isStaticLoad = node.type === 'ImportDeclaration'
+			? isRuntimeImport(node)
+			: (node.type === 'ExportNamedDeclaration' || node.type === 'ExportAllDeclaration') && isRuntimeExport(node);
+
+		if (isStaticLoad && typeof node.source?.value === 'string') {
 			staticImports.add(normalizeSpecifier(node.source.value));
 		}
 	}
