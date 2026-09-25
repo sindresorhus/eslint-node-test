@@ -42,6 +42,9 @@ test.snapshot({
 		// alone: a getter that returns `false` does not skip the test
 		'import test from \'node:test\';\ntest(\'title\', {get skip() { return false; }}, () => {});',
 		'import test from \'node:test\';\ntest(\'title\', {get skip() { return true; }}, () => {});',
+		// A key that does not fold could be the modifier, or could turn it off
+		'import {test} from \'node:test\';\nconst k = \'skip\';\ntest(\'a\', {[k]: true}, () => {});',
+		'import {test} from \'node:test\';\nconst k = \'skip\';\ntest(\'a\', {skip: true, [k]: false}, () => {});',
 	],
 	invalid: [
 		'import test from "node:test";\ntest.skip("title", () => {});',
@@ -62,5 +65,9 @@ test.snapshot({
 		'import test from \'node:test\';\ntest("title", {skip: ""}, () => {});',
 		'import test from \'node:test\';\ntest("title", {skip: null}, () => {});',
 		'import test from \'node:test\';\ntest("title", {skip: Number.NaN}, () => {});',
+
+		// A computed key that folds to a constant names the same property a bare one does
+		'import {test} from \'node:test\';\ntest(\'a\', {[\'skip\']: true}, () => {});',
+		'import {test} from \'node:test\';\ntest(\'a\', {[\'sk\' + \'ip\']: true}, () => {});',
 	],
 });

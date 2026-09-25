@@ -1382,7 +1382,7 @@ export function getTestOptions(callExpression) {
 }
 
 /**
-Find the last statically-known property in an options object. An uninspectable later property may override an earlier one, so it makes the earlier property unusable.
+Find the last statically-known property in an options object, whether its key is written bare, quoted, or computed from a constant. An uninspectable later property may override an earlier one, so it makes the earlier property unusable.
 */
 export function findOptionsProperty(optionsObject, name) {
 	if (optionsObject?.type !== 'ObjectExpression') {
@@ -1391,14 +1391,20 @@ export function findOptionsProperty(optionsObject, name) {
 
 	for (let index = optionsObject.properties.length - 1; index >= 0; index -= 1) {
 		const property = optionsObject.properties[index];
-		if (property.type === 'SpreadElement' || property.computed) {
+		if (property.type === 'SpreadElement') {
 			return undefined;
 		}
 
-		if (
-			(property.key.type === 'Identifier' && property.key.name === name)
-			|| (property.key.type === 'Literal' && property.key.value === name)
-		) {
+		// A computed key that folds to a constant names the same property a literal one does, so
+		// `{['skip']: true}` is the `{skip: true}` the runner reads. One that does not fold could be
+		// the name being looked for, or could override an earlier property, so it makes every
+		// property here unusable.
+		const keyName = getStaticPropertyName(property);
+		if (keyName === undefined) {
+			return undefined;
+		}
+
+		if (keyName === name) {
 			return property;
 		}
 	}

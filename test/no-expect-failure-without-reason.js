@@ -35,9 +35,10 @@ test.snapshot({
 		// Hooks do not support `expectFailure`.
 		'import {beforeEach} from \'node:test\';\nbeforeEach({expectFailure: true}, () => {});',
 
-		// Computed and spread properties cannot be checked statically.
-		withTest('test(\'t\', {[\'expectFailure\']: true}, () => {});'),
+		// A spread, and a computed key that does not fold to a constant, cannot be checked statically.
 		withTest('test(\'t\', {...options}, () => {});'),
+		withTest('test(\'t\', {[key]: value}, () => {});'),
+		withTest('test(\'t\', {[\'expect\' + suffix]: true}, () => {});'),
 
 		// Not a test file.
 		'test(\'t\', {expectFailure: true}, () => {});',
@@ -90,5 +91,9 @@ test.snapshot({
 		withTest('test(\'t\', {expectFailure: null}, () => {});'),
 		withTest('test(\'t\', {expectFailure: {}}, () => {});'),
 		withTest('test(\'t\', {expectFailure: []}, () => {});'),
+
+		// A computed key that folds to a constant is the same property a bare one names
+		withTest('test(\'t\', {[\'expectFailure\']: true}, () => {});'),
+		withTest('test(\'t\', {expectFailure: [\'x\'] ? 1 : true}, () => {});'),
 	],
 });

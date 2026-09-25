@@ -98,6 +98,38 @@ Message:
 
 `;
 
+exports[`no-skip-test > invalid(15): import {test} from 'node:test';\ntest('a', {['skip']: true}, () => {}); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | test('a', {['skip']: true}, () => {});
+
+`;
+
+exports[`no-skip-test > invalid(15): import {test} from 'node:test';\ntest('a', {['skip']: true}, () => {}); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | test('a', {['skip']: true}, () => {});
+    |            ^^^^^^^^^^^^^^ Do not skip tests.
+
+`;
+
+exports[`no-skip-test > invalid(16): import {test} from 'node:test';\ntest('a', {['sk' + 'ip']: true}, () => {}); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | test('a', {['sk' + 'ip']: true}, () => {});
+
+`;
+
+exports[`no-skip-test > invalid(16): import {test} from 'node:test';\ntest('a', {['sk' + 'ip']: true}, () => {}); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | test('a', {['sk' + 'ip']: true}, () => {});
+    |            ^^^^^^^^^^^^^^^^^^^ Do not skip tests.
+
+`;
+
 exports[`no-skip-test > invalid(2): import {it} from \"node:test\";\nit.skip(\"title\", () => {}); 1`] = `
 
   1 | import {it} from "node:test";
