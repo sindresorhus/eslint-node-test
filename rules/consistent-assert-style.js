@@ -1,5 +1,5 @@
 import {isParenthesized} from './utils/index.js';
-import {ASSERT_MODULES} from './utils/node-test.js';
+import {ASSERT_MODULES, getImportSpecifierName} from './utils/node-test.js';
 
 const MESSAGE_ID = 'consistent-assert-style';
 
@@ -20,15 +20,13 @@ function isCallableAssertSpecifier(specifier) {
 		return true;
 	}
 
-	if (
-		specifier.type !== 'ImportSpecifier'
-		|| specifier.imported.type !== 'Identifier'
-	) {
+	if (specifier.type !== 'ImportSpecifier') {
 		return false;
 	}
 
-	return specifier.imported.name === 'default'
-		|| specifier.imported.name === 'strict';
+	// The import may name the export as a string literal, which is the same export.
+	const importedName = getImportSpecifierName(specifier);
+	return importedName === 'default' || importedName === 'strict';
 }
 
 function getCallableAssertReferences(context) {

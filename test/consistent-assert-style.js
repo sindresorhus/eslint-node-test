@@ -106,8 +106,12 @@ test.snapshot({
 		// Callable named imports
 		withNamedImport('default as assert', 'assert(value);'),
 		withNamedImport('strict as assert', 'assert(value);'),
-		// The named import needs no alias to be callable
+		// The named import needs no alias to be callable, and may name the export as a string literal
 		'import {strict} from \'node:assert\';\nstrict(value);',
+		{
+			code: 'import {\'strict\' as assert} from \'node:assert\';\nassert(value);',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'import {strict as strictAssert} from \'node:assert\';\nstrictAssert(value);',
 		withStrictNamedImport('default as assert', 'assert(value);'),
 		withStrictNamedImport('strict as assert', 'assert(value);'),
