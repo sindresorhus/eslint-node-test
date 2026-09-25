@@ -23,7 +23,8 @@ const messages = {
 };
 
 function getPlanContextIdentifier(node) {
-	const {callee} = node;
+	// A TypeScript wrapper on the callee (`t.plan!(…)`, `(t.plan as any)(…)`) must not hide the call.
+	const callee = unwrapTypeScriptExpression(node.callee);
 	if (
 		node.optional !== true
 		&& callee.type === 'MemberExpression'

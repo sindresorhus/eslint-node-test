@@ -77,5 +77,15 @@ test.snapshot({
 		// A namespace import holds the real timer functions (a snapshot taken at import time), so
 		// `mock.timers` cannot intercept `timers.setTimeout(…)` either.
 		head + 'import * as timers from \'node:timers\';\nmock.timers.enable();\ntimers.setTimeout(fn, 1);',
+
+		// A TypeScript wrapper on the `enable` callee must not hide it
+		{
+			code: head + 'import {setTimeout} from \'node:timers\';\ntest(\'a\', (t: any) => { t.mock.timers.enable!({apis: [\'setTimeout\']}); setTimeout(f, 1); });',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: head + 'import {setTimeout} from \'node:timers\';\ntest(\'a\', (t: any) => { (t.mock.timers.enable as any)({apis: [\'setTimeout\']}); setTimeout(f, 1); });',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

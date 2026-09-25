@@ -104,5 +104,9 @@ test.snapshot({
 			code: withImport('test(\'parent\', async (t: any) => { await t.test(\'child\', (t2: any) => { t.mock.fn(); }); });'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// The parent context is still the parent when the subtest is made through getTestContext()
+		'import {test, getTestContext} from \'node:test\';\n'
+			+ 'test(\'p\', async t => {\n\tawait getTestContext().test(\'c\', () => { t.mock.method(fs, \'x\'); });\n});',
 	],
 });

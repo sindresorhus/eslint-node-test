@@ -177,5 +177,15 @@ test.snapshot({
 		'import {test, getTestContext} from \'node:test\';\ntest(\'t\', () => { getTestContext().plan(1); getTestContext().plan(2); });',
 		'import {test, getTestContext} from \'node:test\';\ntest(\'t\', t => { getTestContext().plan(1); getTestContext().plan(2); });',
 		'import {test, getTestContext} from \'node:test\';\ntest(\'t\', t => { t.plan(1); getTestContext().plan(2); });',
+
+		// A TypeScript wrapper on the plan call must not hide the second one
+		{
+			code: withImport('test(\'x\', (t: any) => { t.plan!(1); t.plan(2); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withImport('test(\'x\', (t: any) => { (t.plan as any)(1); t.plan(2); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

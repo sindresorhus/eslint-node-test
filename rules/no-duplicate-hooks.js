@@ -5,7 +5,7 @@ import {
 	getHookCallback,
 	createContextTracker,
 	isContextHookCall,
-	getCalleeChain,
+	getContextHookName,
 } from './utils/node-test.js';
 
 const MESSAGE_ID = 'no-duplicate-hooks';
@@ -29,8 +29,6 @@ const create = context => {
 	// Subtests (`t.test(…)`) are their own scope, and a hook declared on a context
 	// (`t.beforeEach(…)`) is a real hook; neither is an imported binding, so the tracker is needed.
 	const tracker = createContextTracker(imports, {trackHooks: true});
-
-	const getContextHookName = node => getCalleeChain(node.callee)?.members[0]?.name;
 
 	context.on('CallExpression', node => {
 		const isSubtest = tracker.isSubtestCall(node);

@@ -183,5 +183,9 @@ test.snapshot({
 			code: 'import test from \'node:test\';\ntest(\'loads\', async () => {\n\tload().then(() => { throw new Error(\'Failed\'); }) satisfies Promise<void>;\n});',
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// Late activity in a getTestContext() subtest is late activity
+		'import {test, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\n'
+		+ 'test(\'o\', async () => {\n\tawait getTestContext().test(\'s\', () => { setTimeout(() => { assert.ok(1); }, 1); });\n});'
 	],
 });

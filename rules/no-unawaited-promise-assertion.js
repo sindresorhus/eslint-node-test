@@ -7,6 +7,7 @@ import {
 	getEffectiveArity,
 	parseAssertionCall,
 	getSubtestReceiver,
+	isSubtestCall,
 	getCalleeChain,
 	getContextParameterIdentifier,
 	getDestructuredAssertBindings,
@@ -193,10 +194,12 @@ function isTrackedContextAssertCall(node, contextParameters, sourceCode, imports
 	return variable?.identifiers.some(identifier => contextParameters.includes(identifier)) === true;
 }
 
-function isTrackedSubtestCall(node, contextParameters, sourceCode) {
+function isTrackedSubtestCall(node, imports, contextParameters, sourceCode) {
 	const receiver = getSubtestReceiver(node);
-	if (!receiver) {
-		return false;
+	if (receiver === undefined) {
+		// A `getTestContext()` receiver names the context this stack is already tracking, so the
+		// subtest belongs to the innermost tracked context.
+		return isSubtestCall(node, imports);
 	}
 
 	const variable = findVariable(sourceCode.getScope(receiver), receiver);
@@ -418,7 +421,7 @@ function findActivities(node, state) {
 		}
 	}
 
-	if (node.type === 'CallExpression' && isTrackedSubtestCall(node, contextParameters, sourceCode)) {
+	if (node.type === 'CallExpression' && isTrackedSubtestCall(node, imports, contextParameters, sourceCode)) {
 		activities.push({node, type: 'Subtest'});
 	}
 
@@ -685,7 +688,7 @@ function getTestBoundaryCallback(node, imports, contextParameters, sourceCode) {
 		return isInlineCallback(callback) && getEffectiveArity(callback.params) < 2 ? callback : undefined;
 	}
 
-	if (!isTrackedSubtestCall(node, contextParameters, sourceCode)) {
+	if (!isTrackedSubtestCall(node, imports, contextParameters, sourceCode)) {
 		return undefined;
 	}
 

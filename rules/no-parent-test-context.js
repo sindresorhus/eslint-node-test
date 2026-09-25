@@ -4,6 +4,7 @@ import {
 	parseTestCall,
 	getTestCallback,
 	getSubtestReceiver,
+	isSubtestCall,
 	getContextParameterIdentifier,
 } from './utils/node-test.js';
 
@@ -153,7 +154,10 @@ const create = context => {
 	context.on('CallExpression', node => {
 		const receiver = getSubtestReceiver(node);
 		const receiverProblem = receiver && getParentContextProblem(receiver, frames, sourceCode);
-		const isSubtest = getContextReceiverFrame(node, frames, sourceCode) !== undefined;
+		// A `getTestContext().test(…)` subtest has no receiver to match, but it is still a subtest,
+		// and the contexts captured outside it are still its parent's.
+		const isSubtest = getContextReceiverFrame(node, frames, sourceCode) !== undefined
+			|| (receiver === undefined && isSubtestCall(node, imports));
 		const parsed = parseTestCall(node, imports);
 		const isTest = parsed?.kind === 'test';
 

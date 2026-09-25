@@ -78,7 +78,7 @@ exports[`no-duplicate-hooks > invalid(13): import {test, getTestContext} from 'n
 Message:
   1 | import {test, getTestContext} from 'node:test';
 > 2 | test('p', async t => { await t.test('a', () => { getTestContext().beforeEach(() => {}); getTestContext().beforeEach(() => {}); }); });
-    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Duplicate \`undefined\` hook in the same scope.
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Duplicate \`beforeEach\` hook in the same scope.
 
 `;
 

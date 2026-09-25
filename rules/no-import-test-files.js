@@ -109,6 +109,19 @@ const create = context => {
 		};
 	};
 
+	/*
+	The `require(…)` specifier of a TypeScript import-equals or `export =` form. The import-equals form
+	hides it on a `TSExternalModuleReference`; the `export =` form is the `require(…)` call itself.
+	*/
+	const getRequireProblem = (node, expression) => {
+		const argument = expression?.type === 'TSExternalModuleReference'
+			? expression.expression
+			: (expression?.type === 'CallExpression' && expression.callee.type === 'Identifier' && expression.callee.name === 'require'
+				? expression.arguments[0]
+				: undefined);
+		return argument ? getProblem(node, argument) : undefined;
+	};
+
 	context.on('ImportDeclaration', node => {
 		if (node.importKind === 'type') {
 			return;
@@ -131,6 +144,16 @@ const create = context => {
 		return getProblem(node, node.source);
 	});
 	context.on('ImportExpression', node => getProblem(node, node.source));
+	// TypeScript's own import forms, where the specifier sits on an external module reference
+	// instead of an `ImportDeclaration.source`.
+	context.on('TSImportEqualsDeclaration', node => {
+		if (node.importKind === 'type') {
+			return;
+		}
+
+		return getRequireProblem(node, node.moduleReference);
+	});
+	context.on('TSExportAssignment', node => getRequireProblem(node, node.expression));
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

@@ -19,6 +19,9 @@ const create = context => {
 	}
 
 	const tracker = createContextTracker(imports);
+	// A test that declares no context parameter can still reach its context through
+	// `getTestContext()`, so the file has to import that name under any local alias.
+	const hasGetTestContextImport = imports.locals.values().toArray().includes('getTestContext');
 
 	context.on('CallExpression', node => {
 		tracker.update(node);
@@ -38,16 +41,19 @@ const create = context => {
 			return;
 		}
 
-		// A test that declares no context parameter can still reach its context through
-		// `getTestContext()`, which is always in scope.
-		const contextName = tracker.current() ?? (imports.locals.get('getTestContext') ? 'getTestContext()' : undefined);
+		// The context parameter is only in scope inside the test callback, so there is nothing to
+		// rewrite outside one — including in the title/options arguments, which the traversal reaches
+		// before the callback, and in a suite callback, which the tracker does not track at all.
+		const callback = tracker.currentCallback();
+		if (!callback) {
+			return;
+		}
+
+		const contextName = tracker.current() ?? (hasGetTestContextImport ? 'getTestContext()' : undefined);
 		if (!contextName) {
 			return;
 		}
 
-		// The context parameter is only in scope inside the test callback. Skip console calls in the
-		// title/options arguments (visited before the callback), where the context does not exist.
-		const callback = tracker.currentCallback();
 		const [callStart, callEnd] = context.sourceCode.getRange(callback);
 		const [consoleStart] = context.sourceCode.getRange(node);
 		if (consoleStart < callStart || consoleStart >= callEnd) {

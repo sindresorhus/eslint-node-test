@@ -46,6 +46,12 @@ test.snapshot({
 			code: withImport('test("title", {tags: ["unit" as const]} as const, () => {});'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// `node:test` rejects six whitespace code points, not every Unicode space: a non-breaking
+		// space and the other Unicode spaces are accepted.
+		'import {test} from \'node:test\';\ntest(\'title\', {tags: [\'a\\u00a0b\']}, () => {});',
+		'import {test} from \'node:test\';\ntest(\'title\', {tags: [\'a\\u2028b\']}, () => {});',
+		'import {test} from \'node:test\';\ntest(\'title\', {tags: [\'a\\u3000b\']}, () => {});',
 	],
 	invalid: [
 		// Non-array values

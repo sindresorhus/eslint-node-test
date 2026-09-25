@@ -11,7 +11,7 @@
 
 `node:test` tags annotate tests and suites with cross-cutting metadata such as a subsystem or speed bucket. Invalid tags throw while registering the test, and Node normalizes valid tags to lowercase while collapsing duplicates.
 
-This rule checks static tag arrays. It requires each tag to be a nonempty string with no whitespace and no `&`, `|`, `!`, `(`, `)`, or `*`, to not be the reserved word `and`, `or`, or `not`, to be in lowercase canonical form, and to not repeat a tag already in the list case-insensitively. Dynamic tag values, spread elements, and tag properties that a later spread or computed key may override are skipped because their runtime values cannot be determined statically.
+This rule checks static tag arrays. It requires each tag to be a nonempty string with no tab, line feed, vertical tab, form feed, carriage return, or space, and no `&`, `|`, `!`, `(`, `)`, or `*`, to not be the reserved word `and`, `or`, or `not`, to be in lowercase canonical form, and to not repeat a tag already in the list case-insensitively. Dynamic tag values, spread elements, and tag properties that a later spread or computed key may override are skipped because their runtime values cannot be determined statically.
 
 ## Examples
 

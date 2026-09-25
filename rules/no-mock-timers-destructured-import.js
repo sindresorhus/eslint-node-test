@@ -5,6 +5,7 @@ import {
 	isGetTestContextCall,
 	isGlobalMock,
 } from './utils/node-test.js';
+import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
 const MESSAGE_ID = 'no-mock-timers-destructured-import';
 const MESSAGE_ID_NAMESPACE = 'no-mock-timers-destructured-import/namespace';
@@ -135,7 +136,8 @@ const create = context => {
 	context.on('CallExpression', node => {
 		tracker.update(node);
 
-		const {callee} = node;
+		// A TypeScript wrapper on the callee (`enable!(…)`, `(enable as any)(…)`) must not hide the call.
+		const callee = unwrapTypeScriptExpression(node.callee);
 		if (
 			callee.type === 'MemberExpression'
 			&& !callee.computed

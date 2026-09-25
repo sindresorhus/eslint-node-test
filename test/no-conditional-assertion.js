@@ -52,6 +52,10 @@ test.snapshot({
 
 		// `.assert.*` on a non-context object inside a conditional — not a test context
 		'import test from "node:test";\ntest("t1", () => { const db = makeDb(); if (x) { db.assert.ok(a); } });',
+
+		// A subtest is its own scope, whichever way it is created
+		'import {test, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\n'
+		+ 'test(\'o\', async () => {\n\tif (c) {\n\t\tawait getTestContext().test(\'s\', () => { assert.ok(1); });\n\t}\n});',
 	],
 	invalid: [
 		// If without else

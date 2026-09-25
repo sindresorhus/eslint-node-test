@@ -3,7 +3,9 @@ import {
 	parseTestCall,
 	parseSupportedAssertionCall,
 	createContextTracker,
+	getTestCallback,
 	hasEnabledPlanOption,
+	isGetTestContextCall,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 import {getStaticPropertyName} from './utils/index.js';
@@ -72,12 +74,15 @@ function buildFix({node, operands, sourceCode, hasPlan}) {
 	};
 }
 
-/** Whether a call is `<context>.plan(…)` on a tracked test context. */
-function isPlanCall(node, tracker) {
+/** Whether a call is `<context>.plan(…)` on a tracked test context, or a `getTestContext()` one. */
+function isPlanCall(node, tracker, imports) {
 	const callee = unwrapTypeScriptExpression(node.callee);
-	return callee?.type === 'MemberExpression'
-		&& getStaticPropertyName(callee) === 'plan'
-		&& tracker.isContextIdentifier(unwrapTypeScriptExpression(callee.object));
+	if (callee?.type !== 'MemberExpression' || getStaticPropertyName(callee) !== 'plan') {
+		return false;
+	}
+
+	const receiver = unwrapTypeScriptExpression(callee.object);
+	return tracker.isContextIdentifier(receiver) || isGetTestContextCall(receiver, imports);
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -100,20 +105,25 @@ const create = context => {
 	context.on('CallExpression', node => {
 		// A subtest is a method call, so it has to be recognized before the tracker pushes its context.
 		const isSubtest = tracker.isSubtestCall(node);
-		tracker.update(node);
-
-		if (isPlanCall(node, tracker)) {
-			plannedCallbacks.add(tracker.currentCallback());
-			return;
-		}
 
 		// The `plan` option sets the same expected count as `t.plan(n)`, so splitting one assertion into
-		// several would break the plan the same way.
+		// several would break the plan the same way. It is read before the tracker learns this call,
+		// because a test declared without a callback (`test('inner', {plan: 1})`) pushes no context of
+		// its own, and the plan belongs to that test rather than to the one it sits inside.
+		const planCallback = getTestCallback(node);
 		if (
 			(isSubtest || parseTestCall(node, imports)?.kind === 'test')
+			&& planCallback
 			&& hasEnabledPlanOption(node, context)
 		) {
+			plannedCallbacks.add(planCallback);
+		}
+
+		tracker.update(node);
+
+		if (isPlanCall(node, tracker, imports)) {
 			plannedCallbacks.add(tracker.currentCallback());
+			return;
 		}
 
 		const assertion = parseSupportedAssertionCall(node, imports, tracker);

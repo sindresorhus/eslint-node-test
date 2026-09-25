@@ -42,5 +42,8 @@ test.snapshot({
 		},
 		// A subtest is a test and a context hook is a hook
 		'import {test} from \'node:test\';\ntest(\'p\', t => { t.test(\'a\', () => {}); t.beforeEach(() => {}); });',
+
+		// A hook declared through `getTestContext()` after a subtest is still out of order
+		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', t => { t.test(\'s\', () => {}); getTestContext().beforeEach(() => {}); });',
 	],
 });

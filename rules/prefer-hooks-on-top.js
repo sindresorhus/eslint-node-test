@@ -4,7 +4,7 @@ import {
 	getTestCallback,
 	createContextTracker,
 	isContextHookCall,
-	getCalleeChain,
+	getContextHookName,
 } from './utils/node-test.js';
 
 const MESSAGE_ID = 'prefer-hooks-on-top';
@@ -27,7 +27,6 @@ const create = context => {
 	// A subtest (`t.test(…)`) is a test, and a hook declared on a context (`t.beforeEach(…)`) is a
 	// hook; both are method calls, so the tracker recognizes them alongside the imported forms.
 	const tracker = createContextTracker(imports, {trackHooks: true});
-	const getContextHookName = node => getCalleeChain(node.callee)?.members[0]?.name;
 
 	context.on('CallExpression', node => {
 		const isSubtest = tracker.isSubtestCall(node);

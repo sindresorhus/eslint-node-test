@@ -579,21 +579,55 @@ export function getSubtestReceiver(callExpression) {
 	return chain.root;
 }
 
+/*
+Whether the call creates a subtest through a `getTestContext()` receiver, which has no identifier
+for `getSubtestReceiver` to return.
+*/
+function isGetTestContextSubtestCall(callExpression, imports) {
+	const callee = unwrapTypeScriptExpression(callExpression.callee);
+	return callee?.type === 'MemberExpression'
+		&& !callee.computed
+		&& callee.property.type === 'Identifier'
+		&& callee.property.name === 'test'
+		&& isGetTestContextCall(unwrapTypeScriptExpression(callee.object), imports);
+}
+
+/**
+Whether the call creates a subtest: `t.test(…)` on a test context, or `getTestContext().test(…)`.
+
+The second form has no identifier receiver, so a rule that matches the receiver against a tracked
+context still has to ask for the receiver separately.
+*/
+export function isSubtestCall(callExpression, imports) {
+	return getSubtestReceiver(callExpression) !== undefined
+		|| isGetTestContextSubtestCall(callExpression, imports);
+}
+
 /**
 Whether a call is a `<context>.beforeEach(…)`-style hook declared on a test context. The `isContextReceiver` predicate (typically `tracker.isContextReceiver`) decides whether the receiver reaches a test context, either as the context parameter or as a `getTestContext()` call.
 */
-export function isContextHookCall(callExpression, isContextReceiver) {
+/**
+The hook name of a `<context>.beforeEach(…)`-style call, or `undefined` when the call is not one.
+
+The name is the member after the receiver, which reads the same for a context parameter and for a
+`getTestContext()` call, whose callee chain cannot be walked down to an identifier.
+*/
+export function getContextHookName(callExpression) {
 	const callee = unwrapTypeScriptExpression(callExpression.callee);
-	if (
-		callee?.type !== 'MemberExpression'
-		|| callee.computed
-		|| callee.property.type !== 'Identifier'
-		|| !HOOK_FUNCTIONS.has(callee.property.name)
-	) {
+	return callee?.type === 'MemberExpression'
+		&& !callee.computed
+		&& callee.property.type === 'Identifier'
+		&& HOOK_FUNCTIONS.has(callee.property.name)
+		? callee.property.name
+		: undefined;
+}
+
+export function isContextHookCall(callExpression, isContextReceiver) {
+	if (getContextHookName(callExpression) === undefined) {
 		return false;
 	}
 
-	return isContextReceiver(unwrapTypeScriptExpression(callee.object));
+	return isContextReceiver(unwrapTypeScriptExpression(unwrapTypeScriptExpression(callExpression.callee).object));
 }
 
 function getParentCallExpression(node) {
@@ -677,20 +711,11 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 		return variable !== undefined && variables.includes(variable);
 	};
 
-	// A subtest created through the context object itself: `getTestContext().test(…)`. It has no
-	// identifier receiver, so `getSubtestReceiver` cannot see it.
-	const isGetTestContextSubtestCall = node => {
-		const callee = unwrapTypeScriptExpression(node.callee);
-		return callee.type === 'MemberExpression'
-			&& !callee.computed
-			&& callee.property.type === 'Identifier'
-			&& callee.property.name === 'test'
-			&& isGetTestContextCall(unwrapTypeScriptExpression(callee.object), imports);
-	};
-
-	const isSubtestCall = node => {
+	// A subtest is `<context>.test(…)` on a context this tracker knows, which for the
+	// `getTestContext()` form means the innermost frame.
+	const isTrackedSubtest = node => {
 		const receiver = getSubtestReceiver(node);
-		return receiver ? isContextIdentifier(receiver) : isGetTestContextSubtestCall(node);
+		return receiver ? isContextIdentifier(receiver) : isSubtestCall(node, imports);
 	};
 
 	// The method name an identifier names, `ASSERT_OBJECT` for the destructured `assert` object
@@ -749,7 +774,7 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 	};
 
 	return {
-		isSubtestCall,
+		isSubtestCall: isTrackedSubtest,
 		// A receiver that reaches a test context, for `isContextHookCall` and friends.
 		isContextReceiver,
 		// Whether the subtest call has a context-parameter receiver, which the rules that name it in a
@@ -783,7 +808,7 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 			// Classify the call once and reuse the result for every check. This runs for every call in the file, for each of the ~45 rules that track contexts, so avoid re-parsing or re-walking the callee per check. `parseTestCall` is memoized per node, so it is cheap here.
 			const parsed = parseTestCall(node, imports);
 			const isHook = isTrackedHookCall(node, parsed);
-			if (!isHook && !isTrackedTestCall(parsed) && !isSubtestCall(node)) {
+			if (!isHook && !isTrackedTestCall(parsed) && !isTrackedSubtest(node)) {
 				return;
 			}
 

@@ -62,6 +62,9 @@ test.snapshot({
 		// A plan set through `getTestContext()` needs no context parameter, and a non-count sets no plan
 		withTest('test(\'a\', () => { getTestContext().plan(1); assert.ok(1); });'),
 		withTest('test(\'a\', t => { getTestContext().plan(0); assert.ok(1); });'),
+		// A plan option is a real plan, but a context assertion already counts toward it
+		// A plan option is a real plan, but a context assertion already counts toward it
+		withTest('test(\'t\', {plan: 1}, t => { t.assert.ok(1); });'),
 	],
 	invalid: [
 		// Plan + imported namespace assert
@@ -91,5 +94,9 @@ test.snapshot({
 		// A plan set through `getTestContext()` is the same plan, in either spelling
 		'import {test, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'t\', t => { getTestContext().plan(1); assert.ok(1); });',
 		'import {test, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'t\', () => { getTestContext().plan(1); assert.ok(1); });',
+
+		// A `plan` option is the same plan as `t.plan(n)`, so the imported assertions are the ones
+		// that do not count toward it
+		withTest('test(\'t\', {plan: 1}, t => { assert.ok(1); });'),
 	],
 });

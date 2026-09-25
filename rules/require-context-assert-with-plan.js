@@ -74,34 +74,47 @@ const create = context => {
 	// The callbacks of statically skipped tests, subtests, and suites, which never run.
 	const skippedCallbacks = new WeakSet();
 
+	// A skipped test, subtest, or suite never runs its callback, so neither its plan nor its
+	// assertions exist. Returns the callback when the call was skipped.
+	const markSkipped = (node, parsed, isSubtest) => {
+		if (!(parsed || isSubtest) || !isSkippedTestCall(node, parsed, context)) {
+			return false;
+		}
+
+		const callback = getTestCallback(node);
+		if (callback) {
+			skippedCallbacks.add(callback);
+		}
+
+		return true;
+	};
+
 	context.on('CallExpression', node => {
 		const parsed = parseTestCall(node, imports);
 		const isSubtest = tracker.isSubtestCall(node);
 		const isTest = parsed?.kind === 'test' || isSubtest;
 		tracker.update(node);
 
-		// A skipped test, subtest, or suite never runs its callback, so neither its plan nor its
-		// assertions exist.
-		if ((parsed || isSubtest) && isSkippedTestCall(node, parsed, context)) {
-			const callback = getTestCallback(node);
-			if (callback) {
-				skippedCallbacks.add(callback);
-			}
-
+		if (markSkipped(node, parsed, isSubtest)) {
 			return;
 		}
 
 		if (isTest) {
 			const contextVariable = getContextVariable(getTestCallback(node), sourceCode);
+			// `t.plan(1)` and the test-level `plan` option set the same expected count, so the
+			// option counts here too.
+			const hasPlanOption = hasEnabledPlanOption(node, context);
+			const contextName = tracker.current();
 			frames.push({
 				node,
-				contextName: tracker.current(),
+				contextName,
 				// A test that declares no context parameter still has one, reachable through
 				// `getTestContext()`, so the frame stands in as its own key.
 				contextKey: contextVariable ?? undefined,
-				// `t.plan(1)` and the test-level `plan` option set the same expected count, so the
-				// option counts here too.
-				hasPlan: hasEnabledPlanOption(node, context),
+				hasPlan: hasPlanOption,
+				// The message names the context to convert to, so it needs a declared parameter. A
+				// test with none has nothing to suggest.
+				planName: hasPlanOption && contextName ? contextName : undefined,
 				assertions: [],
 			});
 			return;

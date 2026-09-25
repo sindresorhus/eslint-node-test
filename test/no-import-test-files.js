@@ -49,6 +49,15 @@ test.snapshot({
 			code: 'export type * from \'./value.test.ts\';',
 			languageOptions: {parser: parsers.typescript},
 		},
+		// A type-only import is erased, and a dynamic specifier is not statically known
+		{
+			code: 'import type helper = require(\'./example.test.js\');',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'export = require(name);',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		// A Windows-style specifier resolves the same way as a POSIX one
@@ -115,6 +124,21 @@ test.snapshot({
 		},
 		{
 			code: 'export {type Value} from \'./example.test.ts\';',
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// TypeScript's own import forms put the specifier on a `require(…)`, which loads the file
+		// and runs its tests exactly like an import does
+		{
+			code: 'import helper = require(\'./example.test.js\');',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'export = require(\'./example.test.js\');',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'export import helper = require(\'./example.test.js\');',
 			languageOptions: {parser: parsers.typescript},
 		},
 	],

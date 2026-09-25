@@ -164,5 +164,9 @@ test.snapshot({
 		// `getTestContext()` returns the same test context, so its `assert` is a real assertion
 		'import {test, getTestContext} from \'node:test\';\ntest(\'loads\', async () => {\n\tload().then(value => { getTestContext().assert.strictEqual(value, 42); });\n});',
 		'import {test, getTestContext} from \'node:test\';\ntest(\'loads\', async () => {\n\tload().then(() => { getTestContext().assert.rejects(load()); });\n});',
+
+		// A getTestContext() subtest is its own boundary
+		'import {test, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\n'
+		+ 'test(\'o\', async () => {\n\tawait getTestContext().test(\'s\', () => { load().then(v => { assert.equal(v, 1); }); });\n});'
 	],
 });

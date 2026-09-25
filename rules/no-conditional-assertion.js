@@ -2,7 +2,7 @@ import {
 	resolveImports,
 	parseTestCall,
 	getTestCallback,
-	getSubtestReceiver,
+	isSubtestCall,
 	parseSupportedAssertionCall,
 	createContextTracker,
 } from './utils/node-test.js';
@@ -25,7 +25,7 @@ function getScopeBoundaryCallback(node, imports) {
 		return parsed.kind === 'test' || parsed.kind === 'hook' ? getTestCallback(node) : undefined;
 	}
 
-	return getSubtestReceiver(node) === undefined ? undefined : getTestCallback(node);
+	return isSubtestCall(node, imports) ? getTestCallback(node) : undefined;
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */

@@ -464,6 +464,38 @@ Message:
 
 `;
 
+exports[`no-duplicate-plan > invalid(35): import test from 'node:test';\ntest('x', (t: any) => { t.plan!(1); t.plan(2); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('x', (t: any) => { t.plan!(1); t.plan(2); });
+
+`;
+
+exports[`no-duplicate-plan > invalid(35): import test from 'node:test';\ntest('x', (t: any) => { t.plan!(1); t.plan(2); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('x', (t: any) => { t.plan!(1); t.plan(2); });
+    |                                     ^^^^^^^^^ Do not call \`t.plan()\` more than once in the same test.
+
+`;
+
+exports[`no-duplicate-plan > invalid(36): import test from 'node:test';\ntest('x', (t: any) => { (t.plan as any)(1); t.plan(2); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('x', (t: any) => { (t.plan as any)(1); t.plan(2); });
+
+`;
+
+exports[`no-duplicate-plan > invalid(36): import test from 'node:test';\ntest('x', (t: any) => { (t.plan as any)(1); t.plan(2); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('x', (t: any) => { (t.plan as any)(1); t.plan(2); });
+    |                                             ^^^^^^^^^ Do not call \`t.plan()\` more than once in the same test.
+
+`;
+
 exports[`no-duplicate-plan > invalid(4): import test from 'node:test';\ntest.todo(\"x\", t => { t.plan(1); t.plan(2); }); 1`] = `
 
   1 | import test from 'node:test';

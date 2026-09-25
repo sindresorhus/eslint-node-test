@@ -182,5 +182,19 @@ test.snapshot({
 		withTest(`test('t', {plan: 0}, t => {
 	t.assert.ok(a && b);
 });`),
+
+		// A plan declared on a nested test belongs to that test, not to the one it sits inside
+		// A plan declared on a nested test belongs to that test, not to the one it sits inside
+		withAssert(`test('o', t => {
+	t.test('i', {plan: 1}, () => {});
+	assert.ok(a && b);
+});`),
+		withAssert(`test('o', t => {
+	test('i', {plan: 1});
+	assert.ok(a && b);
+});`),
+		// A `getTestContext()` plan is the same plan as `t.plan(n)`
+		'import {test, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\n'
+		+ 'test(\'a\', () => {\n\tgetTestContext().plan(1);\n\tassert.ok(a && b);\n});',
 	],
 });

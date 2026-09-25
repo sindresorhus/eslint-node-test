@@ -366,6 +366,48 @@ Message:
 
 `;
 
+exports[`no-import-test-files > invalid(33): import helper = require('./example.test.js'); 1`] = `
+
+  1 | import helper = require('./example.test.js');
+
+`;
+
+exports[`no-import-test-files > invalid(33): import helper = require('./example.test.js'); 2`] = `
+
+Message:
+> 1 | import helper = require('./example.test.js');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not import a test file. The Node.js test runner may execute it twice.
+
+`;
+
+exports[`no-import-test-files > invalid(34): export = require('./example.test.js'); 1`] = `
+
+  1 | export = require('./example.test.js');
+
+`;
+
+exports[`no-import-test-files > invalid(34): export = require('./example.test.js'); 2`] = `
+
+Message:
+> 1 | export = require('./example.test.js');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not import a test file. The Node.js test runner may execute it twice.
+
+`;
+
+exports[`no-import-test-files > invalid(35): export import helper = require('./example.test.js'); 1`] = `
+
+  1 | export import helper = require('./example.test.js');
+
+`;
+
+exports[`no-import-test-files > invalid(35): export import helper = require('./example.test.js'); 2`] = `
+
+Message:
+> 1 | export import helper = require('./example.test.js');
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not import a test file. The Node.js test runner may execute it twice.
+
+`;
+
 exports[`no-import-test-files > invalid(4): import './test-example.cjs'; 1`] = `
 
   1 | import './test-example.cjs';

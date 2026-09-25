@@ -418,6 +418,26 @@ Message:
 
 `;
 
+exports[`no-parent-test-context > invalid(30): import {test, getTestContext} from 'node:test';\ntest('p', async t => {\n\tawait getTestContext().test('c', () => { t.mock.method(fs, 'x'); });\n}); 1`] = `
+
+  1 | import {test, getTestContext} from 'node:test';
+  2 | test('p', async t => {
+  3 | 	await getTestContext().test('c', () => { t.mock.method(fs, 'x'); });
+  4 | });
+
+`;
+
+exports[`no-parent-test-context > invalid(30): import {test, getTestContext} from 'node:test';\ntest('p', async t => {\n\tawait getTestContext().test('c', () => { t.mock.method(fs, 'x'); });\n}); 2`] = `
+
+Message:
+  1 | import {test, getTestContext} from 'node:test';
+  2 | test('p', async t => {
+> 3 | 	await getTestContext().test('c', () => { t.mock.method(fs, 'x'); });
+    | 	                                         ^ Do not use the parent test context \`t\` inside this subtest. Use this subtest's own context instead.
+  4 | });
+
+`;
+
 exports[`no-parent-test-context > invalid(4): import test from 'node:test';\ntest('parent', async t => { await t.test('child', async () => { await t.test('grandchild', () => {}); }); }); 1`] = `
 
   1 | import test from 'node:test';

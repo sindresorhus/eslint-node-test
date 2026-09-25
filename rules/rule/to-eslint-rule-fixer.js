@@ -29,12 +29,12 @@ Convert Unicorn style fix function to ESLint style fix function
 export default function toEslintRuleFixer(fix) {
 	/** @param {UnicornReportFixer} fixer */
 	return fixer => {
-		const unicornReport = fix(fixer, fixOptions);
-
-		const eslintReport = iterateFixOrProblems(unicornReport);
-
+		// A generator defers its body until iteration, so the call is inside the `try` either way:
+		// a plain function that calls `abort()` throws here, and that has to mean "no fix" too.
 		try {
-			return [...eslintReport];
+			const unicornReport = fix(fixer, fixOptions);
+
+			return [...iterateFixOrProblems(unicornReport)];
 		} catch (error) {
 			if (error instanceof FixAbortError) {
 				return;

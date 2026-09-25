@@ -34,6 +34,11 @@ test.snapshot({
 
 		// Not a test file
 		'console.log(\'x\');',
+
+		// Nothing to rewrite outside a test callback, even when the file imports getTestContext
+		'import {getTestContext} from \'node:test\';\nconsole.log(\'top level\');',
+		'import test, {describe, getTestContext} from \'node:test\';\ndescribe(\'s\', () => { console.log(\'x\'); });',
+		'import test, {describe, getTestContext} from \'node:test\';\ntest(\'a\', console.log(\'in the title\'), () => {});',
 	],
 	invalid: [
 		// Replacing the whole callee would drop the comment inside it, so no suggestion
@@ -69,5 +74,8 @@ test.snapshot({
 		// A test that declares no context parameter can still reach it through `getTestContext()`
 		'import {test, getTestContext} from \'node:test\';\ntest(\'t\', () => { console.log(\'x\'); });',
 		'import {test, getTestContext} from \'node:test\';\ntest(\'t\', t => { console.log(\'x\'); });',
+
+		// `getTestContext` under any local alias is the same import
+		'import {test, getTestContext as gtc} from \'node:test\';\ntest(\'a\', () => { console.log(\'x\'); });',
 	],
 });

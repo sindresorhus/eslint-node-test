@@ -19,11 +19,12 @@ const MESSAGE_ID_DUPLICATE = 'valid-test-tags/duplicate';
 const TEST_AND_SUITE_MODIFIERS = new Set(['expectFailure', ...MODIFIERS]);
 
 /*
-The characters `node:test` rejects in a tag. `*` is not one of the break characters the tag-filter
-lexer uses, but it is forbidden in a tag value, as are the operator characters and every kind of
-whitespace.
+The characters `node:test` rejects in a tag. The whitespace set is the runner's own six code points
+(tab, line feed, vertical tab, form feed, carriage return, space) rather than `\s`, which would also
+match a non-breaking space and the other Unicode spaces `node:test` accepts. `*` is not one of the
+break characters the tag-filter lexer uses, but it is forbidden in a tag value, as are the operators.
 */
-const FORBIDDEN_TAG_CHARACTER = /[\s!&()*|]/;
+const FORBIDDEN_TAG_CHARACTER = /[\t\n\v\f\r !&()*|]/;
 
 /*
 The words the tag filter reads as operators, which are rejected in any casing. Node compares the
