@@ -144,6 +144,10 @@ test.snapshot({
 		// A sequence expression in the receiver or the implementation is re-emitted without its
 		// parentheses, which would turn one argument into several, so no suggestion is offered
 		inTest('(a, object).method = t.mock.fn(() => \'stubbed\');'),
+		// `super` is no value to pass, and `mock.method(super, …)` does not parse
+		'import {mock} from \'node:test\';\nclass A extends B {\n\tm() {\n\t\tsuper.method = mock.fn(impl);\n\t}\n}',
+		'import {mock} from \'node:test\';\nclass A extends B {\n\tm() {\n\t\tsuper[\'x\'] = mock.fn(impl);\n\t}\n}',
+		'import {mock} from \'node:test\';\nclass A extends B {\n\tm() {\n\t\tsuper.method = mock.fn(impl);\n\t}\n\tn() {\n\t\tthis.method = mock.fn(impl);\n\t}\n}',
 		inTest('object.method = t.mock.fn((a, b));'),
 		inTest('object[(a, b)] = t.mock.fn(() => \'stubbed\');'),
 	],

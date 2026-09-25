@@ -708,7 +708,112 @@ Message:
 
 `;
 
-exports[`prefer-mock-method > invalid(45): import test from 'node:test';\ntest('t', t => {\n\tobject.method = t.mock.fn((a, b));\n}); 1`] = `
+exports[`prefer-mock-method > invalid(45): import {mock} from 'node:test';\nclass A extends B {\n\tm() {\n\t\tsuper.method = mock.fn(impl);\n\t}\n} 1`] = `
+
+  1 | import {mock} from 'node:test';
+  2 | class A extends B {
+  3 | 	m() {
+  4 | 		super.method = mock.fn(impl);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-mock-method > invalid(45): import {mock} from 'node:test';\nclass A extends B {\n\tm() {\n\t\tsuper.method = mock.fn(impl);\n\t}\n} 2`] = `
+
+Message:
+  1 | import {mock} from 'node:test';
+  2 | class A extends B {
+  3 | 	m() {
+> 4 | 		super.method = mock.fn(impl);
+    | 		^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`mock.method()\` over assigning \`mock.fn()\` to a property, so the original method is tracked and can be restored.
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-mock-method > invalid(46): import {mock} from 'node:test';\nclass A extends B {\n\tm() {\n\t\tsuper['x'] = mock.fn(impl);\n\t}\n} 1`] = `
+
+  1 | import {mock} from 'node:test';
+  2 | class A extends B {
+  3 | 	m() {
+  4 | 		super['x'] = mock.fn(impl);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-mock-method > invalid(46): import {mock} from 'node:test';\nclass A extends B {\n\tm() {\n\t\tsuper['x'] = mock.fn(impl);\n\t}\n} 2`] = `
+
+Message:
+  1 | import {mock} from 'node:test';
+  2 | class A extends B {
+  3 | 	m() {
+> 4 | 		super['x'] = mock.fn(impl);
+    | 		^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`mock.method()\` over assigning \`mock.fn()\` to a property, so the original method is tracked and can be restored.
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-mock-method > invalid(47): import {mock} from 'node:test';\nclass A extends B {\n\tm() {\n\t\tsuper.method = mock.fn(impl);\n\t}\n\tn() {\n\t\tthis.method = mock.fn(impl);\n\t}\n} 1`] = `
+
+  1 | import {mock} from 'node:test';
+  2 | class A extends B {
+  3 | 	m() {
+  4 | 		super.method = mock.fn(impl);
+  5 | 	}
+  6 | 	n() {
+  7 | 		this.method = mock.fn(impl);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`prefer-mock-method > invalid(47): import {mock} from 'node:test';\nclass A extends B {\n\tm() {\n\t\tsuper.method = mock.fn(impl);\n\t}\n\tn() {\n\t\tthis.method = mock.fn(impl);\n\t}\n} 2`] = `
+
+Message:
+  1 | import {mock} from 'node:test';
+  2 | class A extends B {
+  3 | 	m() {
+> 4 | 		super.method = mock.fn(impl);
+    | 		^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`mock.method()\` over assigning \`mock.fn()\` to a property, so the original method is tracked and can be restored.
+  5 | 	}
+  6 | 	n() {
+  7 | 		this.method = mock.fn(impl);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`prefer-mock-method > invalid(47): import {mock} from 'node:test';\nclass A extends B {\n\tm() {\n\t\tsuper.method = mock.fn(impl);\n\t}\n\tn() {\n\t\tthis.method = mock.fn(impl);\n\t}\n} 3`] = `
+
+Message:
+  1 | import {mock} from 'node:test';
+  2 | class A extends B {
+  3 | 	m() {
+  4 | 		super.method = mock.fn(impl);
+  5 | 	}
+  6 | 	n() {
+> 7 | 		this.method = mock.fn(impl);
+    | 		^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`mock.method()\` over assigning \`mock.fn()\` to a property, so the original method is tracked and can be restored.
+  8 | 	}
+  9 | }
+
+Suggestion 1/1: Replace with \`mock.method()\`.:
+  1 | import {mock} from 'node:test';
+  2 | class A extends B {
+  3 | 	m() {
+  4 | 		super.method = mock.fn(impl);
+  5 | 	}
+  6 | 	n() {
+  7 | 		mock.method(this, 'method', impl);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`prefer-mock-method > invalid(48): import test from 'node:test';\ntest('t', t => {\n\tobject.method = t.mock.fn((a, b));\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', t => {
@@ -717,7 +822,7 @@ exports[`prefer-mock-method > invalid(45): import test from 'node:test';\ntest('
 
 `;
 
-exports[`prefer-mock-method > invalid(45): import test from 'node:test';\ntest('t', t => {\n\tobject.method = t.mock.fn((a, b));\n}); 2`] = `
+exports[`prefer-mock-method > invalid(48): import test from 'node:test';\ntest('t', t => {\n\tobject.method = t.mock.fn((a, b));\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -728,7 +833,7 @@ Message:
 
 `;
 
-exports[`prefer-mock-method > invalid(46): import test from 'node:test';\ntest('t', t => {\n\tobject[(a, b)] = t.mock.fn(() => 'stubbed');\n}); 1`] = `
+exports[`prefer-mock-method > invalid(49): import test from 'node:test';\ntest('t', t => {\n\tobject[(a, b)] = t.mock.fn(() => 'stubbed');\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', t => {
@@ -737,7 +842,7 @@ exports[`prefer-mock-method > invalid(46): import test from 'node:test';\ntest('
 
 `;
 
-exports[`prefer-mock-method > invalid(46): import test from 'node:test';\ntest('t', t => {\n\tobject[(a, b)] = t.mock.fn(() => 'stubbed');\n}); 2`] = `
+exports[`prefer-mock-method > invalid(49): import test from 'node:test';\ntest('t', t => {\n\tobject[(a, b)] = t.mock.fn(() => 'stubbed');\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';

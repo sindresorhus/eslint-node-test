@@ -30,9 +30,9 @@ Whether the assignment can be rewritten to `mock.method(…)`: a resolvable key,
 `<obj>.method = mock.fn()` evaluates to the mock function, but `mock.method(…)` returns the original
 method, so the suggestion stands down when the assignment's value is used.
 
-The receiver and the computed key are re-emitted with `getText`, which drops the parentheses around a
-sequence expression. Dropping them would turn one argument into several, so `(a, b).method` and
-`obj[(a, b)]` get no suggestion.
+The receiver and the computed key are re-emitted as they were written, so a sequence expression keeps
+its parentheses. Dropping them would turn one argument into several, and `super` is no value to pass
+at all, so `(a, b).method` and `super.method` get no suggestion.
 */
 function canRewriteMethodCall({node, left, key, mockArguments, sourceCode}) {
 	return key !== undefined
@@ -40,6 +40,8 @@ function canRewriteMethodCall({node, left, key, mockArguments, sourceCode}) {
 		&& isValueNotUsable(node)
 		&& sourceCode.getCommentsInside(node).length === 0
 		&& left.object.type !== 'SequenceExpression'
+		// `super` names no value to pass, and `mock.method(super, …)` does not parse at all.
+		&& left.object.type !== 'Super'
 		&& (!left.computed || left.property.type !== 'SequenceExpression')
 		&& mockArguments.every(argument => argument.type !== 'SequenceExpression');
 }
