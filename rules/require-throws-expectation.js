@@ -3,6 +3,7 @@ import {
 	parseSupportedAssertionCall,
 	createContextTracker,
 } from './utils/node-test.js';
+import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
 const MESSAGE_ID = 'require-throws-expectation';
 
@@ -29,8 +30,26 @@ const create = context => {
 			return;
 		}
 
-		// Only the single-argument form lacks a matcher. A spread could expand to one.
-		if (node.arguments.length !== 1 || node.arguments[0].type === 'SpreadElement') {
+		// The single-argument form has no matcher at all, and an explicit `undefined` or `null` is
+		// what `node:test`'s `assert` treats as no matcher: both match any thrown value. A spread
+		// could expand to a matcher, and any other expression may be one at runtime.
+		const [first] = node.arguments;
+		// A call with no arguments at all is an arity problem, which `assertion-arguments` reports.
+		if (!first || first.type === 'SpreadElement') {
+			return;
+		}
+
+		const second = node.arguments[1] && unwrapTypeScriptExpression(node.arguments[1]);
+		if (second?.type === 'SpreadElement') {
+			return;
+		}
+
+		// `undefined` is an identifier in the AST and `null` a literal; both are what `node:assert`
+		// reads as "no matcher".
+		const hasNoMatcher = second === undefined
+			|| (second.type === 'Identifier' && second.name === 'undefined')
+			|| (second.type === 'Literal' && second.value === null);
+		if (!hasNoMatcher) {
 			return;
 		}
 

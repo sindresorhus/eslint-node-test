@@ -22,6 +22,14 @@ test.snapshot({
 		// Zero arguments is handled by assertion-arguments, not here
 		withAssert('assert.throws();'),
 
+		// A matcher that may be `undefined` or `null` at runtime cannot be relied on
+		withAssert('assert.throws(fn, maybeError);'),
+		withAssert('assert.throws(fn, ...rest);'),
+		withAssert('assert.throws(fn, "");'),
+		// An empty object or a primitive is a runtime type error, not a missing matcher
+		withAssert('assert.throws(fn, {});'),
+		withAssert('assert.throws(fn, 42);'),
+
 		// Other assertions
 		withAssert('assert.ok(value);'),
 
@@ -41,6 +49,18 @@ test.snapshot({
 
 		// T.assert
 		'import test from \'node:test\';\ntest(\'t\', t => { t.assert.throws(fn); });',
+
+		// An explicit `undefined` or `null` matcher matches any thrown value, exactly like no matcher
+		withAssert('assert.throws(fn, undefined);'),
+		withAssert('assert.throws(fn, null);'),
+		withAssert('assert.rejects(asyncFn, undefined);'),
+		withAssert('assert.rejects(asyncFn, null);'),
+		withNamedImport('throws', 'throws(fn, undefined);'),
+		'import test from \'node:test\';\ntest(\'t\', t => { t.assert.throws(fn, null); });',
+		{
+			code: withAssert('assert.throws(fn, undefined as unknown);'),
+			languageOptions: {parser: parsers.typescript},
+		},
 
 		// TypeScript
 		{

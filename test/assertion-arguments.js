@@ -69,6 +69,27 @@ test.snapshot({
 		// IfError — 1 required
 		withAssert('assert.ifError(value);'),
 
+		// A message may be followed by printf-style substitution arguments, and `ifError` ignores
+		// everything after its value, so extra arguments are never an arity error
+		withAssert('assert.ok(value, "message %s", extra);'),
+		withAssert('assert.ok(value, "message", extra, more, andMore);'),
+		withAssert('assert.equal(a, b, "message", extra);'),
+		withAssert('assert.strictEqual(a, b, "message", extra);'),
+		withAssert('assert.notEqual(a, b, "msg", extra);'),
+		withAssert('assert.deepEqual(a, b, "msg", extra);'),
+		withAssert('assert.deepStrictEqual(a, b, "msg", extra);'),
+		withAssert('assert.notDeepStrictEqual(a, b, "msg", extra);'),
+		withAssert('assert.partialDeepStrictEqual(a, b, "msg", extra);'),
+		withAssert('assert.match(str, /re/, "msg", extra);'),
+		withAssert('assert.doesNotMatch(str, /re/, "msg", extra);'),
+		withAssert('assert.throws(fn, Error, "message", extra);'),
+		withAssert('assert.doesNotThrow(fn, "message", extra);'),
+		withAssert('assert.ifError(value, "msg");'),
+		withAssert('assert.ifError(value, "msg", extra);'),
+		withNamedImport('ok', 'ok(value, "message", extra);'),
+		withStrictAssert('assert.ok(value, "message", extra);'),
+		'import test from \'node:test\';\ntest(\'t\', t => { t.assert.ok(value, "message", extra); });',
+
 		// Snapshot — not a node:assert method; its optional second argument is an options object, not checked
 		'import test from \'node:test\';\ntest(\'t\', t => { t.assert.snapshot(value); });',
 		'import test from \'node:test\';\ntest(\'t\', t => { t.assert.snapshot(value, {serializers: [fn]}); });',
@@ -156,8 +177,6 @@ test.snapshot({
 
 		// Ok — too few
 		withAssert('assert.ok();'),
-		// Ok — too many
-		withAssert('assert.ok(value, "message", extra);'),
 
 		// Bare assert — too few
 		withAssert('assert();'),
@@ -167,8 +186,6 @@ test.snapshot({
 
 		// Equal — too few
 		withAssert('assert.equal(a);'),
-		// Equal — too many
-		withAssert('assert.equal(a, b, "message", extra);'),
 
 		// StrictEqual — too few
 		withAssert('assert.strictEqual(a);'),
@@ -188,19 +205,15 @@ test.snapshot({
 			code: 'import test from \'node:test\';\ntest(\'t\', t => { (t as TestContext).assert.strictEqual(a); });',
 			languageOptions: {parser: parsers.typescript},
 		},
-		// StrictEqual — too many
-		withAssert('assert.strictEqual(a, b, "message", extra);'),
 
 		// NotEqual
 		withAssert('assert.notEqual(a);'),
-		withAssert('assert.notEqual(a, b, "msg", extra);'),
 
 		// NotStrictEqual
 		withAssert('assert.notStrictEqual(a);'),
 
 		// DeepEqual
 		withAssert('assert.deepEqual(a);'),
-		withAssert('assert.deepEqual(a, b, "msg", extra);'),
 
 		// DeepStrictEqual
 		withAssert('assert.deepStrictEqual(a);'),
@@ -220,12 +233,7 @@ test.snapshot({
 		withAssert('assert.rejects();'),
 		withAssert('assert.doesNotReject();'),
 
-		// Throws — too many
-		withAssert('assert.throws(fn, Error, "message", extra);'),
 
-		// IfError — too many (it takes exactly one argument, no trailing message)
-		withAssert('assert.ifError(value, "msg");'),
-		withAssert('assert.ifError(value, "msg", extra);'),
 
 		// Message arg not a string
 		withAssert('assert.ok(value, 123);'),

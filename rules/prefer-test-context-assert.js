@@ -1,3 +1,4 @@
+import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	resolveImports,
 	createContextTracker,
@@ -77,7 +78,18 @@ const create = context => {
 	}
 
 	const tracker = createContextTracker(imports);
-	const hasGetTestContextImport = imports.locals.values().toArray().includes('getTestContext');
+	// A test that declares no context parameter can still reach its context through
+	// `getTestContext()`, so the file has to import that name. The suggestion has to spell the local
+	// name the file actually bound, which is not `getTestContext` under an alias.
+	const getTestContextName = [...imports.locals].find(([, canonicalName]) => canonicalName === 'getTestContext')?.[0];
+	const isGetTestContextInScope = node => {
+		if (!getTestContextName) {
+			return false;
+		}
+
+		const variable = findVariable(sourceCode.getScope(node), getTestContextName);
+		return variable?.defs.some(definition => definition.type === 'ImportBinding') ?? false;
+	};
 
 	context.on('CallExpression', node => {
 		tracker.update(node);
@@ -89,20 +101,24 @@ const create = context => {
 			return;
 		}
 
-		// A test that declares no context parameter can still reach its context through
-		// `getTestContext()`, so the file has to import that name under any local alias.
-		const contextName = tracker.current() ?? (hasGetTestContextImport ? 'getTestContext()' : undefined);
+		const contextName = tracker.current() ?? (getTestContextName ? `${getTestContextName}()` : undefined);
 		if (!contextName) {
 			return;
 		}
 
 		const callback = tracker.currentCallback();
-		if (
-			!callback
-			|| !isInsideCallback(node, callback, sourceCode)
-			// The import cannot be shadowed, so only a context parameter needs a scope check.
-			|| (contextName !== 'getTestContext()' && !tracker.isContextNameInScope(contextName, node))
-		) {
+		if (!callback || !isInsideCallback(node, callback, sourceCode)) {
+			return;
+		}
+
+		// A nested binding of the same name shadows the context, so `t.assert.ok(…)` (or
+		// `gtc().assert.ok(…)`) there would not reach the test context at all. The `getTestContext`
+		// import is a binding like any other, so a local declaration in the test body shadows it too.
+		if (tracker.current()) {
+			if (!tracker.isContextNameInScope(contextName, node)) {
+				return;
+			}
+		} else if (!isGetTestContextInScope(node)) {
 			return;
 		}
 

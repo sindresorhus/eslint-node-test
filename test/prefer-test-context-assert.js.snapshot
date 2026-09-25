@@ -315,6 +315,52 @@ Suggestion 1/1: Replace with \`t.assert.ok()\`.:
 
 `;
 
+exports[`prefer-test-context-assert > invalid(22): import test, {getTestContext as gtc} from 'node:test';\nimport assert from 'node:assert';\ntest('x', () => { assert.ok(value); }); 1`] = `
+
+  1 | import test, {getTestContext as gtc} from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('x', () => { assert.ok(value); });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(22): import test, {getTestContext as gtc} from 'node:test';\nimport assert from 'node:assert';\ntest('x', () => { assert.ok(value); }); 2`] = `
+
+Message:
+  1 | import test, {getTestContext as gtc} from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | test('x', () => { assert.ok(value); });
+    |                   ^^^^^^^^^ Prefer the test context \`gtc().assert.ok()\` over the imported \`node:assert\`, so the runner ties the assertion to this test.
+
+Suggestion 1/1: Replace with \`gtc().assert.ok()\`.:
+  1 | import test, {getTestContext as gtc} from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('x', () => { gtc().assert.ok(value); });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(23): import test, {getTestContext as gtc} from 'node:test';\nimport assert from 'node:assert';\ntest('x', t => { assert.ok(value); }); 1`] = `
+
+  1 | import test, {getTestContext as gtc} from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('x', t => { assert.ok(value); });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(23): import test, {getTestContext as gtc} from 'node:test';\nimport assert from 'node:assert';\ntest('x', t => { assert.ok(value); }); 2`] = `
+
+Message:
+  1 | import test, {getTestContext as gtc} from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | test('x', t => { assert.ok(value); });
+    |                  ^^^^^^^^^ Prefer the test context \`t.assert.ok()\` over the imported \`node:assert\`, so the runner ties the assertion to this test.
+
+Suggestion 1/1: Replace with \`t.assert.ok()\`.:
+  1 | import test, {getTestContext as gtc} from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('x', t => { t.assert.ok(value); });
+
+`;
+
 exports[`prefer-test-context-assert > invalid(3): import test from 'node:test';\nimport {strictEqual} from 'node:assert';\ntest('x', t => { strictEqual(a, b); }); 1`] = `
 
   1 | import test from 'node:test';

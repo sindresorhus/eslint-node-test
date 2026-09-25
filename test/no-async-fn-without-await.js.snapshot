@@ -452,6 +452,22 @@ Suggestion 1/1: Remove the \`async\` keyword.:
 
 `;
 
+exports[`no-async-fn-without-await > invalid(7): import test from 'node:test';\ntest(\"title\", async function * () { foo(); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("title", async function * () { foo(); });
+
+`;
+
+exports[`no-async-fn-without-await > invalid(7): import test from 'node:test';\ntest(\"title\", async function * () { foo(); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("title", async function * () { foo(); });
+    |               ^^^^^ Async test/hook function has no \`await\`, \`for await\` or \`yield\`.
+
+`;
+
 exports[`no-async-fn-without-await > invalid(7): import {test as t} from \"node:test\";\nt(\"title\", async fn => {}); 1`] = `
 
   1 | import {test as t} from "node:test";
@@ -489,6 +505,38 @@ Message:
 Suggestion 1/1: Remove the \`async\` keyword.:
   1 | import * as nodeTest from "node:test";
   2 | nodeTest.test("title", t => {});
+
+`;
+
+exports[`no-async-fn-without-await > invalid(8): import test from 'node:test';\ntest(\"title\", async function * named() { foo(); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("title", async function * named() { foo(); });
+
+`;
+
+exports[`no-async-fn-without-await > invalid(8): import test from 'node:test';\ntest(\"title\", async function * named() { foo(); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test("title", async function * named() { foo(); });
+    |               ^^^^^ Async test/hook function has no \`await\`, \`for await\` or \`yield\`.
+
+`;
+
+exports[`no-async-fn-without-await > invalid(9): import {beforeEach} from \"node:test\";\nbeforeEach(async function * () { foo(); }); 1`] = `
+
+  1 | import {beforeEach} from "node:test";
+  2 | beforeEach(async function * () { foo(); });
+
+`;
+
+exports[`no-async-fn-without-await > invalid(9): import {beforeEach} from \"node:test\";\nbeforeEach(async function * () { foo(); }); 2`] = `
+
+Message:
+  1 | import {beforeEach} from "node:test";
+> 2 | beforeEach(async function * () { foo(); });
+    |            ^^^^^ Async test/hook function has no \`await\`, \`for await\` or \`yield\`.
 
 `;
 

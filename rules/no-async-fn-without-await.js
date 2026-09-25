@@ -1,6 +1,7 @@
 import {
 	resolveImports,
 	parseTestCall,
+	getHookCallback,
 	getTestCallback,
 	createContextTracker,
 	isContextHookCall,
@@ -41,7 +42,9 @@ const create = context => {
 			return;
 		}
 
-		const callback = getTestCallback(node);
+		// A context hook (`t.beforeEach(…)`) takes only a callback, so a function in a later slot is
+		// dead code there too.
+		const callback = isContextHook ? getHookCallback(node) : getTestCallback(node, imports);
 		if (!callback?.async) {
 			return;
 		}
@@ -67,13 +70,14 @@ const create = context => {
 		};
 
 		// Removing the `async` keyword also removes the gap up to the next token, so a comment there
-		// would be lost with it.
+		// would be lost with it. On a generator it would also change the function's type, from
+		// `AsyncGeneratorFunction` to `GeneratorFunction`, so the suggestion stands down there.
 		const nextToken = sourceCode.getTokenAfter(asyncToken);
 		const asyncEnd = sourceCode.getRange(asyncToken)[1];
 		const hasCommentInGap = sourceCode.getCommentsBefore(nextToken)
 			.some(comment => sourceCode.getRange(comment)[0] >= asyncEnd);
 
-		if (!hasCommentInGap) {
+		if (!hasCommentInGap && !callback.generator) {
 			problem.suggest = [
 				{
 					messageId: MESSAGE_ID_SUGGESTION,

@@ -10,6 +10,7 @@ const collect = () => {
 	const record = (name, body) => {
 		cases.push({name, body});
 	};
+
 	record.only = record;
 	return {record, cases};
 };

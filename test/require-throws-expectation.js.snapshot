@@ -14,6 +14,102 @@ Message:
 
 `;
 
+exports[`require-throws-expectation > invalid(10): import assert from 'node:assert';\nassert.rejects(asyncFn, undefined); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.rejects(asyncFn, undefined);
+
+`;
+
+exports[`require-throws-expectation > invalid(10): import assert from 'node:assert';\nassert.rejects(asyncFn, undefined); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.rejects(asyncFn, undefined);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`rejects()\` accepts any thrown value. Pass an error matcher (error class, \`RegExp\`, validation object, or function) as the second argument.
+
+`;
+
+exports[`require-throws-expectation > invalid(11): import assert from 'node:assert';\nassert.rejects(asyncFn, null); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.rejects(asyncFn, null);
+
+`;
+
+exports[`require-throws-expectation > invalid(11): import assert from 'node:assert';\nassert.rejects(asyncFn, null); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.rejects(asyncFn, null);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`rejects()\` accepts any thrown value. Pass an error matcher (error class, \`RegExp\`, validation object, or function) as the second argument.
+
+`;
+
+exports[`require-throws-expectation > invalid(12): import {throws} from 'node:assert';\nthrows(fn, undefined); 1`] = `
+
+  1 | import {throws} from 'node:assert';
+  2 | throws(fn, undefined);
+
+`;
+
+exports[`require-throws-expectation > invalid(12): import {throws} from 'node:assert';\nthrows(fn, undefined); 2`] = `
+
+Message:
+  1 | import {throws} from 'node:assert';
+> 2 | throws(fn, undefined);
+    | ^^^^^^^^^^^^^^^^^^^^^ \`throws()\` accepts any thrown value. Pass an error matcher (error class, \`RegExp\`, validation object, or function) as the second argument.
+
+`;
+
+exports[`require-throws-expectation > invalid(13): import test from 'node:test';\ntest('t', t => { t.assert.throws(fn, null); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', t => { t.assert.throws(fn, null); });
+
+`;
+
+exports[`require-throws-expectation > invalid(13): import test from 'node:test';\ntest('t', t => { t.assert.throws(fn, null); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', t => { t.assert.throws(fn, null); });
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^ \`throws()\` accepts any thrown value. Pass an error matcher (error class, \`RegExp\`, validation object, or function) as the second argument.
+
+`;
+
+exports[`require-throws-expectation > invalid(14): import assert from 'node:assert';\nassert.throws(fn, undefined as unknown); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.throws(fn, undefined as unknown);
+
+`;
+
+exports[`require-throws-expectation > invalid(14): import assert from 'node:assert';\nassert.throws(fn, undefined as unknown); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws(fn, undefined as unknown);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`throws()\` accepts any thrown value. Pass an error matcher (error class, \`RegExp\`, validation object, or function) as the second argument.
+
+`;
+
+exports[`require-throws-expectation > invalid(15): import assert from 'node:assert';\nassert.throws(fn as () => void); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.throws(fn as () => void);
+
+`;
+
+exports[`require-throws-expectation > invalid(15): import assert from 'node:assert';\nassert.throws(fn as () => void); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws(fn as () => void);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`throws()\` accepts any thrown value. Pass an error matcher (error class, \`RegExp\`, validation object, or function) as the second argument.
+
+`;
+
 exports[`require-throws-expectation > invalid(2): import assert from 'node:assert';\nassert.strict.throws(fn); 1`] = `
 
   1 | import assert from 'node:assert';
@@ -110,18 +206,34 @@ Message:
 
 `;
 
-exports[`require-throws-expectation > invalid(8): import assert from 'node:assert';\nassert.throws(fn as () => void); 1`] = `
+exports[`require-throws-expectation > invalid(8): import assert from 'node:assert';\nassert.throws(fn, undefined); 1`] = `
 
   1 | import assert from 'node:assert';
-  2 | assert.throws(fn as () => void);
+  2 | assert.throws(fn, undefined);
 
 `;
 
-exports[`require-throws-expectation > invalid(8): import assert from 'node:assert';\nassert.throws(fn as () => void); 2`] = `
+exports[`require-throws-expectation > invalid(8): import assert from 'node:assert';\nassert.throws(fn, undefined); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
-> 2 | assert.throws(fn as () => void);
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`throws()\` accepts any thrown value. Pass an error matcher (error class, \`RegExp\`, validation object, or function) as the second argument.
+> 2 | assert.throws(fn, undefined);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`throws()\` accepts any thrown value. Pass an error matcher (error class, \`RegExp\`, validation object, or function) as the second argument.
+
+`;
+
+exports[`require-throws-expectation > invalid(9): import assert from 'node:assert';\nassert.throws(fn, null); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.throws(fn, null);
+
+`;
+
+exports[`require-throws-expectation > invalid(9): import assert from 'node:assert';\nassert.throws(fn, null); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws(fn, null);
+    | ^^^^^^^^^^^^^^^^^^^^^^^ \`throws()\` accepts any thrown value. Pass an error matcher (error class, \`RegExp\`, validation object, or function) as the second argument.
 
 `;

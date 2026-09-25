@@ -4,6 +4,7 @@ const {test} = getTester(import.meta);
 
 // Helper: wrap code with a node:test import
 const withImport = code => `import test from 'node:test';\n${code}`;
+const withHookImport = code => `import test, {beforeEach} from 'node:test';\n${code}`;
 
 test.snapshot({
 	valid: [
@@ -105,6 +106,15 @@ test.snapshot({
 		// An async generator with only `yield` has no `await`, but removing `async` would break it,
 		// so a `yield` still counts as a suspension point for this rule
 		withImport('test("title", async function * () { yield 1; });'),
+
+		// A hook whose first argument is not a function never runs, so a function in a later slot is
+		// dead code, and the runner never reads `options.fn` for a hook either
+		withHookImport('beforeEach({}, async () => { foo(); });'),
+		withHookImport('beforeEach({fn: async () => {}});'),
+		withHookImport('test.beforeEach({}, async () => { foo(); });'),
+		withHookImport('test.beforeEach({fn: async () => {}});'),
+		withImport('test(\'title\', t => { t.beforeEach({}, async () => { foo(); }); });'),
+		withImport('test(\'title\', t => { t.beforeEach({fn: async () => {}}); });'),
 	],
 	invalid: [
 		// A hook's trailing options must not hide an async callback with no await
@@ -116,5 +126,11 @@ test.snapshot({
 
 		// A hook declared through `getTestContext()` is the same hook
 		'import {test, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'o\', t => { getTestContext().beforeEach(async () => { assert.ok(1); }); });',
+
+		// An async generator with no `yield` and no `await` is still reported, but removing `async`
+		// would turn an `AsyncGeneratorFunction` into a plain `GeneratorFunction`, so no suggestion
+		withImport('test("title", async function * () { foo(); });'),
+		withImport('test("title", async function * named() { foo(); });'),
+		'import {beforeEach} from "node:test";\nbeforeEach(async function * () { foo(); });',
 	],
 });

@@ -6,15 +6,18 @@ import {
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
 const MESSAGE_ID_TOO_FEW = 'too-few-arguments';
-const MESSAGE_ID_TOO_MANY = 'too-many-arguments';
 const MESSAGE_ID_NOT_STRING = 'not-string-message';
 
 /*
-Map of node:assert method -> required argument count.
-Each method also accepts one optional trailing `message` argument, making max = required + 1.
+Map of node:assert method -> required argument count, and the argument count at which the last one is
+the `message` (so max = required + 1 for the plain comparisons).
+
+Nothing is ever "too many": since Node 26 a message may be followed by printf-style substitution
+arguments (see `util.format`), and every method here accepts them, while `ifError` ignores everything
+after its value.
 `fail` is omitted because it accepts 0 or 1 args (ambiguous) — not checkable.
-`throws`/`doesNotThrow`/`rejects`/`doesNotReject` accept 1 required + optional error + optional message (max 3).
-`ifError` is the exception with no trailing message argument — it takes one value and ignores the rest (max 1). It also needs no value: it throws only for an argument that is neither `null` nor `undefined`, so a missing argument passes just like an explicit `undefined`.
+`throws`/`doesNotThrow`/`rejects`/`doesNotReject` accept 1 required + optional error + optional message.
+`ifError` is the exception with no trailing message argument — it takes one value and ignores the rest. It also needs no value: it throws only for an argument that is neither `null` nor `undefined`, so a missing argument passes just like an explicit `undefined`.
 `snapshot` is omitted because its optional second argument is an options object, not a message string,
 so it does not fit this map's "trailing string message" model (and it is a `node:test` context
 assertion rather than a `node:assert` method).
@@ -101,14 +104,6 @@ const create = context => {
 			};
 		}
 
-		if (count > max) {
-			return {
-				node,
-				messageId: MESSAGE_ID_TOO_MANY,
-				data: {max},
-			};
-		}
-
 		// If a trailing message argument is present, it must be a string.
 		// The message argument is the last arg when count > min (i.e. it is optional and present).
 		// For methods where max === min there is no message slot, and `ifError` has no message slot at
@@ -142,7 +137,6 @@ const config = {
 		schema: [],
 		messages: {
 			[MESSAGE_ID_TOO_FEW]: 'Not enough arguments. Expected at least {{min}}.',
-			[MESSAGE_ID_TOO_MANY]: 'Too many arguments. Expected at most {{max}}.',
 			[MESSAGE_ID_NOT_STRING]: 'Assertion message must be a string, an `Error`, a function, or `null`.',
 		},
 		languages: ['js/js'],

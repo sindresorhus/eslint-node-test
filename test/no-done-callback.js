@@ -34,6 +34,15 @@ test.snapshot({
 
 		// A hook's callback is its first argument, so trailing options never hide a 1-arity function
 		withImport('beforeEach(t => {}, {timeout: 1000});'),
+
+		// A hook whose first argument is not a function never runs, so a `done` parameter in a later
+		// slot is dead code, and the runner never reads `options.fn` for a hook either
+		withImport('beforeEach({}, (t, done) => { done(); });'),
+		withImport('beforeEach({fn(t, done) { done(); }});'),
+		withImport('test.beforeEach({}, (t, done) => { done(); });'),
+		withImport('test.beforeEach({fn(t, done) { done(); }});'),
+		'import test from \'node:test\';\ntest(\'x\', t => { t.beforeEach({}, (t, done) => { done(); }); });',
+		'import test from \'node:test\';\ntest(\'x\', t => { t.beforeEach({fn(t, done) { done(); }}); });',
 	],
 	invalid: [
 		// Callback-style test

@@ -812,7 +812,7 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 				return;
 			}
 
-			const callback = isHook ? getHookCallback(node) : getTestCallback(node);
+			const callback = isHook ? getHookCallback(node) : getTestCallback(node, imports);
 			if (callback) {
 				const parameter = getContextParameterIdentifier(callback.params[0]);
 
@@ -1049,13 +1049,24 @@ the options slot wins: `test('a', {fn: first}, second)` runs `first` and never c
 is the exception — it takes its callback first and the runner never reads `options.fn` for it.
 
 Otherwise this is the first top-level function argument, which is the one `node:test` runs: a call
-never gets a second positional callback, so `test('a', first, second)` and `beforeEach(first, second)`
-run `first` and leave `second` uncalled. The scan covers every positional `node:test` signature:
-`test(name, fn)`, `test(name, options, fn)`, `test(name, options)`, and the hook forms
-`beforeEach(fn)` / `beforeEach(fn, options)`, since the options object is never a function. A call
-with no callback (`test(name, {skip: true})`) has none.
+never gets a second positional callback, so `test('a', first, second)` runs `first` and leaves
+`second` uncalled. The scan covers every positional `node:test` signature: `test(name, fn)`,
+`test(name, options, fn)`, `test(name, options)`, and the hook forms `beforeEach(fn)` /
+`beforeEach(fn, options)`, since the options object is never a function. A call with no callback
+(`test(name, {skip: true})`) has none.
+
+Pass `imports` so a hook call is read the way the runner reads it: its callback is only ever its
+first argument, so `beforeEach({}, fn)` and `beforeEach({fn})` run nothing at all, and a rule must
+not treat those dead functions as a live hook callback. A hook declared on a test context
+(`t.beforeEach(…)`) is a method call that `parseTestCall` does not classify; callers that know it is
+one should ask for `getHookCallback` themselves.
 */
-export function getTestCallback(callExpression) {
+export function getTestCallback(callExpression, imports) {
+	const parsed = imports && parseTestCall(callExpression, imports);
+	if (parsed?.kind === 'hook' || isHookMemberTestCall(parsed)) {
+		return getHookCallback(callExpression);
+	}
+
 	if (!isCallbackFirst(callExpression)) {
 		const optionsCallback = getOptionsCallback(callExpression);
 		if (optionsCallback) {
@@ -1325,11 +1336,11 @@ export function nearestTestCallbackKind(node, imports, isContextReceiver) {
 					return 'hook';
 				}
 
-				if (parsed && getTestCallback(call) === current) {
+				if (parsed && getTestCallback(call, imports) === current) {
 					return parsed.kind;
 				}
 
-				if (getSubtestReceiver(call) !== undefined && getTestCallback(call) === current) {
+				if (getSubtestReceiver(call) !== undefined && getTestCallback(call, imports) === current) {
 					return 'test';
 				}
 			}

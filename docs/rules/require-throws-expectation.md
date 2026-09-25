@@ -7,9 +7,9 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-`assert.throws(fn)` and `assert.rejects(asyncFn)` with no second argument pass for *any* thrown value. That makes the assertion weak: a typo, a `ReferenceError`, or an unrelated failure all satisfy it, so the test can pass for the wrong reason. Pass an error matcher — an error class, a `RegExp` for the message, a validation object, or a validation function — to assert that the *expected* error is thrown.
+`assert.throws(fn)` and `assert.rejects(asyncFn)` with no second argument pass for *any* thrown value. So does an explicit `undefined` or `null` matcher, which `node:assert` reads the same way. That makes the assertion weak: a typo, a `ReferenceError`, or an unrelated failure all satisfy it, so the test can pass for the wrong reason. Pass an error matcher — an error class, a `RegExp` for the message, a validation object, or a validation function — to assert that the *expected* error is thrown.
 
-This rule reports a single-argument `assert.throws()`/`assert.rejects()`. A string second argument is reported by [`no-assert-throws-string`](no-assert-throws-string.md) instead.
+This rule reports a matcher that is missing, `undefined`, or `null`. A string second argument is reported by [`no-assert-throws-string`](no-assert-throws-string.md) instead.
 
 ## Examples
 
@@ -18,7 +18,9 @@ import assert from 'node:assert';
 
 // ❌
 assert.throws(() => parse(input));
+assert.throws(() => parse(input), undefined);
 await assert.rejects(() => load(url));
+await assert.rejects(() => load(url), null);
 
 // ✅
 assert.throws(() => parse(input), SyntaxError);

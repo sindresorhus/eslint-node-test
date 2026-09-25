@@ -2,6 +2,7 @@ import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	resolveImports,
 	parseTestCall,
+	getHookCallback,
 	getTestCallback,
 	createContextTracker,
 	isContextHookCall,
@@ -156,7 +157,9 @@ const create = context => {
 			return;
 		}
 
-		const callback = getTestCallback(node);
+		// A context hook (`t.beforeEach(…)`) takes only a callback, so a function in a later slot is
+		// dead code there too.
+		const callback = isContextHook ? getHookCallback(node) : getTestCallback(node, imports);
 		// Only flag non-async functions with a block body (arrow shorthand already returns)
 		if (!callback || callback.async || callback.body.type !== 'BlockStatement') {
 			return;

@@ -3,6 +3,7 @@ import {getTester, parsers} from './utils/test.js';
 const {test} = getTester(import.meta);
 
 const withImport = code => `import test from 'node:test';\n${code}`;
+const withHookImport = code => `import test, {beforeEach} from 'node:test';\n${code}`;
 
 test.snapshot({
 	valid: [
@@ -35,6 +36,15 @@ test.snapshot({
 		withImport('test("title", t => { return; });'),
 		// Named import
 		'import {it} from "node:test";\nit("title", t => { foo(); });',
+
+		// A hook whose first argument is not a function never runs, so a function in a later slot is
+		// dead code, and the runner never reads `options.fn` for a hook either
+		withHookImport('beforeEach({}, () => { return p.then(x => x); });'),
+		withHookImport('beforeEach({fn() { return p.then(x => x); }});'),
+		withHookImport('test.beforeEach({}, () => { return p.then(x => x); });'),
+		withHookImport('test.beforeEach({fn() { return p.then(x => x); }});'),
+		withImport('test(\'title\', t => { t.beforeEach({}, () => { return p.then(x => x); }); });'),
+		withImport('test(\'title\', t => { t.beforeEach({fn() { return p.then(x => x); }}); });'),
 	],
 	invalid: [
 		// Basic: return .then()

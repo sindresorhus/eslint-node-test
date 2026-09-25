@@ -1,6 +1,7 @@
 import {
 	resolveImports,
 	parseTestCall,
+	getHookCallback,
 	getTestCallback,
 	getEffectiveArity,
 	createContextTracker,
@@ -35,7 +36,9 @@ const create = context => {
 			return;
 		}
 
-		const callback = getTestCallback(node);
+		// A context hook (`t.beforeEach(…)`) takes only a callback, so a function in any later slot is
+		// dead code there too.
+		const callback = isContextHook ? getHookCallback(node) : getTestCallback(node, imports);
 		// A declared second parameter is the `done` callback `node:test` passes based on arity.
 		if (!callback || getEffectiveArity(callback.params) < 2) {
 			return;
