@@ -3,8 +3,7 @@ import {
 	parseSupportedAssertionCall,
 	createContextTracker,
 } from './utils/node-test.js';
-import {getEnclosingFunction, getFloatingStatement} from './utils/index.js';
-import {hasStaticBlockBetween} from './no-unawaited-promise-assertion.js';
+import {getEnclosingFunction, getFloatingStatement, hasStaticBlockBetween} from './utils/index.js';
 
 const MESSAGE_ID = 'no-unawaited-rejects/error';
 

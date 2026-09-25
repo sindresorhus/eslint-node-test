@@ -103,6 +103,7 @@ Check if two expressions reference the same value. For example:
 	a.b = a.b
 	a[0] = a[0]
 	a['b'] = a['b']
+	a?.b = a?.b
 @param {ASTNode} left The left side of the comparison.
 @param {ASTNode} right The right side of the comparison.
 @returns {boolean} `true` if both sides match and reference the same value.
@@ -131,6 +132,12 @@ export default function isSameReference(left, right) {
 		}
 
 		case 'MemberExpression': {
+			// `a.b` throws when `a` is nullish while `a?.b` yields `undefined`, so the two do not
+			// reference the same value even where the receiver is the same.
+			if (left.optional !== right.optional) {
+				return false;
+			}
+
 			const nameA = getStaticPropertyName(left);
 
 			// `x.y = x["y"]`

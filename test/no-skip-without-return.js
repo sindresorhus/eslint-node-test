@@ -50,6 +50,10 @@ test.snapshot({
 
 		// A class static block is a statement list, so a skip in one is followed by the same code
 		withImport('test("x", t => {\n\tclass A {\n\t\tstatic {\n\t\t\tt.skip();\n\t\t\tdoStuff();\n\t\t}\n\t}\n});'),
+		withImport('test("x", t => {\n\tclass A {\n\t\tstatic {\n\t\t\tif (x) {\n\t\t\t\tt.skip();\n\t\t\t\tdoStuff();\n\t\t\t}\n\t\t}\n\t}\n});'),
+		withImport('test("x", t => {\n\tclass A {\n\t\tstatic {\n\t\t\tfor (const item of items) {\n\t\t\t\tt.skip();\n\t\t\t\tdoStuff();\n\t\t\t}\n\t\t}\n\t}\n});'),
+		withImport('test("x", t => {\n\tclass A {\n\t\tstatic {\n\t\t\ttry {\n\t\t\t\tt.skip();\n\t\t\t\tdoStuff();\n\t\t\t} catch {}\n\t\t}\n\t}\n});'),
+		withImport('test("x", t => {\n\tclass A {\n\t\tstatic {\n\t\t\t{ t.skip(); doStuff(); }\n\t\t}\n\t}\n});'),
 		// The walk climbs out of the class, so a statement after it still runs after the static block skipped
 		withImport('test("x", t => { class A { static { t.skip(); } } doStuff(); });'),
 		// A hook body gets a test context, so a skip there leaves the rest of the hook running

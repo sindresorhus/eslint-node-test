@@ -27,6 +27,7 @@ import {
 	outermostExpressionWrapper,
 	isExpressionWrapper,
 	getExpressionValuePropagation,
+	hasStaticBlockBetween,
 } from './utils/index.js';
 import {hasLooserBindThanAwait} from './utils/unwrap-typescript-expression.js';
 
@@ -779,16 +780,6 @@ function isInsideUnevaluatedCallbackRegion(node, callback) {
 
 function isDirectlyEvaluatedByCallback(node, callback) {
 	return getEnclosingFunction(node) === callback && !isInsideUnevaluatedCallbackRegion(node, callback);
-}
-
-export function hasStaticBlockBetween(node, boundary) {
-	for (let current = node; current && current !== boundary; current = current.parent) {
-		if (current.type === 'StaticBlock') {
-			return true;
-		}
-	}
-
-	return false;
 }
 
 /*

@@ -4,9 +4,8 @@ import {
 	createContextTracker,
 } from './utils/node-test.js';
 import isFunction from './ast/is-function.js';
-import {getEnclosingFunction, getFloatingStatement} from './utils/index.js';
+import {getEnclosingFunction, getFloatingStatement, hasStaticBlockBetween} from './utils/index.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
-import {hasStaticBlockBetween} from './no-unawaited-promise-assertion.js';
 
 const MESSAGE_ID_ERROR = 'no-assert-throws-async/error';
 const MESSAGE_ID_SUGGESTION = 'no-assert-throws-async/suggestion';

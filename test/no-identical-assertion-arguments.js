@@ -27,6 +27,14 @@ test.snapshot({
 		// property-read equivalent of the rule already skipping operands that contain a call.
 		withImport('let n = 0;\nconst counter = {get value() { return n++; }};\nassert.notStrictEqual(counter.value, counter.value);'),
 		withImport('let n = 0;\nconst counter = {get value() { return n++; }};\nassert.strictEqual(counter.value, counter.value);'),
+
+		// `a.b` throws when `a` is nullish while `a?.b` yields `undefined`, so the two do not
+		// reference the same value
+		withImport('assert.equal(a.b, a?.b);'),
+		withImport('assert.equal(a?.b, a.b);'),
+		withImport('assert.equal(a.b.c, a?.b.c);'),
+		withImport('assert.equal(this.x, this?.x);'),
+		withImport('assert.notEqual(a.b, a?.b);'),
 		withImport('let n = 0;\nclass Counter { get value() { return n++; } }\nconst counter = new Counter();\nassert.notStrictEqual(counter.value, counter.value);'),
 		withImport('let n = 0;\nclass Counter { get value() { return n++; } }\nassert.notStrictEqual(new Counter().value, new Counter().value);'),
 		// Not an assert file

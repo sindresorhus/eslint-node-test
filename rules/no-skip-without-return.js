@@ -1,6 +1,11 @@
 import {resolveImports, createContextTracker, isGetTestContextCall} from './utils/node-test.js';
 import isFunction from './ast/is-function.js';
-import {getFloatingStatement, unwrapTypeScriptExpression} from './utils/index.js';
+import {
+	getEnclosingFunction,
+	getFloatingStatement,
+	hasStaticBlockBetween,
+	unwrapTypeScriptExpression,
+} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-skip-without-return/error';
 const MESSAGE_ID_SUGGESTION = 'no-skip-without-return/suggestion';
@@ -107,8 +112,9 @@ const create = context => {
 			};
 
 			// Only suggest inserting `return` when the skip is in a block; in a braceless
-			// `if (x) t.skip()` the inserted `return` would escape the condition.
-			if (statement.parent.type === 'BlockStatement') {
+			// `if (x) t.skip()` the inserted `return` would escape the condition. A class static block
+			// is a statement list but not a function either, so a `return` there is a SyntaxError.
+			if (statement.parent.type === 'BlockStatement' && !hasStaticBlockBetween(statement, getEnclosingFunction(statement))) {
 				problem.suggest = [
 					{
 						messageId: MESSAGE_ID_SUGGESTION,

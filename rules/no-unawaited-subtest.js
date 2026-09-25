@@ -1,6 +1,6 @@
 import {resolveImports, createContextTracker, getSubtestReceiver} from './utils/node-test.js';
-import {getEnclosingFunction, getFloatingStatement} from './utils/index.js';
-import {trackDetachedCallbacks, hasStaticBlockBetween} from './no-unawaited-promise-assertion.js';
+import {getEnclosingFunction, getFloatingStatement, hasStaticBlockBetween} from './utils/index.js';
+import {trackDetachedCallbacks} from './no-unawaited-promise-assertion.js';
 
 const MESSAGE_ID = 'no-unawaited-subtest';
 
