@@ -588,7 +588,7 @@ export function getSubtestReceiver(callExpression) {
 Whether the call creates a subtest through a `getTestContext()` receiver, which has no identifier
 for `getSubtestReceiver` to return.
 */
-function isGetTestContextSubtestCall(callExpression, imports) {
+export function isGetTestContextSubtestCall(callExpression, imports) {
 	const callee = unwrapTypeScriptExpression(callExpression.callee);
 	return callee?.type === 'MemberExpression'
 		&& !callee.computed

@@ -83,6 +83,8 @@ test.snapshot({
 
 		// `getTestContext()` is the same context, and a test needs no parameter for it
 		'import {test, getTestContext} from \'node:test\';\ntest(\'t\', () => { getTestContext().plan(1); assert.ok(1); });',
+		// A `getTestContext()` subtest is a context of its own, so its plan is not the parent's
+		'import {test, getTestContext} from \'node:test\';\ntest(\'t\', () => { getTestContext().plan(1); getTestContext().test(\'c\', () => { getTestContext().plan(1); }); });',
 		'import {test, getTestContext} from \'node:test\';\ntest(\'t\', t => { t.plan(1); assert.ok(1); });',
 	],
 	invalid: [
@@ -177,6 +179,7 @@ test.snapshot({
 
 		// `getTestContext()` sets the same plan as the context parameter, in either spelling
 		'import {test, getTestContext} from \'node:test\';\ntest(\'t\', () => { getTestContext().plan(1); getTestContext().plan(2); });',
+		'import {test, getTestContext} from \'node:test\';\ntest(\'t\', () => { getTestContext().test(\'c\', () => { getTestContext().plan(1); getTestContext().plan(2); }); });',
 		'import {test, getTestContext} from \'node:test\';\ntest(\'t\', t => { getTestContext().plan(1); getTestContext().plan(2); });',
 		'import {test, getTestContext} from \'node:test\';\ntest(\'t\', t => { t.plan(1); getTestContext().plan(2); });',
 

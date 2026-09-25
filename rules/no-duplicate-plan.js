@@ -5,6 +5,7 @@ import {
 	parseTestCall,
 	getTestCallback,
 	getSubtestReceiver,
+	isGetTestContextSubtestCall,
 	getTestOptions,
 	findOptionsProperty,
 	hasEnabledPlanOption,
@@ -77,7 +78,9 @@ const create = context => {
 	const isSubtestCall = node => {
 		const receiver = getSubtestReceiver(node);
 		if (receiver === undefined) {
-			return false;
+			// A `getTestContext().test(…)` subtest names the innermost frame's context, the same one
+			// the parent's `t` parameter would.
+			return frames.length > 0 && isGetTestContextSubtestCall(node, imports);
 		}
 
 		const receiverVariable = getIdentifierVariable(sourceCode, receiver);

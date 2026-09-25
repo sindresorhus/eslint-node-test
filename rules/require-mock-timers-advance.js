@@ -214,7 +214,8 @@ function getContextVariables(scopeStack) {
 		.filter(Boolean);
 }
 
-function getContextCallKind(node, sourceCode, contextVariables) {
+function getContextCallKind(node, imports, sourceCode, scopeStack) {
+	const contextVariables = getContextVariables(scopeStack);
 	const receiver = getSubtestReceiver(node);
 	if (receiver) {
 		const receiverVariable = findVariable(sourceCode.getScope(receiver), receiver);
@@ -222,21 +223,32 @@ function getContextCallKind(node, sourceCode, contextVariables) {
 	}
 
 	const callee = unwrapTypeScriptExpression(node.callee);
-	if (
-		callee.type !== 'MemberExpression'
-		|| callee.computed
-		|| callee.optional
-		|| callee.object.type !== 'Identifier'
-		|| !HOOK_FUNCTIONS.has(getStaticPropertyName(callee.property))
-	) {
+	if (callee?.type !== 'MemberExpression' || callee.computed || callee.optional) {
 		return;
 	}
 
-	const receiverVariable = findVariable(sourceCode.getScope(callee.object), callee.object);
+	const object = unwrapTypeScriptExpression(callee.object);
+	const property = getStaticPropertyName(callee.property);
+
+	// `getTestContext().test(…)` and `getTestContext().beforeEach(…)` name the innermost context, the
+	// same one a context parameter would, whether or not the enclosing test declared one.
+	if (scopeStack.length > 0 && isGetTestContextCall(object, imports)) {
+		if (property === 'test') {
+			return 'test';
+		}
+
+		return HOOK_FUNCTIONS.has(property) ? 'hook' : undefined;
+	}
+
+	if (object?.type !== 'Identifier' || !HOOK_FUNCTIONS.has(property)) {
+		return;
+	}
+
+	const receiverVariable = findVariable(sourceCode.getScope(object), object);
 	return receiverVariable && contextVariables.includes(receiverVariable) ? 'hook' : undefined;
 }
 
-function getScopeCallback(node, imports, sourceCode, contextVariables) {
+function getScopeCallback(node, imports, sourceCode, scopeStack) {
 	const parsed = parseTestCall(node, imports);
 	const root = getCalleeRootIdentifier(node.callee);
 	if (
@@ -248,7 +260,7 @@ function getScopeCallback(node, imports, sourceCode, contextVariables) {
 		return getTestCallback(node);
 	}
 
-	const contextCallKind = getContextCallKind(node, sourceCode, contextVariables);
+	const contextCallKind = getContextCallKind(node, imports, sourceCode, scopeStack);
 	return contextCallKind === 'test' || contextCallKind === 'hook' ? getTestCallback(node) : undefined;
 }
 
@@ -263,7 +275,7 @@ const create = context => {
 	const scopeStack = [];
 
 	context.on('CallExpression', node => {
-		const callback = getScopeCallback(node, imports, sourceCode, getContextVariables(scopeStack));
+		const callback = getScopeCallback(node, imports, sourceCode, scopeStack);
 		if (callback) {
 			const contextVariable = getContextVariable(callback, sourceCode);
 			scopeStack.push({

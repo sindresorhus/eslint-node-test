@@ -78,6 +78,13 @@ test.snapshot({
 		+ 'test(\'a\', () => { getTestContext().mock.timers.enable({apis: [\'setTimeout\']});\n'
 		+ '\tsetTimeout(fn, 1);\n\tgetTestContext().mock.timers.tick(1); });',
 		'import {test, getTestContext} from \'node:test\';\n'
+		+ 'test(\'a\', () => { getTestContext().test(\'c\', x => { x.mock.timers.enable({apis: [\'setTimeout\']});\n'
+		+ '\tsetTimeout(fn, 1);\tx.mock.timers.tick(1); }); });',
+		// An unrelated object\'s `test` call is not a context call
+		'import {test, getTestContext} from \'node:test\';\n'
+		+ 'test(\'a\', () => { getTestContext().test(\'c\', x => {});\n'
+		+ '\tother.test(\'d\', y => { y.mock.timers.enable({apis: [\'setTimeout\']});\n\tsetTimeout(fn, 1); }); });',
+		'import {test, getTestContext} from \'node:test\';\n'
 		+ 'test(\'a\', t => { getTestContext().mock.timers.enable({apis: [\'setTimeout\']});\n'
 		+ '\tsetTimeout(fn, 1);\n\tt.mock.timers.tick(1); });',
 		'import {test, getTestContext} from \'node:test\';\n'
@@ -91,6 +98,14 @@ test.snapshot({
 		},
 	],
 	invalid: [
+		// A `getTestContext()` subtest or context hook opens a scope of its own, whatever the
+		// enclosing test declared
+		'import {test, getTestContext} from \'node:test\';\n'
+		+ 'test(\'a\', () => { getTestContext().test(\'c\', x => { x.mock.timers.enable({apis: [\'setTimeout\']});\n'
+		+ '\tsetTimeout(fn, 1); }); });',
+		'import {test, getTestContext} from \'node:test\';\n'
+		+ 'test(\'a\', () => { getTestContext().beforeEach(x => { x.mock.timers.enable({apis: [\'setTimeout\']});\n'
+		+ '\tsetTimeout(fn, 1); }); });',
 		// Timer enabled but never advanced
 		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'setTimeout\']}); setTimeout(callback, 100); });'),
 
