@@ -41,8 +41,10 @@ Expression wrappers (optional chaining, TypeScript `as`/`satisfies`/`!`) are ski
 */
 export default function getFloatingStatement(node) {
 	// Expression wrappers (optional chaining, TypeScript `as`/`satisfies`/`!`) are skipped on the way
-	// out, so a cast cannot hide a floating call.
-	let container = skipExpressionWrappers(node);
+	// out, so neither a cast on the call nor a cast on the statement can hide a floating call. The
+	// node itself is left as it is, so a caller that already unwrapped it (the output of
+	// `outermostExpressionWrapper`) is read the same as the call inside it.
+	let container = node;
 	let parent = skipExpressionWrappers(container.parent);
 	// Walk out of the conditional, logical, and sequence expressions that pass this call's value on, to
 	// the statement that discards it. A step that does not pass the value on still leaves the call

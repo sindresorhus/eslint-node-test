@@ -1,4 +1,9 @@
-import {resolveImports, createContextTracker, isGetTestContextCall, isGlobalMock} from './utils/node-test.js';
+import {
+	resolveImports,
+	createContextTracker,
+	isGetTestContextCall,
+	isGlobalMock,
+} from './utils/node-test.js';
 import {isFunction} from './ast/index.js';
 import {unwrapTypeScriptExpression, unwrapExpression} from './utils/index.js';
 

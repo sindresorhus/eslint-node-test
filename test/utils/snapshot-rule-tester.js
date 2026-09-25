@@ -174,19 +174,25 @@ function verify(code, verifyConfig, {filename}) {
 }
 
 export default class SnapshotRuleTester {
-	constructor(test, testerConfig) {
+	constructor(test, testerConfig = {}) {
 		this.test = test;
-		this.testerConfig = testerConfig;
+		// `filename` is not a flat-config key: ESLint's own RuleTester takes it out of the tester
+		// options and hands it to `linter.verify`, so it is kept here rather than in the config, where
+		// it would be an unknown key the Linter rejects.
+		const {filename, ...config} = testerConfig;
+		this.testerConfig = config;
+		this.defaultFilename = filename;
 	}
 
 	run(ruleId, rule, tests) {
-		const {test, testerConfig} = this;
+		const {test, testerConfig, defaultFilename} = this;
 		const {fixable} = rule.meta;
 
 		const {valid, invalid} = normalizeTests(tests);
 
 		for (const [index, testCase] of valid.entries()) {
-			const {code: input, filename, only} = testCase;
+			const {code: input, only} = testCase;
+			const filename = testCase.filename ?? defaultFilename;
 			const verifyConfig = getVerifyConfig(ruleId, rule, testerConfig, testCase);
 
 			(only ? test.only : test)(
@@ -199,7 +205,8 @@ export default class SnapshotRuleTester {
 		}
 
 		for (const [index, testCase] of invalid.entries()) {
-			const {code: input, options, filename, only} = testCase;
+			const {code: input, options, only} = testCase;
+			const filename = testCase.filename ?? defaultFilename;
 			const verifyConfig = getVerifyConfig(ruleId, rule, testerConfig, testCase);
 			const runVerify = code => verify(code, verifyConfig, {filename});
 
