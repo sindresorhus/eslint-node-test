@@ -191,9 +191,18 @@ const create = context => {
 				continue;
 			}
 
-			const assignedFromThen = variable.defs.some(
-				definition => definition.type === 'Variable' && containsThen(definition.node.init),
-			) || variable.references.some(reference => {
+			const assignedFromThen = variable.defs.some(definition => {
+				// A destructuring declarator binds a property read off the chain, not the chain
+				// itself. Destructuring does not await, so `const {length} = p.then(f)` reads `length`
+				// off the Promise (`undefined`), and returning it does not return a Promise. A
+				// declarator whose `id` is a plain Identifier binds exactly the name being returned,
+				// so nothing else has to be compared.
+				if (definition.type !== 'Variable' || definition.node.id.type !== 'Identifier') {
+					return false;
+				}
+
+				return containsThen(definition.node.init);
+			}) || variable.references.some(reference => {
 				// A reassignment holds the value just as a declaration does, and it is a write reference
 				// rather than a definition, so the assigned expression comes from the assignment.
 				if (!reference.isWrite()) {

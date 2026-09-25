@@ -7,6 +7,11 @@ const withHookImport = code => `import test, {beforeEach} from 'node:test';\n${c
 
 test.snapshot({
 	valid: [
+		// A destructuring declarator binds a property read off the chain (destructuring does not await), not the chain itself
+		withImport('test("title", t => { const {length} = foo().then(fn); return length; });'),
+		withImport('test("title", t => { const [first] = foo().then(fn); return first; });'),
+		withImport('test("title", t => { const {then} = foo().then(fn); return then; });'),
+
 		// A compound assignment produces a string, whatever the chain on its right returns
 		withImport('test("title", t => { let bar; bar += foo().then(fn); return bar; });'),
 
@@ -59,6 +64,9 @@ test.snapshot({
 	],
 	invalid: [
 		// A variable reassigned from a chain holds it just as a declaration does
+		// The declarator that binds the promise alongside a destructuring one still counts
+		withImport('test("title", t => { const {a} = {a: 1}, bar = foo().then(fn); return bar; });'),
+
 		withImport('test("title", t => { let bar; bar = foo().then(fn); return bar; });'),
 		withImport('test("title", t => { let bar = other; bar = foo().then(fn); return bar; });'),
 
