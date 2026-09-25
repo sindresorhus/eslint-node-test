@@ -1,27 +1,125 @@
-exports[`hooks-order > invalid(1): import test, {before, after} from 'node:test';\nafter(() => {});\nbefore(() => {}); 1`] = `
+exports[`hooks-order > invalid(1): import {after, before} from 'node:test';\nclass A {\n\tstatic {\n\t\tafter(() => {});\n\t\tbefore(() => {});\n\t}\n} 1`] = `
 
-  1 | import test, {before, after} from 'node:test';
-  2 | after(() => {});
-  3 | before(() => {});
+  1 | import {after, before} from 'node:test';
+  2 | class A {
+  3 | 	static {
+  4 | 		after(() => {});
+  5 | 		before(() => {});
+  6 | 	}
+  7 | }
 
 `;
 
-exports[`hooks-order > invalid(1): import test, {before, after} from 'node:test';\nafter(() => {});\nbefore(() => {}); 2`] = `
+exports[`hooks-order > invalid(1): import {after, before} from 'node:test';\nclass A {\n\tstatic {\n\t\tafter(() => {});\n\t\tbefore(() => {});\n\t}\n} 2`] = `
+
+Message:
+  1 | import {after, before} from 'node:test';
+  2 | class A {
+  3 | 	static {
+  4 | 		after(() => {});
+> 5 | 		before(() => {});
+    | 		^^^^^^^^^^^^^^^^ Hook \`before\` must come before \`after\`.
+  6 | 	}
+  7 | }
+
+Output:
+  1 | import {after, before} from 'node:test';
+  2 | class A {
+  3 | 	static {
+  4 | 		before(() => {});
+  5 | 		after(() => {});
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`hooks-order > invalid(10): import {before as b, after as a} from \"node:test\";\na(() => {});\nb(() => {}); 1`] = `
+
+  1 | import {before as b, after as a} from "node:test";
+  2 | a(() => {});
+  3 | b(() => {});
+
+`;
+
+exports[`hooks-order > invalid(10): import {before as b, after as a} from \"node:test\";\na(() => {});\nb(() => {}); 2`] = `
+
+Message:
+  1 | import {before as b, after as a} from "node:test";
+  2 | a(() => {});
+> 3 | b(() => {});
+    | ^^^^^^^^^^^ Hook \`before\` must come before \`after\`.
+
+Output:
+  1 | import {before as b, after as a} from "node:test";
+  2 | b(() => {});
+  3 | a(() => {});
+
+`;
+
+exports[`hooks-order > invalid(11): import * as nodeTest from \"node:test\";\nnodeTest.after(() => {});\nnodeTest.before(() => {}); 1`] = `
+
+  1 | import * as nodeTest from "node:test";
+  2 | nodeTest.after(() => {});
+  3 | nodeTest.before(() => {});
+
+`;
+
+exports[`hooks-order > invalid(11): import * as nodeTest from \"node:test\";\nnodeTest.after(() => {});\nnodeTest.before(() => {}); 2`] = `
+
+Message:
+  1 | import * as nodeTest from "node:test";
+  2 | nodeTest.after(() => {});
+> 3 | nodeTest.before(() => {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Hook \`before\` must come before \`after\`.
+
+Output:
+  1 | import * as nodeTest from "node:test";
+  2 | nodeTest.before(() => {});
+  3 | nodeTest.after(() => {});
+
+`;
+
+exports[`hooks-order > invalid(12): import test, {before, after} from 'node:test';\nafter(() => {});\nconsole.log(\"side effect\");\nbefore(() => {}); 1`] = `
+
+  1 | import test, {before, after} from 'node:test';
+  2 | after(() => {});
+  3 | console.log("side effect");
+  4 | before(() => {});
+
+`;
+
+exports[`hooks-order > invalid(12): import test, {before, after} from 'node:test';\nafter(() => {});\nconsole.log(\"side effect\");\nbefore(() => {}); 2`] = `
 
 Message:
   1 | import test, {before, after} from 'node:test';
   2 | after(() => {});
-> 3 | before(() => {});
+  3 | console.log("side effect");
+> 4 | before(() => {});
     | ^^^^^^^^^^^^^^^^ Hook \`before\` must come before \`after\`.
-
-Output:
-  1 | import test, {before, after} from 'node:test';
-  2 | before(() => {});
-  3 | after(() => {});
 
 `;
 
-exports[`hooks-order > invalid(10): import test, {before, after} from 'node:test';\nafter(() => {});\nbefore(() => {}); // comment 1`] = `
+exports[`hooks-order > invalid(13): import test, {before, after} from 'node:test';\nafter(() => {});\n// setup\nbefore(() => {}); 1`] = `
+
+  1 | import test, {before, after} from 'node:test';
+  2 | after(() => {});
+  3 | // setup
+  4 | before(() => {});
+
+`;
+
+exports[`hooks-order > invalid(13): import test, {before, after} from 'node:test';\nafter(() => {});\n// setup\nbefore(() => {}); 2`] = `
+
+Message:
+  1 | import test, {before, after} from 'node:test';
+  2 | after(() => {});
+  3 | // setup
+> 4 | before(() => {});
+    | ^^^^^^^^^^^^^^^^ Hook \`before\` must come before \`after\`.
+
+`;
+
+exports[`hooks-order > invalid(14): import test, {before, after} from 'node:test';\nafter(() => {});\nbefore(() => {}); // comment 1`] = `
 
   1 | import test, {before, after} from 'node:test';
   2 | after(() => {});
@@ -29,7 +127,7 @@ exports[`hooks-order > invalid(10): import test, {before, after} from 'node:test
 
 `;
 
-exports[`hooks-order > invalid(10): import test, {before, after} from 'node:test';\nafter(() => {});\nbefore(() => {}); // comment 2`] = `
+exports[`hooks-order > invalid(14): import test, {before, after} from 'node:test';\nafter(() => {});\nbefore(() => {}); // comment 2`] = `
 
 Message:
   1 | import test, {before, after} from 'node:test';
@@ -39,7 +137,7 @@ Message:
 
 `;
 
-exports[`hooks-order > invalid(11): import test, {before, after} from 'node:test';\n// teardown\nafter(() => {});\nbefore(() => {}); 1`] = `
+exports[`hooks-order > invalid(15): import test, {before, after} from 'node:test';\n// teardown\nafter(() => {});\nbefore(() => {}); 1`] = `
 
   1 | import test, {before, after} from 'node:test';
   2 | // teardown
@@ -48,7 +146,7 @@ exports[`hooks-order > invalid(11): import test, {before, after} from 'node:test
 
 `;
 
-exports[`hooks-order > invalid(11): import test, {before, after} from 'node:test';\n// teardown\nafter(() => {});\nbefore(() => {}); 2`] = `
+exports[`hooks-order > invalid(15): import test, {before, after} from 'node:test';\n// teardown\nafter(() => {});\nbefore(() => {}); 2`] = `
 
 Message:
   1 | import test, {before, after} from 'node:test';
@@ -59,7 +157,7 @@ Message:
 
 `;
 
-exports[`hooks-order > invalid(12): import test, {before, after} from 'node:test';\n/* teardown */\nafter(() => {});\nbefore(() => {}); 1`] = `
+exports[`hooks-order > invalid(16): import test, {before, after} from 'node:test';\n/* teardown */\nafter(() => {});\nbefore(() => {}); 1`] = `
 
   1 | import test, {before, after} from 'node:test';
   2 | /* teardown */
@@ -68,7 +166,7 @@ exports[`hooks-order > invalid(12): import test, {before, after} from 'node:test
 
 `;
 
-exports[`hooks-order > invalid(12): import test, {before, after} from 'node:test';\n/* teardown */\nafter(() => {});\nbefore(() => {}); 2`] = `
+exports[`hooks-order > invalid(16): import test, {before, after} from 'node:test';\n/* teardown */\nafter(() => {});\nbefore(() => {}); 2`] = `
 
 Message:
   1 | import test, {before, after} from 'node:test';
@@ -79,7 +177,7 @@ Message:
 
 `;
 
-exports[`hooks-order > invalid(13): import test, {before, after} from 'node:test';\n/* teardown */ after(() => {});\nbefore(() => {}); 1`] = `
+exports[`hooks-order > invalid(17): import test, {before, after} from 'node:test';\n/* teardown */ after(() => {});\nbefore(() => {}); 1`] = `
 
   1 | import test, {before, after} from 'node:test';
   2 | /* teardown */ after(() => {});
@@ -87,7 +185,7 @@ exports[`hooks-order > invalid(13): import test, {before, after} from 'node:test
 
 `;
 
-exports[`hooks-order > invalid(13): import test, {before, after} from 'node:test';\n/* teardown */ after(() => {});\nbefore(() => {}); 2`] = `
+exports[`hooks-order > invalid(17): import test, {before, after} from 'node:test';\n/* teardown */ after(() => {});\nbefore(() => {}); 2`] = `
 
 Message:
   1 | import test, {before, after} from 'node:test';
@@ -97,7 +195,7 @@ Message:
 
 `;
 
-exports[`hooks-order > invalid(14): import test, {before, after} from 'node:test';\n// file header\n\nafter(() => {});\nbefore(() => {}); 1`] = `
+exports[`hooks-order > invalid(18): import test, {before, after} from 'node:test';\n// file header\n\nafter(() => {});\nbefore(() => {}); 1`] = `
 
   1 | import test, {before, after} from 'node:test';
   2 | // file header
@@ -107,7 +205,7 @@ exports[`hooks-order > invalid(14): import test, {before, after} from 'node:test
 
 `;
 
-exports[`hooks-order > invalid(14): import test, {before, after} from 'node:test';\n// file header\n\nafter(() => {});\nbefore(() => {}); 2`] = `
+exports[`hooks-order > invalid(18): import test, {before, after} from 'node:test';\n// file header\n\nafter(() => {});\nbefore(() => {}); 2`] = `
 
 Message:
   1 | import test, {before, after} from 'node:test';
@@ -126,7 +224,7 @@ Output:
 
 `;
 
-exports[`hooks-order > invalid(15): import test, {describe, before, after} from 'node:test';\ndescribe(\"s\", () => {\n\tafter(() => {});\n\tbefore(() => {});\n}); 1`] = `
+exports[`hooks-order > invalid(19): import test, {describe, before, after} from 'node:test';\ndescribe(\"s\", () => {\n\tafter(() => {});\n\tbefore(() => {});\n}); 1`] = `
 
   1 | import test, {describe, before, after} from 'node:test';
   2 | describe("s", () => {
@@ -136,7 +234,7 @@ exports[`hooks-order > invalid(15): import test, {describe, before, after} from 
 
 `;
 
-exports[`hooks-order > invalid(15): import test, {describe, before, after} from 'node:test';\ndescribe(\"s\", () => {\n\tafter(() => {});\n\tbefore(() => {});\n}); 2`] = `
+exports[`hooks-order > invalid(19): import test, {describe, before, after} from 'node:test';\ndescribe(\"s\", () => {\n\tafter(() => {});\n\tbefore(() => {});\n}); 2`] = `
 
 Message:
   1 | import test, {describe, before, after} from 'node:test';
@@ -155,7 +253,42 @@ Output:
 
 `;
 
-exports[`hooks-order > invalid(16): import test, {before, beforeEach, afterEach, after} from 'node:test';\nafter(() => {});\nafterEach(() => {});\nbeforeEach(() => {});\nbefore(() => {}); 1`] = `
+exports[`hooks-order > invalid(2): import {afterEach, before} from 'node:test';\nswitch (value) {\n\tcase 1:\n\t\tafterEach(() => {});\n\t\tbefore(() => {});\n\t\tbreak;\n} 1`] = `
+
+  1 | import {afterEach, before} from 'node:test';
+  2 | switch (value) {
+  3 | 	case 1:
+  4 | 		afterEach(() => {});
+  5 | 		before(() => {});
+  6 | 		break;
+  7 | }
+
+`;
+
+exports[`hooks-order > invalid(2): import {afterEach, before} from 'node:test';\nswitch (value) {\n\tcase 1:\n\t\tafterEach(() => {});\n\t\tbefore(() => {});\n\t\tbreak;\n} 2`] = `
+
+Message:
+  1 | import {afterEach, before} from 'node:test';
+  2 | switch (value) {
+  3 | 	case 1:
+  4 | 		afterEach(() => {});
+> 5 | 		before(() => {});
+    | 		^^^^^^^^^^^^^^^^ Hook \`before\` must come before \`afterEach\`.
+  6 | 		break;
+  7 | }
+
+Output:
+  1 | import {afterEach, before} from 'node:test';
+  2 | switch (value) {
+  3 | 	case 1:
+  4 | 		before(() => {});
+  5 | 		afterEach(() => {});
+  6 | 		break;
+  7 | }
+
+`;
+
+exports[`hooks-order > invalid(20): import test, {before, beforeEach, afterEach, after} from 'node:test';\nafter(() => {});\nafterEach(() => {});\nbeforeEach(() => {});\nbefore(() => {}); 1`] = `
 
   1 | import test, {before, beforeEach, afterEach, after} from 'node:test';
   2 | after(() => {});
@@ -165,7 +298,7 @@ exports[`hooks-order > invalid(16): import test, {before, beforeEach, afterEach,
 
 `;
 
-exports[`hooks-order > invalid(16): import test, {before, beforeEach, afterEach, after} from 'node:test';\nafter(() => {});\nafterEach(() => {});\nbeforeEach(() => {});\nbefore(() => {}); 2`] = `
+exports[`hooks-order > invalid(20): import test, {before, beforeEach, afterEach, after} from 'node:test';\nafter(() => {});\nafterEach(() => {});\nbeforeEach(() => {});\nbefore(() => {}); 2`] = `
 
 Message:
   1 | import test, {before, beforeEach, afterEach, after} from 'node:test';
@@ -184,7 +317,7 @@ Output:
 
 `;
 
-exports[`hooks-order > invalid(16): import test, {before, beforeEach, afterEach, after} from 'node:test';\nafter(() => {});\nafterEach(() => {});\nbeforeEach(() => {});\nbefore(() => {}); 3`] = `
+exports[`hooks-order > invalid(20): import test, {before, beforeEach, afterEach, after} from 'node:test';\nafter(() => {});\nafterEach(() => {});\nbeforeEach(() => {});\nbefore(() => {}); 3`] = `
 
 Message:
   1 | import test, {before, beforeEach, afterEach, after} from 'node:test';
@@ -203,7 +336,7 @@ Output:
 
 `;
 
-exports[`hooks-order > invalid(16): import test, {before, beforeEach, afterEach, after} from 'node:test';\nafter(() => {});\nafterEach(() => {});\nbeforeEach(() => {});\nbefore(() => {}); 4`] = `
+exports[`hooks-order > invalid(20): import test, {before, beforeEach, afterEach, after} from 'node:test';\nafter(() => {});\nafterEach(() => {});\nbeforeEach(() => {});\nbefore(() => {}); 4`] = `
 
 Message:
   1 | import test, {before, beforeEach, afterEach, after} from 'node:test';
@@ -222,7 +355,7 @@ Output:
 
 `;
 
-exports[`hooks-order > invalid(17): import test, {describe, before, after} from 'node:test';\ndescribe(\"a\", () => {\n\tafter(() => {});\n\tbefore(() => {});\n});\ndescribe(\"b\", () => {\n\tafter(() => {});\n\tbefore(() => {});\n}); 1`] = `
+exports[`hooks-order > invalid(21): import test, {describe, before, after} from 'node:test';\ndescribe(\"a\", () => {\n\tafter(() => {});\n\tbefore(() => {});\n});\ndescribe(\"b\", () => {\n\tafter(() => {});\n\tbefore(() => {});\n}); 1`] = `
 
   1 | import test, {describe, before, after} from 'node:test';
   2 | describe("a", () => {
@@ -236,7 +369,7 @@ exports[`hooks-order > invalid(17): import test, {describe, before, after} from 
 
 `;
 
-exports[`hooks-order > invalid(17): import test, {describe, before, after} from 'node:test';\ndescribe(\"a\", () => {\n\tafter(() => {});\n\tbefore(() => {});\n});\ndescribe(\"b\", () => {\n\tafter(() => {});\n\tbefore(() => {});\n}); 2`] = `
+exports[`hooks-order > invalid(21): import test, {describe, before, after} from 'node:test';\ndescribe(\"a\", () => {\n\tafter(() => {});\n\tbefore(() => {});\n});\ndescribe(\"b\", () => {\n\tafter(() => {});\n\tbefore(() => {});\n}); 2`] = `
 
 Message:
   1 | import test, {describe, before, after} from 'node:test';
@@ -263,7 +396,7 @@ Output:
 
 `;
 
-exports[`hooks-order > invalid(17): import test, {describe, before, after} from 'node:test';\ndescribe(\"a\", () => {\n\tafter(() => {});\n\tbefore(() => {});\n});\ndescribe(\"b\", () => {\n\tafter(() => {});\n\tbefore(() => {});\n}); 3`] = `
+exports[`hooks-order > invalid(21): import test, {describe, before, after} from 'node:test';\ndescribe(\"a\", () => {\n\tafter(() => {});\n\tbefore(() => {});\n});\ndescribe(\"b\", () => {\n\tafter(() => {});\n\tbefore(() => {});\n}); 3`] = `
 
 Message:
   1 | import test, {describe, before, after} from 'node:test';
@@ -290,7 +423,7 @@ Output:
 
 `;
 
-exports[`hooks-order > invalid(18): import test, {before, after} from 'node:test';\nafter(() => {}) as void;\nbefore(() => {}) as void; 1`] = `
+exports[`hooks-order > invalid(22): import test, {before, after} from 'node:test';\nafter(() => {}) as void;\nbefore(() => {}) as void; 1`] = `
 
   1 | import test, {before, after} from 'node:test';
   2 | after(() => {}) as void;
@@ -298,7 +431,7 @@ exports[`hooks-order > invalid(18): import test, {before, after} from 'node:test
 
 `;
 
-exports[`hooks-order > invalid(18): import test, {before, after} from 'node:test';\nafter(() => {}) as void;\nbefore(() => {}) as void; 2`] = `
+exports[`hooks-order > invalid(22): import test, {before, after} from 'node:test';\nafter(() => {}) as void;\nbefore(() => {}) as void; 2`] = `
 
 Message:
   1 | import test, {before, after} from 'node:test';
@@ -313,14 +446,14 @@ Output:
 
 `;
 
-exports[`hooks-order > invalid(19): import {test} from 'node:test';\ntest('p', t => { t.afterEach(() => {}); t.beforeEach(() => {}); }); 1`] = `
+exports[`hooks-order > invalid(23): import {test} from 'node:test';\ntest('p', t => { t.afterEach(() => {}); t.beforeEach(() => {}); }); 1`] = `
 
   1 | import {test} from 'node:test';
   2 | test('p', t => { t.afterEach(() => {}); t.beforeEach(() => {}); });
 
 `;
 
-exports[`hooks-order > invalid(19): import {test} from 'node:test';\ntest('p', t => { t.afterEach(() => {}); t.beforeEach(() => {}); }); 2`] = `
+exports[`hooks-order > invalid(23): import {test} from 'node:test';\ntest('p', t => { t.afterEach(() => {}); t.beforeEach(() => {}); }); 2`] = `
 
 Message:
   1 | import {test} from 'node:test';
@@ -333,37 +466,14 @@ Output:
 
 `;
 
-exports[`hooks-order > invalid(2): import test, {before, afterEach} from 'node:test';\nafterEach(() => {});\nbefore(() => {}); 1`] = `
-
-  1 | import test, {before, afterEach} from 'node:test';
-  2 | afterEach(() => {});
-  3 | before(() => {});
-
-`;
-
-exports[`hooks-order > invalid(2): import test, {before, afterEach} from 'node:test';\nafterEach(() => {});\nbefore(() => {}); 2`] = `
-
-Message:
-  1 | import test, {before, afterEach} from 'node:test';
-  2 | afterEach(() => {});
-> 3 | before(() => {});
-    | ^^^^^^^^^^^^^^^^ Hook \`before\` must come before \`afterEach\`.
-
-Output:
-  1 | import test, {before, afterEach} from 'node:test';
-  2 | before(() => {});
-  3 | afterEach(() => {});
-
-`;
-
-exports[`hooks-order > invalid(20): import {test, getTestContext} from 'node:test';\ntest('p', t => { getTestContext().afterEach(() => {}); getTestContext().beforeEach(() => {}); }); 1`] = `
+exports[`hooks-order > invalid(24): import {test, getTestContext} from 'node:test';\ntest('p', t => { getTestContext().afterEach(() => {}); getTestContext().beforeEach(() => {}); }); 1`] = `
 
   1 | import {test, getTestContext} from 'node:test';
   2 | test('p', t => { getTestContext().afterEach(() => {}); getTestContext().beforeEach(() => {}); });
 
 `;
 
-exports[`hooks-order > invalid(20): import {test, getTestContext} from 'node:test';\ntest('p', t => { getTestContext().afterEach(() => {}); getTestContext().beforeEach(() => {}); }); 2`] = `
+exports[`hooks-order > invalid(24): import {test, getTestContext} from 'node:test';\ntest('p', t => { getTestContext().afterEach(() => {}); getTestContext().beforeEach(() => {}); }); 2`] = `
 
 Message:
   1 | import {test, getTestContext} from 'node:test';
@@ -376,7 +486,7 @@ Output:
 
 `;
 
-exports[`hooks-order > invalid(21): import {before, afterEach, test} from 'node:test';\n\n(afterEach(() => {}))\nbefore(() => {})\n\ntest('a', () => {}); 1`] = `
+exports[`hooks-order > invalid(25): import {before, afterEach, test} from 'node:test';\n\n(afterEach(() => {}))\nbefore(() => {})\n\ntest('a', () => {}); 1`] = `
 
   1 | import {before, afterEach, test} from 'node:test';
   2 |
@@ -387,7 +497,7 @@ exports[`hooks-order > invalid(21): import {before, afterEach, test} from 'node:
 
 `;
 
-exports[`hooks-order > invalid(21): import {before, afterEach, test} from 'node:test';\n\n(afterEach(() => {}))\nbefore(() => {})\n\ntest('a', () => {}); 2`] = `
+exports[`hooks-order > invalid(25): import {before, afterEach, test} from 'node:test';\n\n(afterEach(() => {}))\nbefore(() => {})\n\ntest('a', () => {}); 2`] = `
 
 Message:
   1 | import {before, afterEach, test} from 'node:test';
@@ -408,7 +518,7 @@ Output:
 
 `;
 
-exports[`hooks-order > invalid(22): import {after, before, beforeEach} from 'node:test';\n\nafter(() => {})\nbefore(() => {});\nbeforeEach(() => {});\n(async () => {\n\tawait Promise.resolve();\n})(); 1`] = `
+exports[`hooks-order > invalid(26): import {after, before, beforeEach} from 'node:test';\n\nafter(() => {})\nbefore(() => {});\nbeforeEach(() => {});\n(async () => {\n\tawait Promise.resolve();\n})(); 1`] = `
 
   1 | import {after, before, beforeEach} from 'node:test';
   2 |
@@ -421,7 +531,7 @@ exports[`hooks-order > invalid(22): import {after, before, beforeEach} from 'nod
 
 `;
 
-exports[`hooks-order > invalid(22): import {after, before, beforeEach} from 'node:test';\n\nafter(() => {})\nbefore(() => {});\nbeforeEach(() => {});\n(async () => {\n\tawait Promise.resolve();\n})(); 2`] = `
+exports[`hooks-order > invalid(26): import {after, before, beforeEach} from 'node:test';\n\nafter(() => {})\nbefore(() => {});\nbeforeEach(() => {});\n(async () => {\n\tawait Promise.resolve();\n})(); 2`] = `
 
 Message:
   1 | import {after, before, beforeEach} from 'node:test';
@@ -446,7 +556,7 @@ Output:
 
 `;
 
-exports[`hooks-order > invalid(22): import {after, before, beforeEach} from 'node:test';\n\nafter(() => {})\nbefore(() => {});\nbeforeEach(() => {});\n(async () => {\n\tawait Promise.resolve();\n})(); 3`] = `
+exports[`hooks-order > invalid(26): import {after, before, beforeEach} from 'node:test';\n\nafter(() => {})\nbefore(() => {});\nbeforeEach(() => {});\n(async () => {\n\tawait Promise.resolve();\n})(); 3`] = `
 
 Message:
   1 | import {after, before, beforeEach} from 'node:test';
@@ -471,7 +581,7 @@ Output:
 
 `;
 
-exports[`hooks-order > invalid(23): import {after, before} from 'node:test';\n\nafter(() => {})\nbefore(() => {});\n[1].forEach(f); 1`] = `
+exports[`hooks-order > invalid(27): import {after, before} from 'node:test';\n\nafter(() => {})\nbefore(() => {});\n[1].forEach(f); 1`] = `
 
   1 | import {after, before} from 'node:test';
   2 |
@@ -481,7 +591,7 @@ exports[`hooks-order > invalid(23): import {after, before} from 'node:test';\n\n
 
 `;
 
-exports[`hooks-order > invalid(23): import {after, before} from 'node:test';\n\nafter(() => {})\nbefore(() => {});\n[1].forEach(f); 2`] = `
+exports[`hooks-order > invalid(27): import {after, before} from 'node:test';\n\nafter(() => {})\nbefore(() => {});\n[1].forEach(f); 2`] = `
 
 Message:
   1 | import {after, before} from 'node:test';
@@ -500,7 +610,116 @@ Output:
 
 `;
 
-exports[`hooks-order > invalid(3): import test, {beforeEach, afterEach} from 'node:test';\nafterEach(() => {});\nbeforeEach(() => {}); 1`] = `
+exports[`hooks-order > invalid(3): import {after, before} from 'node:test';\nswitch (value) {\n\tcase 1: {\n\t\tafter(() => {});\n\t\tbefore(() => {});\n\t}\n} 1`] = `
+
+  1 | import {after, before} from 'node:test';
+  2 | switch (value) {
+  3 | 	case 1: {
+  4 | 		after(() => {});
+  5 | 		before(() => {});
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`hooks-order > invalid(3): import {after, before} from 'node:test';\nswitch (value) {\n\tcase 1: {\n\t\tafter(() => {});\n\t\tbefore(() => {});\n\t}\n} 2`] = `
+
+Message:
+  1 | import {after, before} from 'node:test';
+  2 | switch (value) {
+  3 | 	case 1: {
+  4 | 		after(() => {});
+> 5 | 		before(() => {});
+    | 		^^^^^^^^^^^^^^^^ Hook \`before\` must come before \`after\`.
+  6 | 	}
+  7 | }
+
+Output:
+  1 | import {after, before} from 'node:test';
+  2 | switch (value) {
+  3 | 	case 1: {
+  4 | 		before(() => {});
+  5 | 		after(() => {});
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`hooks-order > invalid(4): import {after, before} from 'node:test';\nclass A {\n\tstatic {\n\t\tafter(() => {});\n\t\twork();\n\t\tbefore(() => {});\n\t}\n} 1`] = `
+
+  1 | import {after, before} from 'node:test';
+  2 | class A {
+  3 | 	static {
+  4 | 		after(() => {});
+  5 | 		work();
+  6 | 		before(() => {});
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`hooks-order > invalid(4): import {after, before} from 'node:test';\nclass A {\n\tstatic {\n\t\tafter(() => {});\n\t\twork();\n\t\tbefore(() => {});\n\t}\n} 2`] = `
+
+Message:
+  1 | import {after, before} from 'node:test';
+  2 | class A {
+  3 | 	static {
+  4 | 		after(() => {});
+  5 | 		work();
+> 6 | 		before(() => {});
+    | 		^^^^^^^^^^^^^^^^ Hook \`before\` must come before \`after\`.
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`hooks-order > invalid(5): import test, {before, after} from 'node:test';\nafter(() => {});\nbefore(() => {}); 1`] = `
+
+  1 | import test, {before, after} from 'node:test';
+  2 | after(() => {});
+  3 | before(() => {});
+
+`;
+
+exports[`hooks-order > invalid(5): import test, {before, after} from 'node:test';\nafter(() => {});\nbefore(() => {}); 2`] = `
+
+Message:
+  1 | import test, {before, after} from 'node:test';
+  2 | after(() => {});
+> 3 | before(() => {});
+    | ^^^^^^^^^^^^^^^^ Hook \`before\` must come before \`after\`.
+
+Output:
+  1 | import test, {before, after} from 'node:test';
+  2 | before(() => {});
+  3 | after(() => {});
+
+`;
+
+exports[`hooks-order > invalid(6): import test, {before, afterEach} from 'node:test';\nafterEach(() => {});\nbefore(() => {}); 1`] = `
+
+  1 | import test, {before, afterEach} from 'node:test';
+  2 | afterEach(() => {});
+  3 | before(() => {});
+
+`;
+
+exports[`hooks-order > invalid(6): import test, {before, afterEach} from 'node:test';\nafterEach(() => {});\nbefore(() => {}); 2`] = `
+
+Message:
+  1 | import test, {before, afterEach} from 'node:test';
+  2 | afterEach(() => {});
+> 3 | before(() => {});
+    | ^^^^^^^^^^^^^^^^ Hook \`before\` must come before \`afterEach\`.
+
+Output:
+  1 | import test, {before, afterEach} from 'node:test';
+  2 | before(() => {});
+  3 | afterEach(() => {});
+
+`;
+
+exports[`hooks-order > invalid(7): import test, {beforeEach, afterEach} from 'node:test';\nafterEach(() => {});\nbeforeEach(() => {}); 1`] = `
 
   1 | import test, {beforeEach, afterEach} from 'node:test';
   2 | afterEach(() => {});
@@ -508,7 +727,7 @@ exports[`hooks-order > invalid(3): import test, {beforeEach, afterEach} from 'no
 
 `;
 
-exports[`hooks-order > invalid(3): import test, {beforeEach, afterEach} from 'node:test';\nafterEach(() => {});\nbeforeEach(() => {}); 2`] = `
+exports[`hooks-order > invalid(7): import test, {beforeEach, afterEach} from 'node:test';\nafterEach(() => {});\nbeforeEach(() => {}); 2`] = `
 
 Message:
   1 | import test, {beforeEach, afterEach} from 'node:test';
@@ -523,7 +742,7 @@ Output:
 
 `;
 
-exports[`hooks-order > invalid(4): import test, {beforeEach, after} from 'node:test';\nafter(() => {});\nbeforeEach(() => {}); 1`] = `
+exports[`hooks-order > invalid(8): import test, {beforeEach, after} from 'node:test';\nafter(() => {});\nbeforeEach(() => {}); 1`] = `
 
   1 | import test, {beforeEach, after} from 'node:test';
   2 | after(() => {});
@@ -531,7 +750,7 @@ exports[`hooks-order > invalid(4): import test, {beforeEach, after} from 'node:t
 
 `;
 
-exports[`hooks-order > invalid(4): import test, {beforeEach, after} from 'node:test';\nafter(() => {});\nbeforeEach(() => {}); 2`] = `
+exports[`hooks-order > invalid(8): import test, {beforeEach, after} from 'node:test';\nafter(() => {});\nbeforeEach(() => {}); 2`] = `
 
 Message:
   1 | import test, {beforeEach, after} from 'node:test';
@@ -546,7 +765,7 @@ Output:
 
 `;
 
-exports[`hooks-order > invalid(5): import test, {before, beforeEach, after} from 'node:test';\nbefore(() => {});\nafter(() => {});\nbeforeEach(() => {});\ntest(\"a\", () => {}); 1`] = `
+exports[`hooks-order > invalid(9): import test, {before, beforeEach, after} from 'node:test';\nbefore(() => {});\nafter(() => {});\nbeforeEach(() => {});\ntest(\"a\", () => {}); 1`] = `
 
   1 | import test, {before, beforeEach, after} from 'node:test';
   2 | before(() => {});
@@ -556,7 +775,7 @@ exports[`hooks-order > invalid(5): import test, {before, beforeEach, after} from
 
 `;
 
-exports[`hooks-order > invalid(5): import test, {before, beforeEach, after} from 'node:test';\nbefore(() => {});\nafter(() => {});\nbeforeEach(() => {});\ntest(\"a\", () => {}); 2`] = `
+exports[`hooks-order > invalid(9): import test, {before, beforeEach, after} from 'node:test';\nbefore(() => {});\nafter(() => {});\nbeforeEach(() => {});\ntest(\"a\", () => {}); 2`] = `
 
 Message:
   1 | import test, {before, beforeEach, after} from 'node:test';
@@ -572,91 +791,5 @@ Output:
   3 | beforeEach(() => {});
   4 | after(() => {});
   5 | test("a", () => {});
-
-`;
-
-exports[`hooks-order > invalid(6): import {before as b, after as a} from \"node:test\";\na(() => {});\nb(() => {}); 1`] = `
-
-  1 | import {before as b, after as a} from "node:test";
-  2 | a(() => {});
-  3 | b(() => {});
-
-`;
-
-exports[`hooks-order > invalid(6): import {before as b, after as a} from \"node:test\";\na(() => {});\nb(() => {}); 2`] = `
-
-Message:
-  1 | import {before as b, after as a} from "node:test";
-  2 | a(() => {});
-> 3 | b(() => {});
-    | ^^^^^^^^^^^ Hook \`before\` must come before \`after\`.
-
-Output:
-  1 | import {before as b, after as a} from "node:test";
-  2 | b(() => {});
-  3 | a(() => {});
-
-`;
-
-exports[`hooks-order > invalid(7): import * as nodeTest from \"node:test\";\nnodeTest.after(() => {});\nnodeTest.before(() => {}); 1`] = `
-
-  1 | import * as nodeTest from "node:test";
-  2 | nodeTest.after(() => {});
-  3 | nodeTest.before(() => {});
-
-`;
-
-exports[`hooks-order > invalid(7): import * as nodeTest from \"node:test\";\nnodeTest.after(() => {});\nnodeTest.before(() => {}); 2`] = `
-
-Message:
-  1 | import * as nodeTest from "node:test";
-  2 | nodeTest.after(() => {});
-> 3 | nodeTest.before(() => {});
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Hook \`before\` must come before \`after\`.
-
-Output:
-  1 | import * as nodeTest from "node:test";
-  2 | nodeTest.before(() => {});
-  3 | nodeTest.after(() => {});
-
-`;
-
-exports[`hooks-order > invalid(8): import test, {before, after} from 'node:test';\nafter(() => {});\nconsole.log(\"side effect\");\nbefore(() => {}); 1`] = `
-
-  1 | import test, {before, after} from 'node:test';
-  2 | after(() => {});
-  3 | console.log("side effect");
-  4 | before(() => {});
-
-`;
-
-exports[`hooks-order > invalid(8): import test, {before, after} from 'node:test';\nafter(() => {});\nconsole.log(\"side effect\");\nbefore(() => {}); 2`] = `
-
-Message:
-  1 | import test, {before, after} from 'node:test';
-  2 | after(() => {});
-  3 | console.log("side effect");
-> 4 | before(() => {});
-    | ^^^^^^^^^^^^^^^^ Hook \`before\` must come before \`after\`.
-
-`;
-
-exports[`hooks-order > invalid(9): import test, {before, after} from 'node:test';\nafter(() => {});\n// setup\nbefore(() => {}); 1`] = `
-
-  1 | import test, {before, after} from 'node:test';
-  2 | after(() => {});
-  3 | // setup
-  4 | before(() => {});
-
-`;
-
-exports[`hooks-order > invalid(9): import test, {before, after} from 'node:test';\nafter(() => {});\n// setup\nbefore(() => {}); 2`] = `
-
-Message:
-  1 | import test, {before, after} from 'node:test';
-  2 | after(() => {});
-  3 | // setup
-> 4 | before(() => {});
-    | ^^^^^^^^^^^^^^^^ Hook \`before\` must come before \`after\`.
 
 `;

@@ -54,12 +54,42 @@ test.snapshot({
 			code: 'import type helper = require(\'./example.test.js\');',
 			languageOptions: {parser: parsers.typescript},
 		},
+		// A specifier-level type import is erased just as completely, so the module is never loaded
+		{
+			code: 'import {type Helper} from \'./example.test.js\';',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'export {type Helper} from \'./example.test.js\';',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import {type Helper} from \'./example.test.js\';\nexport {type Other} from \'./other.test.js\';',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import {type Value} from \'./example.test.ts\';',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'export {type Value} from \'./example.test.ts\';',
+			languageOptions: {parser: parsers.typescript},
+		},
 		{
 			code: 'export = require(name);',
 			languageOptions: {parser: parsers.typescript},
 		},
 	],
 	invalid: [
+		// A mixed declaration still loads the module for its value specifier
+		{
+			code: 'import {type Helper, value} from \'./example.test.js\';',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'export {type Helper, value} from \'./example.test.js\';',
+			languageOptions: {parser: parsers.typescript},
+		},
 		// A Windows-style specifier resolves the same way as a POSIX one
 		String.raw`import '.\\test\\helpers.js';`,
 		String.raw`import '.\\example.test.js';`,
@@ -115,15 +145,7 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
-			code: 'import {type Value} from \'./example.test.ts\';',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
 			code: 'export {type Value, value} from \'./example.test.ts\';',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'export {type Value} from \'./example.test.ts\';',
 			languageOptions: {parser: parsers.typescript},
 		},
 

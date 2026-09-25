@@ -35,6 +35,13 @@ test.snapshot({
 		withImport('before, after', 'const a = after(() => {});\nconst b = before(() => {});'),
 	],
 	invalid: [
+		// Every statement list a hook can be declared in: a class static block, a bare `switch` case,
+		// and a case with its own block
+		'import {after, before} from \'node:test\';\nclass A {\n\tstatic {\n\t\tafter(() => {});\n\t\tbefore(() => {});\n\t}\n}',
+		'import {afterEach, before} from \'node:test\';\nswitch (value) {\n\tcase 1:\n\t\tafterEach(() => {});\n\t\tbefore(() => {});\n\t\tbreak;\n}',
+		'import {after, before} from \'node:test\';\nswitch (value) {\n\tcase 1: {\n\t\tafter(() => {});\n\t\tbefore(() => {});\n\t}\n}',
+		'import {after, before} from \'node:test\';\nclass A {\n\tstatic {\n\t\tafter(() => {});\n\t\twork();\n\t\tbefore(() => {});\n\t}\n}',
+
 		// After before before
 		withImport('before, after', 'after(() => {});\nbefore(() => {});'),
 		// AfterEach before before

@@ -7,6 +7,7 @@ const withNamedImport = names => `import {mock, ${names}} from 'node:test';`;
 
 test.snapshot({
 	valid: [
+		withImport('class A {\n\tstatic {\n\t\tmock.timers.enable();\n\t\tmock.timers.reset();\n\t\tmock.timers.enable();\n\t}\n}'),
 		// A standalone `only` still runs unless the options slot says otherwise
 		`${withNamedImport('only')}\nonly('t', {skip: true}, () => { mock.timers.enable(); mock.timers.enable(); });`,
 		`${withNamedImport('only')}\nonly({name: 't', skip: true, fn() { mock.timers.enable(); mock.timers.enable(); }});`,
@@ -81,6 +82,8 @@ test.snapshot({
 
 		// Global mock tracker.
 		withImport('mock.timers.enable();\nmock.timers.enable();'),
+		// A class static block is module-level code, so the same duplicate applies there
+		withImport('class A {\n\tstatic {\n\t\tmock.timers.enable();\n\t\tmock.timers.enable();\n\t}\n}'),
 		withImport('mock.timers.enable();\ntest.mock.timers.enable();'),
 		withImport('mock.timers.enable();\nmock.timers.enable();\nmock.timers.enable();'),
 

@@ -7,6 +7,12 @@ test.snapshot({
 		// Not a test file — bail out early
 		'test("title", () => { doSomething(); });',
 
+		// A generator callback is never iterated, so its body never runs either
+		'import test from "node:test";\ntest("t", function* () { doSomething(); });',
+		'import test from "node:test";\ntest("t", async function* () { doSomething(); });',
+		'import {beforeEach} from "node:test";\nbeforeEach(function* () { doSomething(); });',
+		'import test from "node:test";\nimport assert from "node:assert";\ntest("t", function* () { assert.ok(1); });',
+
 		// A skipped callback never runs, so it cannot pass vacuously. A `todo` callback does run, so it
 		// is still checked.
 		'import test from "node:test";\ntest.skip("t", () => { doSomething(); });',

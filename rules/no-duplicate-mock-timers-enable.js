@@ -149,6 +149,14 @@ function getEnabledReceivers(segment, enabledReceiversBySegment) {
 	return enabledReceivers;
 }
 
+/*
+Whether a code path runs while the file is being loaded, where the mock timers are enabled for every
+test in it: the module body, and a class static block, which is module-level code in its own path.
+*/
+function isLoadTimeCodePath(node) {
+	return node.type === 'Program' || node.type === 'StaticBlock';
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -228,7 +236,7 @@ const create = context => {
 	context.on('onCodePathStart', (codePath, node) => {
 		codePathStack.push({
 			node,
-			isTracked: node.type === 'Program' || trackedCallbacks.has(node),
+			isTracked: isLoadTimeCodePath(node) || trackedCallbacks.has(node),
 			activeSegments: new Set(),
 			enabledReceiversBySegment: new Map(),
 		});
@@ -258,7 +266,7 @@ const create = context => {
 		const codePath = codePathStack.at(-1);
 		if (
 			!codePath?.isTracked
-			|| (codePath.node.type !== 'Program' && getEnclosingFunction(node) !== codePath.node)
+			|| (!isLoadTimeCodePath(codePath.node) && getEnclosingFunction(node) !== codePath.node)
 		) {
 			return;
 		}

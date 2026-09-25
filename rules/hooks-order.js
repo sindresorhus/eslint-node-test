@@ -22,12 +22,21 @@ const HOOK_ORDER = ['before', 'beforeEach', 'afterEach', 'after'];
 const HOOK_ORDER_INDEX = Object.fromEntries(HOOK_ORDER.map((name, index) => [name, index]));
 
 /*
+The statements a container holds directly. A `switch` case names its statements `consequent`, while
+every other statement list — a block, the program, a class static block — names them `body`.
+*/
+function getContainerStatements(block) {
+	return block.type === 'SwitchCase' ? block.consequent : block.body;
+}
+
+/*
 Build the fix that reorders a block's hooks into canonical order in a single pass. Returns
 `undefined` (no fix) when the hooks are not a contiguous run of statements, or a comment sits
 next to them — reordering would otherwise drop or misattribute code.
 */
 function getReorderFix(block, hooks, sourceCode) {
-	const positions = hooks.map(hook => block.body.indexOf(hook.statement));
+	const statements = getContainerStatements(block);
+	const positions = hooks.map(hook => statements.indexOf(hook.statement));
 	const min = Math.min(...positions);
 	const max = Math.max(...positions);
 
@@ -38,13 +47,13 @@ function getReorderFix(block, hooks, sourceCode) {
 
 	// A comment anywhere between consecutive hooks must not be moved.
 	for (let index = min; index < max; index += 1) {
-		if (sourceCode.getTokensBetween(block.body[index], block.body[index + 1], {includeComments: true}).length > 0) {
+		if (sourceCode.getTokensBetween(statements[index], statements[index + 1], {includeComments: true}).length > 0) {
 			return undefined;
 		}
 	}
 
-	const firstHook = block.body[min];
-	const lastHook = block.body[max];
+	const firstHook = statements[min];
+	const lastHook = statements[max];
 
 	// A comment leading the first hook describes that hook, and the reorder replaces statement
 	// text only, so the comment would end up describing whichever hook moves into first place.
@@ -81,7 +90,7 @@ function getReorderFix(block, hooks, sourceCode) {
 			const text = sourceCode.getText(sorted[index].statement);
 			const prefix = index > 0 && STARTS_WITH_BRACKET.test(text) ? ';' : '';
 			// The statement that lands below is the next hook, or the first statement after the block.
-			const next = sorted[index + 1]?.statement ?? block.body[max + 1];
+			const next = sorted[index + 1]?.statement ?? statements[max + 1];
 			const nextText = next ? sourceCode.getText(next) : '';
 			const suffix = !text.endsWith(';') && STARTS_WITH_BRACKET.test(nextText) ? ';' : '';
 			yield fixer.replaceText(hook.statement, `${prefix}${text}${suffix}`);
@@ -158,8 +167,14 @@ const create = context => {
 			return;
 		}
 
+		// Every statement list a hook can be declared in, so the same order applies in all of them.
 		const block = statement.parent;
-		if (block?.type !== 'BlockStatement' && block?.type !== 'Program') {
+		if (
+			block?.type !== 'BlockStatement'
+			&& block?.type !== 'Program'
+			&& block?.type !== 'StaticBlock'
+			&& block?.type !== 'SwitchCase'
+		) {
 			return;
 		}
 
