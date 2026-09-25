@@ -64,5 +64,8 @@ test.snapshot({
 		// An async subtest / context hook callback with a `done` parameter fails the same way
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\', async (sub, done) => { done(); }); });',
 		'import {test} from \'node:test\';\ntest(\'p\', t => { t.beforeEach(async (sub, done) => {}); });',
+
+		// A hook declared through `getTestContext()` is the same hook
+		'import {test, getTestContext} from \'node:test\';\ntest(\'p\', t => { getTestContext().beforeEach(async (sub, done) => {}); });',
 	],
 });

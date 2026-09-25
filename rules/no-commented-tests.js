@@ -8,16 +8,18 @@ const messages = {
 
 // Matches lines that look like commented-out test/hook calls from node:test.
 // Anchored at start-of-line (with optional leading whitespace and block comment asterisk).
-// Matches: test(, it(, describe(, suite(, before(, after(, beforeEach(, afterEach(
-// and dotted chains of real node:test names, like test.only(, it.skip(, describe.todo(, and the
-// static exports the test function carries, like test.describe( or it.beforeEach(.
+// Matches: `test(`, `it(`, `describe(`, `suite(`, `before(`, `after(`, `beforeEach(`, `afterEach(`,
+// and dotted chains of real node:test test and hook names: a modifier like `test.only(` or
+// `it.skip(`, or a static export the test function carries, like a chained `describe` or
+// `beforeEach` after a test binding. A non-test export such as `test.snapshot(` is documentation of
+// that API, not dead test code.
 // Only real node:test names are allowed in the chain, so unrelated method calls like `it.each(` or
 // `test.config(` are not misidentified as commented-out tests, and neither is `describe.name(…)`,
 // since `Function.prototype` has no node:test export names.
 // A leading `await` is part of the real spelling of a top-level test in an ES module.
 // No space is allowed before the `(`, because real code never writes `test (` while prose
 // routinely does — `// test (the runner entry point)` is a sentence, not a commented-out test.
-const CHAINED_NAME = '(?:only|skip|todo|describe|suite|before|after|beforeEach|afterEach|mock|snapshot|run|getTestContext|expectFailure)';
+const CHAINED_NAME = '(?:only|skip|todo|describe|suite|before|after|beforeEach|afterEach|expectFailure)';
 const COMMENTED_TEST_PATTERN = new RegExp(
 	String.raw`^\s*\*?\s*(?:await\s+)?(?:test|it|describe|suite|before|after|beforeEach|afterEach)(?:\s*\.\s*${CHAINED_NAME}\s*)*\(`,
 	'v',

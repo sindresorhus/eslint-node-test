@@ -34,7 +34,7 @@ const create = context => {
 		tracker.update(node);
 
 		const parsed = parseTestCall(node, imports);
-		const isContextHook = isContextHookCall(node, tracker.isContextIdentifier);
+		const isContextHook = isContextHookCall(node, tracker.isContextReceiver);
 		// Suites are handled by `no-async-describe`, which forbids an async `describe` callback
 		// outright (the runner never awaits it), so skip them here to avoid a duplicate report.
 		if ((!parsed && !isSubtest && !isContextHook) || parsed?.kind === 'suite') {

@@ -1551,6 +1551,24 @@ Message:
 
 `;
 
+exports[`no-sleep-in-test > invalid(70): import {test} from 'node:test';\nimport {setTimeout as sleep} from 'node:timers/promises';\ntest('a', async (t = {}) => { await t.test('b', async () => { await sleep(10); }); }); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | import {setTimeout as sleep} from 'node:timers/promises';
+  3 | test('a', async (t = {}) => { await t.test('b', async () => { await sleep(10); }); });
+
+`;
+
+exports[`no-sleep-in-test > invalid(70): import {test} from 'node:test';\nimport {setTimeout as sleep} from 'node:timers/promises';\ntest('a', async (t = {}) => { await t.test('b', async () => { await sleep(10); }); }); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+  2 | import {setTimeout as sleep} from 'node:timers/promises';
+> 3 | test('a', async (t = {}) => { await t.test('b', async () => { await sleep(10); }); });
+    |                                                                     ^^^^^^^^^ Do not sleep in tests with \`setTimeout\`. Await the real signal or use mock timers instead.
+
+`;
+
 exports[`no-sleep-in-test > invalid(8): import {it} from 'node:test';\nit('waits', async () => {\n\tawait new Promise(resolve => setTimeout(resolve, 500));\n}); 1`] = `
 
   1 | import {it} from 'node:test';

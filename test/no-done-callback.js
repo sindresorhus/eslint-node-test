@@ -96,5 +96,8 @@ test.snapshot({
 		// A subtest callback and a context hook receive `done` based on arity too
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\', (sub, done) => { done(); }); });',
 		'import {test} from \'node:test\';\ntest(\'p\', t => { t.beforeEach((sub, done) => {}); });',
+
+		// A hook declared through `getTestContext()` is the same hook
+		'import {test, getTestContext} from \'node:test\';\ntest(\'p\', t => { getTestContext().beforeEach((sub, done) => {}); });',
 	],
 });

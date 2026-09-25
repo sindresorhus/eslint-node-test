@@ -104,5 +104,10 @@ test.snapshot({
 		'import {test, getTestContext} from \'node:test\';\ntest(\'parent\', async () => {\n\tgetTestContext().test(\'child\', () => {});\n});',
 		'import {test, getTestContext} from \'node:test\';\ntest(\'parent\', () => {\n\tgetTestContext().test(\'child\', () => {});\n});',
 		'import {test, getTestContext} from \'node:test\';\ntest(\'parent\', async () => {\n\tclass C { static { getTestContext().test(\'child\', () => {}); } }\n});',
+
+		// A hook callback is handed the context of the test it runs for, so a subtest created there
+		// is cancelled the same way
+		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { t.test(\'c\', () => {}); });',
+		'import {getTestContext, beforeEach} from \'node:test\';\nbeforeEach(t => { getTestContext().test(\'c\', () => {}); });',
 	],
 });

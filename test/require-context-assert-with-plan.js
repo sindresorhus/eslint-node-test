@@ -48,9 +48,20 @@ test.snapshot({
 
 		// Not a test file
 		'assert.ok(1);',
-		// `t.plan(0)` / `t.plan(-1)` is not a real plan, so it sets no expectation to enforce
+		// `t.plan(0)` expects zero counted assertions, so `t.assert` would fail it, and `t.plan(-1)` throws
 		withTest('test(\'a\', t => { t.plan(0); assert.ok(1); });'),
 		withTest('test(\'a\', t => { t.plan(-1); assert.ok(1); });'),
+
+		// A statically skipped test, subtest, or suite never runs its callback, so there is no plan
+		// to mismatch and nothing to convert.
+		withTest('test.skip(\'a\', t => { t.plan(1); assert.ok(1); });'),
+		withTest('test(\'a\', {skip: true}, t => { t.plan(1); assert.ok(1); });'),
+		withTest('test(\'a\', async t => { await t.test(\'b\', {skip: true}, s => { s.plan(1); assert.ok(1); }); });'),
+		'import {describe} from \'node:test\';\ndescribe.skip(\'s\', () => { test(\'a\', t => { t.plan(1); assert.ok(1); }); });',
+
+		// A plan set through `getTestContext()` needs no context parameter, and a non-count sets no plan
+		withTest('test(\'a\', () => { getTestContext().plan(1); assert.ok(1); });'),
+		withTest('test(\'a\', t => { getTestContext().plan(0); assert.ok(1); });'),
 	],
 	invalid: [
 		// Plan + imported namespace assert
@@ -76,5 +87,9 @@ test.snapshot({
 
 		// Subtest with its own plan and an imported assert inside it
 		withTest('test(\'t\', async t => { await t.test(\'s\', s => { s.plan(1); assert.ok(1); }); });'),
+
+		// A plan set through `getTestContext()` is the same plan, in either spelling
+		'import {test, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'t\', t => { getTestContext().plan(1); assert.ok(1); });',
+		'import {test, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'t\', () => { getTestContext().plan(1); assert.ok(1); });',
 	],
 });

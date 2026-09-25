@@ -75,5 +75,13 @@ test.snapshot({
 			code: withImport('if (x) { test("a", () => {}); }'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// A `catch` body only runs when the `try` block throws, so a registration there is as
+		// runtime-dependent as one in an `if`. A `finally` body always runs.
+		'import {before} from \'node:test\';\ntry { risky(); } catch { before(() => { setup(); }); }',
+		'import {test} from \'node:test\';\ntry { risky(); } catch { test(\'only on failure\', () => {}); }',
+
+		// A hook declared through `getTestContext()` is the same hook
+		'import {test, getTestContext} from \'node:test\';\nif (x) { getTestContext().beforeEach(() => {}); }',
 	],
 });

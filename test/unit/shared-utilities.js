@@ -13,6 +13,7 @@ import {
 	getFloatingStatement,
 } from '../../rules/utils/index.js';
 import {removeArgument} from '../../rules/fix/index.js';
+import isFunction from '../../rules/ast/is-function.js';
 import {parseAssertionCall, getTestCallback, resolveImports} from '../../rules/utils/node-test.js';
 
 // Apply `removeArgument` to the argument at `index` of the `fn(…)` call and return the fixed source.
@@ -316,4 +317,11 @@ test('getTestCallback returns the function node:test actually runs', () => {
 
 	// No callback at all.
 	assert.strictEqual(testCallbackText('test(\'a\', {skip: true});'), undefined);
+});
+
+test('isFunction answers false for a missing node', () => {
+	assert.strictEqual(isFunction(undefined), false);
+	assert.strictEqual(isFunction(null), false);
+	assert.strictEqual(isFunction({type: 'BlockStatement'}), false);
+	assert.strictEqual(isFunction({type: 'ArrowFunctionExpression'}), true);
 });

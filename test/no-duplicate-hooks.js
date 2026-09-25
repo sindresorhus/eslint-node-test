@@ -60,5 +60,8 @@ test.snapshot({
 		'import {test} from \'node:test\';\ntest(\'p\', t => { t.beforeEach(() => {}); t.beforeEach(() => {}); });',
 		// A duplicate inside a subtest body is still a duplicate
 		'import {test, beforeEach} from \'node:test\';\ntest(\'p\', async t => { t.test(\'a\', () => { beforeEach(() => {}); beforeEach(() => {}); }); });',
+
+		// A hook declared through `getTestContext()` is the same hook
+		'import {test, getTestContext} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\', () => { getTestContext().beforeEach(() => {}); getTestContext().beforeEach(() => {}); }); });',
 	],
 });

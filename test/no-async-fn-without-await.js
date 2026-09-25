@@ -113,5 +113,8 @@ test.snapshot({
 		'import {after} from "node:test";\nafter(async () => {}, {timeout: 1});',
 		'import {afterEach} from "node:test";\nafterEach(async () => {}, {timeout: 1});',
 		'import test from "node:test";\ntest.beforeEach(async () => {}, {timeout: 1});',
+
+		// A hook declared through `getTestContext()` is the same hook
+		'import {test, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'o\', t => { getTestContext().beforeEach(async () => { assert.ok(1); }); });',
 	],
 });

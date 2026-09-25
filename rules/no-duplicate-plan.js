@@ -9,8 +9,10 @@ import {
 	findOptionsProperty,
 	hasEnabledPlanOption,
 	getContextParameterIdentifier,
+	isGetTestContextCall,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
+import {isSkippedTestCall, isInsideSkippedCallback} from './shared/skipped-test.js';
 
 const MESSAGE_ID_DUPLICATE_CALL = 'no-duplicate-plan/duplicate-call';
 const MESSAGE_ID_PLAN_OPTION = 'no-duplicate-plan/plan-option';
@@ -37,57 +39,27 @@ function getPlanContextIdentifier(node) {
 	return undefined;
 }
 
+/*
+Whether the call is `<context>.plan(…)` on a context `getTestContext()` returned, which names the
+same context the test callback's parameter does.
+*/
+function isGetTestContextPlanCall(node, imports) {
+	const callee = unwrapTypeScriptExpression(node.callee);
+	return node.optional !== true
+		&& callee.type === 'MemberExpression'
+		&& !callee.computed
+		&& callee.optional !== true
+		&& callee.property.type === 'Identifier'
+		&& callee.property.name === 'plan'
+		&& isGetTestContextCall(unwrapTypeScriptExpression(callee.object), imports);
+}
+
 function getIdentifierVariable(sourceCode, identifier) {
 	return findVariable(sourceCode.getScope(identifier), identifier);
 }
 
 function isTestCall(parsed) {
 	return parsed !== undefined && parsed.kind === 'test' && parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name));
-}
-
-function hasSkipModifier(node) {
-	node = unwrapTypeScriptExpression(node);
-
-	while (node.type === 'MemberExpression') {
-		if (
-			!node.computed
-			&& node.property.type === 'Identifier'
-			&& node.property.name === 'skip'
-		) {
-			return true;
-		}
-
-		node = unwrapTypeScriptExpression(node.object);
-	}
-
-	return false;
-}
-
-function hasEnabledSkipOption(node, sourceCode) {
-	const property = findOptionsProperty(getTestOptions(node), 'skip');
-	if (property === undefined) {
-		return false;
-	}
-
-	const staticValue = getStaticValue(property.value, sourceCode.getScope(property.value));
-	return staticValue !== null && Boolean(staticValue.value);
-}
-
-function isSkippedTestCall(node, parsed, sourceCode) {
-	return hasSkipModifier(node.callee) || parsed?.modifiers.some(modifier => modifier.name === 'skip') || hasEnabledSkipOption(node, sourceCode);
-}
-
-function isInsideSkippedCallback(node, skippedCallbacks) {
-	let current = node;
-	while (current) {
-		if (skippedCallbacks.has(current)) {
-			return true;
-		}
-
-		current = current.parent;
-	}
-
-	return false;
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -117,7 +89,7 @@ const create = context => {
 		const isTest = isImportedTestCall || isSubtestCall(node);
 
 		if (isTest) {
-			if (isSkippedTestCall(node, parsed, sourceCode)) {
+			if (isSkippedTestCall(node, parsed, context)) {
 				const callback = getTestCallback(node);
 				if (callback) {
 					skippedCallbacks.add(callback);
@@ -126,24 +98,27 @@ const create = context => {
 				return;
 			}
 
+			// A test without a context parameter still has a context, reachable through
+			// `getTestContext()`, so the frame is pushed either way.
 			const parameter = getContextParameterIdentifier(getTestCallback(node)?.params[0]);
-			if (!parameter) {
-				return;
-			}
-
 			const hasPlanOption = hasEnabledPlanOption(node, context);
-			frames.push({
+			const frame = {
 				node,
-				contextName: parameter.name,
-				contextVariable: getIdentifierVariable(sourceCode, parameter),
+				contextName: parameter?.name,
+				contextVariable: parameter ? getIdentifierVariable(sourceCode, parameter) : undefined,
 				hasPlan: hasPlanOption,
 				hasPlanOption,
-			});
+			};
+			// A test that declares no context parameter still has one, reachable through
+			// `getTestContext()`, so the frame stands in as its own key.
+			frame.contextKey = frame.contextVariable ?? frame;
+			frames.push(frame);
 			return;
 		}
 
 		const contextIdentifier = getPlanContextIdentifier(node);
-		if (contextIdentifier === undefined) {
+		const isContextCall = isGetTestContextPlanCall(node, imports);
+		if (contextIdentifier === undefined && !isContextCall) {
 			return;
 		}
 
@@ -151,14 +126,18 @@ const create = context => {
 			return;
 		}
 
-		const contextVariable = getIdentifierVariable(sourceCode, contextIdentifier);
-		if (contextVariable === undefined) {
+		// A `getTestContext()` call names the innermost frame's context, whether or not that test
+		// declared a parameter for it.
+		const contextKey = contextIdentifier
+			? getIdentifierVariable(sourceCode, contextIdentifier)
+			: frames.at(-1)?.contextKey;
+		if (contextKey === undefined) {
 			return;
 		}
 
 		for (let index = frames.length - 1; index >= 0; index -= 1) {
 			const frame = frames[index];
-			if (frame.contextVariable !== contextVariable) {
+			if (frame.contextKey !== contextKey) {
 				continue;
 			}
 
@@ -166,7 +145,7 @@ const create = context => {
 				return {
 					node,
 					messageId: frame.hasPlanOption ? MESSAGE_ID_PLAN_OPTION : MESSAGE_ID_DUPLICATE_CALL,
-					data: {context: frame.contextName},
+					data: {context: frame.contextName ?? 'getTestContext()'},
 				};
 			}
 

@@ -15,7 +15,7 @@ const create = context => {
 		return;
 	}
 
-	const tracker = createContextTracker(imports);
+	const tracker = createContextTracker(imports, {trackHooks: true});
 	const isInsideDetachedCallback = trackDetachedCallbacks(context);
 
 	context.on('CallExpression', node => {

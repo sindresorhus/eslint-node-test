@@ -6,6 +6,7 @@ import {
 	getHookCallback,
 	getTestCallback,
 	getTestOptions,
+	getContextParameterIdentifier,
 	findEnabledOptionsProperty,
 	isHookMemberTestCall,
 	MODIFIERS,
@@ -290,8 +291,9 @@ const create = context => {
 	const {sourceCode} = context;
 
 	const getContextVariable = callback => {
-		const [parameter] = callback.params;
-		if (parameter?.type !== 'Identifier') {
+		// A defaulted parameter (`(t = getTestContext())`) declares the context just the same.
+		const parameter = getContextParameterIdentifier(callback.params[0]);
+		if (!parameter) {
 			return;
 		}
 

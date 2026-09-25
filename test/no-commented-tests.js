@@ -33,6 +33,10 @@ test.snapshot({
 		// `Function.prototype` has no node:test export names, so a `describe.name(…)` call is prose
 		'// describe.name(x)',
 		'// test.await("foo", () => {})',
+		// A non-test `node:test` export is documentation of that API, not dead test code
+		'// test.snapshot({invalid: []});',
+		'// test.mock.method(object, \'value\', () => 1);',
+		'// getTestContext().test("foo", () => {});',
 	],
 	invalid: [
 		// Line comment with test(

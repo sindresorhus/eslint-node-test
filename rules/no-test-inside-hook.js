@@ -30,7 +30,7 @@ const create = context => {
 
 	context.on('CallExpression', node => {
 		// Query the tracker before it learns about this call, so the receiver is the enclosing context.
-		const isContextHook = isContextHookCall(node, tracker.isContextIdentifier);
+		const isContextHook = isContextHookCall(node, tracker.isContextReceiver);
 		tracker.update(node);
 
 		const parsed = parseTestCall(node, imports);
@@ -56,7 +56,7 @@ const create = context => {
 	});
 
 	context.onExit('CallExpression', node => {
-		const isContextHook = isContextHookCall(node, tracker.isContextIdentifier);
+		const isContextHook = isContextHookCall(node, tracker.isContextReceiver);
 		tracker.leave(node);
 
 		const parsed = parseTestCall(node, imports);

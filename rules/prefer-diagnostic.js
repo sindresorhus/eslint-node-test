@@ -38,7 +38,9 @@ const create = context => {
 			return;
 		}
 
-		const contextName = tracker.current();
+		// A test that declares no context parameter can still reach its context through
+		// `getTestContext()`, which is always in scope.
+		const contextName = tracker.current() ?? (imports.locals.get('getTestContext') ? 'getTestContext()' : undefined);
 		if (!contextName) {
 			return;
 		}
@@ -53,8 +55,8 @@ const create = context => {
 		}
 
 		// A nested binding of the same name shadows the context, so `t.diagnostic(…)` there would
-		// not reach the test context at all.
-		if (!tracker.isContextNameInScope(contextName, node)) {
+		// not reach the test context at all. `getTestContext()` is an import, so it cannot be shadowed.
+		if (contextName !== 'getTestContext()' && !tracker.isContextNameInScope(contextName, node)) {
 			return;
 		}
 

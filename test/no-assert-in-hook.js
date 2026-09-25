@@ -56,5 +56,8 @@ test.snapshot({
 			code: 'import test from \'node:test\';\ntest(\'t\', t => { t.beforeEach((hook => { hook.assert.ok(value); }) as () => void); });',
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// A hook declared through `getTestContext()` is the same hook
+		'import {test, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'p\', t => { getTestContext().beforeEach(() => { assert.ok(1); }); });',
 	],
 });

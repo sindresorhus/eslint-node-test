@@ -30,6 +30,16 @@ test.snapshot({
 
 		// Not a test file
 		'test(\'t\', {concurrency: true}, () => {});',
+
+		// A subtest created through `getTestContext()` is the same subtest, and must not crash the rule
+		'import {test, getTestContext} from \'node:test\';\ntest(\'t\', async t => { await getTestContext().test(\'a\', () => {}); });',
+		'import {test, getTestContext} from \'node:test\';\ntest(\'t\', {concurrency: 2}, async t => { await getTestContext().test(\'a\', () => {}); });',
+
+		// A helper declared inside the test callback still runs on the test's own context
+		withTest('test(\'t\', {concurrency: true}, t => { function addSubtests() { t.test(\'a\', () => {}); } addSubtests(); });'),
+		withTest('test(\'t\', {concurrency: true}, t => { [1].forEach(() => { t.test(\'a\', () => {}); }); });'),
+		// A subtest on an unrelated context is not this test's subtest, so the option is still unused
+		withTest('test(\'t\', {concurrency: true}, async (t) => { await t.test(\'a\', s => { s.test(\'b\', () => {}); }); });'),
 	],
 	invalid: [
 		// Concurrency on a leaf test
@@ -49,8 +59,5 @@ test.snapshot({
 
 		// Test with an assertion but no subtests
 		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'t\', {concurrency: true}, t => { t.assert.ok(1); });',
-
-		// Best-effort limitation: subtests created via a helper are not detected, so this is still reported
-		withTest('function addSubtests(t) { t.test(\'a\', () => {}); }\ntest(\'t\', {concurrency: true}, async t => { addSubtests(t); });'),
 	],
 });

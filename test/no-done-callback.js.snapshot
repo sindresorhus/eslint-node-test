@@ -270,6 +270,22 @@ Message:
 
 `;
 
+exports[`no-done-callback > invalid(25): import {test, getTestContext} from 'node:test';\ntest('p', t => { getTestContext().beforeEach((sub, done) => {}); }); 1`] = `
+
+  1 | import {test, getTestContext} from 'node:test';
+  2 | test('p', t => { getTestContext().beforeEach((sub, done) => {}); });
+
+`;
+
+exports[`no-done-callback > invalid(25): import {test, getTestContext} from 'node:test';\ntest('p', t => { getTestContext().beforeEach((sub, done) => {}); }); 2`] = `
+
+Message:
+  1 | import {test, getTestContext} from 'node:test';
+> 2 | test('p', t => { getTestContext().beforeEach((sub, done) => {}); });
+    |                                                    ^^^^ Use \`async\`/\`await\` or return a Promise instead of the \`done\` callback parameter.
+
+`;
+
 exports[`no-done-callback > invalid(3): import test from 'node:test';\ntest('a', {name: 'a', fn(t, done) { done(); }}); 1`] = `
 
   1 | import test from 'node:test';

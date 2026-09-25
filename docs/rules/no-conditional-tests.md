@@ -9,7 +9,7 @@
 
 Registering a test, suite, or hook inside a condition makes the suite structure depend on runtime state, so the tests, setup, and teardown that run vary between environments. A test silently skipped by a condition looks the same as a passing run, and a skipped hook can make setup or teardown silently differ. Put the condition inside the test or hook body, or split the file by environment instead.
 
-This rule reports a `test`/`it`/`describe`/`suite`/`before`/`after`/`beforeEach`/`afterEach` call guarded by an `if`, `else`, ternary, logical (`&&`/`||`/`??`), or `switch`. Loops are allowed, since iterating to register tests is the idiomatic way to write table-driven tests in `node:test`. The rule only checks lexical ancestors of the registration call and does not trace callbacks passed to helper methods.
+This rule reports a `test`/`it`/`describe`/`suite`/`before`/`after`/`beforeEach`/`afterEach` call guarded by an `if`, `else`, ternary, logical (`&&`/`||`/`??`), `switch`, or a `catch` clause. Loops are allowed, since iterating to register tests is the idiomatic way to write table-driven tests in `node:test`. The rule only checks lexical ancestors of the registration call and does not trace callbacks passed to helper methods.
 
 ## Examples
 

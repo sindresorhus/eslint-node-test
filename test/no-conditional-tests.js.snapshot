@@ -158,6 +158,22 @@ Message:
 
 `;
 
+exports[`no-conditional-tests > invalid(19): import {before} from 'node:test';\ntry { risky(); } catch { before(() => { setup(); }); } 1`] = `
+
+  1 | import {before} from 'node:test';
+  2 | try { risky(); } catch { before(() => { setup(); }); }
+
+`;
+
+exports[`no-conditional-tests > invalid(19): import {before} from 'node:test';\ntry { risky(); } catch { before(() => { setup(); }); } 2`] = `
+
+Message:
+  1 | import {before} from 'node:test';
+> 2 | try { risky(); } catch { before(() => { setup(); }); }
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not register a hook conditionally; it makes the suite structure non-deterministic.
+
+`;
+
 exports[`no-conditional-tests > invalid(2): import {test, describe, it} from 'node:test';\nif (x) test(\"a\", () => {}); 1`] = `
 
   1 | import {test, describe, it} from 'node:test';
@@ -171,6 +187,38 @@ Message:
   1 | import {test, describe, it} from 'node:test';
 > 2 | if (x) test("a", () => {});
     |        ^^^^^^^^^^^^^^^^^^^ Do not register a test conditionally; it makes the suite structure non-deterministic.
+
+`;
+
+exports[`no-conditional-tests > invalid(20): import {test} from 'node:test';\ntry { risky(); } catch { test('only on failure', () => {}); } 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | try { risky(); } catch { test('only on failure', () => {}); }
+
+`;
+
+exports[`no-conditional-tests > invalid(20): import {test} from 'node:test';\ntry { risky(); } catch { test('only on failure', () => {}); } 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | try { risky(); } catch { test('only on failure', () => {}); }
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not register a test conditionally; it makes the suite structure non-deterministic.
+
+`;
+
+exports[`no-conditional-tests > invalid(21): import {test, getTestContext} from 'node:test';\nif (x) { getTestContext().beforeEach(() => {}); } 1`] = `
+
+  1 | import {test, getTestContext} from 'node:test';
+  2 | if (x) { getTestContext().beforeEach(() => {}); }
+
+`;
+
+exports[`no-conditional-tests > invalid(21): import {test, getTestContext} from 'node:test';\nif (x) { getTestContext().beforeEach(() => {}); } 2`] = `
+
+Message:
+  1 | import {test, getTestContext} from 'node:test';
+> 2 | if (x) { getTestContext().beforeEach(() => {}); }
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not register a hook conditionally; it makes the suite structure non-deterministic.
 
 `;
 

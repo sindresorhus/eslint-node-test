@@ -52,7 +52,7 @@ const create = context => {
 
 	// A subtest (`t.test(…)`) is a test too, so an empty one is reported, but it has no `.todo`
 	// method, so no `.todo` suggestion is offered for it.
-	const tracker = createContextTracker(imports);
+	const tracker = createContextTracker(imports, {trackHooks: true});
 
 	context.on('CallExpression', node => {
 		const isSubtest = tracker.isSubtestCall(node);

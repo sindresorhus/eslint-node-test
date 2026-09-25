@@ -72,7 +72,7 @@ function getCheckedCallback(callExpression, imports, tracker) {
 		return getTestCallback(callExpression);
 	}
 
-	if (isContextHookCall(callExpression, tracker.isContextIdentifier)) {
+	if (isContextHookCall(callExpression, tracker.isContextReceiver)) {
 		return getHookCallback(callExpression);
 	}
 

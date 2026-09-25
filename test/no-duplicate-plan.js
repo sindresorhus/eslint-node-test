@@ -80,6 +80,10 @@ test.snapshot({
 			code: withImport('test("x", (t: any) => { t.plan(1); });'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// `getTestContext()` is the same context, and a test needs no parameter for it
+		'import {test, getTestContext} from \'node:test\';\ntest(\'t\', () => { getTestContext().plan(1); assert.ok(1); });',
+		'import {test, getTestContext} from \'node:test\';\ntest(\'t\', t => { t.plan(1); assert.ok(1); });',
 	],
 	invalid: [
 		// Duplicate in one test
@@ -168,5 +172,10 @@ test.snapshot({
 		},
 		// A defaulted context parameter is still the test context.
 		'import test from \'node:test\';\ntest(\'t\', (t = getContext()) => { t.plan(1); t.plan(2); });',
+
+		// `getTestContext()` sets the same plan as the context parameter, in either spelling
+		'import {test, getTestContext} from \'node:test\';\ntest(\'t\', () => { getTestContext().plan(1); getTestContext().plan(2); });',
+		'import {test, getTestContext} from \'node:test\';\ntest(\'t\', t => { getTestContext().plan(1); getTestContext().plan(2); });',
+		'import {test, getTestContext} from \'node:test\';\ntest(\'t\', t => { t.plan(1); getTestContext().plan(2); });',
 	],
 });

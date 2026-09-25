@@ -416,6 +416,54 @@ Message:
 
 `;
 
+exports[`no-duplicate-plan > invalid(32): import {test, getTestContext} from 'node:test';\ntest('t', () => { getTestContext().plan(1); getTestContext().plan(2); }); 1`] = `
+
+  1 | import {test, getTestContext} from 'node:test';
+  2 | test('t', () => { getTestContext().plan(1); getTestContext().plan(2); });
+
+`;
+
+exports[`no-duplicate-plan > invalid(32): import {test, getTestContext} from 'node:test';\ntest('t', () => { getTestContext().plan(1); getTestContext().plan(2); }); 2`] = `
+
+Message:
+  1 | import {test, getTestContext} from 'node:test';
+> 2 | test('t', () => { getTestContext().plan(1); getTestContext().plan(2); });
+    |                                             ^^^^^^^^^^^^^^^^^^^^^^^^ Do not call \`getTestContext().plan()\` more than once in the same test.
+
+`;
+
+exports[`no-duplicate-plan > invalid(33): import {test, getTestContext} from 'node:test';\ntest('t', t => { getTestContext().plan(1); getTestContext().plan(2); }); 1`] = `
+
+  1 | import {test, getTestContext} from 'node:test';
+  2 | test('t', t => { getTestContext().plan(1); getTestContext().plan(2); });
+
+`;
+
+exports[`no-duplicate-plan > invalid(33): import {test, getTestContext} from 'node:test';\ntest('t', t => { getTestContext().plan(1); getTestContext().plan(2); }); 2`] = `
+
+Message:
+  1 | import {test, getTestContext} from 'node:test';
+> 2 | test('t', t => { getTestContext().plan(1); getTestContext().plan(2); });
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^ Do not call \`t.plan()\` more than once in the same test.
+
+`;
+
+exports[`no-duplicate-plan > invalid(34): import {test, getTestContext} from 'node:test';\ntest('t', t => { t.plan(1); getTestContext().plan(2); }); 1`] = `
+
+  1 | import {test, getTestContext} from 'node:test';
+  2 | test('t', t => { t.plan(1); getTestContext().plan(2); });
+
+`;
+
+exports[`no-duplicate-plan > invalid(34): import {test, getTestContext} from 'node:test';\ntest('t', t => { t.plan(1); getTestContext().plan(2); }); 2`] = `
+
+Message:
+  1 | import {test, getTestContext} from 'node:test';
+> 2 | test('t', t => { t.plan(1); getTestContext().plan(2); });
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^ Do not call \`t.plan()\` more than once in the same test.
+
+`;
+
 exports[`no-duplicate-plan > invalid(4): import test from 'node:test';\ntest.todo(\"x\", t => { t.plan(1); t.plan(2); }); 1`] = `
 
   1 | import test from 'node:test';

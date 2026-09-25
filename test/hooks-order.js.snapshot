@@ -356,6 +356,26 @@ Output:
 
 `;
 
+exports[`hooks-order > invalid(20): import {test, getTestContext} from 'node:test';\ntest('p', t => { getTestContext().afterEach(() => {}); getTestContext().beforeEach(() => {}); }); 1`] = `
+
+  1 | import {test, getTestContext} from 'node:test';
+  2 | test('p', t => { getTestContext().afterEach(() => {}); getTestContext().beforeEach(() => {}); });
+
+`;
+
+exports[`hooks-order > invalid(20): import {test, getTestContext} from 'node:test';\ntest('p', t => { getTestContext().afterEach(() => {}); getTestContext().beforeEach(() => {}); }); 2`] = `
+
+Message:
+  1 | import {test, getTestContext} from 'node:test';
+> 2 | test('p', t => { getTestContext().afterEach(() => {}); getTestContext().beforeEach(() => {}); });
+    |                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Hook \`beforeEach\` must come before \`afterEach\`.
+
+Output:
+  1 | import {test, getTestContext} from 'node:test';
+  2 | test('p', t => { getTestContext().beforeEach(() => {}); getTestContext().afterEach(() => {}); });
+
+`;
+
 exports[`hooks-order > invalid(3): import test, {beforeEach, afterEach} from 'node:test';\nafterEach(() => {});\nbeforeEach(() => {}); 1`] = `
 
   1 | import test, {beforeEach, afterEach} from 'node:test';

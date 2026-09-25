@@ -31,7 +31,7 @@ const create = context => {
 		const isSubtest = tracker.isSubtestCall(node);
 		// A hook declared on a test context (`t.beforeEach(…)`) is a hook callback too, even though it
 		// is a method call rather than an imported binding.
-		const isContextHook = isContextHookCall(node, tracker.isContextIdentifier);
+		const isContextHook = isContextHookCall(node, tracker.isContextReceiver);
 		if (!isSubtest && !isContextHook && parsed?.kind !== 'test' && parsed?.kind !== 'hook') {
 			return;
 		}

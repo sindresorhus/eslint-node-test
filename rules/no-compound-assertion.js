@@ -1,7 +1,9 @@
 import {
 	resolveImports,
+	parseTestCall,
 	parseSupportedAssertionCall,
 	createContextTracker,
+	hasEnabledPlanOption,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 import {getStaticPropertyName} from './utils/index.js';
@@ -96,11 +98,22 @@ const create = context => {
 		&& plannedCallbacks.has(tracker.currentCallback());
 
 	context.on('CallExpression', node => {
+		// A subtest is a method call, so it has to be recognized before the tracker pushes its context.
+		const isSubtest = tracker.isSubtestCall(node);
 		tracker.update(node);
 
 		if (isPlanCall(node, tracker)) {
 			plannedCallbacks.add(tracker.currentCallback());
 			return;
+		}
+
+		// The `plan` option sets the same expected count as `t.plan(n)`, so splitting one assertion into
+		// several would break the plan the same way.
+		if (
+			(isSubtest || parseTestCall(node, imports)?.kind === 'test')
+			&& hasEnabledPlanOption(node, context)
+		) {
+			plannedCallbacks.add(tracker.currentCallback());
 		}
 
 		const assertion = parseSupportedAssertionCall(node, imports, tracker);

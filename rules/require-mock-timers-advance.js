@@ -105,6 +105,41 @@ function isImportedIdentifier(node, sourceCode) {
 	return variable?.defs.some(({type}) => type === 'ImportBinding') ?? false;
 }
 
+/*
+The receiver key for a `<context>.mock` object, or `undefined` when the object is something else's.
+*/
+function getContextMockKey(mockObject, imports, sourceCode, contextVariables) {
+	if (
+		mockObject?.type !== 'MemberExpression'
+		|| mockObject.computed
+		|| mockObject.optional
+		|| getStaticPropertyName(mockObject.property) !== 'mock'
+	) {
+		return;
+	}
+
+	const contextObject = unwrapTypeScriptExpression(mockObject.object);
+
+	// `getTestContext()` returns the context the enclosing callbacks were given, so it drives the
+	// same tracker as that context parameter.
+	if (isGetTestContextCall(contextObject, imports)) {
+		// With no context parameter to name it after, the innermost context is the only one there is.
+		const innermostContext = contextVariables.at(-1);
+		return `context:${innermostContext ? innermostContext.name : 'getTestContext()'}`;
+	}
+
+	if (contextObject?.type !== 'Identifier') {
+		return;
+	}
+
+	const variable = findVariable(sourceCode.getScope(contextObject), contextObject);
+	if (!variable || !contextVariables.includes(variable)) {
+		return;
+	}
+
+	return `context:${contextObject.name}`;
+}
+
 function getMockTimersReceiverKey(node, imports, sourceCode, contextVariables) {
 	node = unwrapTypeScriptExpression(node);
 	if (
@@ -121,36 +156,7 @@ function getMockTimersReceiverKey(node, imports, sourceCode, contextVariables) {
 		return 'global';
 	}
 
-	const contextObject = mockObject?.type === 'MemberExpression' ? unwrapTypeScriptExpression(mockObject.object) : undefined;
-
-	// `getTestContext()` returns the context the enclosing callbacks were given, so it drives the
-	// same tracker as that context parameter.
-	if (
-		mockObject?.type === 'MemberExpression'
-		&& !mockObject.computed
-		&& !mockObject.optional
-		&& getStaticPropertyName(mockObject.property) === 'mock'
-		&& isGetTestContextCall(contextObject, imports)
-	) {
-		// With no context parameter to name it after, the innermost context is the only one there is.
-		const innermostContext = contextVariables.at(-1);
-		return `context:${innermostContext ? innermostContext.name : 'getTestContext()'}`;
-	}
-
-	if (
-		mockObject?.type === 'MemberExpression'
-		&& !mockObject.computed
-		&& !mockObject.optional
-		&& getStaticPropertyName(mockObject.property) === 'mock'
-		&& contextObject?.type === 'Identifier'
-	) {
-		const variable = findVariable(sourceCode.getScope(contextObject), contextObject);
-		if (!variable || !contextVariables.includes(variable)) {
-			return;
-		}
-
-		return `context:${contextObject.name}`;
-	}
+	return getContextMockKey(mockObject, imports, sourceCode, contextVariables);
 }
 
 function getMockTimersCall(callExpression, imports, sourceCode, contextVariables) {

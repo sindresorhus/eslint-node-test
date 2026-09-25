@@ -90,5 +90,8 @@ test.snapshot({
 		// `node:test` runs the first function argument and never calls the second, so only the first is a hook body
 		withImport('beforeEach(function live() { if (a) { f(); } }, function dead() { g(); });'),
 		withImport('test("a", function live() { if (a) { f(); } }, function dead() { g(); });'),
+
+		// A hook declared through `getTestContext()` is the same hook
+		'import {test, getTestContext} from \'node:test\';\ntest(\'p\', t => { getTestContext().beforeEach(() => { if (a) { f(); } }); });',
 	],
 });

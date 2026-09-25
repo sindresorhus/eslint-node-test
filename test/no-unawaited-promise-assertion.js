@@ -69,6 +69,12 @@ test.snapshot({
 		withImport('function wrapper(test) {\n\ttest(\'not node:test\', () => {\n\t\tload().then(value => { assert.strictEqual(value, 42); });\n\t});\n}\n\nwrapper(fakeTest);'),
 		withBeforeImport('function wrapper(before) {\n\tbefore(() => {\n\t\tload().then(value => { assert.strictEqual(value, 42); });\n\t});\n}\n\nwrapper(fakeBefore);'),
 		withNamespaceImport('function wrapper(nodeTest) {\n\tnodeTest.test(\'not node:test\', () => {\n\t\tload().then(value => { assert.strictEqual(value, 42); });\n\t});\n}\n\nwrapper(fakeTest);'),
+
+		// A wait plan through `getTestContext()` is the same wait plan
+		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', async t => {\n\tgetTestContext().plan(1, {wait: true});\n\tPromise.resolve().then(() => { t.assert.ok(true); });\n});',
+		'import {test, getTestContext} from \'node:test\';\n'
+		+ 'test(\'a\', async () => {\n\tgetTestContext().plan(1, {wait: true});\n'
+		+ '\tPromise.resolve().then(() => { getTestContext().assert.ok(true); });\n});',
 	],
 	invalid: [
 		// A destructured `assert` is the context's assert, so an assertion through it is owned by

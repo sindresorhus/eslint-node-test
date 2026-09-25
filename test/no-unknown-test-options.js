@@ -99,5 +99,8 @@ test.snapshot({
 		// A hook takes its callback in the first position; the runner never reads `options.fn`
 		'import {beforeEach} from \'node:test\';\nbeforeEach(() => {}, {fn: x});',
 		'import {test} from \'node:test\';\ntest(\'o\', t => { t.beforeEach(() => {}, {fn: x}); });',
+
+		// A hook declared through `getTestContext()` is the same hook
+		'import {test, getTestContext} from \'node:test\';\ntest(\'o\', t => { getTestContext().beforeEach(() => {}, {bogus: 1}); });',
 	],
 });

@@ -77,5 +77,8 @@ test.snapshot({
 		},
 		// A hook declared on a test context has the same canonical order
 		'import {test} from \'node:test\';\ntest(\'p\', t => { t.afterEach(() => {}); t.beforeEach(() => {}); });',
+
+		// A hook declared through `getTestContext()` is the same hook
+		'import {test, getTestContext} from \'node:test\';\ntest(\'p\', t => { getTestContext().afterEach(() => {}); getTestContext().beforeEach(() => {}); });',
 	],
 });

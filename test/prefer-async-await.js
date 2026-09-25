@@ -102,5 +102,9 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		withImport('test(\'x\', async t => { await t.test(\'y\', () => { return f().then(d => d); }); });'),
+
+		// A hook declared on a test context is a callback node:test awaits, exactly like an imported one
+		'import {test} from \'node:test\';\ntest(\'o\', t => {\n\tt.beforeEach(() => {\n\t\treturn setup().then(fn);\n\t});\n});',
+		'import {test} from \'node:test\';\ntest(\'o\', t => {\n\tt.after(() => {\n\t\treturn setup().then(fn);\n\t});\n});',
 	],
 });

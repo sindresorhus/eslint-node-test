@@ -103,5 +103,15 @@ test.snapshot({
 		'import test from "node:test";\ntest(\'pos\', {name: 5}, () => {});',
 		'import test from "node:test";\ntest(\'pos\', {name: undefined}, () => {});',
 		'import test from "node:test";\ntest(() => {}, {name: 5});',
+
+		// A TypeScript wrapper around the implementation must not hide the missing title
+		{
+			code: 'import test from \'node:test\';\ntest((() => {}) as any);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import test from \'node:test\';\ntest((() => {})!);',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

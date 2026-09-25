@@ -190,6 +190,22 @@ Message:
 
 `;
 
+exports[`no-unknown-test-options > invalid(20): import {test, getTestContext} from 'node:test';\ntest('o', t => { getTestContext().beforeEach(() => {}, {bogus: 1}); }); 1`] = `
+
+  1 | import {test, getTestContext} from 'node:test';
+  2 | test('o', t => { getTestContext().beforeEach(() => {}, {bogus: 1}); });
+
+`;
+
+exports[`no-unknown-test-options > invalid(20): import {test, getTestContext} from 'node:test';\ntest('o', t => { getTestContext().beforeEach(() => {}, {bogus: 1}); }); 2`] = `
+
+Message:
+  1 | import {test, getTestContext} from 'node:test';
+> 2 | test('o', t => { getTestContext().beforeEach(() => {}, {bogus: 1}); });
+    |                                                         ^^^^^ \`bogus\` is not a recognized hook option.
+
+`;
+
 exports[`no-unknown-test-options > invalid(3): import {test, beforeEach} from 'node:test';\ntest({name: \"x\", skp: true, fn() {}}); 1`] = `
 
   1 | import {test, beforeEach} from 'node:test';

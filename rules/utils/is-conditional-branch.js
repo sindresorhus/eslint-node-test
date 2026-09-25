@@ -17,6 +17,11 @@ export default function isConditionalBranch(ancestor, child, {includeLoops = fal
 			return child === ancestor.right;
 		}
 
+		case 'TryStatement': {
+			// The `catch` clause is the only conditional part; `try` and `finally` always run.
+			return child === ancestor.handler;
+		}
+
 		case 'SwitchCase': {
 			// The case body is conditional; the case's test expression is not.
 			return ancestor.consequent.includes(child);

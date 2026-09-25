@@ -42,7 +42,7 @@ const create = context => {
 
 	context.on('CallExpression', function * (node) {
 		const isSubtest = tracker.isSubtestCall(node);
-		const isContextHook = isContextHookCall(node, tracker.isContextIdentifier);
+		const isContextHook = isContextHookCall(node, tracker.isContextReceiver);
 		tracker.update(node);
 
 		const parsed = parseTestCall(node, imports);

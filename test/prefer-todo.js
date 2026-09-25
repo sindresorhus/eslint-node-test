@@ -40,6 +40,11 @@ test.snapshot({
 
 		// Suites and hooks are out of scope
 		'import {describe} from \'node:test\';\ndescribe("s", () => {});',
+
+		// A call with no arguments has no callback to read, and must not crash the rule
+		'import {test} from \'node:test\';\ntest();',
+		'import {test} from \'node:test\';\ntest(\'p\', t => { t.test(); });',
+		'import {test, getTestContext} from \'node:test\';\ntest(\'p\', () => { getTestContext().test(); });',
 	],
 	invalid: [
 		// The object form is an empty placeholder too, and `name`/`fn` carry no intent
@@ -99,5 +104,10 @@ test.snapshot({
 		'import test from \'node:test\';\ntest(\'placeholder\', () => {\n} /* keep me */);',
 		// A subtest is a test too, but has no `.todo` method, so it is reported without a suggestion
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\', () => {}); });',
+
+		// A hook callback is handed the context of the test it runs for, so an empty subtest created
+		// there is the same placeholder
+		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { t.test(\'c\', () => {}); });',
+		'import {getTestContext, beforeEach} from \'node:test\';\nbeforeEach(t => { getTestContext().test(\'c\', () => {}); });',
 	],
 });

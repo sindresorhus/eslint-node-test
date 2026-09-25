@@ -622,8 +622,8 @@ function hasStaticallyTruthyWaitOption(node, sourceCode) {
 	return false;
 }
 
-function hasWaitPlan(callback, contextParameter, sourceCode) {
-	if (!contextParameter || callback.body.type !== 'BlockStatement') {
+function hasWaitPlan(callback, contextParameter, sourceCode, imports) {
+	if (callback.body.type !== 'BlockStatement') {
 		return false;
 	}
 
@@ -637,12 +637,17 @@ function hasWaitPlan(callback, contextParameter, sourceCode) {
 			node?.type === 'CallExpression'
 			&& node.callee.type === 'MemberExpression'
 			&& !node.callee.computed
-			&& node.callee.object.type === 'Identifier'
 			&& node.callee.property.type === 'Identifier'
 			&& node.callee.property.name === 'plan'
-			&& isSameVariable(node.callee.object, contextParameter, sourceCode)
 		) {
-			return hasStaticallyTruthyWaitOption(node.arguments[1], sourceCode);
+			// The receiver is the test's own context parameter, or a `getTestContext()` call that
+			// returns it.
+			const receiver = unwrapTypeScriptExpression(node.callee.object);
+			const isOwnContext = (contextParameter && receiver.type === 'Identifier' && isSameVariable(receiver, contextParameter, sourceCode))
+				|| isGetTestContextCall(receiver, imports);
+			if (isOwnContext) {
+				return hasStaticallyTruthyWaitOption(node.arguments[1], sourceCode);
+			}
 		}
 
 		return false;
@@ -780,7 +785,7 @@ function createBoundaryStack(context, imports) {
 				node,
 				callback,
 				contextParameter,
-				hasWaitPlan: hasWaitPlan(callback, contextParameter, sourceCode),
+				hasWaitPlan: hasWaitPlan(callback, contextParameter, sourceCode, imports),
 			});
 			if (contextParameter) {
 				contextParameters.push(contextParameter);

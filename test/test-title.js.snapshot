@@ -446,6 +446,38 @@ Message:
 
 `;
 
+exports[`test-title > invalid(33): import test from 'node:test';\ntest((() => {}) as any); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test((() => {}) as any);
+
+`;
+
+exports[`test-title > invalid(33): import test from 'node:test';\ntest((() => {}) as any); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test((() => {}) as any);
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Test must have a title.
+
+`;
+
+exports[`test-title > invalid(34): import test from 'node:test';\ntest((() => {})!); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test((() => {})!);
+
+`;
+
+exports[`test-title > invalid(34): import test from 'node:test';\ntest((() => {})!); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test((() => {})!);
+    | ^^^^^^^^^^^^^^^^^ Test must have a title.
+
+`;
+
 exports[`test-title > invalid(4): import test from \"node:test\";\ntest(() => {}); 1`] = `
 
   1 | import test from "node:test";

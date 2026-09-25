@@ -4,6 +4,7 @@ import {
 	parseTestCall,
 	getTestCallback,
 	createContextTracker,
+	isContextHookCall,
 } from './utils/node-test.js';
 import {unwrapExpression} from './utils/index.js';
 
@@ -133,17 +134,19 @@ const create = context => {
 		return;
 	}
 
-	// Subtests (`t.test(…)`) are method calls on a context parameter, not imported bindings, so the
-	// tracker is needed to see them alongside the imported `test`/`it` spellings.
-	const tracker = createContextTracker(imports);
+	// Subtests (`t.test(…)`) and hooks declared on a context (`t.beforeEach(…)`) are method calls on
+	// a context parameter, not imported bindings, so the tracker is needed to see them alongside the
+	// imported `test`/`it` spellings.
+	const tracker = createContextTracker(imports, {trackHooks: true});
 
 	context.on('CallExpression', node => {
 		// Query the tracker before it learns about this call, so the receiver is the enclosing context.
 		const isSubtest = tracker.isSubtestCall(node);
+		const isContextHook = isContextHookCall(node, tracker.isContextReceiver);
 		tracker.update(node);
 
 		const parsed = parseTestCall(node, imports);
-		if (!parsed && !isSubtest) {
+		if (!parsed && !isSubtest && !isContextHook) {
 			return;
 		}
 

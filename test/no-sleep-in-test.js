@@ -174,5 +174,9 @@ test.snapshot({
 			code: 'import test from \'node:test\';\nimport * as timers from \'node:timers/promises\';\ntest(\'a\', async () => { await (timers as any).setTimeout(1); });',
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// A defaulted context parameter is still the context, so its subtests are still tracked
+		'import {test} from \'node:test\';\nimport {setTimeout as sleep} from \'node:timers/promises\';\n'
+		+ 'test(\'a\', async (t = {}) => { await t.test(\'b\', async () => { await sleep(10); }); });',
 	],
 });

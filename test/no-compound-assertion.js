@@ -168,5 +168,19 @@ test.snapshot({
 	t.plan?.(1);
 	t.assert.ok(a && b);
 });`),
+
+		// The `plan` option sets the same expected count as `t.plan(n)`, so the fix stands down for it too
+		withTest(`test('t', {plan: 1}, t => {
+	t.assert.ok(a && b);
+});`),
+		withTest(`test('t', async t => {
+	await t.test('s', {plan: 1}, s => {
+		s.assert.ok(a && b);
+	});
+});`),
+		// A plan count that is not a real plan sets no expectation, so the fix is still safe
+		withTest(`test('t', {plan: 0}, t => {
+	t.assert.ok(a && b);
+});`),
 	],
 });

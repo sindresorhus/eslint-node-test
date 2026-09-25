@@ -65,5 +65,9 @@ test.snapshot({
 			code: inTest('console!.log(\'x\');'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// A test that declares no context parameter can still reach it through `getTestContext()`
+		'import {test, getTestContext} from \'node:test\';\ntest(\'t\', () => { console.log(\'x\'); });',
+		'import {test, getTestContext} from \'node:test\';\ntest(\'t\', t => { console.log(\'x\'); });',
 	],
 });

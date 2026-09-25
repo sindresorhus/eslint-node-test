@@ -47,5 +47,8 @@ test.snapshot({
 		// A hook declared on a test context is still a hook
 		'import test from \'node:test\';\ntest(\'o\', t => { t.beforeEach(() => { test(\'inner\', () => {}); }); });',
 		'import test from \'node:test\';\ntest(\'o\', t => { t.after(() => { test(\'inner\', () => {}); }); });',
+
+		// A hook declared through `getTestContext()` is the same hook
+		'import {test, getTestContext} from \'node:test\';\ntest(\'o\', t => { getTestContext().after(() => { test(\'inner\', () => {}); }); });',
 	],
 });

@@ -382,6 +382,58 @@ Message:
 
 `;
 
+exports[`prefer-async-await > invalid(31): import {test} from 'node:test';\ntest('o', t => {\n\tt.beforeEach(() => {\n\t\treturn setup().then(fn);\n\t});\n}); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | test('o', t => {
+  3 | 	t.beforeEach(() => {
+  4 | 		return setup().then(fn);
+  5 | 	});
+  6 | });
+
+`;
+
+exports[`prefer-async-await > invalid(31): import {test} from 'node:test';\ntest('o', t => {\n\tt.beforeEach(() => {\n\t\treturn setup().then(fn);\n\t});\n}); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+  2 | test('o', t => {
+> 3 | 	t.beforeEach(() => {
+    | 	             ^^^^^^^
+> 4 | 		return setup().then(fn);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | 	});
+    | ^^ Prefer async/await instead of returning a Promise.
+  6 | });
+
+`;
+
+exports[`prefer-async-await > invalid(32): import {test} from 'node:test';\ntest('o', t => {\n\tt.after(() => {\n\t\treturn setup().then(fn);\n\t});\n}); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | test('o', t => {
+  3 | 	t.after(() => {
+  4 | 		return setup().then(fn);
+  5 | 	});
+  6 | });
+
+`;
+
+exports[`prefer-async-await > invalid(32): import {test} from 'node:test';\ntest('o', t => {\n\tt.after(() => {\n\t\treturn setup().then(fn);\n\t});\n}); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+  2 | test('o', t => {
+> 3 | 	t.after(() => {
+    | 	        ^^^^^^^
+> 4 | 		return setup().then(fn);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | 	});
+    | ^^ Prefer async/await instead of returning a Promise.
+  6 | });
+
+`;
+
 exports[`prefer-async-await > invalid(4): import test from 'node:test';\ntest(\"title\", t => { return foo().catch(fn2).then(fn); }); 1`] = `
 
   1 | import test from 'node:test';

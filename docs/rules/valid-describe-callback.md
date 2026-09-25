@@ -7,9 +7,9 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-`node:test` calls a `describe`/`suite` callback with no arguments and ignores its return value. A parameter on the callback is usually a mistake, confusing it with a `test`/`it` callback, which _does_ receive the test context. An implicit return from an arrow callback registers tests through a returned expression instead of statements in a block body, which is harder to read.
+`node:test` calls a `describe`/`suite` callback with a `SuiteContext` and ignores its return value. A parameter is therefore a real use, not a mistake: the suite context carries the suite `name`, `fullName`, `diagnostic()`, and the `before`/`after`/`beforeEach`/`afterEach` hooks. An implicit return from an arrow callback registers tests through a returned expression instead of statements in a block body, which is harder to read.
 
-This rule reports a `describe`/`suite` callback that declares a parameter or has an arrow expression body. A top-level `return` inside a block body is not reported.
+This rule reports a `describe`/`suite` callback whose arrow has an expression body. A top-level `return` inside a block body is not reported.
 
 See also [`no-async-describe`](./no-async-describe.md), which covers `async` callbacks.
 
@@ -19,15 +19,16 @@ See also [`no-async-describe`](./no-async-describe.md), which covers `async` cal
 import {describe, test} from 'node:test';
 
 // ❌
-describe('user', t => {
-	test('has a name', () => {});
-});
-
-// ❌
 describe('user', () => test('has a name', () => {}));
 
 // ✅
 describe('user', () => {
+	test('has a name', () => {});
+});
+
+// ✅ — the suite context is a documented argument
+describe('user', t => {
+	t.diagnostic('loading the user');
 	test('has a name', () => {});
 });
 ```

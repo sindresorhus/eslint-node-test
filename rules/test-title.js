@@ -95,7 +95,8 @@ const create = context => {
 			return;
 		}
 
-		const firstArgument = node.arguments[0];
+		// Unwrapped, so a cast or a non-null assertion cannot hide the implementation argument.
+		const firstArgument = unwrapTypeScriptExpression(node.arguments[0]);
 
 		// No arguments at all — truly empty call, skip.
 		if (!firstArgument) {
@@ -119,7 +120,7 @@ const create = context => {
 		}
 
 		// A descriptor with no `name` is an object first argument that carries no title.
-		if (unwrapTypeScriptExpression(firstArgument).type === 'ObjectExpression') {
+		if (firstArgument.type === 'ObjectExpression') {
 			return {
 				node,
 				messageId: MESSAGE_ID_MISSING,

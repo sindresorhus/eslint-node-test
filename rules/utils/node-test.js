@@ -574,13 +574,20 @@ export function getSubtestReceiver(callExpression) {
 }
 
 /**
-Whether a call is a `<context>.beforeEach(…)`-style hook declared on a test context. The `isContextIdentifier` predicate (typically `tracker.isContextIdentifier`) decides whether the receiver is a tracked context.
+Whether a call is a `<context>.beforeEach(…)`-style hook declared on a test context. The `isContextReceiver` predicate (typically `tracker.isContextReceiver`) decides whether the receiver reaches a test context, either as the context parameter or as a `getTestContext()` call.
 */
-export function isContextHookCall(callExpression, isContextIdentifier) {
-	const chain = getCalleeChain(callExpression.callee);
-	return chain?.members.length === 1
-		&& HOOK_FUNCTIONS.has(chain.members[0].name)
-		&& isContextIdentifier(chain.root);
+export function isContextHookCall(callExpression, isContextReceiver) {
+	const callee = unwrapTypeScriptExpression(callExpression.callee);
+	if (
+		callee?.type !== 'MemberExpression'
+		|| callee.computed
+		|| callee.property.type !== 'Identifier'
+		|| !HOOK_FUNCTIONS.has(callee.property.name)
+	) {
+		return false;
+	}
+
+	return isContextReceiver(unwrapTypeScriptExpression(callee.object));
 }
 
 function getParentCallExpression(node) {
@@ -627,6 +634,7 @@ Set `trackHooks` to also track hook context parameters.
 	isSubtestCall: (node: import('estree').Node) => boolean,
 	hasIdentifierSubtestReceiver: (node: import('estree').Node) => boolean,
 	isContextIdentifier: (node: import('estree').Node | undefined) => boolean,
+	isContextReceiver: (node: import('estree').Node | undefined) => boolean,
 	isContextName: (name: string | undefined) => boolean,
 	isContextNameInScope: (name: string | undefined, node: import('estree').Node) => boolean,
 	currentContextVariable: () => import('eslint').Scope.Variable | undefined,
@@ -705,13 +713,18 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 		return NOT_ASSERT_BINDING;
 	};
 
+	// A receiver that reaches a test context: the context parameter itself, or a `getTestContext()`
+	// call, which has no identifier to match.
+	const isContextReceiver = node => isContextIdentifier(node)
+		|| isGetTestContextCall(unwrapTypeScriptExpression(node), imports);
+
 	const isTrackedHookCall = (node, parsed) => trackHooks && (
 		(
 			parsed?.kind === 'hook'
 			&& parsed.modifiers.length === 0
 		)
 		|| isHookMemberTestCall(parsed)
-		|| isContextHookCall(node, isContextIdentifier)
+		|| isContextHookCall(node, isContextReceiver)
 	);
 
 	const isTrackedTestCall = parsed => parsed?.kind === 'test'
@@ -731,6 +744,8 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 
 	return {
 		isSubtestCall,
+		// A receiver that reaches a test context, for `isContextHookCall` and friends.
+		isContextReceiver,
 		// Whether the subtest call has a context-parameter receiver, which the rules that name it in a
 		// message need in order to tell `t.test(…)` from `getTestContext().test(…)`.
 		hasIdentifierSubtestReceiver: node => getSubtestReceiver(node) !== undefined,
@@ -928,7 +943,7 @@ export function getTestTitleNode(callExpression) {
 	const options = isDescriptor ? first : getTestOptions(callExpression);
 	if (!options) {
 		// A function in the first position is the implementation (`test(fn)` / `beforeEach(fn)`), never
-		// a positional title.
+		// a positional title. A call with no arguments has no first argument to return.
 		return isFunction(first) ? undefined : first;
 	}
 
@@ -1245,7 +1260,7 @@ Determine the kind (`test`/`suite`/`hook`) of the nearest enclosing test-related
 
 Returns `undefined` when the nearest enclosing function is a regular function (e.g. a helper), or there is none. Subtests (`t.test(…)`) are method calls rather than imported bindings, so they are recognized structurally and classified as `'test'`.
 */
-export function nearestTestCallbackKind(node, imports, isContextIdentifier) {
+export function nearestTestCallbackKind(node, imports, isContextReceiver) {
 	let current = node.parent;
 	while (current) {
 		if (isFunction(current)) {
@@ -1264,7 +1279,7 @@ export function nearestTestCallbackKind(node, imports, isContextIdentifier) {
 					return 'hook';
 				}
 
-				if (isContextIdentifier && isContextHookCall(call, isContextIdentifier) && getHookCallback(call) === current) {
+				if (isContextReceiver && isContextHookCall(call, isContextReceiver) && getHookCallback(call) === current) {
 					return 'hook';
 				}
 

@@ -409,6 +409,29 @@ Suggestion 1/1: Remove the \`async\` keyword.:
 
 `;
 
+exports[`no-async-fn-without-await > invalid(6): import {test, getTestContext} from 'node:test';\nimport assert from 'node:assert';\ntest('o', t => { getTestContext().beforeEach(async () => { assert.ok(1); }); }); 1`] = `
+
+  1 | import {test, getTestContext} from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('o', t => { getTestContext().beforeEach(async () => { assert.ok(1); }); });
+
+`;
+
+exports[`no-async-fn-without-await > invalid(6): import {test, getTestContext} from 'node:test';\nimport assert from 'node:assert';\ntest('o', t => { getTestContext().beforeEach(async () => { assert.ok(1); }); }); 2`] = `
+
+Message:
+  1 | import {test, getTestContext} from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | test('o', t => { getTestContext().beforeEach(async () => { assert.ok(1); }); });
+    |                                              ^^^^^ Async test/hook function has no \`await\` expression.
+
+Suggestion 1/1: Remove the \`async\` keyword.:
+  1 | import {test, getTestContext} from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('o', t => { getTestContext().beforeEach(() => { assert.ok(1); }); });
+
+`;
+
 exports[`no-async-fn-without-await > invalid(6): import {test} from \"node:test\";\ntest(\"title\", async t => {}); 1`] = `
 
   1 | import {test} from "node:test";

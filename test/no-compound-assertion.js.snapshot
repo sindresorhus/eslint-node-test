@@ -851,6 +851,77 @@ Message:
 
 `;
 
+exports[`no-compound-assertion > invalid(45): import test from 'node:test';\ntest('t', {plan: 1}, t => {\n\tt.assert.ok(a && b);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', {plan: 1}, t => {
+  3 | 	t.assert.ok(a && b);
+  4 | });
+
+`;
+
+exports[`no-compound-assertion > invalid(45): import test from 'node:test';\ntest('t', {plan: 1}, t => {\n\tt.assert.ok(a && b);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', {plan: 1}, t => {
+> 3 | 	t.assert.ok(a && b);
+    | 	^^^^^^^^^^^^^^^^^^^ Split this compound assertion into separate assertions so the failing operand is clear.
+  4 | });
+
+`;
+
+exports[`no-compound-assertion > invalid(46): import test from 'node:test';\ntest('t', async t => {\n\tawait t.test('s', {plan: 1}, s => {\n\t\ts.assert.ok(a && b);\n\t});\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', async t => {
+  3 | 	await t.test('s', {plan: 1}, s => {
+  4 | 		s.assert.ok(a && b);
+  5 | 	});
+  6 | });
+
+`;
+
+exports[`no-compound-assertion > invalid(46): import test from 'node:test';\ntest('t', async t => {\n\tawait t.test('s', {plan: 1}, s => {\n\t\ts.assert.ok(a && b);\n\t});\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', async t => {
+  3 | 	await t.test('s', {plan: 1}, s => {
+> 4 | 		s.assert.ok(a && b);
+    | 		^^^^^^^^^^^^^^^^^^^ Split this compound assertion into separate assertions so the failing operand is clear.
+  5 | 	});
+  6 | });
+
+`;
+
+exports[`no-compound-assertion > invalid(47): import test from 'node:test';\ntest('t', {plan: 0}, t => {\n\tt.assert.ok(a && b);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', {plan: 0}, t => {
+  3 | 	t.assert.ok(a && b);
+  4 | });
+
+`;
+
+exports[`no-compound-assertion > invalid(47): import test from 'node:test';\ntest('t', {plan: 0}, t => {\n\tt.assert.ok(a && b);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', {plan: 0}, t => {
+> 3 | 	t.assert.ok(a && b);
+    | 	^^^^^^^^^^^^^^^^^^^ Split this compound assertion into separate assertions so the failing operand is clear.
+  4 | });
+
+Output:
+  1 | import test from 'node:test';
+  2 | test('t', {plan: 0}, t => {
+  3 | 	t.assert.ok(a);
+  4 | 	t.assert.ok(b);
+  5 | });
+
+`;
+
 exports[`no-compound-assertion > invalid(5): import test from 'node:test';\ntest('t', t => {\n\tt.plan(2);\n\tt.assert.ok(a && b);\n}); 1`] = `
 
   1 | import test from 'node:test';

@@ -74,9 +74,15 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		// `getTestContext()` is the same context, so either form advances the other\'s enable
-		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', () => { getTestContext().mock.timers.enable({apis: [\'setTimeout\']}); setTimeout(fn, 1); getTestContext().mock.timers.tick(1); });',
-		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', t => { getTestContext().mock.timers.enable({apis: [\'setTimeout\']}); setTimeout(fn, 1); t.mock.timers.tick(1); });',
-		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', t => { t.mock.timers.enable({apis: [\'setTimeout\']}); setTimeout(fn, 1); getTestContext().mock.timers.runAll(); });',
+		'import {test, getTestContext} from \'node:test\';\n'
+		+ 'test(\'a\', () => { getTestContext().mock.timers.enable({apis: [\'setTimeout\']});\n'
+		+ '\tsetTimeout(fn, 1);\n\tgetTestContext().mock.timers.tick(1); });',
+		'import {test, getTestContext} from \'node:test\';\n'
+		+ 'test(\'a\', t => { getTestContext().mock.timers.enable({apis: [\'setTimeout\']});\n'
+		+ '\tsetTimeout(fn, 1);\n\tt.mock.timers.tick(1); });',
+		'import {test, getTestContext} from \'node:test\';\n'
+		+ 'test(\'a\', t => { t.mock.timers.enable({apis: [\'setTimeout\']});\n'
+		+ '\tsetTimeout(fn, 1);\n\tgetTestContext().mock.timers.runAll(); });',
 	],
 	invalid: [
 		// Timer enabled but never advanced

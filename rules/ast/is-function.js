@@ -1,5 +1,6 @@
 import functionTypes from './function-types.js';
 
 export default function isFunction(node) {
-	return functionTypes.includes(node.type);
+	// A missing argument is not a function, and several callers ask about an optional node.
+	return functionTypes.includes(node?.type);
 }

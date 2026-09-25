@@ -3,9 +3,9 @@ import {
 	parseTestCall,
 	createContextTracker,
 	isContextHookCall,
-	getCalleeChain,
 } from './utils/node-test.js';
 import {skipExpressionWrappers} from './utils/index.js';
+import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
 const MESSAGE_ID = 'hooks-order/error';
 
@@ -124,7 +124,7 @@ const create = context => {
 	const tracker = createContextTracker(imports, {trackHooks: true});
 
 	context.on('CallExpression', node => {
-		const isContextHook = isContextHookCall(node, tracker.isContextIdentifier);
+		const isContextHook = isContextHookCall(node, tracker.isContextReceiver);
 		tracker.update(node);
 
 		const parsed = parseTestCall(node, imports);
@@ -133,7 +133,10 @@ const create = context => {
 			return;
 		}
 
-		const hookName = isContextHook ? getCalleeChain(node.callee)?.members[0]?.name : parsed.name;
+		// A context hook is named by the member after its receiver, which reads the same for a
+		// context parameter and for a `getTestContext()` call; an imported hook is named by its export.
+		const hook = isContextHook ? unwrapTypeScriptExpression(node.callee).property : parsed;
+		const hookName = hook.name;
 
 		const statement = skipExpressionWrappers(node.parent);
 		if (statement?.type !== 'ExpressionStatement') {
