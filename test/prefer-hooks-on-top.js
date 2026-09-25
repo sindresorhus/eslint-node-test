@@ -30,6 +30,11 @@ test.snapshot({
 		withImport('test("a", () => {});\ndescribe("s", () => {\n\tbeforeEach(() => {});\n\tit("b", () => {});\n});'),
 	],
 	invalid: [
+		// A suite callback the call names out of line is that suite's own scope, so a hook after a
+		// test in it is still out of order
+		'import {describe, it, beforeEach} from \'node:test\';\nconst body = () => {\n\tit(\'a\', () => {});\n\tbeforeEach(() => {});\n};\ndescribe(\'user\', body);',
+		'import {describe, it, beforeEach} from \'node:test\';\ndescribe(\'user\', body);\nfunction body() {\n\tit(\'a\', () => {});\n\tbeforeEach(() => {});\n}',
+
 		// Hook after a test at the top level
 		withImport('it("a", () => {});\nbeforeEach(() => {});'),
 

@@ -1,6 +1,6 @@
 import {resolveImports, createContextTracker, isGetTestContextCall} from './utils/node-test.js';
 import isFunction from './ast/is-function.js';
-import {skipExpressionWrappers, unwrapTypeScriptExpression} from './utils/index.js';
+import {getFloatingStatement, unwrapTypeScriptExpression} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-skip-without-return/error';
 const MESSAGE_ID_SUGGESTION = 'no-skip-without-return/suggestion';
@@ -81,7 +81,9 @@ const create = context => {
 		let problem;
 
 		const callee = unwrapTypeScriptExpression(node.callee);
-		const statement = skipExpressionWrappers(node.parent);
+		// `t.skip()` can be wrapped in `void` or sit inside a conditional, in which case the statement
+		// that discards it is the one whose remaining code runs after the skip.
+		const statement = getFloatingStatement(node)?.statement;
 		// The receiver is a tracked context parameter or a `getTestContext()` call, behind any
 		// TypeScript wrapper.
 		const name = callee.type === 'MemberExpression'

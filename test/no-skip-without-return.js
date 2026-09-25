@@ -44,6 +44,10 @@ test.snapshot({
 		'import test from \'node:test\';\ntest(\'x\', t => {\n\tswitch (k) {\n\t\tcase 1: {\n\t\t\tt.skip(\'x\');\n\t\t\tbreak;\n\t\t}\n\t\tcase 2: {\n\t\t\tother();\n\t\t}\n\t}\n});',
 	],
 	invalid: [
+		// A discarded `t.skip()` still skips, so the code after it still runs
+		withImport('test("x", t => { void t.skip("nope"); doStuff(); });'),
+		withImport('test("x", t => { if (flag) { void t.skip("nope"); } doStuff(); });'),
+
 		// A class static block is a statement list, so a skip in one is followed by the same code
 		withImport('test("x", t => {\n\tclass A {\n\t\tstatic {\n\t\t\tt.skip();\n\t\t\tdoStuff();\n\t\t}\n\t}\n});'),
 		// The walk climbs out of the class, so a statement after it still runs after the static block skipped
