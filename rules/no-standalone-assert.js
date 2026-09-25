@@ -24,9 +24,14 @@ const create = context => {
 			return;
 		}
 
-		// Any enclosing function (test/hook callback or a helper) means it is not standalone.
+		// Any enclosing function (test/hook callback or a helper) means it is not standalone. So does an
+		// instance class field, whose initializer runs when an instance is created rather than when the
+		// module is loaded. A static field or a static block does run at load, so it stays reported.
 		for (let current = node.parent; current; current = current.parent) {
-			if (isFunction(current)) {
+			if (
+				isFunction(current)
+				|| ((current.type === 'PropertyDefinition' || current.type === 'AccessorProperty') && !current.static)
+			) {
 				return;
 			}
 		}

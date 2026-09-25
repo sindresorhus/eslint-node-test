@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-A test without any assertions will always pass, even if the code under test is broken. This rule requires each `test`/`it` call to contain at least one assertion from `node:assert`, the test context's `assert` property, or the `assert` property directly destructured from the test callback parameter.
+A test without any assertions passes whenever its body returns normally, so a wrong result that nothing checks goes unnoticed. A body that throws still fails, which is why this rule is about missing checks rather than about failures. This rule requires each `test`/`it` call to contain at least one assertion from `node:assert`, the test context's `assert` property, or the `assert` property directly destructured from the test callback parameter.
 
 Note: Tests that reference an external implementation (without an inline function body) are not flagged, since the implementation may contain assertions.
 

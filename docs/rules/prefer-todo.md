@@ -11,7 +11,7 @@
 
 A test with no implementation — either `test('title')` with no function, or `test('title', () => {})` with an empty body — passes silently, so it looks like real coverage while testing nothing. Marking it with `.todo` instead makes the intent explicit: the runner reports it as a pending TODO rather than a passing test.
 
-This rule reports empty placeholder tests and offers a suggestion to convert them to `.todo`. Tests with an existing modifier (`.only`/`.skip`/`.todo`) or an options object are left alone, since those are intentional.
+This rule reports empty placeholder tests and offers a suggestion to convert them to `.todo`, or to `t.todo(…)` for a subtest, since `t.test` has no `.todo` method. Tests with an existing modifier (`.only`/`.skip`/`.todo`) are left alone. An options object is left alone when it carries intent: `{skip: true}` and friends, but a descriptor that only holds `name` or `fn` is still reported, because neither says the test is deliberate.
 
 ## Examples
 

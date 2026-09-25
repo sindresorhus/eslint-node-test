@@ -10,7 +10,7 @@ import {
 const MESSAGE_ID = 'no-conflicting-modifiers';
 
 const messages = {
-	[MESSAGE_ID]: 'Conflicting modifiers {{modifiers}}; `node:test` applies only one.',
+	[MESSAGE_ID]: 'Conflicting modifiers {{modifiers}}; `node:test` gives them a precedence, so the others have no effect.',
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */

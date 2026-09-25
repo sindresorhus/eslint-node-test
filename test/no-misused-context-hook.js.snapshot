@@ -394,6 +394,54 @@ Message:
 
 `;
 
+exports[`no-misused-context-hook > invalid(31): import test from 'node:test';\ntest('parent', async t => { t.beforeEach(() => {}); await t.test.todo('child', () => {}); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('parent', async t => { t.beforeEach(() => {}); await t.test.todo('child', () => {}); });
+
+`;
+
+exports[`no-misused-context-hook > invalid(31): import test from 'node:test';\ntest('parent', async t => { t.beforeEach(() => {}); await t.test.todo('child', () => {}); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('parent', async t => { t.beforeEach(() => {}); await t.test.todo('child', () => {}); });
+    |                             ^^^^^^^^^^^^^^^^^^^^^^ \`beforeEach()\` has no effect on a test without runnable subtests. It only runs around the test's subtests.
+
+`;
+
+exports[`no-misused-context-hook > invalid(32): import test from 'node:test';\ntest('parent', async t => { t.beforeEach(() => {}); await t.test.only('child', () => {}); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('parent', async t => { t.beforeEach(() => {}); await t.test.only('child', () => {}); });
+
+`;
+
+exports[`no-misused-context-hook > invalid(32): import test from 'node:test';\ntest('parent', async t => { t.beforeEach(() => {}); await t.test.only('child', () => {}); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('parent', async t => { t.beforeEach(() => {}); await t.test.only('child', () => {}); });
+    |                             ^^^^^^^^^^^^^^^^^^^^^^ \`beforeEach()\` has no effect on a test without runnable subtests. It only runs around the test's subtests.
+
+`;
+
+exports[`no-misused-context-hook > invalid(33): import test from 'node:test';\ntest('parent', async t => { t.beforeEach(() => {}); await t.test.only.todo('child', () => {}); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('parent', async t => { t.beforeEach(() => {}); await t.test.only.todo('child', () => {}); });
+
+`;
+
+exports[`no-misused-context-hook > invalid(33): import test from 'node:test';\ntest('parent', async t => { t.beforeEach(() => {}); await t.test.only.todo('child', () => {}); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('parent', async t => { t.beforeEach(() => {}); await t.test.only.todo('child', () => {}); });
+    |                             ^^^^^^^^^^^^^^^^^^^^^^ \`beforeEach()\` has no effect on a test without runnable subtests. It only runs around the test's subtests.
+
+`;
+
 exports[`no-misused-context-hook > invalid(4): import test from 'node:test';\ntest('leaf', t => { t.beforeEach(() => {}); }); 1`] = `
 
   1 | import test from 'node:test';

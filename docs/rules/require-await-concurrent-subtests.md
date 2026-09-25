@@ -7,12 +7,12 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-A subtest created with `t.test()` returns a promise. Any subtest still outstanding when its parent test finishes is cancelled and treated as a failure. When you create subtests by iterating with `map`, `forEach`, or `flatMap`, you must collect and await the resulting promises, otherwise the parent returns before they settle:
+A subtest created with `t.test()` returns a promise. The parent waits for its subtests before it finishes, so a subtest that is never awaited cannot run alongside the rest of the test's work. When you create subtests by iterating with `map`, `forEach`, or `flatMap`, collect and await the resulting promises so they run concurrently:
 
 - `forEach` discards its callbacks' return values, so the subtest promises are lost entirely.
 - `map`/`flatMap` produce an array of promises that must be consumed, typically with `await Promise.all(...)`.
 
-The `Promise.all(...)` counts as consumed when it is awaited, returned, or assigned. A bare `Promise.all(...)` statement or one discarded with `void` is still flagged, since the parent test finishes before those subtests settle.
+The `Promise.all(...)` counts as consumed when it is awaited, returned, or assigned. A bare `Promise.all(...)` statement or one discarded with `void` is still flagged, since nothing waits for those subtests where the promise would have been awaited.
 
 The array has to reach `Promise.all(...)` as a plain argument. The rule does not follow the value any further, so a two-step form that copies it first, as in `await Promise.all([...promises])` or `await Promise.all(promises.slice())`, is still flagged even though the subtests do settle.
 
@@ -24,7 +24,7 @@ This rule complements [`no-unawaited-subtest`](./no-unawaited-subtest.md), which
 import test from 'node:test';
 
 test('table', async t => {
-	// ❌ — subtests are cancelled when the test finishes
+	// ❌ — the subtests cannot run concurrently
 	cases.map((input) => t.test(`case ${input}`, () => {}));
 
 	// ❌ — forEach throws the promises away

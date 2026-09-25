@@ -30,7 +30,7 @@ This rule reports `assert()`/`assert.ok()` calls whose argument is an equality c
 
 Loose `==`/`!=` comparisons are not reported when using a strict assert API because `equal`/`notEqual` would behave strictly there and change the assertion semantics.
 
-The fix is skipped (the problem is still reported) when the comparison is wrapped in extra parentheses or contains a comment, since the rewrite could not safely preserve it.
+The fix is skipped (the problem is still reported) when the rewrite could not preserve the code: a comparison wrapped in extra parentheses, a comparison containing a comment, a bare named import whose replacement would reference an unimported name, and an operand that is visibly `NaN`, `-0` or `0`, where `===` and `Object.is` disagree. Plain identifiers are left to the runtime, which is where the `Object.is` difference shows up.
 
 ## Examples
 

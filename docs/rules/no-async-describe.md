@@ -7,16 +7,16 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-`node:test` collects the tests in a `describe`/`suite` by calling its callback and expecting every `test`/`describe` inside to be registered **synchronously**. It does not await the callback ([nodejs/node#48845](https://github.com/nodejs/node/issues/48845)), so once the callback hits an `await` the suite is already considered finished — any test registered afterwards fails with "test could not be started because its parent finished".
+`node:test` does await a `describe`/`suite` callback, so an `async` one keeps registering its tests after the first `await` and they all run once it settles. The trouble is what an `await` in that callback hides: if the callback rejects, the suite fails with the rejection and every test it already registered is cancelled with `test did not finish before its parent and was cancelled`, so a failure in asynchronous setup replaces the results of the whole suite.
 
-This rule reports `async` `describe`/`suite` callbacks. If you need asynchronous setup, do it in a hook or inside the individual tests, which _are_ awaited.
+This rule reports `async` `describe`/`suite` callbacks. If you need asynchronous setup, do it in a hook or inside the individual tests, where a failure is reported against the test that caused it.
 
 ## Examples
 
 ```js
 import {describe, it} from 'node:test';
 
-// ❌ — `b` is registered after the await and is silently dropped
+// ❌ — `b` is registered only after the await, and a rejection in `setup()` cancels the suite
 describe('suite', async () => {
 	it('a', () => {});
 	await setup();

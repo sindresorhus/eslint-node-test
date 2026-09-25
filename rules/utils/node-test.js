@@ -1238,11 +1238,13 @@ The modifiers do not share one enablement rule:
   `{skip: false}` and `{skip: undefined}` do not.
 
 A value that cannot be resolved statically counts as enabled, which is the safe answer for a dynamic
-option: the rules have always reported it, and it is more often on than off.
+option: the rules have always reported it, and it is more often on than off. A getter is the one
+exception, because the accessor function is not the value the runner reads: what `get skip()` returns is
+not knowable here, and a getter that returns `false` leaves the option off.
 */
 export function findEnabledOptionsProperty(optionsObject, name, context) {
 	const property = findOptionsProperty(optionsObject, name);
-	if (!property) {
+	if (!property || property.kind === 'get') {
 		return undefined;
 	}
 

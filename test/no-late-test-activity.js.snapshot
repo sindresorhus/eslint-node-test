@@ -1140,6 +1140,44 @@ Message:
 
 `;
 
+exports[`no-late-test-activity > invalid(58): import test from 'node:test';\nimport assert from 'node:assert';\ntest('t', () => { globalThis.setTimeout(() => { assert.ok(x); }, 10); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('t', () => { globalThis.setTimeout(() => { assert.ok(x); }, 10); });
+
+`;
+
+exports[`no-late-test-activity > invalid(58): import test from 'node:test';\nimport assert from 'node:assert';\ntest('t', () => { globalThis.setTimeout(() => { assert.ok(x); }, 10); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | test('t', () => { globalThis.setTimeout(() => { assert.ok(x); }, 10); });
+    |                                                 ^^^^^^^^^^^^ Assertion in a detached \`setTimeout()\` callback can run after the test or hook has finished.
+
+`;
+
+exports[`no-late-test-activity > invalid(59): import test from 'node:test';\nimport assert from 'node:assert';\nimport timers from 'node:timers';\ntest('t', () => { timers.setImmediate(() => { assert.ok(x); }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | import timers from 'node:timers';
+  4 | test('t', () => { timers.setImmediate(() => { assert.ok(x); }); });
+
+`;
+
+exports[`no-late-test-activity > invalid(59): import test from 'node:test';\nimport assert from 'node:assert';\nimport timers from 'node:timers';\ntest('t', () => { timers.setImmediate(() => { assert.ok(x); }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | import timers from 'node:timers';
+> 4 | test('t', () => { timers.setImmediate(() => { assert.ok(x); }); });
+    |                                               ^^^^^^^^^^^^ Assertion in a detached \`setImmediate()\` callback can run after the test or hook has finished.
+
+`;
+
 exports[`no-late-test-activity > invalid(6): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', t => {\n\tsetImmediate(() => t.assert.ok(value));\n}); 1`] = `
 
   1 | import test from 'node:test';

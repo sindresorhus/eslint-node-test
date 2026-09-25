@@ -8,7 +8,9 @@ import {
 	getTestOptions,
 	getContextParameterIdentifier,
 	findEnabledOptionsProperty,
+	getContextHookName,
 	isHookMemberTestCall,
+	isSubtestCall,
 	MODIFIERS,
 } from './utils/node-test.js';
 import {getEnclosingFunction, unwrapExpression} from './utils/index.js';
@@ -315,6 +317,10 @@ const create = context => {
 		return false;
 	};
 
+	// Whether the call sits directly in the tracked test's own callback, which is the scope a
+	// `getTestContext()` call resolves against.
+	const isInCurrentTestContext = node => getEnclosingFunction(node) === testStack.at(-1)?.callback;
+
 	const isCurrentTestContextReceiver = (node, receiver) => {
 		const currentTest = testStack.at(-1);
 		if (!currentTest?.contextVariable) {
@@ -328,17 +334,20 @@ const create = context => {
 
 	const isCurrentTestContextSubtestCall = node => {
 		const receiver = getSupportedSubtestReceiver(node);
-		if (receiver?.type !== 'Identifier') {
-			return false;
+		if (receiver === undefined) {
+			// `getTestContext().test(…)` names the context this rule is already tracking, so it
+			// needs no receiver to match against.
+			return isSubtestCall(node, imports) && isInCurrentTestContext(node);
 		}
 
-		return isCurrentTestContextReceiver(node, receiver);
+		return receiver.type === 'Identifier' && isCurrentTestContextReceiver(node, receiver);
 	};
 
 	const isCurrentTestContextHookCall = node => {
 		const receiver = getContextHookReceiver(node);
-		if (!receiver) {
-			return false;
+		if (receiver === undefined) {
+			// Likewise for `getTestContext().beforeEach(…)`.
+			return getContextHookName(node) !== undefined && isInCurrentTestContext(node);
 		}
 
 		return isCurrentTestContextReceiver(node, receiver);

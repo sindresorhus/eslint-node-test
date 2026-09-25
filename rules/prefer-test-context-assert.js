@@ -77,6 +77,7 @@ const create = context => {
 	}
 
 	const tracker = createContextTracker(imports);
+	const hasGetTestContextImport = imports.locals.values().toArray().includes('getTestContext');
 
 	context.on('CallExpression', node => {
 		tracker.update(node);
@@ -88,7 +89,9 @@ const create = context => {
 			return;
 		}
 
-		const contextName = tracker.current();
+		// A test that declares no context parameter can still reach its context through
+		// `getTestContext()`, so the file has to import that name under any local alias.
+		const contextName = tracker.current() ?? (hasGetTestContextImport ? 'getTestContext()' : undefined);
 		if (!contextName) {
 			return;
 		}
@@ -97,7 +100,8 @@ const create = context => {
 		if (
 			!callback
 			|| !isInsideCallback(node, callback, sourceCode)
-			|| !tracker.isContextNameInScope(contextName, node)
+			// The import cannot be shadowed, so only a context parameter needs a scope check.
+			|| (contextName !== 'getTestContext()' && !tracker.isContextNameInScope(contextName, node))
 		) {
 			return;
 		}

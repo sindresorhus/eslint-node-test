@@ -42,6 +42,26 @@ function hasIntentOptions(callExpression) {
 	);
 }
 
+/**
+The context identifier of a `t.test(…)` callee, or `undefined` when the callee is not that shape.
+
+A subtest's TODO form is the context's own `t.todo(…)`, because `t.test` has no `.todo` method, so
+the suggestion rewrites the member instead of extending it.
+*/
+function getSubtestReceiver(callee) {
+	if (
+		callee.type !== 'MemberExpression'
+		|| callee.computed
+		|| callee.object.type !== 'Identifier'
+		|| callee.property.type !== 'Identifier'
+		|| callee.property.name !== 'test'
+	) {
+		return undefined;
+	}
+
+	return callee.object;
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -50,8 +70,8 @@ const create = context => {
 		return;
 	}
 
-	// A subtest (`t.test(…)`) is a test too, so an empty one is reported, but it has no `.todo`
-	// method, so no `.todo` suggestion is offered for it.
+	// A subtest (`t.test(…)`) is a test too, so an empty one is reported. Its TODO form is the
+	// context's own `t.todo(…)`, since `t.test` has no `.todo` method.
 	const tracker = createContextTracker(imports, {trackHooks: true});
 
 	context.on('CallExpression', node => {
@@ -90,8 +110,8 @@ const create = context => {
 		const {callee} = node;
 		// Dropping the function also drops the gaps on either side of it, so a comment in either one
 		// would be left behind describing the title instead.
-		// A subtest has no `.todo` method, so the suggestion is not offered for it.
-		const canFix = !isSubtest && (!callback || (
+		const subtestReceiver = isSubtest ? getSubtestReceiver(callee) : undefined;
+		const canFix = (isSubtest ? Boolean(subtestReceiver) : true) && (!callback || (
 			sourceCode.getCommentsInside(callback).length === 0
 			&& !hasCommentBefore(callback, sourceCode)
 			&& sourceCode.getCommentsAfter(callback).length === 0
@@ -107,7 +127,11 @@ const create = context => {
 				{
 					messageId: MESSAGE_ID_SUGGESTION,
 					* fix(fixer) {
-						yield fixer.insertTextAfter(callee, '.todo');
+						// `t.test(…)` becomes `t.todo(…)`, and a test binding `test(…)` becomes
+						// `test.todo(…)`.
+						yield subtestReceiver
+							? fixer.replaceText(callee, `${sourceCode.getText(subtestReceiver)}.todo`)
+							: fixer.insertTextAfter(callee, '.todo');
 						if (callback) {
 							yield removeArgument(fixer, callback, context);
 						}

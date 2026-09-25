@@ -20,11 +20,11 @@ updating as `node:test` gains options.
 `name` belongs here rather than in an object-form-only allowance: `node:test` names a test after
 `options.name` whenever there is one, so `test('a', {name: 'b'}, fn)` is called `b`. A hook has no
 title and no descriptor form, so `before({name: 'x'})` really is an unknown key.
-*/
-/*
-`node:test` reads `fn` from a test's options object wherever it sits, so `test({name, fn})` and
-`test(name, {fn})` both run that function. A hook is the exception: it takes its callback in the
-first position and the runner never reads `options.fn` for it.
+
+`fn` belongs to the test list for the mirror reason: `node:test` reads it from a test's options object
+wherever it sits, so `test({name, fn})` and `test(name, {fn})` both run that function. A hook is the
+exception, which is why it is absent from the hook list: it takes its callback in the first position
+and the runner never reads `options.fn` for it.
 */
 const TEST_OPTIONS = new Set(['concurrency', 'expectFailure', 'fn', 'name', 'only', 'plan', 'signal', 'skip', 'tags', 'timeout', 'todo']);
 const HOOK_OPTIONS = new Set(['signal', 'timeout']);

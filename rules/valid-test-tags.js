@@ -43,11 +43,6 @@ const messages = {
 	[MESSAGE_ID_DUPLICATE]: 'Duplicate tag `{{tag}}`.',
 };
 
-/** Whether `value` is a tag `node:test` accepts. */
-function isValidTag(value) {
-	return !FORBIDDEN_TAG_CHARACTER.test(value) && !RESERVED_TAGS.has(value.toLowerCase());
-}
-
 function isTagsProperty(property) {
 	return (
 		property.type === 'Property'

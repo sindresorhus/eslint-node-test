@@ -34,7 +34,7 @@ describe('user', () => {});
 Type: `string[]`\
 Default: `[]`
 
-Test functions whose titles are not checked. Allowed values: `test`, `it`, `describe`, `suite`.
+Test functions whose titles are not checked. Allowed values: `test`, `it`, `describe`, `suite`. A subtest (`t.test(…)`) is checked whatever this lists, because it belongs to no named test function.
 
 ```js
 /* eslint

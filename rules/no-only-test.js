@@ -4,7 +4,7 @@ import createTestModifierRule from './shared/test-modifier-rule.js';
 const config = createTestModifierRule({
 	modifier: 'only',
 	description: 'Disallow the `.only` test modifier.',
-	errorMessage: 'Do not use the `.only` test modifier as it prevents the other tests from running.',
+	errorMessage: 'Do not use the `.only` test modifier: under `--test-only` it stops the rest of the suite from running.',
 	recommended: 'unopinionated',
 });
 

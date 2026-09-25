@@ -37,6 +37,11 @@ test.snapshot({
 		// `timeout` and `signal`, so an inert `{skip: true}` there is an unknown key for
 		// `no-unknown-test-options` rather than a skipped test
 		'import {beforeEach} from \'node:test\';\nbeforeEach(() => {}, {skip: true});',
+
+		// A getter's value is what it returns, which cannot be read statically, so the option is left
+		// alone: a getter that returns `false` does not skip the test
+		'import test from \'node:test\';\ntest(\'title\', {get skip() { return false; }}, () => {});',
+		'import test from \'node:test\';\ntest(\'title\', {get skip() { return true; }}, () => {});',
 	],
 	invalid: [
 		'import test from "node:test";\ntest.skip("title", () => {});',

@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-The `.only` modifier (or the `{only: true}` option) restricts the run to only the marked tests, which is useful while developing but a mistake to commit, since it silently skips the rest of the suite.
+The `.only` modifier (or the `{only: true}` option) marks a test as the one to run, which is useful while developing but a mistake to commit. It only takes effect when the runner is started with the [`--test-only`](https://nodejs.org/api/test.html#--test-only) command-line option; a plain `node --test` run executes every test and prints a diagnostic saying that `only` needs the flag. Under `--test-only` the rest of the suite is skipped, so a committed marker is easy to miss.
 
 ## Examples
 

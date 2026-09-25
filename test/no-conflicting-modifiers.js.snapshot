@@ -10,7 +10,7 @@ exports[`no-conflicting-modifiers > invalid(1): import {test, describe, it} from
 Message:
   1 | import {test, describe, it} from 'node:test';
 > 2 | test.skip.only("x", () => {});
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`; \`node:test\` applies only one.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`; \`node:test\` gives them a precedence, so the others have no effect.
 
 `;
 
@@ -26,7 +26,7 @@ exports[`no-conflicting-modifiers > invalid(10): import {test, describe, it} fro
 Message:
   1 | import {test, describe, it} from 'node:test';
 > 2 | describe.skip.only("s", () => {});
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`; \`node:test\` applies only one.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`; \`node:test\` gives them a precedence, so the others have no effect.
 
 `;
 
@@ -42,7 +42,7 @@ exports[`no-conflicting-modifiers > invalid(11): import {test, describe, it} fro
 Message:
   1 | import {test, describe, it} from 'node:test';
 > 2 | test("x", {"skip": true, only: true}, () => {});
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`; \`node:test\` applies only one.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`; \`node:test\` gives them a precedence, so the others have no effect.
 
 `;
 
@@ -58,7 +58,7 @@ exports[`no-conflicting-modifiers > invalid(12): import * as nodeTest from 'node
 Message:
   1 | import * as nodeTest from 'node:test';
 > 2 | nodeTest.test.skip.only("x", () => {});
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`; \`node:test\` applies only one.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`; \`node:test\` gives them a precedence, so the others have no effect.
 
 `;
 
@@ -74,7 +74,7 @@ exports[`no-conflicting-modifiers > invalid(13): import {test, describe, it} fro
 Message:
   1 | import {test, describe, it} from 'node:test';
 > 2 | test.skip.only("x", (): void => {});
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`; \`node:test\` applies only one.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`; \`node:test\` gives them a precedence, so the others have no effect.
 
 `;
 
@@ -90,7 +90,7 @@ exports[`no-conflicting-modifiers > invalid(14): import {test} from 'node:test';
 Message:
   1 | import {test} from 'node:test';
 > 2 | test('p', async t => { await t.test('c', {skip: true, only: true}, () => {}); });
-    |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`; \`node:test\` applies only one.
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`; \`node:test\` gives them a precedence, so the others have no effect.
 
 `;
 
@@ -106,7 +106,7 @@ exports[`no-conflicting-modifiers > invalid(15): import {test} from 'node:test';
 Message:
   1 | import {test} from 'node:test';
 > 2 | test('p', async t => { await t.test('c', {only: true, todo: true}, () => {}); });
-    |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`todo\`; \`node:test\` applies only one.
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`todo\`; \`node:test\` gives them a precedence, so the others have no effect.
 
 `;
 
@@ -122,7 +122,7 @@ exports[`no-conflicting-modifiers > invalid(16): import {test} from 'node:test';
 Message:
   1 | import {test} from 'node:test';
 > 2 | test('a', {expectFailure: 0, skip: true}, () => {});
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`expectFailure\`, \`skip\`; \`node:test\` applies only one.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`expectFailure\`, \`skip\`; \`node:test\` gives them a precedence, so the others have no effect.
 
 `;
 
@@ -138,7 +138,7 @@ exports[`no-conflicting-modifiers > invalid(17): import {test} from 'node:test';
 Message:
   1 | import {test} from 'node:test';
 > 2 | test('a', {skip: 0, only: true}, () => {});
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`; \`node:test\` applies only one.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`; \`node:test\` gives them a precedence, so the others have no effect.
 
 `;
 
@@ -154,7 +154,7 @@ exports[`no-conflicting-modifiers > invalid(2): import {test, describe, it} from
 Message:
   1 | import {test, describe, it} from 'node:test';
 > 2 | it.only.skip("x", () => {});
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`; \`node:test\` applies only one.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`; \`node:test\` gives them a precedence, so the others have no effect.
 
 `;
 
@@ -170,7 +170,7 @@ exports[`no-conflicting-modifiers > invalid(3): import {test, describe, it} from
 Message:
   1 | import {test, describe, it} from 'node:test';
 > 2 | test("x", {skip: true, only: true}, () => {});
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`; \`node:test\` applies only one.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`; \`node:test\` gives them a precedence, so the others have no effect.
 
 `;
 
@@ -186,7 +186,7 @@ exports[`no-conflicting-modifiers > invalid(4): import {expectFailure} from 'nod
 Message:
   1 | import {expectFailure} from 'node:test';
 > 2 | expectFailure("x", {skip: true}, () => {});
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`expectFailure\`, \`skip\`; \`node:test\` applies only one.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`expectFailure\`, \`skip\`; \`node:test\` gives them a precedence, so the others have no effect.
 
 `;
 
@@ -202,7 +202,7 @@ exports[`no-conflicting-modifiers > invalid(5): import {test, describe, it} from
 Message:
   1 | import {test, describe, it} from 'node:test';
 > 2 | test("x", {expectFailure: true, skip: true}, () => {});
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`expectFailure\`, \`skip\`; \`node:test\` applies only one.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`expectFailure\`, \`skip\`; \`node:test\` gives them a precedence, so the others have no effect.
 
 `;
 
@@ -218,7 +218,7 @@ exports[`no-conflicting-modifiers > invalid(6): import {test, describe, it} from
 Message:
   1 | import {test, describe, it} from 'node:test';
 > 2 | test.expectFailure("x", {todo: true}, () => {});
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`expectFailure\`, \`todo\`; \`node:test\` applies only one.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`expectFailure\`, \`todo\`; \`node:test\` gives them a precedence, so the others have no effect.
 
 `;
 
@@ -234,7 +234,7 @@ exports[`no-conflicting-modifiers > invalid(7): import {test, describe, it} from
 Message:
   1 | import {test, describe, it} from 'node:test';
 > 2 | test("x", {skip: "later", only: true}, () => {});
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`; \`node:test\` applies only one.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`; \`node:test\` gives them a precedence, so the others have no effect.
 
 `;
 
@@ -250,7 +250,7 @@ exports[`no-conflicting-modifiers > invalid(8): import {test, describe, it} from
 Message:
   1 | import {test, describe, it} from 'node:test';
 > 2 | test.skip("x", {only: true}, () => {});
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`; \`node:test\` applies only one.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`; \`node:test\` gives them a precedence, so the others have no effect.
 
 `;
 
@@ -266,6 +266,6 @@ exports[`no-conflicting-modifiers > invalid(9): import {test, describe, it} from
 Message:
   1 | import {test, describe, it} from 'node:test';
 > 2 | test("x", {only: true, skip: true, todo: true}, () => {});
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`, \`todo\`; \`node:test\` applies only one.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`, \`todo\`; \`node:test\` gives them a precedence, so the others have no effect.
 
 `;

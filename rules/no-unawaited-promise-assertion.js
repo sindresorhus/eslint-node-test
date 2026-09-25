@@ -503,7 +503,8 @@ function getTimerImports(sourceCode) {
 				&& SCHEDULER_NAMES.has(specifier.imported.name)
 			) {
 				named.set(specifier.local.name, specifier.imported.name);
-			} else if (specifier.type === 'ImportNamespaceSpecifier') {
+			} else if (specifier.type === 'ImportNamespaceSpecifier' || specifier.type === 'ImportDefaultSpecifier') {
+				// Both are the whole timer module, so `timers.setTimeout(…)` is the same scheduler.
 				namespaces.add(specifier.local.name);
 			}
 		}
@@ -535,8 +536,12 @@ function getSchedulerName(node, timerImports, sourceCode) {
 		&& object?.type === 'Identifier'
 		&& callee.property.type === 'Identifier'
 		&& SCHEDULER_NAMES.has(callee.property.name)
-		&& timerImports.namespaces.has(object.name)
-		&& isImportBinding(object, sourceCode)) {
+		&& (
+			// `globalThis.setTimeout` is the same scheduler as the bare global.
+			(object.name === 'globalThis' || object.name === 'global')
+			|| (timerImports.namespaces.has(object.name) && isImportBinding(object, sourceCode))
+		)
+	) {
 		return callee.property.name;
 	}
 

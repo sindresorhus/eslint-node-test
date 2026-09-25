@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Defining a test or suite inside a test body does not register a proper subtest. Use the test context's `t.test()` for subtests, and group tests with `describe()` instead.
+A test or suite declared inside a `test()`/`it()` body is adopted by the runner as a nested subtest of that test, which ties its lifetime and its reporting to the parent. Use the test context's `t.test()` for subtests, which states that relationship in the code, and group tests with `describe()` instead of nesting a test inside a test.
 
 Grouping tests inside a `describe()`/`suite()`, and nesting suites, is fine — this rule only flags tests and suites declared inside a `test()`/`it()` body.
 

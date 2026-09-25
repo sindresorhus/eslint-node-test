@@ -10,7 +10,7 @@ exports[`no-only-test > invalid(1): import test from \"node:test\";\ntest(\"titl
 Message:
   1 | import test from "node:test";
 > 2 | test("title", {only: true});
-    |                ^^^^^^^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
+    |                ^^^^^^^^^^ Do not use the \`.only\` test modifier: under \`--test-only\` it stops the rest of the suite from running.
 
 `;
 
@@ -26,7 +26,7 @@ exports[`no-only-test > invalid(10): import {describe} from \"node:test\";\ndesc
 Message:
   1 | import {describe} from "node:test";
 > 2 | describe.only("title", () => {});
-    |          ^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
+    |          ^^^^ Do not use the \`.only\` test modifier: under \`--test-only\` it stops the rest of the suite from running.
 
 Suggestion 1/1: Remove \`.only\`.:
   1 | import {describe} from "node:test";
@@ -46,7 +46,7 @@ exports[`no-only-test > invalid(11): import {test} from \"node:test\";\ntest.onl
 Message:
   1 | import {test} from "node:test";
 > 2 | test.only("title", () => {});
-    |      ^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
+    |      ^^^^ Do not use the \`.only\` test modifier: under \`--test-only\` it stops the rest of the suite from running.
 
 Suggestion 1/1: Remove \`.only\`.:
   1 | import {test} from "node:test";
@@ -66,7 +66,7 @@ exports[`no-only-test > invalid(12): import {only} from \"node:test\";\nonly(\"t
 Message:
   1 | import {only} from "node:test";
 > 2 | only("title", () => {});
-    | ^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
+    | ^^^^ Do not use the \`.only\` test modifier: under \`--test-only\` it stops the rest of the suite from running.
 
 `;
 
@@ -82,7 +82,7 @@ exports[`no-only-test > invalid(13): import {only as focused} from \"node:test\"
 Message:
   1 | import {only as focused} from "node:test";
 > 2 | focused("title", () => {});
-    | ^^^^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
+    | ^^^^^^^ Do not use the \`.only\` test modifier: under \`--test-only\` it stops the rest of the suite from running.
 
 `;
 
@@ -98,7 +98,7 @@ exports[`no-only-test > invalid(14): import test from \"node:test\";\ntest. /* k
 Message:
   1 | import test from "node:test";
 > 2 | test. /* keep */ only("title", () => {});
-    |                  ^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
+    |                  ^^^^ Do not use the \`.only\` test modifier: under \`--test-only\` it stops the rest of the suite from running.
 
 `;
 
@@ -114,7 +114,7 @@ exports[`no-only-test > invalid(15): import test from \"node:test\";\ntest(\"tit
 Message:
   1 | import test from "node:test";
 > 2 | test("title", {only: true}, () => {});
-    |                ^^^^^^^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
+    |                ^^^^^^^^^^ Do not use the \`.only\` test modifier: under \`--test-only\` it stops the rest of the suite from running.
 
 `;
 
@@ -130,7 +130,7 @@ exports[`no-only-test > invalid(16): import {it} from \"node:test\";\nit(\"title
 Message:
   1 | import {it} from "node:test";
 > 2 | it("title", {only: true}, () => {});
-    |              ^^^^^^^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
+    |              ^^^^^^^^^^ Do not use the \`.only\` test modifier: under \`--test-only\` it stops the rest of the suite from running.
 
 `;
 
@@ -146,7 +146,7 @@ exports[`no-only-test > invalid(17): import {test as t} from \"node:test\";\nt.o
 Message:
   1 | import {test as t} from "node:test";
 > 2 | t.only("title", () => {});
-    |   ^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
+    |   ^^^^ Do not use the \`.only\` test modifier: under \`--test-only\` it stops the rest of the suite from running.
 
 Suggestion 1/1: Remove \`.only\`.:
   1 | import {test as t} from "node:test";
@@ -166,7 +166,7 @@ exports[`no-only-test > invalid(18): import * as nodeTest from \"node:test\";\nn
 Message:
   1 | import * as nodeTest from "node:test";
 > 2 | nodeTest.test.only("title", () => {});
-    |               ^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
+    |               ^^^^ Do not use the \`.only\` test modifier: under \`--test-only\` it stops the rest of the suite from running.
 
 Suggestion 1/1: Remove \`.only\`.:
   1 | import * as nodeTest from "node:test";
@@ -186,7 +186,7 @@ exports[`no-only-test > invalid(19): import * as nodeTest from \"node:test\";\nn
 Message:
   1 | import * as nodeTest from "node:test";
 > 2 | nodeTest.only("title", () => {});
-    |          ^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
+    |          ^^^^ Do not use the \`.only\` test modifier: under \`--test-only\` it stops the rest of the suite from running.
 
 `;
 
@@ -202,7 +202,7 @@ exports[`no-only-test > invalid(2): import test from \"node:test\";\ntest({name:
 Message:
   1 | import test from "node:test";
 > 2 | test({name: "a", only: true, fn() {}});
-    |                  ^^^^^^^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
+    |                  ^^^^^^^^^^ Do not use the \`.only\` test modifier: under \`--test-only\` it stops the rest of the suite from running.
 
 `;
 
@@ -218,7 +218,7 @@ exports[`no-only-test > invalid(20): import {test} from 'node:test';\ntest('p', 
 Message:
   1 | import {test} from 'node:test';
 > 2 | test('p', async t => { await t.test('c', {only: true}, () => {}); });
-    |                                           ^^^^^^^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
+    |                                           ^^^^^^^^^^ Do not use the \`.only\` test modifier: under \`--test-only\` it stops the rest of the suite from running.
 
 `;
 
@@ -234,7 +234,7 @@ exports[`no-only-test > invalid(3): import test from \"node:test\";\ntest(\"titl
 Message:
   1 | import test from "node:test";
 > 2 | test("title", {fn() {}, only: true});
-    |                         ^^^^^^^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
+    |                         ^^^^^^^^^^ Do not use the \`.only\` test modifier: under \`--test-only\` it stops the rest of the suite from running.
 
 `;
 
@@ -250,7 +250,7 @@ exports[`no-only-test > invalid(4): import test from \"node:test\";\ntest(\"titl
 Message:
   1 | import test from "node:test";
 > 2 | test("title", {only: true}, () => {}, 1);
-    |                ^^^^^^^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
+    |                ^^^^^^^^^^ Do not use the \`.only\` test modifier: under \`--test-only\` it stops the rest of the suite from running.
 
 `;
 
@@ -266,7 +266,7 @@ exports[`no-only-test > invalid(5): import test from \"node:test\";\ntest(\"titl
 Message:
   1 | import test from "node:test";
 > 2 | test("title", {...rest, only: true}, () => {});
-    |                         ^^^^^^^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
+    |                         ^^^^^^^^^^ Do not use the \`.only\` test modifier: under \`--test-only\` it stops the rest of the suite from running.
 
 `;
 
@@ -284,7 +284,7 @@ Message:
   1 | import * as nt from "node:test";
   2 | import test from "node:test";
 > 3 | nt.only("a", () => {});
-    |    ^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
+    |    ^^^^ Do not use the \`.only\` test modifier: under \`--test-only\` it stops the rest of the suite from running.
 
 `;
 
@@ -302,7 +302,7 @@ Message:
   1 | import test from "node:test";
   2 | import * as nt from "node:test";
 > 3 | nt.only("a", () => {});
-    |    ^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
+    |    ^^^^ Do not use the \`.only\` test modifier: under \`--test-only\` it stops the rest of the suite from running.
 
 `;
 
@@ -318,7 +318,7 @@ exports[`no-only-test > invalid(8): import test from \"node:test\";\ntest.only(\
 Message:
   1 | import test from "node:test";
 > 2 | test.only("title", () => {});
-    |      ^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
+    |      ^^^^ Do not use the \`.only\` test modifier: under \`--test-only\` it stops the rest of the suite from running.
 
 Suggestion 1/1: Remove \`.only\`.:
   1 | import test from "node:test";
@@ -338,7 +338,7 @@ exports[`no-only-test > invalid(9): import {it} from \"node:test\";\nit.only(\"t
 Message:
   1 | import {it} from "node:test";
 > 2 | it.only("title", () => {});
-    |    ^^^^ Do not use the \`.only\` test modifier as it prevents the other tests from running.
+    |    ^^^^ Do not use the \`.only\` test modifier: under \`--test-only\` it stops the rest of the suite from running.
 
 Suggestion 1/1: Remove \`.only\`.:
   1 | import {it} from "node:test";

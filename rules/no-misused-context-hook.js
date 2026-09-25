@@ -53,10 +53,11 @@ function getDirectSubtestReceiver(callExpression, imports) {
 		return isGetTestContextSubtestCall(callExpression, imports) ? GET_TEST_CONTEXT : undefined;
 	}
 
-	// `t.test.only`/`t.test.todo` are still runnable, so their hooks are meaningful; `t.test.skip`
-	// is not runnable and is treated the same as having no subtest (the hook is reported).
+	// `t.test` is a plain function with no `skip`, `only` or `todo` method, so any chained modifier
+	// is a `TypeError` at runtime and registers nothing. Such a call is treated the same as having no
+	// runnable subtest, so the hook is reported.
 	const {members = []} = getCalleeChain(callExpression.callee) ?? {};
-	return members.some(member => member.name === 'skip') ? undefined : receiver;
+	return members.length > 1 ? undefined : receiver;
 }
 
 function isStaticallySkipped(callExpression, sourceCode) {

@@ -14,11 +14,6 @@ test.snapshot({
 		// Hooks run around ordinary and TODO subtests.
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); t.afterEach(() => {}); await t.test(\'child\', () => {}); });'),
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {todo: true}, () => {}); });'),
-
-		// Chained `.todo`/`.only` subtests are still runnable, so the hook is meaningful
-		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test.todo(\'child\', () => {}); });'),
-		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test.only(\'child\', () => {}); });'),
-		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test.only.todo(\'child\', () => {}); });'),
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {skip: false}, () => {}); });'),
 		withTest('const shouldSkip = false;\ntest(\'parent\', async t => { t.afterEach(() => {}); await t.test(\'child\', {skip: shouldSkip}, () => {}); });'),
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {skip: true, skip: false}, () => {}); });'),
@@ -126,5 +121,11 @@ test.snapshot({
 		// A hook reached through `getTestContext()` with no runnable subtest is the same misuse
 		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', () => {\n\tgetTestContext().beforeEach(() => {});\n});',
 		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', async () => {\n\tgetTestContext().beforeEach(() => {});\n\tawait getTestContext().test(\'c\', {skip: true}, () => {});\n});',
+
+		// `t.test` has no `skip`, `only` or `todo` method, so a chained call throws and registers
+		// nothing, which leaves the hook with no subtest to run around
+		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test.todo(\'child\', () => {}); });'),
+		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test.only(\'child\', () => {}); });'),
+		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test.only.todo(\'child\', () => {}); });'),
 	],
 });

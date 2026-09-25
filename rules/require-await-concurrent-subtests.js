@@ -6,7 +6,7 @@ import {skipExpressionWrappers, outermostExpressionWrapper, getFloatingStatement
 const MESSAGE_ID = 'require-await-concurrent-subtests';
 
 const messages = {
-	[MESSAGE_ID]: 'Subtests created in a `{{method}}()` callback are not awaited, so they are cancelled when the parent test finishes. Use `await Promise.all(items.map(item => t.test(…)))`.',
+	[MESSAGE_ID]: 'Subtests created in a `{{method}}()` callback are not awaited, so they run one after another instead of concurrently. Use `await Promise.all(items.map(item => t.test(…)))`.',
 };
 
 // Array methods commonly used to create one subtest per element.

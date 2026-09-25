@@ -19,22 +19,22 @@ Discarding the `Promise` with `void` does not help — it still leaves the asser
 import assert from 'node:assert';
 
 // ❌
-async function test() {
+async function bare() {
 	assert.rejects(fn); // Promise is unhandled — assertion never executes
 }
 
 // ❌
-async function test() {
+async function discarded() {
 	void assert.rejects(fn); // `void` discards the Promise but leaves it unhandled
 }
 
 // ✅
-async function test() {
+async function awaited() {
 	await assert.rejects(fn);
 }
 
 // ✅
-async function test() {
+async function returned() {
 	return assert.rejects(fn);
 }
 ```

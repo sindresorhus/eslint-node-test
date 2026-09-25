@@ -18,6 +18,10 @@ test.snapshot({
 
 		// Independent scopes
 		withImport('describe("a", () => { beforeEach(() => {}); it("x", () => {}); });\ndescribe("b", () => { beforeEach(() => {}); it("y", () => {}); });'),
+
+		// A hook inside an unrelated function shares no scope with the test above it
+		withImport('test("a", () => {});\nfunction helper() {\n\tbeforeEach(() => {});\n}'),
+		withImport('test("a", () => {});\nconst helper = () => { beforeEach(() => {}); };'),
 	],
 	invalid: [
 		// Hook after a test at the top level

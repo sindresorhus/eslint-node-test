@@ -95,6 +95,10 @@ test.snapshot({
 			code: inAsyncTest('(load().then(value => assert.ok(value)) as Promise<void>);'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// A different object with a `setTimeout` method is not a detached scheduler
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\n'
+		+ 'test(\'t\', () => { foo.setTimeout(() => { assert.ok(x); }, 10); });',
 	],
 	invalid: [
 		inTest('setTimeout(() => assert.ok(value), 10);'),
@@ -191,5 +195,12 @@ test.snapshot({
 		// A `getTestContext()` hook is the same hook, so its callback is the same boundary
 		'import {test, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\n'
 		+ 'test(\'a\', t => {\n\tgetTestContext().beforeEach(() => {\n\t\tsetTimeout(() => { assert.ok(x); }, 1);\n\t});\n});',
+
+		// `globalThis.setTimeout` is the same scheduler as the bare global
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\n'
+		+ 'test(\'t\', () => { globalThis.setTimeout(() => { assert.ok(x); }, 10); });',
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\n'
+		+ 'import timers from \'node:timers\';\n'
+		+ 'test(\'t\', () => { timers.setImmediate(() => { assert.ok(x); }); });',
 	],
 });

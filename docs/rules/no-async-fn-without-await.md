@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-An async test or hook callback that never uses `await` (or `for await`) is misleading and should be written without `async`. Declaring a function `async` without any actual suspension point adds unnecessary overhead and signals intent that is not there.
+An async test or hook callback with no suspension point at all — no `await`, no `for await` and no `yield` — is misleading and should be written without `async`. Declaring a function `async` without any actual suspension point adds unnecessary overhead and signals intent that is not there.
 
 ## Examples
 

@@ -12,7 +12,7 @@ import {
 const MESSAGE_ID = 'require-assertion/error';
 
 const messages = {
-	[MESSAGE_ID]: 'Test is missing an assertion. Tests without assertions will always pass.',
+	[MESSAGE_ID]: 'Test is missing an assertion, so a wrong result nothing checks goes unnoticed.',
 };
 
 /*

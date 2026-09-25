@@ -6,6 +6,7 @@ import {
 	isContextHookCall,
 	getContextHookName,
 } from './utils/node-test.js';
+import {getEnclosingFunction} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-hooks-on-top';
 
@@ -20,8 +21,10 @@ const create = context => {
 		return;
 	}
 
-	// Stack of scopes; each tracks whether a test/suite has appeared in it yet.
-	const scopeStack = [{seenTest: false}];
+	// Stack of scopes; each tracks the function it belongs to and whether a test/suite has appeared in
+	// it yet. The function keeps a hook inside an unrelated nested function from counting against a test
+	// that is not in its scope at all.
+	const scopeStack = [{seenTest: false, function: undefined}];
 	const pushedCalls = new Set();
 
 	// A subtest (`t.test(…)`) is a test, and a hook declared on a context (`t.beforeEach(…)`) is a
@@ -39,13 +42,14 @@ const create = context => {
 		}
 
 		const scope = scopeStack.at(-1);
+		const isInScope = scope.function === getEnclosingFunction(node);
 
 		let problem;
 		if (isContextHook) {
-			if (scope.seenTest) {
+			if (isInScope && scope.seenTest) {
 				problem = {node, messageId: MESSAGE_ID, data: {name: getContextHookName(node)}};
 			}
-		} else if (parsed?.kind === 'hook' && scope.seenTest) {
+		} else if (parsed?.kind === 'hook' && isInScope && scope.seenTest) {
 			problem = {
 				node,
 				messageId: MESSAGE_ID,
@@ -58,7 +62,7 @@ const create = context => {
 
 			const callback = getTestCallback(node);
 			if (callback) {
-				scopeStack.push({seenTest: false});
+				scopeStack.push({seenTest: false, function: callback});
 				pushedCalls.add(node);
 			}
 		}

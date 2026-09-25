@@ -23,6 +23,10 @@ test.snapshot({
 
 		// A `.assert.*` call on an unrelated object is not a `node:assert` assertion
 		withImport('myDb.assert.ok(value);'),
+
+		// An instance class field initializer runs when an instance is created, not at module load
+		withImport('class C { field = assert.ok(value); }'),
+		withImport('class C { get field() { return assert.ok(value); } }'),
 	],
 	invalid: [
 		// Top-level assertion in a test file
@@ -51,5 +55,9 @@ test.snapshot({
 
 		// Optional-chained imported assert is still a standalone assertion
 		withImport('assert?.ok(value);'),
+
+		// A static field or static block does run when the module is loaded
+		withImport('class C { static field = assert.ok(value); }'),
+		withImport('class C { static { assert.ok(value); } }'),
 	],
 });

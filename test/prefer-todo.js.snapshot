@@ -271,6 +271,10 @@ Message:
 > 2 | test('p', async t => { await t.test('a', () => {}); });
     |                              ^^^^^^^^^^^^^^^^^^^^^ Empty placeholder test. Use \`.todo\` to mark it as unfinished.
 
+Suggestion 1/1: Mark as \`.todo\`.:
+  1 | import {test} from 'node:test';
+  2 | test('p', async t => { await t.todo('a'); });
+
 `;
 
 exports[`prefer-todo > invalid(22): import {beforeEach} from 'node:test';\nbeforeEach(t => { t.test('c', () => {}); }); 1`] = `
@@ -286,6 +290,10 @@ Message:
   1 | import {beforeEach} from 'node:test';
 > 2 | beforeEach(t => { t.test('c', () => {}); });
     |                   ^^^^^^^^^^^^^^^^^^^^^ Empty placeholder test. Use \`.todo\` to mark it as unfinished.
+
+Suggestion 1/1: Mark as \`.todo\`.:
+  1 | import {beforeEach} from 'node:test';
+  2 | beforeEach(t => { t.todo('c'); });
 
 `;
 

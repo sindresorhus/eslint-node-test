@@ -3,7 +3,7 @@ import {resolveImports, parseTestCall, getTestCallback} from './utils/node-test.
 const MESSAGE_ID = 'no-async-describe';
 
 const messages = {
-	[MESSAGE_ID]: '`node:test` does not await a `{{name}}` callback, so any test registered after an `await` is silently dropped. Make the callback synchronous.',
+	[MESSAGE_ID]: '`node:test` does await a `{{name}}` callback, so an `async` one registers its tests late and a rejection cancels them. Make the callback synchronous and do async setup in a hook.',
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */

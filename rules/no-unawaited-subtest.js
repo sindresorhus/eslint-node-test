@@ -5,7 +5,7 @@ import {trackDetachedCallbacks, hasStaticBlockBetween} from './no-unawaited-prom
 const MESSAGE_ID = 'no-unawaited-subtest';
 
 const messages = {
-	[MESSAGE_ID]: 'Subtest `{{name}}.test()` must be awaited or returned, otherwise it is cancelled when the parent test finishes.',
+	[MESSAGE_ID]: 'Subtest `{{name}}.test()` must be awaited or returned, otherwise it cannot run alongside the rest of the test, and it is cancelled if the parent fails.',
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */

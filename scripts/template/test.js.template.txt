@@ -7,6 +7,7 @@ test.snapshot({
 		'import test from "node:test";\ntest("title", () => {});',
 	],
 	invalid: [
-		// 'import test from "node:test";\ntest("title", () => {});',
+		// A rule with no invalid case cannot fail, so keep at least one here.
+		'import test from "node:test";\ntest("title", () => {});',
 	],
 });

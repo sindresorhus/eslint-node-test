@@ -16,6 +16,13 @@ before(async () => {
 });
 
 test('Every rule is defined in index file in alphabetical order', () => {
+	const exportedNames = Object.keys(eslintNodeTest.rules);
+	assert.deepStrictEqual(
+		exportedNames,
+		exportedNames.toSorted((a, b) => a.localeCompare(b)),
+		'The rules are not exported in alphabetical order.',
+	);
+
 	for (const file of ruleFiles) {
 		const name = path.basename(file, '.js');
 		assert.ok(eslintNodeTest.rules[name], `'${name}' is not exported in 'index.js'`);
@@ -164,6 +171,13 @@ test('rule.meta.docs.recommended should be synchronized with presets', () => {
 		} else {
 			assert.strictEqual(unopinionatedSeverity, 'off', `'${name}' rule should set to 'off' in the unopinionated config.`);
 		}
+
+		const allSeverity = eslintNodeTest.configs.all.rules[`node-test/${name}`];
+		assert.strictEqual(
+			allSeverity,
+			rule.meta.deprecated ? 'off' : 'error',
+			`'${name}' rule should set to '${rule.meta.deprecated ? 'off' : 'error'}' in the all config.`,
+		);
 	}
 });
 

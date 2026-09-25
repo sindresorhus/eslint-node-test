@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Subtests created through the test context (`t.test()`) run independently of their parent. From the [Node.js docs](https://nodejs.org/api/test.html#subtests): "tests do not wait for their subtests to complete... Any subtests that are still outstanding when their parent finishes are cancelled and treated as failures." A floating subtest therefore fails with `test did not finish before its parent and was cancelled`, and the parent fails too.
+Subtests created through the test context (`t.test()`) return a promise. A subtest that is never awaited still runs, but the parent waits for it before it finishes, so it cannot overlap with the rest of the test's work. Await it, or collect the promises, to run subtests concurrently. If the parent fails or times out first, the outstanding subtest is cancelled with `test did not finish before its parent and was cancelled`.
 
 This rule reports a subtest call used as a bare statement. When the enclosing test function is `async`, it autofixes by inserting `await`. In a synchronous parent it only reports, since `await` would be a syntax error — make the parent `async` (or `return` the subtest) yourself.
 

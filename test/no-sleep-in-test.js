@@ -178,5 +178,12 @@ test.snapshot({
 		// A defaulted context parameter is still the context, so its subtests are still tracked
 		'import {test} from \'node:test\';\nimport {setTimeout as sleep} from \'node:timers/promises\';\n'
 		+ 'test(\'a\', async (t = {}) => { await t.test(\'b\', async () => { await sleep(10); }); });',
+		// A `getTestContext()` subtest or hook is the same subtest or hook
+		'import {test, getTestContext} from \'node:test\';\n'
+		+ 'import {setTimeout as sleep} from \'node:timers/promises\';\n'
+		+ 'test(\'a\', async () => { await getTestContext().test(\'b\', async () => { await sleep(1); }); });',
+		'import {test, getTestContext} from \'node:test\';\n'
+		+ 'import {setTimeout as sleep} from \'node:timers/promises\';\n'
+		+ 'test(\'a\', async () => { getTestContext().beforeEach(async () => { await sleep(1); }); });',
 	],
 });

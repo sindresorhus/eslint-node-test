@@ -10,7 +10,7 @@ exports[`require-assertion > invalid(1): import test from 'node:test';\ntest(\"x
 Message:
   1 | import test from 'node:test';
 > 2 | test("x", ({assert}) => { assert.a.b.c.d(); });
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
 
 `;
 
@@ -26,7 +26,7 @@ exports[`require-assertion > invalid(10): import {it} from \"node:test\";\nit(\"
 Message:
   1 | import {it} from "node:test";
 > 2 | it("t1", () => { doSomething(); });
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
 
 `;
 
@@ -42,7 +42,7 @@ exports[`require-assertion > invalid(11): import {test as myTest} from \"node:te
 Message:
   1 | import {test as myTest} from "node:test";
 > 2 | myTest("t1", () => { doSomething(); });
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
 
 `;
 
@@ -58,7 +58,7 @@ exports[`require-assertion > invalid(12): import * as nodeTest from \"node:test\
 Message:
   1 | import * as nodeTest from "node:test";
 > 2 | nodeTest.test("t1", () => { doSomething(); });
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
 
 `;
 
@@ -76,7 +76,7 @@ Message:
   1 | import test from "node:test";
   2 | import assert from "node:assert";
 > 3 | test("t1", (): void => { doSomething(); });
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
 
 `;
 
@@ -92,7 +92,7 @@ exports[`require-assertion > invalid(14): import test from \"node:test\";\ntest(
 Message:
   1 | import test from "node:test";
 > 2 | test("t1", () => { const assert = customAssert; assert.ok(1); });
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
 
 `;
 
@@ -108,7 +108,7 @@ exports[`require-assertion > invalid(15): import test from \"node:test\";\ntest(
 Message:
   1 | import test from "node:test";
 > 2 | test("t1", () => { customAssert.ok(1); });
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
 
 `;
 
@@ -124,7 +124,7 @@ exports[`require-assertion > invalid(16): import test from \"node:test\";\ntest(
 Message:
   1 | import test from "node:test";
 > 2 | test("t1", ({assert}) => { function helper(assert) { assert.ok(1); } helper(customAssert); });
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
 
 `;
 
@@ -140,7 +140,7 @@ exports[`require-assertion > invalid(17): import test from \"node:test\";\ntest(
 Message:
   1 | import test from "node:test";
 > 2 | test("outer", () => { test("inner", ({assert}) => { assert.ok(1); }); });
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
 
 `;
 
@@ -158,7 +158,7 @@ Message:
   1 | import test from "node:test";
   2 | import assert from "node:assert";
 > 3 | test(assert.ok(1), () => {});
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
 
 `;
 
@@ -176,7 +176,7 @@ Message:
   1 | import test from "node:test";
   2 | import assert from "node:assert";
 > 3 | test("outer", () => { test(assert.ok(1), () => {}); });
-    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
 
 `;
 
@@ -192,7 +192,7 @@ exports[`require-assertion > invalid(2): import test from 'node:test';\ntest(\"x
 Message:
   1 | import test from 'node:test';
 > 2 | test("x", ({assert: {a: {b}}}) => { b(1); });
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
 
 `;
 
@@ -208,7 +208,7 @@ exports[`require-assertion > invalid(20): import test from \"node:test\";\ntest(
 Message:
   1 | import test from "node:test";
 > 2 | test("outer", ({assert}) => { test(assert.ok(1), () => {}); });
-    |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+    |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
 
 `;
 
@@ -224,7 +224,7 @@ exports[`require-assertion > invalid(21): import test from \"node:test\";\ntest(
 Message:
   1 | import test from "node:test";
 > 2 | test("outer", () => { test("inner", implementation); });
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
 
 `;
 
@@ -240,7 +240,7 @@ exports[`require-assertion > invalid(22): import test from \"node:test\";\ntest(
 Message:
   1 | import test from "node:test";
 > 2 | test("outer", ({assert}) => { test("inner", () => { assert.ok(1); }); });
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
 
 `;
 
@@ -256,7 +256,7 @@ exports[`require-assertion > invalid(23): import test from \"node:test\";\ntest(
 Message:
   1 | import test from "node:test";
 > 2 | test("outer", t => { test("inner", () => { t.assert.ok(1); }); });
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
 
 `;
 
@@ -274,7 +274,7 @@ Message:
   1 | import test from "node:test";
   2 | import assert from "node:assert";
 > 3 | test("t1", {fn() {}}, () => { assert.ok(true); });
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
 
 `;
 
@@ -290,7 +290,7 @@ exports[`require-assertion > invalid(25): import test from \"node:test\";\ntest(
 Message:
   1 | import test from "node:test";
 > 2 | test("t1", {fn() {}}, t => { t.assert.ok(1); });
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
 
 `;
 
@@ -306,7 +306,7 @@ exports[`require-assertion > invalid(26): import test from \"node:test\";\ntest(
 Message:
   1 | import test from "node:test";
 > 2 | test("t1", ({assert}) => { assert.strict.equal(1, 1); });
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
 
 `;
 
@@ -322,7 +322,7 @@ exports[`require-assertion > invalid(27): import test from \"node:test\";\ntest(
 Message:
   1 | import test from "node:test";
 > 2 | test("t1", ({assert: {strict: s}}) => { s.equal(1, 1); });
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
 
 `;
 
@@ -338,7 +338,7 @@ exports[`require-assertion > invalid(28): import test from \"node:test\";\ntest(
 Message:
   1 | import test from "node:test";
 > 2 | test("t1", ({assert}) => { assert(1); });
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
 
 `;
 
@@ -354,7 +354,7 @@ exports[`require-assertion > invalid(29): import test from \"node:test\";\ntest(
 Message:
   1 | import test from "node:test";
 > 2 | test("t1", (t) => { t.assert.strict(1); });
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
 
 `;
 
@@ -370,7 +370,7 @@ exports[`require-assertion > invalid(3): import test from \"node:test\";\ntest(\
 Message:
   1 | import test from "node:test";
 > 2 | test("t1", ({assert: {ok}}) => { { const ok = () => {}; } f(); });
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
 
 `;
 
@@ -386,7 +386,7 @@ exports[`require-assertion > invalid(30): import {test} from 'node:test';\ntest(
 Message:
   1 | import {test} from 'node:test';
 > 2 | test('a', () => { foo.getTestContext().assert.equal(1, 1); });
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
 
 `;
 
@@ -402,7 +402,7 @@ exports[`require-assertion > invalid(4): import test from \"node:test\";\ntest(\
 Message:
   1 | import test from "node:test";
 > 2 | test("t1", ({assert: {ok}}) => { f(); });
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
 
 `;
 
@@ -418,7 +418,7 @@ exports[`require-assertion > invalid(5): import test from 'node:test';\ntest('a'
 Message:
   1 | import test from 'node:test';
 > 2 | test('a', {fn() {}});
-    | ^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+    | ^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
 
 `;
 
@@ -434,7 +434,7 @@ exports[`require-assertion > invalid(6): import test from 'node:test';\ntest({na
 Message:
   1 | import test from 'node:test';
 > 2 | test({name: 'x', fn() {}});
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
 
 `;
 
@@ -450,7 +450,7 @@ exports[`require-assertion > invalid(7): import test from \"node:test\";\ntest(\
 Message:
   1 | import test from "node:test";
 > 2 | test("t1", () => { doSomething(); });
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
 
 `;
 
@@ -466,7 +466,7 @@ exports[`require-assertion > invalid(8): import test from \"node:test\";\ntest(\
 Message:
   1 | import test from "node:test";
 > 2 | test("t1", () => { myFakeService.assert.ok(1); });
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
 
 `;
 
@@ -482,6 +482,6 @@ exports[`require-assertion > invalid(9): import test from \"node:test\";\ntest(\
 Message:
   1 | import test from "node:test";
 > 2 | test("t1", () => {});
-    | ^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion. Tests without assertions will always pass.
+    | ^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
 
 `;

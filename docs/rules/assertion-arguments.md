@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Passing the wrong number of arguments to a `node:assert` assertion silently produces incorrect results. For example, `assert.strictEqual(a)` always passes because the comparison never runs.
+Passing the wrong number of arguments to a `node:assert` assertion never compares anything. A two-operand method called with one argument throws `ERR_MISSING_ARGS` before it runs the comparison, so the failure is a missing-argument type error rather than the assertion's own message, and `assert.ok()` throws with no value passed.
 
 Each `node:assert` method has a fixed set of required positional arguments, plus one optional trailing `message` string. This rule reports when:
 
