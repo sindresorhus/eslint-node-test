@@ -28,9 +28,12 @@ const create = context => {
 
 		let problem;
 		if (subtest && floating && !isInsideDetachedCallback(node)) {
-			// Either form names the context it creates the subtest from.
+			// Either form names the context it creates the subtest from, by the local name the file
+			// bound a `getTestContext` import to.
 			const receiver = getSubtestReceiver(node);
-			const name = receiver ? receiver.name : 'getTestContext()';
+			const name = receiver
+				? receiver.name
+				: (imports.getTestContextName ? `${imports.getTestContextName}()` : 'getTestContext()');
 
 			problem = {
 				node,

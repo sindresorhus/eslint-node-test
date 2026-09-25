@@ -149,7 +149,10 @@ const create = context => {
 				return {
 					node,
 					messageId: frame.hasPlanOption ? MESSAGE_ID_PLAN_OPTION : MESSAGE_ID_DUPLICATE_CALL,
-					data: {context: frame.contextName ?? 'getTestContext()'},
+					data: {
+						context: frame.contextName
+							?? (imports.getTestContextName ? `${imports.getTestContextName}()` : 'getTestContext()'),
+					},
 				};
 			}
 

@@ -68,7 +68,11 @@ const create = context => {
 			return tracker.isContextIdentifier(receiver) ? receiver.name : undefined;
 		}
 
-		return isGetTestContextCall(receiver, imports) ? 'getTestContext()' : undefined;
+		// A `getTestContext()` import can be bound to another name, and the message names what the
+		// file actually calls.
+		return isGetTestContextCall(receiver, imports) && imports.getTestContextName
+			? `${imports.getTestContextName}()`
+			: undefined;
 	};
 
 	context.on('CallExpression', node => {

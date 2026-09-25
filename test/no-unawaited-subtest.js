@@ -39,6 +39,8 @@ test.snapshot({
 
 	],
 	invalid: [
+		// A `getTestContext()` under any local alias is named by the local name
+		'import {test, getTestContext as gtc} from \'node:test\';\ntest(\'a\', async () => { gtc().test(\'b\', () => {}); });',
 		// Floating subtest in an async parent — autofixable
 		withImport('test("parent", async t => { t.test("child", () => {}); });'),
 

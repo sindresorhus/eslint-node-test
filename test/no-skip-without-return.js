@@ -36,6 +36,8 @@ test.snapshot({
 		'import test from \'node:test\';\ntest(\'x\', t => {\n\tswitch (k) {\n\t\tcase 1: {\n\t\t\tt.skip(\'x\');\n\t\t\tbreak;\n\t\t}\n\t\tcase 2: {\n\t\t\tother();\n\t\t}\n\t}\n});',
 	],
 	invalid: [
+		// A `getTestContext()` under any local alias is named by the local name
+		'import {test, getTestContext as gtc} from \'node:test\';\ntest(\'a\', () => { gtc().skip(\'r\'); work(); });',
 		// The inserted `return` must land after a trailing comment, so the comment stays with the skip
 		withImport('test("x", t => {\n\tt.skip(); // TODO: enable once fixed\n\tcheck();\n});'),
 		withImport('test("x", t => {\n\tt.skip(/* why */);\n\tcheck();\n});'),

@@ -179,6 +179,8 @@ test.snapshot({
 
 		// `getTestContext()` sets the same plan as the context parameter, in either spelling
 		'import {test, getTestContext} from \'node:test\';\ntest(\'t\', () => { getTestContext().plan(1); getTestContext().plan(2); });',
+		// A `getTestContext()` under any local alias is named by the local name
+		'import {test, getTestContext as gtc} from \'node:test\';\ntest(\'t\', () => { gtc().plan(1); gtc().plan(2); });',
 		'import {test, getTestContext} from \'node:test\';\ntest(\'t\', () => { getTestContext().test(\'c\', () => { getTestContext().plan(1); getTestContext().plan(2); }); });',
 		'import {test, getTestContext} from \'node:test\';\ntest(\'t\', t => { getTestContext().plan(1); getTestContext().plan(2); });',
 		'import {test, getTestContext} from \'node:test\';\ntest(\'t\', t => { t.plan(1); getTestContext().plan(2); });',
