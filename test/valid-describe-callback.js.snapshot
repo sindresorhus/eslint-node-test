@@ -10,7 +10,7 @@ exports[`valid-describe-callback > invalid(1): import {describe, suite} from 'no
 Message:
   1 | import {describe, suite} from 'node:test';
 > 2 | describe("s", () => test("x", () => {}));
-    |                     ^^^^^^^^^^^^^^^^^^^ The \`describe\` callback should not return a value, \`node:test\` ignores it. Use a block body.
+    |                     ^^^^^^^^^^^^^^^^^^^ The \`describe\` callback should not return a value, an implicit return registers tests through the returned expression instead of statements. Use a block body.
 
 `;
 
@@ -26,7 +26,7 @@ exports[`valid-describe-callback > invalid(2): import {describe, suite} from 'no
 Message:
   1 | import {describe, suite} from 'node:test';
 > 2 | describe("s", t => test("x", () => {}));
-    |                    ^^^^^^^^^^^^^^^^^^^ The \`describe\` callback should not return a value, \`node:test\` ignores it. Use a block body.
+    |                    ^^^^^^^^^^^^^^^^^^^ The \`describe\` callback should not return a value, an implicit return registers tests through the returned expression instead of statements. Use a block body.
 
 `;
 
@@ -42,7 +42,7 @@ exports[`valid-describe-callback > invalid(3): import {describe, suite} from 'no
 Message:
   1 | import {describe, suite} from 'node:test';
 > 2 | describe("s", () => ({name: "s"}));
-    |                      ^^^^^^^^^^^ The \`describe\` callback should not return a value, \`node:test\` ignores it. Use a block body.
+    |                      ^^^^^^^^^^^ The \`describe\` callback should not return a value, an implicit return registers tests through the returned expression instead of statements. Use a block body.
 
 `;
 
@@ -58,7 +58,7 @@ exports[`valid-describe-callback > invalid(4): import {describe, suite} from 'no
 Message:
   1 | import {describe, suite} from 'node:test';
 > 2 | suite("s", () => test("x", () => {}));
-    |                  ^^^^^^^^^^^^^^^^^^^ The \`suite\` callback should not return a value, \`node:test\` ignores it. Use a block body.
+    |                  ^^^^^^^^^^^^^^^^^^^ The \`suite\` callback should not return a value, an implicit return registers tests through the returned expression instead of statements. Use a block body.
 
 `;
 
@@ -74,7 +74,7 @@ exports[`valid-describe-callback > invalid(5): import {describe, suite} from 'no
 Message:
   1 | import {describe, suite} from 'node:test';
 > 2 | describe.only("s", () => test("x", () => {}));
-    |                          ^^^^^^^^^^^^^^^^^^^ The \`describe\` callback should not return a value, \`node:test\` ignores it. Use a block body.
+    |                          ^^^^^^^^^^^^^^^^^^^ The \`describe\` callback should not return a value, an implicit return registers tests through the returned expression instead of statements. Use a block body.
 
 `;
 
@@ -90,7 +90,7 @@ exports[`valid-describe-callback > invalid(6): import {describe, suite} from 'no
 Message:
   1 | import {describe, suite} from 'node:test';
 > 2 | describe.skip("s", () => test("x", () => {}));
-    |                          ^^^^^^^^^^^^^^^^^^^ The \`describe\` callback should not return a value, \`node:test\` ignores it. Use a block body.
+    |                          ^^^^^^^^^^^^^^^^^^^ The \`describe\` callback should not return a value, an implicit return registers tests through the returned expression instead of statements. Use a block body.
 
 `;
 
@@ -106,7 +106,7 @@ exports[`valid-describe-callback > invalid(7): import * as nodeTest from 'node:t
 Message:
   1 | import * as nodeTest from 'node:test';
 > 2 | nodeTest.describe("s", () => test("x", () => {}));
-    |                              ^^^^^^^^^^^^^^^^^^^ The \`describe\` callback should not return a value, \`node:test\` ignores it. Use a block body.
+    |                              ^^^^^^^^^^^^^^^^^^^ The \`describe\` callback should not return a value, an implicit return registers tests through the returned expression instead of statements. Use a block body.
 
 `;
 
@@ -122,7 +122,7 @@ exports[`valid-describe-callback > invalid(8): import test from 'node:test';\nte
 Message:
   1 | import test from 'node:test';
 > 2 | test.describe("s", () => test("x", () => {}));
-    |                          ^^^^^^^^^^^^^^^^^^^ The \`describe\` callback should not return a value, \`node:test\` ignores it. Use a block body.
+    |                          ^^^^^^^^^^^^^^^^^^^ The \`describe\` callback should not return a value, an implicit return registers tests through the returned expression instead of statements. Use a block body.
 
 `;
 
@@ -138,6 +138,6 @@ exports[`valid-describe-callback > invalid(9): import {describe, suite} from 'no
 Message:
   1 | import {describe, suite} from 'node:test';
 > 2 | describe("s", () => test("x", () => {}) as unknown);
-    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ The \`describe\` callback should not return a value, \`node:test\` ignores it. Use a block body.
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ The \`describe\` callback should not return a value, an implicit return registers tests through the returned expression instead of statements. Use a block body.
 
 `;

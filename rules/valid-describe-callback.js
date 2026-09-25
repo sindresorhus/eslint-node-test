@@ -3,7 +3,7 @@ import {resolveImports, parseTestCall, getTestCallback} from './utils/node-test.
 const MESSAGE_ID_RETURN = 'valid-describe-callback/return';
 
 const messages = {
-	[MESSAGE_ID_RETURN]: 'The `{{name}}` callback should not return a value, `node:test` ignores it. Use a block body.',
+	[MESSAGE_ID_RETURN]: 'The `{{name}}` callback should not return a value, an implicit return registers tests through the returned expression instead of statements. Use a block body.',
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
