@@ -16,81 +16,7 @@ Message:
 
 `;
 
-exports[`no-export > invalid(2): import {test} from 'node:test';\ntest(\"x\", () => {});\nexport default {}; 1`] = `
-
-  1 | import {test} from 'node:test';
-  2 | test("x", () => {});
-  3 | export default {};
-
-`;
-
-exports[`no-export > invalid(2): import {test} from 'node:test';\ntest(\"x\", () => {});\nexport default {}; 2`] = `
-
-Message:
-  1 | import {test} from 'node:test';
-  2 | test("x", () => {});
-> 3 | export default {};
-    | ^^^^^^^^^^^^^^^^^^ Do not export from a test file.
-
-`;
-
-exports[`no-export > invalid(3): import {test} from 'node:test';\nexport * from './helpers.js';\ntest(\"x\", () => {}); 1`] = `
-
-  1 | import {test} from 'node:test';
-  2 | export * from './helpers.js';
-  3 | test("x", () => {});
-
-`;
-
-exports[`no-export > invalid(3): import {test} from 'node:test';\nexport * from './helpers.js';\ntest(\"x\", () => {}); 2`] = `
-
-Message:
-  1 | import {test} from 'node:test';
-> 2 | export * from './helpers.js';
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not export from a test file.
-  3 | test("x", () => {});
-
-`;
-
-exports[`no-export > invalid(4): import {test} from 'node:test';\nconst helper = () => {};\nexport {helper};\ntest(\"x\", () => {}); 1`] = `
-
-  1 | import {test} from 'node:test';
-  2 | const helper = () => {};
-  3 | export {helper};
-  4 | test("x", () => {});
-
-`;
-
-exports[`no-export > invalid(4): import {test} from 'node:test';\nconst helper = () => {};\nexport {helper};\ntest(\"x\", () => {}); 2`] = `
-
-Message:
-  1 | import {test} from 'node:test';
-  2 | const helper = () => {};
-> 3 | export {helper};
-    | ^^^^^^^^^^^^^^^^ Do not export from a test file.
-  4 | test("x", () => {});
-
-`;
-
-exports[`no-export > invalid(5): import {test} from 'node:test';\nexport type Foo = string;\ntest(\"x\", () => {}); 1`] = `
-
-  1 | import {test} from 'node:test';
-  2 | export type Foo = string;
-  3 | test("x", () => {});
-
-`;
-
-exports[`no-export > invalid(5): import {test} from 'node:test';\nexport type Foo = string;\ntest(\"x\", () => {}); 2`] = `
-
-Message:
-  1 | import {test} from 'node:test';
-> 2 | export type Foo = string;
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Do not export from a test file.
-  3 | test("x", () => {});
-
-`;
-
-exports[`no-export > invalid(6): import {test} from 'node:test';\nconst helper = 1;\nexport = helper;\ntest(\"x\", () => {}); 1`] = `
+exports[`no-export > invalid(10): import {test} from 'node:test';\nconst helper = 1;\nexport = helper;\ntest(\"x\", () => {}); 1`] = `
 
   1 | import {test} from 'node:test';
   2 | const helper = 1;
@@ -99,7 +25,7 @@ exports[`no-export > invalid(6): import {test} from 'node:test';\nconst helper =
 
 `;
 
-exports[`no-export > invalid(6): import {test} from 'node:test';\nconst helper = 1;\nexport = helper;\ntest(\"x\", () => {}); 2`] = `
+exports[`no-export > invalid(10): import {test} from 'node:test';\nconst helper = 1;\nexport = helper;\ntest(\"x\", () => {}); 2`] = `
 
 Message:
   1 | import {test} from 'node:test';
@@ -110,7 +36,7 @@ Message:
 
 `;
 
-exports[`no-export > invalid(7): import {test} from 'node:test';\ndeclare namespace N {}\nexport as namespace N;\ntest(\"x\", () => {}); 1`] = `
+exports[`no-export > invalid(11): import {test} from 'node:test';\ndeclare namespace N {}\nexport as namespace N;\ntest(\"x\", () => {}); 1`] = `
 
   1 | import {test} from 'node:test';
   2 | declare namespace N {}
@@ -119,7 +45,7 @@ exports[`no-export > invalid(7): import {test} from 'node:test';\ndeclare namesp
 
 `;
 
-exports[`no-export > invalid(7): import {test} from 'node:test';\ndeclare namespace N {}\nexport as namespace N;\ntest(\"x\", () => {}); 2`] = `
+exports[`no-export > invalid(11): import {test} from 'node:test';\ndeclare namespace N {}\nexport as namespace N;\ntest(\"x\", () => {}); 2`] = `
 
 Message:
   1 | import {test} from 'node:test';
@@ -127,5 +53,171 @@ Message:
 > 3 | export as namespace N;
     | ^^^^^^^^^^^^^^^^^^^^^^ Do not export from a test file.
   4 | test("x", () => {});
+
+`;
+
+exports[`no-export > invalid(12): import {test} from 'node:test';\ndeclare module \"x\" { export const a: number; }\ntest(\"x\", () => {}); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | declare module "x" { export const a: number; }
+  3 | test("x", () => {});
+
+`;
+
+exports[`no-export > invalid(12): import {test} from 'node:test';\ndeclare module \"x\" { export const a: number; }\ntest(\"x\", () => {}); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | declare module "x" { export const a: number; }
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^ Do not export from a test file.
+  3 | test("x", () => {});
+
+`;
+
+exports[`no-export > invalid(2): import {test} from 'node:test';\nconst helper = () => {};\nexport {helper} from './helpers.js';\ntest(\"x\", () => {}); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | const helper = () => {};
+  3 | export {helper} from './helpers.js';
+  4 | test("x", () => {});
+
+`;
+
+exports[`no-export > invalid(2): import {test} from 'node:test';\nconst helper = () => {};\nexport {helper} from './helpers.js';\ntest(\"x\", () => {}); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+  2 | const helper = () => {};
+> 3 | export {helper} from './helpers.js';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not export from a test file.
+  4 | test("x", () => {});
+
+`;
+
+exports[`no-export > invalid(3): import {test} from 'node:test';\nexport * as helpers from './helpers.js';\ntest(\"x\", () => {}); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | export * as helpers from './helpers.js';
+  3 | test("x", () => {});
+
+`;
+
+exports[`no-export > invalid(3): import {test} from 'node:test';\nexport * as helpers from './helpers.js';\ntest(\"x\", () => {}); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | export * as helpers from './helpers.js';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not export from a test file.
+  3 | test("x", () => {});
+
+`;
+
+exports[`no-export > invalid(4): import {test} from 'node:test';\nexport default function helper() {}\ntest(\"x\", () => {}); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | export default function helper() {}
+  3 | test("x", () => {});
+
+`;
+
+exports[`no-export > invalid(4): import {test} from 'node:test';\nexport default function helper() {}\ntest(\"x\", () => {}); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | export default function helper() {}
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not export from a test file.
+  3 | test("x", () => {});
+
+`;
+
+exports[`no-export > invalid(5): import * as nodeTest from 'node:test';\nexport const helper = 1;\nnodeTest.test(\"x\", () => {}); 1`] = `
+
+  1 | import * as nodeTest from 'node:test';
+  2 | export const helper = 1;
+  3 | nodeTest.test("x", () => {});
+
+`;
+
+exports[`no-export > invalid(5): import * as nodeTest from 'node:test';\nexport const helper = 1;\nnodeTest.test(\"x\", () => {}); 2`] = `
+
+Message:
+  1 | import * as nodeTest from 'node:test';
+> 2 | export const helper = 1;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Do not export from a test file.
+  3 | nodeTest.test("x", () => {});
+
+`;
+
+exports[`no-export > invalid(6): import {test} from 'node:test';\ntest(\"x\", () => {});\nexport default {}; 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | test("x", () => {});
+  3 | export default {};
+
+`;
+
+exports[`no-export > invalid(6): import {test} from 'node:test';\ntest(\"x\", () => {});\nexport default {}; 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+  2 | test("x", () => {});
+> 3 | export default {};
+    | ^^^^^^^^^^^^^^^^^^ Do not export from a test file.
+
+`;
+
+exports[`no-export > invalid(7): import {test} from 'node:test';\nexport * from './helpers.js';\ntest(\"x\", () => {}); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | export * from './helpers.js';
+  3 | test("x", () => {});
+
+`;
+
+exports[`no-export > invalid(7): import {test} from 'node:test';\nexport * from './helpers.js';\ntest(\"x\", () => {}); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | export * from './helpers.js';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not export from a test file.
+  3 | test("x", () => {});
+
+`;
+
+exports[`no-export > invalid(8): import {test} from 'node:test';\nconst helper = () => {};\nexport {helper};\ntest(\"x\", () => {}); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | const helper = () => {};
+  3 | export {helper};
+  4 | test("x", () => {});
+
+`;
+
+exports[`no-export > invalid(8): import {test} from 'node:test';\nconst helper = () => {};\nexport {helper};\ntest(\"x\", () => {}); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+  2 | const helper = () => {};
+> 3 | export {helper};
+    | ^^^^^^^^^^^^^^^^ Do not export from a test file.
+  4 | test("x", () => {});
+
+`;
+
+exports[`no-export > invalid(9): import {test} from 'node:test';\nexport type Foo = string;\ntest(\"x\", () => {}); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | export type Foo = string;
+  3 | test("x", () => {});
+
+`;
+
+exports[`no-export > invalid(9): import {test} from 'node:test';\nexport type Foo = string;\ntest(\"x\", () => {}); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | export type Foo = string;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Do not export from a test file.
+  3 | test("x", () => {});
 
 `;

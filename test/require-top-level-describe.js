@@ -35,6 +35,14 @@ test.snapshot({
 
 		// A test declared inside a helper function may well run inside a suite
 		head + 'function register() { it("x", () => {}); }\ndescribe("outer", () => { register(); });',
+		head + 'const helpers = {register() { it("x", () => {}); }};\ndescribe("outer", () => { helpers.register(); });',
+		// A class method is a function too, so a `describe` in one is not top-level
+		{
+			code: head + 'class C { register() { describe("a", () => {}); describe("b", () => {}); } }',
+			options: [{maxTopLevelDescribes: 1}],
+		},
+		// Exactly at the cap
+		{code: head + 'describe("a", () => {});', options: [{maxTopLevelDescribes: 1}]},
 	],
 	invalid: [
 		// Top-level test
@@ -51,6 +59,12 @@ test.snapshot({
 
 		// Too many top-level describes
 		{code: head + 'describe("a", () => {});\ndescribe("b", () => {});\ndescribe("c", () => {});', options: [{maxTopLevelDescribes: 2}]},
+
+		// The `suite` alias counts toward the cap
+		{code: 'import {suite} from \'node:test\';\nsuite("a", () => {});\nsuite("b", () => {});', options: [{maxTopLevelDescribes: 1}]},
+
+		// A subtest is not a separate registration, so only the top-level test is reported
+		head + 'test("a", async t => { await t.test("b", () => {}); });',
 
 		// TypeScript
 		{

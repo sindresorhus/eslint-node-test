@@ -24,10 +24,21 @@ test.snapshot({
 
 		// `export {}` exports nothing — only marks the file as a module
 		withImport('export {};\ntest("x", () => {});'),
+		'import * as nodeTest from \'node:test\';\nexport {};\nnodeTest.test("x", () => {});',
 	],
 	invalid: [
 		// Named export
 		withImport('export const helper = () => {};\ntest("x", () => {});'),
+
+		// A named re-export has a source and specifiers, so it is not the empty `export {}` marker
+		withImport('const helper = () => {};\nexport {helper} from \'./helpers.js\';\ntest("x", () => {});'),
+		withImport('export * as helpers from \'./helpers.js\';\ntest("x", () => {});'),
+
+		// Default export of a declaration, not an expression
+		withImport('export default function helper() {}\ntest("x", () => {});'),
+
+		// A namespace import still makes it a test file
+		'import * as nodeTest from \'node:test\';\nexport const helper = 1;\nnodeTest.test("x", () => {});',
 
 		// Default export
 		withImport('test("x", () => {});\nexport default {};'),
@@ -51,6 +62,12 @@ test.snapshot({
 		},
 		{
 			code: withImport('declare namespace N {}\nexport as namespace N;\ntest("x", () => {});'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			// An `export` inside an ambient `declare module` block is a type-only surface, but the
+			// parser reports it as an export declaration, so the rule sees it
+			code: withImport('declare module "x" { export const a: number; }\ntest("x", () => {});'),
 			languageOptions: {parser: parsers.typescript},
 		},
 	],

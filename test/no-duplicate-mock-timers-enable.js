@@ -14,11 +14,22 @@ test.snapshot({
 		// Not a test file.
 		'mock.timers.enable();\nmock.timers.enable();',
 
+		// Only a context's own `mock` names its tracker, and only an identifier can name it.
+		withImport('test("title", () => { foo.bar.mock.timers.enable(); foo.bar.mock.timers.enable(); });'),
+		withImport('unknown.mock.timers.enable();\nunknown.mock.timers.enable();'),
+		withImport('test("title", t => { t["mock"].timers.enable(); t.mock.timers.enable(); });'),
+
 		// One enable per tracker.
 		withImport('mock.timers.enable();'),
 		withImport('test("first", t => { t.mock.timers.enable(); });\ntest("second", t => { t.mock.timers.enable(); });'),
 		withImport('test("parent", async t => { await t.test("first", child => { child.mock.timers.enable(); }); await t.test("second", child => { child.mock.timers.enable(); }); });'),
+		// A parent and its subtest have trackers of their own, and no state is shared between callbacks
+		withImport('test("parent", t => { t.mock.timers.enable(); t.test("child", child => { child.mock.timers.enable(); }); });'),
 		withImport('test.skip("title", t => { t.mock.timers.enable(); t.mock.timers.enable(); });'),
+		// A nested skipped test never runs, whether it is skipped by the chained modifier or through
+		// the options slot of a subtest
+		withImport('test("title", t => { test.skip("nested", () => { mock.timers.enable(); mock.timers.enable(); }); });'),
+		withImport('test("parent", t => { t.test("child", {skip: true}, child => { child.mock.timers.enable(); child.mock.timers.enable(); }); });'),
 		// The standalone `skip` export has an identifier callee, and its body never runs
 		`${withNamedImport('skip')}\nskip('title', () => { mock.timers.enable(); mock.timers.enable(); });`,
 		`${withNamedImport('skip as skipped')}\nskipped('title', () => { mock.timers.enable(); mock.timers.enable(); });`,
@@ -31,18 +42,25 @@ test.snapshot({
 		// Resets permit another enable.
 		withImport('mock.timers.enable();\nmock.timers.reset();\nmock.timers.enable();'),
 		withImport('mock.timers.enable();\nmock.reset();\nmock.timers.enable();'),
+		// `test.mock` is the same global tracker under another spelling, so either reset clears it
+		withImport('mock.timers.enable();\ntest.mock.reset();\nmock.timers.enable();'),
 		withImport('test("title", t => { t.mock.timers.enable(); t.mock.reset(); t.mock.timers.enable(); });'),
 		'import {mock as tracker} from \'node:test\';\ntracker.timers.enable();\ntracker.reset();\ntracker.timers.enable();',
 
 		// A reset that runs on every path clears the tracked state.
 		withImport('mock.timers.enable();\nif (condition) { mock.timers.reset(); } else { mock.reset(); }\nmock.timers.enable();'),
 		withImport('mock.timers.enable();\ntry { callback(); } finally { mock.timers.reset(); }\nmock.timers.enable();'),
+		// Mutually exclusive branches each enable once, so no single path enables twice
+		withImport('if (condition) { mock.timers.enable(); } else { mock.timers.enable(); }'),
 
 		// Unsupported aliases, destructuring, computed properties, optional calls, helper functions, and repeated loop iterations.
 		withImport('const timers = mock.timers;\ntimers.enable();\ntimers.enable();'),
 		withImport('const {timers} = mock;\ntimers.enable();\ntimers.enable();'),
 		withImport('mock.timers["enable"]();\nmock.timers.enable();'),
 		withImport('mock.timers.enable?.();\nmock.timers.enable();'),
+		withImport('mock.timers?.enable();\nmock.timers.enable();'),
+		withImport('test("title", t => { t?.mock.timers.enable(); t.mock.timers.enable(); });'),
+		withImport('test("title", ({mock}) => { mock.timers.enable(); mock.timers.enable(); });'),
 		withImport('function enableTimers() { mock.timers.enable(); }\nenableTimers();\nenableTimers();'),
 		withImport('for (const value of values) { mock.timers.enable(); }'),
 		'import {describe, mock} from \'node:test\';\ndescribe.unknown("title", () => { mock.timers.enable(); mock.timers.enable(); });',
@@ -70,6 +88,7 @@ test.snapshot({
 
 		// A `todo` test still runs its body, so a duplicate enable in one is a real problem
 		`${withNamedImport('todo')}\ntodo('title', () => { mock.timers.enable(); mock.timers.enable(); });`,
+		withImport('test.todo("title", t => { t.mock.timers.enable(); t.mock.timers.enable(); });'),
 
 		// The global tracker and a context tracker share one `Date` mock, so enabling through the
 		// other receiver while one is enabled throws. A `reset()` only clears its own receiver.
@@ -105,6 +124,8 @@ test.snapshot({
 		'import {test} from \'node:test\';\ntest("title", t => { t.mock.timers.enable(); t.mock.timers.enable(); }, {skip: true});',
 		'import {beforeEach} from \'node:test\';\nbeforeEach((t = undefined) => { t.mock.timers.enable(); t.mock.timers.enable(); });',
 		withImport('test("title", t => { t.beforeEach(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); });'),
+		// A top-level hook body is a tracked path of its own, with the global tracker
+		'import {beforeEach, mock} from \'node:test\';\nbeforeEach(() => { mock.timers.enable(); mock.timers.enable(); });',
 		withImport('test("title", t => { t.beforeEach((hookContext = undefined) => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); });'),
 		withImport([
 			'test("title", t => {',
@@ -123,9 +144,21 @@ test.snapshot({
 			code: withImport('test("title", (t: any) => { (t.mock as any).timers.enable(); (t.mock as any).timers.enable(); });'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		// A TypeScript wrapper on the `timers` object or on the `enable` callee must not hide the call
+		{
+			code: withImport('test("title", (t: any) => { (t.mock.timers as any).enable(); (t.mock.timers as any).enable(); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withImport('test("title", (t: any) => { t.mock.timers.enable!(); t.mock.timers.enable!(); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
 
 		// `getTestContext()` names the same tracker as the context parameter
 		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', () => { getTestContext().mock.timers.enable(); getTestContext().mock.timers.enable(); });',
 		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', t => { getTestContext().mock.timers.enable(); t.mock.timers.enable(); });',
+		// A suite callback declares no context parameter, so both `getTestContext()` calls still name
+		// the one tracker they share
+		'import {describe, getTestContext} from \'node:test\';\ndescribe(\'a\', () => { getTestContext().mock.timers.enable(); getTestContext().mock.timers.enable(); });',
 	],
 });

@@ -29,6 +29,9 @@ test.snapshot({
 
 		// `.assert.*` on a non-context object — not a test context
 		withImport('describe("s", () => { const f = {assert: {ok() {}}}; f.assert.ok(x); });'),
+
+		// An object method defined in the suite body is not the suite body itself
+		withImport('describe("s", () => { const o = {check() { assert.ok(x); }}; });'),
 	],
 	invalid: [
 		// A suite callback in the descriptor object still runs while the suite is built
@@ -40,8 +43,22 @@ test.snapshot({
 		// Bare assert function
 		withImport('describe("s", () => { assert(x); });'),
 
+		// A concise arrow body is still the suite body
+		withImport('describe("s", () => assert.ok(x));'),
+
 		// Conditionally in the describe body (still runs at collection)
 		withImport('describe("s", () => { if (y) { assert.strictEqual(a, b); } });'),
+		withImport('describe("s", () => { switch (y) { case 1: assert.ok(x); } });'),
+		withImport('describe("s", () => { for (const item of items) { assert.ok(item); } });'),
+
+		// `describe.skip` still builds the suite
+		withImport('describe.skip("s", () => { assert.ok(x); });'),
+
+		// A static block in a class declared in the suite body runs while the suite is built
+		withImport('describe("s", () => { class C { static { assert.ok(x); } } });'),
+
+		// Namespace assert import
+		'import * as nodeTest from \'node:test\';\nimport * as assert from \'node:assert\';\nnodeTest.describe("s", () => { assert.ok(x); });',
 
 		// Suite alias
 		withImport('import {suite} from \'node:test\';\nsuite("s", () => { assert.deepStrictEqual(a, b); });'),

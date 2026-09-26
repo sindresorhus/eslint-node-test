@@ -17,6 +17,11 @@ test.snapshot({
 		withAssert('assert.notDeepEqual(obj, other);'),
 		withAssert('assert.notDeepStrictEqual(arr, other);'),
 
+		// A shadowed `NaN`/`Infinity`/`undefined` is some other object, not a primitive
+		withAssert('const NaN = {a: 1};\nassert.strictEqual(actual, NaN);'),
+		withAssert('const Infinity = {a: 1};\nassert.deepStrictEqual(actual, Infinity);'),
+		withAssert('function f(undefined) {\n\tassert.strictEqual(actual, undefined);\n}'),
+
 		// Other methods — not targeted by this rule
 		withAssert('assert.strictEqual(a, 1);'),
 		withAssert('assert.equal(a, "string");'),

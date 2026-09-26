@@ -1,4 +1,253 @@
-exports[`no-nested-tests > invalid(1): import test from \"node:test\";\ntest(\"outer\", () => {\n  test(\"inner\", () => {});\n}); 1`] = `
+exports[`no-nested-tests > invalid(1): import test from \"node:test\";\nconst body = () => {\n  test(\"inner\", () => {});\n};\ntest(\"outer\", body); 1`] = `
+
+  1 | import test from "node:test";
+  2 | const body = () => {
+  3 |   test("inner", () => {});
+  4 | };
+  5 | test("outer", body);
+
+`;
+
+exports[`no-nested-tests > invalid(1): import test from \"node:test\";\nconst body = () => {\n  test(\"inner\", () => {});\n};\ntest(\"outer\", body); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+  2 | const body = () => {
+> 3 |   test("inner", () => {});
+    |   ^^^^^^^^^^^^^^^^^^^^^^^ Do not define a test or suite inside a test body. Use \`t.test()\` for subtests instead.
+  4 | };
+  5 | test("outer", body);
+
+`;
+
+exports[`no-nested-tests > invalid(10): import {test as myTest} from \"node:test\";\nmyTest(\"outer\", () => {\n  myTest(\"inner\", () => {});\n}); 1`] = `
+
+  1 | import {test as myTest} from "node:test";
+  2 | myTest("outer", () => {
+  3 |   myTest("inner", () => {});
+  4 | });
+
+`;
+
+exports[`no-nested-tests > invalid(10): import {test as myTest} from \"node:test\";\nmyTest(\"outer\", () => {\n  myTest(\"inner\", () => {});\n}); 2`] = `
+
+Message:
+  1 | import {test as myTest} from "node:test";
+  2 | myTest("outer", () => {
+> 3 |   myTest("inner", () => {});
+    |   ^^^^^^^^^^^^^^^^^^^^^^^^^ Do not define a test or suite inside a test body. Use \`t.test()\` for subtests instead.
+  4 | });
+
+`;
+
+exports[`no-nested-tests > invalid(11): import * as nodeTest from \"node:test\";\nnodeTest.test(\"outer\", () => {\n  nodeTest.test(\"inner\", () => {});\n}); 1`] = `
+
+  1 | import * as nodeTest from "node:test";
+  2 | nodeTest.test("outer", () => {
+  3 |   nodeTest.test("inner", () => {});
+  4 | });
+
+`;
+
+exports[`no-nested-tests > invalid(11): import * as nodeTest from \"node:test\";\nnodeTest.test(\"outer\", () => {\n  nodeTest.test(\"inner\", () => {});\n}); 2`] = `
+
+Message:
+  1 | import * as nodeTest from "node:test";
+  2 | nodeTest.test("outer", () => {
+> 3 |   nodeTest.test("inner", () => {});
+    |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not define a test or suite inside a test body. Use \`t.test()\` for subtests instead.
+  4 | });
+
+`;
+
+exports[`no-nested-tests > invalid(12): import test from \"node:test\";\ntest(\"outer\", {timeout: 1}, () => {\n  test(\"inner\", () => {});\n}); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("outer", {timeout: 1}, () => {
+  3 |   test("inner", () => {});
+  4 | });
+
+`;
+
+exports[`no-nested-tests > invalid(12): import test from \"node:test\";\ntest(\"outer\", {timeout: 1}, () => {\n  test(\"inner\", () => {});\n}); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+  2 | test("outer", {timeout: 1}, () => {
+> 3 |   test("inner", () => {});
+    |   ^^^^^^^^^^^^^^^^^^^^^^^ Do not define a test or suite inside a test body. Use \`t.test()\` for subtests instead.
+  4 | });
+
+`;
+
+exports[`no-nested-tests > invalid(13): import test from \"node:test\";\ntest(\"outer\", () => {\n  test(\"inner\", {}, () => {});\n}); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("outer", () => {
+  3 |   test("inner", {}, () => {});
+  4 | });
+
+`;
+
+exports[`no-nested-tests > invalid(13): import test from \"node:test\";\ntest(\"outer\", () => {\n  test(\"inner\", {}, () => {});\n}); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+  2 | test("outer", () => {
+> 3 |   test("inner", {}, () => {});
+    |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not define a test or suite inside a test body. Use \`t.test()\` for subtests instead.
+  4 | });
+
+`;
+
+exports[`no-nested-tests > invalid(14): import {test} from \"node:test\";\ntest({name: \"a\", fn() {\n  test(\"b\", () => {});\n}}); 1`] = `
+
+  1 | import {test} from "node:test";
+  2 | test({name: "a", fn() {
+  3 |   test("b", () => {});
+  4 | }});
+
+`;
+
+exports[`no-nested-tests > invalid(14): import {test} from \"node:test\";\ntest({name: \"a\", fn() {\n  test(\"b\", () => {});\n}}); 2`] = `
+
+Message:
+  1 | import {test} from "node:test";
+  2 | test({name: "a", fn() {
+> 3 |   test("b", () => {});
+    |   ^^^^^^^^^^^^^^^^^^^ Do not define a test or suite inside a test body. Use \`t.test()\` for subtests instead.
+  4 | }});
+
+`;
+
+exports[`no-nested-tests > invalid(15): import test from \"node:test\";\ntest(\"outer\", () => {\n  const register = () => { test(\"inner\", () => {}); };\n  register();\n}); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("outer", () => {
+  3 |   const register = () => { test("inner", () => {}); };
+  4 |   register();
+  5 | });
+
+`;
+
+exports[`no-nested-tests > invalid(15): import test from \"node:test\";\ntest(\"outer\", () => {\n  const register = () => { test(\"inner\", () => {}); };\n  register();\n}); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+  2 | test("outer", () => {
+> 3 |   const register = () => { test("inner", () => {}); };
+    |                            ^^^^^^^^^^^^^^^^^^^^^^^ Do not define a test or suite inside a test body. Use \`t.test()\` for subtests instead.
+  4 |   register();
+  5 | });
+
+`;
+
+exports[`no-nested-tests > invalid(16): import test, {describe} from \"node:test\";\ntest(\"outer\", () => {\n  describe(\"s\", () => {\n    test(\"inner\", () => {});\n  });\n}); 1`] = `
+
+  1 | import test, {describe} from "node:test";
+  2 | test("outer", () => {
+  3 |   describe("s", () => {
+  4 |     test("inner", () => {});
+  5 |   });
+  6 | });
+
+`;
+
+exports[`no-nested-tests > invalid(16): import test, {describe} from \"node:test\";\ntest(\"outer\", () => {\n  describe(\"s\", () => {\n    test(\"inner\", () => {});\n  });\n}); 2`] = `
+
+Message:
+  1 | import test, {describe} from "node:test";
+  2 | test("outer", () => {
+> 3 |   describe("s", () => {
+    |   ^^^^^^^^^^^^^^^^^^^^^
+> 4 |     test("inner", () => {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 |   });
+    | ^^^^ Do not define a test or suite inside a test body. Use \`t.test()\` for subtests instead.
+  6 | });
+
+`;
+
+exports[`no-nested-tests > invalid(16): import test, {describe} from \"node:test\";\ntest(\"outer\", () => {\n  describe(\"s\", () => {\n    test(\"inner\", () => {});\n  });\n}); 3`] = `
+
+Message:
+  1 | import test, {describe} from "node:test";
+  2 | test("outer", () => {
+  3 |   describe("s", () => {
+> 4 |     test("inner", () => {});
+    |     ^^^^^^^^^^^^^^^^^^^^^^^ Do not define a test or suite inside a test body. Use \`t.test()\` for subtests instead.
+  5 |   });
+  6 | });
+
+`;
+
+exports[`no-nested-tests > invalid(2): import test from \"node:test\";\ntest(\"outer\", body);\nfunction body() {\n  test(\"inner\", () => {});\n} 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("outer", body);
+  3 | function body() {
+  4 |   test("inner", () => {});
+  5 | }
+
+`;
+
+exports[`no-nested-tests > invalid(2): import test from \"node:test\";\ntest(\"outer\", body);\nfunction body() {\n  test(\"inner\", () => {});\n} 2`] = `
+
+Message:
+  1 | import test from "node:test";
+  2 | test("outer", body);
+  3 | function body() {
+> 4 |   test("inner", () => {});
+    |   ^^^^^^^^^^^^^^^^^^^^^^^ Do not define a test or suite inside a test body. Use \`t.test()\` for subtests instead.
+  5 | }
+
+`;
+
+exports[`no-nested-tests > invalid(3): import {test, describe} from \"node:test\";\nconst body = () => {\n  describe(\"inner\", () => {});\n};\ntest(\"outer\", body); 1`] = `
+
+  1 | import {test, describe} from "node:test";
+  2 | const body = () => {
+  3 |   describe("inner", () => {});
+  4 | };
+  5 | test("outer", body);
+
+`;
+
+exports[`no-nested-tests > invalid(3): import {test, describe} from \"node:test\";\nconst body = () => {\n  describe(\"inner\", () => {});\n};\ntest(\"outer\", body); 2`] = `
+
+Message:
+  1 | import {test, describe} from "node:test";
+  2 | const body = () => {
+> 3 |   describe("inner", () => {});
+    |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not define a test or suite inside a test body. Use \`t.test()\` for subtests instead.
+  4 | };
+  5 | test("outer", body);
+
+`;
+
+exports[`no-nested-tests > invalid(4): import test from \"node:test\";\nconst body = () => {\n  test(\"inner\", () => {});\n};\ntest({name: \"outer\", fn: body}); 1`] = `
+
+  1 | import test from "node:test";
+  2 | const body = () => {
+  3 |   test("inner", () => {});
+  4 | };
+  5 | test({name: "outer", fn: body});
+
+`;
+
+exports[`no-nested-tests > invalid(4): import test from \"node:test\";\nconst body = () => {\n  test(\"inner\", () => {});\n};\ntest({name: \"outer\", fn: body}); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+  2 | const body = () => {
+> 3 |   test("inner", () => {});
+    |   ^^^^^^^^^^^^^^^^^^^^^^^ Do not define a test or suite inside a test body. Use \`t.test()\` for subtests instead.
+  4 | };
+  5 | test({name: "outer", fn: body});
+
+`;
+
+exports[`no-nested-tests > invalid(5): import test from \"node:test\";\ntest(\"outer\", () => {\n  test(\"inner\", () => {});\n}); 1`] = `
 
   1 | import test from "node:test";
   2 | test("outer", () => {
@@ -7,7 +256,7 @@ exports[`no-nested-tests > invalid(1): import test from \"node:test\";\ntest(\"o
 
 `;
 
-exports[`no-nested-tests > invalid(1): import test from \"node:test\";\ntest(\"outer\", () => {\n  test(\"inner\", () => {});\n}); 2`] = `
+exports[`no-nested-tests > invalid(5): import test from \"node:test\";\ntest(\"outer\", () => {\n  test(\"inner\", () => {});\n}); 2`] = `
 
 Message:
   1 | import test from "node:test";
@@ -18,7 +267,7 @@ Message:
 
 `;
 
-exports[`no-nested-tests > invalid(2): import test, {it} from \"node:test\";\ntest(\"outer\", () => {\n  it(\"inner\", () => {});\n}); 1`] = `
+exports[`no-nested-tests > invalid(6): import test, {it} from \"node:test\";\ntest(\"outer\", () => {\n  it(\"inner\", () => {});\n}); 1`] = `
 
   1 | import test, {it} from "node:test";
   2 | test("outer", () => {
@@ -27,7 +276,7 @@ exports[`no-nested-tests > invalid(2): import test, {it} from \"node:test\";\nte
 
 `;
 
-exports[`no-nested-tests > invalid(2): import test, {it} from \"node:test\";\ntest(\"outer\", () => {\n  it(\"inner\", () => {});\n}); 2`] = `
+exports[`no-nested-tests > invalid(6): import test, {it} from \"node:test\";\ntest(\"outer\", () => {\n  it(\"inner\", () => {});\n}); 2`] = `
 
 Message:
   1 | import test, {it} from "node:test";
@@ -38,7 +287,7 @@ Message:
 
 `;
 
-exports[`no-nested-tests > invalid(3): import test, {describe} from \"node:test\";\ntest(\"outer\", () => {\n  describe(\"inner\", () => {});\n}); 1`] = `
+exports[`no-nested-tests > invalid(7): import test, {describe} from \"node:test\";\ntest(\"outer\", () => {\n  describe(\"inner\", () => {});\n}); 1`] = `
 
   1 | import test, {describe} from "node:test";
   2 | test("outer", () => {
@@ -47,7 +296,7 @@ exports[`no-nested-tests > invalid(3): import test, {describe} from \"node:test\
 
 `;
 
-exports[`no-nested-tests > invalid(3): import test, {describe} from \"node:test\";\ntest(\"outer\", () => {\n  describe(\"inner\", () => {});\n}); 2`] = `
+exports[`no-nested-tests > invalid(7): import test, {describe} from \"node:test\";\ntest(\"outer\", () => {\n  describe(\"inner\", () => {});\n}); 2`] = `
 
 Message:
   1 | import test, {describe} from "node:test";
@@ -58,7 +307,7 @@ Message:
 
 `;
 
-exports[`no-nested-tests > invalid(4): import test from \"node:test\";\ntest(\"outer\", () => {\n  test(\"inner1\", () => {});\n  test(\"inner2\", () => {});\n}); 1`] = `
+exports[`no-nested-tests > invalid(8): import test from \"node:test\";\ntest(\"outer\", () => {\n  test(\"inner1\", () => {});\n  test(\"inner2\", () => {});\n}); 1`] = `
 
   1 | import test from "node:test";
   2 | test("outer", () => {
@@ -68,7 +317,7 @@ exports[`no-nested-tests > invalid(4): import test from \"node:test\";\ntest(\"o
 
 `;
 
-exports[`no-nested-tests > invalid(4): import test from \"node:test\";\ntest(\"outer\", () => {\n  test(\"inner1\", () => {});\n  test(\"inner2\", () => {});\n}); 2`] = `
+exports[`no-nested-tests > invalid(8): import test from \"node:test\";\ntest(\"outer\", () => {\n  test(\"inner1\", () => {});\n  test(\"inner2\", () => {});\n}); 2`] = `
 
 Message:
   1 | import test from "node:test";
@@ -80,7 +329,7 @@ Message:
 
 `;
 
-exports[`no-nested-tests > invalid(4): import test from \"node:test\";\ntest(\"outer\", () => {\n  test(\"inner1\", () => {});\n  test(\"inner2\", () => {});\n}); 3`] = `
+exports[`no-nested-tests > invalid(8): import test from \"node:test\";\ntest(\"outer\", () => {\n  test(\"inner1\", () => {});\n  test(\"inner2\", () => {});\n}); 3`] = `
 
 Message:
   1 | import test from "node:test";
@@ -92,7 +341,7 @@ Message:
 
 `;
 
-exports[`no-nested-tests > invalid(5): import {it} from \"node:test\";\nit(\"outer\", () => {\n  it(\"inner\", () => {});\n}); 1`] = `
+exports[`no-nested-tests > invalid(9): import {it} from \"node:test\";\nit(\"outer\", () => {\n  it(\"inner\", () => {});\n}); 1`] = `
 
   1 | import {it} from "node:test";
   2 | it("outer", () => {
@@ -101,93 +350,13 @@ exports[`no-nested-tests > invalid(5): import {it} from \"node:test\";\nit(\"out
 
 `;
 
-exports[`no-nested-tests > invalid(5): import {it} from \"node:test\";\nit(\"outer\", () => {\n  it(\"inner\", () => {});\n}); 2`] = `
+exports[`no-nested-tests > invalid(9): import {it} from \"node:test\";\nit(\"outer\", () => {\n  it(\"inner\", () => {});\n}); 2`] = `
 
 Message:
   1 | import {it} from "node:test";
   2 | it("outer", () => {
 > 3 |   it("inner", () => {});
     |   ^^^^^^^^^^^^^^^^^^^^^ Do not define a test or suite inside a test body. Use \`t.test()\` for subtests instead.
-  4 | });
-
-`;
-
-exports[`no-nested-tests > invalid(6): import {test as myTest} from \"node:test\";\nmyTest(\"outer\", () => {\n  myTest(\"inner\", () => {});\n}); 1`] = `
-
-  1 | import {test as myTest} from "node:test";
-  2 | myTest("outer", () => {
-  3 |   myTest("inner", () => {});
-  4 | });
-
-`;
-
-exports[`no-nested-tests > invalid(6): import {test as myTest} from \"node:test\";\nmyTest(\"outer\", () => {\n  myTest(\"inner\", () => {});\n}); 2`] = `
-
-Message:
-  1 | import {test as myTest} from "node:test";
-  2 | myTest("outer", () => {
-> 3 |   myTest("inner", () => {});
-    |   ^^^^^^^^^^^^^^^^^^^^^^^^^ Do not define a test or suite inside a test body. Use \`t.test()\` for subtests instead.
-  4 | });
-
-`;
-
-exports[`no-nested-tests > invalid(7): import * as nodeTest from \"node:test\";\nnodeTest.test(\"outer\", () => {\n  nodeTest.test(\"inner\", () => {});\n}); 1`] = `
-
-  1 | import * as nodeTest from "node:test";
-  2 | nodeTest.test("outer", () => {
-  3 |   nodeTest.test("inner", () => {});
-  4 | });
-
-`;
-
-exports[`no-nested-tests > invalid(7): import * as nodeTest from \"node:test\";\nnodeTest.test(\"outer\", () => {\n  nodeTest.test(\"inner\", () => {});\n}); 2`] = `
-
-Message:
-  1 | import * as nodeTest from "node:test";
-  2 | nodeTest.test("outer", () => {
-> 3 |   nodeTest.test("inner", () => {});
-    |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not define a test or suite inside a test body. Use \`t.test()\` for subtests instead.
-  4 | });
-
-`;
-
-exports[`no-nested-tests > invalid(8): import test from \"node:test\";\ntest(\"outer\", {timeout: 1}, () => {\n  test(\"inner\", () => {});\n}); 1`] = `
-
-  1 | import test from "node:test";
-  2 | test("outer", {timeout: 1}, () => {
-  3 |   test("inner", () => {});
-  4 | });
-
-`;
-
-exports[`no-nested-tests > invalid(8): import test from \"node:test\";\ntest(\"outer\", {timeout: 1}, () => {\n  test(\"inner\", () => {});\n}); 2`] = `
-
-Message:
-  1 | import test from "node:test";
-  2 | test("outer", {timeout: 1}, () => {
-> 3 |   test("inner", () => {});
-    |   ^^^^^^^^^^^^^^^^^^^^^^^ Do not define a test or suite inside a test body. Use \`t.test()\` for subtests instead.
-  4 | });
-
-`;
-
-exports[`no-nested-tests > invalid(9): import test from \"node:test\";\ntest(\"outer\", () => {\n  test(\"inner\", {}, () => {});\n}); 1`] = `
-
-  1 | import test from "node:test";
-  2 | test("outer", () => {
-  3 |   test("inner", {}, () => {});
-  4 | });
-
-`;
-
-exports[`no-nested-tests > invalid(9): import test from \"node:test\";\ntest(\"outer\", () => {\n  test(\"inner\", {}, () => {});\n}); 2`] = `
-
-Message:
-  1 | import test from "node:test";
-  2 | test("outer", () => {
-> 3 |   test("inner", {}, () => {});
-    |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not define a test or suite inside a test body. Use \`t.test()\` for subtests instead.
   4 | });
 
 `;

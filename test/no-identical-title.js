@@ -50,6 +50,13 @@ test.snapshot({
 		'import {describe, test} from \'node:test\';\nconst body = () => { test(\'a\', () => {}); };\ndescribe(\'s\', body);',
 		// Two out-of-line bodies are two scopes, so the same title in each is fine
 		'import test from \'node:test\';\nconst first = () => { test(\'a\', () => {}); };\nconst second = () => { test(\'a\', () => {}); };\ntest(\'x\', first);\ntest(\'y\', second);',
+
+		// A descriptor with no `name` gives the test no title this rule can read
+		'import test from \'node:test\';\ntest({skip: true}, () => {});\ntest({skip: true}, () => {});',
+		// A spread in the options slot could add a `name`, so the positional title is not the one the runner uses
+		'import test from \'node:test\';\ntest("a", {...rest}, () => {});\ntest("a", {...rest}, () => {});',
+		// A function in the first position is the implementation, not a title
+		'import test from \'node:test\';\ntest(() => {});\ntest(() => {});',
 	],
 	invalid: [
 		// Duplicate top-level titles
@@ -91,5 +98,18 @@ test.snapshot({
 		// A function that is not a callback shares the enclosing scope
 		'import test from "node:test";\nconst body = () => { test("a", () => {}); test("a", () => {}); };\nrun(body);',
 		'import test from "node:test";\nconst body = () => { test("a", () => {}); };\ntest({name: "a", other: body});',
+		// A concise callback body is still a scope of its own, so only the outer titles are duplicates
+		'import test from "node:test";\ntest("p", () => test("x", () => {}));\ntest("p", () => test("x", () => {}));',
+		// A positional title that matches another test's `options.name` is the name both tests run under
+		'import test from "node:test";\ntest("x", () => {});\ntest("y", {name: "x"}, () => {});',
+		// TypeScript: a wrapper on the title does not hide it
+		{
+			code: 'import test from "node:test";\ntest("a" as const, () => {});\ntest("a" as const, () => {});',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import test from "node:test";\ntest("a" satisfies string, () => {});\ntest("a" satisfies string, () => {});',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

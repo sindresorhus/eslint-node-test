@@ -40,7 +40,10 @@ test.snapshot({
 
 		// Non-arrow callback forms are unaffected
 		withAssert('assert.throws(function () { parse(input); });'),
+		withAssert('assert.throws(async function () { await parseAsync(input); });'),
 		withAssert('assert.throws(callback);'),
+		withAssert('assert.throws(null);'),
+		withAssert('assert.throws(...args);'),
 
 		// Other assertions are unaffected
 		withAssert('assert.rejects(() => parseAsync(input));'),
@@ -67,12 +70,34 @@ test.snapshot({
 			code: withAssert('assert.throws(() => {\n\tthrow new Error("boom");\n});'),
 			options: [{style: 'expression'}],
 		},
+		// A `return` cannot become an expression body without changing what the callback returns,
+		// so an empty block and a lone `return` are both left alone
+		{
+			code: withAssert('assert.throws(() => {});'),
+			options: [{style: 'expression'}],
+		},
+		{
+			code: withAssert('assert.throws(() => {\n\treturn parse(input);\n});'),
+			options: [{style: 'expression'}],
+		},
 	],
 	invalid: [
 		withAssert('assert.throws(() => parse(input));'),
 		withAssert('assert.throws(() => parse(input), SyntaxError);'),
 		withAssert('assert.throws(() =>\n\tparse(input));'),
+
+		// A parenthesized body keeps exactly its own parentheses, and a sequence expression is a
+		// safe expression statement, so neither picks up a second pair
+		withAssert('assert.throws(() => (parse(input)));'),
+		withAssert('assert.throws(() => (first(), second()));'),
+
+		// A comment before the arrow is inside the replacement and moves with it
+		withAssert('assert.throws(/* keep */ () => parse(input));'),
 		withTestAndAssert('test(\'nested\', () => {\n\tassert.throws(() => parse(input), SyntaxError);\n});'),
+
+		// The block fix reindents to the line the callback starts on
+		withTestAndAssert('test(\'nested\', () => {\n\tassert.throws(() => parse(input));\n});'),
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\nfunction run() {\n\tif (ready) {\n\t\tassert.throws(() => parse(input));\n\t}\n}',
 		withStrictAssert('assert.throws(() => parse(input));'),
 		withNamespaceAssert('assert.throws(() => parse(input));'),
 		withBareAssert('assert.throws(() => parse(input));'),
@@ -175,6 +200,29 @@ test.snapshot({
 			code: withAssert('assert.throws((() => {\n\tparse(input);\n}) as () => void);'),
 			options: [{style: 'expression'}],
 			languageOptions: {parser: parsers.typescript},
+		},
+		// A comment trailing the statement is left where it is rather than moved, so the fix bails
+		{
+			code: withAssert('assert.throws(() => {\n\tparse(input); // keep\n});'),
+			options: [{style: 'expression'}],
+		},
+		// An expression body that starts with `(`, `{`, `function` or `class` needs its parentheses
+		{
+			code: withAssert('assert.throws(() => { (function () {}); });'),
+			options: [{style: 'expression'}],
+		},
+		{
+			code: withAssert('assert.throws(() => { (class {}); });'),
+			options: [{style: 'expression'}],
+		},
+		{
+			code: withAssert('assert.throws(() => { ({value} = object); });'),
+			options: [{style: 'expression'}],
+		},
+		// Redundant parentheses around the expression are the only thing the fix drops
+		{
+			code: withAssert('assert.throws(() => { (parse(input)); });'),
+			options: [{style: 'expression'}],
 		},
 	],
 });

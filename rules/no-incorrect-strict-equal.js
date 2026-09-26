@@ -1,3 +1,4 @@
+import {getStaticValue} from '@eslint-community/eslint-utils';
 import {
 	resolveImports,
 	parseSupportedAssertionCall,
@@ -5,6 +6,22 @@ import {
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 import {isPrimitive} from './utils/index.js';
+
+const PRIMITIVE_TYPES = new Set(['string', 'number', 'boolean', 'bigint', 'symbol']);
+
+/**
+Whether the operand is a primitive, including one a name holds: `equal(0, [])` passes while
+`deepEqual(0, [])` fails, so a `0` reached through a variable has to withhold the fix as a literal
+does. A value the checker cannot resolve is left to the runtime, like any other unknown expression.
+*/
+function isPrimitiveOperand(node, context) {
+	if (isPrimitive(node, context)) {
+		return true;
+	}
+
+	const resolved = getStaticValue(unwrapTypeScriptExpression(node), context.sourceCode.getScope(node));
+	return resolved !== null && PRIMITIVE_TYPES.has(typeof resolved.value);
+}
 
 const MESSAGE_ID = 'no-incorrect-strict-equal';
 
@@ -72,7 +89,7 @@ const create = context => {
 		// passes while `deepEqual(0, [])` fails. Fixing there would also fight
 		// `no-incorrect-deep-equal`, which rewrites the opposite direction, so the two fixers would
 		// not converge. Leave that case reported but unfixed.
-		if (callee.type === 'MemberExpression' && !isPrimitive(actual) && !isPrimitive(expected)) {
+		if (callee.type === 'MemberExpression' && !isPrimitiveOperand(actual, context) && !isPrimitiveOperand(expected, context)) {
 			problem.fix = fixer => fixer.replaceText(callee.property, replacement);
 		}
 

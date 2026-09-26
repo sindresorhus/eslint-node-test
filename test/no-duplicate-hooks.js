@@ -71,5 +71,12 @@ test.snapshot({
 
 		// A hook declared through `getTestContext()` is the same hook
 		'import {test, getTestContext} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\', () => { getTestContext().beforeEach(() => {}); getTestContext().beforeEach(() => {}); }); });',
+
+		// An imported hook and a context hook of the same name share one scope
+		'import {test, beforeEach} from \'node:test\';\ntest(\'p\', t => { beforeEach(() => {}); t.beforeEach(() => {}); });',
+		'import {test, afterEach} from \'node:test\';\ntest(\'p\', t => { afterEach(() => {}); t.afterEach(() => {}); });',
+
+		// A subtest with no callback opens no scope, so the hooks stay in the parent test body
+		'import {test, before} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\'); before(() => {}); before(() => {}); });',
 	],
 });

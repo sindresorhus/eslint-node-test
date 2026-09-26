@@ -9,6 +9,16 @@ test.snapshot({
 		// A `Date`-only list mocks no timer function, so the namespace import is harmless, exactly as
 		// it is for a named import
 		head + 'import * as timers from \'node:timers\';\nmock.timers.enable({apis: ["Date"]});',
+		head + 'import {setTimeout} from \'node:timers\';\nmock.timers.enable({apis: ["Date"]});',
+		head + 'import {setTimeout} from \'node:timers\';\nimport * as timers from \'node:timers\';\nmock.timers.enable({apis: ["Date"]});',
+		// The enabled APIs accumulate over the file, and none of the calls here is a timer API
+		head + 'import {setTimeout} from \'node:timers\';\nmock.timers.enable({apis: []});\nmock.timers.enable({apis: ["Date"]});',
+
+		// A default import is the module object itself, so `timers.setTimeout` reads the installed
+		// mock at call time
+		head + 'import timers from \'node:timers\';\nmock.timers.enable();',
+		// A computed `enable` is not recognized as an enable call
+		head + 'import {setTimeout} from \'node:timers\';\nmock.timers["enable"]();',
 		// An `apis` value that cannot be resolved at lint time proves nothing, so the imported
 		// timer may well not be among the enabled APIs
 		`${head}import {setTimeout} from 'node:timers';\nconst APIS = ['setInterval'];\ntest('a', () => { mock.timers.enable({apis: APIS}); });`,
@@ -38,6 +48,11 @@ test.snapshot({
 			code: head + 'import type {setTimeout} from \'node:timers\';\nmock.timers.enable({apis: ["setTimeout"]});',
 			languageOptions: {parser: parsers.typescript},
 		},
+		// A type-only namespace import is erased as well, so the code calls the interceptable globals
+		{
+			code: head + 'import type * as timers from \'node:timers\';\nmock.timers.enable();',
+			languageOptions: {parser: parsers.typescript},
+		},
 
 		// `foo.mock` is not a test context, so its `timers` have nothing to do with the global tracker
 		`${head}import {setTimeout} from 'node:timers';\nfoo.mock.timers.enable({apis: ['setTimeout']});`,
@@ -53,6 +68,17 @@ test.snapshot({
 
 		// ClearTimeout is mocked together with setTimeout
 		head + 'import {setTimeout, clearTimeout} from \'node:timers\';\nmock.timers.enable({apis: ["setTimeout"]});',
+		// And so is clearImmediate with setImmediate
+		head + 'import {clearImmediate} from \'node:timers\';\nmock.timers.enable({apis: ["setImmediate"]});',
+
+		// Only the specifiers whose API is enabled are reported, and the enabled APIs accumulate
+		// over every `enable` call in the file
+		head + 'import {setTimeout, setInterval} from \'node:timers\';\nmock.timers.enable({apis: ["setTimeout"]});',
+		head + 'import {setTimeout} from \'node:timers\';\nmock.timers.enable({apis: []});\nmock.timers.enable({apis: ["setTimeout"]});',
+
+		// `getTestContext()` and a hook parameter name a context tracker too
+		'import {test, getTestContext} from \'node:test\';\nimport {setTimeout} from \'node:timers\';\ntest(\'a\', () => { getTestContext().mock.timers.enable({apis: ["setTimeout"]}); });',
+		head + 'import {setTimeout} from \'node:timers\';\ntest("a", t => { t.beforeEach(hookContext => { hookContext.mock.timers.enable({apis: ["setTimeout"]}); }); });',
 
 		// Renamed import
 		head + 'import {setTimeout as delay} from \'node:timers\';\nmock.timers.enable();',

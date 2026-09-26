@@ -20,6 +20,13 @@ test.snapshot({
 		withTest('test(\'t\', {todo: \'later\'}, () => {});'),
 		withTest('test(\'t\', {only: false}, () => {});'),
 
+		// The object descriptor form reads the same options
+		withTest('test({skip: \'work in progress\', name: \'t\', fn: () => {}});'),
+
+		// A `node:test` export that is not a test call
+		'import {mock} from \'node:test\';\nmock.module(\'module.js\');',
+		'import test from \'node:test\';\ncustom(\'t\', {skip: true}, () => {});',
+
 		// Options style honored when configured
 		{
 			code: withTest('test(\'t\', {skip: true}, () => {});'),
@@ -52,6 +59,19 @@ test.snapshot({
 			code: withTest('test.only(\'t\', () => {});'),
 			options: [{style: 'options'}],
 		},
+		{
+			code: withTest('test.todo(\'t\', () => {});'),
+			options: [{style: 'options'}],
+		},
+
+		// A suite is a test call too, and the options style flags its chained modifier
+		{
+			code: 'import {describe} from \'node:test\';\ndescribe.skip(\'s\', () => {});',
+			options: [{style: 'options'}],
+		},
+
+		// Every modifier property is reported, not just the first
+		withTest('test(\'t\', {skip: true, only: true}, () => {});'),
 
 		// Suite modifier via options under chained style
 		'import {describe} from \'node:test\';\ndescribe(\'s\', {only: true}, () => {});',
@@ -60,5 +80,7 @@ test.snapshot({
 			code: withTest('test(\'t\', {todo: true as const}, () => {});'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		// The object descriptor form reads the same options
+		withTest('test({skip: true, name: \'t\', fn: () => {}});'),
 	],
 });

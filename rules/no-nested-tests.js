@@ -1,4 +1,9 @@
-import {resolveImports, parseTestCall, getTestCallback} from './utils/node-test.js';
+import {
+	resolveImports,
+	parseTestCall,
+	getTestCallback,
+	isOutOfLineCallback,
+} from './utils/node-test.js';
 
 const MESSAGE_ID = 'no-nested-tests/error';
 
@@ -48,6 +53,26 @@ const create = context => {
 
 		const callback = getTestCallback(node);
 		if (callback && testCallbackStack.at(-1) === callback) {
+			testCallbackStack.pop();
+		}
+	});
+
+	// A callback the call names out of line (`test('a', body)`) is entered where it is declared, which
+	// the call's own frame does not cover, so a test inside it is still nested in that test.
+	const functionTypes = ['FunctionExpression', 'ArrowFunctionExpression', 'FunctionDeclaration'];
+	const outOfLineCallbacks = new WeakSet();
+
+	context.on(functionTypes, node => {
+		if (!isOutOfLineCallback(node, context, imports)) {
+			return;
+		}
+
+		outOfLineCallbacks.add(node);
+		testCallbackStack.push(node);
+	});
+
+	context.onExit(functionTypes, node => {
+		if (outOfLineCallbacks.delete(node)) {
 			testCallbackStack.pop();
 		}
 	});

@@ -985,6 +985,263 @@ Message:
 
 `;
 
+exports[`no-unawaited-promise-assertion > invalid(41): import test from 'node:test';\nimport assert from 'node:assert';\ntest('a', async t => {\n\tt.plan(1, {wait: false});\n\tload().then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('a', async t => {
+  4 | 	t.plan(1, {wait: false});
+  5 | 	load().then(value => { assert.strictEqual(value, 42); });
+  6 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(41): import test from 'node:test';\nimport assert from 'node:assert';\ntest('a', async t => {\n\tt.plan(1, {wait: false});\n\tload().then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('a', async t => {
+  4 | 	t.plan(1, {wait: false});
+> 5 | 	load().then(value => { assert.strictEqual(value, 42); });
+    | 	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
+  6 | });
+
+Output:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('a', async t => {
+  4 | 	t.plan(1, {wait: false});
+  5 | 	await load().then(value => { assert.strictEqual(value, 42); });
+  6 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(42): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tflag || load().then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	flag || load().then(value => { assert.strictEqual(value, 42); });
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(42): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tflag || load().then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+> 4 | 	flag || load().then(value => { assert.strictEqual(value, 42); });
+    | 	                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
+  5 | });
+
+Output:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	flag || await load().then(value => { assert.strictEqual(value, 42); });
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(43): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); }) && flag;\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	load().then(value => { assert.strictEqual(value, 42); }) && flag;
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(43): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); }) && flag;\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+> 4 | 	load().then(value => { assert.strictEqual(value, 42); }) && flag;
+    | 	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(44): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\ttry { load().then(value => { assert.strictEqual(value, 42); }); } catch (error) { report(error); }\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	try { load().then(value => { assert.strictEqual(value, 42); }); } catch (error) { report(error); }
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(44): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\ttry { load().then(value => { assert.strictEqual(value, 42); }); } catch (error) { report(error); }\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+> 4 | 	try { load().then(value => { assert.strictEqual(value, 42); }); } catch (error) { report(error); }
+    | 	                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
+  5 | });
+
+Output:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	try { await load().then(value => { assert.strictEqual(value, 42); }); } catch (error) { report(error); }
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(45): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { try { assert.strictEqual(value, 42); } finally { cleanup(); } });\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	load().then(value => { try { assert.strictEqual(value, 42); } finally { cleanup(); } });
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(45): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { try { assert.strictEqual(value, 42); } finally { cleanup(); } });\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+> 4 | 	load().then(value => { try { assert.strictEqual(value, 42); } finally { cleanup(); } });
+    | 	                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
+  5 | });
+
+Output:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	await load().then(value => { try { assert.strictEqual(value, 42); } finally { cleanup(); } });
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(46): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(() => { try { assert.rejects(load()); } catch (error) { report(error); } });\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	load().then(() => { try { assert.rejects(load()); } catch (error) { report(error); } });
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(46): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(() => { try { assert.rejects(load()); } catch (error) { report(error); } });\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+> 4 | 	load().then(() => { try { assert.rejects(load()); } catch (error) { report(error); } });
+    | 	                          ^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
+  5 | });
+
+Output:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	await load().then(() => { try { assert.rejects(load()); } catch (error) { report(error); } });
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(47): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(async () => { await assert.rejects(load()); });\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	load().then(async () => { await assert.rejects(load()); });
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(47): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(async () => { await assert.rejects(load()); });\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+> 4 | 	load().then(async () => { await assert.rejects(load()); });
+    | 	                                ^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
+  5 | });
+
+Output:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	await load().then(async () => { await assert.rejects(load()); });
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(48): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(() => { assert.doesNotReject(load()); });\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	load().then(() => { assert.doesNotReject(load()); });
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(48): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(() => { assert.doesNotReject(load()); });\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+> 4 | 	load().then(() => { assert.doesNotReject(load()); });
+    | 	                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
+  5 | });
+
+Output:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	await load().then(() => { assert.doesNotReject(load()); });
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(49): import test from 'node:test';\nimport * as nodeAssert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { nodeAssert.strictEqual(value, 42); });\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import * as nodeAssert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	load().then(value => { nodeAssert.strictEqual(value, 42); });
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(49): import test from 'node:test';\nimport * as nodeAssert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { nodeAssert.strictEqual(value, 42); });\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import * as nodeAssert from 'node:assert';
+  3 | test('loads', async () => {
+> 4 | 	load().then(value => { nodeAssert.strictEqual(value, 42); });
+    | 	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
+  5 | });
+
+Output:
+  1 | import test from 'node:test';
+  2 | import * as nodeAssert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	await load().then(value => { nodeAssert.strictEqual(value, 42); });
+  5 | });
+
+`;
+
 exports[`no-unawaited-promise-assertion > invalid(5): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tPromise.race([load().then(value => { assert.strictEqual(value, 42); })]);\n}); 1`] = `
 
   1 | import test from 'node:test';
@@ -1011,6 +1268,289 @@ Output:
   3 | test('loads', async () => {
   4 | 	await Promise.race([load().then(value => { assert.strictEqual(value, 42); })]);
   5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(50): import test from 'node:test';\nimport assert from 'node:assert';\ntest.afterEach(async () => {\n\tteardown().then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test.afterEach(async () => {
+  4 | 	teardown().then(value => { assert.strictEqual(value, 42); });
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(50): import test from 'node:test';\nimport assert from 'node:assert';\ntest.afterEach(async () => {\n\tteardown().then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test.afterEach(async () => {
+> 4 | 	teardown().then(value => { assert.strictEqual(value, 42); });
+    | 	                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
+  5 | });
+
+Output:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test.afterEach(async () => {
+  4 | 	await teardown().then(value => { assert.strictEqual(value, 42); });
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(51): import test from 'node:test';\nimport assert from 'node:assert';\ntest('parent', t => {\n\tt.beforeEach(() => {\n\t\tsetup().then(value => { assert.strictEqual(value, 42); });\n\t});\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('parent', t => {
+  4 | 	t.beforeEach(() => {
+  5 | 		setup().then(value => { assert.strictEqual(value, 42); });
+  6 | 	});
+  7 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(51): import test from 'node:test';\nimport assert from 'node:assert';\ntest('parent', t => {\n\tt.beforeEach(() => {\n\t\tsetup().then(value => { assert.strictEqual(value, 42); });\n\t});\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('parent', t => {
+  4 | 	t.beforeEach(() => {
+> 5 | 		setup().then(value => { assert.strictEqual(value, 42); });
+    | 		                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
+  6 | 	});
+  7 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(52): import test from 'node:test';\nimport assert from 'node:assert';\ntest.only('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test.only('loads', async () => {
+  4 | 	load().then(value => { assert.strictEqual(value, 42); });
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(52): import test from 'node:test';\nimport assert from 'node:assert';\ntest.only('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test.only('loads', async () => {
+> 4 | 	load().then(value => { assert.strictEqual(value, 42); });
+    | 	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
+  5 | });
+
+Output:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test.only('loads', async () => {
+  4 | 	await load().then(value => { assert.strictEqual(value, 42); });
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(53): import test from 'node:test';\nimport assert from 'node:assert';\ntest({name: 'loads', fn: async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n}}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test({name: 'loads', fn: async () => {
+  4 | 	load().then(value => { assert.strictEqual(value, 42); });
+  5 | }});
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(53): import test from 'node:test';\nimport assert from 'node:assert';\ntest({name: 'loads', fn: async () => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n}}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test({name: 'loads', fn: async () => {
+> 4 | 	load().then(value => { assert.strictEqual(value, 42); });
+    | 	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
+  5 | }});
+
+Output:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test({name: 'loads', fn: async () => {
+  4 | 	await load().then(value => { assert.strictEqual(value, 42); });
+  5 | }});
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(54): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async t => {\n\tload().then(value => { (t as any).assert.strictEqual(value, 42); });\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async t => {
+  4 | 	load().then(value => { (t as any).assert.strictEqual(value, 42); });
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(54): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async t => {\n\tload().then(value => { (t as any).assert.strictEqual(value, 42); });\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async t => {
+> 4 | 	load().then(value => { (t as any).assert.strictEqual(value, 42); });
+    | 	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
+  5 | });
+
+Output:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async t => {
+  4 | 	await load().then(value => { (t as any).assert.strictEqual(value, 42); });
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(55): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\t(load().then(value => { assert.strictEqual(value, 42); }))!;\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	(load().then(value => { assert.strictEqual(value, 42); }))!;
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(55): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\t(load().then(value => { assert.strictEqual(value, 42); }))!;\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+> 4 | 	(load().then(value => { assert.strictEqual(value, 42); }))!;
+    | 	                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
+  5 | });
+
+Output:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	await (load().then(value => { assert.strictEqual(value, 42); }))!;
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(56): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); }) satisfies unknown;\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	load().then(value => { assert.strictEqual(value, 42); }) satisfies unknown;
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(56): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload().then(value => { assert.strictEqual(value, 42); }) satisfies unknown;\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+> 4 | 	load().then(value => { assert.strictEqual(value, 42); }) satisfies unknown;
+    | 	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(57): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\t(load().then(value => { assert.strictEqual(value, 42); }));\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	(load().then(value => { assert.strictEqual(value, 42); }));
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(57): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\t(load().then(value => { assert.strictEqual(value, 42); }));\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+> 4 | 	(load().then(value => { assert.strictEqual(value, 42); }));
+    | 	                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
+  5 | });
+
+Output:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	(await load().then(value => { assert.strictEqual(value, 42); }));
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(58): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload() /* keep */.then(value => { assert.strictEqual(value, 42); });\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	load() /* keep */.then(value => { assert.strictEqual(value, 42); });
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(58): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tload() /* keep */.then(value => { assert.strictEqual(value, 42); });\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+> 4 | 	load() /* keep */.then(value => { assert.strictEqual(value, 42); });
+    | 	                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
+  5 | });
+
+Output:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('loads', async () => {
+  4 | 	await load() /* keep */.then(value => { assert.strictEqual(value, 42); });
+  5 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(59): import {test, getTestContext} from 'node:test';\ntest('parent', async ({assert}) => {\n\tawait getTestContext().test('child', async () => {\n\t\tload().then(value => { assert.ok(value); });\n\t});\n}); 1`] = `
+
+  1 | import {test, getTestContext} from 'node:test';
+  2 | test('parent', async ({assert}) => {
+  3 | 	await getTestContext().test('child', async () => {
+  4 | 		load().then(value => { assert.ok(value); });
+  5 | 	});
+  6 | });
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(59): import {test, getTestContext} from 'node:test';\ntest('parent', async ({assert}) => {\n\tawait getTestContext().test('child', async () => {\n\t\tload().then(value => { assert.ok(value); });\n\t});\n}); 2`] = `
+
+Message:
+  1 | import {test, getTestContext} from 'node:test';
+  2 | test('parent', async ({assert}) => {
+  3 | 	await getTestContext().test('child', async () => {
+> 4 | 		load().then(value => { assert.ok(value); });
+    | 		                       ^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
+  5 | 	});
+  6 | });
+
+Output:
+  1 | import {test, getTestContext} from 'node:test';
+  2 | test('parent', async ({assert}) => {
+  3 | 	await getTestContext().test('child', async () => {
+  4 | 		await load().then(value => { assert.ok(value); });
+  5 | 	});
+  6 | });
 
 `;
 

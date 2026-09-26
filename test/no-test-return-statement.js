@@ -41,6 +41,7 @@ test.snapshot({
 		typed('beforeEach(() => { const value: Promise<void> | undefined = Math.random() > 0.5 ? Promise.resolve() : undefined; return value; });'),
 		typed('beforeEach(() => Promise.resolve());'),
 		typed('test("x", t => { t.test("y", () => Promise.resolve()); });'),
+		typed('test("x", t => { t.test("y", () => { return Promise.resolve(); }); });'),
 		typed('test("x", t => { t.beforeEach(() => Promise.resolve()); });'),
 		typed('test("x", t => { t.beforeEach(() => Promise.resolve(), {timeout: 1000}); });'),
 		typed('test("x", t => { const helper = (t: {beforeEach: (callback: () => {a: number}) => void}) => { t.beforeEach(() => ({a: 1})); }; });'),
@@ -71,6 +72,13 @@ test.snapshot({
 		typed('test("x", () => {});'),
 		typed('before(() => { return; });'),
 		typed('test("x", () => null);'),
+		typed('test("x", () => { return undefined; });'),
+
+		// A suite callback is out of scope: the rule checks test and hook callbacks
+		typedCode('import {describe} from \'node:test\';\ndescribe("s", () => 1);'),
+
+		// A TypeScript wrapper must not hide a returned Promise
+		typed('declare function work(): Promise<void>;\ntest("x", () => work() as Promise<void>);'),
 
 		// Return inside a nested helper, not the test callback
 		typed('test("x", () => { const helper = () => { return 1; }; helper(); });'),
@@ -86,6 +94,7 @@ test.snapshot({
 		typed('test("x", () => { return 42; });'),
 		typed('test("x", () => 42);'),
 		typed('test.skip("x", () => 1);'),
+		typed('test.todo("x", () => 1);'),
 		typed('test("x", {skip: true}, () => 1);'),
 
 		// Returning an object
@@ -106,9 +115,25 @@ test.snapshot({
 		// `it` alias
 		typed('it("x", () => { return 1; });'),
 
+		// The standalone `expectFailure` import is a test function
+		typedCode('import {expectFailure} from \'node:test\';\nexpectFailure("x", () => 1);'),
+		typed('test.expectFailure("x", () => 1);'),
+
+		// A TypeScript wrapper on the returned value must not hide a concrete value
+		typed('test("x", () => (42 as number));'),
+		typed('test("x", () => 42!);'),
+		typed('test("x", () => ({a: 1} satisfies {a: number}));'),
+
+		// Returning a function is a concrete value like any other
+		typed('test("x", () => { return () => {}; });'),
+
+		// The options slot does not change which function is the test body
+		typed('test("x", {expectFailure: true}, () => 1);'),
+
 		// Test context methods
 		typed('test("x", t => { t.test("y", () => 1); });'),
 		typed('test("x", t => { t.test("y", {timeout: 1000}, () => 1); });'),
+		typed('test("x", t => { t.test("y", () => { return 1; }); });'),
 		typed('test("x", t => { t.test.only("y", () => 1); });'),
 		typed('test("x", t => { t.test.skip("y", () => 1); });'),
 		typed('test("x", t => { t.test.todo("y", () => 1); });'),

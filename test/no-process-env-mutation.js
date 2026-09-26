@@ -57,6 +57,15 @@ test.snapshot({
 
 		// Suite (`describe`) bodies are not flagged — only test and subtest callbacks
 		'import {describe} from \'node:test\';\ndescribe(\'s\', () => { process.env.NODE_ENV = \'test\'; });',
+
+		// A mutating call needs an object to mutate
+		inTest('Object.assign();'),
+		// A `for…of` over `process.env` reads it; only the loop target mutates
+		inTest('for (const value of process.env) {}'),
+		// A block-scoped `process` is a different binding than the import
+		'import process from \'node:process\';\nimport test from \'node:test\';\ntest(\'reads config\', () => {\n\tconst process = other;\n\tprocess.env.NODE_ENV = \'production\';\n});',
+		// Hooks are out of scope however they are declared, so `test.beforeEach` too
+		'import test from \'node:test\';\ntest.beforeEach(() => {\n\tprocess.env.NODE_ENV = \'production\';\n});',
 	],
 	invalid: [
 		// A subtest's options object is evaluated inside the parent test's callback, so a mutation
@@ -144,5 +153,29 @@ test.snapshot({
 		// `process.env` is a truthy object, so a defensive fallback still evaluates to it
 		inTest('const environment = process.env ?? {};\nenvironment.NODE_ENV = \'production\';'),
 		inTest('const environment = process.env || {};\nenvironment.NODE_ENV = \'production\';'),
+
+		// A template literal with no expressions is a static key too
+		inTest('process.env[`NODE_ENV`] = \'production\';'),
+		// Destructuring binds the environment object just as an alias does, defaulted or not
+		inTest('const {env = {}} = process;\nenv.NODE_ENV = \'production\';'),
+		inTest('const {env} = process;\nenv.NODE_ENV = \'production\';'),
+		// A rest element in a destructuring target writes into the environment object
+		inTest('[...process.env] = values;'),
+		// A logical assignment is still an assignment to the member
+		inTest('process.env.NODE_ENV ||= \'production\';'),
+		// A delete through an alias is still a delete of the environment
+		inTest('const environment = process.env;\ndelete environment.NODE_ENV;'),
+		{
+			code: inTest('process!.env.NODE_ENV = \'production\';'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: inTest('(process.env satisfies Record<string, string>).NODE_ENV = \'production\';'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: inTest('Object.assign(process.env as NodeJS.ProcessEnv, values);'),
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

@@ -54,14 +54,15 @@ function hasGetterDeclaration(node, name) {
 	));
 }
 
-/** Get the value a `Variable` definition is initialized with. */
+/** Get the value a `Variable` definition is initialized with, which a declaration without one does not have. */
 function getDefinitionValue(definitionNode) {
 	return definitionNode.type === 'VariableDeclarator' ? definitionNode.init : definitionNode;
 }
 
 /** Get the class a `new C()` expression constructs, when it is resolvable. */
 function getConstructedClass(node, sourceCode) {
-	if (node.type !== 'NewExpression' || node.callee.type !== 'Identifier') {
+	// A `let a;` declares the variable with no initializer, so there is no expression here at all.
+	if (node?.type !== 'NewExpression' || node.callee.type !== 'Identifier') {
 		return undefined;
 	}
 

@@ -101,6 +101,23 @@ test.snapshot({
 		withAssert('assert.doesNotReject(async () => await operation());'),
 		withAssert('assert.throws(async () => await operation());'),
 		withAssert('assert[\'rejects\'](async () => await operation());'),
+
+		// Only the first argument is the operation. In the Promise form the async callback is the
+		// error validator, which the runner awaits separately.
+		withAssert('async function operation() {}\nassert.rejects(operation(), async () => { await operation(); });'),
+
+		// A defaulted parameter is still a parameter, so the callback receives the error.
+		withAssert('async function operation() {}\nassert.rejects(async (error = fallback) => await operation());'),
+
+		// A `this` parameter counts as a parameter too.
+		{
+			code: withAssert('assert.rejects(async function (this: unknown) { await operation(); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// A recursive alias is not a built-in Promise, and the recursion guard keeps the walk over
+		// its members from never ending.
+		typed('type Recursive = Promise<void> | {next: Recursive};\ndeclare const operation: () => Recursive;\nassert.rejects(async () => await operation());'),
 	],
 	invalid: [
 		{
@@ -232,6 +249,16 @@ test.snapshot({
 		{
 			code: withAssert('assert.rejects(async function (): Promise<void> { return await operation(); });'),
 			languageOptions: {parser: parsers.typescript},
+		},
+		// The Promise need not be the first intersection member.
+		{
+			code: withAssert('assert.rejects(async () => await operation());'),
+			operationType: '{readonly brand: true} & Promise<void>',
+		},
+		// A defaulted context parameter still names the test context.
+		{
+			code: withTest('async function operation() {}\ntest(\'t\', (t = undefined) => {\n\tt.assert.rejects(async () => await operation());\n});'),
+			withoutTypes: true,
 		},
 	].map(testCase => typedOperation(testCase)),
 });

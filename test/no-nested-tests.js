@@ -24,8 +24,16 @@ test.snapshot({
 		'import test, {before} from "node:test";\ntest("a", () => {\n  before(() => {});\n});',
 		// A bare `test` package is not Node's test runner.
 		'import test from "test";\ntest("outer", () => {\n  test("inner", () => {});\n});',
+		// A subtest is created through the context, not by a nested `test()` call.
+		'import test from "node:test";\ntest("a", async t => {\n  await t.test("b", () => {});\n});',
 	],
 	invalid: [
+		// A callback the call names out of line is still the test's body, wherever it is declared
+		'import test from "node:test";\nconst body = () => {\n  test("inner", () => {});\n};\ntest("outer", body);',
+		'import test from "node:test";\ntest("outer", body);\nfunction body() {\n  test("inner", () => {});\n}',
+		'import {test, describe} from "node:test";\nconst body = () => {\n  describe("inner", () => {});\n};\ntest("outer", body);',
+		'import test from "node:test";\nconst body = () => {\n  test("inner", () => {});\n};\ntest({name: "outer", fn: body});',
+
 		// Basic nesting: test inside test
 		'import test from "node:test";\ntest("outer", () => {\n  test("inner", () => {});\n});',
 		// It inside test
@@ -44,5 +52,11 @@ test.snapshot({
 		'import test from "node:test";\ntest("outer", {timeout: 1}, () => {\n  test("inner", () => {});\n});',
 		// A hook's trailing options must not hide a nested test in a test body
 		'import test from "node:test";\ntest("outer", () => {\n  test("inner", {}, () => {});\n});',
+		// The object descriptor form nests just the same
+		'import {test} from "node:test";\ntest({name: "a", fn() {\n  test("b", () => {});\n}});',
+		// A helper defined inside a test body still runs inside it
+		'import test from "node:test";\ntest("outer", () => {\n  const register = () => { test("inner", () => {}); };\n  register();\n});',
+		// A suite in a test body containing a test: the suite and the test are both reported
+		'import test, {describe} from "node:test";\ntest("outer", () => {\n  describe("s", () => {\n    test("inner", () => {});\n  });\n});',
 	],
 });

@@ -560,6 +560,38 @@ Message:
 
 `;
 
+exports[`no-duplicate-plan > invalid(40): import {test, getTestContext} from 'node:test';\ntest('t', () => { (getTestContext() as any).plan(1); (getTestContext() as any).plan(2); }); 1`] = `
+
+  1 | import {test, getTestContext} from 'node:test';
+  2 | test('t', () => { (getTestContext() as any).plan(1); (getTestContext() as any).plan(2); });
+
+`;
+
+exports[`no-duplicate-plan > invalid(40): import {test, getTestContext} from 'node:test';\ntest('t', () => { (getTestContext() as any).plan(1); (getTestContext() as any).plan(2); }); 2`] = `
+
+Message:
+  1 | import {test, getTestContext} from 'node:test';
+> 2 | test('t', () => { (getTestContext() as any).plan(1); (getTestContext() as any).plan(2); });
+    |                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not call \`getTestContext().plan()\` more than once in the same test.
+
+`;
+
+exports[`no-duplicate-plan > invalid(41): import {test, getTestContext} from 'node:test';\ntest('x', {plan: 1}, () => { getTestContext().plan(1); }); 1`] = `
+
+  1 | import {test, getTestContext} from 'node:test';
+  2 | test('x', {plan: 1}, () => { getTestContext().plan(1); });
+
+`;
+
+exports[`no-duplicate-plan > invalid(41): import {test, getTestContext} from 'node:test';\ntest('x', {plan: 1}, () => { getTestContext().plan(1); }); 2`] = `
+
+Message:
+  1 | import {test, getTestContext} from 'node:test';
+> 2 | test('x', {plan: 1}, () => { getTestContext().plan(1); });
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^^ Do not call \`getTestContext().plan()\` when this test already has a \`plan\` option.
+
+`;
+
 exports[`no-duplicate-plan > invalid(5): import {todo} from 'node:test';\ntodo(\"x\", t => { t.plan(1); t.plan(2); }); 1`] = `
 
   1 | import {todo} from 'node:test';

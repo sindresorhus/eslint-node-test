@@ -42,6 +42,12 @@ test.snapshot({
 		// Arrow callback with an expression body (implicit return)
 		withImport('describe("s", () => test("x", () => {}));'),
 
+		// Extra parentheses around the callback do not hide the expression body
+		withImport('describe("s", (() => test("x", () => {})));'),
+
+		// A `void` expression body is still an implicit return of a value
+		withImport('describe("s", () => void test("x", () => {}));'),
+
 		// A context parameter does not excuse an implicit return
 		withImport('describe("s", t => test("x", () => {}));'),
 

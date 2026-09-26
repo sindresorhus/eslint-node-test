@@ -55,9 +55,15 @@ test.snapshot({
 		// rather than a compound assertion
 		withTest('test(\'t\', ({assert}) => { assert.strict.ok(a && b); });'),
 		withTest('test(\'t\', ({assert}) => { assert.strict.equal(a, b); });'),
+
+		// A destructured `assert` parameter on an ordinary function is that function's own object
+		withAssert('function helper({assert}) {\n\tassert.ok(a && b);\n}'),
 	],
 	invalid: [
 		withTest('test(\'t\', ({assert}) => { assert.ok(a && b); });'),
+		// A destructured context `assert` receiver is split like any other
+		withTest('test(\'t\', ({assert}) => {\n\tassert.ok(a && b);\n});'),
+		withTest('test(\'t\', ({assert: {ok}}) => {\n\tok(a && b);\n});'),
 		// A class static block is a plain statement list, so the split applies there too
 		'import test from \'node:test\';\nimport assert from \'node:assert\';\n\nclass A {\n\tstatic {\n\t\tassert.ok(x > 0 && x < 5);\n\t}\n}',
 		'import {beforeEach} from \'node:test\';\nbeforeEach(({assert}) => { assert.ok(a && b); });',
@@ -106,6 +112,7 @@ test.snapshot({
 		withAssertNamespace('assert.ok(a && b);'),
 		withStrictNamedImport('assert.ok(a && b);'),
 		withStrictImport('strict.ok(a && b);'),
+		withAssert('assert.strict.ok(a && b);'),
 
 		// Nested chains are split into one assertion per operand.
 		withAssert('assert.ok(a && b && c);'),
@@ -127,6 +134,10 @@ test.snapshot({
 		withHook('beforeEach(t => {\n\tt.assert.ok(a && b);\n});'),
 		withTestNamespace('nodeTest.beforeEach(t => {\n\tt.assert.ok(a && b);\n});'),
 
+		// A `getTestContext()` receiver names the same context the parameter would.
+		'import {test, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\n'
+		+ 'test(\'t\', () => {\n\tgetTestContext().assert.ok(a && b);\n});',
+
 		// Custom message — reported without a fix.
 		withAssert('assert.ok(a && b, "should match");'),
 
@@ -141,6 +152,9 @@ test.snapshot({
 
 		// Standalone, but not at the start of a line — reported without a fix.
 		withTest('test(\'t\', t => { t.assert.ok(a && b); });'),
+
+		// Ends its line, but still not at the start of one, so there is no indent to split on.
+		withAssert('if (enabled) { assert.ok(a && b);\n}'),
 
 		// Braceless control-flow body — reported without a fix.
 		withAssert('if (enabled)\n\tassert.ok(a && b);'),

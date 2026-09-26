@@ -19,6 +19,10 @@ test.snapshot({
 
 		// `mock` not imported from node:test
 		'import test from \'node:test\';\nimport {mock} from \'./local.js\';\nmock.fn();',
+		'import test from \'node:test\';\nmock.fn();',
+
+		// A computed member is not read as an accessor
+		withImport('mock[\'fn\']();'),
 
 		// Shadowed import name
 		withImport('function helper(mock) {\n\tmock.fn();\n}\nhelper(localMock);'),
@@ -39,6 +43,12 @@ test.snapshot({
 
 		// Global mock timers
 		withImport('mock.timers.enable({apis: ["setTimeout"]});'),
+
+		// The accessor further down the chain is still the state-creating one
+		withImport('mock.fn.call(obj, 1);'),
+		// Only the `enable` call is state-creating, so the chained `tick` is left alone
+		withImport('mock.timers.enable({apis: ["setTimeout"]}).tick(1);'),
+		withImport('(mock.timers.enable)();'),
 
 		// Inside a test but still using the global
 		withImport('test("a", t => { mock.method(obj, "fn"); });'),

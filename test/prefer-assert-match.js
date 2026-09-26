@@ -52,6 +52,23 @@ test.snapshot({
 		// Str.match() missing argument
 		`${ASSERT_IMPORT}\nassert.ok(str.match());`,
 
+		// A computed member is not read as `.test()`/`.match()`, so there is nothing to rewrite
+		`${ASSERT_IMPORT}\nassert.ok(re['test']('foo'));`,
+		`${ASSERT_IMPORT}\nassert.ok(str['match'](/\\d+/));`,
+
+		// A spread argument hides the subject, so the call cannot be rewritten
+		`${ASSERT_IMPORT}\nassert.ok(re.test(...args));`,
+		`${ASSERT_IMPORT}\nassert.ok(str.match(...args));`,
+
+		// Assert.ok() has no argument to inspect
+		`${ASSERT_IMPORT}\nassert.ok();`,
+
+		// A second `!` is not a negation of the match result
+		`${ASSERT_IMPORT}\nassert.ok(!!/\\d+/.test('foo'));`,
+
+		// The equality forms need both a regex call and a boolean literal
+		`${ASSERT_IMPORT}\nassert.strictEqual(/\\d+/.test('foo'));`,
+
 		// `String#search` returns an index, not a boolean — incompatible polarity, so not rewritten
 		`${ASSERT_IMPORT}\nassert.ok(str.search(/\\d+/));`,
 
@@ -116,6 +133,31 @@ test.snapshot({
 		// Named import: `ok`
 		`${NAMED_IMPORT}\nok(/\\d+/.test('foo'));`,
 
+		// Named import: the callee is an identifier, so the assertion method cannot be renamed
+		`${NAMED_IMPORT}\nstrictEqual(/\\d+/.test('foo'), true);`,
+
+		// A negation around a parenthesized call: the rewrite replaces the whole argument, so the
+		// inner parentheses go with it
+		`${ASSERT_IMPORT}\nassert.ok(!(/\\d+/.test('foo')));`,
+
+		// A message argument stays in place after the rewrite
+		`${ASSERT_IMPORT}\nassert.ok(/\\d+/.test('foo'), 'should match');`,
+		`${ASSERT_IMPORT}\nassert.strictEqual(/\\d+/.test('foo'), true, 'should match');`,
+
+		// `typeof` is the one unary operator that yields a string, so the subject is fixable
+		`${ASSERT_IMPORT}\nassert.ok(/a/.test(typeof value));`,
+
+		// Reported but not fixed: `re.test(x)` coerces `x`, while `assert.match(x, re)` throws
+		`${ASSERT_IMPORT}\nassert.ok(/a/.test(Infinity));`,
+		`${ASSERT_IMPORT}\nassert.ok(/a/.test(function () {}));`,
+
+		// The `false` polarity of the remaining equality methods
+		`${ASSERT_IMPORT}\nassert.equal(/\\d+/.test('foo'), false);`,
+		`${ASSERT_IMPORT}\nassert.notEqual(/\\d+/.test('foo'), false);`,
+
+		// `assert` destructured off the test context
+		'import test from \'node:test\';\ntest(\'t\', ({assert: {ok}}) => { ok(/\\d+/.test(\'foo\')); });',
+
 		// T.assert.match pattern
 		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'t\', t => { t.assert.ok(/\\d+/.test(\'foo\')); });',
 
@@ -148,5 +190,9 @@ assert.strictEqual(/\d+/.test('foo'), (true));`,
 		ASSERT_IMPORT + '\nassert.ok(/d/.test(NaN));',
 		ASSERT_IMPORT + '\nassert.ok(/d/.test(-0));',
 		ASSERT_IMPORT + '\nassert.ok(/d/.test(() => {}));',
+		ASSERT_IMPORT + '\nassert.ok(/ell/.test(Buffer.from("hello")));',
+		ASSERT_IMPORT + '\nassert.ok(/a/.test(JSON.parse(body)));',
+		ASSERT_IMPORT + '\nassert.ok(/class/.test(class Foo {}));',
+		ASSERT_IMPORT + '\nassert.ok(/a/.test(value = {}));',
 	],
 });

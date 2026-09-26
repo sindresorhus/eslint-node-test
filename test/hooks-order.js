@@ -33,6 +33,13 @@ test.snapshot({
 		'import * as nodeTest from "node:test";\nnodeTest.before(() => {});\nnodeTest.beforeEach(() => {});',
 		// Hooks used as a sub-expression (not bare statements) are unsupported, so not ordered
 		withImport('before, after', 'const a = after(() => {});\nconst b = before(() => {});'),
+		// A hook under a value-discarding operator is not a bare statement either
+		withImport('before, after', 'await after(() => {});\nawait before(() => {});'),
+		withImport('before, after', 'void after(() => {});\nvoid before(() => {});'),
+		// Only a hook on a tracked test context has the canonical order
+		'import {test} from \'node:test\';\ntest(\'p\', t => { foo.afterEach(() => {}); foo.beforeEach(() => {}); });',
+		// A suite context has no hook methods, so these calls are not hook declarations
+		withImport('describe', 'describe(\'s\', s => { s.afterEach(() => {}); s.beforeEach(() => {}); });'),
 	],
 	invalid: [
 		// Every statement list a hook can be declared in: a class static block, a bare `switch` case,
@@ -40,7 +47,15 @@ test.snapshot({
 		'import {after, before} from \'node:test\';\nclass A {\n\tstatic {\n\t\tafter(() => {});\n\t\tbefore(() => {});\n\t}\n}',
 		'import {afterEach, before} from \'node:test\';\nswitch (value) {\n\tcase 1:\n\t\tafterEach(() => {});\n\t\tbefore(() => {});\n\t\tbreak;\n}',
 		'import {after, before} from \'node:test\';\nswitch (value) {\n\tcase 1: {\n\t\tafter(() => {});\n\t\tbefore(() => {});\n\t}\n}',
+		withImport('after, afterEach, beforeEach, before', 'switch (value) {\n\tcase 1:\n\t\tafter(() => {});\n\t\tafterEach(() => {});\n\t\tbeforeEach(() => {});\n\t\tbefore(() => {});\n}'),
 		'import {after, before} from \'node:test\';\nclass A {\n\tstatic {\n\t\tafter(() => {});\n\t\twork();\n\t\tbefore(() => {});\n\t}\n}',
+
+		// Every statement list is an ordering scope, not only a suite body
+		'import {before, after} from \'node:test\';\nif (ready) {\n\tafter(() => {});\n\tbefore(() => {});\n}',
+		'import {before, after} from \'node:test\';\nfor (const item of items) {\n\tafter(() => {});\n\tbefore(() => {});\n}',
+		'import {before, after} from \'node:test\';\nfunction register() {\n\tafter(() => {});\n\tbefore(() => {});\n}',
+		// Same-named hooks keep their relative order, so the fix sorts them stably
+		'import {before, after} from \'node:test\';\nbefore(() => {});\nafter(() => {});\nbefore(() => {});',
 
 		// After before before
 		withImport('before, after', 'after(() => {});\nbefore(() => {});'),
@@ -87,6 +102,7 @@ test.snapshot({
 
 		// A hook declared through `getTestContext()` is the same hook
 		'import {test, getTestContext} from \'node:test\';\ntest(\'p\', t => { getTestContext().afterEach(() => {}); getTestContext().beforeEach(() => {}); });',
+		'import {test} from \'node:test\';\ntest(\'p\', t => { if (ready) { t.afterEach(() => {}); t.beforeEach(() => {}); } });',
 
 		// A statement written as `(hook(…))` continues the expression above it once the two are
 		// adjacent, so the reorder gives it a leading semicolon

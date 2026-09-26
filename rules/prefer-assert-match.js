@@ -130,6 +130,24 @@ parentheses on either would be left behind as stray tokens.
 primitive and throws otherwise. When the subject is statically known not to be a string, the rewrite
 would turn a passing assertion into a thrown one, so it is reported but not fixed.
 */
+/*
+Calls whose result is never a string primitive, so a subject built from one is a non-string. Any other
+call may return a string, which is left to the runtime like any other unknown expression.
+*/
+const NON_STRING_CALL_METHODS = new Map([
+	['Buffer', new Set(['from', 'alloc', 'concat'])],
+	['JSON', new Set(['parse'])],
+]);
+
+/** Whether the callee is a call this plugin knows never returns a string primitive. */
+function isNonStringCall(callee) {
+	if (callee.type !== 'MemberExpression' || callee.computed || callee.object.type !== 'Identifier') {
+		return false;
+	}
+
+	return NON_STRING_CALL_METHODS.get(callee.object.name)?.has(callee.property.name) ?? false;
+}
+
 function isStaticallyNonString(node) {
 	node = unwrapTypeScriptExpression(node);
 	if (node.type === 'Literal') {
@@ -143,6 +161,21 @@ function isStaticallyNonString(node) {
 	// Every unary operator yields a non-string except `typeof`, which yields a string.
 	if (node.type === 'UnaryExpression') {
 		return node.operator !== 'typeof';
+	}
+
+	// An assignment evaluates to its right-hand side.
+	if (node.type === 'AssignmentExpression') {
+		const right = unwrapTypeScriptExpression(node.right);
+		return right.type !== 'Literal' || typeof right.value !== 'string';
+	}
+
+	// A class expression is a constructor, never a string.
+	if (node.type === 'ClassExpression') {
+		return true;
+	}
+
+	if (node.type === 'CallExpression' && isNonStringCall(node.callee)) {
+		return true;
 	}
 
 	return node.type === 'ArrayExpression'

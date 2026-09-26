@@ -26,6 +26,8 @@ test.snapshot({
 		withImport('function helper() {\n\ttest("a", () => {});\n}\nbeforeEach(() => {});'),
 		withImport('const helper = () => { test("a", () => {}); };\nbeforeEach(() => {});'),
 		withImport('function helper() {\n\ttest("a", () => {});\n}\nfunction other() {\n\tbeforeEach(() => {});\n}'),
+		// A nested suite has its own order, so a test outside it says nothing about its hooks
+		withImport('test("a", () => {});\ndescribe("s", () => {\n\tbeforeEach(() => {});\n\tit("b", () => {});\n});'),
 	],
 	invalid: [
 		// Hook after a test at the top level
@@ -39,6 +41,13 @@ test.snapshot({
 
 		// Hook after a nested describe
 		withImport('describe("s", () => {});\nbefore(() => {});'),
+		withImport('describe("outer", () => { describe("inner", () => {}); after(() => {}); });'),
+
+		// Two hooks out of order, one after each of two tests
+		withImport('test("a", () => {});\nafter(() => {});\ntest("b", () => {});\nbefore(() => {});'),
+
+		// A hook declared on the `test` binding is the same hook
+		'import test from \'node:test\';\ntest("a", () => {});\ntest.beforeEach(() => {});',
 
 		// Inner-scope violation only (outer hook is fine)
 		withImport('beforeEach(() => {});\ndescribe("s", () => {\n\tit("a", () => {});\n\tafter(() => {});\n});'),

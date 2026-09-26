@@ -36,6 +36,25 @@ test.snapshot({
 		// Explicitly enabling no APIs is a no-op
 		withImport('test(\'title\', t => { t.mock.timers.enable({apis: []}); });'),
 
+		// Only the enabled list matters, so a spread that comes before it does not hide it
+		withImport('test(\'title\', t => { t.mock.timers.enable({...config, apis: [\'Date\']}); Date.now(); });'),
+		// A computed `apis` key is still that key
+		withImport('test(\'title\', t => { t.mock.timers.enable({\'apis\': [\'Date\']}); Date.now(); });'),
+
+		// The rule only looks inside a test, hook, or subtest callback, so a module-level enable
+		// has no callback to be followed by an advance
+		withImport('mock.timers.enable({apis: [\'setTimeout\']});'),
+
+		// One later advance satisfies every earlier enable; the rule does not pair them up
+		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'setTimeout\']}); t.mock.timers.enable({apis: [\'setImmediate\']}); t.mock.timers.tick(1); });'),
+
+		// The analysis is source order only: it does not prove an advance is reachable
+		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'setTimeout\']}); if (condition) { t.mock.timers.tick(1); } });'),
+		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'setTimeout\']}); try { work(); } finally { t.mock.timers.tick(1); } });'),
+
+		// A computed subtest call is not a context call, so the subtest body is not a scope
+		withImport('test(\'title\', t => { t[\'test\'](\'inner\', inner => { inner.mock.timers.enable({apis: [\'setTimeout\']}); }); });'),
+
 		// Global mock forms
 		withImport('test(\'title\', () => { mock.timers.enable({apis: [\'setTimeout\']}); mock.timers.runAll(); });'),
 		withImport('test(\'title\', () => { mock.timers.enable({apis: [\'setTimeout\']}); test.mock.timers.tick(100); });'),
@@ -125,11 +144,22 @@ test.snapshot({
 		// Calls inside enable() arguments do not count as later usage
 		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'setTimeout\'], now: t.mock.timers.tick(1)}); });'),
 		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'setTimeout\'], now: t.mock.timers.runAll()}); });'),
+		// The other way round, an enable nested in the advance's arguments is not advanced either
+		withImport('test(\'title\', t => { t.mock.timers.tick(t.mock.timers.enable({apis: [\'setTimeout\']})); });'),
 
 		// Dynamic or overridden apis are treated as timer APIs
 		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'Date\'], apis: [\'setTimeout\']}); Date.now(); });'),
 		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'Date\'], ...options}); Date.now(); });'),
 		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'Date\'], [apiName]: [\'setTimeout\']}); Date.now(); });'),
+		withImport('test(\'title\', t => { t.mock.timers.enable({apis: enabledApis}); });'),
+		// A list that is only partly known proves nothing, so it is treated as timer APIs
+		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'Date\', extraApi]}); Date.now(); });'),
+
+		// The object descriptor form is a test scope too
+		withImport('test({name: \'title\', fn(t) { t.mock.timers.enable({apis: [\'setTimeout\']}); }});'),
+
+		// A subtest has a tracker of its own, so its advance does not advance the parent's timers
+		withImport('test(\'outer\', t => { t.mock.timers.enable({apis: [\'setTimeout\']}); t.test(\'inner\', t => { t.mock.timers.tick(1); }); });'),
 
 		// Global mock forms
 		withImport('test(\'title\', () => { mock.timers.enable({apis: [\'setTimeout\']}); });'),

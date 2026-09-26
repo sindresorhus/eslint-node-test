@@ -69,6 +69,12 @@ test.snapshot({
 
 		// Array callback iteration is intentionally out of scope for this narrow rule.
 		withTest('items.forEach(item => { t.assert.snapshot(item); });'),
+
+		// A suite callback is not a test context, so there is no positional snapshot to shift.
+		'import {describe} from \'node:test\';\ndescribe(\'s\', () => { for (const item of items) { t.assert.snapshot(item); } });',
+
+		// Outside every tracked callback, `t` is just a name.
+		'import test from \'node:test\';\nfor (const item of items) { t.assert.snapshot(item); }',
 	],
 	invalid: [
 		// `getTestContext()` is the same context, so its snapshot is the test's own
@@ -145,5 +151,29 @@ test.snapshot({
 
 		// Defaulted context parameter.
 		'import test from \'node:test\';\ntest(\'t\', (t = undefined) => { for (const item of items) { t.assert.snapshot(item); } });',
+
+		// Nested loops report once, at the single snapshot call.
+		withTest('for (const item of items) { for (const other of others) { t.assert.snapshot(item); } }'),
+
+		// A `switch` between the loop and the call does not hide the snapshot.
+		withTest('for (const item of items) { switch (item.kind) { case \'a\': t.assert.snapshot(item); } }'),
+
+		// Two tests with a loop each report twice.
+		'import test from \'node:test\';\ntest(\'a\', t => { for (const item of items) { t.assert.snapshot(item); } });\ntest(\'b\', t => { for (const item of items) { t.assert.snapshot(item); } });',
+
+		// A `satisfies` on the assert object does not hide the member chain.
+		{
+			code: withTest('for (const item of items) { (t.assert satisfies Assert).snapshot(item); }'),
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// A type assertion on the `getTestContext()` call.
+		{
+			code: withTestContext('for (const item of items) { (getTestContext() as TestContext).assert.snapshot(item); }'),
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// An optional call on the snapshot method.
+		withTest('for (const item of items) { t.assert?.snapshot?.(item); }'),
 	],
 });

@@ -16,7 +16,43 @@ Message:
 
 `;
 
-exports[`no-standalone-assert > invalid(10): import test from 'node:test';\nimport assert from 'node:assert';\nclass C { static { assert.ok(value); } } 1`] = `
+exports[`no-standalone-assert > invalid(10): import test from 'node:test';\nimport assert from 'node:assert';\nassert?.ok(value); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | assert?.ok(value);
+
+`;
+
+exports[`no-standalone-assert > invalid(10): import test from 'node:test';\nimport assert from 'node:assert';\nassert?.ok(value); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | assert?.ok(value);
+    | ^^^^^^^^^^^^^^^^^ Assertion runs when the module is loaded, not as part of a test. Move it into a test or hook.
+
+`;
+
+exports[`no-standalone-assert > invalid(11): import test from 'node:test';\nimport assert from 'node:assert';\nclass C { static field = assert.ok(value); } 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | class C { static field = assert.ok(value); }
+
+`;
+
+exports[`no-standalone-assert > invalid(11): import test from 'node:test';\nimport assert from 'node:assert';\nclass C { static field = assert.ok(value); } 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | class C { static field = assert.ok(value); }
+    |                          ^^^^^^^^^^^^^^^^ Assertion runs when the module is loaded, not as part of a test. Move it into a test or hook.
+
+`;
+
+exports[`no-standalone-assert > invalid(12): import test from 'node:test';\nimport assert from 'node:assert';\nclass C { static { assert.ok(value); } } 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -24,7 +60,7 @@ exports[`no-standalone-assert > invalid(10): import test from 'node:test';\nimpo
 
 `;
 
-exports[`no-standalone-assert > invalid(10): import test from 'node:test';\nimport assert from 'node:assert';\nclass C { static { assert.ok(value); } } 2`] = `
+exports[`no-standalone-assert > invalid(12): import test from 'node:test';\nimport assert from 'node:assert';\nclass C { static { assert.ok(value); } } 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -106,7 +142,43 @@ Message:
 
 `;
 
-exports[`no-standalone-assert > invalid(6): import * as nodeTest from 'node:test';\nimport * as assert from 'node:assert';\nassert.ok(value); 1`] = `
+exports[`no-standalone-assert > invalid(6): import test from 'node:test';\nimport {strict as nodeAssert} from 'node:assert';\nnodeAssert.equal(a, b); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import {strict as nodeAssert} from 'node:assert';
+  3 | nodeAssert.equal(a, b);
+
+`;
+
+exports[`no-standalone-assert > invalid(6): import test from 'node:test';\nimport {strict as nodeAssert} from 'node:assert';\nnodeAssert.equal(a, b); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import {strict as nodeAssert} from 'node:assert';
+> 3 | nodeAssert.equal(a, b);
+    | ^^^^^^^^^^^^^^^^^^^^^^ Assertion runs when the module is loaded, not as part of a test. Move it into a test or hook.
+
+`;
+
+exports[`no-standalone-assert > invalid(7): import test from 'node:test';\nimport assert from 'node:assert';\nvoid assert.ok(value); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | void assert.ok(value);
+
+`;
+
+exports[`no-standalone-assert > invalid(7): import test from 'node:test';\nimport assert from 'node:assert';\nvoid assert.ok(value); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+> 3 | void assert.ok(value);
+    |      ^^^^^^^^^^^^^^^^ Assertion runs when the module is loaded, not as part of a test. Move it into a test or hook.
+
+`;
+
+exports[`no-standalone-assert > invalid(8): import * as nodeTest from 'node:test';\nimport * as assert from 'node:assert';\nassert.ok(value); 1`] = `
 
   1 | import * as nodeTest from 'node:test';
   2 | import * as assert from 'node:assert';
@@ -114,7 +186,7 @@ exports[`no-standalone-assert > invalid(6): import * as nodeTest from 'node:test
 
 `;
 
-exports[`no-standalone-assert > invalid(6): import * as nodeTest from 'node:test';\nimport * as assert from 'node:assert';\nassert.ok(value); 2`] = `
+exports[`no-standalone-assert > invalid(8): import * as nodeTest from 'node:test';\nimport * as assert from 'node:assert';\nassert.ok(value); 2`] = `
 
 Message:
   1 | import * as nodeTest from 'node:test';
@@ -124,7 +196,7 @@ Message:
 
 `;
 
-exports[`no-standalone-assert > invalid(7): import test from 'node:test';\nimport assert from 'node:assert';\nassert.ok(value as boolean); 1`] = `
+exports[`no-standalone-assert > invalid(9): import test from 'node:test';\nimport assert from 'node:assert';\nassert.ok(value as boolean); 1`] = `
 
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
@@ -132,48 +204,12 @@ exports[`no-standalone-assert > invalid(7): import test from 'node:test';\nimpor
 
 `;
 
-exports[`no-standalone-assert > invalid(7): import test from 'node:test';\nimport assert from 'node:assert';\nassert.ok(value as boolean); 2`] = `
+exports[`no-standalone-assert > invalid(9): import test from 'node:test';\nimport assert from 'node:assert';\nassert.ok(value as boolean); 2`] = `
 
 Message:
   1 | import test from 'node:test';
   2 | import assert from 'node:assert';
 > 3 | assert.ok(value as boolean);
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion runs when the module is loaded, not as part of a test. Move it into a test or hook.
-
-`;
-
-exports[`no-standalone-assert > invalid(8): import test from 'node:test';\nimport assert from 'node:assert';\nassert?.ok(value); 1`] = `
-
-  1 | import test from 'node:test';
-  2 | import assert from 'node:assert';
-  3 | assert?.ok(value);
-
-`;
-
-exports[`no-standalone-assert > invalid(8): import test from 'node:test';\nimport assert from 'node:assert';\nassert?.ok(value); 2`] = `
-
-Message:
-  1 | import test from 'node:test';
-  2 | import assert from 'node:assert';
-> 3 | assert?.ok(value);
-    | ^^^^^^^^^^^^^^^^^ Assertion runs when the module is loaded, not as part of a test. Move it into a test or hook.
-
-`;
-
-exports[`no-standalone-assert > invalid(9): import test from 'node:test';\nimport assert from 'node:assert';\nclass C { static field = assert.ok(value); } 1`] = `
-
-  1 | import test from 'node:test';
-  2 | import assert from 'node:assert';
-  3 | class C { static field = assert.ok(value); }
-
-`;
-
-exports[`no-standalone-assert > invalid(9): import test from 'node:test';\nimport assert from 'node:assert';\nclass C { static field = assert.ok(value); } 2`] = `
-
-Message:
-  1 | import test from 'node:test';
-  2 | import assert from 'node:assert';
-> 3 | class C { static field = assert.ok(value); }
-    |                          ^^^^^^^^^^^^^^^^ Assertion runs when the module is loaded, not as part of a test. Move it into a test or hook.
 
 `;

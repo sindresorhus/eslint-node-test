@@ -118,6 +118,54 @@ Message:
 
 `;
 
+exports[`no-duplicate-hooks > invalid(16): import {test, beforeEach} from 'node:test';\ntest('p', t => { beforeEach(() => {}); t.beforeEach(() => {}); }); 1`] = `
+
+  1 | import {test, beforeEach} from 'node:test';
+  2 | test('p', t => { beforeEach(() => {}); t.beforeEach(() => {}); });
+
+`;
+
+exports[`no-duplicate-hooks > invalid(16): import {test, beforeEach} from 'node:test';\ntest('p', t => { beforeEach(() => {}); t.beforeEach(() => {}); }); 2`] = `
+
+Message:
+  1 | import {test, beforeEach} from 'node:test';
+> 2 | test('p', t => { beforeEach(() => {}); t.beforeEach(() => {}); });
+    |                                        ^^^^^^^^^^^^^^^^^^^^^^ Duplicate \`beforeEach\` hook in the same scope.
+
+`;
+
+exports[`no-duplicate-hooks > invalid(17): import {test, afterEach} from 'node:test';\ntest('p', t => { afterEach(() => {}); t.afterEach(() => {}); }); 1`] = `
+
+  1 | import {test, afterEach} from 'node:test';
+  2 | test('p', t => { afterEach(() => {}); t.afterEach(() => {}); });
+
+`;
+
+exports[`no-duplicate-hooks > invalid(17): import {test, afterEach} from 'node:test';\ntest('p', t => { afterEach(() => {}); t.afterEach(() => {}); }); 2`] = `
+
+Message:
+  1 | import {test, afterEach} from 'node:test';
+> 2 | test('p', t => { afterEach(() => {}); t.afterEach(() => {}); });
+    |                                       ^^^^^^^^^^^^^^^^^^^^^ Duplicate \`afterEach\` hook in the same scope.
+
+`;
+
+exports[`no-duplicate-hooks > invalid(18): import {test, before} from 'node:test';\ntest('p', async t => { await t.test('a'); before(() => {}); before(() => {}); }); 1`] = `
+
+  1 | import {test, before} from 'node:test';
+  2 | test('p', async t => { await t.test('a'); before(() => {}); before(() => {}); });
+
+`;
+
+exports[`no-duplicate-hooks > invalid(18): import {test, before} from 'node:test';\ntest('p', async t => { await t.test('a'); before(() => {}); before(() => {}); }); 2`] = `
+
+Message:
+  1 | import {test, before} from 'node:test';
+> 2 | test('p', async t => { await t.test('a'); before(() => {}); before(() => {}); });
+    |                                                             ^^^^^^^^^^^^^^^^ Duplicate \`before\` hook in the same scope.
+
+`;
+
 exports[`no-duplicate-hooks > invalid(2): import {describe, before} from 'node:test';\nfunction d1() { before(() => {}); before(() => {}); }\ndescribe('a', d1); 1`] = `
 
   1 | import {describe, before} from 'node:test';

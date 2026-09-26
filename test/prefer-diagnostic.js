@@ -44,6 +44,13 @@ test.snapshot({
 		inTest('console.error(\'real error\');'),
 		inTest('console.warn(\'warning\');'),
 
+		// A computed member is not read as a method
+		inTest('console[\'log\'](\'value\');'),
+		inTest('console.log.call(null, \'value\');'),
+
+		// An imported hook is its own callback, not a test callback
+		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { console.log(\'x\'); });',
+
 		// Not a test file
 		'console.log(\'x\');',
 
@@ -63,6 +70,8 @@ test.snapshot({
 
 		// Multiple arguments — reported but no suggestion (diagnostic takes one message)
 		inTest('console.log(\'value\', value);'),
+		// No argument at all, so there is no single-argument call to rewrite
+		inTest('console.log();'),
 		// A spread stands for any number of values, of which `t.diagnostic(…args)` prints one
 		inTest('console.log(...args);'),
 

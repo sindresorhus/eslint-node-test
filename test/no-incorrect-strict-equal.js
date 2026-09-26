@@ -8,6 +8,10 @@ const withNamedImport = (methods, code) => `import {${methods}} from 'node:asser
 
 test.snapshot({
 	valid: [
+		// A shadowed `NaN`/`Infinity` is some other object, so it is not the primitive that would
+		// decide between the loose and deep forms
+		withAssert('const NaN = {a: 1};\nassert.equal(actual, NaN);'),
+		withAssert('const Infinity = {a: 1};\nassert.notEqual(actual, Infinity);'),
 		// Not an assert import — ignored
 		'assert.strictEqual(a, {});',
 
@@ -65,6 +69,23 @@ test.snapshot({
 
 		// Both args are literals
 		withAssert('assert.strictEqual({}, {});'),
+
+		// A primitive on one side is where loose and loose-deep equality diverge, and
+		// `no-incorrect-deep-equal` rewrites the opposite direction, so this is reported but not fixed
+		withAssert('assert.strictEqual(0, []);'),
+		withAssert('assert.equal(null, {});'),
+		withAssert('assert.notStrictEqual(`x`, {});'),
+
+		// A primitive a variable holds diverges the same way, so it is reported but not fixed either
+		withAssert('const name = \'a\';\nassert.equal(name, [\'a\']);'),
+		withAssert('const zero = 0;\nassert.equal(zero, []);'),
+		withAssert('let value = \'a\';\nassert.notEqual(value, {});'),
+
+		// The `assert.strict` member is rewritten at the same level
+		withAssert('assert.strict.strictEqual(a, {});'),
+
+		// Optional chaining does not change which property is the method
+		withAssert('assert.strictEqual?.(a, {});'),
 
 		// With message argument — still reported
 		withAssert('assert.strictEqual(a, {}, "message");'),

@@ -90,14 +90,52 @@ Message:
 
 `;
 
-exports[`require-top-level-describe > invalid(6): import {describe, test, it, before, beforeEach} from 'node:test';\ntest(\"a\", () => {}); 1`] = `
+exports[`require-top-level-describe > invalid(6): import {suite} from 'node:test';\nsuite(\"a\", () => {});\nsuite(\"b\", () => {}); 1`] = `
+
+Options:
+- maxTopLevelDescribes: 1
+
+Code:
+  1 | import {suite} from 'node:test';
+  2 | suite("a", () => {});
+  3 | suite("b", () => {});
+
+`;
+
+exports[`require-top-level-describe > invalid(6): import {suite} from 'node:test';\nsuite(\"a\", () => {});\nsuite(\"b\", () => {}); 2`] = `
+
+Message:
+  1 | import {suite} from 'node:test';
+  2 | suite("a", () => {});
+> 3 | suite("b", () => {});
+    | ^^^^^^^^^^^^^^^^^^^^ There should be no more than 1 top-level \`describe\` blocks in a file.
+
+`;
+
+exports[`require-top-level-describe > invalid(7): import {describe, test, it, before, beforeEach} from 'node:test';\ntest(\"a\", async t => { await t.test(\"b\", () => {}); }); 1`] = `
+
+  1 | import {describe, test, it, before, beforeEach} from 'node:test';
+  2 | test("a", async t => { await t.test("b", () => {}); });
+
+`;
+
+exports[`require-top-level-describe > invalid(7): import {describe, test, it, before, beforeEach} from 'node:test';\ntest(\"a\", async t => { await t.test(\"b\", () => {}); }); 2`] = `
+
+Message:
+  1 | import {describe, test, it, before, beforeEach} from 'node:test';
+> 2 | test("a", async t => { await t.test("b", () => {}); });
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ A test must be placed inside a top-level \`describe\`.
+
+`;
+
+exports[`require-top-level-describe > invalid(8): import {describe, test, it, before, beforeEach} from 'node:test';\ntest(\"a\", () => {}); 1`] = `
 
   1 | import {describe, test, it, before, beforeEach} from 'node:test';
   2 | test("a", () => {});
 
 `;
 
-exports[`require-top-level-describe > invalid(6): import {describe, test, it, before, beforeEach} from 'node:test';\ntest(\"a\", () => {}); 2`] = `
+exports[`require-top-level-describe > invalid(8): import {describe, test, it, before, beforeEach} from 'node:test';\ntest(\"a\", () => {}); 2`] = `
 
 Message:
   1 | import {describe, test, it, before, beforeEach} from 'node:test';

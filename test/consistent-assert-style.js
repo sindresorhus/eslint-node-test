@@ -20,6 +20,8 @@ test.snapshot({
 		// Custom option: prefer `assert(…)`
 		{code: withAssert('assert(value);'), options: [assertStyle]},
 		{code: withAssert('assert(value, "message");'), options: [assertStyle]},
+		// The strict view is already the preferred form under this style
+		{code: withAssert('assert.strict(value);'), options: [assertStyle]},
 
 		// Unrelated globals and non-assert imports
 		'assert.ok(value);',
@@ -66,6 +68,24 @@ test.snapshot({
 		// A `strict` member on an unrelated object is not an assert
 		withAssert('other.strict(value);'),
 		withAssert('other.strict.ok(value);'),
+
+		// The strict view is matched like the module itself, so its non-simple forms are ignored too
+		withAssert('assert[\'strict\'](value);'),
+		withAssert('assert?.strict(value);'),
+		withAssert('assert.strict?.(value);'),
+		withAssert('(assert).strict(value);'),
+
+		// The strict view already carries `.ok` in the preferred form
+		withAssert('assert.strict.ok(value);'),
+
+		// A second binding of the same module is a namespace, which is not callable
+		'import assert from \'node:assert\';\nimport * as nodeAssert from \'node:assert\';\nnodeAssert.strict(value);',
+
+		// A type-only import declaration binds no value at all
+		{
+			code: 'import type {strict as assert} from \'node:assert\';\nassert(value);',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		// Default: prefer `assert.ok(…)`
@@ -80,6 +100,8 @@ test.snapshot({
 		// Callable named imports
 		withNamedImport('default as assert', 'assert(value);'),
 		withNamedImport('strict as assert', 'assert(value);'),
+		// The named import needs no alias to be callable
+		'import {strict} from \'node:assert\';\nstrict(value);',
 		'import {strict as strictAssert} from \'node:assert\';\nstrictAssert(value);',
 		withStrictNamedImport('default as assert', 'assert(value);'),
 		withStrictNamedImport('strict as assert', 'assert(value);'),
@@ -118,5 +140,8 @@ test.snapshot({
 			code: withAssert('assert.strict.ok(value);'),
 			options: [assertStyle],
 		},
+		// `assert.strict` on a local that is already the strict function is the same callable assert,
+		// and `assert.strict === assert` there, so the fix stays a truthiness assertion
+		'import {strict as assert} from \'node:assert\';\nassert.strict(value);',
 	],
 });

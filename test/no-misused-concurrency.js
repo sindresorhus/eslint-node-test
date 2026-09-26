@@ -42,6 +42,15 @@ test.snapshot({
 		withTest('test(\'t\', {concurrency: true}, t => { [1].forEach(() => { t.test(\'a\', () => {}); }); });'),
 		// A subtest on an unrelated context is not this test's subtest, so the option is still unused
 		withTest('test(\'t\', {concurrency: true}, async (t) => { await t.test(\'a\', s => { s.test(\'b\', () => {}); }); });'),
+
+		// The option is only read from an options object literal, so an options object in a variable is
+		// out of reach
+		withTest('const options = {concurrency: true};\ntest(\'t\', options, () => {});'),
+		withTest('test(\'t\', {...options}, () => {});'),
+
+		// A `concurrency` value that cannot be resolved statically is left to `node:test`
+		withTest('test(\'t\', {concurrency: limit}, () => {});'),
+		withTest('test(\'t\', {concurrency: process.env.LIMIT}, () => {});'),
 	],
 	invalid: [
 		// Concurrency on a leaf test
@@ -49,6 +58,11 @@ test.snapshot({
 
 		// Numeric concurrency on a leaf test
 		withTest('test(\'t\', {concurrency: 5}, () => {});'),
+		withTest('test(\'t\', {concurrency: 0}, () => {});'),
+		withTest('const limit = 4;\ntest(\'t\', {concurrency: limit}, () => {});'),
+
+		// The object descriptor form carries the option too
+		withTest('test({name: \'t\', concurrency: true, fn() {}});'),
 
 		// `it` alias
 		'import {it} from \'node:test\';\nit(\'t\', {concurrency: true}, () => {});',
@@ -56,10 +70,16 @@ test.snapshot({
 		// Concurrency on a subtest with no sub-subtests
 		withTest('test(\'t\', async t => { await t.test(\'inner\', {concurrency: true}, () => {}); });'),
 
+		// A parent test whose only subtest misuses the option itself
+		withTest('test(\'t\', {concurrency: true}, async t => { await t.test(\'a\', {concurrency: true}, () => {}); });'),
+
 		// No callback at all
 		withTest('test(\'t\', {concurrency: true});'),
 
 		// Test with an assertion but no subtests
 		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'t\', {concurrency: true}, t => { t.assert.ok(1); });',
+
+		// A test inside a suite is still a test
+		'import {describe, test} from \'node:test\';\ndescribe(\'s\', () => { test(\'t\', {concurrency: true}, () => {}); });',
 	],
 });

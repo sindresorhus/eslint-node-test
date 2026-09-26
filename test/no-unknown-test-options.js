@@ -41,6 +41,17 @@ test.snapshot({
 		withImport('test("x", {[key]: true}, () => {});'),
 		withImport('test("x", {...options}, () => {});'),
 
+		// A key that cannot be an option name: a number is not a string, so there is no name to check
+		withImport('test("x", {0: true}, () => {});'),
+		// A shorthand property is matched on its name, like any other key
+		withImport('test("x", {skip}, () => {});'),
+
+		// Every key `node:test` recognizes for a test, in one object
+		withImport('test("x", {concurrency: 1, expectFailure: true, fn() {}, name: "y", only: true, plan: 1, signal, skip: true, tags: [], timeout: 1, todo: true}, () => {});'),
+
+		// Every key a hook recognizes, and nothing else
+		withImport('beforeEach(() => {}, {signal, timeout: 1000});'),
+
 		// A leading object is the descriptor whenever it appears, and `node:test` names a test after
 		// `options.name` even outside the object form, so `name` is a known key in every slot
 		withImport('test({name: "x", skip: true}, () => {});'),
@@ -74,6 +85,21 @@ test.snapshot({
 
 		// Renamed import — the option set still applies
 		'import {test as myTest} from \'node:test\';\nmyTest("x", {skp: true}, () => {});',
+
+		// Default import
+		'import test from \'node:test\';\ntest("x", {skp: true}, () => {});',
+
+		// Namespace import
+		'import * as nodeTest from \'node:test\';\nnodeTest.test("x", {skp: true}, () => {});',
+
+		// A shorthand typo is still a typo
+		withImport('test("x", {skp}, () => {});'),
+
+		// A spread cannot be inspected, but a visible unknown key next to it is still reported
+		withImport('test("x", {skp: true, ...rest}, () => {});'),
+
+		// A hook reached through the default import reads the same options slot
+		'import test from \'node:test\';\ntest.beforeEach(() => {}, {skp: 1});',
 
 		// `describe`
 		'import {describe} from \'node:test\';\ndescribe("s", {foo: 1}, () => {});',

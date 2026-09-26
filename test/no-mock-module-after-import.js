@@ -65,6 +65,19 @@ test.snapshot({
 		// Context mock aliases and shadowed context names are intentionally ignored.
 		head + 'import \'module.js\';\ntest(\'mock\', t => {\n\tconst moduleMock = t.mock;\n\tmoduleMock.module(\'module.js\');\n});',
 		head + 'import \'module.js\';\ntest(\'mock\', t => {\n\tfunction helper(t) {\n\t\tt.mock.module(\'module.js\');\n\t}\n});',
+
+		// A missing specifier cannot name a statically imported module.
+		head + 'import \'module.js\';\nmock.module();',
+
+		// A CommonJS `require()` is not a static ESM load, so it is intentionally ignored.
+		head + 'const value = require(\'module.js\');\nmock.module(\'module.js\');',
+
+		// A file whose every import is type-only loads nothing at runtime, so a type-only
+		// `node:test` import does not even make it a test file.
+		{
+			code: 'import type {mock} from \'node:test\';\nimport type Value from \'module.js\';\nmock.module(\'module.js\');',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		// A static re-export loads its target just as an import does.
@@ -142,5 +155,8 @@ test.snapshot({
 		// `mock.module` strips the `node:` prefix, so `import 'node:fs'` and `mock.module('fs')`
 		// name the same module.
 		'import {mock} from \'node:test\';\nimport \'node:fs\';\nmock.module(\'fs\');',
+
+		// Paths are compared as written, so a relative specifier matches itself.
+		head + 'import \'./module.js\';\nmock.module(\'./module.js\');',
 	],
 });

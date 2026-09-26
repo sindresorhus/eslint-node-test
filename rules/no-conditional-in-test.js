@@ -4,7 +4,6 @@ import {
 	getTestCallback,
 	createContextTracker,
 	isContextHookCall,
-	isSubtestCall,
 } from './utils/node-test.js';
 import isFunction from './ast/is-function.js';
 
@@ -50,9 +49,10 @@ const create = context => {
 	});
 
 	// A call that registers a test, subtest, or hook: a conditional in its own arguments (the title,
-	// the options) is registration-time configuration, not logic the test body runs.
+	// the options) is registration-time configuration, not logic the test body runs. The tracker
+	// resolves the receiver, so an unrelated object's `test` method is not a registration.
 	const isRegistrationCall = node => parseTestCall(node, imports) !== undefined
-		|| isSubtestCall(node, imports)
+		|| tracker.isSubtestCall(node)
 		|| isContextHookCall(node, tracker.isContextReceiver);
 
 	const report = node => {

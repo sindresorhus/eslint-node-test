@@ -86,6 +86,11 @@ test.snapshot({
 		// A `getTestContext()` subtest is a context of its own, so its plan is not the parent's
 		'import {test, getTestContext} from \'node:test\';\ntest(\'t\', () => { getTestContext().plan(1); getTestContext().test(\'c\', () => { getTestContext().plan(1); }); });',
 		'import {test, getTestContext} from \'node:test\';\ntest(\'t\', t => { t.plan(1); assert.ok(1); });',
+		// With no enclosing test frame there is no context to attribute the call to
+		'import {getTestContext} from \'node:test\';\ngetTestContext().plan(1);',
+
+		// A `plan()` on another object is that object's own method
+		withImport('const other = {plan() {}};\ntest("x", t => { t.plan(1); other.plan(2); });'),
 	],
 	invalid: [
 		// Duplicate in one test
@@ -194,5 +199,12 @@ test.snapshot({
 			code: withImport('test(\'x\', (t: any) => { (t.plan as any)(1); t.plan(2); });'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'import {test, getTestContext} from \'node:test\';\ntest(\'t\', () => { (getTestContext() as any).plan(1); (getTestContext() as any).plan(2); });',
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// The `plan` option message names the context the way the call spells it
+		'import {test, getTestContext} from \'node:test\';\ntest(\'x\', {plan: 1}, () => { getTestContext().plan(1); });',
 	],
 });

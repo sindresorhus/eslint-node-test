@@ -418,6 +418,26 @@ Suggestion 1/1: Wrap the call in an arrow function.:
 
 `;
 
+exports[`no-assert-throws-call > invalid(29): import {getTestContext} from 'node:test';\ngetTestContext().assert.throws(parse(input)); 1`] = `
+
+  1 | import {getTestContext} from 'node:test';
+  2 | getTestContext().assert.throws(parse(input));
+
+`;
+
+exports[`no-assert-throws-call > invalid(29): import {getTestContext} from 'node:test';\ngetTestContext().assert.throws(parse(input)); 2`] = `
+
+Message:
+  1 | import {getTestContext} from 'node:test';
+> 2 | getTestContext().assert.throws(parse(input));
+    |                                ^^^^^^^^^^^^ \`throws()\` expects a function callback. The first argument is evaluated before the assertion starts, so what it does escapes it.
+
+Suggestion 1/1: Wrap the call in an arrow function.:
+  1 | import {getTestContext} from 'node:test';
+  2 | getTestContext().assert.throws(() => parse(input));
+
+`;
+
 exports[`no-assert-throws-call > invalid(3): import assert from 'node:assert';\nassert.throws(tag\`input\`); 1`] = `
 
   1 | import assert from 'node:assert';
@@ -435,6 +455,92 @@ Message:
 Suggestion 1/1: Wrap the call in an arrow function.:
   1 | import assert from 'node:assert';
   2 | assert.throws(() => tag\`input\`);
+
+`;
+
+exports[`no-assert-throws-call > invalid(30): import test from 'node:test';\ntest('t', t => { (t as Context).assert.throws(parse(input)); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', t => { (t as Context).assert.throws(parse(input)); });
+
+`;
+
+exports[`no-assert-throws-call > invalid(30): import test from 'node:test';\ntest('t', t => { (t as Context).assert.throws(parse(input)); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', t => { (t as Context).assert.throws(parse(input)); });
+    |                                               ^^^^^^^^^^^^ \`throws()\` expects a function callback. The first argument is evaluated before the assertion starts, so what it does escapes it.
+
+Suggestion 1/1: Wrap the call in an arrow function.:
+  1 | import test from 'node:test';
+  2 | test('t', t => { (t as Context).assert.throws(() => parse(input)); });
+
+`;
+
+exports[`no-assert-throws-call > invalid(31): import assert from 'node:assert';\nassert.throws(getFn().bind(null)); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.throws(getFn().bind(null));
+
+`;
+
+exports[`no-assert-throws-call > invalid(31): import assert from 'node:assert';\nassert.throws(getFn().bind(null)); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws(getFn().bind(null));
+    |               ^^^^^^^^^^^^^^^^^^ \`throws()\` expects a function callback. The first argument is evaluated before the assertion starts, so what it does escapes it.
+
+Suggestion 1/1: Wrap the call in an arrow function.:
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => getFn().bind(null));
+
+`;
+
+exports[`no-assert-throws-call > invalid(32): import assert from 'node:assert';\nassert.throws(parse(/* keep */ input)); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.throws(parse(/* keep */ input));
+
+`;
+
+exports[`no-assert-throws-call > invalid(32): import assert from 'node:assert';\nassert.throws(parse(/* keep */ input)); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.throws(parse(/* keep */ input));
+    |               ^^^^^^^^^^^^^^^^^^^^^^^ \`throws()\` expects a function callback. The first argument is evaluated before the assertion starts, so what it does escapes it.
+
+Suggestion 1/1: Wrap the call in an arrow function.:
+  1 | import assert from 'node:assert';
+  2 | assert.throws(() => parse(/* keep */ input));
+
+`;
+
+exports[`no-assert-throws-call > invalid(33): import assert from 'node:assert';\nasync function run() {\n\tassert.throws(check(await getCallback()));\n} 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | async function run() {
+  3 | 	assert.throws(check(await getCallback()));
+  4 | }
+
+`;
+
+exports[`no-assert-throws-call > invalid(33): import assert from 'node:assert';\nasync function run() {\n\tassert.throws(check(await getCallback()));\n} 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+  2 | async function run() {
+> 3 | 	assert.throws(check(await getCallback()));
+    | 	              ^^^^^^^^^^^^^^^^^^^^^^^^^^ \`throws()\` expects a function callback. The first argument is evaluated before the assertion starts, so what it does escapes it.
+  4 | }
+
+Suggestion 1/1: Wrap the call in an arrow function.:
+  1 | import assert from 'node:assert';
+  2 | async function run() {
+  3 | 	assert.throws(async () => check(await getCallback()));
+  4 | }
 
 `;
 

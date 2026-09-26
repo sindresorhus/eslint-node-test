@@ -76,12 +76,8 @@ Message:
 
 exports[`consistent-test-filename > invalid(5): import {test} from 'node:test';\ntest(\"x\", () => {}); 1`] = `
 
-Filename: foo.test.js
+Filename: test.js
 
-Options:
-- pattern: '\\.spec\\.js$'
-
-Code:
   1 | import {test} from 'node:test';
   2 | test("x", () => {});
 
@@ -93,11 +89,34 @@ Message:
 > 1 | import {test} from 'node:test';
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 > 2 | test("x", () => {});
+    | ^^^^^^^^^^^^^^^^^^^^ Test file name \`test.js\` does not match the required pattern \`\\.test\\.[cm]?[jt]sx?$\`.
+
+`;
+
+exports[`consistent-test-filename > invalid(6): import {test} from 'node:test';\ntest(\"x\", () => {}); 1`] = `
+
+Filename: foo.test.js
+
+Options:
+- pattern: '\\.spec\\.js$'
+
+Code:
+  1 | import {test} from 'node:test';
+  2 | test("x", () => {});
+
+`;
+
+exports[`consistent-test-filename > invalid(6): import {test} from 'node:test';\ntest(\"x\", () => {}); 2`] = `
+
+Message:
+> 1 | import {test} from 'node:test';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 | test("x", () => {});
     | ^^^^^^^^^^^^^^^^^^^^ Test file name \`foo.test.js\` does not match the required pattern \`\\.spec\\.js$\`.
 
 `;
 
-exports[`consistent-test-filename > invalid(6): import * as nodeTest from 'node:test';\nnodeTest.test(\"x\", () => {}); 1`] = `
+exports[`consistent-test-filename > invalid(7): import * as nodeTest from 'node:test';\nnodeTest.test(\"x\", () => {}); 1`] = `
 
 Filename: foo.js
 
@@ -106,7 +125,7 @@ Filename: foo.js
 
 `;
 
-exports[`consistent-test-filename > invalid(6): import * as nodeTest from 'node:test';\nnodeTest.test(\"x\", () => {}); 2`] = `
+exports[`consistent-test-filename > invalid(7): import * as nodeTest from 'node:test';\nnodeTest.test(\"x\", () => {}); 2`] = `
 
 Message:
 > 1 | import * as nodeTest from 'node:test';
@@ -116,7 +135,7 @@ Message:
 
 `;
 
-exports[`consistent-test-filename > invalid(7): import {test} from 'node:test';\ntest(\"x\", (): void => {}); 1`] = `
+exports[`consistent-test-filename > invalid(8): import {test} from 'node:test';\ntest(\"x\", (): void => {}); 1`] = `
 
 Filename: foo.js
 
@@ -125,7 +144,7 @@ Filename: foo.js
 
 `;
 
-exports[`consistent-test-filename > invalid(7): import {test} from 'node:test';\ntest(\"x\", (): void => {}); 2`] = `
+exports[`consistent-test-filename > invalid(8): import {test} from 'node:test';\ntest(\"x\", (): void => {}); 2`] = `
 
 Message:
 > 1 | import {test} from 'node:test';

@@ -12,6 +12,16 @@ test.snapshot({
 		'import test from \'node:test\';\ntest({name: \'t\', timeout: 1, fn() {}});',
 		'import test from \'node:test\';\ntest(\'t\', {fn: other});',
 		'import test from \'node:test\';\ntest(\'t\', {});',
+		// A computed key or a spread is a property the rule cannot read as a bare descriptor key
+		'import test from \'node:test\';\ntest(\'t\', {[\'skip\']: true}, () => {});',
+		'import test from \'node:test\';\ntest(\'t\', {...rest}, () => {});',
+
+		// An existing modifier is intentional, not an unmarked placeholder
+		'import {test} from \'node:test\';\ntest.skip("x", () => {});',
+		'import {test} from \'node:test\';\ntest.only("x", () => {});',
+
+		// A subtest with intent options is a placeholder with a reason
+		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\', {timeout: 1}, () => {}); });',
 
 		// Not a test file
 		'test("x");',

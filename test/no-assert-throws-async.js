@@ -26,6 +26,13 @@ test.snapshot({
 		// First argument is not a function (a promise value)
 		withAssert('await assert.rejects(promise, /boom/);'),
 
+		// No argument at all fails with an argument-type error, not a sync/async mistake
+		withAssert('assert.throws();'),
+		withAssert('assert.doesNotThrow();'),
+
+		// A spread argument cannot be read as an inline async function
+		withAssert('assert.throws(...args);'),
+
 		// Non-async arrow returning a promise, intentionally not detected (kept simple)
 		withAssert('assert.throws(() => doAsync());'),
 
@@ -64,12 +71,29 @@ test.snapshot({
 		// T.assert form
 		'import test from \'node:test\';\ntest(\'t\', async t => { t.assert.throws(async () => {}); });',
 
+		// Hook context
+		'import {beforeEach} from \'node:test\';\nbeforeEach(t => {\n\tt.assert.throws(async () => {});\n});',
+
+		// Destructured context `assert` object, still a rewritable member form
+		'import test from \'node:test\';\ntest(\'t\', async ({assert}) => {\n\tassert.throws(async () => {});\n});',
+		// Destructured straight off `assert`, so a rename would reference an unimported `rejects`
+		'import test from \'node:test\';\ntest(\'t\', async ({assert: {throws}}) => {\n\tthrows(async () => {});\n});',
+
+		// `await` is a syntax error in a class static block, so the suggestion only renames
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'t\', async () => {\n\tclass A {\n\t\tstatic {\n\t\t\tassert.throws(async () => {});\n\t\t}\n\t}\n});',
+
 		// Named import, reported but not fixed
 		withNamedImport('throws', 'throws(async () => {});'),
 
 		// TypeScript, async arrow with a type annotation on the matcher
 		{
 			code: inAsyncTest('assert.throws(async (): Promise<void> => {}, TypeError);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// TypeScript wrapper on the function argument
+		{
+			code: inAsyncTest('assert.throws((async () => {}) as any);'),
 			languageOptions: {parser: parsers.typescript},
 		},
 

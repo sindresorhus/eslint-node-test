@@ -42,7 +42,7 @@ const create = context => {
 			return;
 		}
 
-		if (!isPrimitive(actual) && !isPrimitive(expected)) {
+		if (!isPrimitive(actual, context) && !isPrimitive(expected, context)) {
 			return;
 		}
 

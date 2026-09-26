@@ -61,13 +61,15 @@ function getDirectSubtestReceiver(callExpression, imports) {
 }
 
 function isStaticallySkipped(callExpression, sourceCode) {
+	// `node:test` skips for any value that is neither `undefined` nor `false`, so `{skip: 0}`,
+	// `{skip: ''}` and `{skip: null}` all leave the child unrunnable, which is what this decides.
 	const skipProperty = findOptionsProperty(getTestOptions(callExpression), 'skip');
 	if (skipProperty === undefined) {
 		return false;
 	}
 
 	const staticValue = getStaticValue(skipProperty.value, sourceCode.getScope(skipProperty.value));
-	return staticValue !== null && Boolean(staticValue.value);
+	return staticValue !== null && staticValue.value !== undefined && staticValue.value !== false;
 }
 
 // Array methods that call a predicate over their elements, so a subtest registered in one of those

@@ -27,6 +27,11 @@ test.snapshot({
 		// An instance class field initializer runs when an instance is created, not at module load
 		withImport('class C { field = assert.ok(value); }'),
 		withImport('class C { get field() { return assert.ok(value); } }'),
+		withImport('class C { [name] = assert.ok(value); }'),
+
+		// An object method is a function like any other, so it is not a module-load assertion
+		withImport('const helpers = {check() { assert.ok(value); }};'),
+		withImport('export const check = () => { assert.ok(value); };'),
 	],
 	invalid: [
 		// Top-level assertion in a test file
@@ -43,6 +48,12 @@ test.snapshot({
 
 		// Named import
 		'import test from \'node:test\';\nimport {ok} from \'node:assert\';\nok(value);',
+
+		// The strict view of the namespace, imported under a local name
+		'import test from \'node:test\';\nimport {strict as nodeAssert} from \'node:assert\';\nnodeAssert.equal(a, b);',
+
+		// Discarding the return value does not put the assertion inside a test
+		withImport('void assert.ok(value);'),
 
 		// Namespace import
 		'import * as nodeTest from \'node:test\';\nimport * as assert from \'node:assert\';\nassert.ok(value);',

@@ -9,7 +9,7 @@
 
 Node.js discovers test files by their path and executes each one. Importing one of those files can execute it a second time, registering duplicate tests or repeating its side effects.
 
-This rule resolves relative static imports, re-exports, and literal dynamic imports from the importing file, then reports targets that match Node.js-style test file name patterns. TypeScript's own import forms count too: `import x = require('…')`, `export = require('…')` and `export import x = require('…')` all load the target. It ignores package specifiers, absolute paths, `file:` URLs, computed dynamic imports, and type-only TypeScript imports and exports, at the declaration level (`import type {X} from '…'`) and at the specifier level (`import {type X} from '…'`), because they are erased and do not load the target module.
+This rule resolves relative static imports, re-exports, literal dynamic imports, and CommonJS `require(…)` calls from the importing file, then reports targets that match Node.js-style test file name patterns. TypeScript's own import forms count too: `import x = require('…')`, `export = require('…')` and `export import x = require('…')` all load the target. It ignores package specifiers, absolute paths, `file:` URLs, computed dynamic imports, and type-only TypeScript imports and exports, at the declaration level (`import type {X} from '…'`) and at the specifier level (`import {type X} from '…'`), because they are erased and do not load the target module.
 
 Name matching follows the file system: on a case-insensitive one (macOS, Windows) `./TEST/Example.Test.js` resolves to the same file as `./test/example.test.js`, so it is matched too. On a case-sensitive file system only the exact lowercase spelling matches.
 

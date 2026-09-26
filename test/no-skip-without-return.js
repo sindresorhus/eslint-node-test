@@ -15,12 +15,17 @@ test.snapshot({
 		// Skip is the last statement — nothing runs after it
 		withImport('test("x", t => { t.skip(); });'),
 		withImport('test("x", t => { doStuff(); t.skip(); });'),
+		// The walk climbs out of the `if` body, so a skip that is the last thing its test runs is fine
+		withImport('test("x", t => { if (cond) { t.skip(); } });'),
 
 		// Followed by return
 		withImport('test("x", t => { if (cond) { t.skip(); return; } assert.ok(x); });'),
 
 		// Followed by throw
 		withImport('test("x", t => { if (cond) { t.skip(); throw new Error(); } assert.ok(x); });'),
+
+		// A hook body gets a test context too, so a terminal skip there is fine
+		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { t.skip("nope"); });',
 
 		// `skip` on something that is not a test context
 		withImport('test("x", () => { other.skip(); doStuff(); });'),
@@ -41,11 +46,21 @@ test.snapshot({
 	invalid: [
 		// A class static block is a statement list, so a skip in one is followed by the same code
 		withImport('test("x", t => {\n\tclass A {\n\t\tstatic {\n\t\t\tt.skip();\n\t\t\tdoStuff();\n\t\t}\n\t}\n});'),
+		// The walk climbs out of the class, so a statement after it still runs after the static block skipped
+		withImport('test("x", t => { class A { static { t.skip(); } } doStuff(); });'),
+		// A hook body gets a test context, so a skip there leaves the rest of the hook running
+		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { t.skip("nope"); doStuff(); });',
 		// A `getTestContext()` under any local alias is named by the local name
 		'import {test, getTestContext as gtc} from \'node:test\';\ntest(\'a\', () => { gtc().skip(\'r\'); work(); });',
+		// Optional chaining does not hide the call
+		withImport('test("x", t => { t?.skip(); assert.ok(x); });'),
+		// A subtest created through `getTestContext()` has a tracked context of its own
+		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', () => { getTestContext().test(\'child\', t => { t.skip(); doStuff(); }); });',
 		// The inserted `return` must land after a trailing comment, so the comment stays with the skip
 		withImport('test("x", t => {\n\tt.skip(); // TODO: enable once fixed\n\tcheck();\n});'),
 		withImport('test("x", t => {\n\tt.skip(/* why */);\n\tcheck();\n});'),
+		// A comment on its own line is not the skip's trailing comment, so the `return` goes before it
+		withImport('test("x", t => {\n\tt.skip();\n\t// why\n\tassert.ok(x);\n});'),
 
 		// Code after skip in the same block
 		withImport('test("x", t => { t.skip(); assert.ok(x); });'),
@@ -93,6 +108,10 @@ test.snapshot({
 		},
 		{
 			code: 'import {test} from \'node:test\';\ntest(\'a\', t => {\n\t(t as TestContext).skip(\'why\');\n\tdoStuff();\n});',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withImport('test("x", (t: any) => { (t satisfies any).skip(); doStuff(); });'),
 			languageOptions: {parser: parsers.typescript},
 		},
 	],

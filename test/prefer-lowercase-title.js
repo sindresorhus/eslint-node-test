@@ -30,6 +30,11 @@ test.snapshot({
 
 		// Ignored function
 		{code: withImport('describe("Foo", () => {});'), options: [{ignore: ['describe']}]},
+		{code: withImport('test("Foo", () => {});'), options: [{ignore: ['test']}]},
+
+		// A title with no leading text to judge
+		withImport('test("", () => {});'),
+		withImport('test(123, () => {});'),
 
 		// `node:test` names a test after `options.name`, so the positional string is not the title
 		withImport('test("UPPERCASE", {name: "lowercase"}, () => {});'),
@@ -73,6 +78,12 @@ test.snapshot({
 
 		// `ignore` set for describe but a test is still checked
 		{code: withImport('test("Foo", () => {});'), options: [{ignore: ['describe']}]},
+		// `ignore` names one function, so a suite title is still checked
+		{code: withImport('describe("Foo", () => {});'), options: [{ignore: ['test']}]},
+
+		// A first character written as an escape is reported, but rewriting it would corrupt the escape
+		withImport(String.raw`test("\u0041bc", () => {});`),
+		withImport(String.raw`test("\u{41}bc", () => {});`),
 
 		// Namespace import
 		'import * as nodeTest from \'node:test\';\nnodeTest.test("Foo", () => {});',
@@ -93,6 +104,7 @@ test.snapshot({
 		// A spread before `name` cannot override it, so the title is still known
 		withImport('test("lowercase", {...rest, name: "UPPERCASE"}, () => {});'),
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'Foo\', () => {}); });',
+		'import {test, getTestContext} from \'node:test\';\ntest(\'p\', async () => { await getTestContext().test(\'Foo\', () => {}); });',
 
 		// An uppercase letter outside the BMP is two UTF-16 code units, so indexing the title with
 		// `[0]` sees only a lone surrogate and misses it.

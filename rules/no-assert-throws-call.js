@@ -29,11 +29,6 @@ function isFunctionConstructorCall(node) {
 	return node.callee.type === 'Identifier' && node.callee.name === 'Function';
 }
 
-// `new Function(…)` builds the function to hand over, exactly as `Function(…)` and `.bind()` do.
-function isFunctionConstructorNew(node) {
-	return node.callee.type === 'Identifier' && node.callee.name === 'Function';
-}
-
 function isFunctionProducingCall(node) {
 	return isBindCall(node) || isFunctionConstructorCall(node);
 }
@@ -66,7 +61,8 @@ function analyzeArgument(node, sourceCode, result = emptyAnalysis()) {
 		}
 
 		case 'NewExpression': {
-			result.runs ||= !isFunctionConstructorNew(node);
+			// `new Function(…)` builds the function to hand over, as `Function(…)` does.
+			result.runs ||= !isFunctionConstructorCall(node);
 
 			break;
 		}

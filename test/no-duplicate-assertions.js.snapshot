@@ -218,6 +218,30 @@ Message:
 
 `;
 
+exports[`no-duplicate-assertions > invalid(18): import test from 'node:test';\nimport assert from 'node:assert';\ntest('user', () => {\n\tassert.strictEqual(user.id, 1)!;\n\tassert.strictEqual(user.id, 1)!;\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('user', () => {
+  4 | 	assert.strictEqual(user.id, 1)!;
+  5 | 	assert.strictEqual(user.id, 1)!;
+  6 | });
+
+`;
+
+exports[`no-duplicate-assertions > invalid(18): import test from 'node:test';\nimport assert from 'node:assert';\ntest('user', () => {\n\tassert.strictEqual(user.id, 1)!;\n\tassert.strictEqual(user.id, 1)!;\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('user', () => {
+  4 | 	assert.strictEqual(user.id, 1)!;
+> 5 | 	assert.strictEqual(user.id, 1)!;
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Duplicate adjacent assertion.
+  6 | });
+
+`;
+
 exports[`no-duplicate-assertions > invalid(2): import test from 'node:test';\nimport assert from 'node:assert';\ntest('user', () => {\n\tassert.strictEqual(user.id, 1);\n\tassert.strictEqual(user.id, 1);\n\tassert.strictEqual(user.id, 1);\n}); 1`] = `
 
   1 | import test from 'node:test';

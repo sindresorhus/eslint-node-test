@@ -626,19 +626,20 @@ Message:
 
 `;
 
-exports[`valid-test-tags > invalid(39): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [' a']}, () => {}); 1`] = `
+exports[`valid-test-tags > invalid(39): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['a\\nb']}, () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';
-  2 | test("title", {tags: [' a']}, () => {});
+  2 | test("title", {tags: ['a\\nb']}, () => {});
 
 `;
 
-exports[`valid-test-tags > invalid(39): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [' a']}, () => {}); 2`] = `
+exports[`valid-test-tags > invalid(39): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['a\\nb']}, () => {}); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before} from 'node:test';
-> 2 | test("title", {tags: [' a']}, () => {});
-    |                       ^^^^ Tag \` a\` must not contain whitespace or any of \`&\`, \`|\`, \`!\`, \`(\`, \`)\`, \`*\`.
+> 2 | test("title", {tags: ['a\\nb']}, () => {});
+    |                       ^^^^^^ Tag \`a
+b\` must not contain whitespace or any of \`&\`, \`|\`, \`!\`, \`(\`, \`)\`, \`*\`.
 
 `;
 
@@ -658,14 +659,62 @@ Message:
 
 `;
 
-exports[`valid-test-tags > invalid(40): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['a&b']}, () => {}); 1`] = `
+exports[`valid-test-tags > invalid(40): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['a\\vb']}, () => {}); 1`] = `
+
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | test("title", {tags: ['a\\vb']}, () => {});
+
+`;
+
+exports[`valid-test-tags > invalid(40): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['a\\vb']}, () => {}); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+> 2 | test("title", {tags: ['a\\vb']}, () => {});
+    |                       ^^^^^^ Tag \`ab\` must not contain whitespace or any of \`&\`, \`|\`, \`!\`, \`(\`, \`)\`, \`*\`.
+
+`;
+
+exports[`valid-test-tags > invalid(41): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['a\\fb']}, () => {}); 1`] = `
+
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | test("title", {tags: ['a\\fb']}, () => {});
+
+`;
+
+exports[`valid-test-tags > invalid(41): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['a\\fb']}, () => {}); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+> 2 | test("title", {tags: ['a\\fb']}, () => {});
+    |                       ^^^^^^ Tag \`ab\` must not contain whitespace or any of \`&\`, \`|\`, \`!\`, \`(\`, \`)\`, \`*\`.
+
+`;
+
+exports[`valid-test-tags > invalid(42): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [' a']}, () => {}); 1`] = `
+
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | test("title", {tags: [' a']}, () => {});
+
+`;
+
+exports[`valid-test-tags > invalid(42): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [' a']}, () => {}); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+> 2 | test("title", {tags: [' a']}, () => {});
+    |                       ^^^^ Tag \` a\` must not contain whitespace or any of \`&\`, \`|\`, \`!\`, \`(\`, \`)\`, \`*\`.
+
+`;
+
+exports[`valid-test-tags > invalid(43): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['a&b']}, () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';
   2 | test("title", {tags: ['a&b']}, () => {});
 
 `;
 
-exports[`valid-test-tags > invalid(40): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['a&b']}, () => {}); 2`] = `
+exports[`valid-test-tags > invalid(43): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['a&b']}, () => {}); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before} from 'node:test';
@@ -674,14 +723,14 @@ Message:
 
 `;
 
-exports[`valid-test-tags > invalid(41): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['a|b']}, () => {}); 1`] = `
+exports[`valid-test-tags > invalid(44): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['a|b']}, () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';
   2 | test("title", {tags: ['a|b']}, () => {});
 
 `;
 
-exports[`valid-test-tags > invalid(41): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['a|b']}, () => {}); 2`] = `
+exports[`valid-test-tags > invalid(44): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['a|b']}, () => {}); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before} from 'node:test';
@@ -690,14 +739,14 @@ Message:
 
 `;
 
-exports[`valid-test-tags > invalid(42): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['a!b']}, () => {}); 1`] = `
+exports[`valid-test-tags > invalid(45): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['a!b']}, () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';
   2 | test("title", {tags: ['a!b']}, () => {});
 
 `;
 
-exports[`valid-test-tags > invalid(42): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['a!b']}, () => {}); 2`] = `
+exports[`valid-test-tags > invalid(45): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['a!b']}, () => {}); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before} from 'node:test';
@@ -706,14 +755,14 @@ Message:
 
 `;
 
-exports[`valid-test-tags > invalid(43): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['a(b']}, () => {}); 1`] = `
+exports[`valid-test-tags > invalid(46): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['a(b']}, () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';
   2 | test("title", {tags: ['a(b']}, () => {});
 
 `;
 
-exports[`valid-test-tags > invalid(43): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['a(b']}, () => {}); 2`] = `
+exports[`valid-test-tags > invalid(46): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['a(b']}, () => {}); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before} from 'node:test';
@@ -722,14 +771,14 @@ Message:
 
 `;
 
-exports[`valid-test-tags > invalid(44): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['a)b']}, () => {}); 1`] = `
+exports[`valid-test-tags > invalid(47): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['a)b']}, () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';
   2 | test("title", {tags: ['a)b']}, () => {});
 
 `;
 
-exports[`valid-test-tags > invalid(44): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['a)b']}, () => {}); 2`] = `
+exports[`valid-test-tags > invalid(47): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['a)b']}, () => {}); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before} from 'node:test';
@@ -738,14 +787,14 @@ Message:
 
 `;
 
-exports[`valid-test-tags > invalid(45): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['a*b']}, () => {}); 1`] = `
+exports[`valid-test-tags > invalid(48): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['a*b']}, () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';
   2 | test("title", {tags: ['a*b']}, () => {});
 
 `;
 
-exports[`valid-test-tags > invalid(45): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['a*b']}, () => {}); 2`] = `
+exports[`valid-test-tags > invalid(48): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['a*b']}, () => {}); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before} from 'node:test';
@@ -754,67 +803,19 @@ Message:
 
 `;
 
-exports[`valid-test-tags > invalid(46): import {test, it, describe, suite, before} from 'node:test';\ndescribe(\"title\", {tags: ['a b']}, () => {}); 1`] = `
+exports[`valid-test-tags > invalid(49): import {test, it, describe, suite, before} from 'node:test';\ndescribe(\"title\", {tags: ['a b']}, () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';
   2 | describe("title", {tags: ['a b']}, () => {});
 
 `;
 
-exports[`valid-test-tags > invalid(46): import {test, it, describe, suite, before} from 'node:test';\ndescribe(\"title\", {tags: ['a b']}, () => {}); 2`] = `
+exports[`valid-test-tags > invalid(49): import {test, it, describe, suite, before} from 'node:test';\ndescribe(\"title\", {tags: ['a b']}, () => {}); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before} from 'node:test';
 > 2 | describe("title", {tags: ['a b']}, () => {});
     |                           ^^^^^ Tag \`a b\` must not contain whitespace or any of \`&\`, \`|\`, \`!\`, \`(\`, \`)\`, \`*\`.
-
-`;
-
-exports[`valid-test-tags > invalid(47): import {test} from 'node:test';\ntest('p', async t => { await t.test('a', {tags: ['a b']}, () => {}); }); 1`] = `
-
-  1 | import {test} from 'node:test';
-  2 | test('p', async t => { await t.test('a', {tags: ['a b']}, () => {}); });
-
-`;
-
-exports[`valid-test-tags > invalid(47): import {test} from 'node:test';\ntest('p', async t => { await t.test('a', {tags: ['a b']}, () => {}); }); 2`] = `
-
-Message:
-  1 | import {test} from 'node:test';
-> 2 | test('p', async t => { await t.test('a', {tags: ['a b']}, () => {}); });
-    |                                                  ^^^^^ Tag \`a b\` must not contain whitespace or any of \`&\`, \`|\`, \`!\`, \`(\`, \`)\`, \`*\`.
-
-`;
-
-exports[`valid-test-tags > invalid(48): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"unit\", \"slow\", \" \"]}, () => {}); 1`] = `
-
-  1 | import {test, it, describe, suite, before} from 'node:test';
-  2 | test("title", {tags: ["unit", "slow", " "]}, () => {});
-
-`;
-
-exports[`valid-test-tags > invalid(48): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"unit\", \"slow\", \" \"]}, () => {}); 2`] = `
-
-Message:
-  1 | import {test, it, describe, suite, before} from 'node:test';
-> 2 | test("title", {tags: ["unit", "slow", " "]}, () => {});
-    |                                       ^^^ Tag \` \` must not contain whitespace or any of \`&\`, \`|\`, \`!\`, \`(\`, \`)\`, \`*\`.
-
-`;
-
-exports[`valid-test-tags > invalid(49): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['and']}, () => {}); 1`] = `
-
-  1 | import {test, it, describe, suite, before} from 'node:test';
-  2 | test("title", {tags: ['and']}, () => {});
-
-`;
-
-exports[`valid-test-tags > invalid(49): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['and']}, () => {}); 2`] = `
-
-Message:
-  1 | import {test, it, describe, suite, before} from 'node:test';
-> 2 | test("title", {tags: ['and']}, () => {});
-    |                       ^^^^^ Tag \`and\` must not be the reserved word \`and\`, \`or\`, or \`not\`.
 
 `;
 
@@ -834,14 +835,62 @@ Message:
 
 `;
 
-exports[`valid-test-tags > invalid(50): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['or']}, () => {}); 1`] = `
+exports[`valid-test-tags > invalid(50): import {test} from 'node:test';\ntest('p', async t => { await t.test('a', {tags: ['a b']}, () => {}); }); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | test('p', async t => { await t.test('a', {tags: ['a b']}, () => {}); });
+
+`;
+
+exports[`valid-test-tags > invalid(50): import {test} from 'node:test';\ntest('p', async t => { await t.test('a', {tags: ['a b']}, () => {}); }); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | test('p', async t => { await t.test('a', {tags: ['a b']}, () => {}); });
+    |                                                  ^^^^^ Tag \`a b\` must not contain whitespace or any of \`&\`, \`|\`, \`!\`, \`(\`, \`)\`, \`*\`.
+
+`;
+
+exports[`valid-test-tags > invalid(51): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"unit\", \"slow\", \" \"]}, () => {}); 1`] = `
+
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | test("title", {tags: ["unit", "slow", " "]}, () => {});
+
+`;
+
+exports[`valid-test-tags > invalid(51): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"unit\", \"slow\", \" \"]}, () => {}); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+> 2 | test("title", {tags: ["unit", "slow", " "]}, () => {});
+    |                                       ^^^ Tag \` \` must not contain whitespace or any of \`&\`, \`|\`, \`!\`, \`(\`, \`)\`, \`*\`.
+
+`;
+
+exports[`valid-test-tags > invalid(52): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['and']}, () => {}); 1`] = `
+
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | test("title", {tags: ['and']}, () => {});
+
+`;
+
+exports[`valid-test-tags > invalid(52): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['and']}, () => {}); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+> 2 | test("title", {tags: ['and']}, () => {});
+    |                       ^^^^^ Tag \`and\` must not be the reserved word \`and\`, \`or\`, or \`not\`.
+
+`;
+
+exports[`valid-test-tags > invalid(53): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['or']}, () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';
   2 | test("title", {tags: ['or']}, () => {});
 
 `;
 
-exports[`valid-test-tags > invalid(50): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['or']}, () => {}); 2`] = `
+exports[`valid-test-tags > invalid(53): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['or']}, () => {}); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before} from 'node:test';
@@ -850,14 +899,14 @@ Message:
 
 `;
 
-exports[`valid-test-tags > invalid(51): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['not']}, () => {}); 1`] = `
+exports[`valid-test-tags > invalid(54): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['not']}, () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';
   2 | test("title", {tags: ['not']}, () => {});
 
 `;
 
-exports[`valid-test-tags > invalid(51): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['not']}, () => {}); 2`] = `
+exports[`valid-test-tags > invalid(54): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['not']}, () => {}); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before} from 'node:test';
@@ -866,14 +915,14 @@ Message:
 
 `;
 
-exports[`valid-test-tags > invalid(52): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['AND']}, () => {}); 1`] = `
+exports[`valid-test-tags > invalid(55): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['AND']}, () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';
   2 | test("title", {tags: ['AND']}, () => {});
 
 `;
 
-exports[`valid-test-tags > invalid(52): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['AND']}, () => {}); 2`] = `
+exports[`valid-test-tags > invalid(55): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['AND']}, () => {}); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before} from 'node:test';
@@ -882,19 +931,85 @@ Message:
 
 `;
 
-exports[`valid-test-tags > invalid(53): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['Not']}, () => {}); 1`] = `
+exports[`valid-test-tags > invalid(56): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['OR']}, () => {}); 1`] = `
+
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | test("title", {tags: ['OR']}, () => {});
+
+`;
+
+exports[`valid-test-tags > invalid(56): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['OR']}, () => {}); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+> 2 | test("title", {tags: ['OR']}, () => {});
+    |                       ^^^^ Tag \`OR\` must not be the reserved word \`and\`, \`or\`, or \`not\`.
+
+`;
+
+exports[`valid-test-tags > invalid(57): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['Not']}, () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';
   2 | test("title", {tags: ['Not']}, () => {});
 
 `;
 
-exports[`valid-test-tags > invalid(53): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['Not']}, () => {}); 2`] = `
+exports[`valid-test-tags > invalid(57): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['Not']}, () => {}); 2`] = `
 
 Message:
   1 | import {test, it, describe, suite, before} from 'node:test';
 > 2 | test("title", {tags: ['Not']}, () => {});
     |                       ^^^^^ Tag \`Not\` must not be the reserved word \`and\`, \`or\`, or \`not\`.
+
+`;
+
+exports[`valid-test-tags > invalid(58): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['not', 'not']}, () => {}); 1`] = `
+
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | test("title", {tags: ['not', 'not']}, () => {});
+
+`;
+
+exports[`valid-test-tags > invalid(58): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['not', 'not']}, () => {}); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+> 2 | test("title", {tags: ['not', 'not']}, () => {});
+    |                       ^^^^^ Tag \`not\` must not be the reserved word \`and\`, \`or\`, or \`not\`.
+
+`;
+
+exports[`valid-test-tags > invalid(58): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['not', 'not']}, () => {}); 3`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+> 2 | test("title", {tags: ['not', 'not']}, () => {});
+    |                              ^^^^^ Tag \`not\` must not be the reserved word \`and\`, \`or\`, or \`not\`.
+
+`;
+
+exports[`valid-test-tags > invalid(59): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"\", \"\"]}, () => {}); 1`] = `
+
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | test("title", {tags: ["", ""]}, () => {});
+
+`;
+
+exports[`valid-test-tags > invalid(59): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"\", \"\"]}, () => {}); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+> 2 | test("title", {tags: ["", ""]}, () => {});
+    |                       ^^ Tag values must not be empty.
+
+`;
+
+exports[`valid-test-tags > invalid(59): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"\", \"\"]}, () => {}); 3`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+> 2 | test("title", {tags: ["", ""]}, () => {});
+    |                           ^^ Tag values must not be empty.
 
 `;
 
@@ -911,6 +1026,207 @@ Message:
   1 | import {test, it, describe, suite, before} from 'node:test';
 > 2 | test("title", {tags: +1}, () => {});
     |                      ^^ \`tags\` must be an array.
+
+`;
+
+exports[`valid-test-tags > invalid(60): import {test, it, describe, suite, before} from 'node:test';\ntest({name: \"title\", tags: [\"UPPER\"], fn() {}}); 1`] = `
+
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | test({name: "title", tags: ["UPPER"], fn() {}});
+
+`;
+
+exports[`valid-test-tags > invalid(60): import {test, it, describe, suite, before} from 'node:test';\ntest({name: \"title\", tags: [\"UPPER\"], fn() {}}); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+> 2 | test({name: "title", tags: ["UPPER"], fn() {}});
+    |                             ^^^^^^^ Tag \`UPPER\` must use its lowercase canonical form.
+
+Output:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | test({name: "title", tags: ["upper"], fn() {}});
+
+`;
+
+exports[`valid-test-tags > invalid(61): import {test, it, describe, suite, before} from 'node:test';\nit({name: \"title\", tags: [\"UPPER\"], fn() {}}); 1`] = `
+
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | it({name: "title", tags: ["UPPER"], fn() {}});
+
+`;
+
+exports[`valid-test-tags > invalid(61): import {test, it, describe, suite, before} from 'node:test';\nit({name: \"title\", tags: [\"UPPER\"], fn() {}}); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+> 2 | it({name: "title", tags: ["UPPER"], fn() {}});
+    |                           ^^^^^^^ Tag \`UPPER\` must use its lowercase canonical form.
+
+Output:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | it({name: "title", tags: ["upper"], fn() {}});
+
+`;
+
+exports[`valid-test-tags > invalid(62): import {test, it, describe, suite, before} from 'node:test';\nsuite({name: \"title\", tags: [\"UPPER\"], fn() {}}); 1`] = `
+
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | suite({name: "title", tags: ["UPPER"], fn() {}});
+
+`;
+
+exports[`valid-test-tags > invalid(62): import {test, it, describe, suite, before} from 'node:test';\nsuite({name: \"title\", tags: [\"UPPER\"], fn() {}}); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+> 2 | suite({name: "title", tags: ["UPPER"], fn() {}});
+    |                              ^^^^^^^ Tag \`UPPER\` must use its lowercase canonical form.
+
+Output:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | suite({name: "title", tags: ["upper"], fn() {}});
+
+`;
+
+exports[`valid-test-tags > invalid(63): import {test, it, describe, suite, before} from 'node:test';\ntest({name: \"title\", tags: \"UPPER\"}); 1`] = `
+
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | test({name: "title", tags: "UPPER"});
+
+`;
+
+exports[`valid-test-tags > invalid(63): import {test, it, describe, suite, before} from 'node:test';\ntest({name: \"title\", tags: \"UPPER\"}); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+> 2 | test({name: "title", tags: "UPPER"});
+    |                            ^^^^^^^ \`tags\` must be an array.
+
+`;
+
+exports[`valid-test-tags > invalid(64): import {test} from 'node:test';\ntest('p', t => { t.test({name: 'a', tags: ['UPPER']}); }); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | test('p', t => { t.test({name: 'a', tags: ['UPPER']}); });
+
+`;
+
+exports[`valid-test-tags > invalid(64): import {test} from 'node:test';\ntest('p', t => { t.test({name: 'a', tags: ['UPPER']}); }); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | test('p', t => { t.test({name: 'a', tags: ['UPPER']}); });
+    |                                            ^^^^^^^ Tag \`UPPER\` must use its lowercase canonical form.
+
+Output:
+  1 | import {test} from 'node:test';
+  2 | test('p', t => { t.test({name: 'a', tags: ['upper']}); });
+
+`;
+
+exports[`valid-test-tags > invalid(65): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [...base, \"UPPER\"]}, () => {}); 1`] = `
+
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | test("title", {tags: [...base, "UPPER"]}, () => {});
+
+`;
+
+exports[`valid-test-tags > invalid(65): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [...base, \"UPPER\"]}, () => {}); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+> 2 | test("title", {tags: [...base, "UPPER"]}, () => {});
+    |                                ^^^^^^^ Tag \`UPPER\` must use its lowercase canonical form.
+
+Output:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | test("title", {tags: [...base, "upper"]}, () => {});
+
+`;
+
+exports[`valid-test-tags > invalid(66): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"unit\", ...base, \"UNIT\"]}, () => {}); 1`] = `
+
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | test("title", {tags: ["unit", ...base, "UNIT"]}, () => {});
+
+`;
+
+exports[`valid-test-tags > invalid(66): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"unit\", ...base, \"UNIT\"]}, () => {}); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+> 2 | test("title", {tags: ["unit", ...base, "UNIT"]}, () => {});
+    |                                        ^^^^^^ Tag \`UNIT\` must use its lowercase canonical form.
+
+Output:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | test("title", {tags: ["unit", ...base, "unit"]}, () => {});
+
+`;
+
+exports[`valid-test-tags > invalid(66): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [\"unit\", ...base, \"UNIT\"]}, () => {}); 3`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+> 2 | test("title", {tags: ["unit", ...base, "UNIT"]}, () => {});
+    |                                        ^^^^^^ Duplicate tag \`unit\`.
+
+`;
+
+exports[`valid-test-tags > invalid(67): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['UPPER']}, () => {}); 1`] = `
+
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | test("title", {tags: ['UPPER']}, () => {});
+
+`;
+
+exports[`valid-test-tags > invalid(67): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['UPPER']}, () => {}); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+> 2 | test("title", {tags: ['UPPER']}, () => {});
+    |                       ^^^^^^^ Tag \`UPPER\` must use its lowercase canonical form.
+
+Output:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | test("title", {tags: ['upper']}, () => {});
+
+`;
+
+exports[`valid-test-tags > invalid(68): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['UP\\'PER']}, () => {}); 1`] = `
+
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | test("title", {tags: ['UP\\'PER']}, () => {});
+
+`;
+
+exports[`valid-test-tags > invalid(68): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: ['UP\\'PER']}, () => {}); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+> 2 | test("title", {tags: ['UP\\'PER']}, () => {});
+    |                       ^^^^^^^^^ Tag \`UP'PER\` must use its lowercase canonical form.
+
+Output:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | test("title", {tags: ['up\\'per']}, () => {});
+
+`;
+
+exports[`valid-test-tags > invalid(69): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [[\"unit\"]]}, () => {}); 1`] = `
+
+  1 | import {test, it, describe, suite, before} from 'node:test';
+  2 | test("title", {tags: [["unit"]]}, () => {});
+
+`;
+
+exports[`valid-test-tags > invalid(69): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: [[\"unit\"]]}, () => {}); 2`] = `
+
+Message:
+  1 | import {test, it, describe, suite, before} from 'node:test';
+> 2 | test("title", {tags: [["unit"]]}, () => {});
+    |                       ^^^^^^^^ Tag values must be strings.
 
 `;
 

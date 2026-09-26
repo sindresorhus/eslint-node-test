@@ -40,6 +40,8 @@ test.snapshot({
 
 		// Shadowed local with the same name as the parent context is not a parent-context reference
 		withImport('test(\'parent\', async t => { await t.test(\'child\', t2 => { const t = {mock: {fn() {}}}; t.mock.fn(); }); });'),
+		// A property key that shares the parent context name is not a reference to it
+		withImport('test(\'parent\', async t => { await t.test(\'child\', t2 => { const config = {t: 1}; t2.mock.fn(); }); });'),
 
 		// Nested subtests consistently use the innermost context
 		withImport('test(\'parent\', async t => { await t.test(\'child\', async t2 => { await t2.test(\'grandchild\', t3 => { t3.mock.fn(); }); }); });'),
@@ -48,6 +50,7 @@ test.snapshot({
 		withImport('test(\'parent\', async t => { await t.test(\'child\', helper); });\nfunction helper() { t.mock.fn(); }'),
 		withImport('test(\'parent\', parent);\nasync function parent(t) { await t.test(\'child\', () => { t.mock.fn(); }); }'),
 		withImport('test(\'parent\', async t => { await t.test(\'child\', t2 => { test(\'nested\', () => { t.mock.fn(); }); }); });'),
+		withImport('test(\'parent\', async t => { await t.test(\'child\', t2 => { test(\'nested\', t3 => { t.test(\'grandchild\', () => {}); }); }); });'),
 	],
 	invalid: [
 		// Child callback without a context parameter
@@ -66,6 +69,10 @@ test.snapshot({
 		withImport('test(\'parent\', async t => { await t.test.only(\'child\', t2 => { t.mock.fn(); }); });'),
 		withImport('test(\'parent\', async (t = fallback) => { await t.test(\'child\', t2 => { t.mock.fn(); }); });'),
 		withImport('test(\'parent\', async t => { await t.test(\'child\', (t2 = fallback) => { t.mock.fn(); }); });'),
+		// A subtest made from the parent context inside the child registers under the parent
+		withImport('test(\'parent\', async t => { await t.test(\'child\', t2 => { t.test(\'grandchild\', () => {}); }); });'),
+		// Destructuring the parent context is a reference to it
+		withImport('test(\'parent\', async t => { await t.test(\'child\', t2 => { const {mock} = t; }); });'),
 
 		// Defaulted child context is tracked for nested subtests
 		withImport('test(\'parent\', async t => { await t.test(\'child\', (t2 = fallback) => { t2.test(\'grandchild\', () => { t2.mock.fn(); }); }); });'),
@@ -101,10 +108,21 @@ test.snapshot({
 
 		// Parent context referenced inside a nested helper function declared within the subtest
 		withImport('test(\'parent\', async t => { await t.test(\'child\', t2 => { function helper() { t.mock.fn(); } helper(); }); });'),
+		// Only a nested test callback is a new boundary, so a suite body and a hook callback are not
+		'import test, {describe} from \'node:test\';\ntest(\'parent\', async t => { await t.test(\'child\', t2 => { describe(\'inner\', () => { t.mock.fn(); }); }); });',
+		'import test, {beforeEach} from \'node:test\';\ntest(\'parent\', async t => { await t.test(\'child\', t2 => { beforeEach(() => { t.mock.fn(); }); }); });',
 
 		// TypeScript
 		{
 			code: withImport('test(\'parent\', async (t: any) => { await t.test(\'child\', (t2: any) => { t.mock.fn(); }); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withImport('test(\'parent\', async (t: any) => { await t.test(\'child\', (t2: any) => { t!.mock.fn(); }); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withImport('test(\'parent\', async (t: any) => { await t.test(\'child\', (t2: any) => { (t as any).mock.fn(); }); });'),
 			languageOptions: {parser: parsers.typescript},
 		},
 

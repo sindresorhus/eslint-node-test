@@ -59,14 +59,115 @@ Message:
 
 `;
 
-exports[`max-nested-describe > invalid(4): import {describe, it} from 'node:test';\ndescribe(\"d1\", () => { describe(\"d2\", () => { describe(\"d3\", () => { describe(\"d4\", () => { describe(\"d5\", () => { describe(\"d6\", () => { it(\"t\", () => {}); }); }); }); }); }); }); 1`] = `
+exports[`max-nested-describe > invalid(4): import {describe} from 'node:test';\ndescribe(\"a\", () => { describe(\"b\", () => { describe(\"c\", () => {}); }); }); 1`] = `
+
+Options:
+- max: 1
+
+Code:
+  1 | import {describe} from 'node:test';
+  2 | describe("a", () => { describe("b", () => { describe("c", () => {}); }); });
+
+`;
+
+exports[`max-nested-describe > invalid(4): import {describe} from 'node:test';\ndescribe(\"a\", () => { describe(\"b\", () => { describe(\"c\", () => {}); }); }); 2`] = `
+
+Message:
+  1 | import {describe} from 'node:test';
+> 2 | describe("a", () => { describe("b", () => { describe("c", () => {}); }); });
+    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Describe blocks are nested too deeply (2). Maximum allowed is 1.
+
+`;
+
+exports[`max-nested-describe > invalid(4): import {describe} from 'node:test';\ndescribe(\"a\", () => { describe(\"b\", () => { describe(\"c\", () => {}); }); }); 3`] = `
+
+Message:
+  1 | import {describe} from 'node:test';
+> 2 | describe("a", () => { describe("b", () => { describe("c", () => {}); }); });
+    |                                             ^^^^^^^^^^^^^^^^^^^^^^^ Describe blocks are nested too deeply (3). Maximum allowed is 1.
+
+`;
+
+exports[`max-nested-describe > invalid(5): import {describe} from 'node:test';\ndescribe(\"a\", () => { describe(\"a1\", () => {}); });\ndescribe(\"b\", () => { describe(\"b1\", () => {}); }); 1`] = `
+
+Options:
+- max: 1
+
+Code:
+  1 | import {describe} from 'node:test';
+  2 | describe("a", () => { describe("a1", () => {}); });
+  3 | describe("b", () => { describe("b1", () => {}); });
+
+`;
+
+exports[`max-nested-describe > invalid(5): import {describe} from 'node:test';\ndescribe(\"a\", () => { describe(\"a1\", () => {}); });\ndescribe(\"b\", () => { describe(\"b1\", () => {}); }); 2`] = `
+
+Message:
+  1 | import {describe} from 'node:test';
+> 2 | describe("a", () => { describe("a1", () => {}); });
+    |                       ^^^^^^^^^^^^^^^^^^^^^^^^ Describe blocks are nested too deeply (2). Maximum allowed is 1.
+  3 | describe("b", () => { describe("b1", () => {}); });
+
+`;
+
+exports[`max-nested-describe > invalid(5): import {describe} from 'node:test';\ndescribe(\"a\", () => { describe(\"a1\", () => {}); });\ndescribe(\"b\", () => { describe(\"b1\", () => {}); }); 3`] = `
+
+Message:
+  1 | import {describe} from 'node:test';
+  2 | describe("a", () => { describe("a1", () => {}); });
+> 3 | describe("b", () => { describe("b1", () => {}); });
+    |                       ^^^^^^^^^^^^^^^^^^^^^^^^ Describe blocks are nested too deeply (2). Maximum allowed is 1.
+
+`;
+
+exports[`max-nested-describe > invalid(6): import {describe, test} from 'node:test';\ntest(\"t\", () => { describe(\"a\", () => { describe(\"b\", () => {}); }); }); 1`] = `
+
+Options:
+- max: 1
+
+Code:
+  1 | import {describe, test} from 'node:test';
+  2 | test("t", () => { describe("a", () => { describe("b", () => {}); }); });
+
+`;
+
+exports[`max-nested-describe > invalid(6): import {describe, test} from 'node:test';\ntest(\"t\", () => { describe(\"a\", () => { describe(\"b\", () => {}); }); }); 2`] = `
+
+Message:
+  1 | import {describe, test} from 'node:test';
+> 2 | test("t", () => { describe("a", () => { describe("b", () => {}); }); });
+    |                                         ^^^^^^^^^^^^^^^^^^^^^^^ Describe blocks are nested too deeply (2). Maximum allowed is 1.
+
+`;
+
+exports[`max-nested-describe > invalid(7): import * as nodeTest from 'node:test';\nnodeTest.describe(\"a\", () => { nodeTest.describe(\"b\", () => {}); }); 1`] = `
+
+Options:
+- max: 1
+
+Code:
+  1 | import * as nodeTest from 'node:test';
+  2 | nodeTest.describe("a", () => { nodeTest.describe("b", () => {}); });
+
+`;
+
+exports[`max-nested-describe > invalid(7): import * as nodeTest from 'node:test';\nnodeTest.describe(\"a\", () => { nodeTest.describe(\"b\", () => {}); }); 2`] = `
+
+Message:
+  1 | import * as nodeTest from 'node:test';
+> 2 | nodeTest.describe("a", () => { nodeTest.describe("b", () => {}); });
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Describe blocks are nested too deeply (2). Maximum allowed is 1.
+
+`;
+
+exports[`max-nested-describe > invalid(8): import {describe, it} from 'node:test';\ndescribe(\"d1\", () => { describe(\"d2\", () => { describe(\"d3\", () => { describe(\"d4\", () => { describe(\"d5\", () => { describe(\"d6\", () => { it(\"t\", () => {}); }); }); }); }); }); }); 1`] = `
 
   1 | import {describe, it} from 'node:test';
   2 | describe("d1", () => { describe("d2", () => { describe("d3", () => { describe("d4", () => { describe("d5", () => { describe("d6", () => { it("t", () => {}); }); }); }); }); }); });
 
 `;
 
-exports[`max-nested-describe > invalid(4): import {describe, it} from 'node:test';\ndescribe(\"d1\", () => { describe(\"d2\", () => { describe(\"d3\", () => { describe(\"d4\", () => { describe(\"d5\", () => { describe(\"d6\", () => { it(\"t\", () => {}); }); }); }); }); }); }); 2`] = `
+exports[`max-nested-describe > invalid(8): import {describe, it} from 'node:test';\ndescribe(\"d1\", () => { describe(\"d2\", () => { describe(\"d3\", () => { describe(\"d4\", () => { describe(\"d5\", () => { describe(\"d6\", () => { it(\"t\", () => {}); }); }); }); }); }); }); 2`] = `
 
 Message:
   1 | import {describe, it} from 'node:test';

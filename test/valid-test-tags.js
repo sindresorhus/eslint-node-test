@@ -33,6 +33,12 @@ test.snapshot({
 		withImport('test("title", {tags: [...tagNames]}, () => {});'),
 		// eslint-disable-next-line no-template-curly-in-string
 		withImport('test("title", {tags: [`tag-${name}`]}, () => {});'),
+		withImport('test("title", {tags: [tagName]}, () => {});'),
+		// A unary tag list is not a static value the rule reads, so it is not reported as non-array
+		withImport('test("title", {tags: -[name]}, () => {});'),
+
+		// An object past the callback is never read, so its `tags` is not the test's
+		withImport('test("title", () => {}, {tags: ["UPPER"]});'),
 
 		// Hooks do not support tags
 		withImport('before({tags: ["UPPERCASE"]}, () => {});'),
@@ -115,6 +121,11 @@ test.snapshot({
 		// A tag with whitespace or a tag-filter operator character makes `test()` throw
 		withImport('test("title", {tags: [\'a b\']}, () => {});'),
 		withImport(String.raw`test("title", {tags: ['a\tb']}, () => {});`),
+		// The other whitespace code points `node:test` rejects, which `\s` would also have caught. A
+		// carriage return is left out on purpose: it cannot survive the snapshot file round trip.
+		withImport(String.raw`test("title", {tags: ['a\nb']}, () => {});`),
+		withImport(String.raw`test("title", {tags: ['a\vb']}, () => {});`),
+		withImport(String.raw`test("title", {tags: ['a\fb']}, () => {});`),
 		withImport('test("title", {tags: [\' a\']}, () => {});'),
 		withImport('test("title", {tags: [\'a&b\']}, () => {});'),
 		withImport('test("title", {tags: [\'a|b\']}, () => {});'),
@@ -134,7 +145,31 @@ test.snapshot({
 		withImport('test("title", {tags: [\'not\']}, () => {});'),
 		// Lowercasing a reserved word would only produce another reserved word, so there is no fix
 		withImport('test("title", {tags: [\'AND\']}, () => {});'),
+		withImport('test("title", {tags: [\'OR\']}, () => {});'),
 		withImport('test("title", {tags: [\'Not\']}, () => {});'),
+		// A reserved word is reported as itself twice over, never as a lowercase-and-duplicate pair:
+		// the reserved check comes first and returns, so it never reaches the tag list
+		withImport('test("title", {tags: [\'not\', \'not\']}, () => {});'),
+		// The same for an empty tag, which is reported on the node itself and never collected
+		withImport('test("title", {tags: ["", ""]}, () => {});'),
+
+		// The object-descriptor form reads its `tags` from the first argument
+		withImport('test({name: "title", tags: ["UPPER"], fn() {}});'),
+		withImport('it({name: "title", tags: ["UPPER"], fn() {}});'),
+		withImport('suite({name: "title", tags: ["UPPER"], fn() {}});'),
+		withImport('test({name: "title", tags: "UPPER"});'),
+		'import {test} from \'node:test\';\ntest(\'p\', t => { t.test({name: \'a\', tags: [\'UPPER\']}); });',
+
+		// A spread proves nothing about its own slot, so the entries around it are still checked
+		withImport('test("title", {tags: [...base, "UPPER"]}, () => {});'),
+		withImport('test("title", {tags: ["unit", ...base, "UNIT"]}, () => {});'),
+
+		// The lowercase fix keeps the tag's own quoting, escaping what it has to
+		withImport('test("title", {tags: [\'UPPER\']}, () => {});'),
+		withImport(String.raw`test("title", {tags: ['UP\'PER']}, () => {});`),
+
+		// A nested array is a static value that is not a string
+		withImport('test("title", {tags: [["unit"]]}, () => {});'),
 	],
 });
 

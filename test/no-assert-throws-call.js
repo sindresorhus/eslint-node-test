@@ -48,6 +48,14 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 
+		// A nested function body is a separate evaluation, so an `await` inside one is not the
+		// argument's own work
+		withAssert('assert.throws(async () => { await parse(input); });'),
+		// An `await` with no call in it runs nothing either
+		withAssert('async function run() {\n\tassert.throws(await maybeCallback);\n}'),
+		// Only the first argument is analyzed: the rule is about the function handed to the assertion
+		withAssert('assert.throws(callback, buildValidator());'),
+
 		// `.assert.throws` on a non-context object — not a test context
 		withAssert('const custom = {assert: {throws() {}}};\ncustom.assert.throws(parse(input));'),
 	],
@@ -98,5 +106,17 @@ test.snapshot({
 			code: withAssert('assert.throws(parse(input) satisfies never);'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		// A `getTestContext()` receiver is a test context
+		'import {getTestContext} from \'node:test\';\ngetTestContext().assert.throws(parse(input));',
+		{
+			code: withTest('test(\'t\', t => { (t as Context).assert.throws(parse(input)); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		// The factory itself has to run, so a `.bind()` whose receiver is a call is still work
+		withAssert('assert.throws(getFn().bind(null));'),
+		// A comment inside the argument survives the suggestion
+		withAssert('assert.throws(parse(/* keep */ input));'),
+		// An `await` anywhere in the argument makes the suggested arrow async
+		withAssert('async function run() {\n\tassert.throws(check(await getCallback()));\n}'),
 	],
 });

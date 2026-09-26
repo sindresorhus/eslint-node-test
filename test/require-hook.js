@@ -27,12 +27,17 @@ test.snapshot({
 		withImport('(function () {\n\ttest("x", () => {});\n})();'),
 		withImport('(() => {\n\tdescribe("s", () => {\n\t\ttest("x", () => {});\n\t});\n})();'),
 		withImport('(() => { beforeEach(() => {}); })();'),
+		withImport('(() => test("x", () => {}))();'),
+		withImport('register(() => { test("x", () => {}); });'),
+		// A descriptor body that only registers is not setup either
+		'import {describe} from \'node:test\';\ndescribe({name: \'a\', fn() { test("x", () => {}); }});',
 		withImport('[1].forEach(() => { test("x", () => {}); });'),
 
 		// Variable declarations are allowed (only bare calls are flagged)
 		withImport('const server = startServer();\ntest("x", () => {});'),
 
 		// Assertions are reported by no-assert-in-describe, not here
+		'import {describe} from \'node:test\';\nimport assert from \'node:assert/strict\';\ndescribe("s", () => { assert.ok(a); });',
 		'import {describe} from \'node:test\';\nimport assert from \'node:assert\';\ndescribe("s", () => { assert.ok(a); });',
 
 		// The registration-call and assertion exemptions survive the value-discarding wrapper
@@ -40,6 +45,13 @@ test.snapshot({
 		'import test, {describe} from \'node:test\';\nvoid describe("s", () => {});\ntest("x", () => {});',
 		'import test from \'node:test\';\nimport assert from \'node:assert\';\nawait assert.ok(a);\ntest("x", () => {});',
 
+		// `delete` removes a property instead of invoking one
+		withImport('delete cache.entry;\ntest("x", () => {});'),
+		// Nested one level deeper, so not directly in a registration scope
+		withImport('describe("s", () => { if (ready) { seedData(); } test("x", () => {}); });'),
+		withImport('describe("s", () => { try { seedData(); } catch {} test("x", () => {}); });'),
+		// On the right of an assignment the call is not a bare statement
+		withImport('server = startServer();\ntest("x", () => {});'),
 		// `typeof` on a bare identifier reads a binding, it does not call anything
 		withImport('typeof startServer;\ntest("x", () => {});'),
 
@@ -55,6 +67,10 @@ test.snapshot({
 			code: withImport('console.log("loaded");\ntest("x", () => {});'),
 			options: [{allow: ['console.log']}],
 		},
+		{
+			code: withImport('describe("s", () => { seedData(); test("x", () => {}); });'),
+			options: [{allow: ['seedData']}],
+		},
 	],
 	invalid: [
 		// An immediately invoked function that does real setup still runs at load time
@@ -64,6 +80,12 @@ test.snapshot({
 
 		// Bare setup call at the module top level
 		withImport('startServer();\ntest("x", () => {});'),
+		// A call with no function among its arguments has nothing to inspect
+		withImport('register(test("x", () => {}));'),
+		// A namespace import still makes a registration scope
+		'import * as nodeTest from \'node:test\';\nseedData();\nnodeTest.test("x", () => {});',
+		// The `suite` alias has the same registration scope as `describe`
+		withImport('suite("s", () => { seedData(); test("x", () => {}); });'),
 
 		// Setup call directly in a describe body
 		withImport('describe("s", () => { seedData(); test("x", () => {}); });'),
@@ -92,6 +114,7 @@ test.snapshot({
 		withImport('void startServer();\ntest("x", () => {});'),
 		withImport('!startServer();\ntest("x", () => {});'),
 		withImport('void database.connect();\ntest("x", () => {});'),
+		withImport('+startServer();\ntest("x", () => {});'),
 
 		// Inside a suite body too
 		withImport('describe("s", async () => { await seedData(); test("x", () => {}); });'),
@@ -101,6 +124,11 @@ test.snapshot({
 		{
 			code: withImport('await log("loaded");\ntest("x", () => {});'),
 			options: [{allow: ['debug']}],
+		},
+		// The allow list matches the callee text exactly
+		{
+			code: withImport('console.log("loaded");\ntest("x", () => {});'),
+			options: [{allow: ['log']}],
 		},
 
 		// Optional chaining is an expression wrapper too. Walking up from it instead of unwrapping

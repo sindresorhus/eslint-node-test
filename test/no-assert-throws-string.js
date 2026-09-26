@@ -29,6 +29,10 @@ test.snapshot({
 
 		// `.assert.throws` on a non-context object — not a test context
 		withAssert('const custom = {assert: {throws() {}}};\ncustom.assert.throws(fn, "Wrong value");'),
+
+		// A concatenation is not statically known to be a string
+		withAssert('assert.throws(fn, "Wrong " + value);'),
+		withAssert('assert.throws(fn, String(value));'),
 	],
 	invalid: [
 		// String literal matcher
@@ -43,6 +47,13 @@ test.snapshot({
 
 		// With a trailing message argument
 		withAssert('assert.throws(fn, "Wrong value", "failure message");'),
+
+		// A comment after the matcher is outside the replaced text, so the suggestion keeps it
+		withAssert('assert.throws(fn, "Wrong value" /* keep me */);'),
+
+		// `rejects`, by named import and through the test context
+		withNamedImport('rejects', 'rejects(fn, "Wrong value");'),
+		withTest('test(\'t\', t => { t.assert.rejects(fn, "Wrong value"); });'),
 
 		// Named import
 		withNamedImport('throws', 'throws(fn, "Wrong value");'),

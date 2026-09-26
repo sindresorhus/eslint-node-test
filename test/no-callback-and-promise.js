@@ -74,9 +74,16 @@ test.snapshot({
 			code: withImport('test("x", async (t, done): Promise<void> => { done(); });'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			// TypeScript emits an optional parameter as a plain one, so the arity is still 2 and
+			// `node:test` does pass `done` — unlike a JavaScript default parameter
+			code: withImport('test("x", async (t, done?: () => void) => { done(); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
 		// An async subtest / context hook callback with a `done` parameter fails the same way
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\', async (sub, done) => { done(); }); });',
 		'import {test} from \'node:test\';\ntest(\'p\', t => { t.beforeEach(async (sub, done) => {}); });',
+		'import {test, getTestContext} from \'node:test\';\ntest(\'p\', async () => { await getTestContext().test(\'a\', async (sub, done) => {}); });',
 
 		// A hook declared through `getTestContext()` is the same hook
 		'import {test, getTestContext} from \'node:test\';\ntest(\'p\', t => { getTestContext().beforeEach(async (sub, done) => {}); });',

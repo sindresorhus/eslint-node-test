@@ -24,6 +24,9 @@ test.snapshot({
 
 		// `.assert.*` on a non-context object inside a hook — not a test context
 		withSetup('beforeEach(() => { const obj = {assert: {ok() {}}}; obj.assert.ok(value); });'),
+
+		// A callback nested in the hook body is not the hook body itself
+		'import {beforeEach} from \'node:test\';\nimport assert from \'node:assert\';\nbeforeEach(() => { items.forEach(() => { assert.ok(value); }); });',
 	],
 	invalid: [
 		// Assertion directly in each hook type
@@ -33,9 +36,17 @@ test.snapshot({
 		withSetup('beforeEach(() => { assert.ok(value); }, {timeout: 1000});'),
 		withSetup('afterEach(() => { assert(value); });'),
 		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest.beforeEach(() => { assert.ok(value); }, {timeout: 1000});',
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest.after(() => { assert.ok(value); });',
 
 		// Hook inside a describe
 		withSetup('describe(\'suite\', () => { beforeEach(() => { assert.ok(value); }); });'),
+		withSetup('describe(\'suite\', () => { before(async () => { assert.ok(value); }); });'),
+
+		// Hooks declared through a namespace import
+		'import * as nodeTest from \'node:test\';\nimport assert from \'node:assert\';\nnodeTest.beforeEach(() => { assert.ok(value); });',
+
+		// A hook declared inside a subtest is still a hook
+		'import {test, beforeEach} from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'p\', async t => { await t.test(\'c\', () => { beforeEach(() => { assert.ok(value); }); }); });',
 
 		// Nested inside a conditional within the hook body
 		withSetup('beforeEach(() => { if (x) { assert.ok(value); } });'),

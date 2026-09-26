@@ -19,9 +19,16 @@ test.snapshot({
 		{code, filename: '/project/src/foo.test.js'},
 		{code, filename: 'foo.test.ts'},
 		{code, filename: 'foo.test.mjs'},
+		{code, filename: 'foo.test.tsx'},
+
+		// A Windows path is split on the backslash too
+		{code, filename: String.raw`C:\project\src\foo.test.js`},
 
 		// Custom pattern
 		{code, filename: 'foo-test.js', options: [{pattern: String.raw`-test\.js$`}]},
+
+		// The pattern is an unanchored search, not a full match
+		{code, filename: 'test-helpers.js', options: [{pattern: 'test'}]},
 
 		// A character class that is valid in a plain regular expression must not crash the rule.
 		// The `v` flag rejects the unescaped `.`/`-` in a class and the bare `(`/`)` in one.
@@ -50,6 +57,9 @@ test.snapshot({
 
 		// Spec-style name does not match the default pattern
 		{code, filename: 'foo.spec.js'},
+
+		// `test.js` is a discovery pattern, but the default pattern requires a `.test.` segment
+		{code, filename: 'test.js'},
 
 		// Custom pattern not satisfied
 		{code, filename: 'foo.test.js', options: [{pattern: String.raw`\.spec\.js$`}]},

@@ -14,6 +14,54 @@ Message:
 
 `;
 
+exports[`no-async-describe > invalid(10): import * as nodeTest from 'node:test';\nnodeTest.describe(\"s\", async () => {}); 1`] = `
+
+  1 | import * as nodeTest from 'node:test';
+  2 | nodeTest.describe("s", async () => {});
+
+`;
+
+exports[`no-async-describe > invalid(10): import * as nodeTest from 'node:test';\nnodeTest.describe(\"s\", async () => {}); 2`] = `
+
+Message:
+  1 | import * as nodeTest from 'node:test';
+> 2 | nodeTest.describe("s", async () => {});
+    |                        ^^^^^^^^^^^^^^ \`node:test\` does await a \`describe\` callback, so an \`async\` one registers its tests late and a rejection cancels them. Make the callback synchronous and do async setup in a hook.
+
+`;
+
+exports[`no-async-describe > invalid(11): import {test, describe, suite, beforeEach} from 'node:test';\ndescribe(\"s\", async (): Promise<void> => {}); 1`] = `
+
+  1 | import {test, describe, suite, beforeEach} from 'node:test';
+  2 | describe("s", async (): Promise<void> => {});
+
+`;
+
+exports[`no-async-describe > invalid(11): import {test, describe, suite, beforeEach} from 'node:test';\ndescribe(\"s\", async (): Promise<void> => {}); 2`] = `
+
+Message:
+  1 | import {test, describe, suite, beforeEach} from 'node:test';
+> 2 | describe("s", async (): Promise<void> => {});
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`node:test\` does await a \`describe\` callback, so an \`async\` one registers its tests late and a rejection cancels them. Make the callback synchronous and do async setup in a hook.
+
+`;
+
+exports[`no-async-describe > invalid(12): import {test, describe, suite, beforeEach} from 'node:test';\ndescribe(\"s\", (async () => {}) as () => void); 1`] = `
+
+  1 | import {test, describe, suite, beforeEach} from 'node:test';
+  2 | describe("s", (async () => {}) as () => void);
+
+`;
+
+exports[`no-async-describe > invalid(12): import {test, describe, suite, beforeEach} from 'node:test';\ndescribe(\"s\", (async () => {}) as () => void); 2`] = `
+
+Message:
+  1 | import {test, describe, suite, beforeEach} from 'node:test';
+> 2 | describe("s", (async () => {}) as () => void);
+    |                ^^^^^^^^^^^^^^ \`node:test\` does await a \`describe\` callback, so an \`async\` one registers its tests late and a rejection cancels them. Make the callback synchronous and do async setup in a hook.
+
+`;
+
 exports[`no-async-describe > invalid(2): import {test, describe, suite, beforeEach} from 'node:test';\nsuite(\"s\", async () => { test(\"x\", () => {}); }); 1`] = `
 
   1 | import {test, describe, suite, beforeEach} from 'node:test';
@@ -78,34 +126,66 @@ Message:
 
 `;
 
-exports[`no-async-describe > invalid(6): import * as nodeTest from 'node:test';\nnodeTest.describe(\"s\", async () => {}); 1`] = `
-
-  1 | import * as nodeTest from 'node:test';
-  2 | nodeTest.describe("s", async () => {});
-
-`;
-
-exports[`no-async-describe > invalid(6): import * as nodeTest from 'node:test';\nnodeTest.describe(\"s\", async () => {}); 2`] = `
-
-Message:
-  1 | import * as nodeTest from 'node:test';
-> 2 | nodeTest.describe("s", async () => {});
-    |                        ^^^^^^^^^^^^^^ \`node:test\` does await a \`describe\` callback, so an \`async\` one registers its tests late and a rejection cancels them. Make the callback synchronous and do async setup in a hook.
-
-`;
-
-exports[`no-async-describe > invalid(7): import {test, describe, suite, beforeEach} from 'node:test';\ndescribe(\"s\", async (): Promise<void> => {}); 1`] = `
+exports[`no-async-describe > invalid(6): import {test, describe, suite, beforeEach} from 'node:test';\ndescribe.skip(\"s\", async () => {}, {skip: true}); 1`] = `
 
   1 | import {test, describe, suite, beforeEach} from 'node:test';
-  2 | describe("s", async (): Promise<void> => {});
+  2 | describe.skip("s", async () => {}, {skip: true});
 
 `;
 
-exports[`no-async-describe > invalid(7): import {test, describe, suite, beforeEach} from 'node:test';\ndescribe(\"s\", async (): Promise<void> => {}); 2`] = `
+exports[`no-async-describe > invalid(6): import {test, describe, suite, beforeEach} from 'node:test';\ndescribe.skip(\"s\", async () => {}, {skip: true}); 2`] = `
 
 Message:
   1 | import {test, describe, suite, beforeEach} from 'node:test';
-> 2 | describe("s", async (): Promise<void> => {});
-    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`node:test\` does await a \`describe\` callback, so an \`async\` one registers its tests late and a rejection cancels them. Make the callback synchronous and do async setup in a hook.
+> 2 | describe.skip("s", async () => {}, {skip: true});
+    |                    ^^^^^^^^^^^^^^ \`node:test\` does await a \`describe\` callback, so an \`async\` one registers its tests late and a rejection cancels them. Make the callback synchronous and do async setup in a hook.
+
+`;
+
+exports[`no-async-describe > invalid(7): import {describe as group} from 'node:test';\ngroup(\"s\", async () => {}); 1`] = `
+
+  1 | import {describe as group} from 'node:test';
+  2 | group("s", async () => {});
+
+`;
+
+exports[`no-async-describe > invalid(7): import {describe as group} from 'node:test';\ngroup(\"s\", async () => {}); 2`] = `
+
+Message:
+  1 | import {describe as group} from 'node:test';
+> 2 | group("s", async () => {});
+    |            ^^^^^^^^^^^^^^ \`node:test\` does await a \`describe\` callback, so an \`async\` one registers its tests late and a rejection cancels them. Make the callback synchronous and do async setup in a hook.
+
+`;
+
+exports[`no-async-describe > invalid(8): import {test, describe, suite, beforeEach} from 'node:test';\ndescribe({name: \"s\", fn: async () => {}}); 1`] = `
+
+  1 | import {test, describe, suite, beforeEach} from 'node:test';
+  2 | describe({name: "s", fn: async () => {}});
+
+`;
+
+exports[`no-async-describe > invalid(8): import {test, describe, suite, beforeEach} from 'node:test';\ndescribe({name: \"s\", fn: async () => {}}); 2`] = `
+
+Message:
+  1 | import {test, describe, suite, beforeEach} from 'node:test';
+> 2 | describe({name: "s", fn: async () => {}});
+    |                          ^^^^^^^^^^^^^^ \`node:test\` does await a \`describe\` callback, so an \`async\` one registers its tests late and a rejection cancels them. Make the callback synchronous and do async setup in a hook.
+
+`;
+
+exports[`no-async-describe > invalid(9): import {test, describe, suite, beforeEach} from 'node:test';\ndescribe(\"s\", {fn: async () => {}}); 1`] = `
+
+  1 | import {test, describe, suite, beforeEach} from 'node:test';
+  2 | describe("s", {fn: async () => {}});
+
+`;
+
+exports[`no-async-describe > invalid(9): import {test, describe, suite, beforeEach} from 'node:test';\ndescribe(\"s\", {fn: async () => {}}); 2`] = `
+
+Message:
+  1 | import {test, describe, suite, beforeEach} from 'node:test';
+> 2 | describe("s", {fn: async () => {}});
+    |                    ^^^^^^^^^^^^^^ \`node:test\` does await a \`describe\` callback, so an \`async\` one registers its tests late and a rejection cancels them. Make the callback synchronous and do async setup in a hook.
 
 `;

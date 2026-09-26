@@ -61,6 +61,21 @@ test.snapshot({
 		'import {describe} from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\ndescribe(\'suite\', async () => {\n\tawait delay(500);\n});',
 		withSuitePromiseTimerImport('describe.skip', '', 'test(\'waits\', async () => {\n\tawait delay(500);\n});'),
 		withSuitePromiseTimerImport('describe', '{skip: true}, ', 'test(\'waits\', async () => {\n\tawait delay(500);\n});'),
+
+		// A shadowed `resolve` is not the executor's resolver
+		withTest('await new Promise(resolve => {\n\t{\n\t\tconst resolve = other;\n\t\tsetTimeout(resolve, 500);\n\t}\n});'),
+		// A sleep in a nested helper body is out of scope, as the doc says
+		withTest('const later = async () => {\n\tawait new Promise(resolve => setTimeout(resolve, 500));\n};\nawait later();'),
+		// A shadowed `Promise` is not the global constructor
+		withTest('const Promise = class {};\nawait new Promise(resolve => setTimeout(resolve, 500));'),
+		// Only a function executor has parameters the resolver can be matched against
+		withTest('await new Promise(sleep);'),
+		// The object form puts the options first, and `skip` reads the same there
+		'import test from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\ntest({name: \'waits\', skip: true, fn: async () => {\n\tawait delay(500);\n}});',
+		// `skip` enables on anything that is neither `undefined` nor `false`, so `0` skips too
+		'import test from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\ntest(\'waits\', {skip: 0}, async () => {\n\tawait delay(500);\n});',
+		// A hook takes its callback first, so the runner never runs an options `fn`
+		'import {beforeEach} from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\nbeforeEach({fn: async () => {\n\tawait delay(1);\n}});',
 	],
 	invalid: [
 		withTest('await new Promise(resolve => setTimeout(resolve, 500));'),
@@ -185,5 +200,37 @@ test.snapshot({
 		'import {test, getTestContext} from \'node:test\';\n'
 		+ 'import {setTimeout as sleep} from \'node:timers/promises\';\n'
 		+ 'test(\'a\', async () => { getTestContext().beforeEach(async () => { await sleep(1); }); });',
+
+		// The object form runs its `fn` property
+		'import test from \'node:test\';\ntest({name: \'waits\', fn: async () => {\n\tawait new Promise(resolve => setTimeout(resolve, 500));\n}});',
+		// An unrenamed named timer import is the same `setTimeout`
+		'import test from \'node:test\';\nimport {setTimeout} from \'node:timers\';\ntest(\'waits\', async () => {\n\tawait new Promise(resolve => setTimeout(resolve, 500));\n});',
+		'import test from \'node:test\';\nimport timers from \'timers\';\ntest(\'waits\', async () => {\n\tawait new Promise(resolve => timers.setTimeout(resolve, 500));\n});',
+		// A function expression executor has parameters just like an arrow
+		withTest('await new Promise(function executor(resolve) {\n\tsetTimeout(resolve, 500);\n});'),
+		// The options `fn` is the callback `node:test` runs, ahead of a later positional function
+		'import test from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\ntest(\'waits\', {fn: async () => {\n\tawait delay(1);\n}}, async () => {});',
+		// `.only` leaves the subtest active, unlike `.skip` and `.todo`
+		withPromiseTimerContextImport('await t.test.only(\'child\', async () => {\n\tawait delay(500);\n});'),
+		// Both promise-timer bindings are collected, so both calls report
+		[
+			'import test from \'node:test\';',
+			'import {setTimeout as delay} from \'node:timers/promises\';',
+			'import {setTimeout as pause} from \'timers/promises\';',
+			'test(\'waits\', async () => {',
+			'\tawait delay(500);',
+			'\tawait pause(500);',
+			'});',
+		].join('\n'),
+		// A default and a namespace binding of the same `node:test` import are both usable
+		'import test, * as nodeTest from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\nnodeTest.it(\'waits\', async () => {\n\tawait delay(1);\n});',
+		{
+			code: withTest('await new Promise(resolve => (setTimeout!)(resolve, 500));'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withPromiseTimerImport('await (delay as (milliseconds: number) => Promise<void>)(500);'),
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

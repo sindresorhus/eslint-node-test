@@ -38,8 +38,23 @@ test.snapshot({
 		withImport('assert.equal(/a/, /a/);'),
 		withImport('assert.notStrictEqual(/a/, /a/);'),
 		withImport('assert.notEqual(/a/, /a/);'),
+
+		// A spread argument is not statically known, so it is never a pair of identical operands
+		withImport('assert.strictEqual(...args);'),
+		withImport('assert.notStrictEqual(x, ...args);'),
+
+		// A class expression is a class to the receiver just like a class declaration
+		withImport('let n = 0;\nconst Counter = class { get value() { return n++; } };\nconst counter = new Counter();\nassert.strictEqual(counter.value, counter.value);'),
+
+		// `.assert.*` on `this` is not a test context either
+		withImport('function f() {\n\tthis.assert.equal(x, x);\n}'),
 	],
 	invalid: [
+		// A declaration with no initializer is a plain variable, so the two reads are the same reference
+		'import assert from \'node:assert\';\nlet a;\nassert.strictEqual(a.b, a.b);',
+		'import assert from \'node:assert\';\nvar a;\nassert.deepStrictEqual(a.b, a.b);',
+		'import assert from \'node:assert\';\nlet a, other;\nassert.strictEqual(a.b, a.b);',
+
 		// A destructured `assert` is a real assertion, exactly like `t.assert`
 		'import test from \'node:test\';\ntest(\'x\', ({assert}) => { assert.strictEqual(a, a); });',
 		'import test from \'node:test\';\ntest(\'x\', ({assert: {notStrictEqual}}) => { notStrictEqual(a, a); });',
@@ -81,6 +96,20 @@ test.snapshot({
 			code: withImport('assert.strictEqual(x as Foo, x);'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: withImport('assert.strictEqual(x!, x!);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		// The strict view of the imported module is the same assertion
+		withImport('assert.strict.deepStrictEqual(x, x);'),
+		// A `getTestContext()` receiver is a test context
+		'import {getTestContext} from \'node:test\';\ngetTestContext().assert.strictEqual(x, x);',
+		// Named import of a negated method
+		'import {notStrictEqual} from \'node:assert\';\nnotStrictEqual(x, x);',
+		// Two identical literals are the same value too
+		withImport('assert.strictEqual(1, 1);'),
+		// And the positive deep method is an always-passes check as well
+		withImport('assert.deepEqual(x, x);'),
 		// The deep methods compare structure, where two identical patterns are the same value.
 		withImport('assert.deepStrictEqual(/a/, /a/);'),
 		withImport('assert.deepEqual(/a/, /a/);'),

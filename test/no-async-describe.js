@@ -18,6 +18,12 @@ test.snapshot({
 
 		// Describe with no callback (e.g. options only)
 		withImport('describe("s", {skip: true});'),
+
+		// `t.test` is a subtest, not a suite, so an async subtest callback is awaited like a test's
+		withImport('test("t", t => { t.test("s", async () => { await f(); }); });'),
+
+		// A named callback cannot be known to be async without type information
+		withImport('const callback = async () => {};\ndescribe("s", callback);'),
 	],
 	invalid: [
 		// Async describe
@@ -35,12 +41,27 @@ test.snapshot({
 		// `describe.only`
 		withImport('describe.only("s", async () => {});'),
 
+		// `describe.skip`
+		withImport('describe.skip("s", async () => {}, {skip: true});'),
+
+		// Renamed import
+		'import {describe as group} from \'node:test\';\ngroup("s", async () => {});',
+
+		// The suite callback in the object descriptor form is async too
+		withImport('describe({name: "s", fn: async () => {}});'),
+		withImport('describe("s", {fn: async () => {}});'),
+
 		// Namespace import
 		'import * as nodeTest from \'node:test\';\nnodeTest.describe("s", async () => {});',
 
 		// TypeScript
 		{
 			code: withImport('describe("s", async (): Promise<void> => {});'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			// A TypeScript assertion wrapping the callback does not hide it
+			code: withImport('describe("s", (async () => {}) as () => void);'),
 			languageOptions: {parser: parsers.typescript},
 		},
 	],

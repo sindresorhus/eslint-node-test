@@ -13,6 +13,8 @@ Prefer dedicated assertion methods over asserting the boolean result of regex me
 
 `String#match()` returns `Array | null`, not a boolean, so only its truthiness forms (like `assert.ok(str.match(/re/))`) are matched. Comparing the result to a boolean literal is a test bug rather than a style issue, and rewriting it would change the outcome, so the rule leaves it alone.
 
+The autofix needs the subject to possibly be a string, because `re.test(x)` coerces `x` while `assert.match(x, re)` throws unless `x` already is one. A subject that is statically not a string (a number, an array, a function, a class expression, a `Buffer` or a parsed JSON value, an assignment to one of those) is reported without a fix.
+
 ## Examples
 
 ```js

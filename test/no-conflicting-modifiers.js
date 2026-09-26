@@ -42,6 +42,9 @@ test.snapshot({
 		// that both fails as expected and carries the TODO marker means what it says
 		withImport('test.expectFailure("x", {todo: true}, () => {});'),
 		withImport('test("x", {todo: true, expectFailure: true}, () => {});'),
+		withImport('test({name: "x", skip: true, fn() {}});'),
+		// A subtest composes `expectFailure` with `only` the same way
+		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'c\', {expectFailure: true, only: true}, () => {}); });',
 	],
 	invalid: [
 		// Chained conflict
@@ -65,6 +68,9 @@ test.snapshot({
 		// `describe`
 		withImport('describe.skip.only("s", () => {});'),
 
+		// The object descriptor form carries the same options
+		withImport('test({name: "x", skip: true, only: true, fn() {}});'),
+
 		// Hook with conflicting options
 
 		// String-literal option key
@@ -86,5 +92,8 @@ test.snapshot({
 		// `expectFailure` and `skip` are enabled by any value that is neither `undefined` nor `false`
 		'import {test} from \'node:test\';\ntest(\'a\', {expectFailure: 0, skip: true}, () => {});',
 		'import {test} from \'node:test\';\ntest(\'a\', {skip: 0, only: true}, () => {});',
+		// `skip` is enabled by every value that is neither `undefined` nor `false`, `null` included
+		'import {test} from \'node:test\';\ntest(\'a\', {skip: null, only: true}, () => {});',
+		'import {test} from \'node:test\';\ntest(\'a\', {skip: \'\', only: true}, () => {});',
 	],
 });

@@ -31,6 +31,12 @@ test.snapshot({
 
 		// The standalone expected-failure export is still a `test`.
 		'import {expectFailure} from \'node:test\';\nexpectFailure("a", () => {});',
+
+		// A suite declared inside a test body does not put that test inside a `describe`
+		head + 'test("a", () => { describe("s", () => {}); });',
+
+		// A `node:test` export that is not a test call
+		'import {mock} from \'node:test\';\nmock.module(\'module.js\');',
 	],
 	invalid: [
 		// `it` at the top level (default wants `test`)
@@ -54,6 +60,12 @@ test.snapshot({
 		// Namespace import — `it` at top level (default wants `test`)
 		'import * as nodeTest from \'node:test\';\nnodeTest.it("a", () => {});',
 		'import {it} from \'node:test\';\nit.expectFailure("a", () => {});',
+
+		// A namespace `describe` still opens a suite
+		'import * as nodeTest from \'node:test\';\nnodeTest.describe("s", () => { nodeTest.test("a", () => {}); });',
+
+		// `suite` is an alias for `describe` on the reporting side too
+		head + 'suite("s", () => { test("a", () => {}); });',
 
 		// TypeScript
 		{

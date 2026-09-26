@@ -36,6 +36,27 @@ test.snapshot({
 		// Custom lower limit
 		{code: nest(3), options: [{max: 2}]},
 
+		// The lowest `max` the schema allows
+		{code: 'import {describe} from \'node:test\';\ndescribe("a", () => { describe("b", () => { describe("c", () => {}); }); });', options: [{max: 1}]},
+
+		// Depth is per-branch, so only the second level of each branch is over the limit
+		{
+			code: 'import {describe} from \'node:test\';\ndescribe("a", () => { describe("a1", () => {}); });\ndescribe("b", () => { describe("b1", () => {}); });',
+			options: [{max: 1}],
+		},
+
+		// A suite nested in a test body still counts toward the depth
+		{
+			code: 'import {describe, test} from \'node:test\';\ntest("t", () => { describe("a", () => { describe("b", () => {}); }); });',
+			options: [{max: 1}],
+		},
+
+		// Namespace import
+		{
+			code: 'import * as nodeTest from \'node:test\';\nnodeTest.describe("a", () => { nodeTest.describe("b", () => {}); });',
+			options: [{max: 1}],
+		},
+
 		// TypeScript
 		{
 			code: nest(6),

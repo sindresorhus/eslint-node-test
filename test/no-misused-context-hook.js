@@ -20,16 +20,25 @@ test.snapshot({
 		withTest('test(\'parent\', t => { t.beforeEach(() => {}); items.some(item => t.test(item, () => {})); });'),
 		withTest('test(\'parent\', t => { t.beforeEach(() => {}); items.every(item => t.test(item, () => {})); });'),
 		withTest('test(\'parent\', t => { t.beforeEach(() => {}); items.flatMap(item => [t.test(item, () => {})]); });'),
+		// The other loop forms, and a `switch` case, are part of the test body too
+		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); for (let index = 0; index < count; index += 1) { await t.test(\'x\', () => {}); } });'),
+		withTest('test(\'parent\', t => { t.afterEach(() => {}); do { t.test(\'x\', () => {}); } while (hasMore()); });'),
+		withTest('test(\'parent\', t => { t.beforeEach(() => {}); switch (mode) { case \'a\': t.test(\'x\', () => {}); break; } });'),
+		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); for (const batch of batches) { items.map(item => t.test(item, () => {})); } });'),
 		// A function that is called where it is written is not a scope boundary
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); (() => { t.test(\'child\', () => {}); })(); await t.test(\'sibling\', () => {}); });'),
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); (function () { t.test(\'child\', () => {}); })(); await t.test(\'sibling\', () => {}); });'),
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); (() => t.test(\'child\', () => {}))(); await t.test(\'sibling\', () => {}); });'),
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); new (class { constructor() { t.test(\'child\', () => {}); } })(); await t.test(\'sibling\', () => {}); });'),
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); new (() => { t.test(\'child\', () => {}); })(); await t.test(\'sibling\', () => {}); });'),
+		// A context hook written inside such a function belongs to it, not to the test, so it is not found
+		withTest('test(\'leaf\', t => { items.map(item => { t.beforeEach(() => {}); }); });'),
+		withTest('test(\'leaf\', t => { (() => { t.afterEach(() => {}); })(); });'),
 		// Hooks run around ordinary and TODO subtests.
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); t.afterEach(() => {}); await t.test(\'child\', () => {}); });'),
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {todo: true}, () => {}); });'),
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {skip: false}, () => {}); });'),
+		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {skip: shouldSkip()}, () => {}); });'),
 		withTest('const shouldSkip = false;\ntest(\'parent\', async t => { t.afterEach(() => {}); await t.test(\'child\', {skip: shouldSkip}, () => {}); });'),
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {skip: true, skip: false}, () => {}); });'),
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\'); });'),
@@ -39,6 +48,7 @@ test.snapshot({
 		withTest('test(\'parent\', t => { t.afterEach(() => {}); test.todo(\'child\', () => {}); });'),
 		withTest('test(\'parent\', t => { t.afterEach(() => {}); test.expectFailure(\'child\', () => {}); });'),
 		withTest('test(\'parent\', parent => { parent.beforeEach(() => {}); test(\'child\', child => { child.afterEach(() => {}); test(\'grandchild\', () => {}); }); });'),
+		withTest('test(\'parent\', t => { t.beforeEach(() => {}); test(\'child\', t2 => { t.test(\'grandchild\', () => {}); }); });'),
 		'import test, {it} from \'node:test\';\ntest(\'parent\', t => { t.beforeEach(() => {}); it(\'child\', () => {}); });',
 		'import test, {it} from \'node:test\';\ntest(\'parent\', t => { t.afterEach(() => {}); it.expectFailure(\'child\', () => {}); });',
 		'import test, {test as specify} from \'node:test\';\ntest(\'parent\', t => { t.beforeEach(() => {}); specify(\'child\', () => {}); });',
@@ -47,6 +57,7 @@ test.snapshot({
 		withTest('test(\'parent\', () => { test(\'child\', {skip: true}, t => { t.beforeEach(() => {}); }); });'),
 		withTest('test.skip(\'skipped\', () => { test(\'child\', t => { t.afterEach(() => {}); }); });'),
 		withTest('test(\'skipped\', {skip: true}, () => { test(\'child\', t => { t.beforeEach(() => {}); }); });'),
+		withTest('test(\'parent\', t => { t.test(\'child\', {skip: true}, child => { child.beforeEach(() => {}); }); });'),
 		withTest('test.expectFailure(\'skipped\', {skip: true}, () => { test(\'child\', t => { t.afterEach(() => {}); }); });'),
 		'import test, {describe} from \'node:test\';\ndescribe.skip(\'skipped\', () => { test(\'child\', t => { t.beforeEach(() => {}); }); });',
 		'import test, {suite as group} from \'node:test\';\ngroup(\'skipped\', {skip: true}, () => { test(\'child\', t => { t.afterEach(() => {}); }); });',
@@ -65,6 +76,7 @@ test.snapshot({
 
 		// Lookalikes and shadowed bindings are ignored.
 		withTest('test(\'leaf\', t => { const hooks = {beforeEach() {}}; hooks.beforeEach(); });'),
+		withTest('test(\'leaf\', t => { t[\'beforeEach\'](() => {}); });'),
 		withTest('test(\'leaf\', t => { { const t = {afterEach() {}}; t.afterEach(); } });'),
 		withTest('test(\'leaf\', () => { unknown.beforeEach(() => {}); });'),
 		withTest('test(\'leaf\', t => { function configure() { t.beforeEach(() => {}); } });'),
@@ -80,16 +92,28 @@ test.snapshot({
 		// A hook and its subtest both reached through `getTestContext()`
 		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', async () => {\n\tgetTestContext().beforeEach(() => {});\n\tawait getTestContext().test(\'c\', () => {});\n});',
 		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', async () => { await getTestContext().test(\'c\', () => {}); });',
+		'import test, {getTestContext} from \'node:test\';\ntest(\'a\', async () => {\n\ttest.getTestContext().beforeEach(() => {});\n\tawait test.getTestContext().test(\'c\', () => {});\n});',
+		'import * as nodeTest from \'node:test\';\nnodeTest.test(\'a\', async () => { nodeTest.getTestContext().beforeEach(() => {}); await nodeTest.getTestContext().test(\'c\', () => {}); });',
+		'import test, {getTestContext} from \'node:test\';\ntest(\'a\', t => { t.beforeEach(() => {}); getTestContext().test(\'c\', () => {}); });',
 		// An unrelated object is not a test context
 		'import {test} from \'node:test\';\ntest(\'a\', t => { foo.beforeEach(() => {}); });',
 	],
 	invalid: [
+		// `node:test` skips for anything that is neither `undefined` nor `false`, so the child is not
+		// runnable and the hook has nothing to apply to
+		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {skip: 0}, () => {}); });'),
+		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {skip: \'\'}, () => {}); });'),
+		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {skip: null}, () => {}); });'),
+		withTest('test(\'parent\', async t => { t.afterEach(() => {}); await t.test(\'child\', {skip: Number.NaN}, () => {}); });'),
 		// A second argument to an array method is `thisArg`, which the method never calls, so a
 		// subtest written there never runs
 		withTest('test(\'p\', t => { t.beforeEach(() => {}); items.map(() => {}, function () { t.test(\'a\', () => {}); }); });'),
 		withTest('test(\'p\', t => { t.beforeEach(() => {}); items.filter(() => true, function () { t.test(\'a\', () => {}); }); });'),
 		// A declared helper is a real scope boundary, so its subtests do not count even inside a loop
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); items.map(item => { function inner() { return t.test(item, () => {}); } }); });'),
+		withTest('test(\'p\', t => { t.beforeEach(() => {}); each(() => t.test(\'a\', () => {})); });'),
+		// A computed array method is not an iteration, so its callback is a scope boundary
+		withTest('test(\'p\', t => { t.beforeEach(() => {}); items[\'forEach\'](item => { t.test(\'a\', () => {}); }); });'),
 
 		// Leaf test context hooks.
 		withTest('test(\'leaf\', t => { t.beforeEach(() => {}); });'),
@@ -98,6 +122,8 @@ test.snapshot({
 		withTest('test(\'leaf\', t => { t?.beforeEach(() => {}); });'),
 		withTest('test(\'leaf\', t => { t.beforeEach(() => {}); t.afterEach(() => {}); });'),
 		withTest('test(\'leaf\', (t = undefined) => { t.beforeEach(() => {}); });'),
+		// A test declared in a suite body is a leaf like any other
+		'import test, {describe} from \'node:test\';\ndescribe(\'s\', () => { test(\'a\', t => { t.beforeEach(() => {}); }); });',
 
 		// Skipped test and suite callbacks do not run.
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {skip: true}, () => {}); });'),
@@ -129,13 +155,20 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
+			code: withTest('test(\'leaf\', t => { (t satisfies object).beforeEach(() => {}); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
 			code: withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {skip: true as boolean}, () => {}); });'),
 			languageOptions: {parser: parsers.typescript},
 		},
 
 		// A hook reached through `getTestContext()` with no runnable subtest is the same misuse
 		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', () => {\n\tgetTestContext().beforeEach(() => {});\n});',
+		// Optional chaining does not hide the receiver
+		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', () => { getTestContext()?.beforeEach(() => {}); });',
 		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', async () => {\n\tgetTestContext().beforeEach(() => {});\n\tawait getTestContext().test(\'c\', {skip: true}, () => {});\n});',
+		'import * as nodeTest from \'node:test\';\nnodeTest.test(\'a\', () => { nodeTest.getTestContext().afterEach(() => {}); });',
 
 		// `t.test` has no `skip`, `only` or `todo` method, so a chained call throws and registers
 		// nothing, which leaves the hook with no subtest to run around

@@ -48,6 +48,17 @@ test.snapshot({
 		withTest('\tassert.strictEqual(user.id, 1);\n\tconst marker = true;\n\tassert.strictEqual(user.id, 1);'),
 		withTest('\tassert.strictEqual(user.id, 1);\n\tif (ready) {\n\t\tassert.ok(ready);\n\t}\n\tassert.strictEqual(user.id, 1);'),
 
+		// A statement that is not an assertion expression breaks the run, whatever its shape
+		withAsyncTest('\tassert.strictEqual(user.id, 1);\n\tawait cleanup();\n\tassert.strictEqual(user.id, 1);'),
+		withTest('\tassert.strictEqual(user.id, 1);\n\tcounter++;\n\tassert.strictEqual(user.id, 1);'),
+		{
+			code: withTest('\tassert.strictEqual(user.id, 1);\n\tuser!.id;\n\tassert.strictEqual(user.id, 1);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// Only the test body's own statement list is checked, not a nested block's
+		withTest('\tfor (const user of users) {\n\t\tassert.strictEqual(user.id, 1);\n\t\tassert.strictEqual(user.id, 1);\n\t}'),
+
 		// Different assertions
 		withTest('\tassert.strictEqual(user.id, 1);\n\tassert.strictEqual(user.name, \'Ada\');'),
 		withTest('\tassert.strictEqual(user.id, 1);\n\tassert.equal(user.id, 1);'),
@@ -139,6 +150,11 @@ test.snapshot({
 		// TypeScript wrappers
 		{
 			code: withTest('\tassert.strictEqual(user.id as number, 1);\n\tassert.strictEqual(user.id, 1);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		// A wrapper on the whole statement does not hide the assertion
+		{
+			code: withTest('\tassert.strictEqual(user.id, 1)!;\n\tassert.strictEqual(user.id, 1)!;'),
 			languageOptions: {parser: parsers.typescript},
 		},
 	],

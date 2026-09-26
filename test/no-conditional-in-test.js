@@ -52,6 +52,10 @@ test.snapshot({
 		withImport('test("x", t => {\n\tconsole.log(a ? 1 : 2);\n});'),
 		withImport('test("x", t => {\n\tassert.ok(a ? 1 : 2);\n});'),
 		withImport('test("x", t => {\n\tsetup(flag ? work() : other());\n});'),
+		// An unrelated object's `test` method registers nothing, so a conditional in its arguments is
+		// the body's own logic
+		withImport('test("x", t => {\n\tclient.test(ready ? 1 : 2);\n});'),
+		withImport('test("x", t => {\n\tassert.test(ready ? 1 : 2);\n});'),
 
 		// Only the options slot's `fn` runs, so a conditional in a trailing object's `fn` is dead code
 		'import test from \'node:test\';\ntest("a", {fn() { if (c) { f(); } }}, {fn() {}});',
