@@ -423,14 +423,94 @@ Output:
 
 `;
 
-exports[`test-title > invalid(31): import {test} from 'node:test';\ntest('p', async t => { await t.test(() => {}); }); 1`] = `
+exports[`test-title > invalid(31): import test from 'node:test';\ntest('b', {name: ' a ' as string}, () => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('b', {name: ' a ' as string}, () => {});
+
+`;
+
+exports[`test-title > invalid(31): import test from 'node:test';\ntest('b', {name: ' a ' as string}, () => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('b', {name: ' a ' as string}, () => {});
+    |                  ^^^^^ Test title must not have leading or trailing whitespace.
+
+Output:
+  1 | import test from 'node:test';
+  2 | test('b', {name: 'a' as string}, () => {});
+
+`;
+
+exports[`test-title > invalid(32): import test from 'node:test';\ntest('b', {name: ' a '!}, () => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('b', {name: ' a '!}, () => {});
+
+`;
+
+exports[`test-title > invalid(32): import test from 'node:test';\ntest('b', {name: ' a '!}, () => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('b', {name: ' a '!}, () => {});
+    |                  ^^^^^ Test title must not have leading or trailing whitespace.
+
+Output:
+  1 | import test from 'node:test';
+  2 | test('b', {name: 'a'!}, () => {});
+
+`;
+
+exports[`test-title > invalid(33): import test from 'node:test';\ntest({name: ' a ' satisfies string, fn() {}}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test({name: ' a ' satisfies string, fn() {}});
+
+`;
+
+exports[`test-title > invalid(33): import test from 'node:test';\ntest({name: ' a ' satisfies string, fn() {}}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test({name: ' a ' satisfies string, fn() {}});
+    |             ^^^^^ Test title must not have leading or trailing whitespace.
+
+Output:
+  1 | import test from 'node:test';
+  2 | test({name: 'a' satisfies string, fn() {}});
+
+`;
+
+exports[`test-title > invalid(34): import test from 'node:test';\ntest('c', {name: <string>' a '}, () => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('c', {name: <string>' a '}, () => {});
+
+`;
+
+exports[`test-title > invalid(34): import test from 'node:test';\ntest('c', {name: <string>' a '}, () => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('c', {name: <string>' a '}, () => {});
+    |                          ^^^^^ Test title must not have leading or trailing whitespace.
+
+Output:
+  1 | import test from 'node:test';
+  2 | test('c', {name: <string>'a'}, () => {});
+
+`;
+
+exports[`test-title > invalid(35): import {test} from 'node:test';\ntest('p', async t => { await t.test(() => {}); }); 1`] = `
 
   1 | import {test} from 'node:test';
   2 | test('p', async t => { await t.test(() => {}); });
 
 `;
 
-exports[`test-title > invalid(31): import {test} from 'node:test';\ntest('p', async t => { await t.test(() => {}); }); 2`] = `
+exports[`test-title > invalid(35): import {test} from 'node:test';\ntest('p', async t => { await t.test(() => {}); }); 2`] = `
 
 Message:
   1 | import {test} from 'node:test';
@@ -439,14 +519,14 @@ Message:
 
 `;
 
-exports[`test-title > invalid(32): import {test} from 'node:test';\ntest('p', async t => { await t.test(123, () => {}); }); 1`] = `
+exports[`test-title > invalid(36): import {test} from 'node:test';\ntest('p', async t => { await t.test(123, () => {}); }); 1`] = `
 
   1 | import {test} from 'node:test';
   2 | test('p', async t => { await t.test(123, () => {}); });
 
 `;
 
-exports[`test-title > invalid(32): import {test} from 'node:test';\ntest('p', async t => { await t.test(123, () => {}); }); 2`] = `
+exports[`test-title > invalid(36): import {test} from 'node:test';\ntest('p', async t => { await t.test(123, () => {}); }); 2`] = `
 
 Message:
   1 | import {test} from 'node:test';
@@ -455,14 +535,14 @@ Message:
 
 `;
 
-exports[`test-title > invalid(33): import test from \"node:test\";\ntest(undefined, () => {}); 1`] = `
+exports[`test-title > invalid(37): import test from \"node:test\";\ntest(undefined, () => {}); 1`] = `
 
   1 | import test from "node:test";
   2 | test(undefined, () => {});
 
 `;
 
-exports[`test-title > invalid(33): import test from \"node:test\";\ntest(undefined, () => {}); 2`] = `
+exports[`test-title > invalid(37): import test from \"node:test\";\ntest(undefined, () => {}); 2`] = `
 
 Message:
   1 | import test from "node:test";
@@ -471,14 +551,14 @@ Message:
 
 `;
 
-exports[`test-title > invalid(34): import test from \"node:test\";\ntest(NaN, () => {}); 1`] = `
+exports[`test-title > invalid(38): import test from \"node:test\";\ntest(NaN, () => {}); 1`] = `
 
   1 | import test from "node:test";
   2 | test(NaN, () => {});
 
 `;
 
-exports[`test-title > invalid(34): import test from \"node:test\";\ntest(NaN, () => {}); 2`] = `
+exports[`test-title > invalid(38): import test from \"node:test\";\ntest(NaN, () => {}); 2`] = `
 
 Message:
   1 | import test from "node:test";
@@ -487,83 +567,19 @@ Message:
 
 `;
 
-exports[`test-title > invalid(35): import test from \"node:test\";\ntest('pos', {name: 5}, () => {}); 1`] = `
+exports[`test-title > invalid(39): import test from \"node:test\";\ntest('pos', {name: 5}, () => {}); 1`] = `
 
   1 | import test from "node:test";
   2 | test('pos', {name: 5}, () => {});
 
 `;
 
-exports[`test-title > invalid(35): import test from \"node:test\";\ntest('pos', {name: 5}, () => {}); 2`] = `
+exports[`test-title > invalid(39): import test from \"node:test\";\ntest('pos', {name: 5}, () => {}); 2`] = `
 
 Message:
   1 | import test from "node:test";
 > 2 | test('pos', {name: 5}, () => {});
     |                    ^ Test title must be a string.
-
-`;
-
-exports[`test-title > invalid(36): import test from \"node:test\";\ntest('pos', {name: undefined}, () => {}); 1`] = `
-
-  1 | import test from "node:test";
-  2 | test('pos', {name: undefined}, () => {});
-
-`;
-
-exports[`test-title > invalid(36): import test from \"node:test\";\ntest('pos', {name: undefined}, () => {}); 2`] = `
-
-Message:
-  1 | import test from "node:test";
-> 2 | test('pos', {name: undefined}, () => {});
-    |                    ^^^^^^^^^ Test title must be a string.
-
-`;
-
-exports[`test-title > invalid(37): import test from \"node:test\";\ntest(() => {}, {name: 5}); 1`] = `
-
-  1 | import test from "node:test";
-  2 | test(() => {}, {name: 5});
-
-`;
-
-exports[`test-title > invalid(37): import test from \"node:test\";\ntest(() => {}, {name: 5}); 2`] = `
-
-Message:
-  1 | import test from "node:test";
-> 2 | test(() => {}, {name: 5});
-    |                       ^ Test title must be a string.
-
-`;
-
-exports[`test-title > invalid(38): import test from \"node:test\";\ntest(() => {}, {skip: true}); 1`] = `
-
-  1 | import test from "node:test";
-  2 | test(() => {}, {skip: true});
-
-`;
-
-exports[`test-title > invalid(38): import test from \"node:test\";\ntest(() => {}, {skip: true}); 2`] = `
-
-Message:
-  1 | import test from "node:test";
-> 2 | test(() => {}, {skip: true});
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test must have a title.
-
-`;
-
-exports[`test-title > invalid(39): import test from \"node:test\";\ntest(() => {}, {}); 1`] = `
-
-  1 | import test from "node:test";
-  2 | test(() => {}, {});
-
-`;
-
-exports[`test-title > invalid(39): import test from \"node:test\";\ntest(() => {}, {}); 2`] = `
-
-Message:
-  1 | import test from "node:test";
-> 2 | test(() => {}, {});
-    | ^^^^^^^^^^^^^^^^^^ Test must have a title.
 
 `;
 
@@ -583,14 +599,78 @@ Message:
 
 `;
 
-exports[`test-title > invalid(40): import {describe} from \"node:test\";\ndescribe(() => {}, {skip: true}); 1`] = `
+exports[`test-title > invalid(40): import test from \"node:test\";\ntest('pos', {name: undefined}, () => {}); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test('pos', {name: undefined}, () => {});
+
+`;
+
+exports[`test-title > invalid(40): import test from \"node:test\";\ntest('pos', {name: undefined}, () => {}); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test('pos', {name: undefined}, () => {});
+    |                    ^^^^^^^^^ Test title must be a string.
+
+`;
+
+exports[`test-title > invalid(41): import test from \"node:test\";\ntest(() => {}, {name: 5}); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test(() => {}, {name: 5});
+
+`;
+
+exports[`test-title > invalid(41): import test from \"node:test\";\ntest(() => {}, {name: 5}); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test(() => {}, {name: 5});
+    |                       ^ Test title must be a string.
+
+`;
+
+exports[`test-title > invalid(42): import test from \"node:test\";\ntest(() => {}, {skip: true}); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test(() => {}, {skip: true});
+
+`;
+
+exports[`test-title > invalid(42): import test from \"node:test\";\ntest(() => {}, {skip: true}); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test(() => {}, {skip: true});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test must have a title.
+
+`;
+
+exports[`test-title > invalid(43): import test from \"node:test\";\ntest(() => {}, {}); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test(() => {}, {});
+
+`;
+
+exports[`test-title > invalid(43): import test from \"node:test\";\ntest(() => {}, {}); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test(() => {}, {});
+    | ^^^^^^^^^^^^^^^^^^ Test must have a title.
+
+`;
+
+exports[`test-title > invalid(44): import {describe} from \"node:test\";\ndescribe(() => {}, {skip: true}); 1`] = `
 
   1 | import {describe} from "node:test";
   2 | describe(() => {}, {skip: true});
 
 `;
 
-exports[`test-title > invalid(40): import {describe} from \"node:test\";\ndescribe(() => {}, {skip: true}); 2`] = `
+exports[`test-title > invalid(44): import {describe} from \"node:test\";\ndescribe(() => {}, {skip: true}); 2`] = `
 
 Message:
   1 | import {describe} from "node:test";
@@ -599,14 +679,14 @@ Message:
 
 `;
 
-exports[`test-title > invalid(41): import {suite} from \"node:test\";\nsuite(() => {}, {skip: true}); 1`] = `
+exports[`test-title > invalid(45): import {suite} from \"node:test\";\nsuite(() => {}, {skip: true}); 1`] = `
 
   1 | import {suite} from "node:test";
   2 | suite(() => {}, {skip: true});
 
 `;
 
-exports[`test-title > invalid(41): import {suite} from \"node:test\";\nsuite(() => {}, {skip: true}); 2`] = `
+exports[`test-title > invalid(45): import {suite} from \"node:test\";\nsuite(() => {}, {skip: true}); 2`] = `
 
 Message:
   1 | import {suite} from "node:test";
@@ -615,14 +695,14 @@ Message:
 
 `;
 
-exports[`test-title > invalid(42): import {test} from 'node:test';\ntest('p', async t => { await t.test(() => {}, {skip: true}); }); 1`] = `
+exports[`test-title > invalid(46): import {test} from 'node:test';\ntest('p', async t => { await t.test(() => {}, {skip: true}); }); 1`] = `
 
   1 | import {test} from 'node:test';
   2 | test('p', async t => { await t.test(() => {}, {skip: true}); });
 
 `;
 
-exports[`test-title > invalid(42): import {test} from 'node:test';\ntest('p', async t => { await t.test(() => {}, {skip: true}); }); 2`] = `
+exports[`test-title > invalid(46): import {test} from 'node:test';\ntest('p', async t => { await t.test(() => {}, {skip: true}); }); 2`] = `
 
 Message:
   1 | import {test} from 'node:test';
@@ -631,14 +711,14 @@ Message:
 
 `;
 
-exports[`test-title > invalid(43): import test from 'node:test';\ntest((() => {}) as any, {skip: true}); 1`] = `
+exports[`test-title > invalid(47): import test from 'node:test';\ntest((() => {}) as any, {skip: true}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test((() => {}) as any, {skip: true});
 
 `;
 
-exports[`test-title > invalid(43): import test from 'node:test';\ntest((() => {}) as any, {skip: true}); 2`] = `
+exports[`test-title > invalid(47): import test from 'node:test';\ntest((() => {}) as any, {skip: true}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -647,14 +727,14 @@ Message:
 
 `;
 
-exports[`test-title > invalid(44): import test from 'node:test';\ntest((() => {}) as any); 1`] = `
+exports[`test-title > invalid(48): import test from 'node:test';\ntest((() => {}) as any); 1`] = `
 
   1 | import test from 'node:test';
   2 | test((() => {}) as any);
 
 `;
 
-exports[`test-title > invalid(44): import test from 'node:test';\ntest((() => {}) as any); 2`] = `
+exports[`test-title > invalid(48): import test from 'node:test';\ntest((() => {}) as any); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -663,14 +743,14 @@ Message:
 
 `;
 
-exports[`test-title > invalid(45): import test from 'node:test';\ntest((() => {})!); 1`] = `
+exports[`test-title > invalid(49): import test from 'node:test';\ntest((() => {})!); 1`] = `
 
   1 | import test from 'node:test';
   2 | test((() => {})!);
 
 `;
 
-exports[`test-title > invalid(45): import test from 'node:test';\ntest((() => {})!); 2`] = `
+exports[`test-title > invalid(49): import test from 'node:test';\ntest((() => {})!); 2`] = `
 
 Message:
   1 | import test from 'node:test';

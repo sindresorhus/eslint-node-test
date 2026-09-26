@@ -104,6 +104,23 @@ test.snapshot({
 		'import test from \'node:test\';\ntest({name: \' a \'}, () => {});',
 		// `options.name` is the title, so the fix rewrites it and leaves the positional string alone
 		'import test from "node:test";\ntest("my test", {name: " a "}, () => {});',
+		// A TypeScript wrapper around the name is kept, the same way the positional slot keeps it
+		{
+			code: 'import test from \'node:test\';\ntest(\'b\', {name: \' a \' as string}, () => {});',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import test from \'node:test\';\ntest(\'b\', {name: \' a \'!}, () => {});',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import test from \'node:test\';\ntest({name: \' a \' satisfies string, fn() {}});',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import test from \'node:test\';\ntest(\'c\', {name: <string>\' a \'}, () => {});',
+			languageOptions: {parser: parsers.typescript},
+		},
 		// A subtest is rendered in the output just like a test, so it needs a real title
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(() => {}); });',
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(123, () => {}); });',

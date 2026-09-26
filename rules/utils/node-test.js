@@ -1089,7 +1089,9 @@ export function getTestTitleNode(callExpression) {
 		return undefined;
 	}
 
-	return nameProperty ? nameProperty.value : first;
+	// Unwrapped, the way the positional slot is, so a fix that rewrites the title leaves the cast or
+	// the non-null assertion around it alone instead of deleting it.
+	return nameProperty ? unwrapTypeScriptExpression(nameProperty.value) : first;
 }
 
 /** Get the static string value of a node, if it resolves to one. */
