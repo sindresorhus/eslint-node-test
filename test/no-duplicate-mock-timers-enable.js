@@ -90,6 +90,8 @@ test.snapshot({
 		// `getTestContext()` names the same tracker as the context parameter
 		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', t => {\n\tt.mock.timers.enable();\n\tgetTestContext().mock.timers.reset();\n\tt.mock.timers.enable();\n});',
 		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', t => {\n\tgetTestContext().mock.timers.enable();\n\tt.mock.timers.reset();\n\tgetTestContext().mock.timers.enable();\n});',
+		// A reset in the loop body clears the state the loop started with
+		withImport('test("a", () => {\n\t\tmock.timers.enable();\n\t\tfor (const item of items) {\n\t\t\tmock.timers.reset();\n\t\t\tmock.timers.enable();\n\t\t}\n\t});'),
 	],
 	invalid: [
 		// A standalone `only` with no skip does run
@@ -113,6 +115,11 @@ test.snapshot({
 
 		// Global mock tracker.
 		withImport('mock.timers.enable();\nmock.timers.enable();'),
+		// A `for…of` / `for…in` body is entered at least once, so the state before the loop reaches it
+		withImport('test("a", () => {\n\tmock.timers.enable();\n\tfor (const item of items) {\n\t\tmock.timers.enable();\n\t}\n});'),
+		withImport('test("a", () => {\n\tmock.timers.enable();\n\tfor (const key in object) {\n\t\tmock.timers.enable();\n\t}\n});'),
+		withImport('test("a", () => {\n\tfor (const item of items) {\n\t\tmock.timers.enable();\n\t}\n\tmock.timers.enable();\n});'),
+
 		// A class static block is module-level code, so the same duplicate applies there
 		withImport('class A {\n\tstatic {\n\t\tmock.timers.enable();\n\t\tmock.timers.enable();\n\t}\n}'),
 		withImport('mock.timers.enable();\ntest.mock.timers.enable();'),

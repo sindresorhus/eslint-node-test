@@ -139,12 +139,39 @@ function getContextHookCallback(callExpression, contextTracker) {
 		: undefined;
 }
 
+/*
+The receivers enabled on some path that reaches `segment`: the union over its predecessors, so a reset has to run on every path before another `enable()` is allowed.
+
+A predecessor that has not started yet contributes nothing on its own, which is what makes a `for…of`
+or `for…in` body miss the state from before the loop: ESLint emits the body first, with the back edges
+as its predecessors, and those have not been emitted at that point. Their own predecessors are known
+though, so the walk continues through them, stopping at a segment already visited.
+*/
 function getEnabledReceivers(segment, enabledReceiversBySegment) {
 	const enabledReceivers = new Set();
-	for (const previousSegment of segment.prevSegments) {
-		for (const receiver of enabledReceiversBySegment.get(previousSegment) ?? []) {
-			enabledReceivers.add(receiver);
+	const visited = new Set();
+
+	const collect = current => {
+		if (!current || visited.has(current)) {
+			return;
 		}
+
+		visited.add(current);
+		if (enabledReceiversBySegment.has(current)) {
+			for (const receiver of enabledReceiversBySegment.get(current)) {
+				enabledReceivers.add(receiver);
+			}
+
+			return;
+		}
+
+		for (const previousSegment of current.prevSegments) {
+			collect(previousSegment);
+		}
+	};
+
+	for (const previousSegment of segment.prevSegments) {
+		collect(previousSegment);
 	}
 
 	return enabledReceivers;
