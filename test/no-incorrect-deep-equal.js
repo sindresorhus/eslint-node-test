@@ -8,6 +8,9 @@ const withNamedImport = (methods, code) => `import {${methods}} from 'node:asser
 
 test.snapshot({
 	valid: [
+		// A name holding an object is not a primitive, however it is written
+		withAssert('const K = {a: 1};\nassert.deepStrictEqual([], K);'),
+
 		// Not an assert import — ignored
 		'assert.deepEqual(a, 1);',
 
@@ -45,6 +48,12 @@ test.snapshot({
 	],
 	invalid: [
 		// DeepEqual with primitive actual
+		// A primitive a name holds is the same operand a literal would be
+		withAssert('const K = 0;\nassert.deepStrictEqual([], K);'),
+		withAssert('const K = "a";\nassert.deepEqual({}, K);'),
+		withAssert('const K = true;\nassert.notDeepStrictEqual([1], K);'),
+		withAssert('const K = 0;\nassert.deepStrictEqual(K, value);'),
+
 		withAssert('assert.deepEqual(1, b);'),
 		withAssert('assert.deepEqual("str", b);'),
 		withAssert('assert.deepEqual(true, b);'),

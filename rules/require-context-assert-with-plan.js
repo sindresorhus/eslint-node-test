@@ -4,6 +4,8 @@ import {
 	parseTestCall,
 	parseAssertionCall,
 	createContextTracker,
+	getHookCallback,
+	isContextHookCall,
 	getTestCallback,
 	getFirstContextParameter,
 	isGetTestContextCall,
@@ -66,13 +68,15 @@ const create = context => {
 		return;
 	}
 
-	const tracker = createContextTracker(imports);
+	// A hook's `t` is the context of the test the hook runs for, and a plan set in one carries into
+	// that test, so a hook body opens a frame like a test body does.
+	const tracker = createContextTracker(imports, {trackHooks: true});
 	// A test with no context parameter can still reach its context through `getTestContext()`, so the
 	// message and its suggestion name that import, under whatever local name the file bound it to.
 	const {getTestContextName} = imports;
 
-	// One frame per enclosing test/subtest. Assertions attach to the innermost; the frame is
-	// reported only if its test called `plan()`.
+	// One frame per enclosing test, subtest, or hook. Assertions attach to the innermost; the frame is
+	// reported only if its test, or a hook that runs for it, called `plan()`.
 	const frames = [];
 	// The callbacks of statically skipped tests, subtests, and suites, which never run.
 	const skippedCallbacks = new WeakSet();
@@ -95,7 +99,10 @@ const create = context => {
 	context.on('CallExpression', node => {
 		const parsed = parseTestCall(node, imports);
 		const isSubtest = tracker.isSubtestCall(node);
-		const isTest = parsed?.kind === 'test' || isSubtest;
+		// A hook declared on the test's own context (`t.beforeEach(…)`) is a hook too, and its plan
+		// applies to the test's subtests the same way a top-level hook's does.
+		const isHook = isContextHookCall(node, tracker.isContextReceiver);
+		const isTest = parsed?.kind === 'test' || parsed?.kind === 'hook' || isSubtest || isHook;
 		tracker.update(node);
 
 		if (markSkipped(node, parsed, isSubtest)) {
@@ -103,7 +110,8 @@ const create = context => {
 		}
 
 		if (isTest) {
-			const contextVariable = getContextVariable(getTestCallback(node), sourceCode);
+			const callback = isHook ? getHookCallback(node) : getTestCallback(node);
+			const contextVariable = getContextVariable(callback, sourceCode);
 			// `t.plan(1)` and the test-level `plan` option set the same expected count, so the
 			// option counts here too.
 			const hasPlanOption = hasEnabledPlanOption(node, context);

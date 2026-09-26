@@ -6,6 +6,11 @@ const withTest = code => `import test from 'node:test';\nimport assert from 'nod
 
 test.snapshot({
 	valid: [
+		// A hook with a plan and the context's own assert is the pattern the rule asks for
+		'import {beforeEach} from \'node:test\';\nbeforeEach(t => {\n\tt.plan(1);\n\tt.assert.ok(1);\n});\n\ntest(\'x\', () => {});',
+		// A hook with no plan has nothing to count toward
+		'import {beforeEach} from \'node:test\';\nimport assert from \'node:assert\';\nbeforeEach(t => {\n\tassert.ok(1);\n});\n\ntest(\'x\', () => {});',
+
 		'import test from "node:test";\nimport assert from "node:assert";\ntest("a", {plan: 1}, t => { t.assert.ok(true); });',
 		// Nothing to suggest when the callback has no context parameter to convert to
 		'import test from "node:test";\nimport assert from "node:assert";\ntest("a", {plan: 1}, () => { assert.ok(true); });',
@@ -77,6 +82,14 @@ test.snapshot({
 		withTest('test(\'t\', () => { assert.ok(1); }, {plan: 1});'),
 	],
 	invalid: [
+		// A hook on the test's own context plans the same way a top-level hook does
+		'import {test} from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'a\', t => {\n\tt.beforeEach(hook => {\n\t\thook.plan(1);\n\t\tassert.ok(loaded);\n\t});\n\tt.test(\'sub\', () => {});\n});',
+
+		// A hook's `t` is the context of the test it runs for, and a plan set in one carries into that
+		// test, so an imported assertion there is just as uncounted.
+		'import {beforeEach} from \'node:test\';\nimport assert from \'node:assert\';\nbeforeEach(t => {\n\tt.plan(1);\n\tassert.ok(1);\n});\n\ntest(\'x\', () => {});',
+		'import {before} from \'node:test\';\nimport assert from \'node:assert\';\nbefore(t => {\n\tt.plan(1);\n\tassert.ok(1);\n});\n\ntest(\'x\', () => {});',
+
 		// Plan + imported namespace assert
 		withTest('test(\'t\', t => { t.plan(1); assert.strictEqual(1, 1); });'),
 

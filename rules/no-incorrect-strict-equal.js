@@ -1,27 +1,10 @@
-import {getStaticValue} from '@eslint-community/eslint-utils';
 import {
 	resolveImports,
 	parseSupportedAssertionCall,
 	createContextTracker,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
-import {isPrimitive} from './utils/index.js';
-
-const PRIMITIVE_TYPES = new Set(['string', 'number', 'boolean', 'bigint', 'symbol']);
-
-/**
-Whether the operand is a primitive, including one a name holds: `equal(0, [])` passes while
-`deepEqual(0, [])` fails, so a `0` reached through a variable has to withhold the fix as a literal
-does. A value the checker cannot resolve is left to the runtime, like any other unknown expression.
-*/
-function isPrimitiveOperand(node, context) {
-	if (isPrimitive(node, context)) {
-		return true;
-	}
-
-	const resolved = getStaticValue(unwrapTypeScriptExpression(node), context.sourceCode.getScope(node));
-	return resolved !== null && PRIMITIVE_TYPES.has(typeof resolved.value);
-}
+import {isPrimitiveOperand} from './utils/index.js';
 
 const MESSAGE_ID = 'no-incorrect-strict-equal';
 

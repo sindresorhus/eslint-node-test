@@ -3,7 +3,7 @@ import {
 	parseSupportedAssertionCall,
 	createContextTracker,
 } from './utils/node-test.js';
-import {isPrimitive} from './utils/index.js';
+import {isPrimitiveOperand} from './utils/index.js';
 
 const MESSAGE_ID = 'no-deep-equal-with-primitive';
 
@@ -42,7 +42,7 @@ const create = context => {
 			return;
 		}
 
-		if (!isPrimitive(actual, context) && !isPrimitive(expected, context)) {
+		if (!isPrimitiveOperand(actual, context) && !isPrimitiveOperand(expected, context)) {
 			return;
 		}
 
