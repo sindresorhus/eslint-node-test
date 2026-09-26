@@ -18,6 +18,7 @@ This rule reports the `concurrency` option on a `test`/`it` (or a subtest) whose
 
 ```js
 import test from 'node:test';
+import assert from 'node:assert';
 
 // ❌ — no subtests, so `concurrency` does nothing
 test('does work', {concurrency: true}, () => {

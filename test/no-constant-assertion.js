@@ -17,6 +17,7 @@ test.snapshot({
 		withAssert('assert(result);'),
 		withAssert('assert.strictEqual(actual, expected);'),
 		withAssert('assert.deepStrictEqual(actual, {a: 1});'),
+		withAssert('assert.partialDeepStrictEqual(actual, {a: 1});'),
 		withAssert('assert.match(value, /ell/);'),
 		withAssert('assert.match("hello", pattern);'),
 		withAssert('assert.ifError(error);'),
@@ -116,6 +117,9 @@ test.snapshot({
 		withAssert('assert.notDeepStrictEqual({a: 1}, {a: 1});'),
 		withAssert('assert.deepEqual([1], [1]);'),
 		withAssert('assert.notDeepEqual([1], [1]);'),
+		// The one remaining two-operand equality method
+		withAssert('assert.partialDeepStrictEqual({a: 1}, {a: 1});'),
+		withAssert('assert.partialDeepStrictEqual([1], [1]);'),
 		withAssert('assert.deepEqual([1, , 2], [1, , 2]);'),
 		withAssert('const value = 1;\nassert.strictEqual(value, 1);'),
 		withAssert('const value = 1;\nassert.deepEqual([value], [1]);'),

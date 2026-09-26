@@ -22,6 +22,7 @@ const COMPARISON_METHODS = new Set([
 	'notDeepEqual',
 	'deepStrictEqual',
 	'notDeepStrictEqual',
+	'partialDeepStrictEqual',
 ]);
 
 const MATCH_METHODS = new Set([

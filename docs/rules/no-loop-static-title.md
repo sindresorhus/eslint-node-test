@@ -17,6 +17,7 @@ Unlike [`no-identical-title`](./no-identical-title.md), which compares distinct 
 
 ```js
 import {test} from 'node:test';
+import assert from 'node:assert';
 
 // ❌
 for (const input of inputs) {

@@ -17,6 +17,7 @@ This is a broad, opinionated rule, so it is off by default. For the narrower cas
 
 ```js
 import test from 'node:test';
+import assert from 'node:assert';
 
 // ❌
 test('title', () => {

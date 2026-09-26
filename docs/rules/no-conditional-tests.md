@@ -17,6 +17,7 @@ A registration inside a hook callback is left to [`no-test-inside-hook`](./no-te
 
 ```js
 import {test, describe, beforeEach} from 'node:test';
+import assert from 'node:assert';
 
 // ❌
 if (process.env.CI) {

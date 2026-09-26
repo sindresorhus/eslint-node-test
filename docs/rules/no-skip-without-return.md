@@ -17,6 +17,7 @@ This rule reports a `t.skip()`/`t.todo()` call that is followed by reachable cod
 
 ```js
 import test from 'node:test';
+import assert from 'node:assert';
 
 // ❌
 test('x', t => {

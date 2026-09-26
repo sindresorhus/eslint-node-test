@@ -14,7 +14,7 @@ This rule reports `async` `describe`/`suite` callbacks. If you need asynchronous
 ## Examples
 
 ```js
-import {describe, it} from 'node:test';
+import {describe, it, before} from 'node:test';
 
 // ❌ — `b` is registered only after the await, and a rejection in `setup()` cancels the suite
 describe('suite', async () => {
