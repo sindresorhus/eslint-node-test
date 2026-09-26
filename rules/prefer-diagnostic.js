@@ -1,6 +1,5 @@
 import {resolveImports, createContextTracker, isGetTestContextInScope} from './utils/node-test.js';
-import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
-import {isUnshadowedGlobal} from './utils/index.js';
+import {isUnshadowedGlobal, unwrapExpression} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-diagnostic/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-diagnostic/suggestion';
@@ -27,7 +26,7 @@ const create = context => {
 	context.on('CallExpression', node => {
 		tracker.update(node);
 
-		const callee = unwrapTypeScriptExpression(node.callee);
+		const callee = unwrapExpression(node.callee);
 		if (
 			callee.type !== 'MemberExpression'
 			|| callee.computed
@@ -37,7 +36,7 @@ const create = context => {
 			return;
 		}
 
-		const object = unwrapTypeScriptExpression(callee.object);
+		const object = unwrapExpression(callee.object);
 		// A local `console` — a parameter, a declaration, a catch binding — is some other object, and
 		// its `log` is not the global's.
 		if (!isUnshadowedGlobal(context, object, 'console')) {

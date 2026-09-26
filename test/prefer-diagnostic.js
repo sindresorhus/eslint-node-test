@@ -64,6 +64,26 @@ test.snapshot({
 		inTest('console./* keep me */log(\'hi\');'),
 		inTest('console/* keep me */.log(\'hi\');'),
 
+		// A parenthesized callee is the same call, optional chaining included
+		inTest('console?.log(\'value\');'),
+		inTest('(console.log)(\'value\');'),
+		inTest('(console?.log)(\'value\');'),
+		inTest('(console?.log)?.(\'value\');'),
+		inTest('((console?.log))(\'value\');'),
+		// A TypeScript wrapper on the callee or the receiver
+		{
+			code: inTest('(console.log as any)(\'value\');'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: inTest('(console as any).log(\'value\');'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: inTest('(console?.log as any)(\'value\');'),
+			languageOptions: {parser: parsers.typescript},
+		},
+
 		// Single-argument console.log — suggestion offered
 		inTest('console.log(\'value\');'),
 		inTest('console.log(message);'),

@@ -181,6 +181,32 @@ Message:
 
 `;
 
+exports[`no-nested-tests > invalid(17): import {test} from \"node:test\";\ntest(\"outer\", async t => {\n  await t.test(\"b\", body);\n});\nfunction body() {\n  test(\"inner\", () => {});\n} 1`] = `
+
+  1 | import {test} from "node:test";
+  2 | test("outer", async t => {
+  3 |   await t.test("b", body);
+  4 | });
+  5 | function body() {
+  6 |   test("inner", () => {});
+  7 | }
+
+`;
+
+exports[`no-nested-tests > invalid(17): import {test} from \"node:test\";\ntest(\"outer\", async t => {\n  await t.test(\"b\", body);\n});\nfunction body() {\n  test(\"inner\", () => {});\n} 2`] = `
+
+Message:
+  1 | import {test} from "node:test";
+  2 | test("outer", async t => {
+  3 |   await t.test("b", body);
+  4 | });
+  5 | function body() {
+> 6 |   test("inner", () => {});
+    |   ^^^^^^^^^^^^^^^^^^^^^^^ Do not define a test or suite inside a test body. Use \`t.test()\` for subtests instead.
+  7 | }
+
+`;
+
 exports[`no-nested-tests > invalid(2): import test from \"node:test\";\ntest(\"outer\", body);\nfunction body() {\n  test(\"inner\", () => {});\n} 1`] = `
 
   1 | import test from "node:test";

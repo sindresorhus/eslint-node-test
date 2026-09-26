@@ -26,6 +26,13 @@ test.snapshot({
 		'import test from "test";\ntest("outer", () => {\n  test("inner", () => {});\n});',
 		// A subtest is created through the context, not by a nested `test()` call.
 		'import test from "node:test";\ntest("a", async t => {\n  await t.test("b", () => {});\n});',
+
+		// A suite or a hook body named out of line holds tests and suites, exactly as its inline
+		// spelling does
+		'import {describe, test} from "node:test";\ndescribe("group", body);\nfunction body() {\n  test("inner", () => {});\n}',
+		'import {describe, test} from "node:test";\ndescribe("group", body);\nfunction body() {\n  describe("nested", () => {});\n}',
+		'import {beforeEach, test} from "node:test";\nbeforeEach(body);\nfunction body() {\n  test("inner", () => {});\n}',
+		'import {after, test} from "node:test";\nafter(body);\nfunction body() {\n  test("inner", () => {});\n}',
 	],
 	invalid: [
 		// A callback the call names out of line is still the test's body, wherever it is declared
@@ -58,5 +65,8 @@ test.snapshot({
 		'import test from "node:test";\ntest("outer", () => {\n  const register = () => { test("inner", () => {}); };\n  register();\n});',
 		// A suite in a test body containing a test: the suite and the test are both reported
 		'import test, {describe} from "node:test";\ntest("outer", () => {\n  describe("s", () => {\n    test("inner", () => {});\n  });\n});',
+
+		// A subtest body named out of line is a test body too
+		'import {test} from "node:test";\ntest("outer", async t => {\n  await t.test("b", body);\n});\nfunction body() {\n  test("inner", () => {});\n}',
 	],
 });
