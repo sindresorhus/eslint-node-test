@@ -42,11 +42,24 @@ test.snapshot({
 
 		// A `break` right after the skip leaves the switch, so no test code runs after the skip.
 		'import test from \'node:test\';\ntest(\'x\', t => {\n\tswitch (k) {\n\t\tcase 1: {\n\t\t\tt.skip(\'x\');\n\t\t\tbreak;\n\t\t}\n\t\tcase 2: {\n\t\t\tother();\n\t\t}\n\t}\n});',
+		'// Nothing runs after the loop, so the jump really is terminal here\nimport {test} from \'node:test\';\ntest(\'a\', t => {\n	for (const x of xs) {\n		t.skip();\n		break;\n	}\n});',
+		// A `break` exits the whole loop, switch, or labeled statement, so the code it skips over does not run after the skip
+		withImport('test("a", t => {\n\tfor (const item of items) {\n\t\tif (!item.ok) {\n\t\t\tt.skip("bad");\n\t\t\tbreak;\n\t\t}\n\n\t\tcheck(item);\n\t}\n});'),
+		withImport('test("a", t => {\n\twhile (next()) {\n\t\tif (bad) {\n\t\t\tt.skip();\n\t\t\tbreak;\n\t\t}\n\n\t\tcheck();\n\t}\n});'),
+		withImport('test("a", t => {\n\tswitch (kind) {\n\t\tcase 1: {\n\t\t\tif (bad) {\n\t\t\t\tt.skip();\n\t\t\t\tbreak;\n\t\t\t}\n\n\t\t\tcheck();\n\t\t}\n\t}\n});'),
+		withImport('test("a", t => {\n\touter: for (const row of rows) {\n\t\tfor (const cell of row) {\n\t\t\tt.skip();\n\t\t\tbreak outer;\n\t\t}\n\n\t\tcheck(row);\n\t}\n});'),
 	],
 	invalid: [
 		// A discarded `t.skip()` still skips, so the code after it still runs
 		withImport('test("x", t => { void t.skip("nope"); doStuff(); });'),
 		withImport('test("x", t => { if (flag) { void t.skip("nope"); } doStuff(); });'),
+
+		// A skip inside `&&`, `?:`, or a sequence may not run, so it is reported without a suggestion: an unconditional `return` after the statement would stop the test when it does not skip
+		withImport('test("x", t => {\n\tflag && t.skip();\n\tdoStuff();\n});'),
+		withImport('test("x", t => {\n\tflag ? t.skip() : null;\n\tdoStuff();\n});'),
+		withImport('test("x", t => {\n\tflag && void t.skip();\n\tdoStuff();\n});'),
+		withImport('test("x", t => {\n\tprepare(), t.skip();\n\tdoStuff();\n});'),
+		withImport('test("x", t => {\n\tvoid t.skip();\n\tdoStuff();\n});'),
 
 		// A class static block is a statement list, so a skip in one is followed by the same code
 		withImport('test("x", t => {\n\tclass A {\n\t\tstatic {\n\t\t\tt.skip();\n\t\t\tdoStuff();\n\t\t}\n\t}\n});'),
@@ -122,5 +135,21 @@ test.snapshot({
 			code: withImport('test("x", (t: any) => { (t satisfies any).skip(); doStuff(); });'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		'// A `break` leaves the loop, not the test, so the code after it still runs\n'
+		+ 'import {test} from \'node:test\';\n'
+		+ 'test(\'a\', t => {\n'
+		+ '	for (const x of xs) {\n'
+		+ '		t.skip();\n'
+		+ '		break;\n'
+		+ '	}\n'
+		+ '	doSomething();\n'
+		+ '});',
+		'import {test} from \'node:test\';\ntest(\'a\', t => {\n	for (const x of xs) {\n		t.skip();\n		continue;\n	}\n	doSomething();\n});',
+		'import {test} from \'node:test\';\ntest(\'a\', t => {\n	switch (x) {\n		case 1:\n			t.skip();\n			break;\n	}\n	doSomething();\n});',
+		// A `continue` only ends this iteration, so the later iterations still run the code after the skip
+		withImport('test("a", t => {\n\tfor (const item of items) {\n\t\tif (!item.ok) {\n\t\t\tt.skip("bad");\n\t\t\tcontinue;\n\t\t}\n\n\t\tcheck(item);\n\t}\n});'),
+		// A `break` out of the inner loop only, or out of a labeled block, still leaves code after it
+		withImport('test("a", t => {\n\tfor (const row of rows) {\n\t\tfor (const cell of row) {\n\t\t\tt.skip();\n\t\t\tbreak;\n\t\t}\n\n\t\tcheck(row);\n\t}\n});'),
+		withImport('test("a", t => {\n\tblock: {\n\t\tt.skip();\n\t\tbreak block;\n\t}\n\n\tcheck();\n});'),
 	],
 });

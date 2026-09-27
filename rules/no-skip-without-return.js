@@ -1,9 +1,11 @@
 import {resolveImports, createContextTracker, isGetTestContextCall} from './utils/node-test.js';
 import isFunction from './ast/is-function.js';
+import isLoop from './ast/is-loop.js';
 import {
 	getEnclosingFunction,
 	getFloatingStatement,
 	hasStaticBlockBetween,
+	skipExpressionWrappers,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
@@ -16,15 +18,50 @@ const messages = {
 };
 
 const SKIP_METHODS = new Set(['skip', 'todo']);
-// Statements that end the current path, so a skip followed by one of them is already terminal.
-const TERMINAL_STATEMENTS = new Set(['ReturnStatement', 'ThrowStatement', 'BreakStatement', 'ContinueStatement']);
+
+/** The statement written right after `statement` in its own statement list, if there is one. */
+function getNextStatement(statement) {
+	const {parent} = statement;
+	if (!['BlockStatement', 'Program', 'StaticBlock'].includes(parent?.type)) {
+		return undefined;
+	}
+
+	return parent.body[parent.body.indexOf(statement) + 1];
+}
+
+/**
+Whether `call` is the whole of `statement`, alone or under `void`. A skip inside `&&`, `?:`, or a sequence may not run, and a `return` after the statement would run either way, so the suggestion is only offered for the whole statement.
+*/
+function isWholeStatement(call, statement) {
+	const parent = skipExpressionWrappers(call.parent);
+	if (parent.type === 'UnaryExpression' && parent.operator === 'void') {
+		return skipExpressionWrappers(parent.parent) === statement;
+	}
+
+	return parent === statement;
+}
+
+/** The statement a `break` exits: the labeled statement it names, or else the innermost loop or `switch` around it. */
+function getBreakTarget(breakStatement) {
+	for (let node = breakStatement.parent; node && !isFunction(node); node = node.parent) {
+		const isTarget = breakStatement.label
+			? node.type === 'LabeledStatement' && node.label.name === breakStatement.label.name
+			: isLoop(node) || node.type === 'SwitchStatement';
+		if (isTarget) {
+			return node;
+		}
+	}
+
+	return undefined;
+}
 
 /*
 Whether reachable code follows the skip statement before the enclosing test function ends.
 Walks outward: a following sibling statement means code runs after the skip, unless the skip
-is directly followed by a `return`/`throw`. Only block and program bodies are inspected; a skip
-inside a `switch` case is best-effort and not flagged, since detecting it correctly would require
-modeling break/return/fall-through control flow.
+is directly followed by a `return` or `throw`, which end the test body right there. A `break`
+or `continue` is not terminal — it leaves the loop or switch the skip sits in, and whatever
+follows that construct still runs — so the walk carries on outward past it. A `break` skips
+the rest of the construct it exits, so the walk carries on from that construct.
 */
 function hasCodeAfter(skipStatement) {
 	let node = skipStatement;
@@ -36,14 +73,27 @@ function hasCodeAfter(skipStatement) {
 
 		// A class static block is a statement list too, so a skip inside one is followed by the same
 		// code the rule inspects in a block or at the top level.
-		if (['BlockStatement', 'Program', 'StaticBlock'].includes(parent.type)) {
-			const next = parent.body[parent.body.indexOf(node) + 1];
-			if (next) {
-				// A `return`/`throw`/`break`/`continue` immediately after the skip itself is the correct
-				// pattern: none of them let further test code run after the skip. A `break` in a `switch`
-				// case, in particular, leaves the switch rather than continuing the test.
-				return !(node === skipStatement && TERMINAL_STATEMENTS.has(next.type));
+		const next = getNextStatement(node);
+		if (next) {
+			// A `return` or `throw` right after the skip ends the test body there.
+			if (next.type === 'ReturnStatement' || next.type === 'ThrowStatement') {
+				return false;
 			}
+
+			// A `break` or `continue` only leaves the loop or switch, so keep walking outward to the
+			// statement list that construct sits in rather than calling the skip terminal.
+			if (next.type === 'BreakStatement') {
+				node = getBreakTarget(next) ?? parent;
+				continue;
+			}
+
+			// A `continue` ends only this iteration, and the next one runs the rest of the loop body.
+			if (next.type === 'ContinueStatement') {
+				node = parent;
+				continue;
+			}
+
+			return true;
 		}
 
 		if (isFunction(parent)) {
@@ -114,7 +164,11 @@ const create = context => {
 			// Only suggest inserting `return` when the skip is in a block; in a braceless
 			// `if (x) t.skip()` the inserted `return` would escape the condition. A class static block
 			// is a statement list but not a function either, so a `return` there is a SyntaxError.
-			if (statement.parent.type === 'BlockStatement' && !hasStaticBlockBetween(statement, getEnclosingFunction(statement))) {
+			// A `return` inserted after a `break` or `continue` would leave that statement unreachable,
+			// so the skip is reported without a suggestion when the next one jumps.
+			const next = getNextStatement(statement);
+			const isFollowedByJump = next?.type === 'BreakStatement' || next?.type === 'ContinueStatement';
+			if (isWholeStatement(node, statement) && !isFollowedByJump && statement.parent.type === 'BlockStatement' && !hasStaticBlockBetween(statement, getEnclosingFunction(statement))) {
 				problem.suggest = [
 					{
 						messageId: MESSAGE_ID_SUGGESTION,
