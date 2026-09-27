@@ -113,6 +113,16 @@ test.snapshot({
 		+ '		return accumulator;\n'
 		+ '	}, []);\n'
 		+ '});',
+		'// A test registered in a callback the body invokes right there is a subtest of that test\n'
+		+ 'import {test} from \'node:test\';\n'
+		+ 'test(\'a\', t => {\n'
+		+ '	t.beforeEach(() => {});\n'
+		+ '	[1, 2].forEach(i => {\n'
+		+ '		test(\'c\' + i, () => {});\n'
+		+ '	});\n'
+		+ '});',
+		'import {test} from \'node:test\';\ntest(\'a\', t => {\n	t.beforeEach(() => {});\n	(() => {\n		test(\'c\', () => {});\n	})();\n});',
+		'import {test} from \'node:test\';\ntest(\'a\', t => {\n	t.beforeEach(() => {});\n	Array.from([1, 2], i => {\n		test(\'c\' + i, () => {});\n	});\n});',
 	],
 	invalid: [
 		// `Array.of(…)` makes an array of its arguments, so it runs nothing, and the third argument

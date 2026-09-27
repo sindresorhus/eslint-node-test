@@ -83,5 +83,14 @@ test.snapshot({
 
 		// A subtest carries the same modifier options as an imported test
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'c\', {only: true}, () => {}); });',
+		// A TypeScript wrapper on the callee keeps the suggestion
+		{
+			code: 'import test from \'node:test\';\n(test.only as any)(\'a\', () => {});',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import test from \'node:test\';\ntest.only!(\'a\', () => {});',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

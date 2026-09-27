@@ -45,5 +45,14 @@ test.snapshot({
 		'import test from \'node:test\';\ntest("title", {todo: 0}, () => {});',
 		'import test from \'node:test\';\ntest("title", {todo: ""}, () => {});',
 		'import test from \'node:test\';\ntest("title", {todo: null}, () => {});',
+		// A TypeScript wrapper on the callee keeps the suggestion
+		{
+			code: 'import test from \'node:test\';\n(test.todo as any)(\'a\', () => {});',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import test from \'node:test\';\ntest.todo!(\'a\', () => {});',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

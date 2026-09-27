@@ -43,6 +43,12 @@ test.snapshot({
 
 		// `.assert.throws` on a non-context object — not a test context
 		'import test from \'node:test\';\ntest(\'t\', () => { const db = makeDb(); db.assert.throws(fn); });',
+		'// A real own key makes it a validation object, whatever its prototype says\nimport assert from \'node:assert\';\nassert.throws(f, {__proto__: null, message: 1});',
+		'// A spread adds keys, so the object is not empty even when the spread is\nimport assert from \'node:assert\';\nconst expected = {code: \'ERR_X\'};\nassert.throws(f, {...expected});',
+		'// A computed `__proto__` is an ordinary own key, unlike the plain form\nimport assert from \'node:assert\';\nassert.throws(f, {[\'__proto__\']: 1});',
+		'// The shorthand form is an own key too, unlike `__proto__: value`\nimport assert from \'node:assert\';\nconst __proto__ = 1;\nassert.throws(f, {__proto__});',
+		'// A method or an accessor named `__proto__` is an own key too, unlike `__proto__: value`\nimport assert from \'node:assert\';\nassert.throws(f, {__proto__() {}});',
+		'import assert from \'node:assert\';\nassert.throws(f, {get __proto__() {}});',
 	],
 	invalid: [
 		// No matcher
@@ -95,6 +101,7 @@ test.snapshot({
 		withAssert('assert.throws(fn, void fn());'),
 		withAssert('assert.rejects(asyncFn, !0);'),
 		withNamedImport('throws', 'throws(fn, -1);'),
-
+		'// A `__proto__` property sets the prototype rather than adding a key, so this object is empty\nimport assert from \'node:assert\';\nassert.throws(f, {__proto__: null});',
+		'// A string key sets the prototype the same way the identifier does\nimport assert from \'node:assert\';\nassert.throws(f, {\'__proto__\': null});',
 	],
 });

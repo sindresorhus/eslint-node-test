@@ -1568,6 +1568,11 @@ export function getRegistrationKind(call, imports, isContextReceiver) {
 		return parsed.kind;
 	}
 
+	// A subtest is recognised structurally, the way `getSubtestReceiver` recognises one everywhere
+	// else: `<receiver>.test(…)`. The receiver is not resolved to a test context, because the caller
+	// reads the callback where it is declared, which is outside the frame that would name it. An
+	// unrelated object with a `test` method is therefore read as a subtest, the same trade-off
+	// `getSubtestReceiver` already makes.
 	return getSubtestReceiver(call) === undefined ? undefined : 'test';
 }
 

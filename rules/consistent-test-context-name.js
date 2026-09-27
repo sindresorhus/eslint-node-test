@@ -2,7 +2,7 @@ import {
 	resolveImports,
 	parseTestCall,
 	createContextTracker,
-	getTestCallback,
+	getResolvedTestCallback,
 	getFirstContextParameter,
 } from './utils/node-test.js';
 
@@ -21,6 +21,8 @@ const create = context => {
 
 	const expected = context.options[0].name;
 	const tracker = createContextTracker(imports);
+	// Tests that share one out-of-line body share its parameter, which is reported once.
+	const reportedParameters = new Set();
 
 	context.on('CallExpression', node => {
 		const isSubtest = tracker.isSubtestCall(node);
@@ -31,8 +33,13 @@ const create = context => {
 			return;
 		}
 
-		const parameter = getFirstContextParameter(getTestCallback(node)?.params);
-		if (parameter && parameter.name !== expected) {
+		const parameter = getFirstContextParameter(getResolvedTestCallback(node, context, imports)?.params);
+		if (
+			parameter
+			&& parameter.name !== expected
+			&& !reportedParameters.has(parameter)
+		) {
+			reportedParameters.add(parameter);
 			return {
 				node: parameter,
 				messageId: MESSAGE_ID,

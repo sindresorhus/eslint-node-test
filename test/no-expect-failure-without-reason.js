@@ -95,5 +95,6 @@ test.snapshot({
 		// A computed key that folds to a constant is the same property a bare one names
 		withTest('test(\'t\', {[\'expectFailure\']: true}, () => {});'),
 		withTest('test(\'t\', {expectFailure: [\'x\'] ? 1 : true}, () => {});'),
+		'// A subtest registered from a hook callback is a real test\nimport {test, before} from \'node:test\';\nbefore(t => {\n	t.test(\'c\', {expectFailure: true}, () => {});\n});',
 	],
 });

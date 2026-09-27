@@ -238,6 +238,28 @@ Message:
 
 `;
 
+exports[`no-conflicting-modifiers > invalid(23): // A subtest registered from a hook callback is a real test\nimport {test, before} from 'node:test';\nbefore(t => {\n\tt.test('c', {skip: true, only: true}, () => {});\n}); 1`] = `
+
+  1 | // A subtest registered from a hook callback is a real test
+  2 | import {test, before} from 'node:test';
+  3 | before(t => {
+  4 | 	t.test('c', {skip: true, only: true}, () => {});
+  5 | });
+
+`;
+
+exports[`no-conflicting-modifiers > invalid(23): // A subtest registered from a hook callback is a real test\nimport {test, before} from 'node:test';\nbefore(t => {\n\tt.test('c', {skip: true, only: true}, () => {});\n}); 2`] = `
+
+Message:
+  1 | // A subtest registered from a hook callback is a real test
+  2 | import {test, before} from 'node:test';
+  3 | before(t => {
+> 4 | 	t.test('c', {skip: true, only: true}, () => {});
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Conflicting modifiers \`only\`, \`skip\`. \`node:test\` resolves them by precedence rather than reporting both: \`skip\` wins over everything, and \`todo\` wins over \`expectFailure\`.
+  5 | });
+
+`;
+
 exports[`no-conflicting-modifiers > invalid(3): import {test, describe, it} from 'node:test';\ntest(\"x\", {skip: true, only: true}, () => {}); 1`] = `
 
   1 | import {test, describe, it} from 'node:test';

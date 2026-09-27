@@ -1,4 +1,4 @@
-import {resolveImports, parseTestCall, getTestCallback} from './utils/node-test.js';
+import {resolveImports, parseTestCall, getResolvedTestCallback} from './utils/node-test.js';
 
 const MESSAGE_ID_RETURN = 'valid-describe-callback/return';
 
@@ -13,16 +13,21 @@ const create = context => {
 		return;
 	}
 
+	// A body named out of line can be passed to several suites, but it is one function, so it is reported once.
+	const reportedCallbacks = new Set();
+
 	context.on('CallExpression', function * (node) {
 		const parsed = parseTestCall(node, imports);
 		if (parsed?.kind !== 'suite') {
 			return;
 		}
 
-		const callback = getTestCallback(node);
-		if (!callback) {
+		const callback = getResolvedTestCallback(node, context, imports);
+		if (!callback || reportedCallbacks.has(callback)) {
 			return;
 		}
+
+		reportedCallbacks.add(callback);
 
 		// An arrow with an expression body implicitly returns a value.
 		if (callback.type === 'ArrowFunctionExpression' && callback.body.type !== 'BlockStatement') {

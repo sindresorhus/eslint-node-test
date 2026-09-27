@@ -82,6 +82,46 @@ Message:
 
 `;
 
+exports[`no-todo-test > invalid(14): import test from 'node:test';\n(test.todo as any)('a', () => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | (test.todo as any)('a', () => {});
+
+`;
+
+exports[`no-todo-test > invalid(14): import test from 'node:test';\n(test.todo as any)('a', () => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | (test.todo as any)('a', () => {});
+    |       ^^^^ Do not commit \`.todo\` tests.
+
+Suggestion 1/1: Remove \`.todo\`.:
+  1 | import test from 'node:test';
+  2 | (test as any)('a', () => {});
+
+`;
+
+exports[`no-todo-test > invalid(15): import test from 'node:test';\ntest.todo!('a', () => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test.todo!('a', () => {});
+
+`;
+
+exports[`no-todo-test > invalid(15): import test from 'node:test';\ntest.todo!('a', () => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test.todo!('a', () => {});
+    |      ^^^^ Do not commit \`.todo\` tests.
+
+Suggestion 1/1: Remove \`.todo\`.:
+  1 | import test from 'node:test';
+  2 | test!('a', () => {});
+
+`;
+
 exports[`no-todo-test > invalid(2): import {it} from \"node:test\";\nit.todo(\"title\"); 1`] = `
 
   1 | import {it} from "node:test";

@@ -222,6 +222,46 @@ Message:
 
 `;
 
+exports[`no-only-test > invalid(21): import test from 'node:test';\n(test.only as any)('a', () => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | (test.only as any)('a', () => {});
+
+`;
+
+exports[`no-only-test > invalid(21): import test from 'node:test';\n(test.only as any)('a', () => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | (test.only as any)('a', () => {});
+    |       ^^^^ Do not use the \`.only\` test modifier: under \`--test-only\` it stops the rest of the suite from running.
+
+Suggestion 1/1: Remove \`.only\`.:
+  1 | import test from 'node:test';
+  2 | (test as any)('a', () => {});
+
+`;
+
+exports[`no-only-test > invalid(22): import test from 'node:test';\ntest.only!('a', () => {}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test.only!('a', () => {});
+
+`;
+
+exports[`no-only-test > invalid(22): import test from 'node:test';\ntest.only!('a', () => {}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test.only!('a', () => {});
+    |      ^^^^ Do not use the \`.only\` test modifier: under \`--test-only\` it stops the rest of the suite from running.
+
+Suggestion 1/1: Remove \`.only\`.:
+  1 | import test from 'node:test';
+  2 | test!('a', () => {});
+
+`;
+
 exports[`no-only-test > invalid(3): import test from \"node:test\";\ntest(\"title\", {fn() {}, only: true}); 1`] = `
 
   1 | import test from "node:test";

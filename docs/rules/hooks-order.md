@@ -11,6 +11,8 @@
 
 Enforce a consistent declaration order for `node:test` hooks. The canonical order is: `before`, `beforeEach`, `afterEach`, `after`.
 
+A hook whose statement is continued by the code below it is not seen. In semicolon-free code where the next line starts with `(` or `[`, the two parse as one statement, and the record of where the hook begins and ends would drag the glued code along with it when reordered. Write the semicolon, or put the two on separate statements.
+
 ## Examples
 
 ```js

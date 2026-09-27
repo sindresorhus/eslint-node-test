@@ -105,5 +105,6 @@ test.snapshot({
 		// `skip` is enabled by every value that is neither `undefined` nor `false`, `null` included
 		'import {test} from \'node:test\';\ntest(\'a\', {skip: null, only: true}, () => {});',
 		'import {test} from \'node:test\';\ntest(\'a\', {skip: \'\', only: true}, () => {});',
+		'// A subtest registered from a hook callback is a real test\nimport {test, before} from \'node:test\';\nbefore(t => {\n	t.test(\'c\', {skip: true, only: true}, () => {});\n});',
 	],
 });

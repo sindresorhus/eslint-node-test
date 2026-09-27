@@ -74,5 +74,7 @@ test.snapshot({
 			code: withImport('describe("s", () => test("x", () => {}) as unknown);'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		'// A suite callback named out of line still returns a value\nimport {describe} from \'node:test\';\nconst body = () => 1;\ndescribe(\'a\', body);',
+		'// A suite callback shared by two suites is reported once\nimport {describe} from \'node:test\';\nconst body = () => 1;\ndescribe(\'a\', body);\ndescribe(\'b\', body);',
 	],
 });

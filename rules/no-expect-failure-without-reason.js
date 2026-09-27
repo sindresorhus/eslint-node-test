@@ -45,7 +45,7 @@ const create = context => {
 	}
 
 	// A subtest (`t.test(…)`) accepts `expectFailure` too, so it is recognized through the tracker.
-	const tracker = createContextTracker(imports);
+	const tracker = createContextTracker(imports, {trackHooks: true});
 
 	context.on('CallExpression', node => {
 		const isSubtest = tracker.isSubtestCall(node);

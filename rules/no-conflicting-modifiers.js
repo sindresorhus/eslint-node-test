@@ -21,7 +21,7 @@ const create = context => {
 	}
 
 	// A subtest takes the same modifiers, through its options object.
-	const tracker = createContextTracker(imports);
+	const tracker = createContextTracker(imports, {trackHooks: true});
 
 	context.on('CallExpression', node => {
 		const isSubtest = tracker.isSubtestCall(node);

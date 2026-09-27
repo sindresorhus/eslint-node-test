@@ -276,7 +276,10 @@ const create = context => {
 			}
 		}
 
-		const parentTestFrame = frames.findLast(frame => frame.callback === enclosingFunction);
+		// A test registered in a callback the body invokes right there — an array-method iteration
+		// callback, an immediately invoked function, a loop body — is still a subtest of that test,
+		// exactly as the `<context>.test(…)` form already is.
+		const parentTestFrame = frames.findLast(frame => isWithinIterationCallbackOf(node, frame.callback, imports));
 		const runnableTest = isRunnableTest(node, parsed, parentTestFrame);
 		if (runnableTest && parentTestFrame) {
 			parentTestFrame.hasSubtest = true;

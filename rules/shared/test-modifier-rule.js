@@ -6,6 +6,7 @@ import {
 	getTestOptions,
 	findEnabledOptionsProperty,
 } from '../utils/node-test.js';
+import {unwrapExpression} from '../utils/index.js';
 
 /*
 Shared logic for rules that disallow a single test modifier (`only`/`skip`/`todo`).
@@ -46,7 +47,7 @@ export default function createTestModifierRule({modifier, description, errorMess
 		}
 
 		// A subtest is a method call, so it takes the options form only.
-		const tracker = createContextTracker(imports);
+		const tracker = createContextTracker(imports, {trackHooks: true});
 
 		context.on('CallExpression', node => {
 			const isSubtest = tracker.isSubtestCall(node);
@@ -68,6 +69,10 @@ export default function createTestModifierRule({modifier, description, errorMess
 					&& !parsed.hasStandaloneModifier
 					&& !memberExpression.computed
 					&& memberExpression.property === modifierNode
+					// The modifier has to be the call itself. In `test.skip.call(…)` it is an
+					// intermediate link, and dropping it would turn a skipped test into a running one. A
+					// TypeScript wrapper on the callee (`(test.only as any)(…)`, `test.only!(…)`) is erased.
+					&& memberExpression === unwrapExpression(node.callee)
 					&& previousToken.value === '.'
 					&& sourceCode.getRange(nextToken)[0] === modifierRange[0]
 					? [

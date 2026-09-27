@@ -47,6 +47,7 @@ test.snapshot({
 			code: withTest('test(\'t\', (this: void) => {});'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		'// The same body with the expected name is fine\nimport {test} from \'node:test\';\nconst body = (t) => {};\ntest(\'a\', body);',
 	],
 	invalid: [
 		// Non-`t` parameter
@@ -73,5 +74,8 @@ test.snapshot({
 			code: withTest('test(\'t\', (this: void, ctx) => {});'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		'// A test callback named out of line still binds the context\nimport {test} from \'node:test\';\nconst body = (ctx) => {};\ntest(\'a\', body);',
+		// Tests that share one out-of-line body are reported once, at the shared parameter
+		'import test from \'node:test\';\nfunction body(ctx) {} test(\'a\', body); test(\'b\', body);',
 	],
 });

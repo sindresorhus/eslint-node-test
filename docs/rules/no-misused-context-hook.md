@@ -13,7 +13,9 @@ A statically skipped child, such as one with `{skip: true}`, does not count as r
 
 The rule also ignores callbacks of statically skipped tests and suites, because Node does not execute them. A subtest written in an array-method callback, in `Array.from`'s mapping argument, or in a suite body still counts: each runs synchronously, so the subtest is registered before the test body finishes and the hooks really do run around it.
 
-This rule considers subtest calls in the same inline test callback, including ones written in a function the callback invokes right there (an immediately invoked function) or in an array-method iteration callback, a loop body, or a `switch` case. A context hook written inside such a function is not found, so it is not reported. It does not follow a call to a declared helper, and does not model control flow or registration order.
+This rule considers subtest calls in the same test callback, in either the `<context>.test(…)` or the imported `test(…)` spelling, including ones written in a function the callback invokes right there (an immediately invoked function) or in an array-method iteration callback or a loop body. A context hook written inside such a function is not found, so it is not reported. It does not follow a call to a declared helper, and does not model control flow or registration order.
+
+Those array methods are recognised by name, not by what the receiver is, so a callback passed to a same-named method on some other object, such as a collection type whose `map` does not call the function, counts as a subtest even though nothing is registered.
 
 > [!NOTE]
 > `t.before()` and `t.after()` are not reported because they run for the current test, including a test without subtests.

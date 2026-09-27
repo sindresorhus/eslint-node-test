@@ -46,6 +46,48 @@ Message:
 
 `;
 
+exports[`valid-describe-callback > invalid(12): // A suite callback named out of line still returns a value\nimport {describe} from 'node:test';\nconst body = () => 1;\ndescribe('a', body); 1`] = `
+
+  1 | // A suite callback named out of line still returns a value
+  2 | import {describe} from 'node:test';
+  3 | const body = () => 1;
+  4 | describe('a', body);
+
+`;
+
+exports[`valid-describe-callback > invalid(12): // A suite callback named out of line still returns a value\nimport {describe} from 'node:test';\nconst body = () => 1;\ndescribe('a', body); 2`] = `
+
+Message:
+  1 | // A suite callback named out of line still returns a value
+  2 | import {describe} from 'node:test';
+> 3 | const body = () => 1;
+    |                    ^ The \`describe\` callback should not return a value, an implicit return registers tests through the returned expression instead of statements. Use a block body.
+  4 | describe('a', body);
+
+`;
+
+exports[`valid-describe-callback > invalid(13): // A suite callback shared by two suites is reported once\nimport {describe} from 'node:test';\nconst body = () => 1;\ndescribe('a', body);\ndescribe('b', body); 1`] = `
+
+  1 | // A suite callback shared by two suites is reported once
+  2 | import {describe} from 'node:test';
+  3 | const body = () => 1;
+  4 | describe('a', body);
+  5 | describe('b', body);
+
+`;
+
+exports[`valid-describe-callback > invalid(13): // A suite callback shared by two suites is reported once\nimport {describe} from 'node:test';\nconst body = () => 1;\ndescribe('a', body);\ndescribe('b', body); 2`] = `
+
+Message:
+  1 | // A suite callback shared by two suites is reported once
+  2 | import {describe} from 'node:test';
+> 3 | const body = () => 1;
+    |                    ^ The \`describe\` callback should not return a value, an implicit return registers tests through the returned expression instead of statements. Use a block body.
+  4 | describe('a', body);
+  5 | describe('b', body);
+
+`;
+
 exports[`valid-describe-callback > invalid(2): import {describe, suite} from 'node:test';\ndescribe(\"s\", (() => test(\"x\", () => {}))); 1`] = `
 
   1 | import {describe, suite} from 'node:test';

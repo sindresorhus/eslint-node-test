@@ -47,7 +47,7 @@ test('foo', () => {
 });
 ```
 
-This rule is purely syntactic: it flags an assertion wrapped in a conditional anywhere between the assertion and the enclosing test or hook, including inside nested helper functions. So an assertion inside an `if` within a helper is reported even if that helper is always called.
+This rule is purely syntactic: it flags an assertion wrapped in a conditional anywhere between the assertion and the enclosing test or hook, including inside a helper declared inside that body, or a callback the call names as its body. So an assertion inside an `if` within such a helper is reported even if the helper is always called. A helper declared outside the test body and only called from it is not reported, because neither the helper nor its conditional is inside the test body.
 
 This also applies to hooks, where a conditional assertion may silently never run:
 

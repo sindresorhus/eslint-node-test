@@ -45,8 +45,26 @@ function isUnusableMatcher(node) {
 
 	return (node.type === 'Identifier' && PRIMITIVE_IDENTIFIERS.has(node.name))
 		|| (node.type === 'UnaryExpression' && node.operator !== 'void')
-		|| (node.type === 'ObjectExpression' && node.properties.length === 0)
+		|| (node.type === 'ObjectExpression' && hasNoOwnKeys(node))
 		|| (node.type === 'ArrayExpression' && node.elements.length === 0);
+}
+
+/**
+Whether an object literal has no own keys, which is what `node:assert` calls an empty object.
+
+A plain `__proto__: value` property sets the prototype rather than adding a key, so `{__proto__: null}`
+has none either and is rejected the same way `{}` is, and so is the string-keyed `{'__proto__': null}`. A
+computed `{['__proto__']: value}`, the shorthand `{__proto__}`, a method `{__proto__() {}}` and an
+accessor `{get __proto__() {}}` all add an ordinary own key, and so does a spread, so none of them is empty.
+*/
+function hasNoOwnKeys(node) {
+	return node.properties.every(property =>
+		property.type === 'Property'
+		&& property.kind === 'init'
+		&& !property.method
+		&& !property.computed
+		&& !property.shorthand
+		&& (property.key.type === 'Identifier' ? property.key.name : property.key.value) === '__proto__');
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */

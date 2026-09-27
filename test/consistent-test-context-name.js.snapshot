@@ -113,3 +113,39 @@ Message:
     |                        ^^^ Name the test context parameter \`t\` instead of \`ctx\`.
 
 `;
+
+exports[`consistent-test-context-name > invalid(8): // A test callback named out of line still binds the context\nimport {test} from 'node:test';\nconst body = (ctx) => {};\ntest('a', body); 1`] = `
+
+  1 | // A test callback named out of line still binds the context
+  2 | import {test} from 'node:test';
+  3 | const body = (ctx) => {};
+  4 | test('a', body);
+
+`;
+
+exports[`consistent-test-context-name > invalid(8): // A test callback named out of line still binds the context\nimport {test} from 'node:test';\nconst body = (ctx) => {};\ntest('a', body); 2`] = `
+
+Message:
+  1 | // A test callback named out of line still binds the context
+  2 | import {test} from 'node:test';
+> 3 | const body = (ctx) => {};
+    |               ^^^ Name the test context parameter \`t\` instead of \`ctx\`.
+  4 | test('a', body);
+
+`;
+
+exports[`consistent-test-context-name > invalid(9): import test from 'node:test';\nfunction body(ctx) {} test('a', body); test('b', body); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | function body(ctx) {} test('a', body); test('b', body);
+
+`;
+
+exports[`consistent-test-context-name > invalid(9): import test from 'node:test';\nfunction body(ctx) {} test('a', body); test('b', body); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | function body(ctx) {} test('a', body); test('b', body);
+    |               ^^^ Name the test context parameter \`t\` instead of \`ctx\`.
+
+`;

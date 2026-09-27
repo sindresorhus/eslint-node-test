@@ -70,5 +70,16 @@ test.snapshot({
 		'import {test} from \'node:test\';\ntest(\'a\', {[\'skip\']: true}, () => {});',
 		'import {test} from \'node:test\';\ntest(\'a\', {[\'sk\' + \'ip\']: true}, () => {});',
 		'import {test} from \'node:test\';\ntest(\'a\', {skip: shouldSkip}, () => {});',
+		'// A subtest registered from a hook callback is a real test\nimport {test, before} from \'node:test\';\nbefore(t => {\n	t.test(\'c\', {skip: true}, () => {});\n});',
+		'// `.skip` is a link in the chain, so the report has no suggestion: dropping it would run the test\nimport {test} from \'node:test\';\ntest.skip.call(null, \'a\', () => {});',
+		// A TypeScript wrapper on the callee keeps the suggestion
+		{
+			code: 'import test from \'node:test\';\n(test.skip as any)(\'a\', () => {});',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import test from \'node:test\';\ntest.skip!(\'a\', () => {});',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
