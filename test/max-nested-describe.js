@@ -28,7 +28,8 @@ test.snapshot({
 	],
 	invalid: [
 		// `suite` nests like `describe`, and the default maximum is five levels
-		'import {describe, suite} from \'node:test\';\ndescribe(\'a\', () => { suite(\'b\', () => { describe(\'c\', () => { suite(\'d\', () => { describe(\'e\', () => { suite(\'f\', () => {}); }); }); }); }); });',
+		'import {describe, suite} from \'node:test\';\n'
+		+ 'describe(\'a\', () => { suite(\'b\', () => { describe(\'c\', () => { suite(\'d\', () => { describe(\'e\', () => { suite(\'f\', () => {}); }); }); }); }); });',
 		// One level past the default limit
 		nest(6),
 

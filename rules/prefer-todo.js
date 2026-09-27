@@ -62,6 +62,26 @@ function hasNamedImplementation(callExpression) {
 	return findOptionsProperty(getTestOptions(callExpression), 'fn') !== undefined;
 }
 
+/**
+Whether the fix may drop the callback: a subtest rewrite puts `{todo: true}` where the callback stands,
+so the callback has to be a positional argument rather than an `fn` inside the options object, and
+dropping it also drops the gaps on either side, so a comment in either one would be left behind
+describing the title instead.
+*/
+function canDropCallback(node, callback, isSubtest, sourceCode) {
+	if (!callback) {
+		return true;
+	}
+
+	if (isSubtest && !node.arguments.includes(callback)) {
+		return false;
+	}
+
+	return sourceCode.getCommentsInside(callback).length === 0
+		&& !hasCommentBefore(callback, sourceCode)
+		&& sourceCode.getCommentsAfter(callback).length === 0;
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -108,16 +128,7 @@ const create = context => {
 		}
 
 		const {callee} = node;
-		// Dropping the function also drops the gaps on either side of it, so a comment in either one
-		// would be left behind describing the title instead.
-		// The subtest rewrite puts `{todo: true}` where the callback stands, so the callback has to be
-		// a positional argument rather than an `fn` inside the options object.
-		const isPositionalCallback = !callback || node.arguments.includes(callback);
-		const canFix = (isSubtest ? isPositionalCallback : true) && (!callback || (
-			sourceCode.getCommentsInside(callback).length === 0
-			&& !hasCommentBefore(callback, sourceCode)
-			&& sourceCode.getCommentsAfter(callback).length === 0
-		));
+		const canFix = canDropCallback(node, callback, isSubtest, sourceCode);
 
 		const problem = {
 			node,

@@ -83,7 +83,15 @@ test.snapshot({
 	],
 	invalid: [
 		// A hook on the test's own context plans the same way a top-level hook does
-		'import {test} from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'a\', t => {\n\tt.beforeEach(hook => {\n\t\thook.plan(1);\n\t\tassert.ok(loaded);\n\t});\n\tt.test(\'sub\', () => {});\n});',
+		'import {test} from \'node:test\';\n'
+		+ 'import assert from \'node:assert\';\n'
+		+ 'test(\'a\', t => {\n'
+		+ '\tt.beforeEach(hook => {\n'
+		+ '\t\thook.plan(1);\n'
+		+ '\t\tassert.ok(loaded);\n'
+		+ '\t});\n'
+		+ '\tt.test(\'sub\', () => {});\n'
+		+ '});',
 
 		// A hook's `t` is the context of the test it runs for, and a plan set in one carries into that
 		// test, so an imported assertion there is just as uncounted.
