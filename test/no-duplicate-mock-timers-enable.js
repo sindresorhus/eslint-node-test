@@ -54,6 +54,8 @@ test.snapshot({
 		withImport('test.skip("parent", t => { t.test("child", child => { child.mock.timers.enable(); child.mock.timers.enable(); }); });'),
 		withImport('test.skip("title", t => { t.beforeEach(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); });'),
 		'import {describe, mock} from \'node:test\';\ndescribe.skip("title", () => { mock.timers.enable(); mock.timers.enable(); });',
+		// A suite with a falsy `skip` other than `false` still runs its body, but `node:test` cancels the tests it registers
+		'import {describe, test} from \'node:test\';\ndescribe("s", {skip: 0}, () => { test("a", t => { t.mock.timers.enable(); t.mock.timers.enable(); }); });',
 
 		// Resets permit another enable.
 		withImport('mock.timers.enable();\nmock.timers.reset();\nmock.timers.enable();'),
@@ -98,10 +100,23 @@ test.snapshot({
 		withImport('test("parent", {skip: true}, body);\nfunction body(t) { t.test("child", child => { child.mock.timers.enable(); child.mock.timers.enable(); }); }'),
 		withImport('const body = () => { test("child", t => { t.mock.timers.enable(); t.mock.timers.enable(); }); };\ntest.describe.skip("parent", body);'),
 		withImport('const body = t => { t.test("child", child => { child.mock.timers.enable(); child.mock.timers.enable(); }); };\ntest.skip("parent", () => { test("inner", body); });'),
+		withImport('const body = t => { t.test("child", child => { child.mock.timers.reset(); class A { static { child.mock.timers.enable(); child.mock.timers.enable(); } } }); };\n'
+			+ 'test.skip("parent", body);'),
+		// Two different trackers clash only when both mock `Date`, which depends on their `apis`, so enabling
+		// through a second tracker is left alone.
+		withImport('test("title", t => { mock.timers.enable({apis: ["setTimeout"]}); t.mock.timers.enable({apis: ["setTimeout"]}); });'),
+		withImport('test("title", t => { mock.timers.enable(); t.mock.timers.enable(); });'),
+		withImport('test("title", t => { t.mock.timers.enable(); mock.timers.enable(); });'),
+		withImport('test("title", t => { mock.timers.enable(); t.mock.timers.reset(); t.mock.timers.enable(); });'),
+		withImport('test("title", t => { t.mock.timers.enable(); mock.timers.reset(); mock.timers.enable(); });'),
+		'import {test, mock, getTestContext} from \'node:test\';\ntest(\'a\', t => {\n\tgetTestContext().mock.timers.enable();\n\tmock.timers.enable();\n});',
 		// Two bodies that register each other still end the walk
 		withImport('function first(t) { t.test("x", second); }\nfunction second(t) { t.test("y", first); t.test("z", child => { child.mock.timers.reset(); }); }'),
 	],
 	invalid: [
+		// A suite `skip` that cannot be resolved statically proves nothing, so the tests in the suite are still checked
+		'import {describe, test} from \'node:test\';\ndescribe("s", {skip: process.env.CI}, () => { test("a", t => { t.mock.timers.enable(); t.mock.timers.enable(); }); });',
+
 		// A standalone `only` with no skip does run
 		`${withNamedImport('only')}\nonly('t', () => { mock.timers.enable(); mock.timers.enable(); });`,
 		`${withNamedImport('only')}\nonly({name: 't', fn() { mock.timers.enable(); mock.timers.enable(); }});`,
@@ -112,14 +127,8 @@ test.snapshot({
 		`${withNamedImport('todo')}\ntodo('title', () => { mock.timers.enable(); mock.timers.enable(); });`,
 		withImport('test.todo("title", t => { t.mock.timers.enable(); t.mock.timers.enable(); });'),
 
-		// The global tracker and a context tracker share one `Date` mock, so enabling through the
-		// other receiver while one is enabled throws. A `reset()` only clears its own receiver.
-		withImport('test("title", t => { mock.timers.enable(); t.mock.timers.enable(); });'),
-		withImport('test("title", t => { t.mock.timers.enable(); mock.timers.enable(); });'),
-		withImport('test("title", t => { mock.timers.enable(); t.mock.timers.reset(); t.mock.timers.enable(); });'),
+		// A `reset()` only clears its own receiver, so the context tracker is still enabled.
 		withImport('test("title", t => { t.mock.timers.enable(); mock.timers.reset(); t.mock.timers.enable(); });'),
-		withImport('test("title", t => { t.mock.timers.enable(); mock.timers.reset(); mock.timers.enable(); });'),
-		'import {test, mock, getTestContext} from \'node:test\';\ntest(\'a\', t => {\n\tgetTestContext().mock.timers.enable();\n\tmock.timers.enable();\n});',
 
 		// Global mock tracker.
 		withImport('mock.timers.enable();\nmock.timers.enable();'),

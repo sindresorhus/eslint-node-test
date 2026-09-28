@@ -290,6 +290,11 @@ const create = context => {
 
 		const isInSkippedCallback = isInsideSkippedCallback(node, skippedCallbacks)
 			|| (callback !== undefined && isInsideSkippedOutOfLineBody(node));
+		// The calls inside a callback that never runs never run either, which the ancestor check then sees.
+		if (isInSkippedCallback && callback) {
+			skippedCallbacks.add(callback);
+		}
+
 		trackContextHookCallback(node, isInSkippedCallback);
 
 		if (
@@ -384,12 +389,11 @@ const create = context => {
 			for (const segment of path.activeSegments) {
 				const enabledReceivers = path.enabledReceiversBySegment.get(segment);
 				if (action.method === 'enable') {
-					// While any tracker has its timers enabled, `Date` is already mocked, so enabling
-					// through another receiver — the global `mock.timers` or a context's
-					// `t.mock.timers` — throws `ERR_INVALID_STATE` just as enabling the same one twice
-					// does. A `reset()` only clears the receiver it is called on, so a receiver enabled
-					// earlier stays enabled.
-					isDuplicate ||= enabledReceivers.size > 0;
+					// Enabling through another receiver, the global `mock.timers` or a context's
+					// `t.mock.timers`, throws `ERR_INVALID_STATE` only when both calls mock `Date`, which
+					// depends on their `apis`, so only the same receiver counts as a duplicate. A `reset()`
+					// only clears the receiver it is called on, so a receiver enabled earlier stays enabled.
+					isDuplicate ||= enabledReceivers.has(action.receiver);
 					enabledReceivers.add(action.receiver);
 				} else {
 					enabledReceivers.delete(action.receiver);
