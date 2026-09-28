@@ -12,7 +12,7 @@ The `concurrency` option controls how many of a suite's tests, or a test's *subt
 This rule reports the `concurrency` option on a `test`/`it` (or a subtest) whose callback creates no subtests. Use it on a `describe`/`suite`, or on a test that creates subtests with `t.test()`.
 
 > [!NOTE]
-> A subtest counts when it is created on the test's own context, including from a helper function declared inside the test callback, where that context is still in scope. A helper declared outside the callback, or a subtest on an unrelated context, is not counted.
+> A subtest counts when it is created on the test's own context, including from a helper function declared inside the test callback, where that context is still in scope. A helper declared outside the callback, or a subtest on an unrelated context, is not counted. Only a subtest created through a test context counts: an imported `test()` or `describe()` called in the test body also runs as a subtest that `concurrency` governs, but it is not counted, so the option is still reported. Create the subtests with `t.test()` instead, which [`no-nested-tests`](./no-nested-tests.md) asks for too. Only an inline callback, or a test with no callback, is checked. Any other callback, such as `body` in `test('t', {concurrency: true}, body)`, an imported function, `helpers.body` or `makeBody()`, is not checked, since its subtests are declared away from the test.
 
 ## Examples
 

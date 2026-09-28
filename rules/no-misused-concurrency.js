@@ -4,6 +4,7 @@ import {
 	parseTestCall,
 	createContextTracker,
 	getSubtestReceiver,
+	getTestCallback,
 	getTestOptions,
 	findOptionsProperty,
 } from './utils/node-test.js';
@@ -29,7 +30,8 @@ function getConcurrencyProperty(options, context) {
 	}
 
 	const staticValue = getStaticValue(unwrapTypeScriptExpression(property.value), context.sourceCode.getScope(property.value));
-	return staticValue === null || [undefined, null, false].includes(staticValue.value)
+	// A value that cannot be resolved is still set: whatever it turns out to be, it has no effect on a leaf test.
+	return staticValue !== null && [undefined, null, false].includes(staticValue.value)
 		? undefined
 		: property;
 }
@@ -66,10 +68,15 @@ const create = context => {
 		tracker.update(node);
 
 		if (isTest || isSubtest) {
+			// Only an inline callback, or a test with none, is checked. Any other callback (`test('t', options, body)`, `helpers.body`, `makeBody()`, or `{fn: body}`) is declared away from the test, or not in this file at all, so its subtests cannot be counted here and the option is left alone.
+			const options = getTestOptions(node);
+			const lastArgument = node.arguments.at(-1) && unwrapTypeScriptExpression(node.arguments.at(-1));
+			const hasNonInlineCallback = !getTestCallback(node, imports)
+				&& (lastArgument !== options || findOptionsProperty(options, 'fn') !== undefined);
 			frames.push({
 				node,
 				contextName: tracker.current(),
-				concurrencyProperty: getConcurrencyProperty(getTestOptions(node), context),
+				concurrencyProperty: hasNonInlineCallback ? undefined : getConcurrencyProperty(options, context),
 				hasSubtest: false,
 			});
 		}

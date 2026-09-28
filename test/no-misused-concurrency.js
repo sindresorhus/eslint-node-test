@@ -48,15 +48,23 @@ test.snapshot({
 		withTest('const options = {concurrency: true};\ntest(\'t\', options, () => {});'),
 		withTest('test(\'t\', {...options}, () => {});'),
 
-		// A `concurrency` value that cannot be resolved statically is left to `node:test`
-		withTest('test(\'t\', {concurrency: limit}, () => {});'),
-		withTest('test(\'t\', {concurrency: process.env.LIMIT}, () => {});'),
-
 		// A TypeScript `this` parameter is erased at compile time, so the subtest is still a subtest
 		{
 			code: withTest('test(\'a\', {concurrency: true}, (this: void, t) => { t.test(\'b\', () => {}); });'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// A body named out of line is read where it is declared, outside the test, so its subtests cannot be counted and the option is left alone
+		withTest('async function body(t) { await t.test(\'a\', () => {}); await t.test(\'b\', () => {}); }\ntest(\'t\', {concurrency: true}, body);'),
+		withTest('test(\'t\', {concurrency: true}, body);\nasync function body(t) { await t.test(\'a\', () => {}); }'),
+		withTest('const body = async t => { await t.test(\'a\', () => {}); };\ntest({name: \'t\', concurrency: true, fn: body});'),
+		withTest('const body = async t => { await t.test(\'a\', {concurrency: true}, body); };\ntest(\'t\', {concurrency: true}, body);'),
+		withTest('const body = () => {};\ntest(\'t\', {concurrency: true}, body);'),
+		// Only an inline callback is checked, so an imported, member or factory callback is left alone as well
+		'import test from \'node:test\';\nimport {body} from \'./body.js\';\ntest(\'t\', {concurrency: true}, body);',
+		withTest('test(\'t\', {concurrency: true}, helpers.body);'),
+		withTest('test(\'t\', {concurrency: true}, makeBody());'),
+		withTest('test({name: \'t\', concurrency: true, fn: helpers.body});'),
 	],
 	invalid: [
 		// Concurrency on a leaf test
@@ -65,6 +73,11 @@ test.snapshot({
 		// Numeric concurrency on a leaf test
 		withTest('test(\'t\', {concurrency: 5}, () => {});'),
 		withTest('test(\'t\', {concurrency: 0}, () => {});'),
+
+		// A dynamic value has no effect on a leaf test either, whatever it turns out to be
+		withTest('test(\'t\', {concurrency: n}, () => {});'),
+		withTest('test(\'t\', {concurrency: process.env.LIMIT}, () => {});'),
+		withTest('test(\'t\', {concurrency: getConcurrency()}, () => {});'),
 		withTest('const limit = 4;\ntest(\'t\', {concurrency: limit}, () => {});'),
 
 		// The object descriptor form carries the option too
@@ -94,5 +107,9 @@ test.snapshot({
 			code: withTest('test(\'a\', {concurrency: true}, (this: void, t) => { t.todo(\'b\'); });'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// Limitation: an imported `test()` in a test body runs as a subtest, which `concurrency` does
+		// govern, but only a `t.test()` subtest is counted
+		'import test from \'node:test\';\ntest(\'t\', {concurrency: true}, async () => { await test(\'a\', () => {}); });',
 	],
 });
