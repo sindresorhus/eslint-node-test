@@ -4,6 +4,7 @@ import {
 	createContextTracker,
 	nearestTestCallbackKind,
 	isContextHookCall,
+	getRegistrationKind,
 } from './utils/node-test.js';
 import isConditionalBranch from './utils/is-conditional-branch.js';
 import isFunction from './ast/is-function.js';
@@ -62,7 +63,11 @@ const create = context => {
 		// A definition inside a hook is `no-test-inside-hook`'s to report. Its fix (move the definition
 		// out of the hook) has to come first, and this rule's advice (move the condition into the
 		// body) would leave that report in place, so reporting both leaves no state the user can reach.
-		if (nearestTestCallbackKind(node, imports, tracker.isContextReceiver, context) === 'hook') {
+		// `no-test-inside-hook` does not report a hook inside a hook, so this rule still does: whether such a hook runs depends on the kind and on how it is registered, and a condition around it only adds to that.
+		if (
+			getRegistrationKind(node, imports, tracker.isContextReceiver, context) !== 'hook'
+			&& nearestTestCallbackKind(node, imports, tracker.isContextReceiver, context) === 'hook'
+		) {
 			return;
 		}
 

@@ -95,5 +95,10 @@ test.snapshot({
 			code: withImport('test(\'a\', (this: void, t) => { if (x) { t.test(\'b\', () => {}); } });'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// `no-test-inside-hook` does not report a hook registered inside a hook, so a condition around it is still this rule's to report
+		'import {before, after} from \'node:test\';\nbefore(() => { if (x) { after(() => {}); } });',
+		'import test from \'node:test\';\ntest.before(() => { if (x) { test.after(() => {}); } });',
+		'import {test} from \'node:test\';\ntest(\'a\', t => { t.before(() => { if (x) { t.after(() => {}); } }); });',
 	],
 });

@@ -11,7 +11,7 @@ Registering a test, suite, or hook inside a condition makes the suite structure 
 
 This rule reports a `test`/`it`/`describe`/`suite`/`before`/`after`/`beforeEach`/`afterEach` call guarded by an `if`, `else`, ternary, logical (`&&`/`||`/`??`), `switch`, or a `catch` clause. Loops are allowed, since iterating to register tests is the idiomatic way to write table-driven tests in `node:test`. The rule only checks lexical ancestors of the registration call and does not trace callbacks passed to helper methods.
 
-A registration inside a hook callback is left to [`no-test-inside-hook`](./no-test-inside-hook.md), whose fix comes first: moving the definition out of the hook and only then splitting the condition is the reachable order, while this rule's advice would leave the other report in place.
+A test or suite registered inside a hook callback is left to [`no-test-inside-hook`](./no-test-inside-hook.md), whose fix comes first: moving the definition out of the hook and only then splitting the condition is the reachable order, while this rule's advice would leave the other report in place. A hook registered conditionally inside a hook is still reported here, since `no-test-inside-hook` does not report a hook.
 
 ## Examples
 

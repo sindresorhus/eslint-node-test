@@ -238,6 +238,54 @@ Message:
 
 `;
 
+exports[`no-conditional-tests > invalid(23): import {before, after} from 'node:test';\nbefore(() => { if (x) { after(() => {}); } }); 1`] = `
+
+  1 | import {before, after} from 'node:test';
+  2 | before(() => { if (x) { after(() => {}); } });
+
+`;
+
+exports[`no-conditional-tests > invalid(23): import {before, after} from 'node:test';\nbefore(() => { if (x) { after(() => {}); } }); 2`] = `
+
+Message:
+  1 | import {before, after} from 'node:test';
+> 2 | before(() => { if (x) { after(() => {}); } });
+    |                         ^^^^^^^^^^^^^^^ Do not register a hook conditionally; it makes the suite structure non-deterministic.
+
+`;
+
+exports[`no-conditional-tests > invalid(24): import test from 'node:test';\ntest.before(() => { if (x) { test.after(() => {}); } }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test.before(() => { if (x) { test.after(() => {}); } });
+
+`;
+
+exports[`no-conditional-tests > invalid(24): import test from 'node:test';\ntest.before(() => { if (x) { test.after(() => {}); } }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test.before(() => { if (x) { test.after(() => {}); } });
+    |                              ^^^^^^^^^^^^^^^^^^^^ Do not register a hook conditionally; it makes the suite structure non-deterministic.
+
+`;
+
+exports[`no-conditional-tests > invalid(25): import {test} from 'node:test';\ntest('a', t => { t.before(() => { if (x) { t.after(() => {}); } }); }); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | test('a', t => { t.before(() => { if (x) { t.after(() => {}); } }); });
+
+`;
+
+exports[`no-conditional-tests > invalid(25): import {test} from 'node:test';\ntest('a', t => { t.before(() => { if (x) { t.after(() => {}); } }); }); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | test('a', t => { t.before(() => { if (x) { t.after(() => {}); } }); });
+    |                                            ^^^^^^^^^^^^^^^^^ Do not register a hook conditionally; it makes the suite structure non-deterministic.
+
+`;
+
 exports[`no-conditional-tests > invalid(3): import {test, describe, it} from 'node:test';\nif (x) { test(\"a\", () => {}); } else { test(\"b\", () => {}); } 1`] = `
 
   1 | import {test, describe, it} from 'node:test';
