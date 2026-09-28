@@ -1,7 +1,8 @@
 import {
 	resolveImports,
 	parseTestCall,
-	isOutOfLineCallback,
+	getOutOfLineCallbackCall,
+	getRegistrationKind,
 	getTestCallback,
 	createContextTracker,
 	isContextHookCall,
@@ -78,10 +79,12 @@ const create = context => {
 
 	// A callback the call names out of line (`describe('s', body)`) is entered where it is declared,
 	// which the call's own scope does not cover, so a hook after a test in it is still out of order.
+	// Only a test or suite body opens a scope, exactly as its inline spelling does: a hook body does not.
 	const outOfLineCallbacks = new WeakSet();
 
 	context.on(functionTypes, node => {
-		if (!isOutOfLineCallback(node, context, imports)) {
+		const kind = getRegistrationKind(getOutOfLineCallbackCall(node, context, imports), imports, undefined, context);
+		if (kind !== 'test' && kind !== 'suite') {
 			return;
 		}
 

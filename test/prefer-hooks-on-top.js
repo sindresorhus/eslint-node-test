@@ -28,6 +28,10 @@ test.snapshot({
 		withImport('function helper() {\n\ttest("a", () => {});\n}\nfunction other() {\n\tbeforeEach(() => {});\n}'),
 		// A nested suite has its own order, so a test outside it says nothing about its hooks
 		withImport('test("a", () => {});\ndescribe("s", () => {\n\tbeforeEach(() => {});\n\tit("b", () => {});\n});'),
+		// A hook body opens no scope of its own, inline or named out of line, exactly as the inline spelling
+		withImport('beforeEach(() => {\n\tit("a", () => {});\n\tbeforeEach(() => {});\n});'),
+		withImport('function body() {\n\tit("a", () => {});\n\tbeforeEach(() => {});\n}\nbeforeEach(body);'),
+		'import {test} from \'node:test\';\ntest(\'p\', t => {\n\tfunction body() {\n\t\tt.test(\'a\', () => {});\n\t\tt.beforeEach(() => {});\n\t}\n\tt.beforeEach(body);\n});',
 	],
 	invalid: [
 		// A suite callback the call names out of line is that suite's own scope, so a hook after a
