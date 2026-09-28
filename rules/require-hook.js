@@ -6,7 +6,8 @@ import {
 	getOutOfLineCallbackCall,
 } from './utils/node-test.js';
 import isFunction from './ast/is-function.js';
-import {unwrapExpression} from './utils/skip-expression-wrappers.js';
+import {unwrapExpression, outermostExpressionWrapper} from './utils/skip-expression-wrappers.js';
+import getEnclosingFunction from './utils/get-enclosing-function.js';
 
 const MESSAGE_ID = 'require-hook';
 
@@ -53,7 +54,8 @@ function isInRegistrationScope(statement, imports, context) {
 
 	// In the descriptor / `options.fn` forms the callback is the `fn` property of an object that is
 	// itself an argument, so the enclosing call is two levels above the callback.
-	let call = callback.parent;
+	// A TypeScript wrapper (`(() => {…}) as any`) is erased at compile time, so the call is above it.
+	let call = outermostExpressionWrapper(callback).parent;
 	if (call?.type === 'Property' && call.parent?.type === 'ObjectExpression') {
 		call = call.parent.parent;
 	}
@@ -75,9 +77,12 @@ function isInRegistrationScope(statement, imports, context) {
 Whether a function handed to this call does nothing but register tests, suites, and hooks. That is not
 setup that belongs in a hook: it is the same shape as a `describe` body, which the rule leaves alone.
 An immediately invoked function or a callback passed to a method is only as suspicious as the calls
-inside it, so a body of registrations is left alone wherever it appears.
+inside it, so a body of registrations is left alone wherever it appears. An empty body registers
+nothing, so it leaves the call itself as the setup (`server.listen(0, () => {})`).
+
+Like a `describe` body, the function may also hold declarations and statements other than a bare call, such as `const title = …;` or an `if` around a registration, as long as it registers something itself (`registeringFunctions`) and has no bare call that is not a registration.
 */
-function isOnlyRegistrations(call, imports) {
+function isOnlyRegistrations(call, imports, registeringFunctions) {
 	const isRegistration = expression => {
 		const called = expression.type === 'ExpressionStatement' ? getCalledExpression(expression) : expression;
 		return called.type === 'CallExpression' && Boolean(parseTestCall(called, imports));
@@ -88,8 +93,9 @@ function isOnlyRegistrations(call, imports) {
 		.filter(candidate => isFunction(candidate));
 
 	return functions.length > 0 && functions.every(candidate =>
-		(candidate.body.type === 'BlockStatement'
-			? candidate.body.body.every(statement => isRegistration(statement))
+		registeringFunctions.has(candidate)
+		&& (candidate.body.type === 'BlockStatement'
+			? candidate.body.body.every(statement => statement.type !== 'ExpressionStatement' || isRegistration(statement))
 			: isRegistration(candidate.body)));
 }
 
@@ -103,7 +109,16 @@ const create = context => {
 
 	const allow = new Set(context.options[0].allow);
 
-	context.on('ExpressionStatement', node => {
+	// The functions that register a test, suite or hook directly in their own body.
+	const registeringFunctions = new Set();
+	context.on('CallExpression', node => {
+		if (parseTestCall(node, imports)) {
+			registeringFunctions.add(getEnclosingFunction(node));
+		}
+	});
+
+	// On exit, so the registrations inside a function handed to the call have been seen.
+	context.onExit('ExpressionStatement', node => {
 		const call = getCalledExpression(node);
 		if (call.type !== 'CallExpression') {
 			return;
@@ -125,7 +140,7 @@ const create = context => {
 			return;
 		}
 
-		if (isOnlyRegistrations(call, imports)) {
+		if (isOnlyRegistrations(call, imports, registeringFunctions)) {
 			return;
 		}
 

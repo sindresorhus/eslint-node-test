@@ -30,8 +30,11 @@ test.snapshot({
 		withImport('(() => test("x", () => {}))();'),
 		withImport('register(() => { test("x", () => {}); });'),
 		// A descriptor body that only registers is not setup either
-		'import {describe} from \'node:test\';\ndescribe({name: \'a\', fn() { test("x", () => {}); }});',
+		'import {describe, test} from \'node:test\';\ndescribe({name: \'a\', fn() { test("x", () => {}); }});',
 		withImport('[1].forEach(() => { test("x", () => {}); });'),
+		// Like a `describe` body, a function that registers may also declare values or hold a registration in an `if`
+		withImport('cases.forEach(c => {\n\tconst title = "adds " + c.a;\n\ttest(title, () => {});\n});'),
+		withImport('describe("s", () => {\n\tcases.forEach(c => {\n\t\tif (c.ok) {\n\t\t\ttest(c.name, () => {});\n\t\t}\n\t});\n});'),
 
 		// Variable declarations are allowed (only bare calls are flagged)
 		withImport('const server = startServer();\ntest("x", () => {});'),
@@ -84,6 +87,9 @@ test.snapshot({
 		withImport('(function () {\n\tstartServer();\n})();'),
 		withImport('(() => {\n\tstartServer();\n\ttest("x", () => {});\n})();'),
 		withImport('[1].forEach(() => { startServer(); });'),
+		// An empty callback registers nothing, so the call itself is the setup
+		withImport('setup(() => {});\ntest("x", () => {});'),
+		withImport('server.listen(0, () => {});\ntest("x", () => {});'),
 
 		// Bare setup call at the module top level
 		withImport('startServer();\ntest("x", () => {});'),
@@ -165,5 +171,16 @@ test.snapshot({
 		'import {describe} from \'node:test\';\ndescribe(\'s\', body);\nfunction body() { setup(); }',
 		'import {describe} from \'node:test\';\nconst body = () => { setup(); };\ndescribe(\'s\', {fn: body});',
 		'import {describe} from \'node:test\';\nconst body = () => { setup(); };\ndescribe(\'s\', body, {skip: true});',
+
+		// A function that registers nothing leaves the call itself as the setup, whatever else the function holds
+		withImport('fs.mkdir(directory, error => {\n\tif (error) {\n\t\tthrow error;\n\t}\n});\ntest("x", () => {});'),
+		withImport('[1].forEach(() => { const value = 1; });\ntest("x", () => {});'),
+		// A registration in a nested function is not the outer function's own
+		withImport('[1].forEach(() => { const register = () => { test("x", () => {}); }; });'),
+		// A TypeScript wrapper on the suite body is erased at compile time
+		{
+			code: withImport('describe("s", (() => { setup(); }) as any);'),
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
