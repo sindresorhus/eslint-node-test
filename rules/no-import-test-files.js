@@ -94,22 +94,6 @@ function getSpecifierValue(node) {
 	return getStaticStringValue(unwrapTypeScriptExpression(node));
 }
 
-/**
-Whether a declaration brings in nothing but types, which TypeScript erases entirely, so the module is
-never loaded. Both the declaration-level `import type`/`export type` and the specifier-level
-`import {type X}`/`export {type X}` qualify; a mixed declaration still loads the module.
-*/
-function isTypeOnly(node) {
-	if (node.importKind === 'type' || node.exportKind === 'type') {
-		return true;
-	}
-
-	// An export specifier carries `exportKind`, an import specifier `importKind`.
-	const {specifiers = []} = node;
-	return specifiers.length > 0
-		&& specifiers.every(specifier => specifier.importKind === 'type' || specifier.exportKind === 'type');
-}
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const filename = context.physicalFilename ?? context.filename;
@@ -142,21 +126,21 @@ const create = context => {
 	};
 
 	context.on('ImportDeclaration', node => {
-		if (isTypeOnly(node)) {
+		if (node.importKind === 'type') {
 			return;
 		}
 
 		return getProblem(node, node.source);
 	});
 	context.on('ExportNamedDeclaration', node => {
-		if (!node.source || isTypeOnly(node)) {
+		if (!node.source || node.exportKind === 'type') {
 			return;
 		}
 
 		return getProblem(node, node.source);
 	});
 	context.on('ExportAllDeclaration', node => {
-		if (isTypeOnly(node)) {
+		if (node.exportKind === 'type') {
 			return;
 		}
 

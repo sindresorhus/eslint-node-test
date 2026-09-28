@@ -35,4 +35,4 @@ test('reads a file', async t => {
 });
 ```
 
-Static ESM loads are checked, imports and re-exports alike (`export {x} from '…'`, `export * from '…'`). A type-only import or re-export is erased and does not count. CommonJS `require()` calls and dynamic imports are intentionally ignored.
+Static ESM loads are checked, imports and re-exports alike (`export {x} from '…'`, `export * from '…'`). A declaration-level type-only import or re-export (`import type {X} from '…'`, `export type {X} from '…'`) is erased and does not count. A specifier-level one (`import {type X} from '…'`, `export {type X} from '…'`) does count: Node.js type stripping keeps it as `import {} from '…'`, which loads the module. CommonJS `require()` calls and dynamic imports are intentionally ignored.

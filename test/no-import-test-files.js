@@ -57,27 +57,6 @@ test.snapshot({
 			code: 'import type helper = require(\'./example.test.js\');',
 			languageOptions: {parser: parsers.typescript},
 		},
-		// A specifier-level type import is erased just as completely, so the module is never loaded
-		{
-			code: 'import {type Helper} from \'./example.test.js\';',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'export {type Helper} from \'./example.test.js\';',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'import {type Helper} from \'./example.test.js\';\nexport {type Other} from \'./other.test.js\';',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'import {type Value} from \'./example.test.ts\';',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'export {type Value} from \'./example.test.ts\';',
-			languageOptions: {parser: parsers.typescript},
-		},
 		{
 			code: 'export = require(name);',
 			languageOptions: {parser: parsers.typescript},
@@ -87,6 +66,15 @@ test.snapshot({
 		// A CommonJS `require()` of a test file loads it the same way an import does
 		'const {test} = require(\'node:test\');\nrequire(\'./dependency.test.cjs\');',
 
+		// A specifier-level type import still loads the module: Node.js type stripping keeps it as `import {} from '…'`
+		{
+			code: 'import {type Value} from \'./example.test.ts\';',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'export {type Value} from \'./example.test.ts\';',
+			languageOptions: {parser: parsers.typescript},
+		},
 		// A mixed declaration still loads the module for its value specifier
 		{
 			code: 'import {type Helper, value} from \'./example.test.js\';',

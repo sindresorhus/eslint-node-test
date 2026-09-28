@@ -36,19 +36,11 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
-			code: head + 'import {type Value} from \'module.js\';\nmock.module(\'module.js\');',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
 			code: 'import type {mock} from \'node:test\';\nimport \'module.js\';\nmock.module(\'module.js\');',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
 			code: head + 'export type {Value} from \'module.js\';\nmock.module(\'module.js\');',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: head + 'export {type Value} from \'module.js\';\nmock.module(\'module.js\');',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
@@ -86,6 +78,15 @@ test.snapshot({
 		head + 'export * as module from \'module.js\';\nmock.module(\'module.js\');',
 		{
 			code: head + 'export {type Value, other} from \'module.js\';\nmock.module(\'module.js\');',
+			languageOptions: {parser: parsers.typescript},
+		},
+		// A specifier-level type import or re-export still loads its target: Node.js type stripping keeps it as `import {} from '…'` or `export {} from '…'`.
+		{
+			code: head + 'import {type Value} from \'module.js\';\nmock.module(\'module.js\');',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: head + 'export {type Value} from \'module.js\';\nmock.module(\'module.js\');',
 			languageOptions: {parser: parsers.typescript},
 		},
 

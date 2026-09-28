@@ -13,25 +13,6 @@ const messages = {
 	[MESSAGE_ID]: '`mock.module()` cannot affect `{{specifier}}` because it was already imported statically.',
 };
 
-/** Whether a re-export loads its target, which a type-only one does not, at either level. */
-function isRuntimeExport(node) {
-	if (node.exportKind === 'type') {
-		return false;
-	}
-
-	// `export * from '…'` has no specifiers, and it loads its target.
-	const {specifiers = []} = node;
-	return specifiers.length === 0 || specifiers.some(specifier => specifier.exportKind !== 'type');
-}
-
-function isRuntimeImport(node) {
-	if (node.importKind === 'type') {
-		return false;
-	}
-
-	return node.specifiers.length === 0 || node.specifiers.some(specifier => specifier.importKind !== 'type');
-}
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -48,9 +29,10 @@ const create = context => {
 	for (const node of sourceCode.ast.body) {
 		// A static re-export loads the target just as an import does, and its bindings are just as
 		// unmockable: `export {x} from 'os'`, `export * from 'os'`, `export * as os from 'os'`.
+		// Only a declaration-level `import type`/`export type` is erased; Node.js type stripping keeps `import {type X} from '…'` as `import {} from '…'`, which still loads the module.
 		const isStaticLoad = node.type === 'ImportDeclaration'
-			? isRuntimeImport(node)
-			: (node.type === 'ExportNamedDeclaration' || node.type === 'ExportAllDeclaration') && isRuntimeExport(node);
+			? node.importKind !== 'type'
+			: (node.type === 'ExportNamedDeclaration' || node.type === 'ExportAllDeclaration') && node.exportKind !== 'type';
 
 		if (isStaticLoad && typeof node.source?.value === 'string') {
 			staticImports.add(normalizeSpecifier(node.source.value));
