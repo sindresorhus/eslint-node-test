@@ -10,6 +10,14 @@ test.snapshot({
 	valid: [
 		// A name holding an object is not a primitive, however it is written
 		withAssert('const K = {a: 1};\nassert.deepStrictEqual([], K);'),
+		// A property read is not resolved: a call the checker cannot see may have filled the object
+		withAssert('const expected = {list: undefined};\nObject.assign(expected, {list: [1]});\nassert.deepStrictEqual(actual, expected.list);'),
+		withAssert('const expected = {};\nfill(expected);\nassert.deepStrictEqual(actual, expected.list);'),
+		withAssert('const object = {};\nfill(object);\nconst expected = object.list;\nassert.deepStrictEqual(actual, expected);'),
+		// A reassigned binding or a destructured one does not hold its initializer's primitive
+		withAssert('let expected = 0;\nexpected = [];\nassert.deepStrictEqual(actual, expected);'),
+		withAssert('const [...chars] = \'abc\';\nassert.deepStrictEqual(chars, [\'a\', \'b\', \'c\']);'),
+		withAssert('const {length, ...rest} = \'ab\';\nassert.deepStrictEqual(rest, {0: \'a\', 1: \'b\'});'),
 
 		// Not an assert import — ignored
 		'assert.deepEqual(a, 1);',
@@ -45,6 +53,9 @@ test.snapshot({
 
 		// `.assert.*` on a non-context object — not a test context, so not rewritten
 		'import test from \'node:test\';\ntest(\'t\', () => { const db = makeDb(); db.assert.deepEqual(a, 1); });',
+
+		// A `let` with no initializer is not resolved, so it is left to the runtime like any other unknown value
+		withAssert('let x;\nassert.deepStrictEqual(value, x);'),
 	],
 	invalid: [
 		// DeepEqual with primitive actual
@@ -136,5 +147,15 @@ test.snapshot({
 			code: withAssert('assert.deepStrictEqual(a, "x" satisfies string);'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// Every unary operator yields a primitive, whatever its operand is
+		withAssert('assert.deepStrictEqual(typeof value, expected);'),
+		withAssert('assert.deepStrictEqual(-value, b);'),
+		withAssert('assert.notDeepStrictEqual(!value, b);'),
+		withAssert('const NaN = {a: 1};\nassert.deepStrictEqual(actual, -NaN);'),
+
+		// A name holding `null` or `undefined` is a primitive too
+		withAssert('const x = null;\nassert.deepStrictEqual(value, x);'),
+		withAssert('const x = undefined;\nassert.notDeepStrictEqual(x, value);'),
 	],
 });

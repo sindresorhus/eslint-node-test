@@ -741,6 +741,26 @@ Output:
 
 `;
 
+exports[`no-incorrect-deep-equal > invalid(49): import assert from 'node:assert';\nassert.deepStrictEqual(typeof value, expected); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.deepStrictEqual(typeof value, expected);
+
+`;
+
+exports[`no-incorrect-deep-equal > invalid(49): import assert from 'node:assert';\nassert.deepStrictEqual(typeof value, expected); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.deepStrictEqual(typeof value, expected);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`deepStrictEqual\` with a primitive. Use the non-deep equality equivalent instead.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(typeof value, expected);
+
+`;
+
 exports[`no-incorrect-deep-equal > invalid(5): import assert from 'node:assert';\nassert.deepEqual(1, b); 1`] = `
 
   1 | import assert from 'node:assert';
@@ -754,6 +774,115 @@ Message:
   1 | import assert from 'node:assert';
 > 2 | assert.deepEqual(1, b);
     | ^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`deepEqual\` with a primitive. Use the non-deep equality equivalent instead.
+
+`;
+
+exports[`no-incorrect-deep-equal > invalid(50): import assert from 'node:assert';\nassert.deepStrictEqual(-value, b); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.deepStrictEqual(-value, b);
+
+`;
+
+exports[`no-incorrect-deep-equal > invalid(50): import assert from 'node:assert';\nassert.deepStrictEqual(-value, b); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.deepStrictEqual(-value, b);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`deepStrictEqual\` with a primitive. Use the non-deep equality equivalent instead.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(-value, b);
+
+`;
+
+exports[`no-incorrect-deep-equal > invalid(51): import assert from 'node:assert';\nassert.notDeepStrictEqual(!value, b); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.notDeepStrictEqual(!value, b);
+
+`;
+
+exports[`no-incorrect-deep-equal > invalid(51): import assert from 'node:assert';\nassert.notDeepStrictEqual(!value, b); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.notDeepStrictEqual(!value, b);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`notDeepStrictEqual\` with a primitive. Use the non-deep equality equivalent instead.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.notStrictEqual(!value, b);
+
+`;
+
+exports[`no-incorrect-deep-equal > invalid(52): import assert from 'node:assert';\nconst NaN = {a: 1};\nassert.deepStrictEqual(actual, -NaN); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | const NaN = {a: 1};
+  3 | assert.deepStrictEqual(actual, -NaN);
+
+`;
+
+exports[`no-incorrect-deep-equal > invalid(52): import assert from 'node:assert';\nconst NaN = {a: 1};\nassert.deepStrictEqual(actual, -NaN); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+  2 | const NaN = {a: 1};
+> 3 | assert.deepStrictEqual(actual, -NaN);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`deepStrictEqual\` with a primitive. Use the non-deep equality equivalent instead.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | const NaN = {a: 1};
+  3 | assert.strictEqual(actual, -NaN);
+
+`;
+
+exports[`no-incorrect-deep-equal > invalid(53): import assert from 'node:assert';\nconst x = null;\nassert.deepStrictEqual(value, x); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | const x = null;
+  3 | assert.deepStrictEqual(value, x);
+
+`;
+
+exports[`no-incorrect-deep-equal > invalid(53): import assert from 'node:assert';\nconst x = null;\nassert.deepStrictEqual(value, x); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+  2 | const x = null;
+> 3 | assert.deepStrictEqual(value, x);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`deepStrictEqual\` with a primitive. Use the non-deep equality equivalent instead.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | const x = null;
+  3 | assert.strictEqual(value, x);
+
+`;
+
+exports[`no-incorrect-deep-equal > invalid(54): import assert from 'node:assert';\nconst x = undefined;\nassert.notDeepStrictEqual(x, value); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | const x = undefined;
+  3 | assert.notDeepStrictEqual(x, value);
+
+`;
+
+exports[`no-incorrect-deep-equal > invalid(54): import assert from 'node:assert';\nconst x = undefined;\nassert.notDeepStrictEqual(x, value); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+  2 | const x = undefined;
+> 3 | assert.notDeepStrictEqual(x, value);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`notDeepStrictEqual\` with a primitive. Use the non-deep equality equivalent instead.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | const x = undefined;
+  3 | assert.notStrictEqual(x, value);
 
 `;
 

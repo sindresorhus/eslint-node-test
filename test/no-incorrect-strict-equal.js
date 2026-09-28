@@ -111,5 +111,15 @@ test.snapshot({
 			code: withAssert('assert.strictEqual(a, [1, 2] as number[]);'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// Every unary operator yields a primitive, whatever its operand is, so these are reported but not fixed either
+		withAssert('assert.equal(typeof value, [\'object\']);'),
+		withAssert('assert.equal(-value, [\'-1\']);'),
+		withAssert('assert.equal(!value, []);'),
+		withAssert('assert.notEqual(~value, {});'),
+
+		// A name holding `null` or `undefined` is a primitive, like the literal, so this is reported but not fixed either
+		withAssert('const x = null;\nassert.strictEqual(x, {});'),
+		withAssert('const x = undefined;\nassert.equal(x, []);'),
 	],
 });

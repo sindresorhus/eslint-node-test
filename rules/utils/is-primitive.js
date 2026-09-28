@@ -1,15 +1,13 @@
-import {getStaticValue} from '@eslint-community/eslint-utils';
+import {findVariable} from '@eslint-community/eslint-utils';
 import unwrapTypeScriptExpression from './unwrap-typescript-expression.js';
 import isUnshadowedGlobal from './is-unshadowed-global.js';
-
-const PRIMITIVE_TYPES = new Set(['string', 'number', 'boolean', 'bigint', 'symbol']);
 
 /**
 Check if a node represents a primitive value.
 
 Covers: literals, the `undefined`/`NaN`/`Infinity` globals, template literals (always a string,
-regardless of interpolation), `void` expressions, and signed numeric/Infinity/NaN literals, since
-`-0` and `+0` are primitives just as `0` is.
+regardless of interpolation), and unary expressions (`typeof value`, `-x`, `void 0`), since every
+unary operator yields a primitive.
 
 The three names are only primitives while nothing shadows them: `const NaN = {}` is an object, and a
 `no-incorrect-deep-equal` fix built on that would turn a passing deep comparison into a failing
@@ -29,30 +27,12 @@ export default function isPrimitive(node, context) {
 		return true;
 	}
 
-	if (node.type === 'UnaryExpression') {
-		if (node.operator === 'void') {
-			return true;
-		}
-
-		// Every other unary operator applies to its operand, so the operand decides.
-		if (node.operator !== '-' && node.operator !== '+') {
-			return false;
-		}
-
-		const {argument} = node;
-		return (argument.type === 'Literal' && !argument.regex)
-			|| (argument.type === 'Identifier'
-				&& ['Infinity', 'NaN'].includes(argument.name)
-				&& isUnshadowedGlobal(context, argument, argument.name));
-	}
-
-	return false;
+	// Every unary operator yields a primitive, whatever its operand is: `typeof` a string, `!` and `delete` a boolean, `-`, `+` and `~` a number or bigint, and `void` `undefined`.
+	return node.type === 'UnaryExpression';
 }
 
 /**
-Whether the operand is a primitive VALUE, including one a name holds: `equal(0, [])` passes while
-`deepEqual(0, [])` fails, so a `0` reached through a variable has to count as a literal `0` does. A
-value the checker cannot resolve is left to the runtime, like any other unknown expression.
+Whether the operand is a primitive VALUE, including one a binding holds when it is never reassigned and its initializer is written as a primitive: `equal(0, [])` passes while `deepEqual(0, [])` fails, so `const zero = 0` has to count as a literal `0` does. Any other value is left to the runtime, like any other unknown expression.
 
 Use this rather than `isPrimitive` when the question is what the operand evaluates to; `isPrimitive`
 answers only whether it is written as a primitive.
@@ -62,6 +42,18 @@ export function isPrimitiveOperand(node, context) {
 		return true;
 	}
 
-	const resolved = getStaticValue(unwrapTypeScriptExpression(node), context.sourceCode.getScope(node));
-	return resolved !== null && PRIMITIVE_TYPES.has(typeof resolved.value);
+	// Only a binding that is never reassigned and whose own initializer is written as a primitive counts. Resolving further, through a property read (`expected.list`) or another name bound to one, reads what the object literal said, which a later `Object.assign(expected, …)` or `fill(expected)` the checker cannot see may have replaced.
+	const unwrapped = unwrapTypeScriptExpression(node);
+	if (unwrapped.type !== 'Identifier') {
+		return false;
+	}
+
+	const variable = findVariable(context.sourceCode.getScope(unwrapped), unwrapped.name);
+	const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
+	// A destructured binding (`const [...chars] = 'abc'`) is not the initializer's value.
+	return definition?.type === 'Variable'
+		&& definition.node.id.type === 'Identifier'
+		&& Boolean(definition.node.init)
+		&& variable.references.every(reference => reference.init || !reference.isWrite())
+		&& isPrimitive(definition.node.init, context);
 }
