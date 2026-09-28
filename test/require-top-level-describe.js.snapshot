@@ -14,6 +14,38 @@ Message:
 
 `;
 
+exports[`require-top-level-describe > invalid(10): import {describe, test, it, before, beforeEach} from 'node:test';\n[1, 2].map(() => it(\"n\", () => {})); 1`] = `
+
+  1 | import {describe, test, it, before, beforeEach} from 'node:test';
+  2 | [1, 2].map(() => it("n", () => {}));
+
+`;
+
+exports[`require-top-level-describe > invalid(10): import {describe, test, it, before, beforeEach} from 'node:test';\n[1, 2].map(() => it(\"n\", () => {})); 2`] = `
+
+Message:
+  1 | import {describe, test, it, before, beforeEach} from 'node:test';
+> 2 | [1, 2].map(() => it("n", () => {}));
+    |                  ^^^^^^^^^^^^^^^^^ A test must be placed inside a top-level \`describe\`.
+
+`;
+
+exports[`require-top-level-describe > invalid(11): import {describe, test, it, before, beforeEach} from 'node:test';\ntest(\"a\", () => {}); 1`] = `
+
+  1 | import {describe, test, it, before, beforeEach} from 'node:test';
+  2 | test("a", () => {});
+
+`;
+
+exports[`require-top-level-describe > invalid(11): import {describe, test, it, before, beforeEach} from 'node:test';\ntest(\"a\", () => {}); 2`] = `
+
+Message:
+  1 | import {describe, test, it, before, beforeEach} from 'node:test';
+> 2 | test("a", () => {});
+    | ^^^^^^^^^^^^^^^^^^^ A test must be placed inside a top-level \`describe\`.
+
+`;
+
 exports[`require-top-level-describe > invalid(2): import {describe, test, it, before, beforeEach} from 'node:test';\nit(\"a\", () => {}); 1`] = `
 
   1 | import {describe, test, it, before, beforeEach} from 'node:test';
@@ -128,18 +160,34 @@ Message:
 
 `;
 
-exports[`require-top-level-describe > invalid(8): import {describe, test, it, before, beforeEach} from 'node:test';\ntest(\"a\", () => {}); 1`] = `
+exports[`require-top-level-describe > invalid(8): import {describe, test, it, before, beforeEach} from 'node:test';\n[1, 2].forEach(() => { test(\"n\", () => {}); }); 1`] = `
 
   1 | import {describe, test, it, before, beforeEach} from 'node:test';
-  2 | test("a", () => {});
+  2 | [1, 2].forEach(() => { test("n", () => {}); });
 
 `;
 
-exports[`require-top-level-describe > invalid(8): import {describe, test, it, before, beforeEach} from 'node:test';\ntest(\"a\", () => {}); 2`] = `
+exports[`require-top-level-describe > invalid(8): import {describe, test, it, before, beforeEach} from 'node:test';\n[1, 2].forEach(() => { test(\"n\", () => {}); }); 2`] = `
 
 Message:
   1 | import {describe, test, it, before, beforeEach} from 'node:test';
-> 2 | test("a", () => {});
-    | ^^^^^^^^^^^^^^^^^^^ A test must be placed inside a top-level \`describe\`.
+> 2 | [1, 2].forEach(() => { test("n", () => {}); });
+    |                        ^^^^^^^^^^^^^^^^^^^ A test must be placed inside a top-level \`describe\`.
+
+`;
+
+exports[`require-top-level-describe > invalid(9): import {describe, test, it, before, beforeEach} from 'node:test';\nfor (const _ of [1, 2]) { test(\"n\", () => {}); } 1`] = `
+
+  1 | import {describe, test, it, before, beforeEach} from 'node:test';
+  2 | for (const _ of [1, 2]) { test("n", () => {}); }
+
+`;
+
+exports[`require-top-level-describe > invalid(9): import {describe, test, it, before, beforeEach} from 'node:test';\nfor (const _ of [1, 2]) { test(\"n\", () => {}); } 2`] = `
+
+Message:
+  1 | import {describe, test, it, before, beforeEach} from 'node:test';
+> 2 | for (const _ of [1, 2]) { test("n", () => {}); }
+    |                           ^^^^^^^^^^^^^^^^^^^ A test must be placed inside a top-level \`describe\`.
 
 `;

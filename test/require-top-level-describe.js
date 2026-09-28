@@ -44,6 +44,11 @@ test.snapshot({
 			code: head + 'class C { register() { describe("a", () => {}); describe("b", () => {}); } }',
 			options: [{maxTopLevelDescribes: 1}],
 		},
+		// A callback that is only passed on, not run by an array method, is a real scope boundary
+		head + 'register(() => { test("a", () => {}); });',
+		head + '[1, 2].forEach(() => { describe("s", () => { test("n", () => {}); }); });',
+		// The cap counts call sites, so a `describe` in a loop counts once, as in a `for…of` body
+		{code: head + '[1, 2].forEach(() => { describe("s", () => {}); });', options: [{maxTopLevelDescribes: 1}]},
 		// Exactly at the cap
 		{code: head + 'describe("a", () => {});', options: [{maxTopLevelDescribes: 1}]},
 	],
@@ -68,6 +73,11 @@ test.snapshot({
 
 		// A subtest is not a separate registration, so only the top-level test is reported
 		head + 'test("a", async t => { await t.test("b", () => {}); });',
+
+		// An array-iteration callback at module scope runs while the file loads, like a `for…of` body
+		head + '[1, 2].forEach(() => { test("n", () => {}); });',
+		head + 'for (const _ of [1, 2]) { test("n", () => {}); }',
+		head + '[1, 2].map(() => it("n", () => {}));',
 
 		// TypeScript
 		{
