@@ -642,6 +642,54 @@ Message:
 
 `;
 
+exports[`prefer-equality-assertion > invalid(41): import assert from 'node:assert';\nassert.ok(a == NaN); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok(a == NaN);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(41): import assert from 'node:assert';\nassert.ok(a == NaN); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok(a == NaN);
+    | ^^^^^^^^^^^^^^^^^^^ Prefer \`equal\` over \`ok\` with a \`==\` comparison for a clearer failure message.
+
+`;
+
+exports[`prefer-equality-assertion > invalid(42): import assert from 'node:assert';\nassert.ok(NaN != a); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok(NaN != a);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(42): import assert from 'node:assert';\nassert.ok(NaN != a); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok(NaN != a);
+    | ^^^^^^^^^^^^^^^^^^^ Prefer \`notEqual\` over \`ok\` with a \`!=\` comparison for a clearer failure message.
+
+`;
+
+exports[`prefer-equality-assertion > invalid(43): import assert from 'node:assert';\nassert.ok(value == Number(input)); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok(value == Number(input));
+
+`;
+
+exports[`prefer-equality-assertion > invalid(43): import assert from 'node:assert';\nassert.ok(value == Number(input)); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok(value == Number(input));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`equal\` over \`ok\` with a \`==\` comparison for a clearer failure message.
+
+`;
+
 exports[`prefer-equality-assertion > invalid(5): import assert from 'node:assert';\nassert.ok(a != b); 1`] = `
 
   1 | import assert from 'node:assert';

@@ -138,9 +138,11 @@ test.snapshot({
 		// rewrite is only reported when a `NaN` operand is present.
 		withAssert('assert.ok(NaN == NaN);'),
 		withAssert('assert.ok(NaN != NaN);'),
-		// `equal`/`notEqual` treat `NaN` as equal to itself, so the loose rewrite is only reported
-		// when the comparison is `NaN == NaN` (both operands `NaN`-producing).
 		withAssert('assert.ok(Number("x") == NaN);'),
 		withAssert('assert.ok(0 / 0 != NaN);'),
+		// One `NaN` operand is enough: the other side may be `NaN` at runtime, where `a == NaN` is false but `equal(a, NaN)` passes.
+		withAssert('assert.ok(a == NaN);'),
+		withAssert('assert.ok(NaN != a);'),
+		withAssert('assert.ok(value == Number(input));'),
 	],
 });

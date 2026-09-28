@@ -21,7 +21,6 @@ const OPERATOR_TO_METHOD = new Map([
 ]);
 
 const isStrictOperator = operator => operator === '===' || operator === '!==';
-const isLooseOperator = operator => operator === '==' || operator === '!=';
 
 const isNumericLiteral = node => node?.type === 'Literal' && typeof node.value === 'number';
 
@@ -70,19 +69,14 @@ function isZeroOperand(node) {
 /*
 `strictEqual`/`notStrictEqual` use `Object.is`, which differs from `===`/`!==` on `NaN` and `±0`, so
 the fix is suppressed only when an operand is one of those values. `equal`/`notEqual` are `==`/`!=`
-with `NaN` treated as equal to itself, so they differ only when the comparison is `NaN == NaN`, which
-needs both operands to be `NaN`.
+with `NaN` treated as equal to itself, so they differ when both operands are `NaN`. One visible `NaN` operand is enough to suppress the fix, since the other side may be `NaN` at runtime: `a == NaN` is always false, while `equal(a, NaN)` passes when `a` is `NaN`.
 */
 function operandDivergesFromReplacement(operator, left, right) {
-	if (isStrictOperator(operator)) {
-		return couldBeNaN(left) || couldBeNaN(right) || isZeroOperand(left) || isZeroOperand(right);
+	if (couldBeNaN(left) || couldBeNaN(right)) {
+		return true;
 	}
 
-	if (isLooseOperator(operator)) {
-		return couldBeNaN(left) && couldBeNaN(right);
-	}
-
-	return false;
+	return isStrictOperator(operator) && (isZeroOperand(left) || isZeroOperand(right));
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
