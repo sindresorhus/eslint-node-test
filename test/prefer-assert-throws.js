@@ -86,8 +86,9 @@ test.snapshot({
 		// A generator `yield` suspends synchronously, so the recommendation stays `assert.throws()`.
 		// Verified against `node:test`: the throw is caught by the inner catch, not turned into a rejection.
 		`${ASSERT_IMPORT}\nfunction * generator() {\n\ttry {\n\t\tyield risky();\n\t} catch (err) {\n\t\tassert.ok(err instanceof Error);\n\t}\n}`,
-		`${ASSERT_IMPORT}\nasync function * generator() {\n\ttry {\n\t\tyield 1;\n\t} catch (err) {\n\t\tassert.ok(err instanceof Error);\n\t}\n}`,
 		`${ASSERT_IMPORT}\nfunction * generator() {\n\ttry {\n\t\tyield awaitable();\n\t} catch (err) {\n\t\tassert.ok(err);\n\t}\n}`,
+		// An async generator's `yield` awaits, so there it is `assert.rejects()`
+		`${ASSERT_IMPORT}\nasync function * generator() {\n\ttry {\n\t\tyield 1;\n\t} catch (err) {\n\t\tassert.ok(err instanceof Error);\n\t}\n}`,
 		// A destructured `assert` in catch
 		`${TEST_AND_ASSERT}\ntest('t', ({ assert }) => {\n\ttry {\n\t\tfn();\n\t} catch (err) {\n\t\tassert.ok(err);\n\t}\n});`,
 
@@ -102,5 +103,10 @@ test.snapshot({
 		// A `for await` still selects `assert.rejects()`, so excluding `yield` did not weaken the
 		// async detection
 		`${ASSERT_IMPORT}\nconst runner = async () => {\n\ttry {\n\t\tfor await (const x of stream) { use(x); }\n\t} catch (err) {\n\t\tassert.ok(err instanceof Error);\n\t}\n};`,
+		// In an async generator, `yield` awaits its operand, so a rejection is caught asynchronously and
+		// `assert.throws()` would miss it
+		`${ASSERT_IMPORT}\nasync function * generator() {\n\ttry {\n\t\tyield risky();\n\t} catch (err) {\n\t\tassert.ok(err);\n\t}\n}`,
+		// A sync generator nested in an async generator suspends synchronously again
+		`${ASSERT_IMPORT}\nasync function * outer() {\n\tfunction * inner() {\n\t\ttry {\n\t\t\tyield risky();\n\t\t} catch (err) {\n\t\t\tassert.ok(err);\n\t\t}\n\t}\n}`,
 	],
 });

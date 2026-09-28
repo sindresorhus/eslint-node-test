@@ -1,5 +1,6 @@
 import {resolveImports, createContextTracker, parseSupportedAssertionCall} from './utils/node-test.js';
 import containsSuspensionPoint from './utils/contains-suspension-point.js';
+import getEnclosingFunction from './utils/get-enclosing-function.js';
 import isFunction from './ast/is-function.js';
 
 const MESSAGE_ID_SYNC = 'prefer-assert-throws/sync';
@@ -83,8 +84,11 @@ const create = context => {
 		}
 
 		// An `await` in the try body makes it async. A `yield` does not: a generator suspends
-		// synchronously, so the correct replacement is still `assert.throws()`.
-		const isAsync = node.block.body.some(statement => containsSuspensionPoint(statement, visitorKeys, {includeYield: false}));
+		// synchronously, so the correct replacement is still `assert.throws()`. In an async generator,
+		// though, `yield` awaits its operand, so a rejection there is caught asynchronously too.
+		const enclosingFunction = getEnclosingFunction(node);
+		const isAsyncGenerator = Boolean(enclosingFunction?.async && enclosingFunction.generator);
+		const isAsync = node.block.body.some(statement => containsSuspensionPoint(statement, visitorKeys, {includeYield: isAsyncGenerator}));
 
 		return {
 			node,
