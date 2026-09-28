@@ -9,7 +9,7 @@
 
 A test without any assertions passes whenever its body returns normally, so a wrong result that nothing checks goes unnoticed. A body that throws still fails, which is why this rule is about missing checks rather than about failures. This rule requires each `test`/`it` call to contain at least one assertion from `node:assert`, the test context's `assert` property, or the `assert` property directly destructured from the test callback parameter.
 
-Note: Tests that reference an external implementation (without an inline function body) are not flagged, since the implementation may contain assertions. A skipped test is not flagged either, because its body never runs and so cannot pass vacuously; a `todo` test does run, so it is still checked. A generator callback is never iterated, so it is left alone for the same reason.
+Note: Tests that reference an external implementation (without an inline function body) are not flagged, since the implementation may contain assertions. A skipped test is not flagged either, because its body never runs and so cannot pass vacuously; a `todo` test does run, so it is still checked. A generator callback without an assertion is still flagged. Note that Node.js never iterates a generator callback and reports the test as passed, so even one with an assertion passes vacuously; this rule does not catch that.
 
 ## Examples
 

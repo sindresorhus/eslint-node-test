@@ -90,12 +90,6 @@ const create = context => {
 			}
 
 			const callback = getTestCallback(node);
-			// A generator callback is never iterated, so its body never runs: it cannot pass vacuously
-			// and cannot let a wrong result go unnoticed.
-			if (callback?.generator) {
-				return;
-			}
-
 			// Only push if there's an inline function body to inspect.
 			if (callback) {
 				testStack.push({

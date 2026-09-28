@@ -7,12 +7,6 @@ test.snapshot({
 		// Not a test file — bail out early
 		'test("title", () => { doSomething(); });',
 
-		// A generator callback is never iterated, so its body never runs either
-		'import test from "node:test";\ntest("t", function* () { doSomething(); });',
-		'import test from "node:test";\ntest("t", async function* () { doSomething(); });',
-		'import {beforeEach} from "node:test";\nbeforeEach(function* () { doSomething(); });',
-		'import test from "node:test";\nimport assert from "node:assert";\ntest("t", function* () { assert.ok(1); });',
-
 		// A skipped callback never runs, so it cannot pass vacuously. A `todo` callback does run, so it
 		// is still checked. A `skip` option only stops the body for a truthy value: `0`, `''` and
 		// `null` all carry the `# SKIP` directive and still run it.
@@ -128,6 +122,9 @@ test.snapshot({
 		'import test from "node:test";\ntest("t", {skip: false}, () => { doSomething(); });',
 		'import test from "node:test";\ntest.only("t", () => { doSomething(); });',
 		'import test from "node:test";\ntest.todo("t", () => { doSomething(); });',
+		// `node:test` never iterates a generator callback and reports the test as passed, so it passes vacuously like any other callback without an assertion
+		'import test from "node:test";\ntest("t", function* () { doSomething(); });',
+		'import test from "node:test";\ntest("t", async function* () { doSomething(); });',
 		// Only the assertion shapes the shared helper accepts count; a deeper chain is not one
 		'import test from \'node:test\';\ntest("x", ({assert}) => { assert.a.b.c.d(); });',
 		'import test from \'node:test\';\ntest("x", ({assert: {a: {b}}}) => { b(1); });',

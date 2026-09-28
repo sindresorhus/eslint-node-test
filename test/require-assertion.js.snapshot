@@ -14,14 +14,46 @@ Message:
 
 `;
 
-exports[`require-assertion > invalid(10): import test from \"node:test\";\ntest(\"t1\", () => { doSomething(); }); 1`] = `
+exports[`require-assertion > invalid(10): import test from 'node:test';\ntest('a', {fn() {}}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('a', {fn() {}});
+
+`;
+
+exports[`require-assertion > invalid(10): import test from 'node:test';\ntest('a', {fn() {}}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('a', {fn() {}});
+    | ^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
+
+`;
+
+exports[`require-assertion > invalid(11): import test from 'node:test';\ntest({name: 'x', fn() {}}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test({name: 'x', fn() {}});
+
+`;
+
+exports[`require-assertion > invalid(11): import test from 'node:test';\ntest({name: 'x', fn() {}}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test({name: 'x', fn() {}});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
+
+`;
+
+exports[`require-assertion > invalid(12): import test from \"node:test\";\ntest(\"t1\", () => { doSomething(); }); 1`] = `
 
   1 | import test from "node:test";
   2 | test("t1", () => { doSomething(); });
 
 `;
 
-exports[`require-assertion > invalid(10): import test from \"node:test\";\ntest(\"t1\", () => { doSomething(); }); 2`] = `
+exports[`require-assertion > invalid(12): import test from \"node:test\";\ntest(\"t1\", () => { doSomething(); }); 2`] = `
 
 Message:
   1 | import test from "node:test";
@@ -30,14 +62,14 @@ Message:
 
 `;
 
-exports[`require-assertion > invalid(11): import test from \"node:test\";\ntest(\"t1\", () => { myFakeService.assert.ok(1); }); 1`] = `
+exports[`require-assertion > invalid(13): import test from \"node:test\";\ntest(\"t1\", () => { myFakeService.assert.ok(1); }); 1`] = `
 
   1 | import test from "node:test";
   2 | test("t1", () => { myFakeService.assert.ok(1); });
 
 `;
 
-exports[`require-assertion > invalid(11): import test from \"node:test\";\ntest(\"t1\", () => { myFakeService.assert.ok(1); }); 2`] = `
+exports[`require-assertion > invalid(13): import test from \"node:test\";\ntest(\"t1\", () => { myFakeService.assert.ok(1); }); 2`] = `
 
 Message:
   1 | import test from "node:test";
@@ -46,14 +78,14 @@ Message:
 
 `;
 
-exports[`require-assertion > invalid(12): import test from \"node:test\";\ntest(\"t1\", () => {}); 1`] = `
+exports[`require-assertion > invalid(14): import test from \"node:test\";\ntest(\"t1\", () => {}); 1`] = `
 
   1 | import test from "node:test";
   2 | test("t1", () => {});
 
 `;
 
-exports[`require-assertion > invalid(12): import test from \"node:test\";\ntest(\"t1\", () => {}); 2`] = `
+exports[`require-assertion > invalid(14): import test from \"node:test\";\ntest(\"t1\", () => {}); 2`] = `
 
 Message:
   1 | import test from "node:test";
@@ -62,14 +94,14 @@ Message:
 
 `;
 
-exports[`require-assertion > invalid(13): import {it} from \"node:test\";\nit(\"t1\", () => { doSomething(); }); 1`] = `
+exports[`require-assertion > invalid(15): import {it} from \"node:test\";\nit(\"t1\", () => { doSomething(); }); 1`] = `
 
   1 | import {it} from "node:test";
   2 | it("t1", () => { doSomething(); });
 
 `;
 
-exports[`require-assertion > invalid(13): import {it} from \"node:test\";\nit(\"t1\", () => { doSomething(); }); 2`] = `
+exports[`require-assertion > invalid(15): import {it} from \"node:test\";\nit(\"t1\", () => { doSomething(); }); 2`] = `
 
 Message:
   1 | import {it} from "node:test";
@@ -78,14 +110,14 @@ Message:
 
 `;
 
-exports[`require-assertion > invalid(14): import {test as myTest} from \"node:test\";\nmyTest(\"t1\", () => { doSomething(); }); 1`] = `
+exports[`require-assertion > invalid(16): import {test as myTest} from \"node:test\";\nmyTest(\"t1\", () => { doSomething(); }); 1`] = `
 
   1 | import {test as myTest} from "node:test";
   2 | myTest("t1", () => { doSomething(); });
 
 `;
 
-exports[`require-assertion > invalid(14): import {test as myTest} from \"node:test\";\nmyTest(\"t1\", () => { doSomething(); }); 2`] = `
+exports[`require-assertion > invalid(16): import {test as myTest} from \"node:test\";\nmyTest(\"t1\", () => { doSomething(); }); 2`] = `
 
 Message:
   1 | import {test as myTest} from "node:test";
@@ -94,14 +126,14 @@ Message:
 
 `;
 
-exports[`require-assertion > invalid(15): import * as nodeTest from \"node:test\";\nnodeTest.test(\"t1\", () => { doSomething(); }); 1`] = `
+exports[`require-assertion > invalid(17): import * as nodeTest from \"node:test\";\nnodeTest.test(\"t1\", () => { doSomething(); }); 1`] = `
 
   1 | import * as nodeTest from "node:test";
   2 | nodeTest.test("t1", () => { doSomething(); });
 
 `;
 
-exports[`require-assertion > invalid(15): import * as nodeTest from \"node:test\";\nnodeTest.test(\"t1\", () => { doSomething(); }); 2`] = `
+exports[`require-assertion > invalid(17): import * as nodeTest from \"node:test\";\nnodeTest.test(\"t1\", () => { doSomething(); }); 2`] = `
 
 Message:
   1 | import * as nodeTest from "node:test";
@@ -110,7 +142,7 @@ Message:
 
 `;
 
-exports[`require-assertion > invalid(16): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", (): void => { doSomething(); }); 1`] = `
+exports[`require-assertion > invalid(18): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", (): void => { doSomething(); }); 1`] = `
 
   1 | import test from "node:test";
   2 | import assert from "node:assert";
@@ -118,7 +150,7 @@ exports[`require-assertion > invalid(16): import test from \"node:test\";\nimpor
 
 `;
 
-exports[`require-assertion > invalid(16): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", (): void => { doSomething(); }); 2`] = `
+exports[`require-assertion > invalid(18): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", (): void => { doSomething(); }); 2`] = `
 
 Message:
   1 | import test from "node:test";
@@ -128,51 +160,19 @@ Message:
 
 `;
 
-exports[`require-assertion > invalid(17): import test from \"node:test\";\ntest(\"t1\", () => { const assert = customAssert; assert.ok(1); }); 1`] = `
+exports[`require-assertion > invalid(19): import test from \"node:test\";\ntest(\"t1\", () => { const assert = customAssert; assert.ok(1); }); 1`] = `
 
   1 | import test from "node:test";
   2 | test("t1", () => { const assert = customAssert; assert.ok(1); });
 
 `;
 
-exports[`require-assertion > invalid(17): import test from \"node:test\";\ntest(\"t1\", () => { const assert = customAssert; assert.ok(1); }); 2`] = `
+exports[`require-assertion > invalid(19): import test from \"node:test\";\ntest(\"t1\", () => { const assert = customAssert; assert.ok(1); }); 2`] = `
 
 Message:
   1 | import test from "node:test";
 > 2 | test("t1", () => { const assert = customAssert; assert.ok(1); });
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
-
-`;
-
-exports[`require-assertion > invalid(18): import test from \"node:test\";\ntest(\"t1\", () => { customAssert.ok(1); }); 1`] = `
-
-  1 | import test from "node:test";
-  2 | test("t1", () => { customAssert.ok(1); });
-
-`;
-
-exports[`require-assertion > invalid(18): import test from \"node:test\";\ntest(\"t1\", () => { customAssert.ok(1); }); 2`] = `
-
-Message:
-  1 | import test from "node:test";
-> 2 | test("t1", () => { customAssert.ok(1); });
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
-
-`;
-
-exports[`require-assertion > invalid(19): import test from \"node:test\";\ntest(\"t1\", ({assert}) => { function helper(assert) { assert.ok(1); } helper(customAssert); }); 1`] = `
-
-  1 | import test from "node:test";
-  2 | test("t1", ({assert}) => { function helper(assert) { assert.ok(1); } helper(customAssert); });
-
-`;
-
-exports[`require-assertion > invalid(19): import test from \"node:test\";\ntest(\"t1\", ({assert}) => { function helper(assert) { assert.ok(1); } helper(customAssert); }); 2`] = `
-
-Message:
-  1 | import test from "node:test";
-> 2 | test("t1", ({assert}) => { function helper(assert) { assert.ok(1); } helper(customAssert); });
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
 
 `;
 
@@ -192,14 +192,46 @@ Message:
 
 `;
 
-exports[`require-assertion > invalid(20): import test from \"node:test\";\ntest(\"outer\", () => { test(\"inner\", ({assert}) => { assert.ok(1); }); }); 1`] = `
+exports[`require-assertion > invalid(20): import test from \"node:test\";\ntest(\"t1\", () => { customAssert.ok(1); }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("t1", () => { customAssert.ok(1); });
+
+`;
+
+exports[`require-assertion > invalid(20): import test from \"node:test\";\ntest(\"t1\", () => { customAssert.ok(1); }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test("t1", () => { customAssert.ok(1); });
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
+
+`;
+
+exports[`require-assertion > invalid(21): import test from \"node:test\";\ntest(\"t1\", ({assert}) => { function helper(assert) { assert.ok(1); } helper(customAssert); }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("t1", ({assert}) => { function helper(assert) { assert.ok(1); } helper(customAssert); });
+
+`;
+
+exports[`require-assertion > invalid(21): import test from \"node:test\";\ntest(\"t1\", ({assert}) => { function helper(assert) { assert.ok(1); } helper(customAssert); }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test("t1", ({assert}) => { function helper(assert) { assert.ok(1); } helper(customAssert); });
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
+
+`;
+
+exports[`require-assertion > invalid(22): import test from \"node:test\";\ntest(\"outer\", () => { test(\"inner\", ({assert}) => { assert.ok(1); }); }); 1`] = `
 
   1 | import test from "node:test";
   2 | test("outer", () => { test("inner", ({assert}) => { assert.ok(1); }); });
 
 `;
 
-exports[`require-assertion > invalid(20): import test from \"node:test\";\ntest(\"outer\", () => { test(\"inner\", ({assert}) => { assert.ok(1); }); }); 2`] = `
+exports[`require-assertion > invalid(22): import test from \"node:test\";\ntest(\"outer\", () => { test(\"inner\", ({assert}) => { assert.ok(1); }); }); 2`] = `
 
 Message:
   1 | import test from "node:test";
@@ -208,7 +240,7 @@ Message:
 
 `;
 
-exports[`require-assertion > invalid(21): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(assert.ok(1), () => {}); 1`] = `
+exports[`require-assertion > invalid(23): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(assert.ok(1), () => {}); 1`] = `
 
   1 | import test from "node:test";
   2 | import assert from "node:assert";
@@ -216,7 +248,7 @@ exports[`require-assertion > invalid(21): import test from \"node:test\";\nimpor
 
 `;
 
-exports[`require-assertion > invalid(21): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(assert.ok(1), () => {}); 2`] = `
+exports[`require-assertion > invalid(23): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(assert.ok(1), () => {}); 2`] = `
 
 Message:
   1 | import test from "node:test";
@@ -226,7 +258,7 @@ Message:
 
 `;
 
-exports[`require-assertion > invalid(22): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"outer\", () => { test(assert.ok(1), () => {}); }); 1`] = `
+exports[`require-assertion > invalid(24): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"outer\", () => { test(assert.ok(1), () => {}); }); 1`] = `
 
   1 | import test from "node:test";
   2 | import assert from "node:assert";
@@ -234,7 +266,7 @@ exports[`require-assertion > invalid(22): import test from \"node:test\";\nimpor
 
 `;
 
-exports[`require-assertion > invalid(22): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"outer\", () => { test(assert.ok(1), () => {}); }); 2`] = `
+exports[`require-assertion > invalid(24): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"outer\", () => { test(assert.ok(1), () => {}); }); 2`] = `
 
 Message:
   1 | import test from "node:test";
@@ -244,14 +276,14 @@ Message:
 
 `;
 
-exports[`require-assertion > invalid(23): import test from \"node:test\";\ntest(\"outer\", ({assert}) => { test(assert.ok(1), () => {}); }); 1`] = `
+exports[`require-assertion > invalid(25): import test from \"node:test\";\ntest(\"outer\", ({assert}) => { test(assert.ok(1), () => {}); }); 1`] = `
 
   1 | import test from "node:test";
   2 | test("outer", ({assert}) => { test(assert.ok(1), () => {}); });
 
 `;
 
-exports[`require-assertion > invalid(23): import test from \"node:test\";\ntest(\"outer\", ({assert}) => { test(assert.ok(1), () => {}); }); 2`] = `
+exports[`require-assertion > invalid(25): import test from \"node:test\";\ntest(\"outer\", ({assert}) => { test(assert.ok(1), () => {}); }); 2`] = `
 
 Message:
   1 | import test from "node:test";
@@ -260,14 +292,14 @@ Message:
 
 `;
 
-exports[`require-assertion > invalid(24): import test from \"node:test\";\ntest(\"outer\", () => { test(\"inner\", implementation); }); 1`] = `
+exports[`require-assertion > invalid(26): import test from \"node:test\";\ntest(\"outer\", () => { test(\"inner\", implementation); }); 1`] = `
 
   1 | import test from "node:test";
   2 | test("outer", () => { test("inner", implementation); });
 
 `;
 
-exports[`require-assertion > invalid(24): import test from \"node:test\";\ntest(\"outer\", () => { test(\"inner\", implementation); }); 2`] = `
+exports[`require-assertion > invalid(26): import test from \"node:test\";\ntest(\"outer\", () => { test(\"inner\", implementation); }); 2`] = `
 
 Message:
   1 | import test from "node:test";
@@ -276,14 +308,14 @@ Message:
 
 `;
 
-exports[`require-assertion > invalid(25): import test from \"node:test\";\ntest(\"outer\", ({assert}) => { test(\"inner\", () => { assert.ok(1); }); }); 1`] = `
+exports[`require-assertion > invalid(27): import test from \"node:test\";\ntest(\"outer\", ({assert}) => { test(\"inner\", () => { assert.ok(1); }); }); 1`] = `
 
   1 | import test from "node:test";
   2 | test("outer", ({assert}) => { test("inner", () => { assert.ok(1); }); });
 
 `;
 
-exports[`require-assertion > invalid(25): import test from \"node:test\";\ntest(\"outer\", ({assert}) => { test(\"inner\", () => { assert.ok(1); }); }); 2`] = `
+exports[`require-assertion > invalid(27): import test from \"node:test\";\ntest(\"outer\", ({assert}) => { test(\"inner\", () => { assert.ok(1); }); }); 2`] = `
 
 Message:
   1 | import test from "node:test";
@@ -292,14 +324,14 @@ Message:
 
 `;
 
-exports[`require-assertion > invalid(26): import test from \"node:test\";\ntest(\"outer\", t => { test(\"inner\", () => { t.assert.ok(1); }); }); 1`] = `
+exports[`require-assertion > invalid(28): import test from \"node:test\";\ntest(\"outer\", t => { test(\"inner\", () => { t.assert.ok(1); }); }); 1`] = `
 
   1 | import test from "node:test";
   2 | test("outer", t => { test("inner", () => { t.assert.ok(1); }); });
 
 `;
 
-exports[`require-assertion > invalid(26): import test from \"node:test\";\ntest(\"outer\", t => { test(\"inner\", () => { t.assert.ok(1); }); }); 2`] = `
+exports[`require-assertion > invalid(28): import test from \"node:test\";\ntest(\"outer\", t => { test(\"inner\", () => { t.assert.ok(1); }); }); 2`] = `
 
 Message:
   1 | import test from "node:test";
@@ -308,7 +340,7 @@ Message:
 
 `;
 
-exports[`require-assertion > invalid(27): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", {fn() {}}, () => { assert.ok(true); }); 1`] = `
+exports[`require-assertion > invalid(29): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", {fn() {}}, () => { assert.ok(true); }); 1`] = `
 
   1 | import test from "node:test";
   2 | import assert from "node:assert";
@@ -316,45 +348,13 @@ exports[`require-assertion > invalid(27): import test from \"node:test\";\nimpor
 
 `;
 
-exports[`require-assertion > invalid(27): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", {fn() {}}, () => { assert.ok(true); }); 2`] = `
+exports[`require-assertion > invalid(29): import test from \"node:test\";\nimport assert from \"node:assert\";\ntest(\"t1\", {fn() {}}, () => { assert.ok(true); }); 2`] = `
 
 Message:
   1 | import test from "node:test";
   2 | import assert from "node:assert";
 > 3 | test("t1", {fn() {}}, () => { assert.ok(true); });
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
-
-`;
-
-exports[`require-assertion > invalid(28): import test from \"node:test\";\ntest(\"t1\", {fn() {}}, t => { t.assert.ok(1); }); 1`] = `
-
-  1 | import test from "node:test";
-  2 | test("t1", {fn() {}}, t => { t.assert.ok(1); });
-
-`;
-
-exports[`require-assertion > invalid(28): import test from \"node:test\";\ntest(\"t1\", {fn() {}}, t => { t.assert.ok(1); }); 2`] = `
-
-Message:
-  1 | import test from "node:test";
-> 2 | test("t1", {fn() {}}, t => { t.assert.ok(1); });
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
-
-`;
-
-exports[`require-assertion > invalid(29): import test from \"node:test\";\ntest(\"t1\", ({assert}) => { assert.strict.equal(1, 1); }); 1`] = `
-
-  1 | import test from "node:test";
-  2 | test("t1", ({assert}) => { assert.strict.equal(1, 1); });
-
-`;
-
-exports[`require-assertion > invalid(29): import test from \"node:test\";\ntest(\"t1\", ({assert}) => { assert.strict.equal(1, 1); }); 2`] = `
-
-Message:
-  1 | import test from "node:test";
-> 2 | test("t1", ({assert}) => { assert.strict.equal(1, 1); });
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
 
 `;
 
@@ -374,14 +374,46 @@ Message:
 
 `;
 
-exports[`require-assertion > invalid(30): import test from \"node:test\";\ntest(\"t1\", ({assert: {strict: s}}) => { s.equal(1, 1); }); 1`] = `
+exports[`require-assertion > invalid(30): import test from \"node:test\";\ntest(\"t1\", {fn() {}}, t => { t.assert.ok(1); }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("t1", {fn() {}}, t => { t.assert.ok(1); });
+
+`;
+
+exports[`require-assertion > invalid(30): import test from \"node:test\";\ntest(\"t1\", {fn() {}}, t => { t.assert.ok(1); }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test("t1", {fn() {}}, t => { t.assert.ok(1); });
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
+
+`;
+
+exports[`require-assertion > invalid(31): import test from \"node:test\";\ntest(\"t1\", ({assert}) => { assert.strict.equal(1, 1); }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("t1", ({assert}) => { assert.strict.equal(1, 1); });
+
+`;
+
+exports[`require-assertion > invalid(31): import test from \"node:test\";\ntest(\"t1\", ({assert}) => { assert.strict.equal(1, 1); }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test("t1", ({assert}) => { assert.strict.equal(1, 1); });
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
+
+`;
+
+exports[`require-assertion > invalid(32): import test from \"node:test\";\ntest(\"t1\", ({assert: {strict: s}}) => { s.equal(1, 1); }); 1`] = `
 
   1 | import test from "node:test";
   2 | test("t1", ({assert: {strict: s}}) => { s.equal(1, 1); });
 
 `;
 
-exports[`require-assertion > invalid(30): import test from \"node:test\";\ntest(\"t1\", ({assert: {strict: s}}) => { s.equal(1, 1); }); 2`] = `
+exports[`require-assertion > invalid(32): import test from \"node:test\";\ntest(\"t1\", ({assert: {strict: s}}) => { s.equal(1, 1); }); 2`] = `
 
 Message:
   1 | import test from "node:test";
@@ -390,14 +422,14 @@ Message:
 
 `;
 
-exports[`require-assertion > invalid(31): import test from \"node:test\";\ntest(\"t1\", ({assert}) => { assert(1); }); 1`] = `
+exports[`require-assertion > invalid(33): import test from \"node:test\";\ntest(\"t1\", ({assert}) => { assert(1); }); 1`] = `
 
   1 | import test from "node:test";
   2 | test("t1", ({assert}) => { assert(1); });
 
 `;
 
-exports[`require-assertion > invalid(31): import test from \"node:test\";\ntest(\"t1\", ({assert}) => { assert(1); }); 2`] = `
+exports[`require-assertion > invalid(33): import test from \"node:test\";\ntest(\"t1\", ({assert}) => { assert(1); }); 2`] = `
 
 Message:
   1 | import test from "node:test";
@@ -406,14 +438,14 @@ Message:
 
 `;
 
-exports[`require-assertion > invalid(32): import test from \"node:test\";\ntest(\"t1\", (t) => { t.assert.strict(1); }); 1`] = `
+exports[`require-assertion > invalid(34): import test from \"node:test\";\ntest(\"t1\", (t) => { t.assert.strict(1); }); 1`] = `
 
   1 | import test from "node:test";
   2 | test("t1", (t) => { t.assert.strict(1); });
 
 `;
 
-exports[`require-assertion > invalid(32): import test from \"node:test\";\ntest(\"t1\", (t) => { t.assert.strict(1); }); 2`] = `
+exports[`require-assertion > invalid(34): import test from \"node:test\";\ntest(\"t1\", (t) => { t.assert.strict(1); }); 2`] = `
 
 Message:
   1 | import test from "node:test";
@@ -422,14 +454,14 @@ Message:
 
 `;
 
-exports[`require-assertion > invalid(33): import {test} from 'node:test';\ntest('a', () => { foo.getTestContext().assert.equal(1, 1); }); 1`] = `
+exports[`require-assertion > invalid(35): import {test} from 'node:test';\ntest('a', () => { foo.getTestContext().assert.equal(1, 1); }); 1`] = `
 
   1 | import {test} from 'node:test';
   2 | test('a', () => { foo.getTestContext().assert.equal(1, 1); });
 
 `;
 
-exports[`require-assertion > invalid(33): import {test} from 'node:test';\ntest('a', () => { foo.getTestContext().assert.equal(1, 1); }); 2`] = `
+exports[`require-assertion > invalid(35): import {test} from 'node:test';\ntest('a', () => { foo.getTestContext().assert.equal(1, 1); }); 2`] = `
 
 Message:
   1 | import {test} from 'node:test';
@@ -438,14 +470,14 @@ Message:
 
 `;
 
-exports[`require-assertion > invalid(34): import test from \"node:test\";\ntest(\"t\", {skip: 0}, () => { doSomething(); }); 1`] = `
+exports[`require-assertion > invalid(36): import test from \"node:test\";\ntest(\"t\", {skip: 0}, () => { doSomething(); }); 1`] = `
 
   1 | import test from "node:test";
   2 | test("t", {skip: 0}, () => { doSomething(); });
 
 `;
 
-exports[`require-assertion > invalid(34): import test from \"node:test\";\ntest(\"t\", {skip: 0}, () => { doSomething(); }); 2`] = `
+exports[`require-assertion > invalid(36): import test from \"node:test\";\ntest(\"t\", {skip: 0}, () => { doSomething(); }); 2`] = `
 
 Message:
   1 | import test from "node:test";
@@ -454,14 +486,14 @@ Message:
 
 `;
 
-exports[`require-assertion > invalid(35): import test from \"node:test\";\ntest(\"t\", {skip: ''}, () => { doSomething(); }); 1`] = `
+exports[`require-assertion > invalid(37): import test from \"node:test\";\ntest(\"t\", {skip: ''}, () => { doSomething(); }); 1`] = `
 
   1 | import test from "node:test";
   2 | test("t", {skip: ''}, () => { doSomething(); });
 
 `;
 
-exports[`require-assertion > invalid(35): import test from \"node:test\";\ntest(\"t\", {skip: ''}, () => { doSomething(); }); 2`] = `
+exports[`require-assertion > invalid(37): import test from \"node:test\";\ntest(\"t\", {skip: ''}, () => { doSomething(); }); 2`] = `
 
 Message:
   1 | import test from "node:test";
@@ -470,14 +502,14 @@ Message:
 
 `;
 
-exports[`require-assertion > invalid(36): import test from \"node:test\";\ntest(\"t\", {skip: null}, () => { doSomething(); }); 1`] = `
+exports[`require-assertion > invalid(38): import test from \"node:test\";\ntest(\"t\", {skip: null}, () => { doSomething(); }); 1`] = `
 
   1 | import test from "node:test";
   2 | test("t", {skip: null}, () => { doSomething(); });
 
 `;
 
-exports[`require-assertion > invalid(36): import test from \"node:test\";\ntest(\"t\", {skip: null}, () => { doSomething(); }); 2`] = `
+exports[`require-assertion > invalid(38): import test from \"node:test\";\ntest(\"t\", {skip: null}, () => { doSomething(); }); 2`] = `
 
 Message:
   1 | import test from "node:test";
@@ -486,14 +518,14 @@ Message:
 
 `;
 
-exports[`require-assertion > invalid(37): import test from \"node:test\";\ntest(\"t1\", () => doSomething()); 1`] = `
+exports[`require-assertion > invalid(39): import test from \"node:test\";\ntest(\"t1\", () => doSomething()); 1`] = `
 
   1 | import test from "node:test";
   2 | test("t1", () => doSomething());
 
 `;
 
-exports[`require-assertion > invalid(37): import test from \"node:test\";\ntest(\"t1\", () => doSomething()); 2`] = `
+exports[`require-assertion > invalid(39): import test from \"node:test\";\ntest(\"t1\", () => doSomething()); 2`] = `
 
 Message:
   1 | import test from "node:test";
@@ -502,14 +534,30 @@ Message:
 
 `;
 
-exports[`require-assertion > invalid(38): import test from \"node:test\";\ntest(\"t1\", async () => doSomething()); 1`] = `
+exports[`require-assertion > invalid(4): import test from \"node:test\";\ntest(\"t\", function* () { doSomething(); }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("t", function* () { doSomething(); });
+
+`;
+
+exports[`require-assertion > invalid(4): import test from \"node:test\";\ntest(\"t\", function* () { doSomething(); }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test("t", function* () { doSomething(); });
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
+
+`;
+
+exports[`require-assertion > invalid(40): import test from \"node:test\";\ntest(\"t1\", async () => doSomething()); 1`] = `
 
   1 | import test from "node:test";
   2 | test("t1", async () => doSomething());
 
 `;
 
-exports[`require-assertion > invalid(38): import test from \"node:test\";\ntest(\"t1\", async () => doSomething()); 2`] = `
+exports[`require-assertion > invalid(40): import test from \"node:test\";\ntest(\"t1\", async () => doSomething()); 2`] = `
 
 Message:
   1 | import test from "node:test";
@@ -518,14 +566,30 @@ Message:
 
 `;
 
-exports[`require-assertion > invalid(4): import test from 'node:test';\ntest(\"x\", ({assert}) => { assert.a.b.c.d(); }); 1`] = `
+exports[`require-assertion > invalid(5): import test from \"node:test\";\ntest(\"t\", async function* () { doSomething(); }); 1`] = `
+
+  1 | import test from "node:test";
+  2 | test("t", async function* () { doSomething(); });
+
+`;
+
+exports[`require-assertion > invalid(5): import test from \"node:test\";\ntest(\"t\", async function* () { doSomething(); }); 2`] = `
+
+Message:
+  1 | import test from "node:test";
+> 2 | test("t", async function* () { doSomething(); });
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
+
+`;
+
+exports[`require-assertion > invalid(6): import test from 'node:test';\ntest(\"x\", ({assert}) => { assert.a.b.c.d(); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test("x", ({assert}) => { assert.a.b.c.d(); });
 
 `;
 
-exports[`require-assertion > invalid(4): import test from 'node:test';\ntest(\"x\", ({assert}) => { assert.a.b.c.d(); }); 2`] = `
+exports[`require-assertion > invalid(6): import test from 'node:test';\ntest(\"x\", ({assert}) => { assert.a.b.c.d(); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -534,14 +598,14 @@ Message:
 
 `;
 
-exports[`require-assertion > invalid(5): import test from 'node:test';\ntest(\"x\", ({assert: {a: {b}}}) => { b(1); }); 1`] = `
+exports[`require-assertion > invalid(7): import test from 'node:test';\ntest(\"x\", ({assert: {a: {b}}}) => { b(1); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test("x", ({assert: {a: {b}}}) => { b(1); });
 
 `;
 
-exports[`require-assertion > invalid(5): import test from 'node:test';\ntest(\"x\", ({assert: {a: {b}}}) => { b(1); }); 2`] = `
+exports[`require-assertion > invalid(7): import test from 'node:test';\ntest(\"x\", ({assert: {a: {b}}}) => { b(1); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -550,14 +614,14 @@ Message:
 
 `;
 
-exports[`require-assertion > invalid(6): import test from \"node:test\";\ntest(\"t1\", ({assert: {ok}}) => { { const ok = () => {}; } f(); }); 1`] = `
+exports[`require-assertion > invalid(8): import test from \"node:test\";\ntest(\"t1\", ({assert: {ok}}) => { { const ok = () => {}; } f(); }); 1`] = `
 
   1 | import test from "node:test";
   2 | test("t1", ({assert: {ok}}) => { { const ok = () => {}; } f(); });
 
 `;
 
-exports[`require-assertion > invalid(6): import test from \"node:test\";\ntest(\"t1\", ({assert: {ok}}) => { { const ok = () => {}; } f(); }); 2`] = `
+exports[`require-assertion > invalid(8): import test from \"node:test\";\ntest(\"t1\", ({assert: {ok}}) => { { const ok = () => {}; } f(); }); 2`] = `
 
 Message:
   1 | import test from "node:test";
@@ -566,50 +630,18 @@ Message:
 
 `;
 
-exports[`require-assertion > invalid(7): import test from \"node:test\";\ntest(\"t1\", ({assert: {ok}}) => { f(); }); 1`] = `
+exports[`require-assertion > invalid(9): import test from \"node:test\";\ntest(\"t1\", ({assert: {ok}}) => { f(); }); 1`] = `
 
   1 | import test from "node:test";
   2 | test("t1", ({assert: {ok}}) => { f(); });
 
 `;
 
-exports[`require-assertion > invalid(7): import test from \"node:test\";\ntest(\"t1\", ({assert: {ok}}) => { f(); }); 2`] = `
+exports[`require-assertion > invalid(9): import test from \"node:test\";\ntest(\"t1\", ({assert: {ok}}) => { f(); }); 2`] = `
 
 Message:
   1 | import test from "node:test";
 > 2 | test("t1", ({assert: {ok}}) => { f(); });
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
-
-`;
-
-exports[`require-assertion > invalid(8): import test from 'node:test';\ntest('a', {fn() {}}); 1`] = `
-
-  1 | import test from 'node:test';
-  2 | test('a', {fn() {}});
-
-`;
-
-exports[`require-assertion > invalid(8): import test from 'node:test';\ntest('a', {fn() {}}); 2`] = `
-
-Message:
-  1 | import test from 'node:test';
-> 2 | test('a', {fn() {}});
-    | ^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
-
-`;
-
-exports[`require-assertion > invalid(9): import test from 'node:test';\ntest({name: 'x', fn() {}}); 1`] = `
-
-  1 | import test from 'node:test';
-  2 | test({name: 'x', fn() {}});
-
-`;
-
-exports[`require-assertion > invalid(9): import test from 'node:test';\ntest({name: 'x', fn() {}}); 2`] = `
-
-Message:
-  1 | import test from 'node:test';
-> 2 | test({name: 'x', fn() {}});
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
 
 `;
