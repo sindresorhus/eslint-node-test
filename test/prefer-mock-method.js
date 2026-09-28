@@ -64,6 +64,8 @@ test.snapshot({
 		// `mock.fn()` returns `undefined`, so only an implementation makes the rewrite equivalent
 		withMock('object.method = mock.fn();'),
 		withMock('object.method = mock.fn(undefined);'),
+		withMock('object.method = mock.fn(void 0);'),
+		withMock('object.method = mock.fn(void implementation);'),
 		{
 			code: withMock('object.method = mock.fn(undefined as never);'),
 			languageOptions: {parser: parsers.typescript},
@@ -151,5 +153,8 @@ test.snapshot({
 		inTest('object.method = t.mock.fn((a, b));'),
 		inTest('object[(a, b)] = t.mock.fn(() => \'stubbed\');'),
 		'// A spread fills the rest of the rewritten argument list, so there is no implementation to pass\nimport {mock} from \'node:test\';\nobject.method = mock.fn(...args);',
+		// An object literal is the options in both `mock.fn()` and `mock.method()`, not an implementation, so the rewrite would keep the original method
+		withMock('object.method = mock.fn({times: 1});'),
+		inTest('object.method = t.mock.fn({});'),
 	],
 });

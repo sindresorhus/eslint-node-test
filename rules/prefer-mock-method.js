@@ -27,8 +27,8 @@ const messages = {
 Whether the assignment can be rewritten to `mock.method(…)`: a resolvable key, at most one argument
 (the implementation, which becomes the third argument), and no inner comments to drop.
 
-`<obj>.method = mock.fn()` evaluates to the mock function, but `mock.method(…)` returns the original
-method, so the suggestion stands down when the assignment's value is used.
+`<obj>.method = mock.fn()` evaluates to the `mock.fn()` mock, while `mock.method(…)` returns the mock it
+installs, a different function, so the suggestion stands down when the assignment's value is used.
 
 The receiver and the computed key are re-emitted as they were written, so a sequence expression keeps
 its parentheses. Dropping them would turn one argument into several, and `super` is no value to pass
@@ -46,6 +46,13 @@ function canRewriteMethodCall({node, left, key, mockArguments, sourceCode}) {
 		// A spread argument fills the rest of the rewritten argument list, so the implementation is no
 		// longer the third argument: `mock.method(o, 'm', ...args)` does not pass an implementation at all.
 		&& mockArguments.every(argument => argument.type !== 'SequenceExpression' && argument.type !== 'SpreadElement');
+}
+
+/** Whether the expression is written as `undefined`: the `undefined` identifier, or a `void` expression, whatever its operand is. */
+function isUndefinedExpression(node) {
+	node = unwrapExpression(node);
+	return (node.type === 'Identifier' && node.name === 'undefined')
+		|| (node.type === 'UnaryExpression' && node.operator === 'void');
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -127,11 +134,11 @@ const create = context => {
 
 		// `mock.method()` falls back to the ORIGINAL method when no implementation is passed, while
 		// `mock.fn()` returns `undefined`, so the rewrite only preserves behavior with an implementation.
-		// Passing `undefined` explicitly does not help: the default parameter still applies.
-		const [mockArgument] = mockArguments;
-		const unwrappedArgument = mockArgument && unwrapExpression(mockArgument);
-		const isUndefinedArgument = unwrappedArgument?.type === 'Identifier' && unwrappedArgument.name === 'undefined';
-		const hasImplementation = mockArguments.length === 1 && !isUndefinedArgument;
+		// Passing `undefined` explicitly does not help: the default parameter still applies. An object
+		// literal is no implementation either: both `mock.fn()` and `mock.method()` read it as options.
+		const hasImplementation = mockArguments.length === 1
+			&& !isUndefinedExpression(mockArguments[0])
+			&& unwrapExpression(mockArguments[0]).type !== 'ObjectExpression';
 
 		if (hasImplementation && canRewriteMethodCall({
 			node, left, key, mockArguments, sourceCode,

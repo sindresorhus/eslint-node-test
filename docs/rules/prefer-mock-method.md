@@ -11,7 +11,7 @@
 
 Replacing an object's method by assigning a `mock.fn()` to it (`object.method = mock.fn()`) discards the original implementation and leaves no way for the runner to restore it. `mock.method(object, 'method', implementation)` records the original, tracks calls, and restores it automatically (when using the test context's `t.mock`) or via `mock.restoreAll()`.
 
-The suggestion therefore needs an implementation to pass along: without one, `mock.method()` falls back to the original method while `mock.fn()` returns `undefined`, so such a call is reported without a suggestion. A spread implementation, `object.method = mock.fn(...args)`, is reported without a suggestion too, since the spread would fill the rest of the rewritten argument list rather than sit in the implementation slot.
+The suggestion therefore needs an implementation to pass along: without one, `mock.method()` falls back to the original method while `mock.fn()` returns `undefined`, so such a call is reported without a suggestion. An explicit `undefined` or `void` expression counts as no implementation, and so does an object literal, which both `mock.fn()` and `mock.method()` read as options. A spread implementation, `object.method = mock.fn(...args)`, is reported without a suggestion too, since the spread would fill the rest of the rewritten argument list rather than sit in the implementation slot.
 
 This rule reports assignments of `mock.fn()` / `t.mock.fn()` to a member expression and suggests the equivalent `mock.method()` call. Any implementation passed to `mock.fn()` becomes the implementation argument of `mock.method()`. See also [`prefer-context-mock`](./prefer-context-mock.md), which prefers the auto-restoring `t.mock` over the global `mock`.
 
