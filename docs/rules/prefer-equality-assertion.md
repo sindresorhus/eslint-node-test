@@ -30,7 +30,7 @@ This rule reports `assert()`/`assert.ok()` calls whose argument is an equality c
 
 Loose `==`/`!=` comparisons are not reported when using a strict assert API because `equal`/`notEqual` would behave strictly there and change the assertion semantics.
 
-The fix is skipped (the problem is still reported) when the rewrite could not preserve the code: a comparison wrapped in extra parentheses, a comparison containing a comment, a bare named import whose replacement would reference an unimported name, an operand that is visibly `NaN`, `-0` or `0`, where `===` and `Object.is` disagree, and a `==`/`!=` comparison with a visibly `NaN` operand, since `equal`/`notEqual` treat `NaN` as equal to itself (`a == NaN` is always false, while `equal(a, NaN)` passes when `a` is `NaN`). Plain identifiers are left to the runtime, which is where the `Object.is` difference shows up.
+The fix is skipped (the problem is still reported) when the rewrite could not preserve the code: a comparison wrapped in extra parentheses, a comparison containing a comment, a bare named import whose replacement would reference an unimported name, an operand that is visibly `NaN`, `-0` or `0`, where `===` and `Object.is` disagree, and a `==`/`!=` comparison with a visibly `NaN` operand, since `equal`/`notEqual` treat `NaN` as equal to itself (`a == NaN` is always false, while `equal(a, NaN)` passes when `a` is `NaN`). A binding that is never reassigned counts as the value it is initialized with (`const expected = 0` is a visible `0`). Other identifiers are left to the runtime, which is where the `Object.is` difference shows up.
 
 ## Examples
 

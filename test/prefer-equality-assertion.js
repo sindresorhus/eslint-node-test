@@ -144,5 +144,20 @@ test.snapshot({
 		withAssert('assert.ok(a == NaN);'),
 		withAssert('assert.ok(NaN != a);'),
 		withAssert('assert.ok(value == Number(input));'),
+		// A binding that is never reassigned is read through its initializer, like the literal it holds
+		withAssert('const n = NaN;\nassert.ok(n == n);'),
+		withAssert('const expected = 0;\nassert.ok(Math.round(-0.4) === expected);'),
+		withAssert('const expected = -0;\nassert.ok(value !== expected);'),
+		// A binding that is reassigned, destructured, or holds anything else is left to the runtime, and is fixed
+		withAssert('let expected = 0;\nexpected = 1;\nassert.ok(value === expected);'),
+		withAssert('const [expected] = [0];\nassert.ok(value === expected);'),
+		withAssert('const expected = 1;\nassert.ok(value === expected);'),
+		// `Number.NaN`, `Number.parseInt` and `Number.parseFloat` are read like their global counterparts
+		withAssert('assert.ok(value !== Number.NaN);'),
+		withAssert('assert.ok(value == Number.NaN);'),
+		withAssert('assert.ok(Number.parseInt(input) === expected);'),
+		withAssert('assert.ok(Number.parseFloat(input) != expected);'),
+		// A computed member is left to the runtime, and is fixed
+		withAssert('assert.ok(value === Number[key]);'),
 	],
 });

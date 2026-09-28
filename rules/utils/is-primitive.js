@@ -43,17 +43,25 @@ export function isPrimitiveOperand(node, context) {
 	}
 
 	// Only a binding that is never reassigned and whose own initializer is written as a primitive counts. Resolving further, through a property read (`expected.list`) or another name bound to one, reads what the object literal said, which a later `Object.assign(expected, …)` or `fill(expected)` the checker cannot see may have replaced.
+	const initializer = getConstantInitializer(node, context);
+	return initializer !== undefined && isPrimitive(initializer, context);
+}
+
+/**
+The initializer a name holds when that name is bound once, not destructured, and never reassigned, or `undefined`. Any other expression, including a property read, is not resolved.
+*/
+export function getConstantInitializer(node, context) {
 	const unwrapped = unwrapTypeScriptExpression(node);
 	if (unwrapped.type !== 'Identifier') {
-		return false;
+		return undefined;
 	}
 
 	const variable = findVariable(context.sourceCode.getScope(unwrapped), unwrapped.name);
 	const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
 	// A destructured binding (`const [...chars] = 'abc'`) is not the initializer's value.
-	return definition?.type === 'Variable'
+	const isConstantBinding = definition?.type === 'Variable'
 		&& definition.node.id.type === 'Identifier'
 		&& Boolean(definition.node.init)
-		&& variable.references.every(reference => reference.init || !reference.isWrite())
-		&& isPrimitive(definition.node.init, context);
+		&& variable.references.every(reference => reference.init || !reference.isWrite());
+	return isConstantBinding ? definition.node.init : undefined;
 }

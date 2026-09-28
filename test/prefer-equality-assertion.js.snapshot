@@ -690,6 +690,132 @@ Message:
 
 `;
 
+exports[`prefer-equality-assertion > invalid(44): import assert from 'node:assert';\nconst n = NaN;\nassert.ok(n == n); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | const n = NaN;
+  3 | assert.ok(n == n);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(44): import assert from 'node:assert';\nconst n = NaN;\nassert.ok(n == n); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+  2 | const n = NaN;
+> 3 | assert.ok(n == n);
+    | ^^^^^^^^^^^^^^^^^ Prefer \`equal\` over \`ok\` with a \`==\` comparison for a clearer failure message.
+
+`;
+
+exports[`prefer-equality-assertion > invalid(45): import assert from 'node:assert';\nconst expected = 0;\nassert.ok(Math.round(-0.4) === expected); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | const expected = 0;
+  3 | assert.ok(Math.round(-0.4) === expected);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(45): import assert from 'node:assert';\nconst expected = 0;\nassert.ok(Math.round(-0.4) === expected); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+  2 | const expected = 0;
+> 3 | assert.ok(Math.round(-0.4) === expected);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`strictEqual\` over \`ok\` with a \`===\` comparison for a clearer failure message.
+
+`;
+
+exports[`prefer-equality-assertion > invalid(46): import assert from 'node:assert';\nconst expected = -0;\nassert.ok(value !== expected); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | const expected = -0;
+  3 | assert.ok(value !== expected);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(46): import assert from 'node:assert';\nconst expected = -0;\nassert.ok(value !== expected); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+  2 | const expected = -0;
+> 3 | assert.ok(value !== expected);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`notStrictEqual\` over \`ok\` with a \`!==\` comparison for a clearer failure message.
+
+`;
+
+exports[`prefer-equality-assertion > invalid(47): import assert from 'node:assert';\nlet expected = 0;\nexpected = 1;\nassert.ok(value === expected); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | let expected = 0;
+  3 | expected = 1;
+  4 | assert.ok(value === expected);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(47): import assert from 'node:assert';\nlet expected = 0;\nexpected = 1;\nassert.ok(value === expected); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+  2 | let expected = 0;
+  3 | expected = 1;
+> 4 | assert.ok(value === expected);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`strictEqual\` over \`ok\` with a \`===\` comparison for a clearer failure message.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | let expected = 0;
+  3 | expected = 1;
+  4 | assert.strictEqual(value, expected);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(48): import assert from 'node:assert';\nconst [expected] = [0];\nassert.ok(value === expected); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | const [expected] = [0];
+  3 | assert.ok(value === expected);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(48): import assert from 'node:assert';\nconst [expected] = [0];\nassert.ok(value === expected); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+  2 | const [expected] = [0];
+> 3 | assert.ok(value === expected);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`strictEqual\` over \`ok\` with a \`===\` comparison for a clearer failure message.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | const [expected] = [0];
+  3 | assert.strictEqual(value, expected);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(49): import assert from 'node:assert';\nconst expected = 1;\nassert.ok(value === expected); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | const expected = 1;
+  3 | assert.ok(value === expected);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(49): import assert from 'node:assert';\nconst expected = 1;\nassert.ok(value === expected); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+  2 | const expected = 1;
+> 3 | assert.ok(value === expected);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`strictEqual\` over \`ok\` with a \`===\` comparison for a clearer failure message.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | const expected = 1;
+  3 | assert.strictEqual(value, expected);
+
+`;
+
 exports[`prefer-equality-assertion > invalid(5): import assert from 'node:assert';\nassert.ok(a != b); 1`] = `
 
   1 | import assert from 'node:assert';
@@ -707,6 +833,90 @@ Message:
 Output:
   1 | import assert from 'node:assert';
   2 | assert.notEqual(a, b);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(50): import assert from 'node:assert';\nassert.ok(value !== Number.NaN); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok(value !== Number.NaN);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(50): import assert from 'node:assert';\nassert.ok(value !== Number.NaN); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok(value !== Number.NaN);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`notStrictEqual\` over \`ok\` with a \`!==\` comparison for a clearer failure message.
+
+`;
+
+exports[`prefer-equality-assertion > invalid(51): import assert from 'node:assert';\nassert.ok(value == Number.NaN); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok(value == Number.NaN);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(51): import assert from 'node:assert';\nassert.ok(value == Number.NaN); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok(value == Number.NaN);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`equal\` over \`ok\` with a \`==\` comparison for a clearer failure message.
+
+`;
+
+exports[`prefer-equality-assertion > invalid(52): import assert from 'node:assert';\nassert.ok(Number.parseInt(input) === expected); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok(Number.parseInt(input) === expected);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(52): import assert from 'node:assert';\nassert.ok(Number.parseInt(input) === expected); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok(Number.parseInt(input) === expected);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`strictEqual\` over \`ok\` with a \`===\` comparison for a clearer failure message.
+
+`;
+
+exports[`prefer-equality-assertion > invalid(53): import assert from 'node:assert';\nassert.ok(Number.parseFloat(input) != expected); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok(Number.parseFloat(input) != expected);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(53): import assert from 'node:assert';\nassert.ok(Number.parseFloat(input) != expected); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok(Number.parseFloat(input) != expected);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`notEqual\` over \`ok\` with a \`!=\` comparison for a clearer failure message.
+
+`;
+
+exports[`prefer-equality-assertion > invalid(54): import assert from 'node:assert';\nassert.ok(value === Number[key]); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok(value === Number[key]);
+
+`;
+
+exports[`prefer-equality-assertion > invalid(54): import assert from 'node:assert';\nassert.ok(value === Number[key]); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok(value === Number[key]);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`strictEqual\` over \`ok\` with a \`===\` comparison for a clearer failure message.
+
+Output:
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(value, Number[key]);
 
 `;
 

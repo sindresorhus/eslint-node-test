@@ -5,6 +5,7 @@ import {
 } from './utils/node-test.js';
 import {isParenthesized, getParenthesizedRange} from './utils/index.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
+import {getConstantInitializer} from './utils/is-primitive.js';
 
 const MESSAGE_ID = 'prefer-equality-assertion';
 
@@ -25,18 +26,30 @@ const isStrictOperator = operator => operator === '===' || operator === '!==';
 const isNumericLiteral = node => node?.type === 'Literal' && typeof node.value === 'number';
 
 /*
-Whether an operand is statically `NaN`-producing: the `NaN` identifier, a division of two number
-literals (which can be `0 / 0`), a `Number`/`parseInt`/`parseFloat` call, or a negation of one. A
+Whether an operand is statically `NaN`-producing: the `NaN` identifier or `Number.NaN`, a division of two number
+literals (which can be `0 / 0`), a `Number`/`parseInt`/`parseFloat` call (bare or as a `Number.` method), or a negation of one. A
 plain identifier or general call is left to the runtime, matching the rule's best-effort stance.
 */
+const isNumberMember = (node, names) => node.type === 'MemberExpression'
+	&& !node.computed
+	&& node.object.type === 'Identifier'
+	&& node.object.name === 'Number'
+	&& names.includes(node.property.name);
+
 function couldBeNaN(node) {
 	node = unwrapTypeScriptExpression(node);
 	if (node.type === 'Identifier') {
 		return node.name === 'NaN';
 	}
 
-	if (node.type === 'CallExpression' && node.callee.type === 'Identifier') {
-		return ['Number', 'parseInt', 'parseFloat'].includes(node.callee.name);
+	if (node.type === 'MemberExpression') {
+		return isNumberMember(node, ['NaN']);
+	}
+
+	if (node.type === 'CallExpression') {
+		return node.callee.type === 'Identifier'
+			? ['Number', 'parseInt', 'parseFloat'].includes(node.callee.name)
+			: isNumberMember(node.callee, ['parseInt', 'parseFloat']);
 	}
 
 	if (node.type === 'BinaryExpression' && node.operator === '/') {
@@ -71,7 +84,10 @@ function isZeroOperand(node) {
 the fix is suppressed only when an operand is one of those values. `equal`/`notEqual` are `==`/`!=`
 with `NaN` treated as equal to itself, so they differ when both operands are `NaN`. One visible `NaN` operand is enough to suppress the fix, since the other side may be `NaN` at runtime: `a == NaN` is always false, while `equal(a, NaN)` passes when `a` is `NaN`.
 */
-function operandDivergesFromReplacement(operator, left, right) {
+function operandDivergesFromReplacement(operator, left, right, context) {
+	// A binding is read the way `isPrimitiveOperand` reads it, so `const expected = 0` blocks the fix the way a literal `0` does.
+	left = getConstantInitializer(left, context) ?? left;
+	right = getConstantInitializer(right, context) ?? right;
 	if (couldBeNaN(left) || couldBeNaN(right)) {
 		return true;
 	}
@@ -143,7 +159,7 @@ const create = context => {
 			// while `strictEqual`/`notStrictEqual` are `Object.is` (differ on `NaN` and `±0`), and
 			// `equal`/`notEqual` treat `NaN` as equal to itself while `==`/`!=` do not. When an
 			// operand would make the rewrite flip the assertion's outcome, it is only reported.
-			|| operandDivergesFromReplacement(argument.operator, argument.left, argument.right)
+			|| operandDivergesFromReplacement(argument.operator, argument.left, argument.right, context)
 		) {
 			return problem;
 		}
