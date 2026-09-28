@@ -44,6 +44,9 @@ test.snapshot({
 
 		// A key that cannot be an option name: a number is not a string, so there is no name to check
 		withImport('test("x", {0: true}, () => {});'),
+		withImport('test("x", {[0]: true}, () => {});'),
+		// A computed key that folds to a known option is fine
+		withImport('test("x", {[\'skip\']: true}, () => {});'),
 		// A shorthand property is matched on its name, like any other key
 		withImport('test("x", {skip}, () => {});'),
 
@@ -71,6 +74,10 @@ test.snapshot({
 
 		// Typo
 		withImport('test("x", {skp: true}, () => {});'),
+		// A computed key that folds to a constant is read like a written one
+		withImport('test("x", {[\'skipp\']: true}, () => {});'),
+		withImport('test("x", {[`skipp`]: true}, () => {});'),
+		withImport('test("x", {[\'ski\' + \'pp\']: true}, () => {});'),
 
 		// Unknown option
 		withImport('test("x", {retry: 3}, () => {});'),

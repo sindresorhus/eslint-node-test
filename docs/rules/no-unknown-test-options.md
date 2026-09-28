@@ -9,7 +9,7 @@
 
 `node:test` silently ignores unknown keys in a test or hook options object. A typo like `{skp: true}` therefore does nothing — the test runs normally instead of being skipped — and the mistake is easy to miss.
 
-This rule reports option keys that `node:test` does not recognize. Tests and suites accept `concurrency`, `expectFailure`, `fn`, `name`, `only`, `plan`, `signal`, `skip`, `tags`, `timeout`, and `todo`; hooks accept `signal` and `timeout`, because a hook takes its callback in the first position and the runner never reads `fn` from its options. Computed and spread keys are skipped, since they cannot be checked statically.
+This rule reports option keys that `node:test` does not recognize. Tests and suites accept `concurrency`, `expectFailure`, `fn`, `name`, `only`, `plan`, `signal`, `skip`, `tags`, `timeout`, and `todo`; hooks accept `signal` and `timeout`, because a hook takes its callback in the first position and the runner never reads `fn` from its options. A computed key is read when it folds to a constant (`{['skipp']: true}`). Spread keys and other computed keys are skipped, since they cannot be checked statically.
 
 > [!NOTE]
 > The recognized keys track the `node:test` runner and may lag behind a newer Node.js version that adds an option. If you hit a false positive on a valid new option, open an issue.

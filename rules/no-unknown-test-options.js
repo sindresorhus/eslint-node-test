@@ -5,6 +5,7 @@ import {
 	createContextTracker,
 	isContextHookCall,
 } from './utils/node-test.js';
+import {getStaticPropertyName} from './utils/index.js';
 
 const MESSAGE_ID = 'no-unknown-test-options';
 
@@ -59,16 +60,17 @@ const create = context => {
 		const known = isHook ? HOOK_OPTIONS : TEST_OPTIONS;
 
 		for (const property of options.properties) {
-			if (property.type !== 'Property' || property.computed) {
+			if (property.type !== 'Property') {
 				continue;
 			}
 
-			let name;
-			if (property.key.type === 'Identifier') {
-				name = property.key.name;
-			} else if (property.key.type === 'Literal' && typeof property.key.value === 'string') {
-				name = property.key.value;
-			} else {
+			// A computed key is read when it folds to a constant (`['skipp']`). A number key is no option
+			// name, so there is nothing to check.
+			const name = getStaticPropertyName(property);
+			if (
+				name === undefined
+				|| (property.key.type === 'Literal' && typeof property.key.value !== 'string')
+			) {
 				continue;
 			}
 
