@@ -68,6 +68,8 @@ test.snapshot({
 		withTest('test.expectFailure(\'skipped\', {skip: true}, () => { test(\'child\', t => { t.afterEach(() => {}); }); });'),
 		'import test, {describe} from \'node:test\';\ndescribe.skip(\'skipped\', () => { test(\'child\', t => { t.beforeEach(() => {}); }); });',
 		'import test, {suite as group} from \'node:test\';\ngroup(\'skipped\', {skip: true}, () => { test(\'child\', t => { t.afterEach(() => {}); }); });',
+		// A suite with `{skip: 0}` runs its body, but `node:test` cancels the tests it registers, so their callbacks never run
+		'import test, {describe} from \'node:test\';\ndescribe(\'skipped\', {skip: 0}, () => { test(\'child\', t => { t.beforeEach(() => {}); }); });',
 		{
 			code: withTest('test(\'parent\', async t => { t.afterEach(() => {}); await (t as object).test(\'child\', () => {}); });'),
 			languageOptions: {parser: parsers.typescript},
@@ -137,6 +139,11 @@ test.snapshot({
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {skip: \'\'}, () => {}); });'),
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {skip: null}, () => {}); });'),
 		withTest('test(\'parent\', async t => { t.afterEach(() => {}); await t.test(\'child\', {skip: Number.NaN}, () => {}); });'),
+		withTest('test(\'parent\', t => { t.beforeEach(() => {}); test(\'child\', {skip: 0}, () => {}); });'),
+		// Only a truthy `skip` stops the test's own body, so a hook in a `{skip: 0}` test still runs and still has no subtest
+		withTest('test(\'leaf\', {skip: 0}, t => { t.beforeEach(() => { prepare(); }); work(); });'),
+		withTest('test(\'leaf\', {skip: \'\'}, t => { t.afterEach(() => {}); });'),
+		withTest('test(\'parent\', {skip: null}, () => { test(\'child\', t => { t.beforeEach(() => {}); }); });'),
 		// A second argument to an array method is `thisArg`, which the method never calls, so a
 		// subtest written there never runs
 		withTest('test(\'p\', t => { t.beforeEach(() => {}); items.map(() => {}, function () { t.test(\'a\', () => {}); }); });'),
@@ -207,5 +214,8 @@ test.snapshot({
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test.todo(\'child\', () => {}); });'),
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test.only(\'child\', () => {}); });'),
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test.only.todo(\'child\', () => {}); });'),
+
+		// Only a truthy `skip` stops a subtest's own body, so the hooks of a `{skip: 0}` subtest created with `t.test()` still run and still have no subtest, the same as with the imported `test()`
+		withTest('test(\'parent\', t => { t.test(\'child\', {skip: 0}, t2 => { t2.beforeEach(() => {}); }); });'),
 	],
 });

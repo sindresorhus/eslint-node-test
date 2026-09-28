@@ -14,6 +14,7 @@ import {
 import {getEnclosingFunction} from './utils/index.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 import isFunction from './ast/is-function.js';
+import {hasEnabledSkipOption} from './shared/skipped-test.js';
 
 const MESSAGE_ID = 'no-misused-context-hook';
 const CONTEXT_HOOKS = new Set(['beforeEach', 'afterEach']);
@@ -63,6 +64,7 @@ function getDirectSubtestReceiver(callExpression, imports) {
 function isStaticallySkipped(callExpression, sourceCode) {
 	// `node:test` skips for any value that is neither `undefined` nor `false`, so `{skip: 0}`,
 	// `{skip: ''}` and `{skip: null}` all leave the child unrunnable, which is what this decides.
+	// Whether the test's own body runs is a different question: only a truthy value stops it, which is what `hasEnabledSkipOption` decides.
 	const skipProperty = findOptionsProperty(getTestOptions(callExpression), 'skip');
 	if (skipProperty === undefined) {
 		return false;
@@ -156,10 +158,6 @@ function isWithinIterationCallbackOf(node, ancestor, imports) {
 				isInvokedIterationCallback(current, parent)
 				|| isInvokedImmediately(current, parent)
 				|| isSuiteCallback(current, parent, imports)
-				|| parent?.type === 'ForOfStatement'
-				|| parent?.type === 'ForStatement'
-				|| parent?.type === 'WhileStatement'
-				|| parent?.type === 'DoWhileStatement'
 			)
 		) {
 			current = parent;
@@ -234,7 +232,7 @@ const create = context => {
 			!frame
 			|| !isWithinIterationCallbackOf(node, frame.callback, imports)
 			|| isInsideSkippedCallback(node)
-			|| isStaticallySkipped(node, sourceCode)
+			|| hasEnabledSkipOption(getTestOptions(node), context)
 		) {
 			return undefined;
 		}
@@ -247,12 +245,16 @@ const create = context => {
 		&& (frames.length === 0 || parentFrame !== undefined)
 		&& !isInsideSkippedCallback(node)
 		&& parsed.modifiers.every(modifier => modifier.name !== 'skip')
-		&& !isStaticallySkipped(node, sourceCode);
+		&& !hasEnabledSkipOption(getTestOptions(node), context);
 
 	context.on('CallExpression', node => {
 		const enclosingFunction = getEnclosingFunction(node);
 		const runnableSubtestFrame = getRunnableSubtestFrame(node, enclosingFunction);
-		if (runnableSubtestFrame) {
+		// A `{skip: 0}` subtest still runs its own body, but the parent's hooks do not run around it.
+		if (
+			runnableSubtestFrame
+			&& !isStaticallySkipped(node, sourceCode)
+		) {
 			runnableSubtestFrame.hasSubtest = true;
 		}
 
@@ -267,7 +269,8 @@ const create = context => {
 			&& parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name))
 			&& (
 				parsed.modifiers.some(modifier => modifier.name === 'skip')
-				|| isStaticallySkipped(node, sourceCode)
+				// A `{skip: 0}` test runs its own body, but a `{skip: 0}` suite has `node:test` cancel every test it registers, so none of their callbacks run.
+				|| (parsed.kind === 'suite' ? isStaticallySkipped(node, sourceCode) : hasEnabledSkipOption(getTestOptions(node), context))
 			);
 		if (isSkippedCallback) {
 			const callback = getTestCallback(node);
@@ -281,7 +284,12 @@ const create = context => {
 		// exactly as the `<context>.test(…)` form already is.
 		const parentTestFrame = frames.findLast(frame => isWithinIterationCallbackOf(node, frame.callback, imports));
 		const runnableTest = isRunnableTest(node, parsed, parentTestFrame);
-		if (runnableTest && parentTestFrame) {
+		// A `{skip: 0}` test still runs its own body, but the parent's hooks do not run around it.
+		if (
+			runnableTest
+			&& parentTestFrame
+			&& !isStaticallySkipped(node, sourceCode)
+		) {
 			parentTestFrame.hasSubtest = true;
 		}
 
