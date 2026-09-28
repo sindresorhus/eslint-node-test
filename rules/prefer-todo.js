@@ -8,6 +8,7 @@ import {
 	createContextTracker,
 } from './utils/node-test.js';
 import {removeArgument} from './fix/index.js';
+import {unwrapTypeScriptExpression} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-todo/error';
 const MESSAGE_ID_ERROR_SUBTEST = 'prefer-todo/error-subtest';
@@ -63,17 +64,19 @@ function hasNamedImplementation(callExpression) {
 }
 
 /**
-Whether the fix may drop the callback: a subtest rewrite puts `{todo: true}` where the callback stands,
-so the callback has to be a positional argument rather than an `fn` inside the options object, and
-dropping it also drops the gaps on either side, so a comment in either one would be left behind
-describing the title instead.
+Whether the fix may drop the callback. The callback has to be the last positional argument rather than an `fn` inside the options object, which is no argument the fix can remove, and an argument after the callback would move into its slot and run as the body, or as the options. A subtest rewrite also puts `{todo: true}` where the callback stands, so the call must have no options object or descriptor already: `{todo: true}` would then sit in the callback slot, which `node:test` never reads as options. Dropping the callback also drops the gaps on either side, so a comment in either one would be left behind describing the title instead.
 */
 function canDropCallback(node, callback, isSubtest, sourceCode) {
+	if (isSubtest && getTestOptions(node)) {
+		return false;
+	}
+
 	if (!callback) {
 		return true;
 	}
 
-	if (isSubtest && !node.arguments.includes(callback)) {
+	// `getTestCallback` unwraps a TypeScript wrapper, so the argument is compared unwrapped too.
+	if (unwrapTypeScriptExpression(node.arguments.at(-1)) !== callback) {
 		return false;
 	}
 
@@ -139,7 +142,7 @@ const create = context => {
 			problem.suggest = [
 				{
 					messageId: isSubtest ? MESSAGE_ID_SUGGESTION_SUBTEST : MESSAGE_ID_SUGGESTION,
-					* fix(fixer) {
+					* fix(fixer, {abort}) {
 						if (isSubtest) {
 							// `t.test('a', …)` becomes `t.test('a', {todo: true})`, which keeps the
 							// subtest and reports it as a pending TODO.
@@ -149,10 +152,16 @@ const create = context => {
 							return;
 						}
 
-						// A test binding `test(…)` becomes `test.todo(…)`.
-						yield fixer.insertTextAfter(callee, '.todo');
-						if (callback) {
-							yield removeArgument(fixer, callback, context);
+						// A test binding `test(…)` becomes `test.todo(…)`, inside a TypeScript cast (`(test as any)(…)` becomes `(test.todo as any)(…)`), since `.todo` after the cast would land in the type.
+						// `removeArgument` stands down on a comment in the gap it would remove, and `.todo` alone would keep the callback.
+						const removal = callback && removeArgument(fixer, callback, context);
+						if (callback && !removal) {
+							return abort();
+						}
+
+						yield fixer.insertTextAfter(unwrapTypeScriptExpression(callee), '.todo');
+						if (removal) {
+							yield removal;
 						}
 					},
 				},

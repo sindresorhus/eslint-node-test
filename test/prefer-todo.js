@@ -17,6 +17,7 @@ test.snapshot({
 		'import test from \'node:test\';\nfunction body() {}\ntest({name: \'t\', fn: body});',
 		'import test from \'node:test\';\nconst body = () => {};\ntest({fn: body});',
 		'import test from \'node:test\';\ntest(\'t\', {});',
+		'import test from \'node:test\';\ntest(\'t\', {name: \'other\'});',
 		// A computed key or a spread is a property the rule cannot read as a bare descriptor key
 		'import test from \'node:test\';\ntest(\'t\', {[\'skip\']: true}, () => {});',
 		'import test from \'node:test\';\ntest(\'t\', {...rest}, () => {});',
@@ -128,6 +129,13 @@ test.snapshot({
 		// An `fn` in the options object is not a positional argument, so there is nowhere to put the
 		// option: reported without a suggestion
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\', {fn() {}}); });',
+		// An options object or descriptor already holds the options slot, so `{todo: true}` would land
+		// in the callback slot, which `node:test` never reads as options: reported without a suggestion
+		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test({name: \'a\'}, () => {}); });',
+		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\', {name: \'x\'}, () => {}); });',
+		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\', {}, () => {}); });',
+		// An argument after the callback would move into the callback slot and run as the body
+		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\', () => {}, extra); });',
 
 		// A hook callback is handed the context of the test it runs for, so an empty subtest created
 		// there is the same placeholder
@@ -135,5 +143,22 @@ test.snapshot({
 		'import {getTestContext, beforeEach} from \'node:test\';\nbeforeEach(t => { getTestContext().test(\'c\', () => {}); });',
 		'// A comment before the separating comma leaves no safe fix, but must not break the run\nimport test from \'node:test\';\ntest(\'placeholder\' /* keep me */, () => {});',
 		'import test from \'node:test\';\ntest(\'placeholder\' // keep me\n, () => {});',
+		// A TypeScript cast on the callee keeps `.todo` on the test binding, not in the type
+		{
+			code: 'import test from \'node:test\';\n(test as any)(\'a\', () => {});',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import test from \'node:test\';\n(test!)(\'a\');',
+			languageOptions: {parser: parsers.typescript},
+		},
+		// An argument after the callback would move into its slot and run as the body, or as the options: reported without a suggestion
+		'import test from \'node:test\';\ntest(\'a\', () => {}, extra);',
+		'import test from \'node:test\';\ntest(\'a\', () => {}, {skip: true});',
+		// A TypeScript wrapper on the last argument is still the callback
+		{
+			code: 'import test from \'node:test\';\ntest(\'a\', (() => {}) as any);',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
