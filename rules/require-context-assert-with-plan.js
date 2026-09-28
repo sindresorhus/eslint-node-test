@@ -11,7 +11,10 @@ import {
 	isGetTestContextCall,
 	hasEnabledPlanOption,
 	isEnabledPlanCount,
+	getOutOfLineCallbackCall,
+	getRegistrationKind,
 } from './utils/node-test.js';
+import {functionTypes} from './ast/index.js';
 import {isSkippedTestCall, isInsideSkippedCallback} from './shared/skipped-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
@@ -42,10 +45,7 @@ function getPlanReceiver(node, context, imports) {
 		return null;
 	}
 
-	// A count that is statically known *not* to be a positive plan is excluded. `t.plan(0)` expects zero
-	// counted assertions, so an imported `assert` is what keeps it passing and `t.assert` would fail it
-	// (`plan expected 0 assertions but received 1`). `t.plan(-1)` throws before any assertion runs. A
-	// count we cannot resolve is still a plan, so only a resolved non-count is excluded.
+	// A count that is statically known *not* to be a positive plan is excluded. `t.plan(0)` expects zero counted assertions, so an imported `assert` is what keeps it passing and `t.assert` would fail it (`plan expected 0 assertions but received 1`). `t.plan(-1)` throws before any assertion runs. A count we cannot resolve is still a plan, so only a resolved non-count is excluded.
 	const [countArgument] = node.arguments;
 	if (countArgument) {
 		const staticValue = getStaticValue(countArgument, context.sourceCode.getScope(countArgument));
@@ -58,6 +58,19 @@ function getPlanReceiver(node, context, imports) {
 	return isGetTestContextCall(receiver, imports) ? 'getTestContext()' : receiver;
 }
 
+/**
+How the file can call `getTestContext()`: through its own import, or through the function every test binding carries (`test.getTestContext()`). `undefined` when no import reaches it.
+*/
+function getTestContextCallText(imports) {
+	if (imports.getTestContextName) {
+		return `${imports.getTestContextName}()`;
+	}
+
+	const binding = [...imports.namespaces][0]
+		?? [...imports.locals].find(([, canonical]) => canonical === 'test' || canonical === 'it')?.[0];
+	return binding ? `${binding}.getTestContext()` : undefined;
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -68,28 +81,28 @@ const create = context => {
 		return;
 	}
 
-	// A hook's `t` is the context of the test the hook runs for, and a plan set in one carries into
-	// that test, so a hook body opens a frame like a test body does.
+	// A hook's `t` is the context of the test the hook runs for, so a hook body opens a frame like a
+	// test body does. Node checks a plan set there only in some hooks (see `openFrame`).
 	const tracker = createContextTracker(imports, {trackHooks: true});
 	// A test with no context parameter can still reach its context through `getTestContext()`, so the
-	// message and its suggestion name that import, under whatever local name the file bound it to.
-	const {getTestContextName} = imports;
+	// message names that call, under whatever local name the file bound it to.
+	const testContextCallText = getTestContextCallText(imports);
 
 	// One frame per enclosing test, subtest, or hook. Assertions attach to the innermost; the frame is
-	// reported only if its test, or a hook that runs for it, called `plan()`.
+	// reported only if its test or hook called `plan()`, and Node checks that plan.
 	const frames = [];
 	// The callbacks of statically skipped tests, subtests, and suites, which never run.
 	const skippedCallbacks = new WeakSet();
 
 	// Open the frame for a test, subtest, or hook call, which is what its assertions and its plan
-	// attach to.
-	const openFrame = (node, isHook) => {
-		const callback = isHook ? getHookCallback(node) : getTestCallback(node);
+	// attach to. `hookName` is the hook's name, or `undefined` for a test. `node` is what closes the
+	// frame: the call, or the callback itself when the call names it out of line.
+	const openFrame = ({node, call, callback, hookName, isContextHook, contextName}) => {
+		const isHook = hookName !== undefined;
 		const contextVariable = getContextVariable(callback, sourceCode);
 		// `t.plan(1)` and the test-level `plan` option set the same expected count, so the option
-		// counts here too.
-		const hasPlanOption = hasEnabledPlanOption(node, context);
-		const contextName = tracker.current();
+		// counts here too. A hook has no `plan` option, so an object after its callback sets none.
+		const hasPlanOption = !isHook && hasEnabledPlanOption(call, context);
 		frames.push({
 			node,
 			contextName,
@@ -97,13 +110,32 @@ const create = context => {
 			// `getTestContext()`, so the frame stands in as its own key.
 			contextKey: contextVariable ?? undefined,
 			hasPlan: hasPlanOption,
+			// Node checks a plan set in a hook only in a `beforeEach`, which runs as part of each test, and
+			// in a `before` on a test's own context, which plans that test. A plan set in any other hook
+			// is never checked, so an uncounted assertion there fails nothing.
+			isPlanChecked: !isHook || hookName === 'beforeEach' || (hookName === 'before' && isContextHook),
 			// The message names the context to convert to. A test with no declared parameter can
-			// only name the `getTestContext()` import, and only when the file has one.
-			planName: hasPlanOption
-				? (contextName ?? (getTestContextName ? `${getTestContextName}()` : undefined))
-				: undefined,
+			// only name a `getTestContext()` call.
+			planName: hasPlanOption ? (contextName ?? testContextCallText) : undefined,
 			assertions: [],
 		});
+	};
+
+	const closeFrame = node => {
+		if (frames.at(-1)?.node !== node) {
+			return;
+		}
+
+		const frame = frames.pop();
+		if (!frame.isPlanChecked || !frame.hasPlan || frame.planName === undefined) {
+			return;
+		}
+
+		return frame.assertions.map(assertion => ({
+			node: assertion,
+			messageId: MESSAGE_ID,
+			data: {context: frame.planName},
+		}));
 	};
 
 	// A skipped test, subtest, or suite never runs its callback, so neither its plan nor its
@@ -126,8 +158,11 @@ const create = context => {
 		const isSubtest = tracker.isSubtestCall(node);
 		// A hook declared on the test's own context (`t.beforeEach(…)`) is a hook too, and its plan
 		// applies to the test's subtests the same way a top-level hook's does.
-		const isHook = isContextHookCall(node, tracker.isContextReceiver);
-		const isTest = parsed?.kind === 'test' || parsed?.kind === 'hook' || isSubtest || isHook;
+		const isContextHook = isContextHookCall(node, tracker.isContextReceiver);
+		const hookName = parsed?.kind === 'hook'
+			? parsed.name
+			: (isContextHook ? unwrapTypeScriptExpression(node.callee).property.name : undefined);
+		const isTest = parsed?.kind === 'test' || isSubtest || hookName !== undefined;
 		tracker.update(node);
 
 		if (markSkipped(node, parsed, isSubtest)) {
@@ -135,7 +170,14 @@ const create = context => {
 		}
 
 		if (isTest) {
-			openFrame(node, isHook);
+			openFrame({
+				node,
+				call: node,
+				callback: hookName === undefined ? getTestCallback(node) : getHookCallback(node),
+				hookName,
+				isContextHook,
+				contextName: tracker.current(),
+			});
 			return;
 		}
 
@@ -160,7 +202,7 @@ const create = context => {
 					// A plan set through `getTestContext()` names the context that way, since the
 					// test may declare no parameter to name it after.
 					frames[index].planName = planReceiver === 'getTestContext()'
-						? (getTestContextName ? `${getTestContextName}()` : 'getTestContext()')
+						? testContextCallText
 						: frames[index].contextName;
 					break;
 				}
@@ -181,22 +223,43 @@ const create = context => {
 
 	context.onExit('CallExpression', node => {
 		tracker.leave(node);
-
-		if (frames.at(-1)?.node !== node) {
-			return;
-		}
-
-		const frame = frames.pop();
-		if (!frame.hasPlan || frame.planName === undefined) {
-			return;
-		}
-
-		return frame.assertions.map(assertion => ({
-			node: assertion,
-			messageId: MESSAGE_ID,
-			data: {context: frame.planName},
-		}));
+		return closeFrame(node);
 	});
+
+	// A test or hook body the call names out of line is entered where it is declared, outside the frame
+	// the call opens, so the frame is opened on the function instead. A local helper the test only calls
+	// is no registration, so its assertions stay with the test that calls it.
+	context.on(functionTypes, node => {
+		const call = getOutOfLineCallbackCall(node, context, imports);
+		const kind = getRegistrationKind(call, imports, context);
+		if (kind === undefined) {
+			return;
+		}
+
+		const parsed = parseTestCall(call, imports);
+		if (isSkippedTestCall(call, parsed, context)) {
+			skippedCallbacks.add(node);
+			return;
+		}
+
+		if (kind !== 'test' && kind !== 'hook') {
+			return;
+		}
+
+		// A hook is imported (`beforeEach(body)`) or declared on a context (`t.beforeEach(body)`).
+		const isContextHook = kind === 'hook' && parsed?.kind !== 'hook';
+		const hookName = isContextHook ? unwrapTypeScriptExpression(call.callee).property.name : parsed?.name;
+		openFrame({
+			node,
+			call,
+			callback: node,
+			hookName: kind === 'hook' ? hookName : undefined,
+			isContextHook,
+			contextName: getFirstContextParameter(node.params)?.name,
+		});
+	});
+
+	context.onExit(functionTypes, closeFrame);
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

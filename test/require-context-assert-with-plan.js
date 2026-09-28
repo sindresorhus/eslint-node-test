@@ -6,14 +6,28 @@ const withTest = code => `import test from 'node:test';\nimport assert from 'nod
 
 test.snapshot({
 	valid: [
+		// A subtest body named out of line is its own test, so its assertions do not count toward the outer plan
+		withTest('test(\'a\', async t => {\n\tt.plan(1);\n\tfunction sub() { assert.ok(1); }\n\tawait t.test(\'s\', sub);\n});'),
+		// A skipped test body named out of line never runs
+		withTest('function body(t) { t.plan(1); assert.ok(1); }\ntest.skip(\'a\', body);'),
+		// Node never checks a plan set in an `afterEach`, out of line too
+		'import {test, afterEach} from \'node:test\';\nimport assert from \'node:assert\';\nfunction teardown(t) { t.plan(1); assert.ok(1); }\nafterEach(teardown);\ntest(\'a\', () => {});',
 		// A hook with a plan and the context's own assert is the pattern the rule asks for
 		'import {beforeEach} from \'node:test\';\nbeforeEach(t => {\n\tt.plan(1);\n\tt.assert.ok(1);\n});\n\ntest(\'x\', () => {});',
 		// A hook with no plan has nothing to count toward
 		'import {beforeEach} from \'node:test\';\nimport assert from \'node:assert\';\nbeforeEach(t => {\n\tassert.ok(1);\n});\n\ntest(\'x\', () => {});',
+		// A hook has no `plan` option, so `{plan: 1}` after its callback sets no plan
+		'import {beforeEach} from \'node:test\';\nimport assert from \'node:assert\';\nbeforeEach(t => { assert.ok(1); }, {plan: 1});',
+		'import {before} from \'node:test\';\nimport assert from \'node:assert\';\nbefore(() => { assert.ok(1); }, {plan: 1});',
+		withTest('test(\'a\', t => { t.beforeEach(hook => { assert.ok(1); }, {plan: 1}); t.test(\'b\', () => {}); });'),
+		// Node never checks a plan set in these hooks, so an uncounted assertion there fails nothing
+		'import {test, before} from \'node:test\';\nimport assert from \'node:assert\';\nbefore(t => {\n\tt.plan(1);\n\tassert.ok(1);\n});\n\ntest(\'x\', () => {});',
+		'import {test, after} from \'node:test\';\nimport assert from \'node:assert\';\nafter(t => {\n\tt.plan(1);\n\tassert.ok(1);\n});\n\ntest(\'x\', () => {});',
+		'import {test, afterEach} from \'node:test\';\nimport assert from \'node:assert\';\nafterEach(t => {\n\tt.plan(1);\n\tassert.ok(1);\n});\n\ntest(\'x\', () => {});',
+		withTest('test(\'a\', async t => { t.after(hook => { hook.plan(1); assert.ok(1); }); await t.test(\'b\', () => {}); });'),
+		withTest('test(\'a\', async t => { t.afterEach(hook => { hook.plan(1); assert.ok(1); }); await t.test(\'b\', () => {}); });'),
 
 		'import test from "node:test";\nimport assert from "node:assert";\ntest("a", {plan: 1}, t => { t.assert.ok(true); });',
-		// Nothing to suggest when the callback has no context parameter to convert to
-		'import test from "node:test";\nimport assert from "node:assert";\ntest("a", {plan: 1}, () => { assert.ok(true); });',
 		'import test from "node:test";\nimport assert from "node:assert";\ntest("a", {skip: true}, t => { assert.ok(true); });',
 
 		// No plan — imported assert is fine
@@ -69,8 +83,6 @@ test.snapshot({
 		withTest('test(\'a\', t => { getTestContext().plan(0); assert.ok(1); });'),
 		// A plan option is a real plan, but a context assertion already counts toward it
 		withTest('test(\'t\', {plan: 1}, t => { t.assert.ok(1); });'),
-		// Without a context parameter there is nothing to convert to unless `getTestContext` is imported
-		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'a\', {plan: 1}, () => { assert.ok(1); });',
 
 		// A non-simple `plan` member is not a plan call the rule can read
 		withTest('test(\'t\', t => { t[\'plan\'](1); assert.ok(1); });'),
@@ -96,7 +108,6 @@ test.snapshot({
 		// A hook's `t` is the context of the test it runs for, and a plan set in one carries into that
 		// test, so an imported assertion there is just as uncounted.
 		'import {beforeEach} from \'node:test\';\nimport assert from \'node:assert\';\nbeforeEach(t => {\n\tt.plan(1);\n\tassert.ok(1);\n});\n\ntest(\'x\', () => {});',
-		'import {before} from \'node:test\';\nimport assert from \'node:assert\';\nbefore(t => {\n\tt.plan(1);\n\tassert.ok(1);\n});\n\ntest(\'x\', () => {});',
 
 		// Plan + imported namespace assert
 		withTest('test(\'t\', t => { t.plan(1); assert.strictEqual(1, 1); });'),
@@ -154,8 +165,8 @@ test.snapshot({
 		// `.only` does not change what a plan counts
 		withTest('test.only(\'t\', t => { t.plan(1); assert.ok(1); });'),
 
-		// A plan reached through `test.getTestContext()` is named the way the rule spells it, even when
-		// the file never imported the function itself
+		// A plan reached through `test.getTestContext()` is named through the test binding, since the
+		// file never imported the function itself
 		withTest('test(\'t\', t => { test.getTestContext().plan(1); assert.ok(1); });'),
 
 		// The other assert module specifiers are the same imported assertions
@@ -167,5 +178,21 @@ test.snapshot({
 			code: withTest('test(\'t\', t => { (t as Context).plan(1); assert.ok(1); });'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// A test with no context parameter still reaches its context through the `getTestContext` its test binding carries
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'a\', {plan: 1}, () => { assert.ok(1); });',
+		'import {test} from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'a\', {plan: 1}, () => { assert.ok(1); });',
+		'import * as nt from \'node:test\';\nimport assert from \'node:assert\';\nnt.test(\'a\', {plan: 1}, () => { assert.ok(1); });',
+
+		// A `before` on the test's own context plans that test, which Node checks
+		withTest('test(\'a\', async t => { t.before(hook => { hook.plan(2); assert.ok(1); }); await t.test(\'b\', () => {}); });'),
+
+		// A test or hook body named out of line opens a frame of its own
+		withTest('function body(t) {\n\tt.plan(1);\n\tassert.ok(1);\n}\ntest(\'a\', body);'),
+		withTest('test(\'a\', body);\nconst body = t => {\n\tt.plan(1);\n\tassert.ok(1);\n};'),
+		withTest('function body() { assert.ok(1); }\ntest(\'a\', {plan: 1}, body);'),
+		'import {test, beforeEach} from \'node:test\';\nimport assert from \'node:assert\';\nfunction setup(t) { t.plan(1); assert.ok(1); }\nbeforeEach(setup);\ntest(\'a\', () => {});',
+		// A local helper the test calls runs as part of the test, so its assertion is still not counted
+		withTest('test(\'a\', t => {\n\tt.plan(1);\n\tfunction check() { assert.ok(1); }\n\tcheck();\n});'),
 	],
 });
