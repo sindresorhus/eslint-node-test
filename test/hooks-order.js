@@ -104,17 +104,48 @@ test.snapshot({
 		'import {test, getTestContext} from \'node:test\';\ntest(\'p\', t => { getTestContext().afterEach(() => {}); getTestContext().beforeEach(() => {}); });',
 		'import {test} from \'node:test\';\ntest(\'p\', t => { if (ready) { t.afterEach(() => {}); t.beforeEach(() => {}); } });',
 
-		// A statement written as `(hook(…))` continues the expression above it once the two are
-		// adjacent, so the reorder gives it a leading semicolon
+		// A statement written as `(hook(…))` keeps its parentheses in place, so the hook moved into them needs no leading semicolon
 		'import {before, afterEach, test} from \'node:test\';\n\n(afterEach(() => {}))\nbefore(() => {})\n\ntest(\'a\', () => {});',
 
-		// A statement above the run also continues into the moved one when that one starts with a
-		// bracket, even when nothing is between them
+		// A statement above the run that has no `;` of its own is followed by the same kind of token after the reorder, since the parentheses stay in place
 		'import {before, after} from \'node:test\';\nconst value = []\nafter(() => {});\n(before(() => {}));',
 
-		// A statement below the block that starts with a bracket continues the moved statement unless
-		// the moved statement keeps its own semicolon
+		// A statement below the block that starts with a bracket still follows the same `;`, since each statement keeps its own
 		'import {after, before, beforeEach} from \'node:test\';\n\nafter(() => {})\nbefore(() => {});\nbeforeEach(() => {});\n(async () => {\n\tawait Promise.resolve();\n})();',
 		'import {after, before} from \'node:test\';\n\nafter(() => {})\nbefore(() => {});\n[1].forEach(f);',
+
+		// Only the hook expressions move, so each statement keeps its own `;` or lack of one, and nothing is glued to what lands next to it
+		withImport('before, after', 'after(() => {});before(() => {})'),
+		withImport('before, after', 'after(() => {})\n;before(() => {})'),
+		withImport('before, after', 'const value = []\nafter(() => {})\n;(before(() => {}))'),
+		withImport('before, after', 'after(() => {})\nbefore(() => {});x()'),
+		withImport('before, after', 'after(() => {})\nbefore(() => {});\n`x`;'),
+		// Every hook keeps its own `;`, so whatever lands in a slot still ends the statement
+		withImport('before, after', 'after(() => {}); before(() => {}); x()'),
+		// A hook starting with `(` that lands below another hook's `;` needs no separator of its own
+		withImport('before, beforeEach, after', 'after(() => {});\nbefore(() => {});\n(beforeEach)(() => {});'),
+
+		// A file without semicolons gets the fix
+		'import {describe, before, afterEach, after} from \'node:test\';\ndescribe(\'user\', () => {\n\tafter(() => {})\n\tafterEach(() => {})\n\tbefore(() => {})\n})',
+		// Hooks with and without `;` mixed: each statement keeps its own
+		withImport('before, beforeEach, afterEach, after', 'after(() => {});\nafterEach(() => {})\nbeforeEach(() => {});\nbefore(() => {})\ntest(\'a\', () => {})'),
+		// A moved hook starting with `(` below a hook without `;` gets a leading `;`
+		withImport('before, beforeEach, after', 'after(() => {})\nbefore(() => {})\n;(beforeEach)(() => {})'),
+		// A comment between a hook and its own `;` would stay behind, so no fix
+		withImport('before, after', 'after(() => {}) /* teardown */;\nbefore(() => {});'),
+		// A type-only wrapper stays in its slot, so a bare hook moved above a line starting with `(` or `[` is not continued by it
+		{
+			code: withImport('before, after', 'after(() => {})\nbefore(() => {}) as void\n(x)'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		// A `<T>` assertion or parentheses around a hook are part of its own statement, so a hook starting with `(` moved into it needs no leading `;`
+		{
+			code: withImport('before, after', '<any>after(() => {});\n(before)(() => {});'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withImport('before, after', '(<any>after(() => {}));\n(before)(() => {});'),
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

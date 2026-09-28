@@ -11,6 +11,9 @@ import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js'
 // adjacent, so the reorder has to separate them.
 const STARTS_WITH_BRACKET = /^[([]/;
 
+// A token that already ends whatever is above the statement, so a moved expression starting with a bracket needs no leading `;` after it.
+const SEPARATING_TOKENS = new Set([';', '{']);
+
 const MESSAGE_ID = 'hooks-order/error';
 
 const messages = {
@@ -45,9 +48,17 @@ function getReorderFix(block, hooks, sourceCode) {
 		return undefined;
 	}
 
-	// A comment anywhere between consecutive hooks must not be moved.
-	for (let index = min; index < max; index += 1) {
-		if (sourceCode.getTokensBetween(statements[index], statements[index + 1], {includeComments: true}).length > 0) {
+	// A comment anywhere between consecutive hooks must not be moved. The reorder moves only each hook's call, so a comment beside the call inside its own statement (`after(fn) /* teardown */;`) would stay behind as well.
+	for (const [index, hook] of hooks.entries()) {
+		if (sourceCode.getCommentsInside(hook.statement).length !== sourceCode.getCommentsInside(hook.call).length) {
+			return undefined;
+		}
+
+		const next = hooks[index + 1];
+		if (
+			next
+			&& sourceCode.getTokensBetween(hook.statement, next.statement, {includeComments: true}).length > 0
+		) {
 			return undefined;
 		}
 	}
@@ -55,7 +66,7 @@ function getReorderFix(block, hooks, sourceCode) {
 	const firstHook = statements[min];
 	const lastHook = statements[max];
 
-	// A comment leading the first hook describes that hook, and the reorder replaces statement
+	// A comment leading the first hook describes that hook, and the reorder replaces hook
 	// text only, so the comment would end up describing whichever hook moves into first place.
 	// The same reasoning as the trailing comment below. A blank line between them means the
 	// comment belongs to the block rather than to the hook, so that case stays fixable.
@@ -68,8 +79,8 @@ function getReorderFix(block, hooks, sourceCode) {
 		return undefined;
 	}
 
-	// A trailing comment on the last hook's line would stay put while the statement text moves,
-	// misattributing it to whichever hook ends up last. The reorder replaces statement text only.
+	// A trailing comment on the last hook's line would stay put while the hook text moves,
+	// misattributing it to whichever hook ends up last. The reorder replaces hook text only.
 	const [trailingComment] = sourceCode.getCommentsAfter(lastHook);
 	if (trailingComment && sourceCode.getLoc(trailingComment).start.line === sourceCode.getLoc(lastHook).end.line) {
 		return undefined;
@@ -84,19 +95,16 @@ function getReorderFix(block, hooks, sourceCode) {
 				continue;
 			}
 
-			// The statement can be glued to either neighbour once it lands here: a leading `(`/`[`
-			// continues the expression above it, and a missing trailing `;` lets the statement below
-			// continue this one.
-			const text = sourceCode.getText(sorted[index].statement);
-			// The statement can be glued to whatever is above it: a leading `(`/`[` continues the
-			// expression before it, whether that is the statement this one replaced (`index > 0`) or a
-			// statement above the whole run (`min > 0`). A missing trailing `;` is what makes the glue.
-			const prefix = (index > 0 || min > 0) && STARTS_WITH_BRACKET.test(text) ? ';' : '';
-			// The statement that lands below is the next hook, or the first statement after the block.
-			const next = sorted[index + 1]?.statement ?? statements[max + 1];
-			const nextText = next ? sourceCode.getText(next) : '';
-			const suffix = !text.endsWith(';') && STARTS_WITH_BRACKET.test(nextText) ? ';' : '';
-			yield fixer.replaceText(hook.statement, `${prefix}${text}${suffix}`);
+			// Only the call moves, so each statement keeps its own `;` (or its lack of one) and everything around the call, including a type-only wrapper (`as void`, `!`). A call starts with an identifier and ends with `)`, so what separates the statements stays the same. The exception is one starting with `(` or `[` (`(t as any).after(…)`), which continues whatever is above the slot unless that already ends there.
+			const text = sourceCode.getText(sorted[index].call);
+			// A token inside the statement (`<any>` or `(` around the call) keeps the moved call apart from what is above, so only one before the statement counts.
+			const tokenBefore = sourceCode.getTokenBefore(hook.call);
+			const needsSeparator = STARTS_WITH_BRACKET.test(text)
+				&& tokenBefore
+				&& sourceCode.getRange(tokenBefore)[1] <= sourceCode.getRange(hook.statement)[0]
+				&& !SEPARATING_TOKENS.has(tokenBefore.value);
+			const prefix = needsSeparator ? ';' : '';
+			yield fixer.replaceText(hook.call, `${prefix}${text}`);
 		}
 	};
 }
@@ -187,7 +195,7 @@ const create = context => {
 			hooksByBlock.set(block, hooks);
 		}
 
-		hooks.push({name: hookName, statement});
+		hooks.push({name: hookName, statement, call: node});
 	});
 
 	context.onExit('CallExpression', node => {
