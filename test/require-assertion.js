@@ -37,6 +37,9 @@ test.snapshot({
 		'import test from "node:test";\ntest("t1", ({assert: {strictEqual}}) => { strictEqual(1, 1); });',
 		// A defaulted `assert` binding is still a real assertion
 		'import test from "node:test";\ntest("t1", ({assert = fallback}) => { assert.ok(1); });',
+		// A default on the whole pattern only applies when no context is passed, and the runner always passes one
+		'import test from "node:test";\ntest("t1", ({assert} = {}) => { assert.ok(1); });',
+		'import test from "node:test";\ntest("t1", ({assert: {ok}} = {}) => { ok(1); });',
 		// A renamed destructured method is the method it was destructured from
 		'import test from "node:test";\ntest("t1", ({assert: {ok: check}}) => { check(1); });',
 		'import test from "node:test";\ntest("t1", ({assert: {strictEqual: same}}) => { same(a, b); });',
@@ -118,6 +121,10 @@ test.snapshot({
 		'import test from "node:test";\nimport assert from "node:assert";\ntest("t1", () => assert.ok(1));',
 	],
 	invalid: [
+		// `TestContext#assert` has no `strict`, so a destructured `strict` call throws instead of asserting
+		'import test from "node:test";\ntest("t", ({assert}) => { assert.strict(x); });',
+		'import test from "node:test";\ntest("t", ({assert: {strict}}) => { strict(x); });',
+
 		// `skip: false` and `only` still run, so the assertion is still required
 		'import test from "node:test";\ntest("t", {skip: false}, () => { doSomething(); });',
 		'import test from "node:test";\ntest.only("t", () => { doSomething(); });',

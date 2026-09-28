@@ -150,5 +150,31 @@ test.snapshot({
 		// `getTestContext` on it
 		'import * as nodeTest from \'node:test\';\nnodeTest.test(\'a\', () => { nodeTest.it.getTestContext().test(\'b\', () => {}); });',
 		'import * as nodeTest from \'node:test\';\nnodeTest.test(\'a\', () => { nodeTest.default.getTestContext().test(\'b\', () => {}); });',
+
+		// A TypeScript wrapper on the reference still names the same body out of line
+		{
+			code: withImport('const body = t => { t.test("child", () => {}); };\ntest("parent", body as any);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withImport('const body = t => { t.test("child", () => {}); };\ntest("parent", body!);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withImport('const body = t => { t.test("child", () => {}); };\ntest("parent", {fn: body} as any);'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withImport('const body = t => { t.test("child", () => {}); };\ntest("parent", {fn: body as any});'),
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// A `getTestContext()` reached through the imported test function is named as the file spells it
+		withImport('test("parent", () => { test.getTestContext().test("child", () => {}); });'),
+		'import * as nodeTest from \'node:test\';\nnodeTest.test(\'a\', () => { nodeTest.getTestContext().test(\'b\', () => {}); });',
+		{
+			code: withImport('test("parent", () => { (test.getTestContext() as any).test("child", () => {}); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

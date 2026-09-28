@@ -1,5 +1,10 @@
 import {resolveImports, createContextTracker, getSubtestReceiver} from './utils/node-test.js';
-import {getEnclosingFunction, getFloatingStatement, hasStaticBlockBetween} from './utils/index.js';
+import {
+	getEnclosingFunction,
+	getFloatingStatement,
+	hasStaticBlockBetween,
+	unwrapExpression,
+} from './utils/index.js';
 import {trackDetachedCallbacks} from './no-unawaited-promise-assertion.js';
 
 const MESSAGE_ID = 'no-unawaited-subtest';
@@ -28,12 +33,11 @@ const create = context => {
 
 		let problem;
 		if (subtest && floating && !isInsideDetachedCallback(node)) {
-			// Either form names the context it creates the subtest from, by the local name the file
-			// bound a `getTestContext` import to.
+			// Either form names the context it creates the subtest from, the `getTestContext()` call as the file spells it (`gtc()`, `test.getTestContext()`).
 			const receiver = getSubtestReceiver(node);
 			const name = receiver
 				? receiver.name
-				: (imports.getTestContextName ? `${imports.getTestContextName}()` : 'getTestContext()');
+				: context.sourceCode.getText(unwrapExpression(unwrapExpression(node.callee).object));
 
 			problem = {
 				node,

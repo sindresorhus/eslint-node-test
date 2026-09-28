@@ -2,6 +2,7 @@ import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
 import isFunction from '../ast/is-function.js';
 import {getStaticPropertyName} from './is-same-reference.js';
 import unwrapTypeScriptExpression, {isTypeScriptExpressionWrapper} from './unwrap-typescript-expression.js';
+import {outermostExpressionWrapper} from './skip-expression-wrappers.js';
 
 /*
 Detection helpers for Node.js's built-in test runner (`node:test`).
@@ -913,8 +914,8 @@ Classify a call that reaches `TestContext#assert` through a destructured binding
 
 `({assert}) => assert.ok(…)` and the method form `({assert: {ok}}) => ok(…)` both call a real
 assertion. `TestContext#assert` is always loose mode, it is a plain object rather than a callable,
-and it has no `strict` view, so `assert(…)` and `assert.strict.equal(…)` are both a `TypeError` at
-runtime and are not assertions.
+and it has no `strict` view, so `assert(…)`, `assert.strict(…)`, `strict(…)` and `assert.strict.equal(…)`
+are all a `TypeError` at runtime and are not assertions.
 
 @param {object} callExpression The call to classify.
 @param {object} assertBinding The destructured `assert` bindings, as returned by `getDestructuredAssertBindings`, which tell a method binding from the assert object.
@@ -926,7 +927,7 @@ export function parseDestructuredAssertCall(callExpression, assertBinding) {
 	// A method destructured straight off `assert`, called on its own.
 	if (callee.type === 'Identifier') {
 		const method = assertBinding.getMethodName(callee);
-		return method === undefined ? undefined : {method, methodNode: callee, isStrict: false};
+		return method === undefined || method === 'strict' ? undefined : {method, methodNode: callee, isStrict: false};
 	}
 
 	if (callee.type !== 'MemberExpression' || callee.computed || callee.property.type !== 'Identifier') {
@@ -935,7 +936,7 @@ export function parseDestructuredAssertCall(callExpression, assertBinding) {
 
 	// `assert.ok(…)` on the destructured assert object.
 	const object = unwrapTypeScriptExpression(callee.object);
-	return assertBinding.isAssertObject(object)
+	return assertBinding.isAssertObject(object) && callee.property.name !== 'strict'
 		? {method: callee.property.name, methodNode: callee.property, isStrict: false}
 		: undefined;
 }
@@ -1062,19 +1063,21 @@ export function isOutOfLineCallback(node, context, imports, isContextReceiver) {
 
 /** The test, suite, subtest or hook call `identifier` is passed to as its callback, if any. */
 function getCallbackArgumentCall(identifier, imports, isContextReceiver) {
-	let {parent} = identifier;
+	// A TypeScript wrapper (`body as any`, `body!`) is erased at compile time, so it passes the same function.
+	const reference = outermostExpressionWrapper(identifier);
+	let {parent} = reference;
 	// The object form names the callback `fn` in a descriptor property, so the call is one level
 	// further out and the identifier is inside the object rather than a bare argument.
-	if (parent?.type === 'Property' && parent.value === identifier) {
+	if (parent?.type === 'Property' && parent.value === reference) {
 		if (getStaticPropertyName(parent) !== 'fn') {
 			return undefined;
 		}
 
-		parent = parent.parent?.parent;
+		parent = outermostExpressionWrapper(parent.parent).parent;
 		if (parent?.type !== 'CallExpression') {
 			return undefined;
 		}
-	} else if (parent?.type !== 'CallExpression' || !parent.arguments.includes(identifier)) {
+	} else if (parent?.type !== 'CallExpression' || !parent.arguments.includes(reference)) {
 		return undefined;
 	}
 
@@ -1301,7 +1304,7 @@ export function getResolvedTestCallback(callExpression, context, imports) {
 }
 
 /** The function `node` is, inline or through the binding it names, or `undefined`. */
-function resolveCallbackArgument(node, context) {
+export function resolveCallbackArgument(node, context) {
 	node &&= unwrapTypeScriptExpression(node);
 	if (isFunction(node)) {
 		return node;
@@ -1417,7 +1420,12 @@ A method's name comes from the property it was destructured from, not from the l
 export function getDestructuredAssertBindings(callback, imports) {
 	// A TypeScript `this` parameter is erased at compile time, so the pattern that binds `assert` is
 	// the next one along, the same way `getFirstContextParameter` reads it everywhere else.
-	const parameter = getRuntimeParameter(callback.params, 0);
+	let parameter = getRuntimeParameter(callback.params, 0);
+	// A default on the whole pattern (`({assert} = {})`) only applies when no context is passed, and the runner always passes one.
+	if (parameter?.type === 'AssignmentPattern') {
+		parameter = parameter.left;
+	}
+
 	if (parameter?.type !== 'ObjectPattern') {
 		return new Map();
 	}

@@ -237,5 +237,16 @@ test.snapshot({
 		withImport('const body = t => {\n\tsetTimeout(() => { t.test(\'child\', () => {}); });\n};\ntest(\'parent\', body);'),
 		withImport('function body(t) {\n\tload().then(() => { t.test(\'child\', () => {}); });\n}\ntest(\'parent\', body);'),
 		withImport('const hook = () => {\n\tsetTimeout(() => { assert.ok(value); });\n};\ntest.beforeEach(hook);'),
+
+		// A wrapper around a floating combinator does not hide the chains in its array
+		{
+			code: inTest('Promise.all([load().then(() => { throw error; })]) as any;'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: inTest('Promise.all([load().then(() => { throw error; })])!;'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		inTest('Promise?.all([load().then(() => { throw error; })]);'),
 	],
 });

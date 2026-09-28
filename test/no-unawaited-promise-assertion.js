@@ -125,6 +125,9 @@ test.snapshot({
 		// that declares two parameters
 		'import test from \'node:test\';\nimport assert from \'node:assert\';\n'
 		+ 'test(\'loads\', (t, done) => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n});',
+		// `TestContext#assert` has no `strict`, so calling it throws rather than asserting, the same as `t.assert.strict(…)`
+		'import test from \'node:test\';\ntest(\'loads\', async ({assert}) => {\n\tload().then(value => { assert.strict(value); });\n});',
+		'import test from \'node:test\';\ntest(\'loads\', async ({assert: {strict}}) => {\n\tload().then(value => { strict(value); });\n});',
 	],
 	invalid: [
 		// A `void` discards the chain wherever it stands, a static field initializer included
@@ -315,5 +318,19 @@ test.snapshot({
 
 		// A body named out of line runs as the test's callback, the same as an inline one
 		withImport('const body = async t => {\n\tload().then(value => { t.assert.ok(value); });\n};\ntest(\'loads\', body);'),
+
+		// A wrapper around a floating combinator does not hide the chains in its array
+		{
+			code: inAsyncTest('Promise.all([load().then(value => { assert.ok(value); })]) as any;'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: inAsyncTest('Promise.all([load().then(value => { assert.ok(value); })])!;'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		inAsyncTest('Promise?.all([load().then(value => { assert.ok(value); })]);'),
+
+		// A default on the whole context pattern still binds the real `assert`
+		'import test from \'node:test\';\ntest(\'loads\', async ({assert} = {}) => {\n\tload().then(value => { assert.ok(value); });\n});',
 	],
 });

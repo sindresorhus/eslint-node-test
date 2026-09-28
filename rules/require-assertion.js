@@ -44,8 +44,11 @@ function isDestructuredAssertCall(node, testStack, sourceCode) {
 
 		// A bare identifier is a destructured method, so its binding records a name. A member call is
 		// a method on the assert object, whose binding records none.
+		// `TestContext#assert` has no `strict`, so a call through that name throws rather than asserts.
 		const method = test.assertBindings.get(variable);
-		return isBareMethodCall ? typeof method === 'string' : method === undefined;
+		return isBareMethodCall
+			? typeof method === 'string' && method !== 'strict'
+			: method === undefined && chain.members[0].name !== 'strict';
 	});
 }
 

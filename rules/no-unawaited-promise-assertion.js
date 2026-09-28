@@ -131,6 +131,8 @@ one is a promise whose chain callbacks run just as late as the combinator's own 
 awaits the combinator either.
 */
 function getCombinatorElements(node) {
+	// The floating expression is the outermost wrapper, so `Promise.all([…]) as any` reaches here as the cast.
+	node = unwrapExpression(node);
 	const callee = unwrapExpression(node?.callee);
 	if (
 		callee?.type !== 'MemberExpression'
@@ -831,8 +833,7 @@ function createBoundaryStack(context, imports) {
 
 	context.onExit('CallExpression', popFrame);
 
-	// A test or hook body the call names out of line is entered where it is declared, outside the frame
-	// the call would open, so the frame is keyed on the function instead.
+	// A test or hook body the call names out of line is entered where it is declared, outside the frame the call would open, so the frame is keyed on the function instead.
 	context.on(functionTypes, node => {
 		const kind = getRegistrationKind(getOutOfLineCallbackCall(node, context, imports), imports, undefined, context);
 		if ((kind === 'test' || kind === 'hook') && getEffectiveArity(node.params) < 2) {
