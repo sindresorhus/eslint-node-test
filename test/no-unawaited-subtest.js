@@ -100,6 +100,20 @@ test.snapshot({
 		withImport('test("parent", async t => {\n\t(0, t.test("child", () => {}));\n});'),
 		withImport('test("parent", async t => {\n\tvoid (condition ? t.test("child", () => {}) : null);\n});'),
 		withImport('test("parent", async t => {\n\tt.test("child", () => {}) ? 1 : 2;\n});'),
+		// A wrapped subtest in a conditional's test is still the test, so an `await` in front would pick the branch
+		withImport('test("parent", async t => {\n\tt.test?.("child", () => {}) ? a() : b();\n});'),
+		{
+			code: withImport('test("parent", async t => {\n\t(t.test("child", () => {}) as any) ? a() : b();\n});'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withImport('test("parent", async t => {\n\tt.test("child", () => {})! ? a() : b();\n});'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withImport('test("parent", async t => {\n\t(t.test("child", () => {}) satisfies any) ? a() : b();\n});'),
+			languageOptions: {parser: parsers.typescript},
+		},
 		withImport('test("parent", t => { void t.test("child", () => {}); });'),
 		{
 			code: withImport('test("parent", async t => { void (t.test("child", () => {}) as any); });'),

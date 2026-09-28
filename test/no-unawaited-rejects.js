@@ -98,6 +98,16 @@ test.snapshot({
 		`${ASSERT_IMPORT}\nasync function test() {\n\t(0, assert.rejects(fn));\n}`,
 		`${ASSERT_IMPORT}\nasync function test() {\n\tvoid (condition ? assert.rejects(fn) : null);\n}`,
 		`${ASSERT_IMPORT}\nasync function test() {\n\tassert.rejects(fn) ? 1 : 2;\n}`,
+		// A wrapped call in a conditional's test is still the test, so an `await` in front would pick the branch
+		`${ASSERT_IMPORT}\nasync function test() {\n\tassert.rejects?.(fn) ? a() : b();\n}`,
+		{
+			code: `${ASSERT_IMPORT}\nasync function test() {\n\t(assert.rejects(fn) as any) ? a() : b();\n}`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: `${ASSERT_IMPORT}\nasync function test() {\n\tassert.rejects(fn)! ? a() : b();\n}`,
+			languageOptions: {parser: parsers.typescript},
+		},
 		`${ASSERT_IMPORT}\nasync function test() {\n\tcondition ? assert.doesNotReject(fn) : null;\n}`,
 		`${ASSERT_IMPORT}\nasync function test() {\n\t0, void assert.rejects(fn);\n}`,
 		`${ASSERT_IMPORT}\nasync function test() {\n\tcondition && void assert.doesNotReject(fn);\n}`,
