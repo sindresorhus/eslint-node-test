@@ -40,11 +40,12 @@ What evaluating `node` does, outside any nested function (whose body is a separa
   over, a `new`, or a tagged template. `assert.throws()` can only catch what happens after it starts,
   so any of these escapes the assertion entirely, whether the expression is the argument itself
   (`assert.throws(parse(input))`) or wraps it (`assert.throws(flag ? parse(a) : null)`).
-- `awaits`: it contains an `await`, so the arrow the suggestion writes has to be `async`.
+- `awaits`: it contains an `await`, which a synchronous arrow cannot hold, so the suggestion does not apply.
 - `yields`: it contains a `yield`, which an arrow cannot hold, so the suggestion does not apply.
 
 `assert.throws(() => parse(a))` is the fix, not a problem: a nested function is not evaluated while
-the argument is.
+the argument is. A function-producing call (`.bind()`, `Function()`, `new Function()`) is not looked
+inside either: its receiver and arguments are the setup that builds the function to hand over.
 */
 function analyzeArgument(node, sourceCode, result = emptyAnalysis()) {
 	if (!node) {
@@ -53,14 +54,22 @@ function analyzeArgument(node, sourceCode, result = emptyAnalysis()) {
 
 	switch (node.type) {
 		case 'CallExpression': {
-			result.runs ||= !isFunctionProducingCall(node);
+			if (isFunctionProducingCall(node)) {
+				return result;
+			}
+
+			result.runs = true;
 
 			break;
 		}
 
 		case 'NewExpression': {
 			// `new Function(…)` builds the function to hand over, as `Function(…)` does.
-			result.runs ||= !isFunctionConstructorCall(node);
+			if (isFunctionConstructorCall(node)) {
+				return result;
+			}
+
+			result.runs = true;
 
 			break;
 		}
@@ -125,10 +134,14 @@ const create = context => {
 			return;
 		}
 
-		const {runs, awaits, yields} = analyzeArgument(unwrapExpression(firstArgument), sourceCode);
+		const argument = unwrapExpression(firstArgument);
+		const {runs, awaits, yields} = analyzeArgument(argument, sourceCode);
 		if (!runs) {
 			return;
 		}
+
+		// Only an argument that is itself a call is sure to hand over the call's result. Any other shape may end in a function (`flag ? parse(a) : fallback`, `(parse(a), fallback)`, `getHandlers().onError`), which the suggested arrow would return instead of call.
+		const isCall = ['CallExpression', 'NewExpression', 'TaggedTemplateExpression'].includes(argument.type);
 
 		return {
 			node: firstArgument,
@@ -137,9 +150,8 @@ const create = context => {
 			// A `yield` cannot live in an arrow, so that form is reported without a suggestion.
 			// An `await` in the argument cannot go inside the arrow without making it `async`, and
 			// `assert.throws()` never calls an async function, so that shape is reported without a
-			// suggestion (`no-assert-throws-async` owns turning it into `assert.rejects()`). A `yield`
-			// cannot go in an arrow at all.
-			suggest: awaits || yields
+			// suggestion (`no-assert-throws-async` owns turning it into `assert.rejects()`).
+			suggest: awaits || yields || !isCall
 				? undefined
 				: [
 					{

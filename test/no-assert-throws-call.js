@@ -37,6 +37,13 @@ test.snapshot({
 		withAssert('assert.throws(fn.bind(undefined, input));'),
 		withAssert('assert.throws(Function(\'throw new Error()\'));'),
 		withAssert('assert.throws(new Function(\'throw new Error()\'));'),
+		// The function-producing form is not looked inside: its receiver and arguments are the setup
+		// that builds the function, and wrapping it in an arrow would return the function rather than
+		// call it
+		withAssert('assert.throws(parse.bind(null, readFixture(\'x\')), SyntaxError);'),
+		withAssert('assert.throws(getFn().bind(null));'),
+		withAssert('assert.throws(new Function(getCode()));'),
+		withAssert('assert.throws(Function(getCode()));'),
 
 		// An argument that only reads a value runs nothing
 		withAssert('assert.throws(flag ? callback : other);'),
@@ -58,6 +65,7 @@ test.snapshot({
 		withAssert('assert.throws(async () => { await parse(input); });'),
 		// An `await` with no call in it runs nothing either
 		withAssert('async function run() {\n\tassert.throws(await maybeCallback);\n}'),
+		withAssert('function* generate() {\n\tassert.throws(yield);\n}'),
 		// Only the first argument is analyzed: the rule is about the function handed to the assertion
 		withAssert('assert.throws(callback, buildValidator());'),
 
@@ -70,6 +78,9 @@ test.snapshot({
 		withAssert('assert.throws({}.constructor());'),
 		withAssert('assert.throws({a: 1}.a.toString());'),
 		withAssert('assert.throws((setup(), parse(b)), SyntaxError);'),
+		// Only an argument that is itself a call gets a suggestion: any other shape may end in a function, which the arrow would return instead of call
+		withAssert('assert.throws((parse(a), fallback));'),
+		withAssert('assert.throws(getHandlers().onError);'),
 		// `await` in the argument cannot go inside a synchronous arrow, and a `yield` cannot go in an
 		// arrow at all, so both are reported without a suggestion
 		withAssert('async function main() { assert.throws(await getCallback(), /boom/); }'),
@@ -85,7 +96,6 @@ test.snapshot({
 		withAssert('assert.throws((before(), parse(input)));'),
 		withAssert('assert.throws(parse(input)());'),
 		withAssert('async function run() {\n\tassert.throws(await getCallback());\n}'),
-		withAssert('function* generate() {\n\tassert.throws(yield getCallback());\n}'),
 		withAssert('assert.throws(object.parse(input));'),
 		{
 			code: withAssert('assert.throws(new Parser(input) as unknown);'),
@@ -114,10 +124,6 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
-			code: withAssert('assert.throws(parse(input)!);'),
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
 			code: withAssert('assert.throws(parse(input) satisfies never);'),
 			languageOptions: {parser: parsers.typescript},
 		},
@@ -127,8 +133,10 @@ test.snapshot({
 			code: withTest('test(\'t\', t => { (t as Context).assert.throws(parse(input)); });'),
 			languageOptions: {parser: parsers.typescript},
 		},
-		// The factory itself has to run, so a `.bind()` whose receiver is a call is still work
-		withAssert('assert.throws(getFn().bind(null));'),
+		// A branch that skips the call may hand over a function, which the suggested arrow would
+		// return instead of call, so a branching argument is reported without a suggestion
+		withAssert('assert.throws(flag ? parse(a) : fallback);'),
+		withAssert('assert.throws(parse(a) || fallback);'),
 		// A comment inside the argument survives the suggestion
 		withAssert('assert.throws(parse(/* keep */ input));'),
 		// An `await` anywhere in the argument makes the suggested arrow async
