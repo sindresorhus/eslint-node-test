@@ -96,6 +96,9 @@ test.snapshot({
 		'import {it as check} from \'node:test\';\n// check(\'a\', () => {});',
 		'import {test as t} from \'node:test\';\n// t.skip(\'a\', () => {});',
 		'import {test as testCase} from \'node:test\';\n// testCase(\'a\', () => {});',
+		// A `$` in an alias is part of the name, not a regular expression anchor
+		'import {test as $t} from \'node:test\';\n// $t(\'x\', () => {});',
+		'import * as $nodeTest from \'node:test\';\n// $nodeTest.test(\'x\', () => {});',
 		'import {test} from \'node:test\';\n// test(\'a\', () => {});\ntest(\'b\', () => {});',
 	],
 });

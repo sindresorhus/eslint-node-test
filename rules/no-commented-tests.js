@@ -48,7 +48,8 @@ function createPattern(imports) {
 
 	return new RegExp(
 		// A long alternation sorts longest-first so an alias like `testCase` cannot shadow `test`.
-		String.raw`^\s*\*?\s*(?:await\s+)?(?:${[...names].toSorted((a, b) => b.length - a.length).join('|')})(?:\s*\.\s*${CHAINED_NAME}\s*)*\(`,
+		// `$` is the only regex syntax character an identifier can hold, and `RegExp.escape` is not in Node.js 22.
+		String.raw`^\s*\*?\s*(?:await\s+)?(?:${[...names].toSorted((a, b) => b.length - a.length).map(name => name.replaceAll('$', String.raw`\$`)).join('|')})(?:\s*\.\s*${CHAINED_NAME}\s*)*\(`,
 		'v',
 	);
 }
