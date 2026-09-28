@@ -146,12 +146,14 @@ const create = context => {
 			}
 
 			if (frame.hasPlan) {
+				// A test with no context parameter is named by the `getTestContext()` call as the file
+				// writes it, whether through a renamed import or a test binding (`test.getTestContext()`).
 				return {
 					node,
 					messageId: frame.hasPlanOption ? MESSAGE_ID_PLAN_OPTION : MESSAGE_ID_DUPLICATE_CALL,
 					data: {
 						context: frame.contextName
-							?? (imports.getTestContextName ? `${imports.getTestContextName}()` : 'getTestContext()'),
+							?? sourceCode.getText(unwrapTypeScriptExpression(unwrapTypeScriptExpression(node.callee).object)),
 					},
 				};
 			}

@@ -215,5 +215,8 @@ test.snapshot({
 
 		// A skip enabled by a falsy value still runs the body, so the second plan still throws
 		'import {test} from \'node:test\';\ntest(\'a\', {skip: 0}, t => { t.plan(1); t.plan(2); });',
+		// The `getTestContext` a default or namespace import carries is named as the file writes it
+		'import test from \'node:test\';\ntest(\'t\', () => { test.getTestContext().plan(1); test.getTestContext().plan(2); });',
+		'import * as nt from \'node:test\';\nnt.test(\'t\', () => { nt.test.getTestContext().plan(1); nt.test.getTestContext().plan(2); });',
 	],
 });

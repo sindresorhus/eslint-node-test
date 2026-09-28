@@ -22,11 +22,13 @@ const SKIP_METHODS = new Set(['skip', 'todo']);
 /** The statement written right after `statement` in its own statement list, if there is one. */
 function getNextStatement(statement) {
 	const {parent} = statement;
-	if (!['BlockStatement', 'Program', 'StaticBlock'].includes(parent?.type)) {
+	if (!['BlockStatement', 'Program', 'StaticBlock', 'SwitchCase'].includes(parent?.type)) {
 		return undefined;
 	}
 
-	return parent.body[parent.body.indexOf(statement) + 1];
+	// A `switch` case holds its statement list in `consequent`.
+	const statements = parent.type === 'SwitchCase' ? parent.consequent : parent.body;
+	return statements[statements.indexOf(statement) + 1];
 }
 
 /**
@@ -125,11 +127,9 @@ const create = context => {
 			return tracker.isContextIdentifier(receiver) ? receiver.name : undefined;
 		}
 
-		// A `getTestContext()` import can be bound to another name, and the message names what the
-		// file actually calls.
-		return isGetTestContextCall(receiver, imports) && imports.getTestContextName
-			? `${imports.getTestContextName}()`
-			: undefined;
+		// A `getTestContext()` import can be bound to another name, or read off a test binding
+		// (`test.getTestContext()`), and the message names what the file actually calls.
+		return isGetTestContextCall(receiver, imports) ? sourceCode.getText(receiver) : undefined;
 	};
 
 	context.on('CallExpression', node => {

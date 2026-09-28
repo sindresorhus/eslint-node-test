@@ -36,9 +36,8 @@ test.snapshot({
 		// The skip option object form is unaffected
 		withImport('test("x", {skip: true}, t => { doStuff(); });'),
 
-		// Best-effort limitation: code after a skip inside a `switch` case is not detected,
-		// since handling it correctly would require modeling break/return/fall-through control flow.
-		withImport('test("x", t => { switch (cond) { case 1: t.skip(); doStuff(); } });'),
+		// Best-effort limitation: falling through into the next `switch` case is not followed
+		withImport('test("x", t => { switch (cond) { case 1: t.skip(); case 2: doStuff(); } });'),
 
 		// A `break` right after the skip leaves the switch, so no test code runs after the skip.
 		'import test from \'node:test\';\ntest(\'x\', t => {\n\tswitch (k) {\n\t\tcase 1: {\n\t\t\tt.skip(\'x\');\n\t\t\tbreak;\n\t\t}\n\t\tcase 2: {\n\t\t\tother();\n\t\t}\n\t}\n});',
@@ -151,5 +150,11 @@ test.snapshot({
 		// A `break` out of the inner loop only, or out of a labeled block, still leaves code after it
 		withImport('test("a", t => {\n\tfor (const row of rows) {\n\t\tfor (const cell of row) {\n\t\t\tt.skip();\n\t\t\tbreak;\n\t\t}\n\n\t\tcheck(row);\n\t}\n});'),
 		withImport('test("a", t => {\n\tblock: {\n\t\tt.skip();\n\t\tbreak block;\n\t}\n\n\tcheck();\n});'),
+		// The `getTestContext` a default or namespace import carries is named as the file writes it
+		'import test from \'node:test\';\ntest(\'a\', () => { test.getTestContext().skip(\'r\'); work(); });',
+		'import * as nt from \'node:test\';\nnt.test(\'a\', () => { nt.getTestContext().skip(\'r\'); work(); });',
+		// A `switch` case is a statement list too, braces or not
+		withImport('test("x", t => { switch (cond) { case 1: t.skip(); doStuff(); } });'),
+		withImport('test("x", t => {\n\tswitch (cond) {\n\t\tcase 1:\n\t\t\tt.skip();\n\t\t\tdoStuff();\n\t}\n});'),
 	],
 });
