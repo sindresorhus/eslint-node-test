@@ -13,6 +13,8 @@ The legacy `assert.equal`, `assert.deepEqual`, `assert.notEqual`, and `assert.no
 
 This rule reports the loose methods and autofixes them to the strict equivalent. A bare named import (`equal(a, b)`) is reported without a fix, since rewriting it would name a method the file does not import. The same goes for a bare named import behind a TypeScript wrapper, such as `(equal as any)(a, b)` or `equal!(a, b)`, which is the same call with the cast erased. A cast around the member form, `(assert as any).equal(a, b)`, is still fixed.
 
+The strict methods compare with `Object.is` where the loose ones use `==`, so a pair the rewrite would flip is reported without a fix. That is `0` against `-0`, `null` against `undefined`, and any pair the loose comparison coerces between types, such as `'1'` and `1`. `NaN` is the one pair the two agree on, since the loose methods already treat it as equal to itself, so `assert.equal(NaN, NaN)` is still fixed. A pair where the rule can resolve both sides and either one is an object or array is also reported without a fix, since the loose methods coerce it where the strict ones do not: `assert.equal([1], 1)` and `assert.deepEqual([1], ['1'])` pass, while their strict counterparts fail. A pair the rule cannot resolve is left to the runtime, which is where the difference shows up, so `assert.deepEqual(actual, {a: 1})` is still fixed.
+
 | Loose method | Replacement |
 |---|---|
 | `equal` | `strictEqual` |

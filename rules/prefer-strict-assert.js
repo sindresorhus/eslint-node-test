@@ -1,3 +1,4 @@
+import {getStaticValue} from '@eslint-community/eslint-utils';
 import {
 	resolveImports,
 	parseSupportedAssertionCall,
@@ -11,6 +12,51 @@ const MESSAGE_ID = 'prefer-strict-assert';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `{{replacement}}` over the legacy loose `{{method}}`.',
 };
+
+/** Whether a statically resolved value is a primitive, the only kind whose loose and strict comparisons are compared here. */
+function isPrimitiveValue(value) {
+	return value === null || (typeof value !== 'object' && typeof value !== 'function');
+}
+
+/**
+Whether the strict replacement would reach a different verdict from the loose method for the operands
+at `left` and `right`, which this can only tell when both resolve to a value.
+
+`assert.equal` compares with `==` but treats two `NaN`s as equal, which is what `Object.is` does too, so
+the two agree there. They differ on `±0`, on `null` against `undefined`, and on any pair the loose
+comparison coerces between types, and each of those turns a passing assertion into a failing one. A pair
+with a resolved object is treated as diverging without comparing it, since the loose methods coerce objects
+and their nested values where the strict ones do not.
+
+A pair that does not resolve is left to the runtime, which is where the difference shows up. That is the
+same position `prefer-equality-assertion` takes, since it makes the same substitution.
+*/
+function operandsDiverge(left, right, context) {
+	if (!left || !right) {
+		return false;
+	}
+
+	// `getStaticValue` answers `null` for a value it cannot resolve, which is most of them, and a
+	// `{value}` wrapper otherwise, so a resolved `undefined` is not mistaken for an unresolved one.
+	const leftStatic = getStaticValue(unwrapExpression(left), context.sourceCode.getScope(left));
+	const rightStatic = getStaticValue(unwrapExpression(right), context.sourceCode.getScope(right));
+	if (leftStatic === null || rightStatic === null) {
+		return false;
+	}
+
+	const leftValue = leftStatic.value;
+	const rightValue = rightStatic.value;
+	// A resolved object is not compared: `==` coerces it against a primitive (`equal([1], 1)` passes) and loose deep equality coerces the values nested in it (`deepEqual([1], ['1'])` passes), where the strict methods do neither.
+	if (!isPrimitiveValue(leftValue) || !isPrimitiveValue(rightValue)) {
+		return true;
+	}
+
+	const isEqualLoosely = leftValue === rightValue
+		|| (Number.isNaN(leftValue) && Number.isNaN(rightValue))
+		// eslint-disable-next-line eqeqeq
+		|| leftValue == rightValue;
+	return isEqualLoosely !== Object.is(leftValue, rightValue);
+}
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -45,7 +91,14 @@ const create = context => {
 		// import (`equal`) cannot be rewritten to `strictEqual` without also importing it,
 		// so leave it reported but unfixed. The callee is unwrapped first, so a cast around a
 		// bare import is left unfixed too, exactly like the bare import it erases to.
-		if (assertion.methodNode && assertion.methodNode !== unwrapExpression(node.callee)) {
+		// The strict methods compare with `Object.is` where the loose ones use `==`, so an operand pair
+		// the rewrite would flip is reported without a fix as well.
+		const isBareNamedImport = assertion.methodNode === unwrapExpression(node.callee);
+		if (
+			assertion.methodNode
+			&& !isBareNamedImport
+			&& !operandsDiverge(node.arguments[0], node.arguments[1], context)
+		) {
 			problem.fix = fixer => fixer.replaceText(assertion.methodNode, replacement);
 		}
 
