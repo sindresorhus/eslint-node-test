@@ -13,7 +13,7 @@ Prefer dedicated assertion methods over asserting the boolean result of regex me
 
 `String#match()` returns `Array | null`, not a boolean, so only its truthiness forms (like `assert.ok(str.match(/re/))`) are matched. Comparing the result to a boolean literal is a test bug rather than a style issue, and rewriting it would change the outcome, so the rule leaves it alone.
 
-The autofix needs the subject to possibly be a string, because `re.test(x)` coerces `x` while `assert.match(x, re)` throws unless `x` already is one. A subject that is statically not a string (a number, an array, a function, a class expression, a `Buffer` or a parsed JSON value, an assignment to one of those) is reported without a fix, and so is a call through an optional chain, since `str?.match(re)` is a nullish check rather than a match. That includes a `?.` earlier in the chain, such as `str?.trim().match(re)`, which short-circuits the whole chain.
+The autofix needs the subject to possibly be a string, because `re.test(x)` coerces `x` while `assert.match(x, re)` throws unless `x` already is one. A subject that is statically not a string (a number, an array, a function, a class expression, a `Buffer` or a parsed JSON value, an assignment of one of those, or a compound or logical assignment such as `value ||= 'abc'`, which may evaluate to the old value) is reported without a fix, and so is a call through an optional chain, since `str?.match(re)` is a nullish check rather than a match. That includes a `?.` earlier in the chain, such as `str?.trim().match(re)`, which short-circuits the whole chain.
 
 ## Examples
 

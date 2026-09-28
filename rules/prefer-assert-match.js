@@ -85,7 +85,7 @@ function parseRegexCall(node) {
 		}
 
 		return {
-			regex: object, string: stringNode, methodName: 'test', isOptional,
+			regex: object, string: stringNode, methodName: 'test', isOptional, argumentCount: node.arguments.length,
 		};
 	}
 
@@ -101,7 +101,7 @@ function parseRegexCall(node) {
 		}
 
 		return {
-			regex: regexArgument, string: object, methodName: name, isOptional,
+			regex: regexArgument, string: object, methodName: name, isOptional, argumentCount: node.arguments.length,
 		};
 	}
 }
@@ -188,10 +188,10 @@ function isStaticallyNonString(node) {
 		return node.operator !== 'typeof';
 	}
 
-	// An assignment evaluates to its right-hand side.
+	// A plain assignment evaluates to its right-hand side. Any other one (`||=`, `+=`) may evaluate to
+	// the old value or a computed one, so it is not known to be a string.
 	if (node.type === 'AssignmentExpression') {
-		const right = unwrapTypeScriptExpression(node.right);
-		return right.type !== 'Literal' || typeof right.value !== 'string';
+		return node.operator !== '=' || isStaticallyNonString(node.right);
 	}
 
 	// A class expression is a constructor, never a string.
@@ -219,6 +219,8 @@ function canAutofix(node, context, regexCall) {
 		&& !isSequenceExpression(regexCall.string)
 		&& !isSequenceExpression(regexCall.regex)
 		&& !regexCall.isOptional
+		// The rewrite keeps only the subject and the pattern, so an extra argument (`re.test(str, log())`) would be dropped, along with what evaluating it does.
+		&& regexCall.argumentCount === 1
 		&& !isStaticallyNonString(regexCall.string);
 }
 

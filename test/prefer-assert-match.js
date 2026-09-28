@@ -194,6 +194,13 @@ assert.strictEqual(/\d+/.test('foo'), (true));`,
 		ASSERT_IMPORT + '\nassert.ok(/a/.test(JSON.parse(body)));',
 		ASSERT_IMPORT + '\nassert.ok(/class/.test(class Foo {}));',
 		ASSERT_IMPORT + '\nassert.ok(/a/.test(value = {}));',
+		ASSERT_IMPORT + '\nassert.ok(/a/.test(value = 5));',
+		// A plain assignment evaluates to its right side, so one that may be a string is fixed
+		ASSERT_IMPORT + '\nassert.ok(/a/.test(value = \'abc\'));',
+		ASSERT_IMPORT + '\nassert.ok(/a/.test(value = `abc`));',
+		ASSERT_IMPORT + '\nassert.ok(/a/.test(value = other));',
+		// A logical assignment may evaluate to the old value instead, so it is not fixed
+		ASSERT_IMPORT + '\nassert.ok(/a/.test(value ||= \'abc\'));',
 		// An optional chain makes the call return `undefined` for a nullish receiver, so the truthiness
 		// form is a nullish check rather than a match, and the rewrite would change it
 		ASSERT_IMPORT + '\nassert.ok(str?.match(/a/));',
@@ -215,5 +222,9 @@ assert.strictEqual(/\d+/.test('foo'), (true));`,
 			code: ASSERT_IMPORT + '\nassert.ok(str?.trim()!.match(/a/));',
 			languageOptions: {parser: parsers.typescript},
 		},
+		// The rewrite keeps only the subject and the pattern, so an extra argument, which is still evaluated, is reported without a fix
+		ASSERT_IMPORT + '\nassert.ok(/a/.test(str, log()));',
+		ASSERT_IMPORT + '\nassert.ok(str.match(/a/, log()));',
+		ASSERT_IMPORT + '\nassert.strictEqual(/a/.test(str, log()), true);',
 	],
 });
