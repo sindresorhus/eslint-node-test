@@ -151,8 +151,7 @@ const create = context => {
 			return;
 		}
 
-		// `describe`/`suite` callbacks run synchronously and are never awaited, so returning a
-		// Promise from them is meaningless and converting to async/await would not help.
+		// `node:test` awaits a `describe`/`suite` callback, but `no-async-describe` forbids an async one (a rejection cancels every test the suite already registered), so converting it to async/await would only trade this report for that one.
 		if (parsed?.kind === 'suite') {
 			return;
 		}
