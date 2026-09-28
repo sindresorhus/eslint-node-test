@@ -1684,6 +1684,38 @@ Output:
 
 `;
 
+exports[`no-unawaited-promise-assertion > invalid(64): import test from 'node:test';\nimport assert from 'node:assert';\nconst body = async t => {\n\tload().then(value => { t.assert.ok(value); });\n};\ntest('loads', body); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | const body = async t => {
+  4 | 	load().then(value => { t.assert.ok(value); });
+  5 | };
+  6 | test('loads', body);
+
+`;
+
+exports[`no-unawaited-promise-assertion > invalid(64): import test from 'node:test';\nimport assert from 'node:assert';\nconst body = async t => {\n\tload().then(value => { t.assert.ok(value); });\n};\ntest('loads', body); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | const body = async t => {
+> 4 | 	load().then(value => { t.assert.ok(value); });
+    | 	                       ^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
+  5 | };
+  6 | test('loads', body);
+
+Output:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | const body = async t => {
+  4 | 	await load().then(value => { t.assert.ok(value); });
+  5 | };
+  6 | test('loads', body);
+
+`;
+
 exports[`no-unawaited-promise-assertion > invalid(7): import test from 'node:test';\nimport assert from 'node:assert';\ntest('loads', async () => {\n\tPromise.allSettled([load().then(value => { assert.strictEqual(value, 42); })]);\n}); 1`] = `
 
   1 | import test from 'node:test';

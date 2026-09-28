@@ -310,5 +310,8 @@ test.snapshot({
 			code: withImport('test(\'a\', async (this: void, t) => { p().then(() => { t.assert.ok(1); }); });'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// A body named out of line runs as the test's callback, the same as an inline one
+		withImport('const body = async t => {\n\tload().then(value => { t.assert.ok(value); });\n};\ntest(\'loads\', body);'),
 	],
 });

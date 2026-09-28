@@ -27,6 +27,9 @@ test.snapshot({
 
 		// A callback nested in the hook body is not the hook body itself
 		'import {beforeEach} from \'node:test\';\nimport assert from \'node:assert\';\nbeforeEach(() => { items.forEach(() => { assert.ok(value); }); });',
+
+		// A hook never runs `options.fn`, so a body named there is not a hook body
+		withSetup('beforeEach({fn: body});\nfunction body() { assert.ok(value); }'),
 	],
 	invalid: [
 		// Assertion directly in each hook type
@@ -51,7 +54,6 @@ test.snapshot({
 		// A hook body the call names out of line runs as a hook
 		withSetup('beforeEach(body);\nfunction body() { assert.ok(value); }'),
 		withSetup('const body = () => { assert.ok(value); };\nbefore(body);'),
-		withSetup('beforeEach({fn: body});\nfunction body() { assert.ok(value); }'),
 		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest.afterEach(body);\nfunction body() { assert.ok(value); }',
 
 		// Nested inside a conditional within the hook body

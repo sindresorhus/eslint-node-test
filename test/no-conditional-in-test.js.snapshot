@@ -538,6 +538,84 @@ Message:
 
 `;
 
+exports[`no-conditional-in-test > invalid(37): // A body that registers itself as a hook is still the test body, and resolving it must not recurse\nimport {test} from 'node:test';\nfunction body(t) {\n\tif (x) {}\n\tt.beforeEach(body);\n}\ntest('a', body); 1`] = `
+
+  1 | // A body that registers itself as a hook is still the test body, and resolving it must not recurse
+  2 | import {test} from 'node:test';
+  3 | function body(t) {
+  4 | 	if (x) {}
+  5 | 	t.beforeEach(body);
+  6 | }
+  7 | test('a', body);
+
+`;
+
+exports[`no-conditional-in-test > invalid(37): // A body that registers itself as a hook is still the test body, and resolving it must not recurse\nimport {test} from 'node:test';\nfunction body(t) {\n\tif (x) {}\n\tt.beforeEach(body);\n}\ntest('a', body); 2`] = `
+
+Message:
+  1 | // A body that registers itself as a hook is still the test body, and resolving it must not recurse
+  2 | import {test} from 'node:test';
+  3 | function body(t) {
+> 4 | 	if (x) {}
+    | 	^^^^^^^^^ Avoid conditional logic in a test; a test should run the same way every time.
+  5 | 	t.beforeEach(body);
+  6 | }
+  7 | test('a', body);
+
+`;
+
+exports[`no-conditional-in-test > invalid(38): // A local named like the function does not hide the function's own binding\nimport {test} from 'node:test';\nfunction body(t) {\n\tconst body = 1;\n\tif (x) {}\n}\ntest('a', body); 1`] = `
+
+  1 | // A local named like the function does not hide the function's own binding
+  2 | import {test} from 'node:test';
+  3 | function body(t) {
+  4 | 	const body = 1;
+  5 | 	if (x) {}
+  6 | }
+  7 | test('a', body);
+
+`;
+
+exports[`no-conditional-in-test > invalid(38): // A local named like the function does not hide the function's own binding\nimport {test} from 'node:test';\nfunction body(t) {\n\tconst body = 1;\n\tif (x) {}\n}\ntest('a', body); 2`] = `
+
+Message:
+  1 | // A local named like the function does not hide the function's own binding
+  2 | import {test} from 'node:test';
+  3 | function body(t) {
+  4 | 	const body = 1;
+> 5 | 	if (x) {}
+    | 	^^^^^^^^^ Avoid conditional logic in a test; a test should run the same way every time.
+  6 | }
+  7 | test('a', body);
+
+`;
+
+exports[`no-conditional-in-test > invalid(39): // A body that registers itself as a subtest is still the test body, whichever side of the registration it is declared on\nimport {test} from 'node:test';\nfunction body(t) {\n\tif (x) {}\n\tt.test('again', body);\n}\ntest('a', body); 1`] = `
+
+  1 | // A body that registers itself as a subtest is still the test body, whichever side of the registration it is declared on
+  2 | import {test} from 'node:test';
+  3 | function body(t) {
+  4 | 	if (x) {}
+  5 | 	t.test('again', body);
+  6 | }
+  7 | test('a', body);
+
+`;
+
+exports[`no-conditional-in-test > invalid(39): // A body that registers itself as a subtest is still the test body, whichever side of the registration it is declared on\nimport {test} from 'node:test';\nfunction body(t) {\n\tif (x) {}\n\tt.test('again', body);\n}\ntest('a', body); 2`] = `
+
+Message:
+  1 | // A body that registers itself as a subtest is still the test body, whichever side of the registration it is declared on
+  2 | import {test} from 'node:test';
+  3 | function body(t) {
+> 4 | 	if (x) {}
+    | 	^^^^^^^^^ Avoid conditional logic in a test; a test should run the same way every time.
+  5 | 	t.test('again', body);
+  6 | }
+  7 | test('a', body);
+
+`;
+
 exports[`no-conditional-in-test > invalid(4): import {test, describe, beforeEach} from 'node:test';\ntest(\"x\", t => {\n\tsetup(flag ? work() : other());\n}); 1`] = `
 
   1 | import {test, describe, beforeEach} from 'node:test';
@@ -555,6 +633,122 @@ Message:
 > 3 | 	setup(flag ? work() : other());
     | 	      ^^^^^^^^^^^^^^^^^^^^^^^ Avoid conditional logic in a test; a test should run the same way every time.
   4 | });
+
+`;
+
+exports[`no-conditional-in-test > invalid(40): // Two bodies that register each other as hooks\nimport {test} from 'node:test';\nfunction first(t) {\n\tt.beforeEach(second);\n}\nfunction second(t) {\n\tif (x) {}\n\tt.beforeEach(first);\n}\ntest('a', first); 1`] = `
+
+   1 | // Two bodies that register each other as hooks
+   2 | import {test} from 'node:test';
+   3 | function first(t) {
+   4 | 	t.beforeEach(second);
+   5 | }
+   6 | function second(t) {
+   7 | 	if (x) {}
+   8 | 	t.beforeEach(first);
+   9 | }
+  10 | test('a', first);
+
+`;
+
+exports[`no-conditional-in-test > invalid(40): // Two bodies that register each other as hooks\nimport {test} from 'node:test';\nfunction first(t) {\n\tt.beforeEach(second);\n}\nfunction second(t) {\n\tif (x) {}\n\tt.beforeEach(first);\n}\ntest('a', first); 2`] = `
+
+Message:
+   1 | // Two bodies that register each other as hooks
+   2 | import {test} from 'node:test';
+   3 | function first(t) {
+   4 | 	t.beforeEach(second);
+   5 | }
+   6 | function second(t) {
+>  7 | 	if (x) {}
+     | 	^^^^^^^^^ Avoid conditional logic in a test; a test should run the same way every time.
+   8 | 	t.beforeEach(first);
+   9 | }
+  10 | test('a', first);
+
+`;
+
+exports[`no-conditional-in-test > invalid(41): // A context used from a closure is still the test's context\nimport {test} from 'node:test';\nconst body = (u) => {\n\tif (x) {}\n};\ntest('a', async (t) => {\n\tawait Promise.all([1].map(() => t.test('b', body)));\n}); 1`] = `
+
+  1 | // A context used from a closure is still the test's context
+  2 | import {test} from 'node:test';
+  3 | const body = (u) => {
+  4 | 	if (x) {}
+  5 | };
+  6 | test('a', async (t) => {
+  7 | 	await Promise.all([1].map(() => t.test('b', body)));
+  8 | });
+
+`;
+
+exports[`no-conditional-in-test > invalid(41): // A context used from a closure is still the test's context\nimport {test} from 'node:test';\nconst body = (u) => {\n\tif (x) {}\n};\ntest('a', async (t) => {\n\tawait Promise.all([1].map(() => t.test('b', body)));\n}); 2`] = `
+
+Message:
+  1 | // A context used from a closure is still the test's context
+  2 | import {test} from 'node:test';
+  3 | const body = (u) => {
+> 4 | 	if (x) {}
+    | 	^^^^^^^^^ Avoid conditional logic in a test; a test should run the same way every time.
+  5 | };
+  6 | test('a', async (t) => {
+  7 | 	await Promise.all([1].map(() => t.test('b', body)));
+  8 | });
+
+`;
+
+exports[`no-conditional-in-test > invalid(42): import {test} from 'node:test';\nconst body = (u) => {\n\tif (x) {}\n};\ntest('a', (t) => {\n\t[1].forEach(() => t.afterEach(body));\n}); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | const body = (u) => {
+  3 | 	if (x) {}
+  4 | };
+  5 | test('a', (t) => {
+  6 | 	[1].forEach(() => t.afterEach(body));
+  7 | });
+
+`;
+
+exports[`no-conditional-in-test > invalid(42): import {test} from 'node:test';\nconst body = (u) => {\n\tif (x) {}\n};\ntest('a', (t) => {\n\t[1].forEach(() => t.afterEach(body));\n}); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+  2 | const body = (u) => {
+> 3 | 	if (x) {}
+    | 	^^^^^^^^^ Avoid conditional logic in a test; a test should run the same way every time.
+  4 | };
+  5 | test('a', (t) => {
+  6 | 	[1].forEach(() => t.afterEach(body));
+  7 | });
+
+`;
+
+exports[`no-conditional-in-test > invalid(43): // A context two out-of-line bodies deep\nimport {test} from 'node:test';\nfunction inner(u) {\n\tif (x) {}\n}\nfunction outer(t) {\n\treturn t.test('s', inner);\n}\ntest('a', outer); 1`] = `
+
+  1 | // A context two out-of-line bodies deep
+  2 | import {test} from 'node:test';
+  3 | function inner(u) {
+  4 | 	if (x) {}
+  5 | }
+  6 | function outer(t) {
+  7 | 	return t.test('s', inner);
+  8 | }
+  9 | test('a', outer);
+
+`;
+
+exports[`no-conditional-in-test > invalid(43): // A context two out-of-line bodies deep\nimport {test} from 'node:test';\nfunction inner(u) {\n\tif (x) {}\n}\nfunction outer(t) {\n\treturn t.test('s', inner);\n}\ntest('a', outer); 2`] = `
+
+Message:
+  1 | // A context two out-of-line bodies deep
+  2 | import {test} from 'node:test';
+  3 | function inner(u) {
+> 4 | 	if (x) {}
+    | 	^^^^^^^^^ Avoid conditional logic in a test; a test should run the same way every time.
+  5 | }
+  6 | function outer(t) {
+  7 | 	return t.test('s', inner);
+  8 | }
+  9 | test('a', outer);
 
 `;
 

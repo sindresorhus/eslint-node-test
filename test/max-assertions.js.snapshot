@@ -34,6 +34,42 @@ Message:
 
 `;
 
+exports[`max-assertions > invalid(11): import {test} from 'node:test';\nfunction body(t) { t.assert.ok(x); t.assert.ok(x); t.assert.ok(x); t.assert.ok(x); t.assert.ok(x); t.assert.ok(x); }\ntest('x', body); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | function body(t) { t.assert.ok(x); t.assert.ok(x); t.assert.ok(x); t.assert.ok(x); t.assert.ok(x); t.assert.ok(x); }
+  3 | test('x', body);
+
+`;
+
+exports[`max-assertions > invalid(11): import {test} from 'node:test';\nfunction body(t) { t.assert.ok(x); t.assert.ok(x); t.assert.ok(x); t.assert.ok(x); t.assert.ok(x); t.assert.ok(x); }\ntest('x', body); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | function body(t) { t.assert.ok(x); t.assert.ok(x); t.assert.ok(x); t.assert.ok(x); t.assert.ok(x); t.assert.ok(x); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Too many assertions (6). Maximum allowed is 5.
+  3 | test('x', body);
+
+`;
+
+exports[`max-assertions > invalid(12): import {test} from 'node:test';\nconst body = ({assert: check}) => { check.ok(x); check.ok(x); check.ok(x); check.ok(x); check.ok(x); check.ok(x); };\ntest('x', body); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | const body = ({assert: check}) => { check.ok(x); check.ok(x); check.ok(x); check.ok(x); check.ok(x); check.ok(x); };
+  3 | test('x', body);
+
+`;
+
+exports[`max-assertions > invalid(12): import {test} from 'node:test';\nconst body = ({assert: check}) => { check.ok(x); check.ok(x); check.ok(x); check.ok(x); check.ok(x); check.ok(x); };\ntest('x', body); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+> 2 | const body = ({assert: check}) => { check.ok(x); check.ok(x); check.ok(x); check.ok(x); check.ok(x); check.ok(x); };
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Too many assertions (6). Maximum allowed is 5.
+  3 | test('x', body);
+
+`;
+
 exports[`max-assertions > invalid(2): import test from 'node:test';\nimport assert from 'node:assert';\nfunction body() { assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); assert.ok(x); }\ntest('x', body); 1`] = `
 
   1 | import test from 'node:test';

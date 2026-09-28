@@ -1,6 +1,7 @@
 import {
 	resolveImports,
 	parseTestCall,
+	parseAssertionCall,
 	parseSupportedAssertionCall,
 	createContextTracker,
 	getTestCallback,
@@ -104,8 +105,18 @@ const create = context => {
 	// to its own context only, and a nested context's plan cannot leak out when it exits.
 	const plannedCallbacks = new Set();
 
-	const hasPlan = () => tracker.currentCallback() !== undefined
-		&& plannedCallbacks.has(tracker.currentCallback());
+	// Outside every inline callback, an assertion on a test context sits in a body named out of line
+	// (`test('a', body)`), whose plan this rule does not follow, so it counts as planned. A plan counts
+	// only the context's assertions, so an imported `node:assert` call there is still safe to split.
+	const hasPlan = node => {
+		const callback = tracker.currentCallback();
+		if (callback === undefined) {
+			const importedAssertion = parseAssertionCall(node, imports);
+			return importedAssertion === undefined || importedAssertion.contextReceiver !== undefined;
+		}
+
+		return plannedCallbacks.has(callback);
+	};
 
 	context.on('CallExpression', node => {
 		// A subtest is a method call, so it has to be recognized before the tracker pushes its context.
@@ -156,7 +167,7 @@ const create = context => {
 				operands,
 				sourceCode,
 				context,
-				hasPlan: hasPlan(),
+				hasPlan: hasPlan(node),
 			}),
 		};
 	});

@@ -39,6 +39,9 @@ test.snapshot({
 		withImport('test("parent", t => { new Promise(resolve => { setTimeout(() => { t.test("child", () => {}); resolve(); }); }); });'),
 		withImport('test("parent", t => { void new Promise(resolve => { setTimeout(() => { t.test("child", () => {}); resolve(); }); }); });'),
 		withImport('test("parent", () => { setTimeout(); });'),
+		// A detached callback in a body named out of line is late activity, the same as inline
+		withImport('const body = t => { setTimeout(() => { t.test("child", () => {}); }); };\ntest("parent", body);'),
+		withImport('const body = t => { load().then(() => { t.test("child", () => {}); }); };\ntest("parent", body);'),
 
 		// A suite context has no `getTestContext`, so the namespace member is not the test's
 		'import * as nodeTest from \'node:test\';\nnodeTest.test(\'a\', async () => { await nodeTest.it.getTestContext().test(\'b\', () => {}); });',

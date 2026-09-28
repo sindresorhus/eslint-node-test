@@ -92,6 +92,14 @@ test.snapshot({
 		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', t => {\n\tgetTestContext().mock.timers.enable();\n\tt.mock.timers.reset();\n\tgetTestContext().mock.timers.enable();\n});',
 		// A reset in the loop body clears the state the loop started with
 		withImport('test("a", () => {\n\t\tmock.timers.enable();\n\t\tfor (const item of items) {\n\t\t\tmock.timers.reset();\n\t\t\tmock.timers.enable();\n\t\t}\n\t});'),
+		// A body named out of line runs only when the call that registers it does, whichever side of the call it is declared on
+		withImport('const body = t => { t.test("child", child => { child.mock.timers.enable(); child.mock.timers.enable(); }); };\ntest.skip("parent", body);'),
+		withImport('const body = t => { t.beforeEach(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); };\ntest.skip("parent", body);'),
+		withImport('test("parent", {skip: true}, body);\nfunction body(t) { t.test("child", child => { child.mock.timers.enable(); child.mock.timers.enable(); }); }'),
+		withImport('const body = () => { test("child", t => { t.mock.timers.enable(); t.mock.timers.enable(); }); };\ntest.describe.skip("parent", body);'),
+		withImport('const body = t => { t.test("child", child => { child.mock.timers.enable(); child.mock.timers.enable(); }); };\ntest.skip("parent", () => { test("inner", body); });'),
+		// Two bodies that register each other still end the walk
+		withImport('function first(t) { t.test("x", second); }\nfunction second(t) { t.test("y", first); t.test("z", child => { child.mock.timers.reset(); }); }'),
 	],
 	invalid: [
 		// A standalone `only` with no skip does run

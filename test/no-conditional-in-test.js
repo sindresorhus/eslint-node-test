@@ -54,6 +54,18 @@ test.snapshot({
 		withImport('function helper() {\n\tif (x) {\n\t\tf();\n\t}\n}\ntest("x", () => { helper(); });'),
 		'// A hook callback is only ever its first argument, so a dead one runs nothing\nimport {beforeEach} from \'node:test\';\nbeforeEach({}, () => {\n	if (x) {\n		doSomething();\n	}\n});',
 		'import {beforeEach} from \'node:test\';\nbeforeEach({fn: () => {\n	if (x) {\n		doSomething();\n	}\n}});',
+		'// An unrelated object\'s `test` method is not a registration, so its callback is not a test body\n'
+		+ 'import {test} from \'node:test\';\n'
+		+ 'function body() {\n'
+		+ '	if (x) {}\n'
+		+ '}\n'
+		+ 'foo.test(\'a\', body);',
+		// A hook reads its callback from its first argument only, so a body named anywhere else runs nothing
+		'import {beforeEach} from \'node:test\';\nfunction body() {\n	if (x) {}\n}\nbeforeEach({}, body);',
+		'import {beforeEach} from \'node:test\';\nfunction body() {\n	if (x) {}\n}\nbeforeEach({fn: body});',
+		'import {test} from \'node:test\';\nfunction body() {\n	if (x) {}\n}\ntest(\'a\', t => {\n	t.beforeEach({}, body);\n});',
+		// `options.fn` wins over the positional callback, which the runner never calls
+		'import {test} from \'node:test\';\nfunction first() {}\nfunction second() {\n	if (x) {}\n}\ntest(\'a\', {fn: first}, second);',
 	],
 	invalid: [
 		// A conditional in an argument of a call the test body runs is the body's own logic
@@ -129,5 +141,54 @@ test.snapshot({
 		withImport('const body = () => {\n\tif (x) {\n\t\tf();\n\t}\n};\ntest("x", body);'),
 		'import {before} from \'node:test\';\nbefore(setup);\nfunction setup() {\n\tif (x) {\n\t\tf();\n\t}\n}',
 		'// A body the call names out of line is the subtest\'s body\nimport {test} from \'node:test\';\nconst body = () => {\n	if (x) {}\n};\ntest(\'a\', t => {\n	t.test(\'sub\', body);\n});',
+		'// A body that registers itself as a hook is still the test body, and resolving it must not recurse\n'
+		+ 'import {test} from \'node:test\';\n'
+		+ 'function body(t) {\n'
+		+ '	if (x) {}\n'
+		+ '	t.beforeEach(body);\n'
+		+ '}\n'
+		+ 'test(\'a\', body);',
+		'// A local named like the function does not hide the function\'s own binding\nimport {test} from \'node:test\';\nfunction body(t) {\n\tconst body = 1;\n\tif (x) {}\n}\ntest(\'a\', body);',
+		'// A body that registers itself as a subtest is still the test body, whichever side of the registration it is declared on\n'
+		+ 'import {test} from \'node:test\';\n'
+		+ 'function body(t) {\n'
+		+ '	if (x) {}\n'
+		+ '	t.test(\'again\', body);\n'
+		+ '}\n'
+		+ 'test(\'a\', body);',
+		'// Two bodies that register each other as hooks\n'
+		+ 'import {test} from \'node:test\';\n'
+		+ 'function first(t) {\n'
+		+ '	t.beforeEach(second);\n'
+		+ '}\n'
+		+ 'function second(t) {\n'
+		+ '	if (x) {}\n'
+		+ '	t.beforeEach(first);\n'
+		+ '}\n'
+		+ 'test(\'a\', first);',
+		'// A context used from a closure is still the test\'s context\n'
+		+ 'import {test} from \'node:test\';\n'
+		+ 'const body = (u) => {\n'
+		+ '	if (x) {}\n'
+		+ '};\n'
+		+ 'test(\'a\', async (t) => {\n'
+		+ '	await Promise.all([1].map(() => t.test(\'b\', body)));\n'
+		+ '});',
+		'import {test} from \'node:test\';\n'
+		+ 'const body = (u) => {\n'
+		+ '	if (x) {}\n'
+		+ '};\n'
+		+ 'test(\'a\', (t) => {\n'
+		+ '	[1].forEach(() => t.afterEach(body));\n'
+		+ '});',
+		'// A context two out-of-line bodies deep\n'
+		+ 'import {test} from \'node:test\';\n'
+		+ 'function inner(u) {\n'
+		+ '	if (x) {}\n'
+		+ '}\n'
+		+ 'function outer(t) {\n'
+		+ '	return t.test(\'s\', inner);\n'
+		+ '}\n'
+		+ 'test(\'a\', outer);',
 	],
 });

@@ -84,5 +84,12 @@ test.snapshot({
 
 		// A subtest with no callback opens no scope, so the hooks stay in the parent test body
 		'import {test, before} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\'); before(() => {}); before(() => {}); });',
+		'// The context hooks of a test body the call names out of line\n'
+		+ 'import {test} from \'node:test\';\n'
+		+ 'function body(t) {\n'
+		+ '	t.beforeEach(() => {});\n'
+		+ '	t.beforeEach(() => {});\n'
+		+ '}\n'
+		+ 'test(\'a\', body);',
 	],
 });

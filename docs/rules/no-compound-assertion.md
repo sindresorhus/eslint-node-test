@@ -13,7 +13,7 @@ A compound truthiness assertion like `assert.ok(a && b)` hides which operand fai
 
 This rule reports `assert()`/`assert.ok()`/named `ok()`/test-context `t.assert.ok()` calls whose asserted value is a top-level `&&` chain.
 
-It autofixes standalone single-argument assertions into one assertion per operand. It does not fix assertions with custom messages, comments, same-line surrounding code/comments, braceless control-flow parents, or `t.plan()` counts.
+It autofixes standalone single-argument assertions into one assertion per operand. It does not fix assertions with custom messages, comments, same-line surrounding code/comments, braceless control-flow parents, or `t.plan()` counts. It also does not fix a test-context assertion in a callback named out of line (`test('a', body)`), because it does not follow that test's plan.
 
 Test-context assertions are recognized in tests, subtests, and hooks.
 

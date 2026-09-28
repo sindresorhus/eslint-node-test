@@ -381,6 +381,75 @@ Output:
 
 `;
 
+exports[`prefer-lowercase-title > invalid(27): import {test} from 'node:test';\nconst body = () => {};\ntest('Uppercase', body); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | const body = () => {};
+  3 | test('Uppercase', body);
+
+`;
+
+exports[`prefer-lowercase-title > invalid(27): import {test} from 'node:test';\nconst body = () => {};\ntest('Uppercase', body); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+  2 | const body = () => {};
+> 3 | test('Uppercase', body);
+    |      ^^^^^^^^^^^ Start the title with a lowercase letter.
+
+Output:
+  1 | import {test} from 'node:test';
+  2 | const body = () => {};
+  3 | test('uppercase', body);
+
+`;
+
+exports[`prefer-lowercase-title > invalid(28): import {test} from 'node:test';\nfunction body() {}\ntest('Uppercase', body); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | function body() {}
+  3 | test('Uppercase', body);
+
+`;
+
+exports[`prefer-lowercase-title > invalid(28): import {test} from 'node:test';\nfunction body() {}\ntest('Uppercase', body); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+  2 | function body() {}
+> 3 | test('Uppercase', body);
+    |      ^^^^^^^^^^^ Start the title with a lowercase letter.
+
+Output:
+  1 | import {test} from 'node:test';
+  2 | function body() {}
+  3 | test('uppercase', body);
+
+`;
+
+exports[`prefer-lowercase-title > invalid(29): import {test} from 'node:test';\nimport {run} from './helpers.js';\ntest('Uppercase', run); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | import {run} from './helpers.js';
+  3 | test('Uppercase', run);
+
+`;
+
+exports[`prefer-lowercase-title > invalid(29): import {test} from 'node:test';\nimport {run} from './helpers.js';\ntest('Uppercase', run); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+  2 | import {run} from './helpers.js';
+> 3 | test('Uppercase', run);
+    |      ^^^^^^^^^^^ Start the title with a lowercase letter.
+
+Output:
+  1 | import {test} from 'node:test';
+  2 | import {run} from './helpers.js';
+  3 | test('uppercase', run);
+
+`;
+
 exports[`prefer-lowercase-title > invalid(3): import {test, it, describe, suite, before} from 'node:test';\nit(\"Should work\", () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';
@@ -398,6 +467,29 @@ Message:
 Output:
   1 | import {test, it, describe, suite, before} from 'node:test';
   2 | it("should work", () => {});
+
+`;
+
+exports[`prefer-lowercase-title > invalid(30): import {test} from 'node:test';\nimport helpers from './helpers.js';\ntest('Uppercase', helpers.run); 1`] = `
+
+  1 | import {test} from 'node:test';
+  2 | import helpers from './helpers.js';
+  3 | test('Uppercase', helpers.run);
+
+`;
+
+exports[`prefer-lowercase-title > invalid(30): import {test} from 'node:test';\nimport helpers from './helpers.js';\ntest('Uppercase', helpers.run); 2`] = `
+
+Message:
+  1 | import {test} from 'node:test';
+  2 | import helpers from './helpers.js';
+> 3 | test('Uppercase', helpers.run);
+    |      ^^^^^^^^^^^ Start the title with a lowercase letter.
+
+Output:
+  1 | import {test} from 'node:test';
+  2 | import helpers from './helpers.js';
+  3 | test('uppercase', helpers.run);
 
 `;
 

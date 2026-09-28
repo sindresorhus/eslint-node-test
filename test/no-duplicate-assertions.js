@@ -172,5 +172,12 @@ test.snapshot({
 		+ 'test(\'a\', t => {\n'
 		+ '	t.test(\'sub\', body);\n'
 		+ '});',
+		'// The context of a test body the call names out of line\n'
+		+ 'import {test} from \'node:test\';\n'
+		+ 'function body(t) {\n'
+		+ '	t.assert.ok(a);\n'
+		+ '	t.assert.ok(a);\n'
+		+ '}\n'
+		+ 'test(\'a\', body);',
 	],
 });

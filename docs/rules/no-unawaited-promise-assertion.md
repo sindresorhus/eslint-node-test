@@ -15,7 +15,7 @@ Return or await the Promise chain so `node:test` waits for the assertion.
 
 This rule owns Promise-callback assertions. [`no-late-test-activity`](no-late-test-activity.md) reports other detached Promise activity and assertions in scheduler callbacks.
 
-Only directly executed activity in inline callbacks is checked. A test body the call names out of line (`test('a', body)`) is not entered as a boundary, because the function is traversed where it is declared rather than inside the call. External callbacks and nested helper functions are not analyzed either.
+Only directly executed activity in the test or hook callback is checked, whether it is written inline or named out of line (`test('a', body)`). External callbacks and nested helper functions are not analyzed.
 
 ## Examples
 

@@ -13,6 +13,8 @@ const withNodeTestPromiseTimerImport = code => [
 	'import {setTimeout as delay} from \'node:timers/promises\';',
 	code,
 ].join('\n');
+// A body that sleeps, declared out of line.
+const sleepingBody = 'const body = async () => {\n\tawait new Promise(resolve => setTimeout(resolve, 500));\n};\n';
 const withSuitePromiseTimerImport = (callee, options, code) => withNodeTestPromiseTimerImport([
 	`${callee}('suite', ${options}() => {`,
 	indent(code),
@@ -86,6 +88,20 @@ test.snapshot({
 		+ '	await delay(500);\n'
 		+ '};\n'
 		+ 'test(\'a\', {skip: true}, body);',
+		'// An unrelated object\'s `test` method is not a registration, so its callback is not a test body\n'
+		+ 'import {test} from \'node:test\';\n'
+		+ 'import {setTimeout as delay} from \'node:timers/promises\';\n'
+		+ 'function body() {\n'
+		+ '	return delay(500);\n'
+		+ '}\n'
+		+ 'foo.test(\'a\', body);',
+		// A skip modifier, the standalone `skip` export, and a skipped suite around the call never run a body named out of line either
+		'import {test} from \'node:test\';\n' + sleepingBody + 'test.skip(\'a\', body);',
+		'import {skip} from \'node:test\';\n' + sleepingBody + 'skip(\'a\', body);',
+		'import {describe, test} from \'node:test\';\n' + sleepingBody + 'describe.skip(\'s\', () => {\n	test(\'a\', body);\n});',
+		'import {describe, test} from \'node:test\';\n' + sleepingBody + 'describe(\'s\', {skip: true}, () => {\n	test(\'a\', body);\n});',
+		// `TestContext#test` has no `skip` member, so the call throws and never runs the body
+		'import {test} from \'node:test\';\n' + sleepingBody + 'test(\'a\', async t => {\n	await t.test.skip(\'b\', body);\n});',
 	],
 	invalid: [
 		withTest('await new Promise(resolve => setTimeout(resolve, 500));'),
@@ -263,5 +279,7 @@ test.snapshot({
 		+ 'test(\'a\', async t => {\n'
 		+ '	await t.test(\'sub\', body);\n'
 		+ '});',
+		// A suite that runs its callback, and a modifier that still runs the body
+		'import {describe, test} from \'node:test\';\n' + sleepingBody + 'describe(\'s\', () => {\n	test.only(\'a\', body);\n});',
 	],
 });

@@ -1460,6 +1460,78 @@ Message:
 
 `;
 
+exports[`no-late-test-activity > invalid(70): import test from 'node:test';\nimport assert from 'node:assert/strict';\nconst body = t => {\n\tsetTimeout(() => { t.test('child', () => {}); });\n};\ntest('parent', body); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | const body = t => {
+  4 | 	setTimeout(() => { t.test('child', () => {}); });
+  5 | };
+  6 | test('parent', body);
+
+`;
+
+exports[`no-late-test-activity > invalid(70): import test from 'node:test';\nimport assert from 'node:assert/strict';\nconst body = t => {\n\tsetTimeout(() => { t.test('child', () => {}); });\n};\ntest('parent', body); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | const body = t => {
+> 4 | 	setTimeout(() => { t.test('child', () => {}); });
+    | 	                   ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest in a detached \`setTimeout()\` callback can run after the test or hook has finished.
+  5 | };
+  6 | test('parent', body);
+
+`;
+
+exports[`no-late-test-activity > invalid(71): import test from 'node:test';\nimport assert from 'node:assert/strict';\nfunction body(t) {\n\tload().then(() => { t.test('child', () => {}); });\n}\ntest('parent', body); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | function body(t) {
+  4 | 	load().then(() => { t.test('child', () => {}); });
+  5 | }
+  6 | test('parent', body);
+
+`;
+
+exports[`no-late-test-activity > invalid(71): import test from 'node:test';\nimport assert from 'node:assert/strict';\nfunction body(t) {\n\tload().then(() => { t.test('child', () => {}); });\n}\ntest('parent', body); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | function body(t) {
+> 4 | 	load().then(() => { t.test('child', () => {}); });
+    | 	                    ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest in a detached \`then()\` callback can run after the test or hook has finished.
+  5 | }
+  6 | test('parent', body);
+
+`;
+
+exports[`no-late-test-activity > invalid(72): import test from 'node:test';\nimport assert from 'node:assert/strict';\nconst hook = () => {\n\tsetTimeout(() => { assert.ok(value); });\n};\ntest.beforeEach(hook); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | const hook = () => {
+  4 | 	setTimeout(() => { assert.ok(value); });
+  5 | };
+  6 | test.beforeEach(hook);
+
+`;
+
+exports[`no-late-test-activity > invalid(72): import test from 'node:test';\nimport assert from 'node:assert/strict';\nconst hook = () => {\n\tsetTimeout(() => { assert.ok(value); });\n};\ntest.beforeEach(hook); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | const hook = () => {
+> 4 | 	setTimeout(() => { assert.ok(value); });
+    | 	                   ^^^^^^^^^^^^^^^^ Assertion in a detached \`setTimeout()\` callback can run after the test or hook has finished.
+  5 | };
+  6 | test.beforeEach(hook);
+
+`;
+
 exports[`no-late-test-activity > invalid(8): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tPromise.race([load().then(() => { throw error; })]);\n}); 1`] = `
 
   1 | import test from 'node:test';

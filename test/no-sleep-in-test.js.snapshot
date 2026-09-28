@@ -2060,3 +2060,29 @@ Message:
   9 | });
 
 `;
+
+exports[`no-sleep-in-test > invalid(91): import {describe, test} from 'node:test';\nconst body = async () => {\n\tawait new Promise(resolve => setTimeout(resolve, 500));\n};\ndescribe('s', () => {\n\ttest.only('a', body);\n}); 1`] = `
+
+  1 | import {describe, test} from 'node:test';
+  2 | const body = async () => {
+  3 | 	await new Promise(resolve => setTimeout(resolve, 500));
+  4 | };
+  5 | describe('s', () => {
+  6 | 	test.only('a', body);
+  7 | });
+
+`;
+
+exports[`no-sleep-in-test > invalid(91): import {describe, test} from 'node:test';\nconst body = async () => {\n\tawait new Promise(resolve => setTimeout(resolve, 500));\n};\ndescribe('s', () => {\n\ttest.only('a', body);\n}); 2`] = `
+
+Message:
+  1 | import {describe, test} from 'node:test';
+  2 | const body = async () => {
+> 3 | 	await new Promise(resolve => setTimeout(resolve, 500));
+    | 	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not sleep in tests with \`setTimeout\`. Await the real signal or use mock timers instead.
+  4 | };
+  5 | describe('s', () => {
+  6 | 	test.only('a', body);
+  7 | });
+
+`;

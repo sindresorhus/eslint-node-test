@@ -232,5 +232,10 @@ test.snapshot({
 		+ 'import assert from \'node:assert\';\n'
 		+ 'import {\'setImmediate\' as si} from \'node:timers\';\n'
 		+ 'test(\'a\', () => { new Promise(resolve => { si(() => assert.ok(1)); }); });',
+
+		// A body named out of line runs as the test's callback, so a detached callback in it is just as late
+		withImport('const body = t => {\n\tsetTimeout(() => { t.test(\'child\', () => {}); });\n};\ntest(\'parent\', body);'),
+		withImport('function body(t) {\n\tload().then(() => { t.test(\'child\', () => {}); });\n}\ntest(\'parent\', body);'),
+		withImport('const hook = () => {\n\tsetTimeout(() => { assert.ok(value); });\n};\ntest.beforeEach(hook);'),
 	],
 });

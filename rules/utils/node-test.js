@@ -230,7 +230,8 @@ function scanImports(context) {
 }
 
 function getVariable(identifier, imports) {
-	return findVariable(imports.sourceCode.getScope(identifier), identifier);
+	// `getScope` already answers the innermost scope, and passing the node itself would make `findVariable` search every child scope for it again, which is what makes a large file slow.
+	return findVariable(imports.sourceCode.getScope(identifier), identifier.name);
 }
 
 function getDeclaredVariable(identifier, node, imports) {
@@ -615,9 +616,6 @@ export function isSubtestCall(callExpression, imports) {
 }
 
 /**
-Whether a call is a `<context>.beforeEach(…)`-style hook declared on a test context. The `isContextReceiver` predicate (typically `tracker.isContextReceiver`) decides whether the receiver reaches a test context, either as the context parameter or as a `getTestContext()` call.
-*/
-/**
 The hook name of a `<context>.beforeEach(…)`-style call, or `undefined` when the call is not one.
 
 The name is the member after the receiver, which reads the same for a context parameter and for a
@@ -633,6 +631,9 @@ export function getContextHookName(callExpression) {
 		: undefined;
 }
 
+/**
+Whether a call is a `<context>.beforeEach(…)`-style hook declared on a test context. The `isContextReceiver` predicate (typically `tracker.isContextReceiver`) decides whether the receiver reaches a test context, either as the context parameter or as a `getTestContext()` call.
+*/
 export function isContextHookCall(callExpression, isContextReceiver) {
 	if (getContextHookName(callExpression) === undefined) {
 		return false;
@@ -641,16 +642,19 @@ export function isContextHookCall(callExpression, isContextReceiver) {
 	return isContextReceiver(unwrapTypeScriptExpression(unwrapTypeScriptExpression(callExpression.callee).object));
 }
 
-function getParentCallExpression(node) {
+export function getParentCallExpression(node) {
 	let {parent} = node;
 	while (isTypeScriptExpressionWrapper(parent)) {
 		const {parent: nextParent} = parent;
 		parent = nextParent;
 	}
 
-	// The object form puts the callback in a descriptor property, so the call is one level further out.
+	// The object form puts the callback in a descriptor property, so the call is one level further out, past any cast on the object.
 	if (parent?.type === 'Property' && parent.parent?.type === 'ObjectExpression') {
 		parent = parent.parent.parent;
+		while (isTypeScriptExpressionWrapper(parent)) {
+			parent = parent.parent;
+		}
 	}
 
 	return parent?.type === 'CallExpression' ? parent : undefined;
@@ -738,15 +742,20 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 		&& variable.defs.length === 1
 		&& variable.defs[0].type === 'Parameter';
 
-	const isContextIdentifier = node => {
-		// Resolving the scope is the expensive part; skip it entirely when no context is on the stack
-		// (the common case for a call outside any tracked test/subtest/hook body).
-		if (variables.length === 0 || node?.type !== 'Identifier') {
-			return false;
-		}
+	// The binding resolution below only reads `context.sourceCode`, which `imports` already carries, and
+	// the rules build the tracker from `imports` alone.
+	const context = {sourceCode: imports.sourceCode};
 
-		return isContextVariable(getVariable(node, imports));
-	};
+	// A hook's context counts only when this tracker tracks hooks, the same as for its frames.
+	const isTrackedKind = kind => kind === 'test' || (trackHooks && kind === 'hook');
+
+	// A context no open frame knows is resolved from its own binding: a callback named out of line
+	// (`test('a', body)`) is traversed where it is declared, outside the frame its call opened.
+	const isContextIdentifier = node => node?.type === 'Identifier'
+		&& (
+			(variables.length > 0 && isContextVariable(getVariable(node, imports)))
+			|| isTrackedKind(getContextParameterKind(node, imports, context))
+		);
 
 	// A subtest is `<context>.test(…)` on a context this tracker knows, which for the
 	// `getTestContext()` form means the innermost frame.
@@ -762,13 +771,16 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 	// Every open frame is searched, like `isContextIdentifier` does: a closure over an outer test's
 	// binding still refers to that binding after an inner callback is entered. A nested function
 	// that re-binds the name has a different `Variable` and is not matched.
+	//
+	// A binding no open frame knows is resolved from its own definition, as `isContextIdentifier` does.
 	const findAssertMethod = node => {
-		if (assertBindings.length === 0 || node?.type !== 'Identifier') {
+		if (node?.type !== 'Identifier') {
 			return NOT_ASSERT_BINDING;
 		}
 
+		// `findVariable` answers `null` for a global.
 		const variable = getVariable(node, imports);
-		if (variable === undefined) {
+		if (!variable) {
 			return NOT_ASSERT_BINDING;
 		}
 
@@ -778,7 +790,7 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 			}
 		}
 
-		return NOT_ASSERT_BINDING;
+		return findContextParameterAssertMethod(variable, imports, context, isTrackedKind);
 	};
 
 	// A receiver that reaches a test context: the context parameter itself, or a `getTestContext()`
@@ -959,18 +971,6 @@ export function createSuiteDepthTracker() {
 }
 
 /**
-Whether `node` is the callback of a test, suite, or subtest call that names it out of line, as in
-`test('a', body)` with `const body = () => {}` declared somewhere else. The runner runs that function
-as the test's body, so a rule that scopes what a callback declares has to treat it like an inline
-callback. The traversal reaches the function in declaration order, so the call naming it may be
-visited before or after it, which is why the check runs from the function.
-
-@param {import('estree').Node} node The function to check.
-@param {import('eslint').Rule.RuleContext} context
-@param {object} imports The result of `resolveImports`.
-@returns {boolean}
-*/
-/**
 Whether `variable` is a function parameter that nothing re-binds. A `var` of the same name in the
 body resolves to the very same variable, so identity alone cannot see that the name no longer reaches
 the parameter's value.
@@ -989,8 +989,11 @@ The test, suite, subtest or hook call that runs the function `node` as its callb
 names it out of line (`test('a', body)`). The function is traversed where it is DECLARED, so the call
 has to be found by resolving the binding back to the reference that passes it.
 
-`isContextReceiver` is what tells a context hook (`t.beforeEach(…)`) from an ordinary method call, and
-is only needed by a rule that already has a context tracker.
+A subtest's or context hook's receiver (`t.test(…)`, `t.beforeEach(…)`) is resolved from its own
+binding, which is what tells either from an ordinary method call, so `isContextReceiver` is optional. A
+tracker's `isContextReceiver` only adds the receivers its open frames already know.
+
+Limitation: the first reference that has the shape of a registration wins. So when a body is also passed to an unrelated `helper.test(…)`, or two bodies register each other as subtests, the answer can depend on which reference comes first in the source.
 */
 export function getOutOfLineCallbackCall(node, context, imports, isContextReceiver) {
 	if (!isFunction(node)) {
@@ -1005,12 +1008,54 @@ export function getOutOfLineCallbackCall(node, context, imports, isContextReceiv
 		return undefined;
 	}
 
-	const variable = findVariable(context.sourceCode.getScope(node.parent), identifier);
-	return variable?.references
-		.map(reference => getCallbackArgumentCall(reference.identifier, imports, isContextReceiver))
-		.find(Boolean);
+	// A receiver the open frames already know is authoritative, and one resolved from its own binding
+	// covers the other case: a callback named out of line is read where it is declared, which is
+	// outside every frame the call opened.
+	const isReceiver = isContextReceiver
+		? candidate => isContextReceiver(candidate) || isTestContextParameter(candidate, imports, context)
+		: candidate => isTestContextParameter(candidate, imports, context);
+
+	// The declared variable, not a lookup by name from inside: a parameter or local named like the function would otherwise hide it.
+	const variable = getDeclaredVariable(identifier, declarator ?? node, imports);
+	const [start, end] = context.sourceCode.getRange(node);
+	for (const reference of variable?.references ?? []) {
+		// A body registering itself (`t.test('again', body)` inside `body`) only runs once something else registered it, so that other call is the one that says what the body is.
+		const [referenceStart] = context.sourceCode.getRange(reference.identifier);
+		if (referenceStart >= start && referenceStart < end) {
+			continue;
+		}
+
+		const call = getCallbackArgumentCall(reference.identifier, imports, isReceiver);
+		// The call has to read its callback from the slot that names `node`: a hook only ever runs its
+		// first argument, and a test's `options.fn` wins over a positional callback.
+		if (call && getRegisteredCallback(call, context, imports, isReceiver) === node) {
+			return call;
+		}
+	}
+
+	return undefined;
 }
 
+/** The function a registration call runs, read from the slot `node:test` reads it from. */
+function getRegisteredCallback(call, context, imports, isContextReceiver) {
+	// A context hook is a method call, so `getResolvedTestCallback` would read it as a test.
+	return parseTestCall(call, imports) === undefined && isContextHookCall(call, isContextReceiver)
+		? resolveCallbackArgument(call.arguments[0], context)
+		: getResolvedTestCallback(call, context, imports);
+}
+
+/**
+Whether `node` is the callback of a test, suite, or subtest call that names it out of line, as in
+`test('a', body)` with `const body = () => {}` declared somewhere else. The runner runs that function
+as the test's body, so a rule that scopes what a callback declares has to treat it like an inline
+callback. The traversal reaches the function in declaration order, so the call naming it may be
+visited before or after it, which is why the check runs from the function.
+
+@param {import('estree').Node} node The function to check.
+@param {import('eslint').Rule.RuleContext} context
+@param {object} imports The result of `resolveImports`.
+@returns {boolean}
+*/
 export function isOutOfLineCallback(node, context, imports, isContextReceiver) {
 	return getOutOfLineCallbackCall(node, context, imports, isContextReceiver) !== undefined;
 }
@@ -1094,11 +1139,6 @@ export function getTestTitle(callExpression, context) {
 	return titleNode && getStaticStringNode(titleNode, context);
 }
 
-/**
-Get the node `node:test` reads a test's or suite's title from, whether or not it holds a static string, or `undefined` when the call names it with nothing at all.
-
-This is `getTestTitle` without the static-string requirement, so a rule that has to report a *bad* title (not just read a good one) can reach the node. `undefined` means the call names the test from a slot this helper cannot pin down (a later spread or computed key, or an options argument that is not an object literal and so may carry a `name` of its own) or names it not at all (a descriptor with no `name`).
-*/
 /*
 Whether a node sitting in the options slot could be the object `node:test` reads a `name` from. A
 function there is the implementation, which is read as no options at all, and only a value that cannot
@@ -1115,6 +1155,13 @@ function couldBeOptionsObject(node) {
 		&& !(node.type === 'Identifier' && (node.name === 'undefined' || node.name === 'NaN'));
 }
 
+/**
+Get the node `node:test` reads a test's or suite's title from, whether or not it holds a static string, or `undefined` when the call names it with nothing at all.
+
+This is `getTestTitle` without the static-string requirement, so a rule that has to report a *bad* title (not just read a good one) can reach the node. `undefined` means the call names the test from a slot this helper cannot pin down (a later spread or computed key, or an options argument that is not an object literal and so may carry a `name` of its own) or names it not at all (a descriptor with no `name`).
+
+A second argument is read as a possible options object only when another argument follows it (`test('a', options, fn)`). In the two-argument form (`test('a', run)`) it is read as the implementation, which is what it almost always is. A non-literal object there (`test('a', options)`) would name the test from its `name`, but that shape is rare and is not supported.
+*/
 export function getTestTitleNode(callExpression) {
 	const first = callExpression.arguments[0] && unwrapTypeScriptExpression(callExpression.arguments[0]);
 
@@ -1132,9 +1179,12 @@ export function getTestTitleNode(callExpression) {
 		// `getTestOptions` answered `undefined` either because the slot is empty or because it holds
 		// something other than an object literal, and `node:test` still reads `options.name` from
 		// whatever is there. A slot that could hold an object may carry a name that beats the
-		// positional title, so this helper cannot say which node holds it.
-		const optionsArgument = callExpression.arguments[1];
-		return optionsArgument && couldBeOptionsObject(optionsArgument) ? undefined : first;
+		// positional title, so this helper cannot say which node holds it. Only a slot followed by
+		// another argument (or a spread that may expand to one) is read as the options slot; the
+		// last argument of a two-argument call is the implementation.
+		const [, optionsArgument, nextArgument] = callExpression.arguments;
+		const isOptionsSlot = nextArgument !== undefined || optionsArgument?.type === 'SpreadElement';
+		return isOptionsSlot && couldBeOptionsObject(optionsArgument) ? undefined : first;
 	}
 
 	const nameProperty = findOptionsProperty(options, 'name');
@@ -1213,6 +1263,69 @@ function isCallbackFirst(callExpression) {
 }
 
 /**
+The function a test, suite, subtest or hook call runs as its callback, whether the call names it
+directly or names a binding that reaches it.
+
+`getTestCallback` answers only the first: an identifier argument is the callback by name, and the
+function it reaches is declared elsewhere, which is still the function the runner calls. A rule that
+reads what the callback contains needs the function itself, not the name.
+
+@param {import('estree').CallExpression} callExpression
+@param {import('eslint').Rule.RuleContext} context
+@param {object} imports The result of `resolveImports`.
+@returns {import('estree').Node | undefined} The callback function node, when there is one.
+*/
+export function getResolvedTestCallback(callExpression, context, imports) {
+	// The slots `getTestCallback` reads, in the same order: a hook only ever runs its first argument,
+	// and a test's `options.fn` wins over any positional callback.
+	const parsed = parseTestCall(callExpression, imports);
+	if (parsed?.kind === 'hook' || isHookMemberTestCall(parsed)) {
+		return resolveCallbackArgument(callExpression.arguments[0], context);
+	}
+
+	const fnProperty = isCallbackFirst(callExpression) ? undefined : findOptionsProperty(getTestOptions(callExpression), 'fn');
+	if (fnProperty) {
+		return resolveCallbackArgument(fnProperty.value, context);
+	}
+
+	// A positional callback may be named by an identifier in any slot, and the other names may be
+	// something else entirely: the title is often a variable too.
+	for (const argument of callExpression.arguments) {
+		const callback = resolveCallbackArgument(argument, context);
+		if (callback) {
+			return callback;
+		}
+	}
+
+	return undefined;
+}
+
+/** The function `node` is, inline or through the binding it names, or `undefined`. */
+function resolveCallbackArgument(node, context) {
+	node &&= unwrapTypeScriptExpression(node);
+	if (isFunction(node)) {
+		return node;
+	}
+
+	return node?.type === 'Identifier' ? getBoundFunction(node, context) : undefined;
+}
+
+/** The function `identifier` is bound to by its declaration, or `undefined`. */
+function getBoundFunction(identifier, context) {
+	const variable = findVariable(context.sourceCode.getScope(identifier), identifier);
+	for (const definition of variable?.defs ?? []) {
+		// A `function body() {}` definition carries the declaration; `const body = () => {}` carries
+		// the declarator, whose `init` is the function.
+		const node = definition.type === 'FunctionName' ? definition.node : definition.node?.init;
+		if (isFunction(node)) {
+			return node;
+		}
+	}
+
+	return undefined;
+}
+
+/**
 Get the inline function implementation argument of a test, suite, or hook call.
 
 `node:test` builds the test by spreading the options over the positional callback, so an `fn` in
@@ -1232,51 +1345,6 @@ not treat those dead functions as a live hook callback. A hook declared on a tes
 (`t.beforeEach(…)`) is a method call that `parseTestCall` does not classify; callers that know it is
 one should ask for `getHookCallback` themselves.
 */
-/**
-The function a test, suite, subtest or hook call runs as its callback, whether the call names it
-directly or names a binding that reaches it.
-
-`getTestCallback` answers only the first: an identifier argument is the callback by name, and the
-function it reaches is declared elsewhere, which is still the function the runner calls. A rule that
-reads what the callback contains needs the function itself, not the name.
-
-@param {import('estree').CallExpression} callExpression
-@param {import('eslint').Rule.RuleContext} context
-@param {object} imports The result of `resolveImports`.
-@returns {import('estree').Node | undefined} The callback function node, when there is one.
-*/
-export function getResolvedTestCallback(callExpression, context, imports) {
-	const callback = getTestCallback(callExpression, imports);
-	if (callback) {
-		return callback;
-	}
-
-	// The callback may be named by an identifier in any argument slot, or by the `fn` property of the
-	// descriptor, and the name may be something else entirely: the title is often a variable too.
-	const identifiers = callExpression.arguments
-		.map(argument => unwrapTypeScriptExpression(argument))
-		.filter(argument => argument?.type === 'Identifier');
-	const fnProperty = findOptionsProperty(getTestOptions(callExpression), 'fn');
-	const fn = fnProperty && unwrapTypeScriptExpression(fnProperty.value);
-	if (fn?.type === 'Identifier') {
-		identifiers.push(fn);
-	}
-
-	for (const identifier of identifiers) {
-		const variable = findVariable(context.sourceCode.getScope(identifier), identifier);
-		for (const definition of variable?.defs ?? []) {
-			// A `function body() {}` definition carries the declaration; `const body = () => {}` carries
-			// the declarator, whose `init` is the function.
-			const node = definition.type === 'FunctionName' ? definition.node : definition.node?.init;
-			if (isFunction(node)) {
-				return node;
-			}
-		}
-	}
-
-	return undefined;
-}
-
 export function getTestCallback(callExpression, imports) {
 	const parsed = imports && parseTestCall(callExpression, imports);
 	if (parsed?.kind === 'hook' || isHookMemberTestCall(parsed)) {
@@ -1476,7 +1544,9 @@ The modifiers do not share one enablement rule:
   `false`, so `{skip: 0}`, `{skip: ''}` and `{skip: null}` all carry the `# SKIP` directive that
   `{skip: true}` does, while `{skip: false}` and `{skip: undefined}` carry nothing. That is the
   directive, though, and not the body: only a truthy `skip` stops the callback from running, which is
-  what `hasEnabledSkipOption` in `shared/skipped-test.js` asks about instead.
+  what `hasEnabledSkipOption` in `shared/skipped-test.js` asks about instead. The body of a
+  `{skip: 0}` test runs, but its result is still reported as skipped: a throw in it is `not ok … # SKIP`
+  and does not fail the run.
 
 A value that cannot be resolved statically counts as enabled, which is the safe answer for a dynamic
 option: the rules have always reported it, and it is more often on than off. A getter is the one
@@ -1539,14 +1609,118 @@ export function isEnabledPlanCount(staticValue) {
 }
 
 /**
+Whether `node` is the test context of a callback `node:test` passes a context to: it has to be that
+callback's first parameter, and the callback has to be one the runner runs as a test, subtest, or hook. A
+suite callback receives a `SuiteContext`, which has no `.test` and no hook methods, so it does not count.
+
+The answer comes from resolving the binding rather than from the frames open on the stack, so it does not
+depend on where the callback is declared relative to the call that runs it. That is what lets an
+out-of-line body be read at all: by the time the declaration is visited, the call's frame is long gone.
+*/
+function isTestContextParameter(node, imports, context) {
+	return getContextParameterKind(node, imports, context) !== undefined;
+}
+
+/*
+The kind (`test`/`hook`) of the callback whose test context `node` is, or `undefined` when it is not one. A rule's tracker reads a hook's context only when it tracks hooks, so it needs the kind rather than a yes or no.
+*/
+function getContextParameterKind(node, imports, context) {
+	if (node?.type !== 'Identifier') {
+		return undefined;
+	}
+
+	// A receiver that resolves to nothing, such as a global, has no definition to be a parameter.
+	const variable = getVariable(node, imports);
+	if (variable?.defs.length !== 1 || variable.defs[0].type !== 'Parameter') {
+		return undefined;
+	}
+
+	const callback = variable.defs[0].node;
+
+	// The context is the first parameter, and a `var` that re-binds it resolves to the very same
+	// variable, so identity alone cannot see that the name no longer reaches the context.
+	const parameter = getFirstContextParameter(callback.params);
+	if (!parameter || getDeclaredVariable(parameter, callback, imports) !== variable) {
+		return undefined;
+	}
+
+	// The question is asked of the callback that declares the parameter rather than a closure the
+	// reference happens to sit in.
+	return getContextCallbackKind(callback, imports, context);
+}
+
+// The callbacks `getContextCallbackKind` is resolving, innermost last.
+const resolvingCallbacks = new Set();
+
+// Stored on the callback node, for the reasons given at `CALLEE_CHAIN`. The answer depends only on the
+// AST and the file's imports, so every rule that asks about the same callback shares it.
+const CONTEXT_CALLBACK = Symbol('contextCallback');
+
+/*
+The kind of callback the runner runs `callback` as when it passes it a test context: `test` for a test or subtest, `hook` for a hook. `undefined` for anything else, such as a suite or a helper.
+*/
+function getContextCallbackKind(callback, imports, context) {
+	// A callback that registers itself as a hook, directly or through another callback, would ask the
+	// same question again forever. It answers `undefined` there, so the answer has to come from another
+	// registration of it.
+	if (!isFunction(callback) || resolvingCallbacks.has(callback)) {
+		return undefined;
+	}
+
+	const cached = callback[CONTEXT_CALLBACK];
+	if (cached !== undefined && cached.node === callback && cached.imports === imports) {
+		return cached.kind;
+	}
+
+	const isOutermost = resolvingCallbacks.size === 0;
+	let kind;
+	resolvingCallbacks.add(callback);
+	try {
+		// A `t` inside a context hook's own callback is a context too, so the same question is asked of
+		// that hook's receiver, which is what makes the walk reach a hook body through `t.beforeEach(…)`.
+		const callbackKind = getCallbackKind(callback, imports, receiver => isTestContextParameter(receiver, imports, context), context);
+		kind = callbackKind === 'test' || callbackKind === 'hook' ? callbackKind : undefined;
+	} finally {
+		resolvingCallbacks.delete(callback);
+	}
+
+	// An `undefined` reached while an outer callback was being resolved may only mean that the outer
+	// one answered `undefined` to break a cycle, so only the outermost answer is final. A kind always is.
+	if (kind !== undefined || isOutermost) {
+		callback[CONTEXT_CALLBACK] = {node: callback, imports, kind};
+	}
+
+	return kind;
+}
+
+/*
+Whether `node` is bound by the `({assert})` or `({assert: {ok}})` pattern of a callback the runner passes a test context to, which the frames open on the stack cannot see for a callback named out of line. `isTrackedKind` decides which callback kinds count.
+
+@returns {string | undefined | typeof NOT_ASSERT_BINDING} The same three outcomes as the tracker's `findAssertMethod`.
+*/
+function findContextParameterAssertMethod(variable, imports, context, isTrackedKind) {
+	if (!isUnreboundParameter(variable)) {
+		return NOT_ASSERT_BINDING;
+	}
+
+	const callback = variable.defs[0].node;
+	const bindings = getDestructuredAssertBindings(callback, imports);
+	if (!bindings.has(variable) || !isTrackedKind(getContextCallbackKind(callback, imports, context))) {
+		return NOT_ASSERT_BINDING;
+	}
+
+	return bindings.get(variable) ?? ASSERT_OBJECT;
+}
+
+/**
 The kind of callback a registration call runs, or `undefined` when the call is not a registration.
 
 A subtest (`t.test(…)`) and a context hook (`t.beforeEach(…)`) are method calls rather than imported
-bindings, so telling them from an unrelated method call of the same shape needs `isContextReceiver`,
-which is the tracker's `isContextReceiver`. A subtest is recognised structurally, the way
-`getSubtestReceiver` already recognises it elsewhere.
+bindings, so the receiver is what tells either from an unrelated method call of the same shape. The
+receiver is resolved from its own binding rather than from the frames open on the stack, so an unrelated
+object's `test` method is not mistaken for a registration.
 */
-export function getRegistrationKind(call, imports, isContextReceiver) {
+export function getRegistrationKind(call, imports, isContextReceiver, context) {
 	if (!call) {
 		return undefined;
 	}
@@ -1560,47 +1734,62 @@ export function getRegistrationKind(call, imports, isContextReceiver) {
 		return 'hook';
 	}
 
-	if (isContextReceiver && isContextHookCall(call, isContextReceiver)) {
+	// A context hook is a method call like a subtest, so the receiver is what tells it from an unrelated
+	// one. The tracker's answer is authoritative where a frame is open, and the binding is resolved as
+	// well, which is the only way to see a hook callback named out of line.
+	if (
+		(isContextReceiver && isContextHookCall(call, isContextReceiver))
+		|| isContextHookCall(call, receiver => isTestContextParameter(receiver, imports, context))
+	) {
 		return 'hook';
 	}
 
+	// A member `node:test` does not have (`test.custom(…)`, `beforeEach.foo(…)`) throws before anything
+	// runs, which is how the context tracker reads it too.
 	if (parsed) {
-		return parsed.kind;
+		return parsed.kind !== 'hook' && parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name)) ? parsed.kind : undefined;
 	}
 
-	// A subtest is recognised structurally, the way `getSubtestReceiver` recognises one everywhere
-	// else: `<receiver>.test(…)`. The receiver is not resolved to a test context, because the caller
-	// reads the callback where it is declared, which is outside the frame that would name it. An
-	// unrelated object with a `test` method is therefore read as a subtest, the same trade-off
-	// `getSubtestReceiver` already makes.
-	return getSubtestReceiver(call) === undefined ? undefined : 'test';
+	const subtestReceiver = getSubtestReceiver(call);
+	if (subtestReceiver === undefined) {
+		return undefined;
+	}
+
+	return isTestContextParameter(subtestReceiver, imports, context) ? 'test' : undefined;
 }
 
 /**
 Determine the kind (`test`/`suite`/`hook`) of the nearest enclosing test-related callback.
 
-Returns `undefined` when the nearest enclosing function is a regular function (e.g. a helper), or there is none. Subtests (`t.test(…)`) are method calls rather than imported bindings, so they are recognized structurally and classified as `'test'`. A callback the call names out of line (`test('a', body)`) is recognized by resolving the binding back to the call.
+Returns `undefined` when the nearest enclosing function is a regular function (e.g. a helper), or there is none. Subtests (`t.test(…)`) and context hooks (`t.beforeEach(…)`) are method calls rather than imported bindings, so they are recognized by resolving the receiver to a test context, and a subtest is classified as `'test'`. A callback the call names out of line (`test('a', body)`) is recognized by resolving the binding back to the call.
 */
 export function nearestTestCallbackKind(node, imports, isContextReceiver, context) {
 	let current = node.parent;
 	while (current) {
 		if (isFunction(current)) {
-			const call = getParentCallExpression(current) ?? (context && getOutOfLineCallbackCall(current, context, imports, isContextReceiver));
-			// Whether `call` runs `current` as its callback: from an argument slot it can only be the
-			// function node itself, and out of line it is the function the binding resolves to.
-			const isCallback = call !== undefined && (
-				getHookCallback(call) === current
-				|| getTestCallback(call, imports) === current
-				|| getOutOfLineCallbackCall(current, context, imports, isContextReceiver) === call
-			);
-			// Inside some other function — not directly in a test/suite/hook body.
-			return isCallback ? getRegistrationKind(call, imports, isContextReceiver) : undefined;
+			return getCallbackKind(current, imports, isContextReceiver, context);
 		}
 
 		current = current.parent;
 	}
 
 	return undefined;
+}
+
+/*
+The kind (`test`/`suite`/`hook`) of callback the runner runs `callback` as, or `undefined` when it is some other function, such as a helper.
+*/
+function getCallbackKind(callback, imports, isContextReceiver, context) {
+	// From an argument slot, the call runs it only when it is the function the call reads its callback
+	// from. Such a function is never declared, so it is never named out of line as well.
+	const inlineCall = getParentCallExpression(callback);
+	if (inlineCall) {
+		const isCallback = getHookCallback(inlineCall) === callback || getTestCallback(inlineCall, imports) === callback;
+		return isCallback ? getRegistrationKind(inlineCall, imports, isContextReceiver, context) : undefined;
+	}
+
+	const call = context && getOutOfLineCallbackCall(callback, context, imports, isContextReceiver);
+	return getRegistrationKind(call, imports, isContextReceiver, context);
 }
 
 function isAssertNamespaceIdentifier(node, imports) {

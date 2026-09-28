@@ -442,6 +442,39 @@ const create = context => {
 		}
 	});
 
+	// Whether a registration call runs its callback, read the way the inline path reads it: its
+	// modifiers and its options. A context hook has neither. `TestContext#test` has no `skip` or `todo`
+	// member, so `t.test.skip(…)` throws and runs nothing either.
+	const runsCallback = call => {
+		const parsed = parseTestCall(call, imports);
+		if (parsed) {
+			return areActiveModifiers(getParsedModifiers(parsed)) && !hasInactiveParsedOptions(call, parsed, context);
+		}
+
+		return getContextHookName(call) !== undefined
+			|| (areActiveModifiers(getSubtestModifiers(call)) && !hasInactiveTestOptions(call, context));
+	};
+
+	// Whether a registration around the call skips the callback the call sits in, like
+	// `describe.skip('s', () => { test('a', body); })`. The inline path learns this from the stack, but
+	// an out-of-line body is visited where it is declared, so the call's own ancestors are read instead.
+	const isInsideSkippedRegistration = call => {
+		for (let current = call.parent; current; current = current.parent) {
+			const registration = current.parent;
+			if (
+				isFunction(current)
+				&& registration?.type === 'CallExpression'
+				&& getTestCallback(registration, imports) === current
+				&& getRegistrationKind(registration, imports, undefined, context) !== undefined
+				&& !runsCallback(registration)
+			) {
+				return true;
+			}
+		}
+
+		return false;
+	};
+
 	// A test body the call names out of line is entered where it is declared, which the call's own
 	// frame does not cover, so a sleep in it sat outside every tracked scope.
 	const outOfLineTestBodies = new WeakSet();
@@ -449,8 +482,8 @@ const create = context => {
 	context.on(functionTypes, node => {
 		const call = getOutOfLineCallbackCall(node, context, imports);
 		// The body is only ever run when the test is not skipped, exactly as the inline path checks.
-		const kind = getRegistrationKind(call, imports);
-		if ((kind !== 'test' && kind !== 'hook') || hasInactiveTestOptions(call, context)) {
+		const kind = getRegistrationKind(call, imports, undefined, context);
+		if ((kind !== 'test' && kind !== 'hook') || !runsCallback(call) || isInsideSkippedRegistration(call)) {
 			return;
 		}
 

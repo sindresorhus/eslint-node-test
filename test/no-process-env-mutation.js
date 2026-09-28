@@ -76,6 +76,12 @@ test.snapshot({
 		withTestImport('test(\'reads config\', function (global) { global.process.env.NODE_ENV = \'production\'; });'),
 		withTestImport('test(\'reads config\', (globalThis) => { globalThis.process.env.NODE_ENV = \'production\'; });'),
 		inTest('const globalThis = {process: {env: {}}};\nglobalThis.process.env.NODE_ENV = \'production\';'),
+		'// An unrelated object\'s `test` method is not a registration, so its callback is not a test body\n'
+		+ 'import {test} from \'node:test\';\n'
+		+ 'function body() {\n'
+		+ '	process.env.X = \'1\';\n'
+		+ '}\n'
+		+ 'foo.test(\'a\', body);',
 	],
 	invalid: [
 		// A test body the call names out of line is still a test body

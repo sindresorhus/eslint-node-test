@@ -82,7 +82,7 @@ const create = context => {
 
 	context.on(functionTypes, node => {
 		const call = getOutOfLineCallbackCall(node, context, imports, tracker.isContextReceiver);
-		if (getRegistrationKind(call, imports, tracker.isContextReceiver) !== 'hook') {
+		if (getRegistrationKind(call, imports, tracker.isContextReceiver, context) !== 'hook') {
 			return;
 		}
 

@@ -3,6 +3,8 @@ import {
 	createContextTracker,
 	getFirstContextParameter,
 	getHookCallback,
+	getOutOfLineCallbackCall,
+	getParentCallExpression,
 	getSubtestReceiver,
 	getTestCallback,
 	HOOK_FUNCTIONS,
@@ -223,16 +225,39 @@ const create = context => {
 	const skippedCallbacks = new Set();
 	const contextHookVariables = new Set();
 	const codePathStack = [];
-	const markSkippedCallback = (node, parsed, isSubtest, callback) => {
+	const isSkippedRegistration = call => {
+		const parsed = parseTestCall(call, imports);
 		const isTestOrSuite = (parsed?.kind === 'test' || parsed?.kind === 'suite')
 			&& parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name));
-		if (
-			callback
-			&& (isTestOrSuite || isSubtest)
-			&& isSkippedTestCall(node, parsed, context)
-		) {
-			skippedCallbacks.add(callback);
+		return (isTestOrSuite || contextTracker.isContextIdentifier(getSubtestReceiver(call)))
+			&& isSkippedTestCall(call, parsed, context);
+	};
+
+	/*
+	Whether a registration that skips its callback encloses `node` through a body named out of line, as in `test.skip('a', body)`. The body is visited where it is declared, outside the call's frame and often before the call, so the calls are read from the code instead: each function's own call, inline or out of line, then onward from that call.
+	*/
+	const isInsideSkippedOutOfLineBody = node => {
+		const visited = new Set();
+		for (let current = node.parent; current; current = current.parent) {
+			if (!isFunction(current) || visited.has(current)) {
+				continue;
+			}
+
+			// Two bodies that register each other would otherwise lead the walk around forever.
+			visited.add(current);
+			const parentCall = getParentCallExpression(current);
+			const inlineCall = parentCall && getTestCallback(parentCall, imports) === current ? parentCall : undefined;
+			const call = inlineCall ?? getOutOfLineCallbackCall(current, context, imports, contextTracker.isContextReceiver);
+			if (call && isSkippedRegistration(call)) {
+				return true;
+			}
+
+			if (call && !inlineCall) {
+				current = call;
+			}
 		}
+
+		return false;
 	};
 
 	const trackContextHookCallback = (node, isInSkippedCallback) => {
@@ -258,11 +283,13 @@ const create = context => {
 
 	const trackCallbacks = node => {
 		const parsed = parseTestCall(node, imports);
-		const subtestReceiver = getSubtestReceiver(node);
-		const isSubtest = contextTracker.isContextIdentifier(subtestReceiver);
 		const callback = getTestCallback(node);
-		markSkippedCallback(node, parsed, isSubtest, callback);
-		const isInSkippedCallback = isInsideSkippedCallback(node, skippedCallbacks);
+		if (callback && isSkippedRegistration(node)) {
+			skippedCallbacks.add(callback);
+		}
+
+		const isInSkippedCallback = isInsideSkippedCallback(node, skippedCallbacks)
+			|| (callback !== undefined && isInsideSkippedOutOfLineBody(node));
 		trackContextHookCallback(node, isInSkippedCallback);
 
 		if (

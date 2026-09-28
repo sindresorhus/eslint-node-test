@@ -33,6 +33,12 @@ test.snapshot({
 		'import {describe, test} from "node:test";\ndescribe("group", body);\nfunction body() {\n  describe("nested", () => {});\n}',
 		'import {beforeEach, test} from "node:test";\nbeforeEach(body);\nfunction body() {\n  test("inner", () => {});\n}',
 		'import {after, test} from "node:test";\nafter(body);\nfunction body() {\n  test("inner", () => {});\n}',
+		'// An unrelated object\'s `test` method is not a registration, so its callback is not a test body\n'
+		+ 'import {test} from \'node:test\';\n'
+		+ 'function body() {\n'
+		+ '	test(\'inner\', () => {});\n'
+		+ '}\n'
+		+ 'foo.test(\'a\', body);',
 	],
 	invalid: [
 		// A callback the call names out of line is still the test's body, wherever it is declared

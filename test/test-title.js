@@ -52,6 +52,9 @@ test.snapshot({
 		'import test from \'node:test\';\ntest({name: 1, fn() {}});',
 		'import test from \'node:test\';\ntest({fn() {}});',
 
+		// A function in the options slot is the implementation, so the positional title is the title
+		'import test from \'node:test\';\nconst body = () => {};\ntest(\' a \', body);',
+
 		// Missing title — first arg is a function
 		'import test from "node:test";\ntest(() => {});',
 		// Missing title — first arg is an options object

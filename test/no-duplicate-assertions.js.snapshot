@@ -372,6 +372,32 @@ Message:
 
 `;
 
+exports[`no-duplicate-assertions > invalid(23): // The context of a test body the call names out of line\nimport {test} from 'node:test';\nfunction body(t) {\n\tt.assert.ok(a);\n\tt.assert.ok(a);\n}\ntest('a', body); 1`] = `
+
+  1 | // The context of a test body the call names out of line
+  2 | import {test} from 'node:test';
+  3 | function body(t) {
+  4 | 	t.assert.ok(a);
+  5 | 	t.assert.ok(a);
+  6 | }
+  7 | test('a', body);
+
+`;
+
+exports[`no-duplicate-assertions > invalid(23): // The context of a test body the call names out of line\nimport {test} from 'node:test';\nfunction body(t) {\n\tt.assert.ok(a);\n\tt.assert.ok(a);\n}\ntest('a', body); 2`] = `
+
+Message:
+  1 | // The context of a test body the call names out of line
+  2 | import {test} from 'node:test';
+  3 | function body(t) {
+  4 | 	t.assert.ok(a);
+> 5 | 	t.assert.ok(a);
+    | 	^^^^^^^^^^^^^^^ Duplicate adjacent assertion.
+  6 | }
+  7 | test('a', body);
+
+`;
+
 exports[`no-duplicate-assertions > invalid(3): import test from 'node:test';\nimport assert from 'node:assert';\nconst body = () => {\n\tassert.strictEqual(user.id, 1);\n\tassert.strictEqual(user.id, 1);\n};\ntest('user', body); 1`] = `
 
   1 | import test from 'node:test';

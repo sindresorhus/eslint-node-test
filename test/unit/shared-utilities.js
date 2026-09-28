@@ -14,7 +14,12 @@ import {
 } from '../../rules/utils/index.js';
 import {removeArgument} from '../../rules/fix/index.js';
 import isFunction from '../../rules/ast/is-function.js';
-import {parseAssertionCall, getTestCallback, resolveImports} from '../../rules/utils/node-test.js';
+import {
+	parseAssertionCall,
+	getTestCallback,
+	getResolvedTestCallback,
+	resolveImports,
+} from '../../rules/utils/node-test.js';
 
 // Apply `removeArgument` to the argument at `index` of the `fn(…)` call, as `getNode` picks it from the call's argument, and return the fixed source.
 const removeArgumentFrom = (code, index, languageOptions, getNode = argument => argument) => {
@@ -324,6 +329,44 @@ test('getTestCallback returns the function node:test actually runs', () => {
 
 	// No callback at all.
 	assert.strictEqual(testCallbackText('test(\'a\', {skip: true});'), undefined);
+});
+
+// The text of the callback `getResolvedTestCallback` resolves for the last call in `code`.
+const resolvedCallbackText = code => {
+	let text;
+	const rule = {
+		create: context => ({
+			'CallExpression:exit'(node) {
+				const callback = getResolvedTestCallback(node, context, resolveImports(context));
+				text = callback && context.sourceCode.getText(callback);
+			},
+		}),
+	};
+	new Linter().verify(code, {
+		plugins: {test: {rules: {rule}}},
+		rules: {'test/rule': 'error'},
+		languageOptions: {ecmaVersion: 'latest', sourceType: 'module'},
+	});
+	return text;
+};
+
+test('getResolvedTestCallback reads the callback from the slot node:test reads', () => {
+	const head = 'import {test, beforeEach} from \'node:test\';\nfunction first() {}\nfunction second() {}\n';
+
+	// A named callback is resolved to its function, whatever else is named in the call.
+	assert.strictEqual(resolvedCallbackText(`${head}test('a', second);`), 'function second() {}');
+	assert.strictEqual(resolvedCallbackText(`${head}const title = 'a';\ntest(title, second);`), 'function second() {}');
+
+	// `options.fn` wins over the positional callback, named or inline.
+	assert.strictEqual(resolvedCallbackText(`${head}test('a', {fn: first}, second);`), 'function first() {}');
+	assert.strictEqual(resolvedCallbackText(`${head}test('a', {fn: first}, () => {});`), 'function first() {}');
+	// An `options.fn` that resolves to nothing is still the one the runner runs.
+	assert.strictEqual(resolvedCallbackText(`${head}test('a', {fn: unknown}, second);`), undefined);
+
+	// A hook reads its callback from its first argument only, and never reads `options.fn`.
+	assert.strictEqual(resolvedCallbackText(`${head}beforeEach(first, {timeout: 1});`), 'function first() {}');
+	assert.strictEqual(resolvedCallbackText(`${head}beforeEach({}, first);`), undefined);
+	assert.strictEqual(resolvedCallbackText(`${head}beforeEach({fn: first});`), undefined);
 });
 
 test('removeArgument offers no fix when a comment would go with the argument', () => {

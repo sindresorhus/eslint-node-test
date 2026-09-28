@@ -166,6 +166,34 @@ Message:
 
 `;
 
+exports[`no-test-inside-hook > invalid(19): // A context hook body named out of line still drops the test declared inside it\nimport {test} from 'node:test';\nfunction body() {\n\ttest('x', () => {});\n}\ntest('a', t => {\n\tt.beforeEach(body);\n}); 1`] = `
+
+  1 | // A context hook body named out of line still drops the test declared inside it
+  2 | import {test} from 'node:test';
+  3 | function body() {
+  4 | 	test('x', () => {});
+  5 | }
+  6 | test('a', t => {
+  7 | 	t.beforeEach(body);
+  8 | });
+
+`;
+
+exports[`no-test-inside-hook > invalid(19): // A context hook body named out of line still drops the test declared inside it\nimport {test} from 'node:test';\nfunction body() {\n\ttest('x', () => {});\n}\ntest('a', t => {\n\tt.beforeEach(body);\n}); 2`] = `
+
+Message:
+  1 | // A context hook body named out of line still drops the test declared inside it
+  2 | import {test} from 'node:test';
+  3 | function body() {
+> 4 | 	test('x', () => {});
+    | 	^^^^^^^^^^^^^^^^^^^ Do not define a test or suite inside a hook. Define it at the top level or inside a \`describe\`.
+  5 | }
+  6 | test('a', t => {
+  7 | 	t.beforeEach(body);
+  8 | });
+
+`;
+
 exports[`no-test-inside-hook > invalid(2): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nbefore(() => { test('a', () => {}); }); 1`] = `
 
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';

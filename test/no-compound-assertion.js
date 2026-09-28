@@ -231,5 +231,23 @@ test.snapshot({
 		// A `getTestContext()` plan is the same plan as `t.plan(n)`
 		'import {test, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\n'
 		+ 'test(\'a\', () => {\n\tgetTestContext().plan(1);\n\tassert.ok(a && b);\n});',
+
+		// The plan of a body named out of line is not known, so a context assertion in it is not fixed
+		withTest(`function body(t) {
+	t.plan(1);
+	t.assert.ok(a && b);
+}
+test('a', body);`),
+		withTest(`function body(t) {
+	t.assert.ok(a && b);
+}
+test('a', {plan: 1}, body);`),
+		withTest('test(\'a\', {plan: 1}, body);\nfunction body({assert}) {\n\tassert.ok(a && b);\n}'),
+		// A plan counts only the context's assertions, so an imported assertion there is still fixed
+		withTestAndAssert(`function body(t) {
+	t.plan(1);
+	assert.ok(a && b);
+}
+test('a', body);`),
 	],
 });

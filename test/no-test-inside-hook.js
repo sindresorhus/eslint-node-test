@@ -67,5 +67,13 @@ test.snapshot({
 		'import {before, test} from \'node:test\';\nconst setup = () => { test(\'a\', () => {}); };\nbefore(setup);',
 		'import {before, describe} from \'node:test\';\nbefore(setup);\nfunction setup() { describe(\'a\', () => {}); }',
 		'import {beforeEach, test} from \'node:test\';\nbeforeEach(setup);\nfunction setup() { test(\'a\', () => {}); }',
+		'// A context hook body named out of line still drops the test declared inside it\n'
+		+ 'import {test} from \'node:test\';\n'
+		+ 'function body() {\n'
+		+ '	test(\'x\', () => {});\n'
+		+ '}\n'
+		+ 'test(\'a\', t => {\n'
+		+ '	t.beforeEach(body);\n'
+		+ '});',
 	],
 });

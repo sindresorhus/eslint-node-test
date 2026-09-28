@@ -18,8 +18,10 @@ import {
 	MODIFIERS,
 	HOOK_FUNCTIONS,
 	getImportSpecifierName,
+	getOutOfLineCallbackCall,
+	getRegistrationKind,
 } from './utils/node-test.js';
-import {isFunction} from './ast/index.js';
+import {functionTypes, isFunction} from './ast/index.js';
 import {
 	getEnclosingFunction,
 	unwrapTypeScriptExpression,
@@ -799,7 +801,22 @@ function createBoundaryStack(context, imports) {
 	// `({assert})` and `({assert: {strictEqual}})` reach the same assertion handling as `t.assert.*`.
 	const assertBindings = [];
 
-	context.onExit('CallExpression', node => {
+	const pushFrame = (node, callback) => {
+		const contextParameter = getFirstContextParameter(callback.params);
+		frames.push({
+			node,
+			callback,
+			contextParameter,
+			hasWaitPlan: hasWaitPlan(callback, contextParameter, sourceCode, imports),
+		});
+		if (contextParameter) {
+			contextParameters.push(contextParameter);
+		}
+
+		assertBindings.push(getDestructuredAssertBindings(callback, imports));
+	};
+
+	const popFrame = node => {
 		if (frames.at(-1)?.node !== node) {
 			return;
 		}
@@ -810,7 +827,20 @@ function createBoundaryStack(context, imports) {
 		}
 
 		assertBindings.pop();
+	};
+
+	context.onExit('CallExpression', popFrame);
+
+	// A test or hook body the call names out of line is entered where it is declared, outside the frame
+	// the call would open, so the frame is keyed on the function instead.
+	context.on(functionTypes, node => {
+		const kind = getRegistrationKind(getOutOfLineCallbackCall(node, context, imports), imports, undefined, context);
+		if ((kind === 'test' || kind === 'hook') && getEffectiveArity(node.params) < 2) {
+			pushFrame(node, node);
+		}
 	});
+
+	context.onExit(functionTypes, popFrame);
 
 	return {
 		contextParameters,
@@ -826,19 +856,7 @@ function createBoundaryStack(context, imports) {
 				return false;
 			}
 
-			const contextParameter = getFirstContextParameter(callback.params);
-			frames.push({
-				node,
-				callback,
-				contextParameter,
-				hasWaitPlan: hasWaitPlan(callback, contextParameter, sourceCode, imports),
-			});
-			if (contextParameter) {
-				contextParameters.push(contextParameter);
-			}
-
-			assertBindings.push(getDestructuredAssertBindings(callback, imports));
-
+			pushFrame(node, callback);
 			return true;
 		},
 	};

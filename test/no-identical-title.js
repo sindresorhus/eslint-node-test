@@ -118,5 +118,22 @@ test.snapshot({
 		+ 'import {test} from \'node:test\';\n'
 		+ 'test(\'dup\', {skip: true}, () => {});\n'
 		+ 'test(\'dup\', {[\'skip\']: true}, () => {});',
+		'// The subtests of a test body the call names out of line\n'
+		+ 'import {test} from \'node:test\';\n'
+		+ 'function body(t) {\n'
+		+ '	t.test(\'s\', () => {});\n'
+		+ '	t.test(\'s\', () => {});\n'
+		+ '}\n'
+		+ 'test(\'a\', body);',
+		'// A function in the options slot is the implementation, and `node:test` never reads a `name` off it\n'
+		+ 'import {test} from \'node:test\';\n'
+		+ 'function body() {}\n'
+		+ 'test(\'a\', body);\n'
+		+ 'test(\'a\', body);',
+		'// The last argument of a two-argument call is the implementation, even when it is imported\n'
+		+ 'import {test} from \'node:test\';\n'
+		+ 'import {run} from \'./helpers.js\';\n'
+		+ 'test(\'foo\', run);\n'
+		+ 'test(\'foo\', run);',
 	],
 });

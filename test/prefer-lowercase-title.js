@@ -54,7 +54,6 @@ test.snapshot({
 		// over the positional title, so the positional title is not the test's name
 		'import {test} from \'node:test\';\nconst options = {name: \'lowercase\'};\ntest(\'Uppercase positional\', options, () => {});',
 		'import {test} from \'node:test\';\nconst options = {name: \'lowercase\'};\ntest(\'Uppercase\', options, {skip: true}, () => {});',
-		'import {test} from \'node:test\';\nconst body = () => {};\ntest(\'Uppercase\', body);',
 	],
 	invalid: [
 		// The object form title is the descriptor's `name`
@@ -118,5 +117,11 @@ test.snapshot({
 		// No lowercase form exists for this one, so it is reported without a fix.
 		withImport('test("\u{1D400}bc", () => {});'),
 		'import {test} from \'node:test\';\ntest(\'Uppercase\', \'str\', () => {});',
+		// A function in the options slot is the implementation, and `node:test` never reads a `name` off it
+		'import {test} from \'node:test\';\nconst body = () => {};\ntest(\'Uppercase\', body);',
+		'import {test} from \'node:test\';\nfunction body() {}\ntest(\'Uppercase\', body);',
+		// The last argument of a two-argument call is the implementation, even when it is not a local function
+		'import {test} from \'node:test\';\nimport {run} from \'./helpers.js\';\ntest(\'Uppercase\', run);',
+		'import {test} from \'node:test\';\nimport helpers from \'./helpers.js\';\ntest(\'Uppercase\', helpers.run);',
 	],
 });
