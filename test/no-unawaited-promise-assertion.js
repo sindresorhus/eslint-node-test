@@ -114,6 +114,8 @@ test.snapshot({
 		inAsyncTest('Promise.resolve([load().then(value => { assert.strictEqual(value, 42); })]);'),
 		inAsyncTest('Promise.race(load().then(value => { assert.strictEqual(value, 42); }));'),
 		inAsyncTest('Promise.all([...load().then(value => { assert.strictEqual(value, 42); })]);'),
+		// Known limitation: a combinator with a chain on it is not looked into
+		inAsyncTest('Promise.all([load().then(value => { assert.strictEqual(value, 42); })]).catch(() => {});'),
 
 		// A throw or a subtest in a floating callback is what `no-late-test-activity` reports, not an assertion
 		inAsyncTest('load().then(() => { throw new Error(\'boom\'); });'),
