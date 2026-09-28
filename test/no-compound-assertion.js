@@ -60,6 +60,10 @@ test.snapshot({
 		withAssert('function helper({assert}) {\n\tassert.ok(a && b);\n}'),
 	],
 	invalid: [
+		// A context assertion may count toward a plan set by an outer test or a hook, so in a file that sets a plan it is reported without a fix
+		'import test from \'node:test\';\ntest(\'o\', {plan: 2}, async t => {\n\tawait t.test(\'i\', s => {\n\t\tt.assert.ok(a && b);\n\t});\n});',
+		'import test from \'node:test\';\ntest.beforeEach(t => {\n\tt.assert.ok(a && b);\n});\ntest(\'x\', {plan: 2}, t => {\n\tt.assert.ok(1);\n});',
+
 		withTest('test(\'t\', ({assert}) => { assert.ok(a && b); });'),
 		// A destructured context `assert` receiver is split like any other
 		withTest('test(\'t\', ({assert}) => {\n\tassert.ok(a && b);\n});'),
@@ -68,7 +72,7 @@ test.snapshot({
 		'import test from \'node:test\';\nimport assert from \'node:assert\';\n\nclass A {\n\tstatic {\n\t\tassert.ok(x > 0 && x < 5);\n\t}\n}',
 		'import {beforeEach} from \'node:test\';\nbeforeEach(({assert}) => { assert.ok(a && b); });',
 
-		// A nested context's `t.plan()` does not apply to the outer one, which stays fixable
+		// The fix reads the file, not the test: a nested context's `t.plan()` turns it off for the outer context's assertion too
 		withTest(`test('t', t => {
 	t.test('s', t2 => {
 		t2.plan(1);
@@ -213,13 +217,12 @@ test.snapshot({
 		s.assert.ok(a && b);
 	});
 });`),
-		// A plan count that is not a real plan sets no expectation, so the fix is still safe
+		// Any mention of `plan` turns the fix off for a context assertion, even a plan count that sets no expectation
 		withTest(`test('t', {plan: 0}, t => {
 	t.assert.ok(a && b);
 });`),
 
-		// A plan declared on a nested test belongs to that test, not to the one it sits inside
-		// A plan declared on a nested test belongs to that test, not to the one it sits inside
+		// An imported assertion never counts toward a plan, so it is fixed whatever plan the file sets
 		withAssert(`test('o', t => {
 	t.test('i', {plan: 1}, () => {});
 	assert.ok(a && b);
@@ -228,11 +231,11 @@ test.snapshot({
 	test('i', {plan: 1});
 	assert.ok(a && b);
 });`),
-		// A `getTestContext()` plan is the same plan as `t.plan(n)`
+		// A `getTestContext()` plan does not count an imported assertion either
 		'import {test, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\n'
 		+ 'test(\'a\', () => {\n\tgetTestContext().plan(1);\n\tassert.ok(a && b);\n});',
 
-		// The plan of a body named out of line is not known, so a context assertion in it is not fixed
+		// A context assertion in a body named out of line is not fixed in a file that mentions `plan` either
 		withTest(`function body(t) {
 	t.plan(1);
 	t.assert.ok(a && b);
@@ -243,11 +246,28 @@ test('a', body);`),
 }
 test('a', {plan: 1}, body);`),
 		withTest('test(\'a\', {plan: 1}, body);\nfunction body({assert}) {\n\tassert.ok(a && b);\n}'),
+		withTest(`test('o', t => {
+	const body = s => {
+		s.assert.ok(a && b);
+	};
+	t.test('i', {plan: 1}, body);
+});`),
+		// In a file that never mentions `plan`, a context assertion is fixed, in a nested closure too
+		withTest(`test('o', t => {
+	[1].forEach(() => {
+		t.assert.ok(a && b);
+	});
+});`),
 		// A plan counts only the context's assertions, so an imported assertion there is still fixed
 		withTestAndAssert(`function body(t) {
 	t.plan(1);
 	assert.ok(a && b);
 }
 test('a', body);`),
+		// The file is searched as text, so a `plan` in a comment turns the fix off for a context assertion as well
+		withTest(`// TODO: plan the refactor
+test('t', t => {
+	t.assert.ok(a && b);
+});`),
 	],
 });

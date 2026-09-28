@@ -1,15 +1,11 @@
 import {
 	resolveImports,
-	parseTestCall,
 	parseAssertionCall,
 	parseSupportedAssertionCall,
 	createContextTracker,
-	getTestCallback,
-	hasEnabledPlanOption,
-	isGetTestContextCall,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
-import {getParenthesizedRange, getStaticPropertyName} from './utils/index.js';
+import {getParenthesizedRange} from './utils/index.js';
 
 const MESSAGE_ID = 'no-compound-assertion';
 
@@ -80,17 +76,6 @@ function buildFix({node, operands, sourceCode, context, hasPlan}) {
 	};
 }
 
-/** Whether a call is `<context>.plan(…)` on a tracked test context, or a `getTestContext()` one. */
-function isPlanCall(node, tracker, imports) {
-	const callee = unwrapTypeScriptExpression(node.callee);
-	if (callee?.type !== 'MemberExpression' || getStaticPropertyName(callee) !== 'plan') {
-		return false;
-	}
-
-	const receiver = unwrapTypeScriptExpression(callee.object);
-	return tracker.isContextIdentifier(receiver) || isGetTestContextCall(receiver, imports);
-}
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -101,46 +86,15 @@ const create = context => {
 
 	const tracker = createContextTracker(imports, {trackHooks: true});
 
-	// Callbacks whose body declared a `t.plan(n)`. Keyed on the callback node so a plan applies
-	// to its own context only, and a nested context's plan cannot leak out when it exits.
-	const plannedCallbacks = new Set();
-
-	// Outside every inline callback, an assertion on a test context sits in a body named out of line
-	// (`test('a', body)`), whose plan this rule does not follow, so it counts as planned. A plan counts
-	// only the context's assertions, so an imported `node:assert` call there is still safe to split.
-	const hasPlan = node => {
-		const callback = tracker.currentCallback();
-		if (callback === undefined) {
-			const importedAssertion = parseAssertionCall(node, imports);
-			return importedAssertion === undefined || importedAssertion.contextReceiver !== undefined;
-		}
-
-		return plannedCallbacks.has(callback);
+	// A plan counts only the assertions made through a test context, and it can come from the test itself, an outer test, a hook or the `plan` option, so which plan an assertion counts toward is not something to work out here. A context assertion is therefore split only in a file that never mentions `plan`, which a comment or an unrelated name can do too. An imported `node:assert` call never counts toward a plan, so it is always safe to split.
+	const hasPlanMention = /\bplan\b/.test(sourceCode.text);
+	const isContextAssertion = node => {
+		const importedAssertion = parseAssertionCall(node, imports);
+		return importedAssertion === undefined || importedAssertion.contextReceiver !== undefined;
 	};
 
 	context.on('CallExpression', node => {
-		// A subtest is a method call, so it has to be recognized before the tracker pushes its context.
-		const isSubtest = tracker.isSubtestCall(node);
-
-		// The `plan` option sets the same expected count as `t.plan(n)`, so splitting one assertion into
-		// several would break the plan the same way. It is read before the tracker learns this call,
-		// because a test declared without a callback (`test('inner', {plan: 1})`) pushes no context of
-		// its own, and the plan belongs to that test rather than to the one it sits inside.
-		const planCallback = getTestCallback(node);
-		if (
-			(isSubtest || parseTestCall(node, imports)?.kind === 'test')
-			&& planCallback
-			&& hasEnabledPlanOption(node, context)
-		) {
-			plannedCallbacks.add(planCallback);
-		}
-
 		tracker.update(node);
-
-		if (isPlanCall(node, tracker, imports)) {
-			plannedCallbacks.add(tracker.currentCallback());
-			return;
-		}
 
 		const assertion = parseSupportedAssertionCall(node, imports, tracker);
 		if (assertion?.method !== 'ok') {
@@ -167,7 +121,7 @@ const create = context => {
 				operands,
 				sourceCode,
 				context,
-				hasPlan: hasPlan(node),
+				hasPlan: hasPlanMention && isContextAssertion(node),
 			}),
 		};
 	});
