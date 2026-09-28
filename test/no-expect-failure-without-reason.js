@@ -18,7 +18,6 @@ test.snapshot({
 		withTest('test(\'t\', {expectFailure: false}, () => {});'),
 		withTest('test(\'t\', {expectFailure: undefined}, () => {});'),
 		withTest('test(\'t\', {expectFailure: shouldExpectFailure}, () => {});'),
-		withTest('test(\'t\', {expectFailure: \'\'}, () => {});'),
 		// A reason read from a constant is still a reason
 		withTest('const reason = \'tracked in #123\';\ntest(\'t\', {expectFailure: reason}, () => {});'),
 
@@ -96,5 +95,9 @@ test.snapshot({
 		withTest('test(\'t\', {[\'expectFailure\']: true}, () => {});'),
 		withTest('test(\'t\', {expectFailure: [\'x\'] ? 1 : true}, () => {});'),
 		'// A subtest registered from a hook callback is a real test\nimport {test, before} from \'node:test\';\nbefore(t => {\n	t.test(\'c\', {expectFailure: true}, () => {});\n});',
+
+		// An empty string turns the expected failure on with no reason: the runner prints `# EXPECTED FAILURE` with nothing after it
+		withTest('test(\'t\', {expectFailure: \'\'}, () => {});'),
+		withTest('const reason = \'\';\ntest(\'t\', {expectFailure: reason}, () => {});'),
 	],
 });

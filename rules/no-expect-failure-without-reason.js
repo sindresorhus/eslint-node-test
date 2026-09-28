@@ -26,10 +26,15 @@ function isExpectFailureOff(value) {
 /*
 Whether a value carries a reason or a matcher, which is what `parseExpectFailure` accepts. It rejects
 `null` outright and any object with no own enumerable keys, such as `{}`, `[]`, or a `Date`, so those
-are not reasons either — they are values the runner throws on.
+are not reasons either — they are values the runner throws on. An empty string turns the expected
+failure on with no reason at all.
 */
 function hasExpectFailureReason(value) {
-	if (typeof value === 'string' || typeof value === 'function' || value instanceof RegExp) {
+	if (typeof value === 'string') {
+		return value !== '';
+	}
+
+	if (typeof value === 'function' || value instanceof RegExp) {
 		return true;
 	}
 
