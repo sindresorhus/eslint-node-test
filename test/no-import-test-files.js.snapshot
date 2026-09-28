@@ -482,6 +482,40 @@ Message:
 
 `;
 
+exports[`no-import-test-files > invalid(40): import {createRequire} from 'node:module';\nconst require = createRequire(import.meta.url);\nrequire('./example.test.js'); 1`] = `
+
+  1 | import {createRequire} from 'node:module';
+  2 | const require = createRequire(import.meta.url);
+  3 | require('./example.test.js');
+
+`;
+
+exports[`no-import-test-files > invalid(40): import {createRequire} from 'node:module';\nconst require = createRequire(import.meta.url);\nrequire('./example.test.js'); 2`] = `
+
+Message:
+  1 | import {createRequire} from 'node:module';
+  2 | const require = createRequire(import.meta.url);
+> 3 | require('./example.test.js');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not import a test file. The Node.js test runner may execute it twice.
+
+`;
+
+exports[`no-import-test-files > invalid(41): const {test} = require('node:test');\nfunction load(require) { require('./dependency.test.js'); } 1`] = `
+
+  1 | const {test} = require('node:test');
+  2 | function load(require) { require('./dependency.test.js'); }
+
+`;
+
+exports[`no-import-test-files > invalid(41): const {test} = require('node:test');\nfunction load(require) { require('./dependency.test.js'); } 2`] = `
+
+Message:
+  1 | const {test} = require('node:test');
+> 2 | function load(require) { require('./dependency.test.js'); }
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not import a test file. The Node.js test runner may execute it twice.
+
+`;
+
 exports[`no-import-test-files > invalid(5): export {type Helper, value} from './example.test.js'; 1`] = `
 
   1 | export {type Helper, value} from './example.test.js';

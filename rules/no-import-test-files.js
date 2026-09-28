@@ -1,6 +1,6 @@
 import path from 'node:path';
 import {getStaticStringValue} from './ast/index.js';
-import {isUnshadowedGlobal, unwrapTypeScriptExpression} from './utils/index.js';
+import {unwrapTypeScriptExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'no-import-test-files';
 const IS_CASE_INSENSITIVE_FILE_SYSTEM = process.platform === 'darwin' || process.platform === 'win32';
@@ -119,7 +119,6 @@ const create = context => {
 			: (expression?.type === 'CallExpression'
 				&& expression.callee.type === 'Identifier'
 				&& expression.callee.name === 'require'
-				&& isUnshadowedGlobal(context, expression.callee, 'require')
 				? expression.arguments[0]
 				: undefined);
 		return argument ? getProblem(node, argument) : undefined;
@@ -148,7 +147,9 @@ const create = context => {
 	});
 	context.on('ImportExpression', node => getProblem(node, node.source));
 	// A CommonJS `require('./other.test.js')` loads the target the same way an import does, so the
-	// runner really does execute the dependency a second time. TypeScript's `export = require(…)` is
+	// runner really does execute the dependency a second time. A local `require` counts too: the one
+	// `createRequire()` returns loads the file just the same, and with a literal test file specifier
+	// any function of that name is loading it. TypeScript's `export = require(…)` is
 	// the one exception: the `TSExportAssignment` visitor below already reports it, on the whole
 	// statement, so reporting the inner call again would be a second problem for one import.
 	context.on('CallExpression', node => node.parent?.type === 'TSExportAssignment' ? undefined : getRequireProblem(node, node));

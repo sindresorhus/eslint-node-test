@@ -4,8 +4,6 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
-		// A `require` that is a local binding is some other function
-		'const {test} = require(\'node:test\');\nfunction load(require) { require(\'./dependency.test.js\'); }',
 		'const {test} = require(\'node:test\');\nrequire(specifier);',
 		'import value from \'./value.js\';',
 		'import value from \'./test/value.json\';',
@@ -161,5 +159,10 @@ test.snapshot({
 			code: '// A TypeScript `export = require()` is one import, so it is reported once, on the statement\nexport = require(\'./example.test.js\');',
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// A local `require` is still a loader: `createRequire()` returns one, and a function called
+		// `require` with a test file specifier is loading it
+		'import {createRequire} from \'node:module\';\nconst require = createRequire(import.meta.url);\nrequire(\'./example.test.js\');',
+		'const {test} = require(\'node:test\');\nfunction load(require) { require(\'./dependency.test.js\'); }',
 	],
 });
