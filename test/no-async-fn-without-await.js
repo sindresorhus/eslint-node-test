@@ -148,5 +148,9 @@ test.snapshot({
 
 		// A context hook body the call names out of line is checked the same way as an inline one
 		withImport('test(\'p\', async t => { async function body() { foo(); } t.beforeEach(body); await t.test(\'x\', () => {}); });'),
+
+		// A body shared by two calls is one function, so it is reported once
+		'import {test} from \'node:test\';\nasync function body() { foo(); }\ntest(\'a\', body);\ntest(\'b\', body);',
+		withImport('async function body() { foo(); }\ntest(\'a\', async t => { t.beforeEach(body); await t.test(\'x\', () => {}); });\ntest(\'b\', body);'),
 	],
 });

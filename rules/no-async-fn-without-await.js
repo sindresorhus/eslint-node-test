@@ -1,15 +1,12 @@
-import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	resolveImports,
 	parseTestCall,
-	getHookCallback,
+	resolveCallbackArgument,
 	getResolvedTestCallback,
 	createContextTracker,
 	isContextHookCall,
 } from './utils/node-test.js';
 import containsSuspensionPoint from './utils/contains-suspension-point.js';
-import {unwrapTypeScriptExpression} from './utils/index.js';
-import isFunction from './ast/is-function.js';
 
 const MESSAGE_ID = 'no-async-fn-without-await/error';
 const MESSAGE_ID_SUGGESTION = 'no-async-fn-without-await/suggestion';
@@ -18,28 +15,6 @@ const messages = {
 	[MESSAGE_ID]: 'Async test/hook function has no `await`, `for await`, `await using` or `yield`.',
 	[MESSAGE_ID_SUGGESTION]: 'Remove the `async` keyword.',
 };
-
-/*
-The function a context hook (`t.beforeEach(…)`) runs: its first argument, inline or through the binding it names. The runner never reads a later slot or `options.fn` for a hook.
-*/
-function getContextHookCallback(call, context) {
-	const callback = getHookCallback(call);
-	const firstArgument = call.arguments[0] && unwrapTypeScriptExpression(call.arguments[0]);
-	if (callback || firstArgument?.type !== 'Identifier') {
-		return callback;
-	}
-
-	const variable = findVariable(context.sourceCode.getScope(firstArgument), firstArgument);
-	for (const definition of variable?.defs ?? []) {
-		// A `function body() {}` definition carries the declaration; `const body = () => {}` carries the declarator, whose `init` is the function.
-		const node = definition.type === 'FunctionName' ? definition.node : definition.node?.init;
-		if (isFunction(node)) {
-			return node;
-		}
-	}
-
-	return undefined;
-}
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -53,6 +28,9 @@ const create = context => {
 	// parameter, not imported bindings, so the tracker is needed to see them alongside the imported
 	// `test`/`it` and `before`/`after` spellings.
 	const tracker = createContextTracker(imports, {trackHooks: true});
+
+	// A body named out of line can be passed to several calls, but it is one function, so it is reported once.
+	const reportedCallbacks = new Set();
 
 	context.on('CallExpression', node => {
 		// Query the tracker before it learns about this call, so the receiver is the enclosing context.
@@ -70,16 +48,19 @@ const create = context => {
 		// dead code there too.
 		// A callback the call names out of line, for a test or a hook alike, is still the callback the
 		// runner calls, so it is read as the function its binding reaches.
-		const callback = isContextHook ? getContextHookCallback(node, context) : getResolvedTestCallback(node, context, imports);
+		// A context hook (`t.beforeEach(…)`) runs its first argument, inline or through the binding it names. The runner never reads a later slot or `options.fn` for a hook.
+		const callback = isContextHook ? resolveCallbackArgument(node.arguments[0], context) : getResolvedTestCallback(node, context, imports);
 		if (!callback?.async) {
 			return;
 		}
 
 		// Check if the async function body contains any suspension point at its own level.
 		// containsSuspensionPoint does not descend into nested functions.
-		if (containsSuspensionPoint(callback.body, sourceCode.visitorKeys)) {
+		if (reportedCallbacks.has(callback) || containsSuspensionPoint(callback.body, sourceCode.visitorKeys)) {
 			return;
 		}
+
+		reportedCallbacks.add(callback);
 
 		// A method shorthand (`async fn() {}`) keeps the `async` keyword and the method name on the
 		// surrounding `Property`; the function value's own range starts at the parameter list, so the
