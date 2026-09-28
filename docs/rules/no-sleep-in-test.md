@@ -54,4 +54,4 @@ test('debounces', t => {
 
 The rule intentionally does not report locally defined `sleep()` or `delay()` helper calls, the body of a helper function the test only calls, or bare `setTimeout(fn, ms)` scheduling. A callback the test, subtest, or hook call names directly as its body is a test body, so it is followed wherever it is declared. It only targets direct imported promise-timer `setTimeout()` calls and direct Promise timer wrappers.
 
-A statically skipped test's body is not reported, because `node:test` never runs it. A `todo` test is not skipped: its body does run, so a sleep in one is still reported.
+A statically skipped test's body is not reported, because `node:test` never runs it. A falsy `skip` such as `{skip: 0}` still runs a test's own body, so that is reported, but on a suite it cancels every test the suite registers, so those are not. A `todo` test is not skipped: its body does run, so a sleep in one is still reported.

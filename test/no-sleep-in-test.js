@@ -15,6 +15,8 @@ const withNodeTestPromiseTimerImport = code => [
 ].join('\n');
 // A body that sleeps, declared out of line.
 const sleepingBody = 'const body = async () => {\n\tawait new Promise(resolve => setTimeout(resolve, 500));\n};\n';
+// A suite body that registers a sleeping test, declared out of line.
+const sleepingSuiteBody = 'const suiteBody = () => {\n\ttest(\'waits\', async () => {\n\t\tawait new Promise(resolve => setTimeout(resolve, 500));\n\t});\n};\n';
 const withSuitePromiseTimerImport = (callee, options, code) => withNodeTestPromiseTimerImport([
 	`${callee}('suite', ${options}() => {`,
 	indent(code),
@@ -67,6 +69,11 @@ test.snapshot({
 		'import {describe} from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\ndescribe(\'suite\', async () => {\n\tawait delay(500);\n});',
 		withSuitePromiseTimerImport('describe.skip', '', 'test(\'waits\', async () => {\n\tawait delay(500);\n});'),
 		withSuitePromiseTimerImport('describe', '{skip: true}, ', 'test(\'waits\', async () => {\n\tawait delay(500);\n});'),
+		// Unlike a test, a suite cancels every test it registers for any `skip` that is neither `undefined` nor `false`
+		withSuitePromiseTimerImport('describe', '{skip: 0}, ', 'test(\'waits\', async () => {\n\tawait delay(500);\n});'),
+		withSuitePromiseTimerImport('describe', '{skip: \'\'}, ', 'test(\'waits\', async () => {\n\tawait delay(500);\n});'),
+		withSuitePromiseTimerImport('describe', '{skip: null}, ', 'test(\'waits\', async () => {\n\tawait delay(500);\n});'),
+		'import {describe, test} from \'node:test\';\n' + sleepingBody + 'describe(\'s\', {skip: 0}, () => {\n	test(\'a\', body);\n});',
 
 		// A shadowed `resolve` is not the executor's resolver
 		withTest('await new Promise(resolve => {\n\t{\n\t\tconst resolve = other;\n\t\tsetTimeout(resolve, 500);\n\t}\n});'),
@@ -78,7 +85,7 @@ test.snapshot({
 		withTest('await new Promise(sleep);'),
 		// The object form puts the options first, and `skip` reads the same there
 		'import test from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\ntest({name: \'waits\', skip: true, fn: async () => {\n\tawait delay(500);\n}});',
-		// `skip` enables on anything that is neither `undefined` nor `false`, so `0` skips too
+		// `skip` marks the test skipped on anything that is neither `undefined` nor `false`, but only a truthy one stops the body, so `{skip: 0}` is in `invalid`
 		// A hook takes its callback first, so the runner never runs an options `fn`
 		'import {beforeEach} from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\nbeforeEach({fn: async () => {\n\tawait delay(1);\n}});',
 		'// A skipped test never runs its body, out of line exactly as inline\n'
@@ -100,11 +107,33 @@ test.snapshot({
 		'import {skip} from \'node:test\';\n' + sleepingBody + 'skip(\'a\', body);',
 		'import {describe, test} from \'node:test\';\n' + sleepingBody + 'describe.skip(\'s\', () => {\n	test(\'a\', body);\n});',
 		'import {describe, test} from \'node:test\';\n' + sleepingBody + 'describe(\'s\', {skip: true}, () => {\n	test(\'a\', body);\n});',
+		'import {describe, test} from \'node:test\';\n' + sleepingBody + 'describe(\'s\', {skip: true, fn: () => {\n	test(\'a\', body);\n}});',
+		'import {describe, test} from \'node:test\';\n' + sleepingBody + 'describe({name: \'s\', skip: true, fn: () => {\n	test(\'a\', body);\n}});',
+		{
+			code: 'import {describe, test} from \'node:test\';\n' + sleepingBody + 'describe(\'s\', {skip: true, fn: () => {\n	test(\'a\', body);\n}} as any);',
+			languageOptions: {parser: parsers.typescript},
+		},
 		// `TestContext#test` has no `skip` member, so the call throws and never runs the body
 		'import {test} from \'node:test\';\n' + sleepingBody + 'test(\'a\', async t => {\n	await t.test.skip(\'b\', body);\n});',
+		// A skipped suite whose body is named out of line never runs the tests it registers, whether their bodies are inline or out of line too
+		'import {describe, test} from \'node:test\';\n' + sleepingSuiteBody + 'describe.skip(\'s\', suiteBody);',
+		'import {describe, test} from \'node:test\';\n'
+		+ 'describe(\'s\', {skip: true}, suiteBody);\n'
+		+ 'function suiteBody() {\n'
+		+ '	test(\'waits\', async () => {\n'
+		+ '		await new Promise(resolve => setTimeout(resolve, 500));\n'
+		+ '	});\n'
+		+ '}',
+		'import {describe, test} from \'node:test\';\n' + sleepingBody + 'const suiteBody = () => {\n	test(\'a\', body);\n};\ndescribe.skip(\'s\', suiteBody);',
+		'import {describe, test} from \'node:test\';\n' + sleepingSuiteBody + 'describe.skip(\'outer\', () => {\n	describe(\'s\', suiteBody);\n});',
 	],
 	invalid: [
 		withTest('await new Promise(resolve => setTimeout(resolve, 500));'),
+
+		// Two suite bodies that register each other still end the walk up to a skipped registration
+		'import {describe, test} from \'node:test\';\n'
+		+ 'function first() {\n	describe(\'x\', second);\n}\n'
+		+ 'function second() {\n	describe(\'y\', first);\n	test(\'a\', async () => { await new Promise(resolve => setTimeout(resolve, 500)); });\n}',
 
 		// A test body the call names out of line is still a test body
 		'import test from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\nasync function body() { await delay(500); }\ntest(\'waits\', body);',
@@ -281,5 +310,9 @@ test.snapshot({
 		+ '});',
 		// A suite that runs its callback, and a modifier that still runs the body
 		'import {describe, test} from \'node:test\';\n' + sleepingBody + 'describe(\'s\', () => {\n	test.only(\'a\', body);\n});',
+		// A suite body named out of line runs when its suite is not skipped
+		'import {describe, test} from \'node:test\';\n' + sleepingSuiteBody + 'describe(\'s\', suiteBody);',
+		// A `skip` that cannot be resolved statically proves nothing, so the suite is treated as running
+		withSuitePromiseTimerImport('describe', '{skip: process.env.SKIP}, ', 'test(\'waits\', async () => {\n\tawait delay(500);\n});'),
 	],
 });

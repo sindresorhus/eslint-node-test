@@ -5,6 +5,7 @@ import {
 	getCalleeChain,
 	getHookCallback,
 	getTestCallback,
+	getParentCallExpression,
 	getOutOfLineCallbackCall,
 	getRegistrationKind,
 	getTestOptions,
@@ -16,7 +17,7 @@ import {
 	MODIFIERS,
 	getImportSpecifierName,
 } from './utils/node-test.js';
-import {hasEnabledSkipOption} from './shared/skipped-test.js';
+import {hasEnabledSkipOption, hasSkippedSuiteOption} from './shared/skipped-test.js';
 import {getEnclosingFunction, unwrapExpression} from './utils/index.js';
 import {functionTypes, isFunction} from './ast/index.js';
 
@@ -68,6 +69,7 @@ function areActiveModifiers(modifiers) {
 
 function hasInactiveTestOptions(node, context) {
 	// The same check the shared skip detection uses: only a truthy `skip` stops the body from running.
+	// For a test, `{skip: 0}` reports the test as skipped but still runs its own body, so a sleep in it still costs the time. A suite is different, see `hasSkippedSuiteOption`.
 	return hasEnabledSkipOption(getTestOptions(node), context);
 }
 
@@ -119,7 +121,12 @@ function getParsedModifiers(parsed) {
 }
 
 function hasInactiveParsedOptions(node, parsed, context) {
-	return getParsedKind(parsed) !== 'hook' && hasInactiveTestOptions(node, context);
+	const kind = getParsedKind(parsed);
+	if (kind === 'suite') {
+		return hasSkippedSuiteOption(getTestOptions(node), context);
+	}
+
+	return kind !== 'hook' && hasInactiveTestOptions(node, context);
 }
 
 function getTimerImportBindings(sourceCode) {
@@ -420,7 +427,8 @@ const create = context => {
 		}
 
 		const boundaryCallback = getScopeBoundaryCallback(node);
-		if (boundaryCallback) {
+		// A skipped registration whose body is named out of line is not on the stack, so it is read from the code.
+		if (boundaryCallback && !isInsideSkippedRegistration(node)) {
 			testStack.push({
 				callback: boundaryCallback,
 				contextVariable: getContextVariable(boundaryCallback),
@@ -443,8 +451,7 @@ const create = context => {
 	});
 
 	// Whether a registration call runs its callback, read the way the inline path reads it: its
-	// modifiers and its options. A context hook has neither. `TestContext#test` has no `skip` or `todo`
-	// member, so `t.test.skip(…)` throws and runs nothing either.
+	// modifiers and its options. A context hook has neither. `TestContext#test` has no `skip`, `todo` or `only` member, so any of them throws; they are read the way the inline path reads them, so only `t.test.skip(…)` counts as not running.
 	const runsCallback = call => {
 		const parsed = parseTestCall(call, imports);
 		if (parsed) {
@@ -458,17 +465,31 @@ const create = context => {
 	// Whether a registration around the call skips the callback the call sits in, like
 	// `describe.skip('s', () => { test('a', body); })`. The inline path learns this from the stack, but
 	// an out-of-line body is visited where it is declared, so the call's own ancestors are read instead.
+	// A function named out of line (`describe.skip('s', suiteBody)`) is registered somewhere else, so the
+	// walk goes on from the call that registers it.
 	const isInsideSkippedRegistration = call => {
+		const visited = new Set();
 		for (let current = call.parent; current; current = current.parent) {
-			const registration = current.parent;
+			if (!isFunction(current) || visited.has(current)) {
+				continue;
+			}
+
+			// Two bodies that register each other would otherwise lead the walk around forever.
+			visited.add(current);
+			// The options and descriptor forms put the callback in an `fn` property, one level below the call.
+			const parentCall = getParentCallExpression(current);
+			const inlineRegistration = parentCall && getTestCallback(parentCall, imports) === current ? parentCall : undefined;
+			const registration = inlineRegistration ?? getOutOfLineCallbackCall(current, context, imports);
 			if (
-				isFunction(current)
-				&& registration?.type === 'CallExpression'
-				&& getTestCallback(registration, imports) === current
+				registration
 				&& getRegistrationKind(registration, imports, undefined, context) !== undefined
 				&& !runsCallback(registration)
 			) {
 				return true;
+			}
+
+			if (registration && !inlineRegistration) {
+				current = registration;
 			}
 		}
 
