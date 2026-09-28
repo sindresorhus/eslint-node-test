@@ -1,6 +1,9 @@
+import nodeTest from 'node:test';
+import assert from 'node:assert/strict';
+import {Linter} from 'eslint';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {ruleId, rule, test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
@@ -8,25 +11,28 @@ test.snapshot({
 		'test("Test something", () => {});',
 		// No format option — rule is effectively off
 		'import test from "node:test";\ntest("Test something", () => {});',
-		// A character class that is valid in a plain regular expression must not crash the rule.
-		// The `v` flag rejects the unescaped `-`/`a` and the bare `(`/`)` in a class.
+		// The format is compiled with the `v` flag, so a `-` in a class has to be escaped
 		{
 			code: 'import test from "node:test";\ntest("(paren) title", () => {});',
 			options: [{format: String.raw`^\(paren\) title$`}],
 		},
 		{
 			code: 'import test from "node:test";\ntest("-dash title", () => {});',
-			options: [{format: '^[-a-z ]+$'}],
+			options: [{format: String.raw`^[\-a-z ]+$`}],
 		},
-		// An identity escape is valid in a plain regular expression and must not crash the rule
-		{
-			code: 'import test from "node:test";\ntest("It my_helper", () => {});',
-			options: [{format: String.raw`^It\ .*_helper$`}],
-		},
-		// A Unicode property escape still works, which is the reason for a unicode flag at all
+		// A Unicode property escape works
 		{
 			code: 'import test from "node:test";\ntest("Ünicode title", () => {});',
 			options: [{format: String.raw`^\p{Lu}[\p{Ll} ]+$`}],
+		},
+		// A `v` flag set operation works: an intersection and a difference
+		{
+			code: 'import test from "node:test";\ntest("Ünicode title", () => {});',
+			options: [{format: String.raw`^[\p{L}&&\p{Lu}]`}],
+		},
+		{
+			code: 'import test from "node:test";\ntest("Ünicode title", () => {});',
+			options: [{format: String.raw`^[\p{L}--[a-z]]`}],
 		},
 		// Matches the pattern
 		{
@@ -112,5 +118,29 @@ test.snapshot({
 			code: 'import test from \'node:test\';\ntest(\'p\', async t => { await t.test(\'nope\', () => {}); });',
 			options: [{format: '^Should'}],
 		},
+		// A `v` flag set operation is read as one: a lowercase first letter is outside both the intersection and the difference
+		{
+			code: 'import test from "node:test";\ntest("ünicode title", () => {});',
+			options: [{format: String.raw`^[\p{L}&&\p{Lu}]`}],
+		},
+		{
+			code: 'import test from "node:test";\ntest("unicode title", () => {});',
+			options: [{format: String.raw`^[\p{L}--[a-z]]`}],
+		},
 	],
+});
+
+nodeTest('a format the `v` flag rejects is an invalid option', () => {
+	// An unescaped `-` in a class and an identity escape such as `\ ` are valid without a flag, but not with `v`
+	for (const format of ['^[-a-z ]+$', String.raw`^It\ .*_helper$`]) {
+		assert.throws(
+			() => {
+				new Linter().verify('import test from "node:test";\ntest("x", () => {});', {
+					plugins: {'rule-to-test': {rules: {[ruleId]: rule}}},
+					rules: {[`rule-to-test/${ruleId}`]: ['error', {format}]},
+				});
+			},
+			{message: /Invalid `format` option for `test-title-format`/},
+		);
+	}
 });

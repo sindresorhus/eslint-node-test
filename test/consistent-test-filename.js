@@ -1,6 +1,9 @@
+import nodeTest from 'node:test';
+import assert from 'node:assert/strict';
+import {Linter} from 'eslint';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {ruleId, rule, test} = getTester(import.meta);
 
 const withImport = code => `import {test} from 'node:test';\n${code}`;
 const code = withImport('test("x", () => {});');
@@ -30,21 +33,15 @@ test.snapshot({
 		// The pattern is an unanchored search, not a full match
 		{code, filename: 'test-helpers.js', options: [{pattern: 'test'}]},
 
-		// A character class that is valid in a plain regular expression must not crash the rule.
-		// The `v` flag rejects the unescaped `.`/`-` in a class and the bare `(`/`)` in one.
-		{code, filename: 'foo.test.js', options: [{pattern: String.raw`[\w.-]+\.test\.js$`}]},
-		{code, filename: 'foo.test.js', options: [{pattern: String.raw`[\w-]+\.test\.js$`}]},
-		{code, filename: 'foo.test.js', options: [{pattern: String.raw`[()]?[\w]+\.test\.js$`}]},
-		{code, filename: 'foo.test.js', options: [{pattern: String.raw`[-a]*[\w]+\.test\.js$`}]},
+		// The pattern is compiled with the `v` flag, so a `-`, `(` or `)` in a class has to be escaped
+		{code, filename: 'foo.test.js', options: [{pattern: String.raw`[\w.\-]+\.test\.js$`}]},
+		{code, filename: 'foo.test.js', options: [{pattern: String.raw`[\(\)]?[\w]+\.test\.js$`}]},
 
-		// An identity escape is valid in a plain regular expression and must not crash the rule.
-		// `u` rejects `\u005f`, so the pattern is retried unflagged.
-		{code, filename: 'my_file.test.js', options: [{pattern: String.raw`^my\_file\.test\.js$`}]},
+		// A `#` or `,` outside a class needs no escape
 		{code, filename: '#foo.test.js', options: [{pattern: String.raw`^#foo\.test\.js$`}]},
 		{code, filename: 'foo,bar.test.js', options: [{pattern: String.raw`^foo,bar\.test\.js$`}]},
-		{code, filename: 'foo bar.test.js', options: [{pattern: String.raw`^foo\ bar\.test\.js$`}]},
 
-		// A Unicode property escape still works, which is the reason for a unicode flag at all
+		// A Unicode property escape works
 		{code, filename: 'F.test.js', options: [{pattern: String.raw`^\p{Lu}\w*\.test\.js$`}]},
 	],
 	invalid: [
@@ -74,4 +71,19 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 	],
+});
+
+nodeTest('a pattern the `v` flag rejects is an invalid option', () => {
+	// An unescaped `-` or `(` in a class and an identity escape such as `\_` are valid without a flag, but not with `v`
+	for (const pattern of [String.raw`[\w.-]+\.test\.js$`, String.raw`[()]?\w+\.test\.js$`, String.raw`^my\_file\.test\.js$`]) {
+		assert.throws(
+			() => {
+				new Linter().verify(code, {
+					plugins: {'rule-to-test': {rules: {[ruleId]: rule}}},
+					rules: {[`rule-to-test/${ruleId}`]: ['error', {pattern}]},
+				}, {filename: 'foo.test.js'});
+			},
+			{message: /Invalid `pattern` option for `consistent-test-filename`/},
+		);
+	}
 });

@@ -17,7 +17,7 @@ This rule is opt-in. Configure it when your project has a naming convention such
 
 Type: `string`
 
-A regular expression pattern string that all test titles must match.
+A regular expression pattern string that all test titles must match. It is compiled with the [`v` flag](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/unicodeSets), so `\p{…}` property escapes and set operations work. The pattern must be valid with that flag, which reserves more syntax characters inside a character class than the `u` flag does: a literal `-`, `(`, `)`, `[`, `{`, `}`, `/` or `|` there must be escaped, and so must a doubled punctuator such as `!!`.
 
 ## Examples
 
