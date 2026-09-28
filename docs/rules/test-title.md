@@ -11,7 +11,7 @@
 
 Tests must have a descriptive string title. A missing title makes test output harder to read and diagnose.
 
-The title must be a non-empty string without leading or trailing whitespace. Leading/trailing whitespace is auto-fixable.
+The title must be a non-empty string without leading or trailing whitespace. Leading/trailing whitespace is auto-fixable when the title is written as a string. A title read from a constant or an expression (`test(title, …)`) is reported without a fix, since rewriting it as a string literal would cut it off from the value it names.
 
 ## Examples
 

@@ -45,6 +45,11 @@ function getStaticTitleProblem(titleNode, context) {
 			return;
 		}
 
+		// `node:test` reads a first argument that holds an object as the descriptor, and one that holds a function as the implementation, so neither is a title. An object or function in `options.name` is left alone too, which is rare enough not to tell apart.
+		if (typeof staticValue.value === 'function' || (typeof staticValue.value === 'object' && staticValue.value !== null)) {
+			return;
+		}
+
 		titleValue = staticValue.value;
 	}
 
@@ -63,10 +68,10 @@ function getStaticTitleProblem(titleNode, context) {
 	}
 
 	if (titleValue !== titleValue.trim()) {
-		// A statically resolved title is written back as a fresh string literal, which would take any
-		// comment inside the expression it came from with it. A string literal or an
-		// expression-free template literal cannot hold one, so only a computed title needs the check.
-		if (sourceCode.getCommentsInside(titleNode).length > 0) {
+		// Only a title written as a string is fixed. A statically resolved one (`test(title, …)`) would be
+		// written back as a fresh string literal, which cuts the title off from the value it names.
+		const isWrittenString = titleNode.type === 'Literal' || (titleNode.type === 'TemplateLiteral' && titleNode.expressions.length === 0);
+		if (!isWrittenString) {
 			return {
 				node: titleNode,
 				messageId: MESSAGE_ID_WHITESPACE,

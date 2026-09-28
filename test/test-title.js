@@ -45,6 +45,10 @@ test.snapshot({
 		'import test from \'node:test\';\nconst rest = {name: \'z\'};\ntest({name: \'before\', ...rest});',
 		'import test from \'node:test\';\ntest({...descriptor});',
 		'import test from \'node:test\';\ntest({name: \'a\', [key]: 1});',
+
+		// A first argument that holds an object is the descriptor, not a positional title
+		'import test from \'node:test\';\nconst options = {name: \'x\'};\ntest(options, () => {});',
+		'import test from \'node:test\';\nconst options = {name: \'x\', fn() {}};\ntest(options);',
 	],
 	invalid: [
 		// The object form carries its title in the descriptor, so a `name` is not a missing title
@@ -75,8 +79,8 @@ test.snapshot({
 		'import test from "node:test";\ntest(\' foo \', () => {});',
 		// Template literal title becomes a single-quoted string after fixing
 		'import test from "node:test";\ntest(`  foo  `, () => {});',
-		// A statically resolved title is rewritten as a fresh string literal, which would drop a
-		// comment inside the expression it came from, so the fix is withheld.
+		// A statically resolved title is reported without a fix: rewriting it as a fresh string literal
+		// would cut it off from the value it names, and drop a comment inside the expression it came from.
 		'import test from "node:test";\ntest("foo" /* keep me */ + " ", () => {});',
 		'import test from "node:test";\nconst titles = {a: " foo "};\ntest(titles /* keep me */.a, () => {});',
 		'import test from "node:test";\ntest((0 /* keep me */, " foo "), () => {});',
@@ -156,5 +160,8 @@ test.snapshot({
 			code: 'import test from \'node:test\';\ntest((() => {})!);',
 			languageOptions: {parser: parsers.typescript},
 		},
+		// A template literal with an expression is a resolved title too, so it is reported without a fix
+		// eslint-disable-next-line no-template-curly-in-string
+		'import test from "node:test";\ntest(`${"foo"} `, () => {});',
 	],
 });
