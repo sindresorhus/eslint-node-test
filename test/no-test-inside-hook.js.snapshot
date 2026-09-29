@@ -210,6 +210,34 @@ Message:
 
 `;
 
+exports[`no-test-inside-hook > invalid(20): // A context hook body named out of line and registered through \`getTestContext()\`\nimport {test, getTestContext} from 'node:test';\ntest('a', () => {\n\tgetTestContext().beforeEach(hook);\n});\nfunction hook(t) {\n\tt.test('x', () => {});\n} 1`] = `
+
+  1 | // A context hook body named out of line and registered through \`getTestContext()\`
+  2 | import {test, getTestContext} from 'node:test';
+  3 | test('a', () => {
+  4 | 	getTestContext().beforeEach(hook);
+  5 | });
+  6 | function hook(t) {
+  7 | 	t.test('x', () => {});
+  8 | }
+
+`;
+
+exports[`no-test-inside-hook > invalid(20): // A context hook body named out of line and registered through \`getTestContext()\`\nimport {test, getTestContext} from 'node:test';\ntest('a', () => {\n\tgetTestContext().beforeEach(hook);\n});\nfunction hook(t) {\n\tt.test('x', () => {});\n} 2`] = `
+
+Message:
+  1 | // A context hook body named out of line and registered through \`getTestContext()\`
+  2 | import {test, getTestContext} from 'node:test';
+  3 | test('a', () => {
+  4 | 	getTestContext().beforeEach(hook);
+  5 | });
+  6 | function hook(t) {
+> 7 | 	t.test('x', () => {});
+    | 	^^^^^^^^^^^^^^^^^^^^^ Do not define a test or suite inside a hook. Define it at the top level or inside a \`describe\`.
+  8 | }
+
+`;
+
 exports[`no-test-inside-hook > invalid(3): import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';\nafterEach(() => { it('a', () => {}); }); 1`] = `
 
   1 | import {test, it, describe, suite, before, after, beforeEach, afterEach} from 'node:test';

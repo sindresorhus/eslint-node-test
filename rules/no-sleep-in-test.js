@@ -473,7 +473,7 @@ const create = context => {
 			const registration = inlineRegistration ?? getOutOfLineCallbackCall(current, context, imports);
 			if (
 				registration
-				&& getRegistrationKind(registration, imports, undefined, context) !== undefined
+				&& getRegistrationKind(registration, imports, context) !== undefined
 				&& !runsCallback(registration)
 			) {
 				return true;
@@ -494,7 +494,7 @@ const create = context => {
 	context.on(functionTypes, node => {
 		const call = getOutOfLineCallbackCall(node, context, imports);
 		// The body is only ever run when the test is not skipped, exactly as the inline path checks.
-		const kind = getRegistrationKind(call, imports, undefined, context);
+		const kind = getRegistrationKind(call, imports, context);
 		if ((kind !== 'test' && kind !== 'hook') || !runsCallback(call) || isInsideSkippedRegistration(call)) {
 			return;
 		}

@@ -49,8 +49,8 @@ const create = context => {
 	// does not cover, so an assertion in it was checked against no scope at all.
 
 	context.on(functionTypes, node => {
-		const call = getOutOfLineCallbackCall(node, context, imports, tracker.isContextReceiver);
-		const kind = getRegistrationKind(call, imports, tracker.isContextReceiver, context);
+		const call = getOutOfLineCallbackCall(node, context, imports);
+		const kind = getRegistrationKind(call, imports, context);
 		if (kind !== 'test' && kind !== 'hook') {
 			return;
 		}

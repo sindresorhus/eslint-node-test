@@ -80,8 +80,8 @@ const create = context => {
 	const outOfLineTestCallbacks = new WeakSet();
 
 	context.on(functionTypes, node => {
-		const call = getOutOfLineCallbackCall(node, context, imports, tracker.isContextReceiver);
-		const kind = getRegistrationKind(call, imports, tracker.isContextReceiver, context);
+		const call = getOutOfLineCallbackCall(node, context, imports);
+		const kind = getRegistrationKind(call, imports, context);
 		if (kind !== 'test' && kind !== 'hook') {
 			return;
 		}

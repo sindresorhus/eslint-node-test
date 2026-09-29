@@ -75,5 +75,13 @@ test.snapshot({
 		+ 'test(\'a\', t => {\n'
 		+ '	t.beforeEach(body);\n'
 		+ '});',
+		'// A context hook body named out of line and registered through `getTestContext()`\n'
+		+ 'import {test, getTestContext} from \'node:test\';\n'
+		+ 'test(\'a\', () => {\n'
+		+ '	getTestContext().beforeEach(hook);\n'
+		+ '});\n'
+		+ 'function hook(t) {\n'
+		+ '	t.test(\'x\', () => {});\n'
+		+ '}',
 	],
 });

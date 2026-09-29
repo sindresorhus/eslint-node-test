@@ -834,7 +834,7 @@ function createBoundaryStack(context, imports) {
 
 	// A test or hook body the call names out of line is entered where it is declared, outside the frame the call would open, so the frame is keyed on the function instead.
 	context.on(functionTypes, node => {
-		const kind = getRegistrationKind(getOutOfLineCallbackCall(node, context, imports), imports, undefined, context);
+		const kind = getRegistrationKind(getOutOfLineCallbackCall(node, context, imports), imports, context);
 		if ((kind === 'test' || kind === 'hook') && getEffectiveArity(node.params) < 2) {
 			pushFrame(node, node);
 		}

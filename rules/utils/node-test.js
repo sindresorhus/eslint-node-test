@@ -977,13 +977,12 @@ The test, suite, subtest or hook call that runs the function `node` as its callb
 names it out of line (`test('a', body)`). The function is traversed where it is DECLARED, so the call
 has to be found by resolving the binding back to the reference that passes it.
 
-A subtest's or context hook's receiver (`t.test(…)`, `t.beforeEach(…)`) is resolved from its own
-binding, which is what tells either from an ordinary method call, so `isContextReceiver` is optional. A
-tracker's `isContextReceiver` only adds the receivers its open frames already know.
+A subtest's or context hook's receiver (`t.test(…)`, `t.beforeEach(…)`, `getTestContext().test(…)`) is
+resolved from its own binding, which is what tells either from an ordinary method call.
 
 Limitation: the first reference that has the shape of a registration wins. So when a body is also passed to an unrelated `helper.test(…)`, or two bodies register each other as subtests, the answer can depend on which reference comes first in the source.
 */
-export function getOutOfLineCallbackCall(node, context, imports, isContextReceiver) {
+export function getOutOfLineCallbackCall(node, context, imports) {
 	if (!isFunction(node)) {
 		return undefined;
 	}
@@ -996,12 +995,9 @@ export function getOutOfLineCallbackCall(node, context, imports, isContextReceiv
 		return undefined;
 	}
 
-	// A receiver the open frames already know is authoritative, and one resolved from its own binding
-	// covers the other case: a callback named out of line is read where it is declared, which is
-	// outside every frame the call opened.
-	const isReceiver = isContextReceiver
-		? candidate => isContextReceiver(candidate) || isTestContextParameter(candidate, imports, context)
-		: candidate => isTestContextParameter(candidate, imports, context);
+	// The receiver is resolved from its own binding: a callback named out of line is read where it is
+	// declared, which is outside every frame the call opened.
+	const isReceiver = candidate => isResolvedContextReceiver(candidate, imports, context);
 
 	// The declared variable, not a lookup by name from inside: a parameter or local named like the function would otherwise hide it.
 	const variable = getDeclaredVariable(identifier, declarator ?? node, imports);
@@ -1044,8 +1040,8 @@ visited before or after it, which is why the check runs from the function.
 @param {object} imports The result of `resolveImports`.
 @returns {boolean}
 */
-export function isOutOfLineCallback(node, context, imports, isContextReceiver) {
-	return getOutOfLineCallbackCall(node, context, imports, isContextReceiver) !== undefined;
+export function isOutOfLineCallback(node, context, imports) {
+	return getOutOfLineCallbackCall(node, context, imports) !== undefined;
 }
 
 /** The test, suite, subtest or hook call `identifier` is passed to as its callback, if any. */
@@ -1069,7 +1065,7 @@ function getCallbackArgumentCall(identifier, imports, isContextReceiver) {
 	}
 
 	const isCallbackCall = parseTestCall(parent, imports) !== undefined
-		|| getSubtestReceiver(parent) !== undefined
+		|| isSubtestCall(parent, imports)
 		|| (Boolean(isContextReceiver) && isContextHookCall(parent, isContextReceiver));
 	return isCallbackCall ? parent : undefined;
 }
@@ -1617,6 +1613,14 @@ function isTestContextParameter(node, imports, context) {
 }
 
 /*
+Whether `node` reaches a test context when resolved on its own: a context parameter, or a `getTestContext()` call, which the runner answers with the context of the test that makes it.
+*/
+function isResolvedContextReceiver(node, imports, context) {
+	return isTestContextParameter(node, imports, context)
+		|| isGetTestContextCall(unwrapTypeScriptExpression(node), imports);
+}
+
+/*
 The kind (`test`/`hook`) of the callback whose test context `node` is, or `undefined` when it is not one. A rule's tracker reads a hook's context only when it tracks hooks, so it needs the kind rather than a yes or no.
 */
 function getContextParameterKind(node, imports, context) {
@@ -1673,7 +1677,7 @@ function getContextCallbackKind(callback, imports, context) {
 	try {
 		// A `t` inside a context hook's own callback is a context too, so the same question is asked of
 		// that hook's receiver, which is what makes the walk reach a hook body through `t.beforeEach(…)`.
-		const callbackKind = getCallbackKind(callback, imports, receiver => isTestContextParameter(receiver, imports, context), context);
+		const callbackKind = getCallbackKind(callback, imports, context);
 		kind = callbackKind === 'test' || callbackKind === 'hook' ? callbackKind : undefined;
 	} finally {
 		resolvingCallbacks.delete(callback);
@@ -1715,7 +1719,7 @@ bindings, so the receiver is what tells either from an unrelated method call of 
 receiver is resolved from its own binding rather than from the frames open on the stack, so an unrelated
 object's `test` method is not mistaken for a registration.
 */
-export function getRegistrationKind(call, imports, isContextReceiver, context) {
+export function getRegistrationKind(call, imports, context) {
 	if (!call) {
 		return undefined;
 	}
@@ -1726,12 +1730,9 @@ export function getRegistrationKind(call, imports, isContextReceiver, context) {
 	}
 
 	// A context hook is a method call like a subtest, so the receiver is what tells it from an unrelated
-	// one. The tracker's answer is authoritative where a frame is open, and the binding is resolved as
-	// well, which is the only way to see a hook callback named out of line.
-	if (
-		(isContextReceiver && isContextHookCall(call, isContextReceiver))
-		|| isContextHookCall(call, receiver => isTestContextParameter(receiver, imports, context))
-	) {
+	// one. The binding is resolved rather than read from the frames open on the stack, which is the only
+	// way to see a hook callback named out of line.
+	if (isContextHookCall(call, receiver => isResolvedContextReceiver(receiver, imports, context))) {
 		return 'hook';
 	}
 
@@ -1739,6 +1740,10 @@ export function getRegistrationKind(call, imports, isContextReceiver, context) {
 	// runs, which is how the context tracker reads it too.
 	if (parsed) {
 		return parsed.kind !== 'hook' && parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name)) ? parsed.kind : undefined;
+	}
+
+	if (isGetTestContextSubtestCall(call, imports)) {
+		return 'test';
 	}
 
 	const subtestReceiver = getSubtestReceiver(call);
@@ -1754,11 +1759,11 @@ Determine the kind (`test`/`suite`/`hook`) of the nearest enclosing test-related
 
 Returns `undefined` when the nearest enclosing function is a regular function (e.g. a helper), or there is none. Subtests (`t.test(…)`) and context hooks (`t.beforeEach(…)`) are method calls rather than imported bindings, so they are recognized by resolving the receiver to a test context, and a subtest is classified as `'test'`. A callback the call names out of line (`test('a', body)`) is recognized by resolving the binding back to the call.
 */
-export function nearestTestCallbackKind(node, imports, isContextReceiver, context) {
+export function nearestTestCallbackKind(node, imports, context) {
 	let current = node.parent;
 	while (current) {
 		if (isFunction(current)) {
-			return getCallbackKind(current, imports, isContextReceiver, context);
+			return getCallbackKind(current, imports, context);
 		}
 
 		current = current.parent;
@@ -1770,17 +1775,17 @@ export function nearestTestCallbackKind(node, imports, isContextReceiver, contex
 /*
 The kind (`test`/`suite`/`hook`) of callback the runner runs `callback` as, or `undefined` when it is some other function, such as a helper.
 */
-function getCallbackKind(callback, imports, isContextReceiver, context) {
+function getCallbackKind(callback, imports, context) {
 	// From an argument slot, the call runs it only when it is the function the call reads its callback
 	// from. Such a function is never declared, so it is never named out of line as well.
 	const inlineCall = getParentCallExpression(callback);
 	if (inlineCall) {
 		const isCallback = getHookCallback(inlineCall) === callback || getTestCallback(inlineCall, imports) === callback;
-		return isCallback ? getRegistrationKind(inlineCall, imports, isContextReceiver, context) : undefined;
+		return isCallback ? getRegistrationKind(inlineCall, imports, context) : undefined;
 	}
 
-	const call = context && getOutOfLineCallbackCall(callback, context, imports, isContextReceiver);
-	return getRegistrationKind(call, imports, isContextReceiver, context);
+	const call = context && getOutOfLineCallbackCall(callback, context, imports);
+	return getRegistrationKind(call, imports, context);
 }
 
 function isAssertNamespaceIdentifier(node, imports) {

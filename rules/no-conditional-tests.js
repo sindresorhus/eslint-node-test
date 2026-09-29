@@ -65,8 +65,8 @@ const create = context => {
 		// body) would leave that report in place, so reporting both leaves no state the user can reach.
 		// `no-test-inside-hook` does not report a hook inside a hook, so this rule still does: whether such a hook runs depends on the kind and on how it is registered, and a condition around it only adds to that.
 		if (
-			getRegistrationKind(node, imports, tracker.isContextReceiver, context) !== 'hook'
-			&& nearestTestCallbackKind(node, imports, tracker.isContextReceiver, context) === 'hook'
+			getRegistrationKind(node, imports, context) !== 'hook'
+			&& nearestTestCallbackKind(node, imports, context) === 'hook'
 		) {
 			return;
 		}

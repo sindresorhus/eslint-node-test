@@ -73,5 +73,10 @@ test.snapshot({
 		// The context of a test body the call names out of line, by name and destructured
 		`import {test} from 'node:test';\nfunction body(t) { ${asserts(6, 't.assert')} }\ntest('x', body);`,
 		`import {test} from 'node:test';\nconst body = ({assert: check}) => { ${asserts(6, 'check')} };\ntest('x', body);`,
+		// A subtest body named out of line and registered through `getTestContext()`
+		{
+			code: 'import {test, getTestContext} from \'node:test\';\ntest(\'a\', () => { getTestContext().test(\'b\', body); });\nfunction body(t) { t.assert.ok(1); t.assert.ok(2); }',
+			options: [{max: 1}],
+		},
 	],
 });

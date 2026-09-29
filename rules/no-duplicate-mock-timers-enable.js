@@ -247,7 +247,7 @@ const create = context => {
 			visited.add(current);
 			const parentCall = getParentCallExpression(current);
 			const inlineCall = parentCall && getTestCallback(parentCall, imports) === current ? parentCall : undefined;
-			const call = inlineCall ?? getOutOfLineCallbackCall(current, context, imports, contextTracker.isContextReceiver);
+			const call = inlineCall ?? getOutOfLineCallbackCall(current, context, imports);
 			if (call && isSkippedRegistration(call)) {
 				return true;
 			}

@@ -329,7 +329,7 @@ const create = context => {
 		// The kind comes from the shared classifier, so a subtest counts as a test too. Only an
 		// imported call has modifiers to check, which a subtest never does.
 		const parsed = parseTestCall(call, imports);
-		if (getRegistrationKind(call, imports, undefined, context) !== 'test' || parsed?.modifiers.some(modifier => !MODIFIERS.has(modifier.name))) {
+		if (getRegistrationKind(call, imports, context) !== 'test' || parsed?.modifiers.some(modifier => !MODIFIERS.has(modifier.name))) {
 			return;
 		}
 

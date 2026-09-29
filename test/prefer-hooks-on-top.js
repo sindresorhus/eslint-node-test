@@ -71,5 +71,8 @@ test.snapshot({
 
 		// A hook declared through `getTestContext()` after a subtest is still out of order
 		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', t => { t.test(\'s\', () => {}); getTestContext().beforeEach(() => {}); });',
+
+		// A subtest body named out of line and registered through `getTestContext()` is a scope of its own
+		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', () => { getTestContext().test(\'b\', body); });\nfunction body(t) { t.test(\'x\', () => {}); t.beforeEach(() => {}); }',
 	],
 });

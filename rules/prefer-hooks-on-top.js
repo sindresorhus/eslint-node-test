@@ -83,7 +83,7 @@ const create = context => {
 	const outOfLineCallbacks = new WeakSet();
 
 	context.on(functionTypes, node => {
-		const kind = getRegistrationKind(getOutOfLineCallbackCall(node, context, imports), imports, undefined, context);
+		const kind = getRegistrationKind(getOutOfLineCallbackCall(node, context, imports), imports, context);
 		if (kind !== 'test' && kind !== 'suite') {
 			return;
 		}

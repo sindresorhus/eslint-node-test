@@ -27,7 +27,7 @@ const create = context => {
 			return;
 		}
 
-		if (nearestTestCallbackKind(node, imports, undefined, context) !== 'suite') {
+		if (nearestTestCallbackKind(node, imports, context) !== 'suite') {
 			return;
 		}
 
