@@ -22,7 +22,47 @@ Message:
 
 `;
 
-exports[`require-await-concurrent-subtests > invalid(10): import test from 'node:test';\ntest('t', async t => {\n\txs.forEach(async x => { await t.test(x, () => {}); });\n}); 1`] = `
+exports[`require-await-concurrent-subtests > invalid(10): import test from 'node:test';\ntest('t', async t => {\n\t(Promise.all(xs.map(x => t.test(x, () => {}))), undefined);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', async t => {
+  3 | 	(Promise.all(xs.map(x => t.test(x, () => {}))), undefined);
+  4 | });
+
+`;
+
+exports[`require-await-concurrent-subtests > invalid(10): import test from 'node:test';\ntest('t', async t => {\n\t(Promise.all(xs.map(x => t.test(x, () => {}))), undefined);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', async t => {
+> 3 | 	(Promise.all(xs.map(x => t.test(x, () => {}))), undefined);
+    | 	                         ^^^^^^^^^^^^^^^^^^^ Subtests created in a \`map()\` callback are not awaited, so the test continues while they run. Use \`await Promise.all(items.map(item => t.test(…)))\`.
+  4 | });
+
+`;
+
+exports[`require-await-concurrent-subtests > invalid(11): import test from 'node:test';\ntest('t', async t => {\n\txs.forEach(x => t.test(x, () => {}));\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', async t => {
+  3 | 	xs.forEach(x => t.test(x, () => {}));
+  4 | });
+
+`;
+
+exports[`require-await-concurrent-subtests > invalid(11): import test from 'node:test';\ntest('t', async t => {\n\txs.forEach(x => t.test(x, () => {}));\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', async t => {
+> 3 | 	xs.forEach(x => t.test(x, () => {}));
+    | 	                ^^^^^^^^^^^^^^^^^^^ Subtests created in a \`forEach()\` callback are not awaited, so the test continues while they run. Use \`await Promise.all(items.map(item => t.test(…)))\`.
+  4 | });
+
+`;
+
+exports[`require-await-concurrent-subtests > invalid(12): import test from 'node:test';\ntest('t', async t => {\n\txs.forEach(async x => { await t.test(x, () => {}); });\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', async t => {
@@ -31,7 +71,7 @@ exports[`require-await-concurrent-subtests > invalid(10): import test from 'node
 
 `;
 
-exports[`require-await-concurrent-subtests > invalid(10): import test from 'node:test';\ntest('t', async t => {\n\txs.forEach(async x => { await t.test(x, () => {}); });\n}); 2`] = `
+exports[`require-await-concurrent-subtests > invalid(12): import test from 'node:test';\ntest('t', async t => {\n\txs.forEach(async x => { await t.test(x, () => {}); });\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -42,7 +82,7 @@ Message:
 
 `;
 
-exports[`require-await-concurrent-subtests > invalid(11): import test from 'node:test';\ntest('t', async t => {\n\txs.flatMap(x => t.test(x, () => {}));\n}); 1`] = `
+exports[`require-await-concurrent-subtests > invalid(13): import test from 'node:test';\ntest('t', async t => {\n\txs.flatMap(x => t.test(x, () => {}));\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', async t => {
@@ -51,7 +91,7 @@ exports[`require-await-concurrent-subtests > invalid(11): import test from 'node
 
 `;
 
-exports[`require-await-concurrent-subtests > invalid(11): import test from 'node:test';\ntest('t', async t => {\n\txs.flatMap(x => t.test(x, () => {}));\n}); 2`] = `
+exports[`require-await-concurrent-subtests > invalid(13): import test from 'node:test';\ntest('t', async t => {\n\txs.flatMap(x => t.test(x, () => {}));\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -62,7 +102,7 @@ Message:
 
 `;
 
-exports[`require-await-concurrent-subtests > invalid(12): import test from 'node:test';\ntest('t', async t => {\n\tPromise.all(xs.map(x => t.test(x, () => {}))) as Promise<void[]>;\n}); 1`] = `
+exports[`require-await-concurrent-subtests > invalid(14): import test from 'node:test';\ntest('t', async t => {\n\tPromise.all(xs.map(x => t.test(x, () => {}))) as Promise<void[]>;\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', async t => {
@@ -71,7 +111,7 @@ exports[`require-await-concurrent-subtests > invalid(12): import test from 'node
 
 `;
 
-exports[`require-await-concurrent-subtests > invalid(12): import test from 'node:test';\ntest('t', async t => {\n\tPromise.all(xs.map(x => t.test(x, () => {}))) as Promise<void[]>;\n}); 2`] = `
+exports[`require-await-concurrent-subtests > invalid(14): import test from 'node:test';\ntest('t', async t => {\n\tPromise.all(xs.map(x => t.test(x, () => {}))) as Promise<void[]>;\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -232,22 +272,22 @@ Message:
 
 `;
 
-exports[`require-await-concurrent-subtests > invalid(9): import test from 'node:test';\ntest('t', async t => {\n\txs.forEach(x => t.test(x, () => {}));\n}); 1`] = `
+exports[`require-await-concurrent-subtests > invalid(9): import test from 'node:test';\ntest('t', async t => {\n\tcondition && Promise.all(xs.map(x => t.test(x, () => {})));\n}); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', async t => {
-  3 | 	xs.forEach(x => t.test(x, () => {}));
+  3 | 	condition && Promise.all(xs.map(x => t.test(x, () => {})));
   4 | });
 
 `;
 
-exports[`require-await-concurrent-subtests > invalid(9): import test from 'node:test';\ntest('t', async t => {\n\txs.forEach(x => t.test(x, () => {}));\n}); 2`] = `
+exports[`require-await-concurrent-subtests > invalid(9): import test from 'node:test';\ntest('t', async t => {\n\tcondition && Promise.all(xs.map(x => t.test(x, () => {})));\n}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
   2 | test('t', async t => {
-> 3 | 	xs.forEach(x => t.test(x, () => {}));
-    | 	                ^^^^^^^^^^^^^^^^^^^ Subtests created in a \`forEach()\` callback are not awaited, so the test continues while they run. Use \`await Promise.all(items.map(item => t.test(…)))\`.
+> 3 | 	condition && Promise.all(xs.map(x => t.test(x, () => {})));
+    | 	                                     ^^^^^^^^^^^^^^^^^^^ Subtests created in a \`map()\` callback are not awaited, so the test continues while they run. Use \`await Promise.all(items.map(item => t.test(…)))\`.
   4 | });
 
 `;

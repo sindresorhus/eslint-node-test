@@ -88,6 +88,10 @@ test.snapshot({
 		// `Promise.all` wrapping but explicitly discarded with `void`
 		inTest('void Promise.all(xs.map(x => t.test(x, () => {})));'),
 
+		// A `Promise.all` whose value an enclosing expression hands to a discarding statement is discarded too
+		inTest('condition && Promise.all(xs.map(x => t.test(x, () => {})));'),
+		inTest('(Promise.all(xs.map(x => t.test(x, () => {}))), undefined);'),
+
 		// `forEach` — discards the subtest promises entirely
 		inTest('xs.forEach(x => t.test(x, () => {}));'),
 

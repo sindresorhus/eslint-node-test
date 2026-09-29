@@ -1,6 +1,6 @@
 import {resolveImports, createContextTracker} from './utils/node-test.js';
 import isFunction from './ast/is-function.js';
-import {skipExpressionWrappers, outermostExpressionWrapper, getFloatingStatement} from './utils/index.js';
+import {outermostExpressionWrapper, getFloatingStatement} from './utils/index.js';
 
 const MESSAGE_ID = 'require-await-concurrent-subtests';
 
@@ -36,17 +36,6 @@ function findEnclosingIterationCall(node) {
 	}
 }
 
-/** Whether a `Promise.all(…)` / `Promise.allSettled(…)` call is itself consumed rather than discarded. */
-function isConsumedPromiseAll(promiseAllCall) {
-	// The `Promise.all(…)` itself must be consumed (awaited, returned, or assigned), not discarded —
-	// otherwise the parent test still finishes before the subtests settle. It is discarded when left
-	// as a floating bare statement or explicitly thrown away with `void`.
-	const grandparent = skipExpressionWrappers(promiseAllCall.parent);
-	const isDiscarded = grandparent?.type === 'ExpressionStatement'
-		|| (grandparent?.type === 'UnaryExpression' && grandparent.operator === 'void');
-	return !isDiscarded;
-}
-
 /** Whether `node` is an argument to a consumed `Promise.all(…)` / `Promise.allSettled(…)`. */
 function isArgumentToConsumedPromiseAll(node) {
 	const {parent} = node;
@@ -58,7 +47,9 @@ function isArgumentToConsumedPromiseAll(node) {
 		&& parent.callee.object.type === 'Identifier'
 		&& parent.callee.object.name === 'Promise'
 		&& parent.arguments.includes(node)
-		&& isConsumedPromiseAll(parent);
+		// The `Promise.all(…)` itself must be consumed (awaited, returned, or assigned), not discarded,
+		// otherwise the parent test still finishes before the subtests settle.
+		&& !getFloatingStatement(parent);
 }
 
 /**
