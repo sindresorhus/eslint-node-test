@@ -606,14 +606,62 @@ Message:
 
 `;
 
-exports[`assertion-arguments > invalid(44): import assert from 'node:assert';\nassert.ok(value, 42, \"x\"); 1`] = `
+exports[`assertion-arguments > invalid(44): import assert from 'node:assert';\nassert.strictEqual(a, b, undefined); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.strictEqual(a, b, undefined);
+
+`;
+
+exports[`assertion-arguments > invalid(44): import assert from 'node:assert';\nassert.strictEqual(a, b, undefined); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.strictEqual(a, b, undefined);
+    |                          ^^^^^^^^^ Assertion message must be a string, an \`Error\`, or a function.
+
+`;
+
+exports[`assertion-arguments > invalid(45): import assert from 'node:assert';\nassert.deepEqual(a, b, void 0); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.deepEqual(a, b, void 0);
+
+`;
+
+exports[`assertion-arguments > invalid(45): import assert from 'node:assert';\nassert.deepEqual(a, b, void 0); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.deepEqual(a, b, void 0);
+    |                        ^^^^^^ Assertion message must be a string, an \`Error\`, or a function.
+
+`;
+
+exports[`assertion-arguments > invalid(46): import test from 'node:test';\ntest('t', t => { t.assert.notEqual(a, b, undefined); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', t => { t.assert.notEqual(a, b, undefined); });
+
+`;
+
+exports[`assertion-arguments > invalid(46): import test from 'node:test';\ntest('t', t => { t.assert.notEqual(a, b, undefined); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', t => { t.assert.notEqual(a, b, undefined); });
+    |                                          ^^^^^^^^^ Assertion message must be a string, an \`Error\`, or a function.
+
+`;
+
+exports[`assertion-arguments > invalid(47): import assert from 'node:assert';\nassert.ok(value, 42, \"x\"); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.ok(value, 42, "x");
 
 `;
 
-exports[`assertion-arguments > invalid(44): import assert from 'node:assert';\nassert.ok(value, 42, \"x\"); 2`] = `
+exports[`assertion-arguments > invalid(47): import assert from 'node:assert';\nassert.ok(value, 42, \"x\"); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
@@ -622,14 +670,14 @@ Message:
 
 `;
 
-exports[`assertion-arguments > invalid(45): import assert from 'node:assert';\nassert.strictEqual(a, b, 42, \"x\"); 1`] = `
+exports[`assertion-arguments > invalid(48): import assert from 'node:assert';\nassert.strictEqual(a, b, 42, \"x\"); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.strictEqual(a, b, 42, "x");
 
 `;
 
-exports[`assertion-arguments > invalid(45): import assert from 'node:assert';\nassert.strictEqual(a, b, 42, \"x\"); 2`] = `
+exports[`assertion-arguments > invalid(48): import assert from 'node:assert';\nassert.strictEqual(a, b, 42, \"x\"); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
@@ -638,67 +686,19 @@ Message:
 
 `;
 
-exports[`assertion-arguments > invalid(46): import assert from 'node:assert';\nassert.ok(value, {message: \"x\"}); 1`] = `
+exports[`assertion-arguments > invalid(49): import assert from 'node:assert';\nassert.ok(value, {message: \"x\"}); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.ok(value, {message: "x"});
 
 `;
 
-exports[`assertion-arguments > invalid(46): import assert from 'node:assert';\nassert.ok(value, {message: \"x\"}); 2`] = `
+exports[`assertion-arguments > invalid(49): import assert from 'node:assert';\nassert.ok(value, {message: \"x\"}); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';
 > 2 | assert.ok(value, {message: "x"});
     |                  ^^^^^^^^^^^^^^ Assertion message must be a string, an \`Error\`, or a function.
-
-`;
-
-exports[`assertion-arguments > invalid(47): import assert from 'node:assert';\nassert.ok(value, [1, 2]); 1`] = `
-
-  1 | import assert from 'node:assert';
-  2 | assert.ok(value, [1, 2]);
-
-`;
-
-exports[`assertion-arguments > invalid(47): import assert from 'node:assert';\nassert.ok(value, [1, 2]); 2`] = `
-
-Message:
-  1 | import assert from 'node:assert';
-> 2 | assert.ok(value, [1, 2]);
-    |                  ^^^^^^ Assertion message must be a string, an \`Error\`, or a function.
-
-`;
-
-exports[`assertion-arguments > invalid(48): import {strictEqual} from 'node:assert';\nstrictEqual(a); 1`] = `
-
-  1 | import {strictEqual} from 'node:assert';
-  2 | strictEqual(a);
-
-`;
-
-exports[`assertion-arguments > invalid(48): import {strictEqual} from 'node:assert';\nstrictEqual(a); 2`] = `
-
-Message:
-  1 | import {strictEqual} from 'node:assert';
-> 2 | strictEqual(a);
-    | ^^^^^^^^^^^^^^ Not enough arguments. Expected at least 2.
-
-`;
-
-exports[`assertion-arguments > invalid(49): import {ok} from 'node:assert';\nok(); 1`] = `
-
-  1 | import {ok} from 'node:assert';
-  2 | ok();
-
-`;
-
-exports[`assertion-arguments > invalid(49): import {ok} from 'node:assert';\nok(); 2`] = `
-
-Message:
-  1 | import {ok} from 'node:assert';
-> 2 | ok();
-    | ^^^^ Not enough arguments. Expected at least 1.
 
 `;
 
@@ -718,14 +718,62 @@ Message:
 
 `;
 
-exports[`assertion-arguments > invalid(50): import assert from 'node:assert/strict';\nassert.strictEqual(a); 1`] = `
+exports[`assertion-arguments > invalid(50): import assert from 'node:assert';\nassert.ok(value, [1, 2]); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ok(value, [1, 2]);
+
+`;
+
+exports[`assertion-arguments > invalid(50): import assert from 'node:assert';\nassert.ok(value, [1, 2]); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ok(value, [1, 2]);
+    |                  ^^^^^^ Assertion message must be a string, an \`Error\`, or a function.
+
+`;
+
+exports[`assertion-arguments > invalid(51): import {strictEqual} from 'node:assert';\nstrictEqual(a); 1`] = `
+
+  1 | import {strictEqual} from 'node:assert';
+  2 | strictEqual(a);
+
+`;
+
+exports[`assertion-arguments > invalid(51): import {strictEqual} from 'node:assert';\nstrictEqual(a); 2`] = `
+
+Message:
+  1 | import {strictEqual} from 'node:assert';
+> 2 | strictEqual(a);
+    | ^^^^^^^^^^^^^^ Not enough arguments. Expected at least 2.
+
+`;
+
+exports[`assertion-arguments > invalid(52): import {ok} from 'node:assert';\nok(); 1`] = `
+
+  1 | import {ok} from 'node:assert';
+  2 | ok();
+
+`;
+
+exports[`assertion-arguments > invalid(52): import {ok} from 'node:assert';\nok(); 2`] = `
+
+Message:
+  1 | import {ok} from 'node:assert';
+> 2 | ok();
+    | ^^^^ Not enough arguments. Expected at least 1.
+
+`;
+
+exports[`assertion-arguments > invalid(53): import assert from 'node:assert/strict';\nassert.strictEqual(a); 1`] = `
 
   1 | import assert from 'node:assert/strict';
   2 | assert.strictEqual(a);
 
 `;
 
-exports[`assertion-arguments > invalid(50): import assert from 'node:assert/strict';\nassert.strictEqual(a); 2`] = `
+exports[`assertion-arguments > invalid(53): import assert from 'node:assert/strict';\nassert.strictEqual(a); 2`] = `
 
 Message:
   1 | import assert from 'node:assert/strict';
@@ -734,14 +782,14 @@ Message:
 
 `;
 
-exports[`assertion-arguments > invalid(51): import test from 'node:test';\ntest('t', t => { t.assert.strictEqual(a); }); 1`] = `
+exports[`assertion-arguments > invalid(54): import test from 'node:test';\ntest('t', t => { t.assert.strictEqual(a); }); 1`] = `
 
   1 | import test from 'node:test';
   2 | test('t', t => { t.assert.strictEqual(a); });
 
 `;
 
-exports[`assertion-arguments > invalid(51): import test from 'node:test';\ntest('t', t => { t.assert.strictEqual(a); }); 2`] = `
+exports[`assertion-arguments > invalid(54): import test from 'node:test';\ntest('t', t => { t.assert.strictEqual(a); }); 2`] = `
 
 Message:
   1 | import test from 'node:test';
@@ -750,14 +798,14 @@ Message:
 
 `;
 
-exports[`assertion-arguments > invalid(52): import assert from 'node:assert';\nassert.ok(); 1`] = `
+exports[`assertion-arguments > invalid(55): import assert from 'node:assert';\nassert.ok(); 1`] = `
 
   1 | import assert from 'node:assert';
   2 | assert.ok();
 
 `;
 
-exports[`assertion-arguments > invalid(52): import assert from 'node:assert';\nassert.ok(); 2`] = `
+exports[`assertion-arguments > invalid(55): import assert from 'node:assert';\nassert.ok(); 2`] = `
 
 Message:
   1 | import assert from 'node:assert';

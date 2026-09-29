@@ -188,6 +188,10 @@ test.snapshot({
 		withAssert('assert.doesNotMatch(str, /re/, 0);'),
 		withAssert('assert.throws(fn, Error, null);'),
 		withAssert('assert.doesNotThrow(fn, null);'),
+		// `ok()` and `match()` read an explicit `undefined` message as no message, like `null`
+		withAssert('assert.ok(value, undefined);'),
+		withAssert('assert.match(str, /re/, void 0);'),
+		withAssert('assert.throws(fn, Error, undefined);'),
 
 		// A printf-style message is a string, and the substitution arguments after it are not a message
 		withAssert('assert.ok(value, "expected %s", label);'),
@@ -282,6 +286,10 @@ test.snapshot({
 		withAssert('assert.notStrictEqual(a, b, null);'),
 		withAssert('assert.deepStrictEqual(a, b, null);'),
 		withAssert('assert.partialDeepStrictEqual(a, b, null);'),
+		// An explicit `undefined` message is rejected the same way
+		withAssert('assert.strictEqual(a, b, undefined);'),
+		withAssert('assert.deepEqual(a, b, void 0);'),
+		'import test from \'node:test\';\ntest(\'t\', t => { t.assert.notEqual(a, b, undefined); });',
 
 		// The message slot is still the message when substitution arguments follow it
 		withAssert('assert.ok(value, 42, "x");'),

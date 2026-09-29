@@ -41,9 +41,9 @@ const ASSERTION_ARGS = new Map([
 ]);
 
 /*
-`node:assert` accepts a `null` message for `ok()` and the `match` family, where it uses the default
-message. The two-operand comparisons reject it with `ERR_INVALID_ARG_TYPE` as soon as the assertion
-fails, so there a `null` message is a latent crash. Node validates the message lazily, so in those
+`node:assert` accepts a `null` or an explicit `undefined` message for `ok()` and the `match` family, where it uses the default
+message. The two-operand comparisons reject both with `ERR_INVALID_ARG_TYPE` as soon as the assertion
+fails, so there such a message is a latent crash. Node validates the message lazily, so in those
 methods it only matters once the assertion fails.
 */
 const METHODS_ACCEPTING_NULL_MESSAGE = new Set(['ok', 'match', 'doesNotMatch']);
@@ -68,7 +68,7 @@ const METHODS_WITHOUT_MESSAGE_FORMATTING = new Set(['throws', 'doesNotThrow', 'r
 The optional trailing `message` argument accepts a string, an `Error`, or a function that Node calls
 to produce the message. Only flag values that are statically known to be none of those: object/array
 literals, or non-string literals (numbers, booleans, regexes, and `null` where the method rejects
-it). Identifiers, calls, member expressions, template literals, conditionals, logical/binary
+it), and `undefined` or `void …` where the method rejects it. Other identifiers, calls, member expressions, template literals, conditionals, logical/binary
 expressions, and TypeScript casts can all resolve to a valid message at runtime, so they are left
 alone to avoid false positives.
 */
@@ -77,6 +77,14 @@ function isInvalidMessageArgument(node, method) {
 
 	if (node.type === 'ArrayExpression' || node.type === 'ObjectExpression') {
 		return true;
+	}
+
+	// `undefined` and `void …` are the explicit form of a missing message, which only some methods accept.
+	if (
+		(node.type === 'Identifier' && node.name === 'undefined')
+		|| (node.type === 'UnaryExpression' && node.operator === 'void')
+	) {
+		return !METHODS_ACCEPTING_NULL_MESSAGE.has(method);
 	}
 
 	// A function is called to build the message, and any other expression may be a string at runtime,
