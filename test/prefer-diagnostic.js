@@ -65,6 +65,13 @@ test.snapshot({
 		'import {getTestContext} from \'node:test\';\nconsole.log(\'top level\');',
 		'import test, {describe, getTestContext} from \'node:test\';\ndescribe(\'s\', () => { console.log(\'x\'); });',
 		'import test, {describe, getTestContext} from \'node:test\';\ntest(\'a\', console.log(\'in the title\'), () => {});',
+		// A body named out of line that is not a test body, one with no context to name, or one whose context is shadowed
+		'import {describe} from \'node:test\';\nconst body = () => { console.log(\'x\'); };\ndescribe(\'s\', body);',
+		'import test from \'node:test\';\nfunction body() { console.log(\'x\'); }\ntest(\'t\', body);',
+		'import test from \'node:test\';\nfunction body(t) { const run = t => console.log(\'x\'); }\ntest(\'t\', body);',
+		'import test from \'node:test\';\nfunction helper() { console.log(\'x\'); }\ntest(\'t\', () => { helper(); });',
+		// A `var` in the body rebinds the context parameter, the same as in an inline body
+		'import test from \'node:test\';\nfunction body(t) { var t = 1; console.log(\'x\'); }\ntest(\'t\', body);',
 	],
 	invalid: [
 		// Replacing the whole callee would drop the comment inside it, so no suggestion
@@ -144,5 +151,13 @@ test.snapshot({
 			code: inTest('global!.console.log(\'x\');'),
 			languageOptions: {parser: parsers.typescript},
 		},
+		// A test body named out of line, declared before or after the call, a function declared in it, and a subtest body
+		'import test from \'node:test\';\nconst body = t => { console.log(\'x\'); };\ntest(\'t\', body);',
+		'import test from \'node:test\';\ntest(\'t\', body);\nfunction body(context) { const report = () => console.log(\'x\'); report(); }',
+		'import test from \'node:test\';\nfunction body(context) { console.info(\'x\'); }\ntest(\'t\', t => { t.test(\'u\', body); });',
+		// Without a context parameter, `getTestContext()` names the context
+		'import test, {getTestContext} from \'node:test\';\nfunction body() { console.log(\'x\'); }\ntest(\'t\', body);',
+		// A subtest body declared inside a test names its own context, not the outer test's
+		'import test from \'node:test\';\ntest(\'x\', t => {\n\tfunction body(s) { console.log(\'x\'); }\n\tt.test(\'y\', body);\n});',
 	],
 });

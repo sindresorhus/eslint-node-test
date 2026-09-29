@@ -568,6 +568,127 @@ Suggestion 1/1: Replace with \`t.diagnostic()\`.:
 
 `;
 
+exports[`prefer-diagnostic > invalid(31): import test from 'node:test';\nconst body = t => { console.log('x'); };\ntest('t', body); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | const body = t => { console.log('x'); };
+  3 | test('t', body);
+
+`;
+
+exports[`prefer-diagnostic > invalid(31): import test from 'node:test';\nconst body = t => { console.log('x'); };\ntest('t', body); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | const body = t => { console.log('x'); };
+    |                     ^^^^^^^^^^^ Prefer \`t.diagnostic()\` over \`console.log()\` inside a test, so the message is attached to the test as a TAP diagnostic.
+  3 | test('t', body);
+
+Suggestion 1/1: Replace with \`t.diagnostic()\`.:
+  1 | import test from 'node:test';
+  2 | const body = t => { t.diagnostic('x'); };
+  3 | test('t', body);
+
+`;
+
+exports[`prefer-diagnostic > invalid(32): import test from 'node:test';\ntest('t', body);\nfunction body(context) { const report = () => console.log('x'); report(); } 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', body);
+  3 | function body(context) { const report = () => console.log('x'); report(); }
+
+`;
+
+exports[`prefer-diagnostic > invalid(32): import test from 'node:test';\ntest('t', body);\nfunction body(context) { const report = () => console.log('x'); report(); } 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('t', body);
+> 3 | function body(context) { const report = () => console.log('x'); report(); }
+    |                                               ^^^^^^^^^^^ Prefer \`context.diagnostic()\` over \`console.log()\` inside a test, so the message is attached to the test as a TAP diagnostic.
+
+Suggestion 1/1: Replace with \`context.diagnostic()\`.:
+  1 | import test from 'node:test';
+  2 | test('t', body);
+  3 | function body(context) { const report = () => context.diagnostic('x'); report(); }
+
+`;
+
+exports[`prefer-diagnostic > invalid(33): import test from 'node:test';\nfunction body(context) { console.info('x'); }\ntest('t', t => { t.test('u', body); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | function body(context) { console.info('x'); }
+  3 | test('t', t => { t.test('u', body); });
+
+`;
+
+exports[`prefer-diagnostic > invalid(33): import test from 'node:test';\nfunction body(context) { console.info('x'); }\ntest('t', t => { t.test('u', body); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | function body(context) { console.info('x'); }
+    |                          ^^^^^^^^^^^^ Prefer \`context.diagnostic()\` over \`console.info()\` inside a test, so the message is attached to the test as a TAP diagnostic.
+  3 | test('t', t => { t.test('u', body); });
+
+Suggestion 1/1: Replace with \`context.diagnostic()\`.:
+  1 | import test from 'node:test';
+  2 | function body(context) { context.diagnostic('x'); }
+  3 | test('t', t => { t.test('u', body); });
+
+`;
+
+exports[`prefer-diagnostic > invalid(34): import test, {getTestContext} from 'node:test';\nfunction body() { console.log('x'); }\ntest('t', body); 1`] = `
+
+  1 | import test, {getTestContext} from 'node:test';
+  2 | function body() { console.log('x'); }
+  3 | test('t', body);
+
+`;
+
+exports[`prefer-diagnostic > invalid(34): import test, {getTestContext} from 'node:test';\nfunction body() { console.log('x'); }\ntest('t', body); 2`] = `
+
+Message:
+  1 | import test, {getTestContext} from 'node:test';
+> 2 | function body() { console.log('x'); }
+    |                   ^^^^^^^^^^^ Prefer \`getTestContext().diagnostic()\` over \`console.log()\` inside a test, so the message is attached to the test as a TAP diagnostic.
+  3 | test('t', body);
+
+Suggestion 1/1: Replace with \`getTestContext().diagnostic()\`.:
+  1 | import test, {getTestContext} from 'node:test';
+  2 | function body() { getTestContext().diagnostic('x'); }
+  3 | test('t', body);
+
+`;
+
+exports[`prefer-diagnostic > invalid(35): import test from 'node:test';\ntest('x', t => {\n\tfunction body(s) { console.log('x'); }\n\tt.test('y', body);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('x', t => {
+  3 | 	function body(s) { console.log('x'); }
+  4 | 	t.test('y', body);
+  5 | });
+
+`;
+
+exports[`prefer-diagnostic > invalid(35): import test from 'node:test';\ntest('x', t => {\n\tfunction body(s) { console.log('x'); }\n\tt.test('y', body);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test('x', t => {
+> 3 | 	function body(s) { console.log('x'); }
+    | 	                   ^^^^^^^^^^^ Prefer \`s.diagnostic()\` over \`console.log()\` inside a test, so the message is attached to the test as a TAP diagnostic.
+  4 | 	t.test('y', body);
+  5 | });
+
+Suggestion 1/1: Replace with \`s.diagnostic()\`.:
+  1 | import test from 'node:test';
+  2 | test('x', t => {
+  3 | 	function body(s) { s.diagnostic('x'); }
+  4 | 	t.test('y', body);
+  5 | });
+
+`;
+
 exports[`prefer-diagnostic > invalid(4): import test from 'node:test';\ntest('t', t => {\n\tconsole./* keep me */log('hi');\n}); 1`] = `
 
   1 | import test from 'node:test';

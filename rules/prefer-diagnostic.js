@@ -1,5 +1,14 @@
-import {resolveImports, createContextTracker, isGetTestContextInScope} from './utils/node-test.js';
-import {isUnshadowedGlobal, unwrapExpression} from './utils/index.js';
+import {findVariable} from '@eslint-community/eslint-utils';
+import {
+	resolveImports,
+	createContextTracker,
+	getFirstContextParameter,
+	getOutOfLineCallbackCall,
+	getRegistrationKind,
+	isGetTestContextInScope,
+	isUnreboundParameter,
+} from './utils/node-test.js';
+import {getEnclosingFunction, isUnshadowedGlobal, unwrapExpression} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-diagnostic/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-diagnostic/suggestion';
@@ -45,6 +54,64 @@ const create = context => {
 	// `getTestContext()`, so the file has to import that name.
 	const {getTestContextName} = imports;
 
+	// The `getTestContext` import is a binding like any other, so a local declaration in the test body shadows it.
+	const getTestContextCall = node => getTestContextName && isGetTestContextInScope(imports, node) ? `${getTestContextName}()` : undefined;
+
+	// A test body named out of line (`test('a', body)`) is entered where it is declared, which the call's own frame does not cover, so it is resolved from its binding instead. Like an inline body, it covers the functions declared in it.
+	const getOutOfLineTestBody = node => {
+		for (let current = getEnclosingFunction(node); current; current = getEnclosingFunction(current)) {
+			if (getRegistrationKind(getOutOfLineCallbackCall(current, context, imports), imports, context) === 'test') {
+				return current;
+			}
+		}
+	};
+
+	const isInside = (node, container) => {
+		const [start, end] = context.sourceCode.getRange(container);
+		const [nodeStart] = context.sourceCode.getRange(node);
+		return nodeStart >= start && nodeStart < end;
+	};
+
+	/*
+	The name to call `diagnostic()` on at `node`, or `undefined` when no test context is in scope there.
+
+	The context parameter is only in scope inside the test callback, so there is nothing to rewrite outside one, including in the title/options arguments, which the traversal reaches before the callback, and in a suite callback, which the tracker does not track at all. A nested binding of the same name shadows the context, so `t.diagnostic(…)` there would not reach the test context at all.
+	*/
+	const getContextName = node => {
+		const body = getOutOfLineTestBody(node);
+		const callback = tracker.currentCallback();
+		// The innermost test body names the context: an out-of-line subtest body declared inside a test callback has its own.
+		if (
+			callback
+			&& isInside(node, callback)
+			&& !(body && isInside(body, callback))
+		) {
+			const name = tracker.current();
+			if (name) {
+				return tracker.isContextNameInScope(name, node) ? name : undefined;
+			}
+
+			return getTestContextCall(node);
+		}
+
+		if (!body) {
+			return;
+		}
+
+		const parameter = getFirstContextParameter(body.params);
+		if (!parameter) {
+			return getTestContextCall(node);
+		}
+
+		// A `var` of the same name in the body rebinds the parameter, so the name no longer reaches the test context.
+		const variable = findVariable(context.sourceCode.getScope(node), parameter.name);
+		return variable
+			&& variable.identifiers.includes(parameter)
+			&& isUnreboundParameter(variable)
+			? parameter.name
+			: undefined;
+	};
+
 	context.on('CallExpression', node => {
 		tracker.update(node);
 
@@ -70,33 +137,8 @@ const create = context => {
 			return;
 		}
 
-		// The context parameter is only in scope inside the test callback, so there is nothing to
-		// rewrite outside one — including in the title/options arguments, which the traversal reaches
-		// before the callback, and in a suite callback, which the tracker does not track at all.
-		const callback = tracker.currentCallback();
-		if (!callback) {
-			return;
-		}
-
-		const contextName = tracker.current() ?? (getTestContextName ? `${getTestContextName}()` : undefined);
+		const contextName = getContextName(node);
 		if (!contextName) {
-			return;
-		}
-
-		const [callStart, callEnd] = context.sourceCode.getRange(callback);
-		const [consoleStart] = context.sourceCode.getRange(node);
-		if (consoleStart < callStart || consoleStart >= callEnd) {
-			return;
-		}
-
-		// A nested binding of the same name shadows the context, so `t.diagnostic(…)` there would
-		// not reach the test context at all. The `getTestContext` import is a binding like any other,
-		// so a local declaration in the test body shadows it too.
-		if (tracker.current()) {
-			if (!tracker.isContextNameInScope(contextName, node)) {
-				return;
-			}
-		} else if (!isGetTestContextInScope(imports, node)) {
 			return;
 		}
 
