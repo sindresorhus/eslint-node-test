@@ -1,8 +1,8 @@
 import {
 	resolveImports,
 	parseTestCall,
-	getHookCallback,
-	getTestCallback,
+	resolveCallbackArgument,
+	getResolvedTestCallback,
 	getEffectiveArity,
 	getRuntimeParameter,
 	createContextTracker,
@@ -26,6 +26,9 @@ const create = context => {
 	// bindings, but their callbacks receive the same `done` based on arity.
 	const tracker = createContextTracker(imports, {trackHooks: true});
 
+	// A body named out of line can be passed to several calls, but it is one function, so it is reported once.
+	const reportedCallbacks = new Set();
+
 	context.on('CallExpression', node => {
 		const isSubtest = tracker.isSubtestCall(node);
 		const isContextHook = isContextHookCall(node, tracker.isContextReceiver);
@@ -39,11 +42,19 @@ const create = context => {
 
 		// A context hook (`t.beforeEach(…)`) takes only a callback, so a function in any later slot is
 		// dead code there too.
-		const callback = isContextHook ? getHookCallback(node) : getTestCallback(node, imports);
+		// A callback the call names out of line is still the callback the runner calls, so it is read as
+		// the function its binding reaches.
+		const callback = isContextHook ? resolveCallbackArgument(node.arguments[0], context) : getResolvedTestCallback(node, context, imports);
 		// A declared second parameter is the `done` callback `node:test` passes based on arity.
-		if (!callback || getEffectiveArity(callback.params) < 2) {
+		if (
+			!callback
+			|| reportedCallbacks.has(callback)
+			|| getEffectiveArity(callback.params) < 2
+		) {
 			return;
 		}
+
+		reportedCallbacks.add(callback);
 
 		// A TypeScript `this` parameter is erased before the code runs, so the reported slot is the
 		// second emitted parameter, which is what `getEffectiveArity` counted.

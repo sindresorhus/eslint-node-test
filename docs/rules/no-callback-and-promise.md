@@ -11,7 +11,7 @@ A test or hook can be written in either callback style (declare a second `done` 
 
 This commonly happens when migrating a callback-style test to `async` without removing the now-unused `done` parameter.
 
-This rule reports an `async` test or hook function that also declares a callback parameter. A second parameter that has a default value or is a rest element is not counted, mirroring how `node:test` computes the arity.
+This rule reports an `async` test or hook function that also declares a callback parameter, whether it is written inline or named out of line (`test('x', body)`). A second parameter that has a default value or is a rest element is not counted, mirroring how `node:test` computes the arity. A TypeScript `this` parameter is erased before the code runs, so it is not counted either.
 
 ## Examples
 

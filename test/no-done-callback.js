@@ -124,5 +124,12 @@ test.snapshot({
 			code: '// A TypeScript `this` parameter is erased, so `done` is the second emitted parameter\nimport {test} from \'node:test\';\ntest(\'a\', function (this: void, t, done) {});',
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// A body named out of line is the callback the runner calls, and a shared one is reported once
+		withImport('const body = (t, done) => { done(); };\ntest("x", body);'),
+		withImport('async function body(t, done) { done(); }\ntest("x", body);'),
+		withImport('const body = (t, done) => { done(); };\ntest("a", body);\ntest("b", body);'),
+		withImport('const hook = (t, done) => { done(); };\nbeforeEach(hook);'),
+		'import {test} from \'node:test\';\ntest(\'p\', t => { const hook = (sub, done) => {}; t.beforeEach(hook); });',
 	],
 });

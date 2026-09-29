@@ -42,6 +42,9 @@ test.snapshot({
 		withImport('test.beforeEach({}, async (t, done) => { done(); });'),
 		'import test from \'node:test\';\ntest(\'x\', t => { t.beforeEach({}, async (t, done) => { done(); }); });',
 		'import test from \'node:test\';\ntest(\'x\', t => { t.beforeEach({fn: async (t, done) => { done(); }}); });',
+
+		// A callback-style body named out of line is not async
+		withImport('const body = (t, done) => { done(); };\ntest("x", body);'),
 	],
 	invalid: [
 		// Async test with a callback parameter
@@ -87,5 +90,18 @@ test.snapshot({
 
 		// A hook declared through `getTestContext()` is the same hook
 		'import {test, getTestContext} from \'node:test\';\ntest(\'p\', t => { getTestContext().beforeEach(async (sub, done) => {}); });',
+
+		// A TypeScript `this` parameter is erased, so the callback is the parameter after the context
+		{
+			code: withImport('test("x", async function (this: any, t, done) { done(); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// A body named out of line is the callback the runner calls, and a shared one is reported once
+		withImport('const body = async (t, done) => { done(); };\ntest("x", body);'),
+		withImport('async function body(t, done) { done(); }\ntest("x", body);'),
+		withImport('const body = async (t, done) => { done(); };\ntest("a", body);\ntest("b", body);'),
+		withImport('const hook = async (t, done) => { done(); };\nbeforeEach(hook);'),
+		'import test from \'node:test\';\ntest(\'p\', t => { const hook = async (sub, done) => {}; t.beforeEach(hook); });',
 	],
 });
