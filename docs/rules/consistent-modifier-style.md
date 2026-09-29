@@ -11,7 +11,7 @@
 
 It is off by default. Enable it with the `style` you prefer.
 
-Only `{modifier: true}` is reported under the `chained` style, since a reason string (`{skip: 'why'}`), an explicit `false`, or a dynamic value has no equivalent chained form.
+Only `{modifier: true}` is reported under the `chained` style, since a reason string (`{skip: 'why'}`), an explicit `false`, or a dynamic value has no equivalent chained form. Neither does a modifier on a call that already has a chained modifier or is an `expectFailure` call, nor two modifiers on one call, since a modifier cannot be chained again (`test.only.todo` and `expectFailure.skip` are `undefined`), so those are not reported either.
 
 Hooks (`before`, `after`, `beforeEach`, `afterEach`) are always ignored, since they have no chained modifier form in `node:test`.
 

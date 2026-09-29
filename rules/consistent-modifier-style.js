@@ -36,6 +36,11 @@ const create = context => {
 		}
 
 		if (style === 'chained') {
+			// A modifier or `expectFailure` cannot be chained again (`test.only.todo` and `expectFailure.skip` are `undefined`), so only a call with no chained modifier yet has a chained form, and only for one option.
+			if (parsed.hasExpectedFailure || parsed.modifiers.length > 0) {
+				return;
+			}
+
 			// Flag modifiers expressed through the options object, but only `modifier: true`. A string
 			// reason (`{skip: 'why'}`), `false`, or a dynamic value has no equivalent chained form.
 			const options = getTestOptions(node);
@@ -52,7 +57,7 @@ const create = context => {
 				}
 			}
 
-			return problems;
+			return problems.length === 1 ? problems : undefined;
 		}
 
 		// `style === 'options'` — flag chained modifiers. `parsed.modifiers` includes any member

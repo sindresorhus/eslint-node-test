@@ -23,6 +23,15 @@ test.snapshot({
 		// The object descriptor form reads the same options
 		withTest('test({skip: \'work in progress\', name: \'t\', fn: () => {}});'),
 
+		// No chained form exists for these, since a modifier or `expectFailure` cannot be chained again
+		// (`test.only.todo`, `expectFailure.skip` and `test.skip.only` are all `undefined`)
+		withTest('test.only(\'t\', {todo: true}, () => {});'),
+		withTest('test(\'t\', {only: true, todo: true}, () => {});'),
+		withTest('test(\'t\', {skip: true, only: true}, () => {});'),
+		withTest('test.expectFailure(\'t\', {skip: true}, () => {});'),
+		'import {expectFailure} from \'node:test\';\nexpectFailure(\'t\', {skip: true}, () => {});',
+		'import {only} from \'node:test\';\nonly(\'t\', {todo: true}, () => {});',
+
 		// A `node:test` export that is not a test call
 		'import {mock} from \'node:test\';\nmock.module(\'module.js\');',
 		'import test from \'node:test\';\ncustom(\'t\', {skip: true}, () => {});',
@@ -70,8 +79,8 @@ test.snapshot({
 			options: [{style: 'options'}],
 		},
 
-		// Every modifier property is reported, not just the first
-		withTest('test(\'t\', {skip: true, only: true}, () => {});'),
+		// A modifier set to `false` is not one to chain, so the other one still has a chained form
+		withTest('test(\'t\', {skip: true, only: false}, () => {});'),
 
 		// Suite modifier via options under chained style
 		'import {describe} from \'node:test\';\ndescribe(\'s\', {only: true}, () => {});',

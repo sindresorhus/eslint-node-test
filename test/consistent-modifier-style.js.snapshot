@@ -158,28 +158,19 @@ Message:
 
 `;
 
-exports[`consistent-modifier-style > invalid(8): import test from 'node:test';\ntest('t', {skip: true, only: true}, () => {}); 1`] = `
+exports[`consistent-modifier-style > invalid(8): import test from 'node:test';\ntest('t', {skip: true, only: false}, () => {}); 1`] = `
 
   1 | import test from 'node:test';
-  2 | test('t', {skip: true, only: true}, () => {});
+  2 | test('t', {skip: true, only: false}, () => {});
 
 `;
 
-exports[`consistent-modifier-style > invalid(8): import test from 'node:test';\ntest('t', {skip: true, only: true}, () => {}); 2`] = `
+exports[`consistent-modifier-style > invalid(8): import test from 'node:test';\ntest('t', {skip: true, only: false}, () => {}); 2`] = `
 
 Message:
   1 | import test from 'node:test';
-> 2 | test('t', {skip: true, only: true}, () => {});
+> 2 | test('t', {skip: true, only: false}, () => {});
     |            ^^^^^^^^^^ Use the chained modifier \`.skip\` instead of the \`skip\` option.
-
-`;
-
-exports[`consistent-modifier-style > invalid(8): import test from 'node:test';\ntest('t', {skip: true, only: true}, () => {}); 3`] = `
-
-Message:
-  1 | import test from 'node:test';
-> 2 | test('t', {skip: true, only: true}, () => {});
-    |                        ^^^^^^^^^^ Use the chained modifier \`.only\` instead of the \`only\` option.
 
 `;
 
