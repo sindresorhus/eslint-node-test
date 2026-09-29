@@ -13,7 +13,7 @@ Use `assert.fail()` for intentional unreachable code. This rule reports `assert(
 
 This rule reports `ok`, bare `assert()`, `ifError`, equality assertions, and match assertions with a constant asserted value and regex literal pattern.
 
-A value is constant when it consists entirely of literals and variables bound to a primitive. Anything read through an object, like an identifier bound to an array, a property access such as `object.property`, or a call such as `array.slice()`, is never treated as constant, even when its initializer is static, since the object can be mutated between its definition and the assertion.
+A value is constant when it consists entirely of literals and variables bound to a primitive. Anything read through an object, like an identifier bound to an array, a property access such as `object.property`, a call such as `array.slice()`, or a variable bound to one of those, such as `const size = list.length`, is never treated as constant, even when its initializer is static, since the object can be mutated between its definition and the assertion.
 
 For match assertions, this rule intentionally only evaluates regex literal patterns.
 

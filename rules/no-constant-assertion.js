@@ -6,6 +6,7 @@ import {
 } from './utils/node-test.js';
 import {isRegexLiteral} from './ast/index.js';
 import {unwrapExpression} from './utils/index.js';
+import {getConstantInitializer} from './utils/is-primitive.js';
 
 const MESSAGE_ID = 'no-constant-assertion';
 
@@ -37,7 +38,7 @@ Whether the expression consists entirely of literals and variables bound to a pr
 
 A value read through a reference (`array`, `object.property`, `array.slice()`) is intentionally not considered constant, even when its initializer is static, since the object it reads from can be mutated between its definition and the assertion.
 */
-function isConstantExpression(node, sourceCode) {
+function isConstantExpression(node, context, visitedInitializers = new Set()) {
 	if (!node) {
 		return false;
 	}
@@ -55,35 +56,50 @@ function isConstantExpression(node, sourceCode) {
 		}
 
 		case 'Identifier': {
-			const staticValue = getStaticValue(node, sourceCode.getScope(node));
+			// A name bound to an expression counts only when that expression is constant itself. `getStaticValue` alone follows `const size = list.length` back into `const list = []`, which a call such as `add(list)` may have changed since. An initializer already being read is not constant, which keeps a name read in its own initializer (`var count = count || 1`) or a cycle of names from resolving forever.
+			const initializer = getConstantInitializer(node, context);
+			if (initializer) {
+				if (visitedInitializers.has(initializer)) {
+					return false;
+				}
+
+				visitedInitializers.add(initializer);
+				const isConstant = isConstantExpression(initializer, context, visitedInitializers);
+				visitedInitializers.delete(initializer);
+				if (!isConstant) {
+					return false;
+				}
+			}
+
+			const staticValue = getStaticValue(node, context.sourceCode.getScope(node));
 
 			return staticValue !== null && isPrimitiveValue(staticValue.value);
 		}
 
 		case 'TemplateLiteral': {
-			return node.expressions.every(expression => isConstantExpression(expression, sourceCode));
+			return node.expressions.every(expression => isConstantExpression(expression, context, visitedInitializers));
 		}
 
 		case 'ArrayExpression': {
-			return node.elements.every(element => element === null || isConstantExpression(element, sourceCode));
+			return node.elements.every(element => element === null || isConstantExpression(element, context, visitedInitializers));
 		}
 
 		case 'ObjectExpression': {
 			return node.properties.every(property =>
 				property.type === 'Property'
-				&& (!property.computed || isConstantExpression(property.key, sourceCode))
-				&& isConstantExpression(property.value, sourceCode));
+				&& (!property.computed || isConstantExpression(property.key, context, visitedInitializers))
+				&& isConstantExpression(property.value, context, visitedInitializers));
 		}
 
 		case 'BinaryExpression':
 		case 'LogicalExpression': {
-			return isConstantExpression(node.left, sourceCode) && isConstantExpression(node.right, sourceCode);
+			return isConstantExpression(node.left, context, visitedInitializers) && isConstantExpression(node.right, context, visitedInitializers);
 		}
 
 		case 'ConditionalExpression': {
-			return isConstantExpression(node.test, sourceCode)
-				&& isConstantExpression(node.consequent, sourceCode)
-				&& isConstantExpression(node.alternate, sourceCode);
+			return isConstantExpression(node.test, context, visitedInitializers)
+				&& isConstantExpression(node.consequent, context, visitedInitializers)
+				&& isConstantExpression(node.alternate, context, visitedInitializers);
 		}
 
 		default: {
@@ -99,7 +115,6 @@ const create = context => {
 		return;
 	}
 
-	const {sourceCode} = context;
 	const tracker = createContextTracker(imports, {trackHooks: true});
 
 	context.on('CallExpression', node => {
@@ -119,11 +134,11 @@ const create = context => {
 		let isConstant = false;
 
 		if (method === 'ok' || method === 'ifError') {
-			isConstant = isConstantExpression(firstArgument, sourceCode);
+			isConstant = isConstantExpression(firstArgument, context);
 		} else if (COMPARISON_METHODS.has(method)) {
-			isConstant = isConstantExpression(firstArgument, sourceCode) && isConstantExpression(secondArgument, sourceCode);
+			isConstant = isConstantExpression(firstArgument, context) && isConstantExpression(secondArgument, context);
 		} else if (MATCH_METHODS.has(method)) {
-			isConstant = isConstantExpression(firstArgument, sourceCode) && isRegexLiteral(unwrapExpression(secondArgument));
+			isConstant = isConstantExpression(firstArgument, context) && isRegexLiteral(unwrapExpression(secondArgument));
 		}
 
 		if (!isConstant) {

@@ -81,6 +81,14 @@ test.snapshot({
 		withAssert('function helper(assert) { assert.ok(true); }'),
 		withAssert('function helper(assert) { assert(true); }'),
 		withNamedImport('strictEqual', 'function helper(strictEqual) { strictEqual(1, 1); }'),
+
+		// A name bound to a property read is not constant, even when the object's initializer is static
+		withAssert('import test from \'node:test\';\ntest(\'t\', () => {\n\tconst list = [];\n\tadd(list);\n\tconst size = list.length;\n\tassert.equal(size, 1);\n});'),
+		withAssert('import test from \'node:test\';\ntest(\'t\', () => {\n\tconst config = {count: 0};\n\tfill(config);\n\tconst count = config.count;\n\tassert.equal(count, 1);\n});'),
+		withAssert('const list = [];\nadd(list);\nconst size = list.length;\nconst alias = size;\nassert.equal(alias, 1);'),
+		// A name read in its own initializer, or in one that ends after the read, is left to the runtime
+		withAssert('var count = count || 1;\nassert.ok(count);'),
+		withAssert('var first = second;\nvar second = first;\nassert.ok(first);'),
 	],
 	invalid: [
 		// A closure over an outer test's binding still refers to that binding, even inside a
@@ -195,5 +203,10 @@ test.snapshot({
 		'import test from "node:test";\ntest("t1", ({"assert": testAssert}) => { testAssert.ok(1); });',
 		'import test from "node:test";\ntest("t1", ({"assert": {ok}}) => { ok(1); });',
 		'import test from "node:test";\ntest("t1", ({["assert"]: {ok}}) => { ok(1); });',
+		// A name bound to another constant name, or to a constant expression, is still constant
+		withAssert('const value = 1;\nconst alias = value;\nassert.equal(alias, 1);'),
+		withAssert('const size = 1 + 2;\nassert.equal(size, 3);'),
+		// A constant declared below the test that reads it is still constant
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'t\', () => {\n\tassert.equal(LIMIT, 5);\n});\nconst LIMIT = 5;',
 	],
 });
