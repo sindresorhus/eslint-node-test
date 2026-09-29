@@ -889,8 +889,11 @@ export function createLateTestActivity(context, {assertionsOnly = false, message
 			return;
 		}
 
-		// `t.plan(n, {wait: true})` makes the runner block until the plan is fulfilled, so an
-		// assertion in a floating callback is awaited after all. Applies to both passes.
+		// `t.plan(n, {wait: true})` makes the runner block until the plan is fulfilled, which is how
+		// Node documents waiting for a floating callback, so a test with one is not checked. Applies to
+		// both passes. This is a documented limitation: a counted assertion counts before it throws, so
+		// the one that fulfills the plan ends the test first, and its failure escapes the test (or is
+		// swallowed by a downstream rejection handler).
 		if (activeFrame.hasWaitPlan) {
 			return;
 		}

@@ -17,6 +17,8 @@ This rule owns Promise-callback assertions. [`no-late-test-activity`](no-late-te
 
 Only directly executed activity in the test or hook callback is checked, whether it is written inline or named out of line (`test('a', body)`). External callbacks and nested helper functions are not analyzed. A chain in a `for` loop's initializer or update slot, or under `void` in a static field initializer, is not read as floating.
 
+A test that sets a waiting plan (`t.plan(n, {wait: true})`) is not checked, since the runner waits for the planned assertions. That wait does not make a floating assertion's failure fail the test, though: an assertion counts toward the plan before it throws, so a failing one that fulfills the plan ends the test first, and its failure escapes as unhandled asynchronous activity, or is swallowed by a downstream rejection handler.
+
 ## Examples
 
 ```js
