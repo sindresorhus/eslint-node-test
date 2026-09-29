@@ -16,7 +16,7 @@ import {
 	MODIFIERS,
 	getImportSpecifierName,
 } from './utils/node-test.js';
-import {hasEnabledSkipOption, hasSkippedSuiteOption} from './shared/skipped-test.js';
+import {hasEnabledSkipOption} from './shared/skipped-test.js';
 import {getEnclosingFunction, unwrapExpression} from './utils/index.js';
 import {functionTypes, isFunction} from './ast/index.js';
 
@@ -68,7 +68,7 @@ function areActiveModifiers(modifiers) {
 
 function hasInactiveTestOptions(node, context) {
 	// The same check the shared skip detection uses: only a truthy `skip` stops the body from running.
-	// For a test, `{skip: 0}` reports the test as skipped but still runs its own body, so a sleep in it still costs the time. A suite is different, see `hasSkippedSuiteOption`.
+	// `{skip: 0}` reports the test as skipped but still runs its own body, so a sleep in it still costs the time. A suite reads `skip` the same way, see `isSkippedTestCall`.
 	return hasEnabledSkipOption(getTestOptions(node), context);
 }
 
@@ -112,12 +112,7 @@ function getParsedCallback(node, parsed) {
 }
 
 function hasInactiveParsedOptions(node, parsed, context) {
-	const {kind} = parsed;
-	if (kind === 'suite') {
-		return hasSkippedSuiteOption(getTestOptions(node), context);
-	}
-
-	return kind !== 'hook' && hasInactiveTestOptions(node, context);
+	return parsed.kind !== 'hook' && hasInactiveTestOptions(node, context);
 }
 
 function getTimerImportBindings(sourceCode) {

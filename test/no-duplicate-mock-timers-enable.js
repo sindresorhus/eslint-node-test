@@ -54,8 +54,6 @@ test.snapshot({
 		withImport('test.skip("parent", t => { t.test("child", child => { child.mock.timers.enable(); child.mock.timers.enable(); }); });'),
 		withImport('test.skip("title", t => { t.beforeEach(hookContext => { hookContext.mock.timers.enable(); hookContext.mock.timers.enable(); }); });'),
 		'import {describe, mock} from \'node:test\';\ndescribe.skip("title", () => { mock.timers.enable(); mock.timers.enable(); });',
-		// A suite with a falsy `skip` other than `false` still runs its body, but `node:test` cancels the tests it registers
-		'import {describe, test} from \'node:test\';\ndescribe("s", {skip: 0}, () => { test("a", t => { t.mock.timers.enable(); t.mock.timers.enable(); }); });',
 
 		// Resets permit another enable.
 		withImport('mock.timers.enable();\nmock.timers.reset();\nmock.timers.enable();'),
@@ -224,5 +222,10 @@ test.snapshot({
 		// A suite callback declares no context parameter, so both `getTestContext()` calls still name
 		// the one tracker they share
 		'import {describe, getTestContext} from \'node:test\';\ndescribe(\'a\', () => { getTestContext().mock.timers.enable(); getTestContext().mock.timers.enable(); });',
+
+		// Only a truthy `skip` stops a suite body from running, so a falsy one such as `{skip: 0}` still runs it
+		'import {describe, it, mock} from \'node:test\';\ndescribe(\'s\', {skip: 0}, () => { mock.timers.enable(); mock.timers.enable(); });',
+		// Limitation: a suite with a falsy `skip` cancels the tests it registers, but they are still checked
+		'import {describe, test} from \'node:test\';\ndescribe("s", {skip: 0}, () => { test("a", t => { t.mock.timers.enable(); t.mock.timers.enable(); }); });',
 	],
 });

@@ -993,6 +993,38 @@ Message:
 
 `;
 
+exports[`no-duplicate-mock-timers-enable > invalid(57): import {describe, it, mock} from 'node:test';\ndescribe('s', {skip: 0}, () => { mock.timers.enable(); mock.timers.enable(); }); 1`] = `
+
+  1 | import {describe, it, mock} from 'node:test';
+  2 | describe('s', {skip: 0}, () => { mock.timers.enable(); mock.timers.enable(); });
+
+`;
+
+exports[`no-duplicate-mock-timers-enable > invalid(57): import {describe, it, mock} from 'node:test';\ndescribe('s', {skip: 0}, () => { mock.timers.enable(); mock.timers.enable(); }); 2`] = `
+
+Message:
+  1 | import {describe, it, mock} from 'node:test';
+> 2 | describe('s', {skip: 0}, () => { mock.timers.enable(); mock.timers.enable(); });
+    |                                                        ^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` is already active on this mock tracker. Call \`reset()\` before enabling mock timers again.
+
+`;
+
+exports[`no-duplicate-mock-timers-enable > invalid(58): import {describe, test} from 'node:test';\ndescribe(\"s\", {skip: 0}, () => { test(\"a\", t => { t.mock.timers.enable(); t.mock.timers.enable(); }); }); 1`] = `
+
+  1 | import {describe, test} from 'node:test';
+  2 | describe("s", {skip: 0}, () => { test("a", t => { t.mock.timers.enable(); t.mock.timers.enable(); }); });
+
+`;
+
+exports[`no-duplicate-mock-timers-enable > invalid(58): import {describe, test} from 'node:test';\ndescribe(\"s\", {skip: 0}, () => { test(\"a\", t => { t.mock.timers.enable(); t.mock.timers.enable(); }); }); 2`] = `
+
+Message:
+  1 | import {describe, test} from 'node:test';
+> 2 | describe("s", {skip: 0}, () => { test("a", t => { t.mock.timers.enable(); t.mock.timers.enable(); }); });
+    |                                                                           ^^^^^^^^^^^^^^^^^^^^^^ \`mock.timers.enable()\` is already active on this mock tracker. Call \`reset()\` before enabling mock timers again.
+
+`;
+
 exports[`no-duplicate-mock-timers-enable > invalid(6): import test, {mock} from 'node:test';\ntest.todo(\"title\", t => { t.mock.timers.enable(); t.mock.timers.enable(); }); 1`] = `
 
   1 | import test, {mock} from 'node:test';

@@ -53,21 +53,6 @@ export function hasEnabledSkipOption(optionsObject, context) {
 	return staticValue !== null && Boolean(staticValue.value);
 }
 
-/*
-A suite cancels every test it registers for any `skip` that is neither `undefined` nor `false`, so `{skip: 0}`, `{skip: ''}` and `{skip: null}` skip a suite's tests although they would still run a test's own body. A value that cannot be resolved statically proves nothing, so the suite is treated as running.
-
-Limitation: such a suite still runs its `before` and `after` hooks, which are read as skipped with the rest of it.
-*/
-export function hasSkippedSuiteOption(optionsObject, context) {
-	const property = findOptionsProperty(optionsObject, 'skip');
-	if (!property || property.kind === 'get') {
-		return false;
-	}
-
-	const staticValue = getStaticValue(property.value, context.sourceCode.getScope(property.value));
-	return staticValue !== null && staticValue.value !== undefined && staticValue.value !== false;
-}
-
 /**
 Whether `node` is a test call that is statically skipped.
 
@@ -80,11 +65,10 @@ export function isSkippedTestCall(node, parsed, context) {
 	// them. `parseTestCall` records the modifier for that form, so the `parsed.modifiers` check covers
 	// it. Only `skip` decides on its own, since a `todo` test still runs its body; `only(…)` and
 	// `todo(…)` run unless the options slot says otherwise.
-	// A suite with any `skip` that is neither `undefined` nor `false` still runs its own body, but `node:test` cancels every test it registers, so for what those tests contain it is skipped. Only a test's own body needs a truthy `skip` to stay unrun.
-	const options = getTestOptions(node);
+	// A suite reads `skip` the same way: a truthy one never runs the suite body, while a falsy one such as `{skip: 0}` runs the body and its `before`/`after` hooks and only cancels the tests it registers. Limitation: those cancelled tests are still read as running.
 	return hasSkipModifier(node.callee)
 		|| parsed?.modifiers.some(modifier => modifier.name === 'skip')
-		|| (parsed?.kind === 'suite' ? hasSkippedSuiteOption(options, context) : hasEnabledSkipOption(options, context));
+		|| hasEnabledSkipOption(getTestOptions(node), context);
 }
 
 /** Whether `node` sits inside one of the callbacks collected in `skippedCallbacks`. */

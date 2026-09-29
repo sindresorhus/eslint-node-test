@@ -69,11 +69,6 @@ test.snapshot({
 		'import {describe} from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\ndescribe(\'suite\', async () => {\n\tawait delay(500);\n});',
 		withSuitePromiseTimerImport('describe.skip', '', 'test(\'waits\', async () => {\n\tawait delay(500);\n});'),
 		withSuitePromiseTimerImport('describe', '{skip: true}, ', 'test(\'waits\', async () => {\n\tawait delay(500);\n});'),
-		// Unlike a test, a suite cancels every test it registers for any `skip` that is neither `undefined` nor `false`
-		withSuitePromiseTimerImport('describe', '{skip: 0}, ', 'test(\'waits\', async () => {\n\tawait delay(500);\n});'),
-		withSuitePromiseTimerImport('describe', '{skip: \'\'}, ', 'test(\'waits\', async () => {\n\tawait delay(500);\n});'),
-		withSuitePromiseTimerImport('describe', '{skip: null}, ', 'test(\'waits\', async () => {\n\tawait delay(500);\n});'),
-		'import {describe, test} from \'node:test\';\n' + sleepingBody + 'describe(\'s\', {skip: 0}, () => {\n	test(\'a\', body);\n});',
 
 		// A shadowed `resolve` is not the executor's resolver
 		withTest('await new Promise(resolve => {\n\t{\n\t\tconst resolve = other;\n\t\tsetTimeout(resolve, 500);\n\t}\n});'),
@@ -126,6 +121,9 @@ test.snapshot({
 		+ '}',
 		'import {describe, test} from \'node:test\';\n' + sleepingBody + 'const suiteBody = () => {\n	test(\'a\', body);\n};\ndescribe.skip(\'s\', suiteBody);',
 		'import {describe, test} from \'node:test\';\n' + sleepingSuiteBody + 'describe.skip(\'outer\', () => {\n	describe(\'s\', suiteBody);\n});',
+		// Limitation: a body named out of line is read through the first call that registers it, so a body shared by a skipped registration and a later live one is not reported
+		'import {test} from \'node:test\';\n' + sleepingBody + 'test.skip(\'a\', body);\ntest(\'b\', body);',
+		'import {describe, test} from \'node:test\';\n' + sleepingSuiteBody + 'describe.skip(\'s\', suiteBody);\ndescribe(\'t\', suiteBody);',
 	],
 	invalid: [
 		withTest('await new Promise(resolve => setTimeout(resolve, 500));'),
@@ -314,5 +312,16 @@ test.snapshot({
 		'import {describe, test} from \'node:test\';\n' + sleepingSuiteBody + 'describe(\'s\', suiteBody);',
 		// A `skip` that cannot be resolved statically proves nothing, so the suite is treated as running
 		withSuitePromiseTimerImport('describe', '{skip: process.env.SKIP}, ', 'test(\'waits\', async () => {\n\tawait delay(500);\n});'),
+		// Only a truthy `skip` stops a suite body from running, so a falsy one such as `{skip: 0}` still runs the suite's hooks
+		'import {describe, before, it} from \'node:test\';\n'
+		+ 'import {setTimeout as delay} from \'node:timers/promises\';\n'
+		+ 'describe(\'s\', {skip: 0}, () => {\n'
+		+ '\tbefore(async () => {\n'
+		+ '\t\tawait delay(500);\n'
+		+ '\t});\n'
+		+ '\tit(\'a\', () => {});\n'
+		+ '});',
+		// Limitation: a suite with a falsy `skip` cancels the tests it registers, but they are still checked
+		withSuitePromiseTimerImport('describe', '{skip: 0}, ', 'test(\'waits\', async () => {\n\tawait delay(500);\n});'),
 	],
 });
