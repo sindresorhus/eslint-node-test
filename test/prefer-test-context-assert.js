@@ -45,8 +45,23 @@ test.snapshot({
 
 		// Unrelated `assert` property
 		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'x\', t => { custom.assert.ok(value); });',
+		// A test body named out of line with no context parameter, in a file that does not import `getTestContext`, has nothing to convert to
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\nfunction body() {\n\tassert.ok(value);\n}\ntest(\'x\', body);',
+		// A helper the test calls, and a hook body named out of line, are not test bodies
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\nfunction helper(t) {\n\tassert.ok(value);\n}\ntest(\'x\', t => helper(t));',
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\nfunction hook(t) {\n\tassert.ok(value);\n}\ntest.beforeEach(hook);',
+		// A `var` that re-binds the parameter of a body named out of line no longer reaches the context
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\nfunction body(t) {\n\tvar t = other;\n\tassert.ok(value);\n}\ntest(\'x\', body);',
 	],
 	invalid: [
+		// A test body named out of line is read like an inline one
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\nfunction body(t) {\n\tassert.ok(value);\n}\ntest(\'x\', body);',
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'x\', body);\nconst body = t => {\n\tassert.strictEqual(a, b);\n};',
+		'import {test, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\nfunction body() {\n\tassert.ok(value);\n}\ntest(\'x\', body);',
+		// A subtest body named out of line has its own context, not the context of the test it is declared in
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'x\', t => {\n\tfunction body(s) {\n\t\tassert.ok(value);\n\t}\n\tt.test(\'y\', body);\n});',
+		// An inline test inside a body named out of line has its own context
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\nfunction body(t) {\n\tt.test(\'y\', s => {\n\t\tassert.ok(value);\n\t});\n}\ntest(\'x\', body);',
 		// Namespace member
 		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'x\', t => { assert.strictEqual(a, b); });',
 
