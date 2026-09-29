@@ -1,14 +1,11 @@
 import {
 	resolveImports,
 	parseTestCall,
-	getTestCallback,
-	isOutOfLineCallback,
-	getHookCallback,
 	createContextTracker,
 	isContextHookCall,
 	getContextHookName,
 } from './utils/node-test.js';
-import {functionTypes} from './ast/index.js';
+import {getEnclosingFunction} from './utils/index.js';
 
 const MESSAGE_ID = 'no-duplicate-hooks';
 
@@ -23,90 +20,38 @@ const create = context => {
 		return;
 	}
 
-	// Stack of scopes; each scope tracks the hook names already declared in it.
-	const scopeStack = [new Set()];
-	// Calls whose callback opened a scope, so we can pop on exit.
-	const pushedCalls = new Set();
+	// The hook names already declared, keyed by the function the hook is written in (`undefined` for the module). A test, suite or hook body is its own function, and so is an out-of-line body (`describe('s', body)`), so each is its own scope. A hook inside another function, such as a helper (`function withDb() { beforeEach(…); }`), only counts against the other hooks in that same function, since which scope it registers in depends on where the function is called.
+	const namesByFunction = new Map();
 
-	// Subtests (`t.test(…)`) are their own scope, and a hook declared on a context
-	// (`t.beforeEach(…)`) is a real hook; neither is an imported binding, so the tracker is needed.
+	// A hook declared on a context (`t.beforeEach(…)`) is a real hook, and it is not an imported binding, so the tracker is needed. A hook body's `t` is the context of the test the hook runs for, so a hook declared on it is registered on that test and fires there (a `beforeEach` for that test's subtests). It sits in the hook body's function, so it is not a duplicate of a hook outside it.
 	const tracker = createContextTracker(imports, {trackHooks: true});
 
 	context.on('CallExpression', node => {
-		const isSubtest = tracker.isSubtestCall(node);
 		const isContextHook = isContextHookCall(node, tracker.isContextReceiver);
 		tracker.update(node);
 
 		const parsed = parseTestCall(node, imports);
-		if (!parsed && !isSubtest && !isContextHook) {
+		const name = isContextHook ? getContextHookName(node) : (parsed?.kind === 'hook' ? parsed.name : undefined);
+		if (name === undefined) {
 			return;
 		}
 
-		let problem;
-		if (isContextHook) {
-			const name = getContextHookName(node);
-			const scope = scopeStack.at(-1);
-			if (scope.has(name)) {
-				problem = {node, messageId: MESSAGE_ID, data: {name}};
-			} else {
-				scope.add(name);
-			}
-		} else if (parsed?.kind === 'hook') {
-			const scope = scopeStack.at(-1);
-			if (scope.has(parsed.name)) {
-				problem = {
-					node,
-					messageId: MESSAGE_ID,
-					data: {name: parsed.name},
-				};
-			} else {
-				scope.add(parsed.name);
-			}
+		const function_ = getEnclosingFunction(node);
+		let names = namesByFunction.get(function_);
+		if (!names) {
+			names = new Set();
+			namesByFunction.set(function_, names);
 		}
 
-		// A hook body is a scope of its own, like a test or a suite body. Its `t` is the context of the
-		// test the hook runs for, so a hook declared on it is registered on that test and fires there (a
-		// `beforeEach` for that test's subtests), which is not the scope the hook itself was declared in.
-		// It is not a duplicate of a hook outside it.
-		const callback = isContextHook || parsed?.kind === 'hook'
-			? getHookCallback(node)
-			: (isSubtest || parsed?.kind === 'test' || parsed?.kind === 'suite' ? getTestCallback(node) : undefined);
-		if (callback) {
-			scopeStack.push(new Set());
-			pushedCalls.add(node);
+		if (names.has(name)) {
+			return {node, messageId: MESSAGE_ID, data: {name}};
 		}
 
-		return problem;
+		names.add(name);
 	});
 
 	context.onExit('CallExpression', node => {
 		tracker.leave(node);
-
-		if (!pushedCalls.has(node)) {
-			return;
-		}
-
-		pushedCalls.delete(node);
-		scopeStack.pop();
-	});
-
-	// A callback the call names out of line (`describe('s', body)`) is entered where it is declared,
-	// which the call's own scope does not cover, so its hooks are scoped to that suite as well.
-	const outOfLineCallbacks = new WeakSet();
-
-	context.on(functionTypes, node => {
-		if (!isOutOfLineCallback(node, context, imports)) {
-			return;
-		}
-
-		outOfLineCallbacks.add(node);
-		scopeStack.push(new Set());
-	});
-
-	context.onExit(functionTypes, node => {
-		if (outOfLineCallbacks.delete(node)) {
-			scopeStack.pop();
-		}
 	});
 };
 

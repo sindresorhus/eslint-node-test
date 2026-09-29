@@ -9,7 +9,7 @@
 
 Declaring the same hook (`before`, `after`, `beforeEach`, or `afterEach`) more than once in a single scope is almost always an accident, typically from copy-paste. Both hooks run, so the duplicate silently doubles up setup or teardown and makes the test harder to follow. Consolidate the logic into a single hook instead.
 
-This rule reports a hook whose name was already used in the same scope. Hooks in different scopes (a nested `describe`, or sibling suites) are independent and not reported.
+This rule reports a hook whose name was already used in the same scope. Hooks in different scopes (a nested `describe`, or sibling suites) are independent and not reported. A hook inside another function, such as a helper that registers setup (`function withDatabase() { beforeEach(…); }`) or a `forEach` callback, is compared only with the other hooks in that same function, since where it registers depends on where the function is called. So two helpers that each register one `beforeEach` are not reported, while one helper that registers `beforeEach` twice is.
 
 ## Examples
 

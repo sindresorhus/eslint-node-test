@@ -35,6 +35,13 @@ test.snapshot({
 		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { t.beforeEach(() => {}); });',
 		// A context hook in a test body belongs to that test's scope, not to the file's
 		'import {before, test} from \'node:test\';\ntest(\'a\', t => { t.before(() => {}); });\nbefore(() => {});',
+		// A hook inside a helper function belongs to wherever the helper is called, so two helpers that each register the same hook are not duplicates
+		'import {describe, it, beforeEach} from \'node:test\';\n'
+		+ 'function withDb() { beforeEach(() => {}); }\n'
+		+ 'function withServer() { beforeEach(() => {}); }\n'
+		+ 'describe(\'a\', () => { withDb(); withServer(); it(\'x\', () => {}); });',
+		// A hook in a callback such as a `forEach` one is that callback's own, so it is not counted against a hook in the suite body
+		withImport('describe("a", () => {\n\tbeforeEach(() => {});\n\tcases.forEach(() => {\n\t\tbeforeEach(() => {});\n\t});\n});'),
 	],
 	invalid: [
 		// The same hook twice inside one out-of-line suite body is still a duplicate
@@ -91,5 +98,10 @@ test.snapshot({
 		+ '	t.beforeEach(() => {});\n'
 		+ '}\n'
 		+ 'test(\'a\', body);',
+
+		// The same hook twice in one helper registers twice wherever the helper is called
+		withImport('function withDb() {\n\tbeforeEach(() => {});\n\tbeforeEach(() => {});\n}'),
+		// The same hook twice in one `forEach` callback registers twice on each call
+		withImport('describe("a", () => {\n\tcases.forEach(() => {\n\t\tbeforeEach(() => {});\n\t\tbeforeEach(() => {});\n\t});\n});'),
 	],
 });
