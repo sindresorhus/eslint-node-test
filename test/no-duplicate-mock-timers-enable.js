@@ -7,6 +7,7 @@ const withNamedImport = names => `import {mock, ${names}} from 'node:test';`;
 
 test.snapshot({
 	valid: [
+		withImport('mock.timers.enable(); class Example { static { if (condition) { mock.timers.reset(); } else { mock.timers.reset(); } } } mock.timers.enable();'),
 		withImport('class A {\n\tstatic {\n\t\tmock.timers.enable();\n\t\tmock.timers.reset();\n\t\tmock.timers.enable();\n\t}\n}'),
 		// A reset in a static block or static field initializer clears the module body's state, and the other way round.
 		withImport('class A {\n\tstatic {\n\t\tmock.timers.enable();\n\t}\n}\nmock.timers.reset();\nmock.timers.enable();'),
@@ -107,6 +108,17 @@ test.snapshot({
 		'import {test, mock, getTestContext} from \'node:test\';\ntest(\'a\', t => {\n\tgetTestContext().mock.timers.enable();\n\tmock.timers.enable();\n});',
 		// Two bodies that register each other still end the walk
 		withImport('function first(t) { t.test("x", second); }\nfunction second(t) { t.test("y", first); t.test("z", child => { child.mock.timers.reset(); }); }'),
+		// A static block in a function that is not a callback the runner executes is helper code, not load-time code
+		'import {mock} from \'node:test\';\nfunction helper() { class A { static { mock.timers.enable(); mock.timers.enable(); } } }',
+		'import test from \'node:test\';\nconst body = t => { t.mock.timers.reset(); class A { static { t.mock.timers.enable(); t.mock.timers.enable(); } } };\ntest.skip(\'p\', body);',
+		// Limitation: the state a `while` or C-style `for` body leaves is not carried past the loop, unlike a `for…of` body's
+		withImport('test("a", () => {\n\twhile (condition) {\n\t\tmock.timers.enable();\n\t}\n\tmock.timers.enable();\n});'),
+		withImport('test("a", () => {\n\tfor (let index = 0; index < count; index++) {\n\t\tmock.timers.enable();\n\t}\n\tmock.timers.enable();\n});'),
+		// A static block in a `finally` block runs on both the return path and the normal path, so the state it hands back keeps each path's own state apart
+		withImport('test(\'t\', () => {\n\ttry {\n\t\tif (globalThis.x) {\n\t\t\tmock.timers.enable();\n\t\t\treturn;\n\t\t}\n'
+			+ '\t} finally {\n\t\tclass A {\n\t\t\tstatic {}\n\t\t}\n\t}\n\tmock.timers.enable();\n});'),
+		withImport('test(\'t\', () => {\n\ttry {\n\t\tmock.timers.enable();\n\t} finally {\n'
+			+ '\t\tclass A {\n\t\t\tstatic {\n\t\t\t\tmock.timers.reset();\n\t\t\t}\n\t\t}\n\t}\n\tmock.timers.enable();\n});'),
 	],
 	invalid: [
 		// A suite `skip` that cannot be resolved statically proves nothing, so the tests in the suite are still checked
@@ -220,5 +232,12 @@ test.snapshot({
 		'import {describe, it, mock} from \'node:test\';\ndescribe(\'s\', {skip: 0}, () => { mock.timers.enable(); mock.timers.enable(); });',
 		// Limitation: a suite with a falsy `skip` cancels the tests it registers, but they are still checked
 		'import {describe, test} from \'node:test\';\ndescribe("s", {skip: 0}, () => { test("a", t => { t.mock.timers.enable(); t.mock.timers.enable(); }); });',
+		withImport('mock.timers.enable(); class Example { static { if (condition) { mock.timers.reset(); } } } mock.timers.enable();'),
+		withImport('mock.timers.enable(); class Example { static reset = condition && mock.timers.reset(); } mock.timers.enable();'),
+		withImport('test(\'a\', t => { t.mock.timers.enable(); class Example { static { if (condition) { t.mock.timers.reset(); } } } t.mock.timers.enable(); });'),
+		withImport('mock.timers.enable(); class Outer { static { class Inner { static { if (condition) { mock.timers.reset(); } } } } } mock.timers.enable();'),
+		withImport('test(\'t\', () => {\n\ttry {\n\t\tmock.timers.enable();\n\t} finally {\n\t\tclass A {\n\t\t\tstatic {}\n\t\t}\n\t}\n\tmock.timers.enable();\n});'),
+		// Limitation: in a `finally` block the static block sees both paths at once. Its `enable()` is reported, a duplicate on the `return` path, but it is not added to the normal path, which had not enabled, so the later duplicate there is missed
+		withImport('test(\'t\', () => {\n\ttry {\n\t\tif (condition) {\n\t\t\tmock.timers.enable();\n\t\t\treturn;\n\t\t}\n\t} finally {\n\t\tclass A {\n\t\t\tstatic {\n\t\t\t\tmock.timers.enable();\n\t\t\t}\n\t\t}\n\t}\n\tmock.timers.enable();\n});'),
 	],
 });

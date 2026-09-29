@@ -199,15 +199,15 @@ function isStaticPath(node) {
 /*
 Whether a code path runs while the file is being loaded, where the mock timers are enabled for every
 test in it: the module body, and a class static block or static field initializer that the module body
-declares. A class declared inside a test, suite or hook callback is defined while that callback runs
-instead, which is not load time.
+declares. A class declared inside any function, such as a test, suite or hook callback or a helper, is
+defined while that function runs instead, which is not load time.
 */
-function isLoadTimeCodePath(node, contextTracker) {
+function isLoadTimeCodePath(node) {
 	if (node.type === 'Program') {
 		return true;
 	}
 
-	return isStaticPath(node) && !contextTracker.isTrackedCallback(getEnclosingFunction(node));
+	return isStaticPath(node) && getEnclosingFunction(node) === undefined;
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -317,19 +317,50 @@ const create = context => {
 	};
 
 	context.on('onCodePathStart', (codePath, node) => {
-		const isLoadTime = isLoadTimeCodePath(node, contextTracker);
+		const isLoadTime = isLoadTimeCodePath(node);
+		const enclosing = codePathStack.at(-1);
+		const initialEnabledReceivers = new Set();
+		// A static block or field initializer runs in the enclosing flow, but ESLint gives it a separate code path. Seed it with that flow's state, then merge its normal exits back when it ends.
+		if (isStaticPath(node) && enclosing?.isTracked) {
+			for (const segment of enclosing.activeSegments) {
+				for (const receiver of enclosing.enabledReceiversBySegment.get(segment)) {
+					initialEnabledReceivers.add(receiver);
+				}
+			}
+		}
+
 		codePathStack.push({
 			node,
 			// A static block or static field initializer declared in a callback the runner executes belongs to that callback, so it is tracked with it.
 			isTracked: isLoadTime || trackedCallbacks.has(node) || (isStaticPath(node) && trackedCallbacks.has(getEnclosingFunction(node))),
 			isLoadTime,
 			activeSegments: new Set(),
-			enabledReceiversBySegment: new Map(),
+			enabledReceiversBySegment: new Map([[codePath.initialSegment, initialEnabledReceivers]]),
+			seedReceivers: new Set(initialEnabledReceivers),
 		});
 	});
 
-	context.on('onCodePathEnd', () => {
-		codePathStack.pop();
+	context.on('onCodePathEnd', codePath => {
+		const completed = codePathStack.pop();
+		const enclosing = codePathStack.at(-1);
+		if (!isStaticPath(completed.node) || !completed.isTracked || !enclosing?.isTracked || codePath.returnedSegments.length === 0) {
+			return;
+		}
+
+		const enabledReceivers = new Set();
+		for (const segment of codePath.returnedSegments) {
+			for (const receiver of completed.enabledReceiversBySegment.get(segment) ?? []) {
+				enabledReceivers.add(receiver);
+			}
+		}
+
+		// Several enclosing segments can be active at once, such as the normal and the return path through a `finally` block, so only what the static path changed is applied to each of them, not the union of their states.
+		const addedReceivers = enabledReceivers.difference(completed.seedReceivers);
+		const removedReceivers = completed.seedReceivers.difference(enabledReceivers);
+		for (const segment of enclosing.activeSegments) {
+			const segmentReceivers = enclosing.enabledReceiversBySegment.get(segment);
+			enclosing.enabledReceiversBySegment.set(segment, segmentReceivers.difference(removedReceivers).union(addedReceivers));
+		}
 	});
 
 	context.on('onCodePathSegmentStart', segment => {
@@ -338,7 +369,8 @@ const create = context => {
 			return;
 		}
 
-		codePath.enabledReceiversBySegment.set(segment, getEnabledReceivers(segment, codePath.enabledReceiversBySegment));
+		const enabledReceivers = codePath.enabledReceiversBySegment.get(segment) ?? getEnabledReceivers(segment, codePath.enabledReceiversBySegment);
+		codePath.enabledReceiversBySegment.set(segment, enabledReceivers);
 		codePath.activeSegments.add(segment);
 	});
 
@@ -362,33 +394,15 @@ const create = context => {
 			return;
 		}
 
-		// A static block or static field initializer runs as part of the flow of the code that declares the class, so the trackers it enables are enabled for that code too. A tracked callback runs at a time of its own, so nothing outside it shares the state, and a helper function is not tracked at all.
-		const codePaths = [codePath];
-		if (isStaticPath(codePath.node)) {
-			for (let index = codePathStack.length - 2; index >= 0; index--) {
-				const enclosing = codePathStack[index];
-				if (!enclosing.isTracked) {
-					break;
-				}
-
-				codePaths.push(enclosing);
-				if (!enclosing.isLoadTime) {
-					break;
-				}
-			}
-		}
-
 		let isDuplicate = false;
-		for (const path of codePaths) {
-			for (const segment of path.activeSegments) {
-				const enabledReceivers = path.enabledReceiversBySegment.get(segment);
-				if (action.method === 'enable') {
-					// Enabling through another receiver, the global `mock.timers` or a context's `t.mock.timers`, throws `ERR_INVALID_STATE` only when both calls mock `Date`, which depends on their `apis`, so only the same receiver counts as a duplicate. A `reset()` only clears the receiver it is called on, so a receiver enabled earlier stays enabled.
-					isDuplicate ||= enabledReceivers.has(action.receiver);
-					enabledReceivers.add(action.receiver);
-				} else {
-					enabledReceivers.delete(action.receiver);
-				}
+		for (const segment of codePath.activeSegments) {
+			const enabledReceivers = codePath.enabledReceiversBySegment.get(segment);
+			if (action.method === 'enable') {
+				// Enabling through another receiver, the global `mock.timers` or a context's `t.mock.timers`, throws `ERR_INVALID_STATE` only when both calls mock `Date`, which depends on their `apis`, so only the same receiver counts as a duplicate. A `reset()` only clears the receiver it is called on, so a receiver enabled earlier stays enabled.
+				isDuplicate ||= enabledReceivers.has(action.receiver);
+				enabledReceivers.add(action.receiver);
+			} else {
+				enabledReceivers.delete(action.receiver);
 			}
 		}
 
