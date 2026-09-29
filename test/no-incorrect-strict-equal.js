@@ -8,8 +8,7 @@ const withNamedImport = (methods, code) => `import {${methods}} from 'node:asser
 
 test.snapshot({
 	valid: [
-		// A shadowed `NaN`/`Infinity` is some other object, so it is not the primitive that would
-		// decide between the loose and deep forms
+		// A shadowed `NaN`/`Infinity` is some other object, so it is not the primitive that would decide between the loose and deep forms
 		withAssert('const NaN = {a: 1};\nassert.equal(actual, NaN);'),
 		withAssert('const Infinity = {a: 1};\nassert.notEqual(actual, Infinity);'),
 		// Not an assert import — ignored
@@ -70,8 +69,7 @@ test.snapshot({
 		// Both args are literals
 		withAssert('assert.strictEqual({}, {});'),
 
-		// A primitive on one side is where loose and loose-deep equality diverge, and
-		// `no-incorrect-deep-equal` rewrites the opposite direction, so this is reported but not fixed
+		// A primitive on one side is where loose and loose-deep equality diverge, and `no-incorrect-deep-equal` rewrites the opposite direction, so this is reported but not fixed
 		withAssert('assert.strictEqual(0, []);'),
 		withAssert('assert.equal(null, {});'),
 		withAssert('assert.notStrictEqual(`x`, {});'),

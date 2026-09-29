@@ -141,8 +141,7 @@ const create = context => {
 			!isFunction(callback)
 			|| !callback.async
 			|| callback.generator
-			// A generic callback is left alone whatever its shape, so an arrow and a function
-			// expression with type parameters read the same way.
+			// A generic callback is left alone whatever its shape, so an arrow and a function expression with type parameters read the same way.
 			|| callback.typeParameters
 			|| callback.params.length > 0
 		) {
@@ -169,10 +168,7 @@ const create = context => {
 					messageId: MESSAGE_ID_SUGGESTION,
 					/** @param {ESLint.Rule.RuleFixer} fixer */
 					* fix(fixer, {abort}) {
-						// `return` can only go where the `await` keyword stood, which is directly before the
-						// awaited expression. Parentheses (`(await x)`) or a TypeScript type assertion
-						// (`<Error>await x`), which binds looser than `await`, both put something between
-						// them that `return` cannot be inserted into.
+						// `return` can only go where the `await` keyword stood, which is directly before the awaited expression. Parentheses (`(await x)`) or a TypeScript type assertion (`<Error>await x`), which binds looser than `await`, both put something between them that `return` cannot be inserted into.
 						if (
 							awaited.shouldAddReturn
 							&& (isParenthesized(awaited.awaitExpression, context)

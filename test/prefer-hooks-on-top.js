@@ -19,8 +19,7 @@ test.snapshot({
 		// Independent scopes
 		withImport('describe("a", () => { beforeEach(() => {}); it("x", () => {}); });\ndescribe("b", () => { beforeEach(() => {}); it("y", () => {}); });'),
 
-		// A hook inside an unrelated function shares no scope with the test above it, and a test
-		// inside one shares no scope with a hook below it
+		// A hook inside an unrelated function shares no scope with the test above it, and a test inside one shares no scope with a hook below it
 		withImport('test("a", () => {});\nfunction helper() {\n\tbeforeEach(() => {});\n}'),
 		withImport('test("a", () => {});\nconst helper = () => { beforeEach(() => {}); };'),
 		withImport('function helper() {\n\ttest("a", () => {});\n}\nbeforeEach(() => {});'),
@@ -36,8 +35,7 @@ test.snapshot({
 		withImport('describe("s", () => {\n\tit("a", () => {});\n\tcases.forEach(() => {\n\t\tbeforeEach(() => {});\n\t});\n});'),
 	],
 	invalid: [
-		// A suite callback the call names out of line is that suite's own scope, so a hook after a
-		// test in it is still out of order
+		// A suite callback the call names out of line is that suite's own scope, so a hook after a test in it is still out of order
 		'import {describe, it, beforeEach} from \'node:test\';\nconst body = () => {\n\tit(\'a\', () => {});\n\tbeforeEach(() => {});\n};\ndescribe(\'user\', body);',
 		'import {describe, it, beforeEach} from \'node:test\';\ndescribe(\'user\', body);\nfunction body() {\n\tit(\'a\', () => {});\n\tbeforeEach(() => {});\n}',
 

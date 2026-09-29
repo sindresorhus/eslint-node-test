@@ -32,8 +32,7 @@ const create = context => {
 	context.on('CallExpression', node => {
 		const parsed = parseTestCall(node, imports);
 		const isSubtest = tracker.isSubtestCall(node);
-		// A hook declared on a test context (`t.beforeEach(…)`) is a hook callback too, even though it
-		// is a method call rather than an imported binding.
+		// A hook declared on a test context (`t.beforeEach(…)`) is a hook callback too, even though it is a method call rather than an imported binding.
 		const isContextHook = isContextHookCall(node, tracker.isContextReceiver);
 		if (!isSubtest && !isContextHook && parsed?.kind !== 'test' && parsed?.kind !== 'hook') {
 			return;
@@ -51,18 +50,13 @@ const create = context => {
 		tracker.leave(node);
 	});
 
-	// A call that registers a test, subtest, or hook: a conditional in its own arguments (the title,
-	// the options) is registration-time configuration, not logic the test body runs. The tracker
-	// resolves the receiver, so an unrelated object's `test` method is not a registration.
+	// A call that registers a test, subtest, or hook: a conditional in its own arguments (the title, the options) is registration-time configuration, not logic the test body runs. The tracker resolves the receiver, so an unrelated object's `test` method is not a registration.
 	const isRegistrationCall = node => parseTestCall(node, imports) !== undefined
 		|| tracker.isSubtestCall(node)
 		|| isContextHookCall(node, tracker.isContextReceiver);
 
 	const report = node => {
-		// The conditional must sit inside the test callback itself, not in a sibling argument of a
-		// registration call like the options object (`{skip: a ? … : …}`), which is evaluated while the
-		// file loads, nor inside a nested helper function. A conditional in an argument of any other
-		// call is the test body's own logic, so the walk continues past it.
+		// The conditional must sit inside the test callback itself, not in a sibling argument of a registration call like the options object (`{skip: a ? … : …}`), which is evaluated while the file loads, nor inside a nested helper function. A conditional in an argument of any other call is the test body's own logic, so the walk continues past it.
 		for (let current = node; current; current = current.parent) {
 			if (isFunction(current)) {
 				return testCallbacks.has(current) ? {node, messageId: MESSAGE_ID} : undefined;
@@ -74,9 +68,7 @@ const create = context => {
 		}
 	};
 
-	// A callback the call names out of line is entered where it is declared, which the call's own frame
-	// does not cover, so a conditional in it is still inside the test body. A suite body is about test
-	// registration, so it stays excluded the way the inline form is.
+	// A callback the call names out of line is entered where it is declared, which the call's own frame does not cover, so a conditional in it is still inside the test body. A suite body is about test registration, so it stays excluded the way the inline form is.
 	const outOfLineTestCallbacks = new WeakSet();
 
 	context.on(functionTypes, node => {

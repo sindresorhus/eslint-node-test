@@ -32,12 +32,12 @@ test('plan', t => {
 import {test, getTestContext} from 'node:test';
 import assert from 'node:assert';
 
-// ❌ — the `plan` option is a plan too, and the imported assert does not count
+// ❌ the `plan` option is a plan too, and the imported assert does not count
 test('plan', {plan: 1}, () => {
 	assert.strictEqual(actual, expected);
 });
 
-// ✅ — a test with no context parameter still has one, through `getTestContext()`
+// ✅ a test with no context parameter still has one, through `getTestContext()`
 test('plan', {plan: 1}, () => {
 	getTestContext().assert.strictEqual(actual, expected);
 });

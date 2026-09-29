@@ -99,8 +99,7 @@ function runEmptyFileTest(ruleId, rule) {
 function runSnapshot(ruleId, rule, tests) {
 	let {testerOptions = {}, valid, invalid} = tests;
 
-	// A rule with no `invalid` case proves nothing: the whole suite would stay green even if the rule
-	// reported nothing at all, which is how an unimplemented rule would ship.
+	// A rule with no `invalid` case proves nothing: the whole suite would stay green even if the rule reported nothing at all, which is how an unimplemented rule would ship.
 	assert.ok(invalid.length > 0, `\`${ruleId}\` has no \`invalid\` test case, so a rule that reports nothing would still pass.`);
 
 	valid = valid.map(testCase => normalizeTestCase(testCase));

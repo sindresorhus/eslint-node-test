@@ -17,9 +17,7 @@ const messages = {
 const POSITIVE_METHODS = new Set(['equal', 'strictEqual', 'deepEqual', 'deepStrictEqual', 'partialDeepStrictEqual']);
 const NEGATED_METHODS = new Set(['notEqual', 'notStrictEqual', 'notDeepEqual', 'notDeepStrictEqual']);
 
-// The deep methods compare structure, so two identical `RegExp` literals are the same value to them.
-// The other methods compare identity, and two separate `RegExp` literals are always distinct objects,
-// so the operands are not "the same reference" the messages rely on.
+// The deep methods compare structure, so two identical `RegExp` literals are the same value to them. The other methods compare identity, and two separate `RegExp` literals are always distinct objects, so the operands are not "the same reference" the messages rely on.
 const STRUCTURAL_METHODS = new Set(['deepEqual', 'deepStrictEqual', 'notDeepEqual', 'notDeepStrictEqual', 'partialDeepStrictEqual']);
 
 /** Whether a node is a `RegExp` literal. */
@@ -64,9 +62,7 @@ const create = context => {
 			return;
 		}
 
-		// Two distinct `RegExp` literals are different objects, so a reference comparison of them is
-		// not the "same value" case this rule reports. Only the deep methods, which compare structure,
-		// treat identical patterns as equal.
+		// Two distinct `RegExp` literals are different objects, so a reference comparison of them is not the "same value" case this rule reports. Only the deep methods, which compare structure, treat identical patterns as equal.
 		if (!STRUCTURAL_METHODS.has(assertion.method) && isRegExpLiteral(first) && isRegExpLiteral(second)) {
 			return;
 		}

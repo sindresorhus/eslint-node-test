@@ -22,8 +22,7 @@ const create = context => {
 			return;
 		}
 
-		// A callback the call names out of line is still the callback the runner awaits, wherever it
-		// is declared, so it is read as the function rather than as the name.
+		// A callback the call names out of line is still the callback the runner awaits, wherever it is declared, so it is read as the function rather than as the name.
 		const callback = getResolvedTestCallback(node, context, imports);
 		if (!callback?.async || reportedCallbacks.has(callback)) {
 			return;

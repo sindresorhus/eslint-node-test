@@ -15,10 +15,7 @@ test.snapshot({
 		'import test from "node:test";\ntest("a", async () => {\n\tconst assert = {strictEqual() {}};\n\tload().then(v => { assert.strictEqual(v, 42); });\n});',
 		'import test from "node:test";\ntest("a", async ({assert}) => {\n\tawait load().then(v => { assert.strictEqual(v, 42); });\n});',
 
-		// `t.plan(n, {wait: true})` makes the runner block until the plan is fulfilled, so a test with one
-		// is not checked (a documented limitation: the failure of the assertion that fulfills the plan
-		// still escapes the test). The runner reads the plan when it is set, so it counts wherever it
-		// stands in the body.
+		// `t.plan(n, {wait: true})` makes the runner block until the plan is fulfilled, so a test with one is not checked (a documented limitation: the failure of the assertion that fulfills the plan still escapes the test). The runner reads the plan when it is set, so it counts wherever it stands in the body.
 		'import test from "node:test";\nimport assert from "node:assert";\n'
 		+ 'test("a", async t => {\n\tt.plan(1, {wait: true});\n\tload().then(value => {\n\t\tassert.strictEqual(value, 42);\n\t});\n});',
 		'import test from "node:test";\n'
@@ -85,26 +82,22 @@ test.snapshot({
 		+ 'test(\'a\', async () => {\n\tgetTestContext().plan(1, {wait: true});\n'
 		+ '\tPromise.resolve().then(() => { getTestContext().assert.ok(true); });\n});',
 
-		// The chain callback runs synchronously inside its own `try`, so a `catch` around the assertion
-		// handles the failure
+		// The chain callback runs synchronously inside its own `try`, so a `catch` around the assertion handles the failure
 		inAsyncTest('load().then(value => { try { assert.strictEqual(value, 42); } catch (error) { report(error); } });'),
 
 		// A promise assertion that is awaited inside a handled `try` block is caught by the `catch`
 		inAsyncTest('try { await assert.rejects(load()); } catch (error) { report(error); }'),
 
-		// A generator body does not run until it is iterated, so neither the test body nor the chain
-		// callback ever reaches the assertion
+		// A generator body does not run until it is iterated, so neither the test body nor the chain callback ever reaches the assertion
 		'import test from \'node:test\';\nimport assert from \'node:assert\';\n'
 		+ 'test(\'loads\', async function* () {\n\tload().then(value => { assert.strictEqual(value, 42); });\n});',
 		inAsyncTest('load().then(function* () { assert.strictEqual(value, 42); });'),
 
-		// A class field initializer is not one of the statements of the test body: an instance field runs on
-		// instantiation, and a static field's value is kept by the field rather than discarded
+		// A class field initializer is not one of the statements of the test body: an instance field runs on instantiation, and a static field's value is kept by the field rather than discarded
 		inAsyncTest('class Fixture { field = load().then(value => { assert.strictEqual(value, 42); }); }\nnew Fixture();'),
 		inAsyncTest('class Fixture { static field = load().then(value => { assert.strictEqual(value, 42); }); }'),
 		inAsyncTest('class Fixture { static promise = load().then(value => { assert.ok(value); }); }\n\tawait Fixture.promise;'),
-		// Known limitation: a `void` discards the chain in a static field initializer too, but only a chain
-		// whose value a statement throws away is read
+		// Known limitation: a `void` discards the chain in a static field initializer too, but only a chain whose value a statement throws away is read
 		inAsyncTest('class Fixture { static field = void load().then(value => { assert.strictEqual(value, 42); }); }'),
 
 		// A declaration or an assignment in a `for` slot keeps the Promise, so it may be awaited later
@@ -112,8 +105,7 @@ test.snapshot({
 		inAsyncTest('for (const value = load().then(v => { assert.strictEqual(v, 42); });;) {}'),
 		inAsyncTest('for (holder.value = load().then(v => { assert.strictEqual(v, 42); });;) {}'),
 		inAsyncTest('for (; i < 1; i = load().then(v => { assert.strictEqual(v, 42); })) {}'),
-		// Known limitation: a bare chain in a `for` initializer or update slot is discarded too, but only a
-		// chain whose value a statement throws away is read
+		// Known limitation: a bare chain in a `for` initializer or update slot is discarded too, but only a chain whose value a statement throws away is read
 		inAsyncTest('for (load().then(value => { assert.strictEqual(value, 42); });;) {}'),
 		inAsyncTest('for (; i < 1; load().then(v => { assert.strictEqual(v, 42); })) {}'),
 
@@ -133,8 +125,7 @@ test.snapshot({
 		inAsyncTest('load().then(() => { throw new Error(\'boom\'); });'),
 		inParentTest('load().then(() => { t.test(\'child\', () => {}); });'),
 
-		// A callback-style test body is not awaited: node:test hands a `done` function to a callback
-		// that declares two parameters
+		// A callback-style test body is not awaited: node:test hands a `done` function to a callback that declares two parameters
 		'import test from \'node:test\';\nimport assert from \'node:assert\';\n'
 		+ 'test(\'loads\', (t, done) => {\n\tload().then(value => { assert.strictEqual(value, 42); });\n});',
 		// `TestContext#assert` has no `strict`, so calling it throws rather than asserting, the same as `t.assert.strict(…)`
@@ -142,13 +133,11 @@ test.snapshot({
 		'import test from \'node:test\';\ntest(\'loads\', async ({assert: {strict}}) => {\n\tload().then(value => { strict(value); });\n});',
 	],
 	invalid: [
-		// A destructured `assert` is the context's assert, so an assertion through it is owned by
-		// the same rule as `t.assert.*` and the imported module
+		// A destructured `assert` is the context's assert, so an assertion through it is owned by the same rule as `t.assert.*` and the imported module
 		'import test from "node:test";\ntest("a", async ({assert}) => {\n\tload().then(v => { assert.strictEqual(v, 42); });\n});',
 		'import test from "node:test";\ntest("a", async ({assert: {strictEqual}}) => {\n\tload().then(v => { strictEqual(v, 42); });\n});',
 
-		// A floating combinator leaves the chains inside its array just as late as a floating chain,
-		// so an assertion in one of them is just as unawaited
+		// A floating combinator leaves the chains inside its array just as late as a floating chain, so an assertion in one of them is just as unawaited
 		inAsyncTest('Promise.all([load().then(value => { assert.strictEqual(value, 42); })]);'),
 		inAsyncTest('Promise.allSettled([load().then(value => { assert.strictEqual(value, 42); })]);'),
 		inAsyncTest('Promise.race([load().then(value => { assert.strictEqual(value, 42); })]);'),
@@ -221,9 +210,7 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 
-		// TypeScript wrapper around the whole floating chain. Reported without a fix: the parentheses
-		// do not help, because `as` binds looser than `await` inside them too, so
-		// A cast around the enclosing conditional would name the type of the awaited value, so no fix
+		// TypeScript wrapper around the whole floating chain. Reported without a fix: the parentheses do not help, because `as` binds looser than `await` inside them too, so A cast around the enclosing conditional would name the type of the awaited value, so no fix
 		{
 			code: inAsyncTest('(condition ? load().then(value => { assert.strictEqual(value, 42); }) : undefined) as Promise<void>;'),
 			languageOptions: {parser: parsers.typescript},
@@ -254,8 +241,7 @@ test.snapshot({
 		'import test from \'node:test\';\nimport assert from \'node:assert\';\n'
 		+ 'test(\'a\', async t => {\n\tt.plan(1, {wait: false});\n\tload().then(value => { assert.strictEqual(value, 42); });\n});',
 
-		// A chain whose value a surrounding expression hands on to the discarded statement can take the
-		// `await`; the discarded side of `&&` has nowhere to put one, so it is reported without a fix
+		// A chain whose value a surrounding expression hands on to the discarded statement can take the `await`; the discarded side of `&&` has nowhere to put one, so it is reported without a fix
 		inAsyncTest('flag || load().then(value => { assert.strictEqual(value, 42); });'),
 		inAsyncTest('load().then(value => { assert.strictEqual(value, 42); }) && flag;'),
 
@@ -280,8 +266,7 @@ test.snapshot({
 		'import test from \'node:test\';\nimport assert from \'node:assert\';\n'
 		+ 'test.afterEach(async () => {\n\tteardown().then(value => { assert.strictEqual(value, 42); });\n});',
 
-		// A hook declared on a tracked context is a boundary, and its callback is not async, so there is
-		// no fix
+		// A hook declared on a tracked context is a boundary, and its callback is not async, so there is no fix
 		'import test from \'node:test\';\nimport assert from \'node:assert\';\n'
 		+ 'test(\'parent\', t => {\n\tt.beforeEach(() => {\n\t\tsetup().then(value => { assert.strictEqual(value, 42); });\n\t});\n});',
 

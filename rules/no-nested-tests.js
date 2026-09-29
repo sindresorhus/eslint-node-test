@@ -39,8 +39,7 @@ const create = context => {
 			};
 		}
 
-		// A subtest's body is a test body too, whichever context registers it, a hook's included, the
-		// same as for a body the call names out of line below.
+		// A subtest's body is a test body too, whichever context registers it, a hook's included, the same as for a body the call names out of line below.
 		if (getRegistrationKind(node, imports, context) !== 'test') {
 			return;
 		}
@@ -58,10 +57,7 @@ const create = context => {
 		}
 	});
 
-	// A callback the call names out of line (`test('a', body)`) is entered where it is declared, which
-	// the call's own frame does not cover, so a test inside it is still nested in that test. Only a test
-	// body nests: a suite or a hook body legitimately holds tests and suites, exactly as its inline
-	// spelling does.
+	// A callback the call names out of line (`test('a', body)`) is entered where it is declared, which the call's own frame does not cover, so a test inside it is still nested in that test. Only a test body nests: a suite or a hook body legitimately holds tests and suites, exactly as its inline spelling does.
 	const outOfLineCallbacks = new WeakSet();
 
 	context.on(functionTypes, node => {

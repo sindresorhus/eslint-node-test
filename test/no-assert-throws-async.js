@@ -97,8 +97,7 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 
-		// A TypeScript wrapper around the call must not hide it. The suggestion leaves out `await`: `as`
-		// binds looser than `await`, so it would cast the awaited value instead of the Promise.
+		// A TypeScript wrapper around the call must not hide it. The suggestion leaves out `await`: `as` binds looser than `await`, so it would cast the awaited value instead of the Promise.
 		{
 			code: inAsyncTest('assert.throws(async () => {}) as Promise<void>;'),
 			languageOptions: {parser: parsers.typescript},
@@ -119,8 +118,7 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 
-		// A type assertion on the call in a branch binds looser than `await` as it does on a bare
-		// statement, so the suggestion leaves out `await`
+		// A type assertion on the call in a branch binds looser than `await` as it does on a bare statement, so the suggestion leaves out `await`
 		{
 			code: inAsyncTest('x ? assert.throws(async () => {}) as any : 0;'),
 			languageOptions: {parser: parsers.typescript},

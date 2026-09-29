@@ -26,7 +26,7 @@ This rule complements [`no-unawaited-subtest`](./no-unawaited-subtest.md), which
 import test from 'node:test';
 
 test('table', async t => {
-	// ❌ — the test continues while the subtests run
+	// ❌ the test continues while the subtests run
 	cases.map((input) => t.test(`case ${input}`, () => {}));
 
 	// ❌ — forEach throws the promises away

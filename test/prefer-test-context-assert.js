@@ -4,8 +4,7 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
-		// A `var` that re-binds the context parameter resolves to the same variable, so the name no
-		// longer reaches the test context
+		// A `var` that re-binds the context parameter resolves to the same variable, so the name no longer reaches the test context
 		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'t\', t => { var t = other; assert.ok(1); });',
 		// Not a test file
 		'import assert from \'node:assert\';\nassert.ok(x);',
@@ -30,8 +29,7 @@ test.snapshot({
 
 		// Inner subtest without a context parameter — outer `t` would assert against the wrong test
 		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'x\', t => { t.test(\'y\', () => { assert.ok(value); }); });',
-		// A local binding shadows an aliased `getTestContext` import, so `gtc().assert` would not be
-		// the test context
+		// A local binding shadows an aliased `getTestContext` import, so `gtc().assert` would not be the test context
 		'import test, {getTestContext as gtc} from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'x\', () => { const gtc = {}; assert.ok(value); });',
 
 		// Shadowed import name
@@ -127,8 +125,7 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 
-		// A `getTestContext` import under any local alias is the same import, and the suggestion
-		// has to name the local one
+		// A `getTestContext` import under any local alias is the same import, and the suggestion has to name the local one
 		'import test, {getTestContext as gtc} from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'x\', () => { assert.ok(value); });',
 		'import test, {getTestContext as gtc} from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'x\', t => { assert.ok(value); });',
 		{

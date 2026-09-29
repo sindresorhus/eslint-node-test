@@ -20,10 +20,7 @@ const fixturesDirectory = fileURLToPath(new URL('../fixtures/', import.meta.url)
 const typescriptTypedParser = {
 	name: 'typescriptWithTypes',
 	implementation: typescriptEslintParser,
-	// The cases name a file inside this directory, which the `tsconfig.json` next to it covers, so the
-	// project service reads real declarations from it. `allowDefaultProject` would instead serve the
-	// file from an inferred project with no `strict` setting and no `@types/node`, which makes every
-	// type-aware case pass for the wrong reason.
+	// The cases name a file inside this directory, which the `tsconfig.json` next to it covers, so the project service reads real declarations from it. `allowDefaultProject` would instead serve the file from an inferred project with no `strict` setting and no `@types/node`, which makes every type-aware case pass for the wrong reason.
 	mergeParserOptions: options => ({
 		projectService: {allowDefaultProject: []},
 		tsconfigRootDir: fixturesDirectory,

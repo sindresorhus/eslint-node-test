@@ -23,17 +23,12 @@ const create = context => {
 		return;
 	}
 
-	// Stack of hook callback function nodes we are currently inside. A test registered in a hook
-	// callback is dropped at runtime, whether the hook is imported (`beforeEach(…)`) or declared on a
-	// test context (`t.beforeEach(…)`). A test body inside a hook is on the stack too, as `undefined`:
-	// a test defined in that body is nested in the test, not in the hook, which is `no-nested-tests`'s
-	// to report, and is how the same body reads when it is named out of line.
+	// Stack of hook callback function nodes we are currently inside. A test registered in a hook callback is dropped at runtime, whether the hook is imported (`beforeEach(…)`) or declared on a test context (`t.beforeEach(…)`). A test body inside a hook is on the stack too, as `undefined`: a test defined in that body is nested in the test, not in the hook, which is `no-nested-tests`'s to report, and is how the same body reads when it is named out of line.
 	const hookCallbackStack = [];
 	// The calls whose callbacks are on the stack, so the exit pops exactly what the entry pushed.
 	const pushedCalls = new WeakSet();
 
-	// The tracker is needed to recognise a context hook: `t.beforeEach(…)` is a method call on the
-	// test's context parameter, not an imported binding.
+	// The tracker is needed to recognise a context hook: `t.beforeEach(…)` is a method call on the test's context parameter, not an imported binding.
 	const tracker = createContextTracker(imports, {trackHooks: true});
 
 	context.on('CallExpression', node => {
@@ -82,9 +77,7 @@ const create = context => {
 		}
 	});
 
-	// A hook callback the call names out of line is entered where it is declared, which the call's own
-	// frame does not cover, so a test inside it is still inside the hook and the runner still drops it.
-	// A test body named out of line opens its frame the same way.
+	// A hook callback the call names out of line is entered where it is declared, which the call's own frame does not cover, so a test inside it is still inside the hook and the runner still drops it. A test body named out of line opens its frame the same way.
 	const outOfLineCallbacks = new WeakSet();
 
 	context.on(functionTypes, node => {

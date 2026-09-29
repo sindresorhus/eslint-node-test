@@ -64,16 +64,13 @@ function getEnabledApis(callExpression) {
 
 	const apisProperty = findOptionsProperty(argument, 'apis');
 	if (!apisProperty) {
-		// A spread or computed key can hide or replace `apis`, in which case the list is not
-		// statically known. Without one, the runner mocks every timer API. A computed key that
-		// folds to a constant names a known property, the way `findOptionsProperty` reads it.
+		// A spread or computed key can hide or replace `apis`, in which case the list is not statically known. Without one, the runner mocks every timer API. A computed key that folds to a constant names a known property, the way `findOptionsProperty` reads it.
 		return argument.properties.some(property => property.type === 'SpreadElement' || getStaticPropertyName(property) === undefined)
 			? {unknown: true}
 			: {all: true};
 	}
 
-	// `undefined`, `void 0` and `null` are three ways to write "no `apis` given", and the runner
-	// takes that as every timer API rather than rejecting it.
+	// `undefined`, `void 0` and `null` are three ways to write "no `apis` given", and the runner takes that as every timer API rather than rejecting it.
 	const {value} = apisProperty;
 	if (isNoValue(value)) {
 		return {all: true};
@@ -106,9 +103,7 @@ const create = context => {
 
 	// Named timer-function imports from `node:timers`.
 	const timerImports = [];
-	// `import * as timers from 'node:timers'` is captured too: the namespace object is a snapshot of
-	// the module taken at import time, before `mock.timers.enable()` patches `module.exports`, so
-	// `timers.setTimeout(…)` escapes the mock exactly like a destructured import.
+	// `import * as timers from 'node:timers'` is captured too: the namespace object is a snapshot of the module taken at import time, before `mock.timers.enable()` patches `module.exports`, so `timers.setTimeout(…)` escapes the mock exactly like a destructured import.
 	const namespaceImports = [];
 	for (const node of sourceCode.ast.body) {
 		// Type-only imports (`import type {setTimeout} …`) are erased and create no runtime binding,
@@ -136,10 +131,7 @@ const create = context => {
 
 	const tracker = createContextTracker(imports, {trackHooks: true});
 
-	// `t.mock.timers` (a test context) or `getTestContext().mock.timers`. An unrelated
-	// `<anything>.mock.timers` is another object's API and has nothing to do with the global tracker.
-	// A TypeScript wrapper on the receiver (`(t as any).mock`) is erased at runtime, so the
-	// receiver is unwrapped before it is matched against the context.
+	// `t.mock.timers` (a test context) or `getTestContext().mock.timers`. An unrelated `<anything>.mock.timers` is another object's API and has nothing to do with the global tracker. A TypeScript wrapper on the receiver (`(t as any).mock`) is erased at runtime, so the receiver is unwrapped before it is matched against the context.
 	const isContextMock = node => {
 		node = unwrapTypeScriptExpression(node);
 		return node?.type === 'MemberExpression'
@@ -152,8 +144,7 @@ const create = context => {
 			);
 	};
 
-	// A TypeScript wrapper on the receiver must not hide the call, the way it does not hide
-	// `mock.method(…)` in every other mock rule.
+	// A TypeScript wrapper on the receiver must not hide the call, the way it does not hide `mock.method(…)` in every other mock rule.
 	const isMockTimers = node => {
 		const expression = unwrapTypeScriptExpression(node);
 		return expression.type === 'MemberExpression'
@@ -207,9 +198,7 @@ const create = context => {
 				data: {name: getImportSpecifierName(specifier)},
 			}));
 
-		// A namespace import holds the real timer functions for every API, so any enabled timer API
-		// makes it a problem. A list of only `Date` mocks no timer function, so the namespace import is
-		// then harmless, exactly as it is for a named import.
+		// A namespace import holds the real timer functions for every API, so any enabled timer API makes it a problem. A list of only `Date` mocks no timer function, so the namespace import is then harmless, exactly as it is for a named import.
 		const hasEnabledTimerApi = [...enabledApis].some(api => TIMER_APIS.has(api));
 		if (namespaceImports.length > 0 && (isAllEnabled || hasEnabledTimerApi)) {
 			for (const specifier of namespaceImports) {

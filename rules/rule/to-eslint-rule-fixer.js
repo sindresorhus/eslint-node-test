@@ -29,14 +29,11 @@ Convert Unicorn style fix function to ESLint style fix function
 export default function toEslintRuleFixer(fix) {
 	/** @param {UnicornReportFixer} fixer */
 	return fixer => {
-		// A generator defers its body until iteration, so the call is inside the `try` either way:
-		// a plain function that calls `abort()` throws here, and that has to mean "no fix" too.
+		// A generator defers its body until iteration, so the call is inside the `try` either way: a plain function that calls `abort()` throws here, and that has to mean "no fix" too.
 		try {
 			const unicornReport = fix(fixer, fixOptions);
 
-			// A fix helper stands down by yielding `undefined` rather than by calling `abort()`, so the
-			// falsy entries are dropped here. Handing one to ESLint would make `mergeFixes` read `.range`
-			// off `undefined` and take the whole lint run down with it.
+			// A fix helper stands down by yielding `undefined` rather than by calling `abort()`, so the falsy entries are dropped here. Handing one to ESLint would make `mergeFixes` read `.range` off `undefined` and take the whole lint run down with it.
 			return [...iterateFixOrProblems(unicornReport)].filter(Boolean);
 		} catch (error) {
 			if (error instanceof FixAbortError) {

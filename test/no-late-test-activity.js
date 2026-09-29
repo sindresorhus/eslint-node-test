@@ -119,8 +119,7 @@ test.snapshot({
 		withImport('test(\'parent\', t => {\n\tsetTimeout(() => t.test(\'child\', () => {}), 10);\n});'),
 		withImport('test(\'parent\', t => {\n\tPromise.all([load().then(() => t.test(\'child\', () => {}))]);\n});'),
 
-		// A floating combinator leaves the chains inside its array just as late as a floating chain,
-		// so a throw or a subtest in one of them is late activity too
+		// A floating combinator leaves the chains inside its array just as late as a floating chain, so a throw or a subtest in one of them is late activity too
 		inTest('Promise.all([load().then(() => { throw error; })]);'),
 		inTest('Promise.allSettled([load().then(() => { throw error; })]);'),
 		inTest('Promise.race([load().then(() => { throw error; })]);'),
@@ -201,8 +200,7 @@ test.snapshot({
 		withImport('test(\'o\', t => { t.beforeEach(() => { setTimeout(() => assert.ok(1), 1); }); });'),
 		withImport('test(\'o\', t => { t.before(() => { setTimeout(() => assert.ok(1), 1); }); });'),
 
-		// A TypeScript cast around the floating chain binds looser than `await`, so adding one would
-		// cast the awaited value instead of the Promise. Reported without a fix.
+		// A TypeScript cast around the floating chain binds looser than `await`, so adding one would cast the awaited value instead of the Promise. Reported without a fix.
 		{
 			code: 'import test from \'node:test\';\ntest(\'loads\', async () => {\n\tload().then(() => { throw new Error(\'Failed\'); }) as Promise<void>;\n});',
 			languageOptions: {parser: parsers.typescript},

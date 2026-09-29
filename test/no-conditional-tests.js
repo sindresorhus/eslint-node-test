@@ -7,8 +7,7 @@ const withHookImport = code => `import {beforeEach, afterEach} from 'node:test';
 
 test.snapshot({
 	valid: [
-		// A definition inside a hook is `no-test-inside-hook`'s to report, since its fix has to come
-		// first and this rule's advice would leave that report in place
+		// A definition inside a hook is `no-test-inside-hook`'s to report, since its fix has to come first and this rule's advice would leave that report in place
 		'import {test, before} from \'node:test\';\nbefore(() => { if (x) { test("a", () => {}); } });',
 		'import {test, beforeEach} from \'node:test\';\nbeforeEach(() => { if (x) { test("a", () => {}); } });',
 		'import test from \'node:test\';\ntest("a", t => { t.beforeEach(() => { if (x) { t.test("b", () => {}); } }); });',
@@ -88,8 +87,7 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 
-		// A `catch` body only runs when the `try` block throws, so a registration there is as
-		// runtime-dependent as one in an `if`. A `finally` body always runs.
+		// A `catch` body only runs when the `try` block throws, so a registration there is as runtime-dependent as one in an `if`. A `finally` body always runs.
 		'import {before} from \'node:test\';\ntry { risky(); } catch { before(() => { setup(); }); }',
 		'import {test} from \'node:test\';\ntry { risky(); } catch { test(\'only on failure\', () => {}); }',
 

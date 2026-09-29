@@ -5,8 +5,7 @@ function isSuspensionPoint(node, includeYield) {
 	return node.type === 'AwaitExpression'
 		|| (includeYield && node.type === 'YieldExpression')
 		|| (node.type === 'ForOfStatement' && node.await)
-		// An `await using` declaration suspends while it acquires the resource, without an
-		// `AwaitExpression` node of its own.
+		// An `await using` declaration suspends while it acquires the resource, without an `AwaitExpression` node of its own.
 		|| (node.type === 'VariableDeclaration' && node.kind === 'await using');
 }
 

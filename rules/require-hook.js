@@ -52,9 +52,7 @@ function isInRegistrationScope(statement, imports, context) {
 		return false;
 	}
 
-	// In the descriptor / `options.fn` forms the callback is the `fn` property of an object that is
-	// itself an argument, so the enclosing call is two levels above the callback.
-	// A TypeScript wrapper (`(() => {…}) as any`) is erased at compile time, so the call is above it.
+	// In the descriptor / `options.fn` forms the callback is the `fn` property of an object that is itself an argument, so the enclosing call is two levels above the callback. A TypeScript wrapper (`(() => {…}) as any`) is erased at compile time, so the call is above it.
 	let call = outermostExpressionWrapper(callback).parent;
 	if (call?.type === 'Property' && call.parent?.type === 'ObjectExpression') {
 		call = call.parent.parent;
@@ -65,8 +63,7 @@ function isInRegistrationScope(statement, imports, context) {
 			return false;
 		}
 	} else {
-		// A suite body named out of line is declared somewhere else, and the call that runs it is found
-		// by resolving the binding back to the reference that passes it.
+		// A suite body named out of line is declared somewhere else, and the call that runs it is found by resolving the binding back to the reference that passes it.
 		call = getOutOfLineCallbackCall(callback, context, imports);
 	}
 

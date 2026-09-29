@@ -13,8 +13,7 @@ test.snapshot({
 
 		// The doc covers a hook on the test's context; a top-level hook is registration-time code
 		'import {beforeEach, test} from \'node:test\';\nbeforeEach(t => { console.log(\'x\'); });',
-		// A `var` that re-binds the context parameter resolves to the same variable, so the name no
-		// longer reaches the test context
+		// A `var` that re-binds the context parameter resolves to the same variable, so the name no longer reaches the test context
 		'import test from \'node:test\';\ntest(\'t\', t => { var t = other; console.log(\'x\'); });',
 		// Already using diagnostic
 		inTest('t.diagnostic(\'starting\');'),
@@ -74,9 +73,7 @@ test.snapshot({
 		'import test from \'node:test\';\nfunction body(t) { var t = 1; console.log(\'x\'); }\ntest(\'t\', body);',
 	],
 	invalid: [
-		// Replacing the whole callee would drop the comment inside it, so no suggestion
-		// `globalThis.console` and `global.console` are the same object as the bare global, the way
-		// `globalThis.process` is the same as `process`
+		// Replacing the whole callee would drop the comment inside it, so no suggestion `globalThis.console` and `global.console` are the same object as the bare global, the way `globalThis.process` is the same as `process`
 		inTest('globalThis.console.log(\'x\');'),
 		inTest('global.console.log(\'x\');'),
 		inTest('globalThis.console.info(\'x\');'),

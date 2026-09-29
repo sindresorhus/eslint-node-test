@@ -37,9 +37,7 @@ const create = context => {
 		}
 
 		// Only autofix where prepending `await` is faithful in an async function: `await` would be a
-		// syntax error outside one or inside a class static block, and a `void`-discarded or
-		// type-asserted call cannot take it (see `getFloatingStatement`), so those are reported
-		// without a fix (matching `no-unawaited-promise-assertion` and `no-unawaited-subtest`).
+		// syntax error outside one or inside a class static block, and a `void`-discarded or type-asserted call cannot take it (see `getFloatingStatement`), so those are reported without a fix (matching `no-unawaited-promise-assertion` and `no-unawaited-subtest`).
 		const enclosingFunction = getEnclosingFunction(node);
 		if (
 			enclosingFunction?.async === true

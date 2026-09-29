@@ -132,8 +132,7 @@ export default function isSameReference(left, right) {
 		}
 
 		case 'MemberExpression': {
-			// `a.b` throws when `a` is nullish while `a?.b` yields `undefined`, so the two do not
-			// reference the same value even where the receiver is the same.
+			// `a.b` throws when `a` is nullish while `a?.b` yields `undefined`, so the two do not reference the same value even where the receiver is the same.
 			if (left.optional !== right.optional) {
 				return false;
 			}

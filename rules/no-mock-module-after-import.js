@@ -21,15 +21,12 @@ const create = context => {
 		return;
 	}
 
-	// `mock.module('os')` and `mock.module('node:os')` resolve to the same module, and so do
-	// `import 'os'` and `import 'node:os'`, so the prefix is stripped before comparing.
+	// `mock.module('os')` and `mock.module('node:os')` resolve to the same module, and so do `import 'os'` and `import 'node:os'`, so the prefix is stripped before comparing.
 	const normalizeSpecifier = specifier => specifier.replace(/^node:/, '');
 
 	const staticImports = new Set();
 	for (const node of sourceCode.ast.body) {
-		// A static re-export loads the target just as an import does, and its bindings are just as
-		// unmockable: `export {x} from 'os'`, `export * from 'os'`, `export * as os from 'os'`.
-		// Only a declaration-level `import type`/`export type` is erased; Node.js type stripping keeps `import {type X} from '…'` as `import {} from '…'`, which still loads the module.
+		// A static re-export loads the target just as an import does, and its bindings are just as unmockable: `export {x} from 'os'`, `export * from 'os'`, `export * as os from 'os'`. Only a declaration-level `import type`/`export type` is erased; Node.js type stripping keeps `import {type X} from '…'` as `import {} from '…'`, which still loads the module.
 		const isStaticLoad = node.type === 'ImportDeclaration'
 			? node.importKind !== 'type'
 			: (node.type === 'ExportNamedDeclaration' || node.type === 'ExportAllDeclaration') && node.exportKind !== 'type';

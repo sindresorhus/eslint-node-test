@@ -42,8 +42,7 @@ test.snapshot({
 		withImport('describe', 'describe(\'s\', s => { s.afterEach(() => {}); s.beforeEach(() => {}); });'),
 	],
 	invalid: [
-		// Every statement list a hook can be declared in: a class static block, a bare `switch` case,
-		// and a case with its own block
+		// Every statement list a hook can be declared in: a class static block, a bare `switch` case, and a case with its own block
 		'import {after, before} from \'node:test\';\nclass A {\n\tstatic {\n\t\tafter(() => {});\n\t\tbefore(() => {});\n\t}\n}',
 		'import {afterEach, before} from \'node:test\';\nswitch (value) {\n\tcase 1:\n\t\tafterEach(() => {});\n\t\tbefore(() => {});\n\t\tbreak;\n}',
 		'import {after, before} from \'node:test\';\nswitch (value) {\n\tcase 1: {\n\t\tafter(() => {});\n\t\tbefore(() => {});\n\t}\n}',
@@ -77,7 +76,7 @@ test.snapshot({
 		withImport('before, after', 'after(() => {});\n// setup\nbefore(() => {});'),
 		// Trailing comment on the last hook — reported but no fix (comment would be misattributed)
 		withImport('before, after', 'after(() => {});\nbefore(() => {}); // comment'),
-		// Leading comment on the first hook — reported but no fix, same reason as the trailing one
+		// Leading comment on the first hook: reported but no fix, same reason as the trailing one
 		withImport('before, after', '// teardown\nafter(() => {});\nbefore(() => {});'),
 		// Same, with a block comment on the preceding line
 		withImport('before, after', '/* teardown */\nafter(() => {});\nbefore(() => {});'),

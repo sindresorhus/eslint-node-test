@@ -11,7 +11,7 @@
 
 Subtests created through the test context (`t.test()`) return a promise, and a subtest that is never awaited still runs: it starts immediately and overlaps the rest of the test's own body. Awaiting it makes the parent wait for the child before it continues, which is what keeps a test's assertions and teardown from interleaving with its subtests. Nothing is lost either way, since the parent waits for its subtests before it finishes, but a parent that fails or times out first cancels the outstanding subtest with `test did not finish before its parent and was cancelled`.
 
-This rule reports a subtest call whose value a statement throws away: a bare statement, or an operand of a conditional, logical, or sequence expression whose value reaches such a statement. When the enclosing test function is `async`, it autofixes by inserting `await`. In a synchronous parent it only reports, since `await` would be a syntax error — make the parent `async` (or `return` the subtest) yourself.
+This rule reports a subtest call whose value a statement throws away: a bare statement, or an operand of a conditional, logical, or sequence expression whose value reaches such a statement. When the enclosing test function is `async`, it autofixes by inserting `await`. In a synchronous parent it only reports, since `await` would be a syntax error: make the parent `async` (or `return` the subtest) yourself.
 
 Discarding the subtest with `void` does not help — it still leaves the subtest unawaited — so it is reported too (without an autofix).
 

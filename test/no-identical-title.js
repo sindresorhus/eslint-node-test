@@ -40,8 +40,7 @@ test.snapshot({
 		'import test from \'node:test\';\ntest(\'a\', t => { t.test(\'b\', t2 => { t2.test(\'b\', () => {}); }); });',
 		'import test, {getTestContext} from \'node:test\';\ntest(\'a\', () => { getTestContext().test(\'a\', () => {}); });',
 
-		// A callback the call names out of line is the test's body wherever it is declared, so its own
-		// tests are a scope of their own
+		// A callback the call names out of line is the test's body wherever it is declared, so its own tests are a scope of their own
 		'import test from \'node:test\';\nconst body = () => { test(\'a\', () => {}); };\ntest(\'a\', body);',
 		'import test from \'node:test\';\ntest(\'a\', body);\nconst body = () => { test(\'a\', () => {}); };',
 		'import test from \'node:test\';\nconst body = () => { test(\'a\', () => {}); };\ntest({name: \'a\', fn: body});',
@@ -89,7 +88,7 @@ test.snapshot({
 			code: 'import test from "node:test";\ntest("a", () => {});\ntest("a", () => {});',
 			languageOptions: {parser: parsers.typescript},
 		},
-		// Duplicate `options.name` — the title each test actually runs under
+		// Duplicate `options.name`: the title each test actually runs under
 		'import test from "node:test";\ntest("a", {name: "same"}, () => {});\ntest("b", {name: "same"}, () => {});',
 		// Duplicate sibling subtests inside one test callback
 		'import test from "node:test";\ntest("parent", t => { t.test("same", () => {}); t.test("same", () => {}); });',

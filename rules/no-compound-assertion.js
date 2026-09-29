@@ -45,13 +45,11 @@ function getOperandText(sourceCode, operand) {
 function buildFix({node, operands, sourceCode, context, hasPlan}) {
 	return fixer => {
 		if (
-			// Splitting one assertion into several changes the assertion count, which a
-			// `t.plan(n)` would then fail on.
+			// Splitting one assertion into several changes the assertion count, which a `t.plan(n)` would then fail on.
 			hasPlan
 			|| node.arguments.length !== 1
 			|| node.parent.type !== 'ExpressionStatement'
-			// A static block is a plain statement list, so the split keeps the same shape. A braceless
-			// control-flow parent is the case this cannot handle.
+			// A static block is a plain statement list, so the split keeps the same shape. A braceless control-flow parent is the case this cannot handle.
 			|| !['Program', 'BlockStatement', 'StaticBlock'].includes(node.parent.parent.type)
 			|| sourceCode.getCommentsInside(node.parent).length > 0
 			|| !hasOnlyWhitespaceAfterStatement(sourceCode, node.parent)
@@ -59,9 +57,7 @@ function buildFix({node, operands, sourceCode, context, hasPlan}) {
 			return undefined;
 		}
 
-		// The parenthesized range keeps the call's own parentheses, which a TypeScript wrapper around
-		// the callee (`(assert.ok as any)`) needs: its text alone, `assert.ok as any`, does not parse
-		// as a callee.
+		// The parenthesized range keeps the call's own parentheses, which a TypeScript wrapper around the callee (`(assert.ok as any)`) needs: its text alone, `assert.ok as any`, does not parse as a callee.
 		const callee = sourceCode.text.slice(...getParenthesizedRange(node.callee, context));
 		const indent = getIndent(sourceCode, node.parent);
 		if (indent === undefined) {

@@ -107,8 +107,7 @@ function getContextMockKey(mockObject, imports, sourceCode, contextVariables) {
 
 	const contextObject = unwrapTypeScriptExpression(mockObject.object);
 
-	// `getTestContext()` returns the context the enclosing callbacks were given, so it drives the
-	// same tracker as that context parameter.
+	// `getTestContext()` returns the context the enclosing callbacks were given, so it drives the same tracker as that context parameter.
 	if (isGetTestContextCall(contextObject, imports)) {
 		// With no context parameter to name it after, the innermost context is the only one there is.
 		const innermostContext = contextVariables.at(-1);
@@ -217,8 +216,7 @@ function getContextCallKind(node, imports, sourceCode, scopeStack) {
 	const object = unwrapTypeScriptExpression(callee.object);
 	const property = getKeyName(callee.property);
 
-	// `getTestContext().test(…)` and `getTestContext().beforeEach(…)` name the innermost context, the
-	// same one a context parameter would, whether or not the enclosing test declared one.
+	// `getTestContext().test(…)` and `getTestContext().beforeEach(…)` name the innermost context, the same one a context parameter would, whether or not the enclosing test declared one.
 	if (scopeStack.length > 0 && isGetTestContextCall(object, imports)) {
 		if (property === 'test') {
 			return 'test';

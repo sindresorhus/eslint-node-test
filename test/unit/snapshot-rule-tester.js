@@ -4,10 +4,7 @@ import plugin from '../../index.js';
 import SnapshotRuleTester, {visualizeEslintMessage} from '../utils/snapshot-rule-tester.js';
 import {toEslintRules} from '../../rules/rule/index.js';
 
-// A `test` stand-in that records the cases instead of registering them, so a bad option can be
-// asserted on without touching the real runner. The recorded body still runs, with a stub
-// `t.assert.snapshot`, so a harness that throws while running a case is caught here rather than
-// passing for the wrong reason.
+// A `test` stand-in that records the cases instead of registering them, so a bad option can be asserted on without touching the real runner. The recorded body still runs, with a stub `t.assert.snapshot`, so a harness that throws while running a case is caught here rather than passing for the wrong reason.
 const collect = () => {
 	const cases = [];
 	const snapshots = [];
@@ -38,8 +35,7 @@ const runWithTests = (tests, testerOptions) => {
 	return {cases, snapshots};
 };
 
-// A rule that reports the filename the linter resolved the file to, so a filename the harness drops
-// is visible in the snapshot it produced.
+// A rule that reports the filename the linter resolved the file to, so a filename the harness drops is visible in the snapshot it produced.
 const filenameRule = {
 	create(context) {
 		context.on('Program', node => ({
@@ -126,8 +122,7 @@ test('A testerOptions filename reaches the linter, and a case filename overrides
 	};
 
 	const {snapshots} = collectRunner(filenameRule, tests, {filename: 'tester.test.js'});
-	// A reported message is snapshotted twice, once as text and once in a code frame, so the filenames
-	// are read as a set in the order the cases ran.
+	// A reported message is snapshotted twice, once as text and once in a code frame, so the filenames are read as a set in the order the cases ran.
 	const filenames = [...new Set(snapshots
 		.map(snapshot => /Filename: (\S+)/.exec(snapshot)?.[1])
 		.filter(Boolean))];

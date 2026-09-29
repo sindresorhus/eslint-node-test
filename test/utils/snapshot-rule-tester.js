@@ -176,9 +176,7 @@ function verify(code, verifyConfig, {filename}) {
 export default class SnapshotRuleTester {
 	constructor(test, testerConfig = {}) {
 		this.test = test;
-		// `filename` is not a flat-config key: ESLint's own RuleTester takes it out of the tester
-		// options and hands it to `linter.verify`, so it is kept here rather than in the config, where
-		// it would be an unknown key the Linter rejects.
+		// `filename` is not a flat-config key: ESLint's own RuleTester takes it out of the tester options and hands it to `linter.verify`, so it is kept here rather than in the config, where it would be an unknown key the Linter rejects.
 		const {filename, ...config} = testerConfig;
 		this.testerConfig = config;
 		this.defaultFilename = filename;
@@ -217,8 +215,7 @@ export default class SnapshotRuleTester {
 
 					assert.notDeepStrictEqual(messages, [], 'Invalid case should have at least one error.');
 
-					// A fix may leave the problems it did not address, but it may not trade the one it
-					// did for another: the rewritten code has to report strictly fewer problems.
+					// A fix may leave the problems it did not address, but it may not trade the one it did for another: the rewritten code has to report strictly fewer problems.
 					const assertProgress = remaining => {
 						assert.ok(
 							remaining.length < messages.length,

@@ -57,10 +57,7 @@ const create = context => {
 			active.add('expectFailure');
 		}
 
-		// `only` composes with `todo` and with `expectFailure`: the runner applies each alongside it, so
-		// a test that is both exclusive-only and a TODO, or both exclusive-only and expected to fail,
-		// means what it says. Every other pair has a winner that swallows the loser: `skip` beats
-		// everything, and `todo` beats `expectFailure`.
+		// `only` composes with `todo` and with `expectFailure`: the runner applies each alongside it, so a test that is both exclusive-only and a TODO, or both exclusive-only and expected to fail, means what it says. Every other pair has a winner that swallows the loser: `skip` beats everything, and `todo` beats `expectFailure`.
 		const isComposingPair = active.size === 2 && active.has('only') && !active.has('skip');
 		if (active.size < 2 || isComposingPair) {
 			return;

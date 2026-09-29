@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-`node:test` discovers test files by several name patterns — for a JavaScript file `*.test.js`, `*-test.js`, `*_test.js`, `test.js`, `test-*.js`, and anything under a `test/` directory, with `.mjs`/`.cjs` and the `.ts`/`.mts`/`.cts` equivalents. Picking one convention and applying it consistently makes test files easy to spot and keeps discovery predictable.
+`node:test` discovers test files by several name patterns: for a JavaScript file `*.test.js`, `*-test.js`, `*_test.js`, `test.js`, `test-*.js`, and anything under a `test/` directory, with `.mjs`/`.cjs` and the `.ts`/`.mts`/`.cts` equivalents. Picking one convention and applying it consistently makes test files easy to spot and keeps discovery predictable.
 
 This rule reports a file that imports `node:test` but whose name does not match the configured pattern. It only checks files that import `node:test`, so non-test files are never flagged.
 

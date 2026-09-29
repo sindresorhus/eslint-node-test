@@ -10,8 +10,7 @@ test.snapshot({
 		'import test from "node:test";\nimport assert from "node:assert";\nconst body = () => { if (x) { assert.strictEqual(1, 1); } };\ntest("t1", () => { body(); });',
 		'import test from "node:test";\nimport assert from "node:assert";\nfunction helper() { if (x) { assert.strictEqual(1, 1); } }\ntest("t1", () => { helper(); });',
 
-		// An unrelated object's `test` method registers nothing, so a conditional assertion in the
-		// callback it takes is that object's own business, not a test body
+		// An unrelated object's `test` method registers nothing, so a conditional assertion in the callback it takes is that object's own business, not a test body
 		'import test from \'node:test\';\nimport assert from \'node:assert\';\n'
 		+ 'const helper = {test(body) { body(); }};\nhelper.test(() => {\n\tif (g) {\n\t\tassert.ok(1);\n\t\tassert.ok(2);\n\t}\n});',
 

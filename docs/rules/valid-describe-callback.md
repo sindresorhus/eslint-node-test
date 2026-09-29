@@ -26,7 +26,7 @@ describe('user', () => {
 	test('has a name', () => {});
 });
 
-// ✅ — the suite context is a documented argument
+// ✅ the suite context is a documented argument
 describe('user', t => {
 	t.diagnostic('loading the user');
 	test('has a name', () => {});

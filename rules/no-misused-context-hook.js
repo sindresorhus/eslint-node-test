@@ -55,17 +55,13 @@ function getDirectSubtestReceiver(callExpression, imports) {
 		return isGetTestContextSubtestCall(callExpression, imports) ? GET_TEST_CONTEXT : undefined;
 	}
 
-	// `t.test` is a plain function with no `skip`, `only` or `todo` method, so any chained modifier
-	// is a `TypeError` at runtime and registers nothing. Such a call is treated the same as having no
-	// runnable subtest, so the hook is reported.
+	// `t.test` is a plain function with no `skip`, `only` or `todo` method, so any chained modifier is a `TypeError` at runtime and registers nothing. Such a call is treated the same as having no runnable subtest, so the hook is reported.
 	const {members = []} = getCalleeChain(callExpression.callee) ?? {};
 	return members.length > 1 ? undefined : receiver;
 }
 
 function isStaticallySkipped(callExpression, sourceCode) {
-	// `node:test` skips for any value that is neither `undefined` nor `false`, so `{skip: 0}`,
-	// `{skip: ''}` and `{skip: null}` all leave the child unrunnable, which is what this decides.
-	// Whether the test's own body runs is a different question: only a truthy value stops it, which is what `hasEnabledSkipOption` decides.
+	// `node:test` skips for any value that is neither `undefined` nor `false`, so `{skip: 0}`, `{skip: ''}` and `{skip: null}` all leave the child unrunnable, which is what this decides. Whether the test's own body runs is a different question: only a truthy value stops it, which is what `hasEnabledSkipOption` decides.
 	const skipProperty = findOptionsProperty(getTestOptions(callExpression), 'skip');
 	if (skipProperty === undefined) {
 		return false;
@@ -75,13 +71,10 @@ function isStaticallySkipped(callExpression, sourceCode) {
 	return staticValue !== null && staticValue.value !== undefined && staticValue.value !== false;
 }
 
-// Array methods that call a predicate over their elements, so a subtest registered in one of those
-// callbacks still runs and the hook around it still applies.
+// Array methods that call a predicate over their elements, so a subtest registered in one of those callbacks still runs and the hook around it still applies.
 const ITERATION_METHODS = new Set(['every', 'filter', 'find', 'findIndex', 'findLast', 'findLastIndex', 'flatMap', 'forEach', 'map', 'reduce', 'reduceRight', 'some', 'sort']);
 
-// The argument slot a method runs its callback from, for the two that do not use the first. Only
-// `Array.from(items, fn)` is here: `Array.of(…)` takes no callback at all, it makes an array of its
-// arguments.
+// The argument slot a method runs its callback from, for the two that do not use the first. Only `Array.from(items, fn)` is here: `Array.of(…)` takes no callback at all, it makes an array of its arguments.
 const CALLBACK_ARGUMENT_INDEX = new Map([['from', 1]]);
 
 /** Stands in for a `getTestContext()` receiver, which has no identifier to resolve. */
@@ -128,8 +121,8 @@ function isSuiteCallback(node, parent, imports) {
 }
 
 /*
-A function that is called where it is written — an immediately invoked function expression, with or
-without `new` — runs as part of the enclosing statement, so a subtest inside it is a subtest of the
+A function that is called where it is written (an immediately invoked function expression, with or
+without `new`) runs as part of the enclosing statement, so a subtest inside it is a subtest of the
 test. Only a function that is merely passed somewhere else is a real scope boundary.
 */
 function isInvokedImmediately(node, parent) {
@@ -268,9 +261,7 @@ const create = context => {
 			}
 		}
 
-		// A test registered in a callback the body invokes right there — an array-method iteration
-		// callback, an immediately invoked function, a loop body — is still a subtest of that test,
-		// exactly as the `<context>.test(…)` form already is.
+		// A test registered in a callback the body invokes right there (an array-method iteration callback, an immediately invoked function, a loop body) is still a subtest of that test, exactly as the `<context>.test(…)` form already is.
 		const parentTestFrame = frames.findLast(frame => isWithinIterationCallbackOf(node, frame.callback, imports));
 		const runnableTest = isRunnableTest(node, parsed, parentTestFrame);
 		// A `{skip: 0}` test still runs its own body, but the parent's hooks do not run around it.
@@ -311,8 +302,7 @@ const create = context => {
 		}
 
 		for (const hook of frame.hooks) {
-			// A hook recorded here always has a context-hook method, so the member is there; the
-			// `getTestContext()` form is the one whose callee chain cannot be walked.
+			// A hook recorded here always has a context-hook method, so the member is there; the `getTestContext()` form is the one whose callee chain cannot be walked.
 			const callee = unwrapTypeScriptExpression(hook.callee);
 			yield {
 				node: hook,

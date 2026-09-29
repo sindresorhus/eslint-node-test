@@ -118,8 +118,7 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 
-		// `getTestContext()` is the same test context, and a TypeScript wrapper on the receiver must
-		// not hide the call
+		// `getTestContext()` is the same test context, and a TypeScript wrapper on the receiver must not hide the call
 		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', () => {\n\tgetTestContext().skip(\'why\');\n\tdoStuff();\n});',
 		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', () => {\n\tgetTestContext().todo(\'why\');\n\tdoStuff();\n});',
 		{

@@ -58,8 +58,7 @@ const create = context => {
 		return;
 	}
 
-	// A subtest (`t.test(…)`) inside a loop registers the same static title on every iteration, just
-	// like an imported test, so it is tracked through the context tracker.
+	// A subtest (`t.test(…)`) inside a loop registers the same static title on every iteration, just like an imported test, so it is tracked through the context tracker.
 	const tracker = createContextTracker(imports);
 
 	context.on('CallExpression', node => {
@@ -71,8 +70,7 @@ const create = context => {
 			return;
 		}
 
-		// Resolve the title `node:test` actually uses, so the descriptor form and `options.name` are
-		// covered and an overridden dynamic name is not mistaken for a static one.
+		// Resolve the title `node:test` actually uses, so the descriptor form and `options.name` are covered and an overridden dynamic name is not mistaken for a static one.
 		const titleNode = getTestTitle(node, context);
 		// A static title resolves to a constant string; a title that interpolates the loop variable
 		// does not, so it is correctly left alone.

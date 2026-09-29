@@ -34,8 +34,7 @@ function getParameterVariable(parameter, sourceCode) {
 		return;
 	}
 
-	// A `var` that re-binds the parameter resolves to the same variable, and the name no longer
-	// reaches the test context, so it names no parent.
+	// A `var` that re-binds the parameter resolves to the same variable, and the name no longer reaches the test context, so it names no parent.
 	const variable = findVariable(sourceCode.getScope(identifier), identifier);
 	return isUnreboundParameter(variable) ? variable : undefined;
 }
@@ -162,8 +161,7 @@ const create = context => {
 	context.on('CallExpression', node => {
 		const receiver = getSubtestReceiver(node);
 		const receiverProblem = receiver && getParentContextProblem(receiver, frames, sourceCode);
-		// A `getTestContext().test(…)` subtest has no receiver to match, but it is still a subtest,
-		// and the contexts captured outside it are still its parent's.
+		// A `getTestContext().test(…)` subtest has no receiver to match, but it is still a subtest, and the contexts captured outside it are still its parent's.
 		const isSubtest = getContextReceiverFrame(node, frames, sourceCode) !== undefined
 			|| (receiver === undefined && isSubtestCall(node, imports));
 		const parsed = parseTestCall(node, imports);

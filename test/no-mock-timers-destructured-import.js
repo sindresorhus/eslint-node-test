@@ -6,21 +6,18 @@ const head = 'import {test, mock} from \'node:test\';\n';
 
 test.snapshot({
 	valid: [
-		// A `Date`-only list mocks no timer function, so the namespace import is harmless, exactly as
-		// it is for a named import
+		// A `Date`-only list mocks no timer function, so the namespace import is harmless, exactly as it is for a named import
 		head + 'import * as timers from \'node:timers\';\nmock.timers.enable({apis: ["Date"]});',
 		head + 'import {setTimeout} from \'node:timers\';\nmock.timers.enable({apis: ["Date"]});',
 		head + 'import {setTimeout} from \'node:timers\';\nimport * as timers from \'node:timers\';\nmock.timers.enable({apis: ["Date"]});',
 		// The enabled APIs accumulate over the file, and none of the calls here is a timer API
 		head + 'import {setTimeout} from \'node:timers\';\nmock.timers.enable({apis: []});\nmock.timers.enable({apis: ["Date"]});',
 
-		// A default import is the module object itself, so `timers.setTimeout` reads the installed
-		// mock at call time
+		// A default import is the module object itself, so `timers.setTimeout` reads the installed mock at call time
 		head + 'import timers from \'node:timers\';\nmock.timers.enable();',
 		// A computed `enable` is not recognized as an enable call
 		head + 'import {setTimeout} from \'node:timers\';\nmock.timers["enable"]();',
-		// An `apis` value that cannot be resolved at lint time proves nothing, so the imported
-		// timer may well not be among the enabled APIs
+		// An `apis` value that cannot be resolved at lint time proves nothing, so the imported timer may well not be among the enabled APIs
 		`${head}import {setTimeout} from 'node:timers';\nconst APIS = ['setInterval'];\ntest('a', () => { mock.timers.enable({apis: APIS}); });`,
 		`${head}import {setTimeout} from 'node:timers';\ntest('a', () => { mock.timers.enable({apis: config.apis}); });`,
 		`${head}import {setTimeout} from 'node:timers';\ntest('a', () => { mock.timers.enable({apis: ['setTimeout', ...rest]}); });`,
@@ -88,8 +85,7 @@ test.snapshot({
 		// And so is clearImmediate with setImmediate
 		head + 'import {clearImmediate} from \'node:timers\';\nmock.timers.enable({apis: ["setImmediate"]});',
 
-		// Only the specifiers whose API is enabled are reported, and the enabled APIs accumulate
-		// over every `enable` call in the file
+		// Only the specifiers whose API is enabled are reported, and the enabled APIs accumulate over every `enable` call in the file
 		head + 'import {setTimeout, setInterval} from \'node:timers\';\nmock.timers.enable({apis: ["setTimeout"]});',
 		head + 'import {setTimeout} from \'node:timers\';\nmock.timers.enable({apis: []});\nmock.timers.enable({apis: ["setTimeout"]});',
 
@@ -134,8 +130,7 @@ test.snapshot({
 			code: head + 'import {type clearTimeout, setTimeout} from \'node:timers\';\nmock.timers.enable({apis: ["setTimeout"]});',
 			languageOptions: {parser: parsers.typescript},
 		},
-		// A namespace import holds the real timer functions (a snapshot taken at import time), so
-		// `mock.timers` cannot intercept `timers.setTimeout(…)` either.
+		// A namespace import holds the real timer functions (a snapshot taken at import time), so `mock.timers` cannot intercept `timers.setTimeout(…)` either.
 		head + 'import * as timers from \'node:timers\';\nmock.timers.enable();\ntimers.setTimeout(fn, 1);',
 		head + 'import * as timers from \'node:timers\';\nmock.timers.enable({apis: ["setTimeout"]});\ntimers.setTimeout(fn, 1);',
 		head + 'import * as timers from \'node:timers\';\nmock.timers.enable({apis: ["Date", "setImmediate"]});\ntimers.setImmediate(fn);',
@@ -150,8 +145,7 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 
-		// `undefined`, `void 0` and `null` are three ways to write "no apis given", and the runner
-		// takes that as every timer API
+		// `undefined`, `void 0` and `null` are three ways to write "no apis given", and the runner takes that as every timer API
 		`${head}import {setTimeout} from 'node:timers';\ntest('a', () => { mock.timers.enable({apis: undefined}); setTimeout(f, 1); });`,
 		`${head}import {setTimeout} from 'node:timers';\ntest('a', () => { mock.timers.enable({apis: null}); setTimeout(f, 1); });`,
 		`${head}import {setTimeout} from 'node:timers';\ntest('a', () => { mock.timers.enable({apis: void 0}); setTimeout(f, 1); });`,

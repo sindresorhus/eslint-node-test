@@ -31,8 +31,7 @@ const create = context => {
 	context.on('CallExpression', node => {
 		const problems = [];
 
-		// Options form: `{skip: true}` / `{todo: true}` on a test/suite, including a subtest. A hook
-		// has no such option, so `skip`/`todo` in its options belong to `no-unknown-test-options`.
+		// Options form: `{skip: true}` / `{todo: true}` on a test/suite, including a subtest. A hook has no such option, so `skip`/`todo` in its options belong to `no-unknown-test-options`.
 		const parsed = parseTestCall(node, imports);
 		if ((parsed && parsed.kind !== 'hook') || tracker.isSubtestCall(node)) {
 			const options = getTestOptions(node);
@@ -49,8 +48,7 @@ const create = context => {
 			}
 		}
 
-		// Context method form: `t.skip()` / `t.todo()` with no reason message. The receiver is a
-		// tracked context parameter or a `getTestContext()` call, behind any TypeScript wrapper.
+		// Context method form: `t.skip()` / `t.todo()` with no reason message. The receiver is a tracked context parameter or a `getTestContext()` call, behind any TypeScript wrapper.
 		const callee = unwrapTypeScriptExpression(node.callee);
 		if (node.arguments.length === 0 && callee.type === 'MemberExpression' && !callee.computed && callee.property.type === 'Identifier' && REASON_MODIFIERS.has(callee.property.name)) {
 			const receiver = unwrapTypeScriptExpression(callee.object);

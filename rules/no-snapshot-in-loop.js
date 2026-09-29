@@ -30,8 +30,7 @@ function isCurrentContextReference(node, callback, sourceCode) {
 	return variable?.defs.some(definition => definition.name === parameter) ?? false;
 }
 
-// `getTestContext().assert.snapshot(…)` is the same call reached through a call rather than an
-// identifier, so the callee chain cannot be walked down to a context parameter.
+// `getTestContext().assert.snapshot(…)` is the same call reached through a call rather than an identifier, so the callee chain cannot be walked down to a context parameter.
 function isGetTestContextSnapshotCall(node, imports) {
 	const callee = unwrapExpression(node.callee);
 	if (

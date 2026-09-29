@@ -51,8 +51,7 @@ test.snapshot({
 		withImport('test(\'a\', t => { t.beforeEach(async () => { await foo(); }); });'),
 	],
 	invalid: [
-		// A comment between `async` and the callback would be removed with the keyword,
-		// so the test is reported but no fix is offered
+		// A comment between `async` and the callback would be removed with the keyword, so the test is reported but no fix is offered
 		'import test from \'node:test\';\ntest(\'a\', async /* keep me */ () => { foo(); });',
 		'import test from \'node:test\';\ntest(\'a\', async /* keep me */ function () { foo(); });',
 
@@ -86,11 +85,9 @@ test.snapshot({
 		},
 		// Two tests: only the second lacks await
 		withImport('test("a", async t => { await foo(); });\ntest("b", async t => {});'),
-		// The descriptor form keeps the `async` keyword on the surrounding property, not on the
-		// function value, so the keyword must be looked up from the property (this used to crash).
+		// The descriptor form keeps the `async` keyword on the surrounding property, not on the function value, so the keyword must be looked up from the property (this used to crash).
 		withImport('test({name: "x", async fn() {}});'),
-		// A comment between `async` and the method name would be removed with the keyword,
-		// so the test is reported but no fix is offered
+		// A comment between `async` and the method name would be removed with the keyword, so the test is reported but no fix is offered
 		'import test from \'node:test\';\ntest({name: "x", async /* keep me */ fn() {}});',
 		// Subtests and context hooks are test/hook callbacks too
 		withImport('test(\'a\', t => { t.test(\'b\', async () => {}); });'),
@@ -104,12 +101,10 @@ test.snapshot({
 		'import {beforeEach} from "node:test";\nbeforeEach(async () => { await foo(); }, {timeout: 1000});',
 		'import {before} from "node:test";\nbefore(async () => { await foo(); }, {timeout: 1});',
 
-		// An async generator with only `yield` has no `await`, but removing `async` would break it,
-		// so a `yield` still counts as a suspension point for this rule
+		// An async generator with only `yield` has no `await`, but removing `async` would break it, so a `yield` still counts as a suspension point for this rule
 		withImport('test("title", async function * () { yield 1; });'),
 
-		// A hook whose first argument is not a function never runs, so a function in a later slot is
-		// dead code, and the runner never reads `options.fn` for a hook either
+		// A hook whose first argument is not a function never runs, so a function in a later slot is dead code, and the runner never reads `options.fn` for a hook either
 		withHookImport('beforeEach({}, async () => { foo(); });'),
 		withHookImport('beforeEach({fn: async () => {}});'),
 		withHookImport('test.beforeEach({}, async () => { foo(); });'),
@@ -140,8 +135,7 @@ test.snapshot({
 		// A hook declared through `getTestContext()` is the same hook
 		'import {test, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'o\', t => { getTestContext().beforeEach(async () => { assert.ok(1); }); });',
 
-		// An async generator with no `yield` and no `await` is still reported, but removing `async`
-		// would turn an `AsyncGeneratorFunction` into a plain `GeneratorFunction`, so no suggestion
+		// An async generator with no `yield` and no `await` is still reported, but removing `async` would turn an `AsyncGeneratorFunction` into a plain `GeneratorFunction`, so no suggestion
 		withImport('test("title", async function * () { foo(); });'),
 		withImport('test("title", async function * named() { foo(); });'),
 		'import {beforeEach} from "node:test";\nbeforeEach(async function * () { foo(); });',

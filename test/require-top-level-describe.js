@@ -25,8 +25,7 @@ test.snapshot({
 		// Within the configured cap
 		{code: head + 'describe("a", () => {});\ndescribe("b", () => {});', options: [{maxTopLevelDescribes: 2}]},
 
-		// A `describe` inside a helper function or a hook body is not top-level, even though
-		// neither is nested in another suite
+		// A `describe` inside a helper function or a hook body is not top-level, even though neither is nested in another suite
 		{
 			code: head + 'function register() { describe("a", () => {}); describe("b", () => {}); }\ndescribe("outer", () => { register(); });',
 			options: [{maxTopLevelDescribes: 1}],

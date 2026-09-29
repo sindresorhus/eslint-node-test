@@ -78,10 +78,7 @@ not remove one or leave it behind describing a different argument.
 export default function removeArgument(fixer, node, context) {
 	const [start, end] = getArgumentRemovalRange(node, context);
 
-	// The range spans the whole gap around the argument, up to the next argument's first token, and
-	// whatever it leaves on either side becomes the neighbouring argument's trailing or leading gap.
-	// A comment anywhere in that span would be removed with the argument, or would end up describing a
-	// different one, so the fix stands down.
+	// The range spans the whole gap around the argument, up to the next argument's first token, and whatever it leaves on either side becomes the neighbouring argument's trailing or leading gap. A comment anywhere in that span would be removed with the argument, or would end up describing a different one, so the fix stands down.
 	const {sourceCode} = context;
 	const previous = sourceCode.getTokenBefore({range: [start, start]});
 	const following = sourceCode.getTokenAfter({range: [end, end]});

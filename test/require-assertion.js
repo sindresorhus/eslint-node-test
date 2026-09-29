@@ -7,9 +7,7 @@ test.snapshot({
 		// Not a test file — bail out early
 		'test("title", () => { doSomething(); });',
 
-		// A skipped callback never runs, so it cannot pass vacuously. A `todo` callback does run, so it
-		// is still checked. A `skip` option only stops the body for a truthy value: `0`, `''` and
-		// `null` all carry the `# SKIP` directive and still run it.
+		// A skipped callback never runs, so it cannot pass vacuously. A `todo` callback does run, so it is still checked. A `skip` option only stops the body for a truthy value: `0`, `''` and `null` all carry the `# SKIP` directive and still run it.
 		'import test from "node:test";\ntest.skip("t", () => { doSomething(); });',
 		'import test from "node:test";\ntest("t", {skip: true}, () => { doSomething(); });',
 		'import test from "node:test";\ntest("t", {skip: "flaky"}, () => { doSomething(); });',
@@ -86,8 +84,7 @@ test.snapshot({
 		// Async test with assertion
 		'import test from "node:test";\nimport assert from "node:assert";\ntest("t1", async () => { assert.ok(await fetchValue()); });',
 
-		// `node:test` spreads the options over the positional callback, so `options.fn` is the body
-		// that runs and the trailing function is dead code
+		// `node:test` spreads the options over the positional callback, so `options.fn` is the body that runs and the trailing function is dead code
 		'import test from "node:test";\nimport assert from "node:assert";\ntest("t1", {fn() { assert.ok(true); }}, () => {});',
 		'import test from "node:test";\ntest("t1", {fn(t) { t.assert.ok(1); }}, () => {});',
 		// A hook takes its callback first and the runner never reads `options.fn` for it
@@ -198,13 +195,11 @@ test.snapshot({
 		// A captured context assertion belongs to the nested callback where it is called
 		'import test from "node:test";\ntest("outer", t => { test("inner", () => { t.assert.ok(1); }); });',
 
-		// The trailing function is dead code when the options slot has an `fn`, so an assertion in it
-		// does not count
+		// The trailing function is dead code when the options slot has an `fn`, so an assertion in it does not count
 		'import test from "node:test";\nimport assert from "node:assert";\ntest("t1", {fn() {}}, () => { assert.ok(true); });',
 		'import test from "node:test";\ntest("t1", {fn() {}}, t => { t.assert.ok(1); });',
 
-		// `TestContext#assert` is a plain object of assertion methods: it has no `strict` view and
-		// is not callable, so these three throw a `TypeError` instead of asserting anything.
+		// `TestContext#assert` is a plain object of assertion methods: it has no `strict` view and is not callable, so these three throw a `TypeError` instead of asserting anything.
 		'import test from "node:test";\ntest("t1", ({assert}) => { assert.strict.equal(1, 1); });',
 		'import test from "node:test";\ntest("t1", ({assert: {strict: s}}) => { s.equal(1, 1); });',
 		'import test from "node:test";\ntest("t1", ({assert}) => { assert(1); });',

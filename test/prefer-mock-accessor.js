@@ -58,8 +58,7 @@ test.snapshot({
 		inTestWithContext('getTestContext().mock.method(object, \'value\', {getter: true});'),
 		inTestWithContext('getTestContext().mock.method(object, \'value\', {setter: true});'),
 		inTestWithContext('getTestContext().mock.method(object, \'value\', () => \'stubbed\', {getter: true});'),
-		// A computed key that folds to a constant names the same property, which is the accessor
-		// real `mock.method()` reads too
+		// A computed key that folds to a constant names the same property, which is the accessor real `mock.method()` reads too
 		withMock('mock.method(object, \'value\', {getter: true});'),
 		withMock('mock.method(object, \'value\', {[\'getter\']: true});'),
 		withMock('mock.method(object, \'value\', {[`getter`]: true});'),

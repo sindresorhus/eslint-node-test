@@ -25,8 +25,7 @@ const messages = {
 };
 
 const GLOBAL_RECEIVER = Symbol('global receiver');
-// `getTestContext()` outside any tracked callback, where there is no context parameter to stand in
-// for it. Two such calls still name the same tracker.
+// `getTestContext()` outside any tracked callback, where there is no context parameter to stand in for it. Two such calls still name the same tracker.
 const ROOT_CONTEXT_RECEIVER = Symbol('root context receiver');
 
 function getStaticPropertyName(node) {
@@ -52,8 +51,7 @@ function getContextMockReceiver(node, contextTracker, contextHookVariables, impo
 
 	const context = unwrapTypeScriptExpression(expression.object);
 
-	// `getTestContext()` returns the context the enclosing callbacks were given, so it names the
-	// same tracker as the context parameter.
+	// `getTestContext()` returns the context the enclosing callbacks were given, so it names the same tracker as the context parameter.
 	if (isGetTestContextCall(context, imports)) {
 		return contextTracker.currentContextVariable() ?? ROOT_CONTEXT_RECEIVER;
 	}
@@ -322,8 +320,7 @@ const create = context => {
 		const isLoadTime = isLoadTimeCodePath(node, contextTracker);
 		codePathStack.push({
 			node,
-			// A static block or static field initializer declared in a callback the runner executes
-			// belongs to that callback, so it is tracked with it.
+			// A static block or static field initializer declared in a callback the runner executes belongs to that callback, so it is tracked with it.
 			isTracked: isLoadTime || trackedCallbacks.has(node) || (isStaticPath(node) && trackedCallbacks.has(getEnclosingFunction(node))),
 			isLoadTime,
 			activeSegments: new Set(),
@@ -365,10 +362,7 @@ const create = context => {
 			return;
 		}
 
-		// A static block or static field initializer runs as part of the flow of the code that declares
-		// the class, so the trackers it enables are enabled for that code too. A tracked callback runs
-		// at a time of its own, so nothing outside it shares the state, and a helper function is not
-		// tracked at all.
+		// A static block or static field initializer runs as part of the flow of the code that declares the class, so the trackers it enables are enabled for that code too. A tracked callback runs at a time of its own, so nothing outside it shares the state, and a helper function is not tracked at all.
 		const codePaths = [codePath];
 		if (isStaticPath(codePath.node)) {
 			for (let index = codePathStack.length - 2; index >= 0; index--) {
@@ -389,10 +383,7 @@ const create = context => {
 			for (const segment of path.activeSegments) {
 				const enabledReceivers = path.enabledReceiversBySegment.get(segment);
 				if (action.method === 'enable') {
-					// Enabling through another receiver, the global `mock.timers` or a context's
-					// `t.mock.timers`, throws `ERR_INVALID_STATE` only when both calls mock `Date`, which
-					// depends on their `apis`, so only the same receiver counts as a duplicate. A `reset()`
-					// only clears the receiver it is called on, so a receiver enabled earlier stays enabled.
+					// Enabling through another receiver, the global `mock.timers` or a context's `t.mock.timers`, throws `ERR_INVALID_STATE` only when both calls mock `Date`, which depends on their `apis`, so only the same receiver counts as a duplicate. A `reset()` only clears the receiver it is called on, so a receiver enabled earlier stays enabled.
 					isDuplicate ||= enabledReceivers.has(action.receiver);
 					enabledReceivers.add(action.receiver);
 				} else {

@@ -16,7 +16,7 @@ This rule reports `async` `describe`/`suite` callbacks. If you need asynchronous
 ```js
 import {describe, it, before} from 'node:test';
 
-// ❌ — `b` is registered only after the await, and a rejection in `setup()` cancels the suite
+// ❌ `b` is registered only after the await, and a rejection in `setup()` cancels the suite
 describe('suite', async () => {
 	it('a', () => {});
 	await setup();

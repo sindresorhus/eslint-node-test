@@ -7,8 +7,7 @@ import {
 import {skipExpressionWrappers} from './utils/index.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
-// A statement starting with `(` or `[` continues the expression above it when the two end up
-// adjacent, so the reorder has to separate them.
+// A statement starting with `(` or `[` continues the expression above it when the two end up adjacent, so the reorder has to separate them.
 const STARTS_WITH_BRACKET = /^[([]/;
 
 // A token that already ends whatever is above the statement, so a moved expression starting with a bracket needs no leading `;` after it.
@@ -26,7 +25,7 @@ const HOOK_ORDER_INDEX = Object.fromEntries(HOOK_ORDER.map((name, index) => [nam
 
 /*
 The statements a container holds directly. A `switch` case names its statements `consequent`, while
-every other statement list — a block, the program, a class static block — names them `body`.
+every other statement list (a block, the program, a class static block) names them `body`.
 */
 function getContainerStatements(block) {
 	return block.type === 'SwitchCase' ? block.consequent : block.body;
@@ -35,7 +34,7 @@ function getContainerStatements(block) {
 /*
 Build the fix that reorders a block's hooks into canonical order in a single pass. Returns
 `undefined` (no fix) when the hooks are not a contiguous run of statements, or a comment sits
-next to them — reordering would otherwise drop or misattribute code.
+next to them: reordering would otherwise drop or misattribute code.
 */
 function getReorderFix(block, hooks, sourceCode) {
 	const statements = getContainerStatements(block);
@@ -66,11 +65,7 @@ function getReorderFix(block, hooks, sourceCode) {
 	const firstHook = statements[min];
 	const lastHook = statements[max];
 
-	// A comment leading the first hook describes that hook, and the reorder replaces hook
-	// text only, so the comment would end up describing whichever hook moves into first place.
-	// The same reasoning as the trailing comment below. A blank line between them means the
-	// comment belongs to the block rather than to the hook, so that case stays fixable.
-	// The run is in source order, so the comment nearest the hook is the last one, not the first.
+	// A comment leading the first hook describes that hook, and the reorder replaces hook text only, so the comment would end up describing whichever hook moves into first place. The same reasoning as the trailing comment below. A blank line between them means the comment belongs to the block rather than to the hook, so that case stays fixable. The run is in source order, so the comment nearest the hook is the last one, not the first.
 	const leadingComment = sourceCode.getCommentsBefore(firstHook).at(-1);
 	if (
 		leadingComment
@@ -79,8 +74,7 @@ function getReorderFix(block, hooks, sourceCode) {
 		return undefined;
 	}
 
-	// A trailing comment on the last hook's line would stay put while the hook text moves,
-	// misattributing it to whichever hook ends up last. The reorder replaces hook text only.
+	// A trailing comment on the last hook's line would stay put while the hook text moves, misattributing it to whichever hook ends up last. The reorder replaces hook text only.
 	const [trailingComment] = sourceCode.getCommentsAfter(lastHook);
 	if (trailingComment && sourceCode.getLoc(trailingComment).start.line === sourceCode.getLoc(lastHook).end.line) {
 		return undefined;
@@ -154,8 +148,7 @@ const create = context => {
 	// skipped. The containing block (a `describe` body or the program) is the ordering scope.
 	const hooksByBlock = new Map();
 
-	// A hook declared on a test context (`t.beforeEach(…)`) has the same canonical order as an
-	// imported hook, so it is recognized through the tracker.
+	// A hook declared on a test context (`t.beforeEach(…)`) has the same canonical order as an imported hook, so it is recognized through the tracker.
 	const tracker = createContextTracker(imports, {trackHooks: true});
 
 	context.on('CallExpression', node => {
@@ -168,8 +161,7 @@ const create = context => {
 			return;
 		}
 
-		// A context hook is named by the member after its receiver, which reads the same for a
-		// context parameter and for a `getTestContext()` call; an imported hook is named by its export.
+		// A context hook is named by the member after its receiver, which reads the same for a context parameter and for a `getTestContext()` call; an imported hook is named by its export.
 		const hook = isContextHook ? unwrapTypeScriptExpression(node.callee).property : parsed;
 		const hookName = hook.name;
 

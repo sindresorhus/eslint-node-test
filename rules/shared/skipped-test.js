@@ -61,11 +61,7 @@ Whether `node` is a test call that is statically skipped.
 @param {import('eslint').Rule.RuleContext} context
 */
 export function isSkippedTestCall(node, parsed, context) {
-	// The standalone `skip`/`todo` exports have an `Identifier` callee, so the member walk cannot see
-	// them. `parseTestCall` records the modifier for that form, so the `parsed.modifiers` check covers
-	// it. Only `skip` decides on its own, since a `todo` test still runs its body; `only(…)` and
-	// `todo(…)` run unless the options slot says otherwise.
-	// A suite reads `skip` the same way: a truthy one never runs the suite body, while a falsy one such as `{skip: 0}` runs the body and its `before`/`after` hooks and only cancels the tests it registers. Limitation: those cancelled tests are still read as running.
+	// The standalone `skip`/`todo` exports have an `Identifier` callee, so the member walk cannot see them. `parseTestCall` records the modifier for that form, so the `parsed.modifiers` check covers it. Only `skip` decides on its own, since a `todo` test still runs its body; `only(…)` and `todo(…)` run unless the options slot says otherwise. A suite reads `skip` the same way: a truthy one never runs the suite body, while a falsy one such as `{skip: 0}` runs the body and its `before`/`after` hooks and only cancels the tests it registers. Limitation: those cancelled tests are still read as running.
 	return hasSkipModifier(node.callee)
 		|| parsed?.modifiers.some(modifier => modifier.name === 'skip')
 		|| hasEnabledSkipOption(getTestOptions(node), context);

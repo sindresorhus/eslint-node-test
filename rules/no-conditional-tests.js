@@ -46,8 +46,7 @@ const create = context => {
 		return;
 	}
 
-	// Subtests (`t.test(…)`) and context hooks (`t.beforeEach(…)`) register conditionally just like the
-	// imported forms, so a condition around them is equally non-deterministic.
+	// Subtests (`t.test(…)`) and context hooks (`t.beforeEach(…)`) register conditionally just like the imported forms, so a condition around them is equally non-deterministic.
 	const tracker = createContextTracker(imports, {trackHooks: true});
 
 	context.on('CallExpression', node => {
@@ -60,10 +59,7 @@ const create = context => {
 			return;
 		}
 
-		// A definition inside a hook is `no-test-inside-hook`'s to report. Its fix (move the definition
-		// out of the hook) has to come first, and this rule's advice (move the condition into the
-		// body) would leave that report in place, so reporting both leaves no state the user can reach.
-		// `no-test-inside-hook` does not report a hook inside a hook, so this rule still does: whether such a hook runs depends on the kind and on how it is registered, and a condition around it only adds to that.
+		// A definition inside a hook is `no-test-inside-hook`'s to report. Its fix (move the definition out of the hook) has to come first, and this rule's advice (move the condition into the body) would leave that report in place, so reporting both leaves no state the user can reach. `no-test-inside-hook` does not report a hook inside a hook, so this rule still does: whether such a hook runs depends on the kind and on how it is registered, and a condition around it only adds to that.
 		const callbackKind = nearestTestCallbackKind(node, imports, context);
 		if (
 			callbackKind === 'hook'

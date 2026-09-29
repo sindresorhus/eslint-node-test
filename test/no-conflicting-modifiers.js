@@ -35,17 +35,14 @@ test.snapshot({
 
 		// No modifiers
 		withImport('test("x", () => {});'),
-		// A hook's options carry no modifier, so an inert `skip`/`todo`/`only` there is an unknown
-		// key for `no-unknown-test-options`, not a conflicting or disallowed modifier
+		// A hook's options carry no modifier, so an inert `skip`/`todo`/`only` there is an unknown key for `no-unknown-test-options`, not a conflicting or disallowed modifier
 		'import {beforeEach} from \'node:test\';\nbeforeEach({skip: true, todo: true}, () => {});',
-		// `expectFailure` composes with `only`: the runner applies both, so a test that is both
-		// exclusive-only and expected to fail means what it says
+		// `expectFailure` composes with `only`: the runner applies both, so a test that is both exclusive-only and expected to fail means what it says
 		withImport('test("x", {only: true, expectFailure: true}, () => {});'),
 		withImport('test({name: "x", skip: true, fn() {}});'),
 		// A subtest composes `expectFailure` with `only` the same way
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'c\', {expectFailure: true, only: true}, () => {}); });',
-		// `only` composes with `todo` too: the test runs only under `--test-only` and still carries
-		// the TODO marker
+		// `only` composes with `todo` too: the test runs only under `--test-only` and still carries the TODO marker
 		withImport('test("x", {only: true, todo: true}, () => {});'),
 		withImport('test.todo.only("x", () => {});'),
 		'import {describe} from \'node:test\';\ndescribe("x", {only: true, todo: true}, () => {});',
@@ -92,8 +89,7 @@ test.snapshot({
 		// A subtest carries the same modifier options as an imported test
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'c\', {skip: true, only: true}, () => {}); });',
 
-		// `todo` wins over `expectFailure`, which is then dropped rather than applied, so the
-		// expected failure the author wrote never happens
+		// `todo` wins over `expectFailure`, which is then dropped rather than applied, so the expected failure the author wrote never happens
 		withImport('test("x", {todo: true, expectFailure: true}, () => {});'),
 		withImport('test.expectFailure("x", {todo: true}, () => {});'),
 		'import {it} from \'node:test\';\nit.todo("x", {expectFailure: "why"}, () => {});',

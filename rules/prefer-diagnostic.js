@@ -50,8 +50,7 @@ const create = context => {
 	}
 
 	const tracker = createContextTracker(imports);
-	// A test that declares no context parameter can still reach its context through
-	// `getTestContext()`, so the file has to import that name.
+	// A test that declares no context parameter can still reach its context through `getTestContext()`, so the file has to import that name.
 	const {getTestContextName} = imports;
 
 	// The `getTestContext` import is a binding like any other, so a local declaration in the test body shadows it.
@@ -125,10 +124,7 @@ const create = context => {
 			return;
 		}
 
-		// A local `console` — a parameter, a declaration, a catch binding — is some other object, and
-		// its `log` is not the global's. `globalThis.console` and `global.console` are the same object
-		// as the bare global, the way `globalThis.process` is the same as `process`, so long as the
-		// receiver is the real global.
+		// A local `console` (a parameter, a declaration, a catch binding) is some other object, and its `log` is not the global's. `globalThis.console` and `global.console` are the same object as the bare global, the way `globalThis.process` is the same as `process`, so long as the receiver is the real global.
 		const object = unwrapExpression(callee.object);
 		const globalObject = getGlobalConsoleObject(object);
 		const isGlobalConsoleMember = globalObject !== undefined
@@ -150,11 +146,7 @@ const create = context => {
 			data,
 		};
 
-		// `diagnostic()` takes a single message, so only suggest a rewrite for a single argument. A
-		// spread counts as one argument but stands for any number of values, of which
-		// `t.diagnostic(…args)` would print only the first.
-		// Replacing the whole callee would also drop any comments inside it, such as
-		// `console./* trace */log(…)`.
+		// `diagnostic()` takes a single message, so only suggest a rewrite for a single argument. A spread counts as one argument but stands for any number of values, of which `t.diagnostic(…args)` would print only the first. Replacing the whole callee would also drop any comments inside it, such as `console./* trace */log(…)`.
 		if (
 			node.arguments.length === 1
 			&& node.arguments[0].type !== 'SpreadElement'

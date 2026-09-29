@@ -30,8 +30,7 @@ test.snapshot({
 		'import test from \'node:test\';\ntest(\'t\', t => {\n\tfunction f(t) {\n\t\tobject.method = t.mock.fn();\n\t}\n});',
 	],
 	invalid: [
-		// A sequence-expression receiver or implementation is re-emitted without its parentheses,
-		// which would turn one argument into several, so the problem is reported but not fixed.
+		// A sequence-expression receiver or implementation is re-emitted without its parentheses, which would turn one argument into several, so the problem is reported but not fixed.
 		inTest('(getObj(), other).method = t.mock.fn();'),
 		inTest('object.method = t.mock.fn((a, b));'),
 
@@ -60,8 +59,7 @@ test.snapshot({
 		withMock('const name = \'method\';\nobject[name] = mock.fn();'),
 		withMock('const methodName = \'method\';\nobject[methodName] = mock.fn();'),
 
-		// `mock.method()` falls back to the ORIGINAL method when it gets no implementation, while
-		// `mock.fn()` returns `undefined`, so only an implementation makes the rewrite equivalent
+		// `mock.method()` falls back to the ORIGINAL method when it gets no implementation, while `mock.fn()` returns `undefined`, so only an implementation makes the rewrite equivalent
 		withMock('object.method = mock.fn();'),
 		withMock('object.method = mock.fn(undefined);'),
 		withMock('object.method = mock.fn(void 0);'),
@@ -71,8 +69,7 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 
-		// `mock.method()` needs a string method name, so a computed key is only rewritten when it is
-		// statically one. An unresolvable identifier may hold anything, so it gets no suggestion.
+		// `mock.method()` needs a string method name, so a computed key is only rewritten when it is statically one. An unresolvable identifier may hold anything, so it gets no suggestion.
 		withMock('object[methodName] = mock.fn();'),
 		withMock('function f(methodName) { object[methodName] = mock.fn(); }'),
 		withMock('object[0] = mock.fn();'),
@@ -120,8 +117,7 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 
-		// TypeScript: a cast written on the receiver keeps its parentheses, without which
-		// `t.mock as any.method(…)` does not parse
+		// TypeScript: a cast written on the receiver keeps its parentheses, without which `t.mock as any.method(…)` does not parse
 		{
 			code: inTest('object.method = (t.mock as any).fn(() => 42);'),
 			languageOptions: {parser: parsers.typescript},
@@ -143,8 +139,7 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 
-		// A sequence expression in the receiver or the implementation is re-emitted without its
-		// parentheses, which would turn one argument into several, so no suggestion is offered
+		// A sequence expression in the receiver or the implementation is re-emitted without its parentheses, which would turn one argument into several, so no suggestion is offered
 		inTest('(a, object).method = t.mock.fn(() => \'stubbed\');'),
 		// `super` is no value to pass, and `mock.method(super, …)` does not parse
 		'import {mock} from \'node:test\';\nclass A extends B {\n\tm() {\n\t\tsuper.method = mock.fn(impl);\n\t}\n}',

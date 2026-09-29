@@ -22,8 +22,7 @@ test.snapshot({
 		withImport('test("x", () => {});'),
 		withImport('describe("s", () => { test("x", () => {}); });'),
 
-		// A function that only registers is not setup, wherever it is written: moving it into a hook
-		// would drop the registrations
+		// A function that only registers is not setup, wherever it is written: moving it into a hook would drop the registrations
 		withImport('(function () {\n\ttest("x", () => {});\n})();'),
 		withImport('(() => {\n\tdescribe("s", () => {\n\t\ttest("x", () => {});\n\t});\n})();'),
 		withImport('(() => { beforeEach(() => {}); })();'),
@@ -144,8 +143,7 @@ test.snapshot({
 			options: [{allow: ['log']}],
 		},
 
-		// Optional chaining is an expression wrapper too. Walking up from it instead of unwrapping
-		// down used to loop forever, so these are here to keep the walk finite.
+		// Optional chaining is an expression wrapper too. Walking up from it instead of unwrapping down used to loop forever, so these are here to keep the walk finite.
 		withImport('await server?.start();\ntest("x", () => {});'),
 		withImport('void server?.start();\ntest("x", () => {});'),
 		withImport('!server?.start();\ntest("x", () => {});'),

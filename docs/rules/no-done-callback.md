@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-`node:test` lets a test or hook opt into callback style by declaring a second `done` parameter, which it then calls to signal completion. Callbacks are easy to get wrong: forget to call `done` and the test hangs — there is no default timeout, so with no `timeout` option and no `--test-timeout` that is forever, and the run has to be killed, call it twice and the run errors, and you cannot combine it with a returned Promise. Promises (`async`/`await` or returning a Promise) avoid all of this.
+`node:test` lets a test or hook opt into callback style by declaring a second `done` parameter, which it then calls to signal completion. Callbacks are easy to get wrong: forget to call `done` and the test hangs: there is no default timeout, so with no `timeout` option and no `--test-timeout` that is forever, and the run has to be killed, call it twice and the run errors, and you cannot combine it with a returned Promise. Promises (`async`/`await` or returning a Promise) avoid all of this.
 
 This rule reports a test or hook whose function declares a second parameter (the `done` callback), whether it is written inline or named out of line (`test('x', body)`). A second parameter that has a default value or is a rest element is not counted, mirroring how `node:test` computes the arity to decide whether to pass `done`.
 

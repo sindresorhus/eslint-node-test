@@ -54,8 +54,7 @@ const create = context => {
 		// Attribute this subtest to the frame that owns its receiver context, before it pushes its own.
 		if (isSubtest) {
 			const receiver = getSubtestReceiver(node);
-			// `getTestContext().test(…)` names the innermost context, so it belongs to the innermost
-			// frame; a context parameter is matched by the name the tracker resolved it to.
+			// `getTestContext().test(…)` names the innermost context, so it belongs to the innermost frame; a context parameter is matched by the name the tracker resolved it to.
 			const ownerFrame = receiver
 				? frames.findLast(frame => frame.contextName === receiver.name)
 				: frames.at(-1);

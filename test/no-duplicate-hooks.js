@@ -9,8 +9,7 @@ test.snapshot({
 		// Not a test file
 		'before(() => {}); before(() => {});',
 
-		// A callback the call names out of line is that suite's own scope, so one hook in each of two
-		// such suites is not a duplicate
+		// A callback the call names out of line is that suite's own scope, so one hook in each of two such suites is not a duplicate
 		'import {describe, before} from \'node:test\';\nconst d1 = () => { before(() => {}); };\nconst d2 = () => { before(() => {}); };\ndescribe(\'a\', d1);\ndescribe(\'b\', d2);',
 		'import {describe, before} from \'node:test\';\nconst d1 = () => { before(() => {}); };\ndescribe(\'a\', d1);\ndescribe(\'b\', d1);',
 
@@ -30,8 +29,7 @@ test.snapshot({
 		+ '\tawait t.test(\'two\', async two => { beforeEach(() => {}); });\n'
 		+ '});',
 
-		// A hook body is a scope of its own. Its `t` is the context of the test the hook runs for, so a
-		// hook declared on it belongs to that test's subtests, not to the scope it was declared in.
+		// A hook body is a scope of its own. Its `t` is the context of the test the hook runs for, so a hook declared on it belongs to that test's subtests, not to the scope it was declared in.
 		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { t.beforeEach(() => {}); });',
 		// A context hook in a test body belongs to that test's scope, not to the file's
 		'import {before, test} from \'node:test\';\ntest(\'a\', t => { t.before(() => {}); });\nbefore(() => {});',

@@ -194,8 +194,7 @@ const create = context => {
 			return isImportBinding(context, node, environmentNames) || isEnvironmentAlias(node, seenVariables);
 		}
 
-		// `process.env` is a truthy object that is never nullish, so a defensive
-		// `process.env ?? {}` or `process.env || {}` still evaluates to `process.env`.
+		// `process.env` is a truthy object that is never nullish, so a defensive `process.env ?? {}` or `process.env || {}` still evaluates to `process.env`.
 		if (node.type === 'LogicalExpression' && (node.operator === '??' || node.operator === '||')) {
 			return isEnvironmentObject(node.left, seenVariables);
 		}
@@ -276,8 +275,7 @@ const create = context => {
 			);
 	};
 
-	// A subtest is read the way the out-of-line path below reads it, so one registered from a hook
-	// (`t.test(…)` on the hook's context, or `getTestContext().test(…)`) counts as well.
+	// A subtest is read the way the out-of-line path below reads it, so one registered from a hook (`t.test(…)` on the hook's context, or `getTestContext().test(…)`) counts as well.
 	const isSubtestCall = node => parseTestCall(node, imports) === undefined
 		&& getRegistrationKind(node, imports, context) === 'test';
 
@@ -307,8 +305,7 @@ const create = context => {
 		testStack.pop();
 	};
 
-	// A test body the call names out of line is entered where it is declared, which the call's own
-	// frame does not cover, so a mutation in it sat outside every tracked scope.
+	// A test body the call names out of line is entered where it is declared, which the call's own frame does not cover, so a mutation in it sat outside every tracked scope.
 	const outOfLineTestBodies = new WeakSet();
 
 	const enterOutOfLineTestBody = node => {
@@ -317,8 +314,7 @@ const create = context => {
 			return;
 		}
 
-		// The kind comes from the shared classifier, so a subtest counts as a test too. Only an
-		// imported call has modifiers to check, which a subtest never does.
+		// The kind comes from the shared classifier, so a subtest counts as a test too. Only an imported call has modifiers to check, which a subtest never does.
 		const parsed = parseTestCall(call, imports);
 		if (getRegistrationKind(call, imports, context) !== 'test' || parsed?.modifiers.some(modifier => !MODIFIERS.has(modifier.name))) {
 			return;
@@ -334,8 +330,7 @@ const create = context => {
 		}
 	};
 
-	// Any test or subtest callback on the stack, not only the innermost one: a subtest's options
-	// object is evaluated inside the parent test's callback, so a mutation there is in a test body too.
+	// Any test or subtest callback on the stack, not only the innermost one: a subtest's options object is evaluated inside the parent test's callback, so a mutation there is in a test body too.
 	const isInsideTestCallback = node => {
 		const enclosingFunction = getEnclosingFunction(node);
 		return enclosingFunction !== undefined && testStack.some(test => test.callback === enclosingFunction);

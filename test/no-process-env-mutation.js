@@ -89,8 +89,7 @@ test.snapshot({
 		withTestImport('const body = () => { process.env.NODE_ENV = \'production\'; };\ntest(\'a\', body);'),
 		withTestImport('const body = () => { process.env.NODE_ENV = \'production\'; };\ntest(\'a\', {fn: body});'),
 
-		// A subtest's options object is evaluated inside the parent test's callback, so a mutation
-		// there is in a test body and leaks into every later test just the same
+		// A subtest's options object is evaluated inside the parent test's callback, so a mutation there is in a test body and leaks into every later test just the same
 		withTestImport('test(\'parent\', t => {\n\tt.test(\'child\', {skip: (process.env.NODE_ENV = \'production\', false)}, () => {});\n});'),
 		// A `getTestContext()` subtest is a callback like any other
 		'import {test, getTestContext} from \'node:test\';\ntest(\'parent\', () => {\n\tgetTestContext().test(\'child\', () => {\n\t\tprocess.env.NODE_ENV = \'production\';\n\t});\n});',

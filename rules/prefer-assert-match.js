@@ -69,9 +69,7 @@ function parseRegexCall(node) {
 		return;
 	}
 
-	// `str?.match(re)` and `re?.test(str)` return `undefined` when the receiver is nullish, so the
-	// truthiness form of those is a nullish check rather than a match, and rewriting it would change
-	// what the assertion means.
+	// `str?.match(re)` and `re?.test(str)` return `undefined` when the receiver is nullish, so the truthiness form of those is a nullish check rather than a match, and rewriting it would change what the assertion means.
 	const isOptional = isInOptionalChain(node);
 
 	const {name} = node.callee.property;
@@ -188,8 +186,7 @@ function isStaticallyNonString(node) {
 		return node.operator !== 'typeof';
 	}
 
-	// A plain assignment evaluates to its right-hand side. Any other one (`||=`, `+=`) may evaluate to
-	// the old value or a computed one, so it is not known to be a string.
+	// A plain assignment evaluates to its right-hand side. Any other one (`||=`, `+=`) may evaluate to the old value or a computed one, so it is not known to be a string.
 	if (node.type === 'AssignmentExpression') {
 		return node.operator !== '=' || isStaticallyNonString(node.right);
 	}
@@ -213,9 +210,7 @@ function canAutofix(node, context, regexCall) {
 	return node.callee.type === 'MemberExpression'
 		&& context.sourceCode.getCommentsInside(node).length === 0
 		&& node.arguments.every(argument => !isParenthesized(argument, context))
-		// The inner `str`/`regex` are re-emitted with `getText`, which drops the parentheses
-		// around a sequence expression. Keeping them would leave a stray `)`, but dropping them
-		// turns one argument into several, so do not rewrite at all.
+		// The inner `str`/`regex` are re-emitted with `getText`, which drops the parentheses around a sequence expression. Keeping them would leave a stray `)`, but dropping them turns one argument into several, so do not rewrite at all.
 		&& !isSequenceExpression(regexCall.string)
 		&& !isSequenceExpression(regexCall.regex)
 		&& !regexCall.isOptional

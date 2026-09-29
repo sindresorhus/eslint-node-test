@@ -40,8 +40,7 @@ test.snapshot({
 		// A hook's callback is its first argument, so trailing options never hide a 1-arity function
 		withImport('beforeEach(t => {}, {timeout: 1000});'),
 
-		// A hook whose first argument is not a function never runs, so a `done` parameter in a later
-		// slot is dead code, and the runner never reads `options.fn` for a hook either
+		// A hook whose first argument is not a function never runs, so a `done` parameter in a later slot is dead code, and the runner never reads `options.fn` for a hook either
 		withImport('beforeEach({}, (t, done) => { done(); });'),
 		withImport('beforeEach({fn(t, done) { done(); }});'),
 		withImport('test.beforeEach({}, (t, done) => { done(); });'),
@@ -53,8 +52,7 @@ test.snapshot({
 		// Callback-style test
 		withImport('test("x", (t, done) => { done(); });'),
 
-		// `node:test` reads `fn` from the options object wherever it sits, so a 2-argument call runs
-		// the callback too
+		// `node:test` reads `fn` from the options object wherever it sits, so a 2-argument call runs the callback too
 		'import test from \'node:test\';\ntest(\'a\', {fn(t, done) { done(); }});',
 		'import test from \'node:test\';\ntest(\'a\', {name: \'a\', fn(t, done) { done(); }});',
 
@@ -108,8 +106,7 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
-			// TypeScript emits an optional parameter as a plain one, so the arity is still 2 and
-			// `node:test` does pass `done` — unlike a JavaScript default parameter
+			// TypeScript emits an optional parameter as a plain one, so the arity is still 2 and `node:test` does pass `done`, unlike a JavaScript default parameter
 			code: withImport('test("x", (t, done?: () => void) => { done(); });'),
 			languageOptions: {parser: parsers.typescript},
 		},

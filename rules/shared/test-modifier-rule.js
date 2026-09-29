@@ -69,9 +69,7 @@ export default function createTestModifierRule({modifier, description, errorMess
 					&& !parsed.hasStandaloneModifier
 					&& !memberExpression.computed
 					&& memberExpression.property === modifierNode
-					// The modifier has to be the call itself. In `test.skip.call(…)` it is an
-					// intermediate link, and dropping it would turn a skipped test into a running one. A
-					// TypeScript wrapper on the callee (`(test.only as any)(…)`, `test.only!(…)`) is erased.
+					// The modifier has to be the call itself. In `test.skip.call(…)` it is an intermediate link, and dropping it would turn a skipped test into a running one. A TypeScript wrapper on the callee (`(test.only as any)(…)`, `test.only!(…)`) is erased.
 					&& memberExpression === unwrapExpression(node.callee)
 					&& previousToken.value === '.'
 					&& sourceCode.getRange(nextToken)[0] === modifierRange[0]

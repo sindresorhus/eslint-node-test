@@ -23,8 +23,7 @@ test.snapshot({
 		// The object descriptor form reads the same options
 		withTest('test({skip: \'work in progress\', name: \'t\', fn: () => {}});'),
 
-		// No chained form exists for these, since a modifier or `expectFailure` cannot be chained again
-		// (`test.only.todo`, `expectFailure.skip` and `test.skip.only` are all `undefined`)
+		// No chained form exists for these, since a modifier or `expectFailure` cannot be chained again (`test.only.todo`, `expectFailure.skip` and `test.skip.only` are all `undefined`)
 		withTest('test.only(\'t\', {todo: true}, () => {});'),
 		withTest('test(\'t\', {only: true, todo: true}, () => {});'),
 		withTest('test(\'t\', {skip: true, only: true}, () => {});'),

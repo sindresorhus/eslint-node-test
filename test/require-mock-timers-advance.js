@@ -41,8 +41,7 @@ test.snapshot({
 		// A computed `apis` key is still that key
 		withImport('test(\'title\', t => { t.mock.timers.enable({\'apis\': [\'Date\']}); Date.now(); });'),
 
-		// The rule only looks inside a test, hook, or subtest callback, so a module-level enable
-		// has no callback to be followed by an advance
+		// The rule only looks inside a test, hook, or subtest callback, so a module-level enable has no callback to be followed by an advance
 		withImport('mock.timers.enable({apis: [\'setTimeout\']});'),
 
 		// One later advance satisfies every earlier enable; the rule does not pair them up
@@ -117,8 +116,7 @@ test.snapshot({
 		},
 	],
 	invalid: [
-		// A `getTestContext()` subtest or context hook opens a scope of its own, whatever the
-		// enclosing test declared
+		// A `getTestContext()` subtest or context hook opens a scope of its own, whatever the enclosing test declared
 		'import {test, getTestContext} from \'node:test\';\n'
 		+ 'test(\'a\', () => { getTestContext().test(\'c\', x => { x.mock.timers.enable({apis: [\'setTimeout\']});\n'
 		+ '\tsetTimeout(fn, 1); }); });',

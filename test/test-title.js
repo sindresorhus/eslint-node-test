@@ -40,8 +40,7 @@ test.snapshot({
 		// A spread after `name` could override it, so the title is not statically known
 		'import test from "node:test";\ntest(" my test ", {name: "ok", ...rest}, () => {});',
 
-		// A spread or computed key in the descriptor could supply the `name`, and `node:test`
-		// spreads the descriptor, so the title is not statically known
+		// A spread or computed key in the descriptor could supply the `name`, and `node:test` spreads the descriptor, so the title is not statically known
 		'import test from \'node:test\';\nconst rest = {name: \'z\'};\ntest({name: \'before\', ...rest});',
 		'import test from \'node:test\';\ntest({...descriptor});',
 		'import test from \'node:test\';\ntest({name: \'a\', [key]: 1});',
@@ -79,8 +78,7 @@ test.snapshot({
 		'import test from "node:test";\ntest(\' foo \', () => {});',
 		// Template literal title becomes a single-quoted string after fixing
 		'import test from "node:test";\ntest(`  foo  `, () => {});',
-		// A statically resolved title is reported without a fix: rewriting it as a fresh string literal
-		// would cut it off from the value it names, and drop a comment inside the expression it came from.
+		// A statically resolved title is reported without a fix: rewriting it as a fresh string literal would cut it off from the value it names, and drop a comment inside the expression it came from.
 		'import test from "node:test";\ntest("foo" /* keep me */ + " ", () => {});',
 		'import test from "node:test";\nconst titles = {a: " foo "};\ntest(titles /* keep me */.a, () => {});',
 		'import test from "node:test";\ntest((0 /* keep me */, " foo "), () => {});',
@@ -132,8 +130,7 @@ test.snapshot({
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(() => {}); });',
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(123, () => {}); });',
 
-		// A non-string title that is not a literal. `node:test` names every one of these `<anonymous>`,
-		// and `getStaticValue` can resolve them, so they are as knowable as `test(123, …)`.
+		// A non-string title that is not a literal. `node:test` names every one of these `<anonymous>`, and `getStaticValue` can resolve them, so they are as knowable as `test(123, …)`.
 		'import test from "node:test";\ntest(undefined, () => {});',
 		'import test from "node:test";\ntest(NaN, () => {});',
 		// `options.name` wins over the positional title, so a non-string one leaves the test unnamed

@@ -64,8 +64,7 @@ test.snapshot({
 		// A CommonJS `require()` is not a static ESM load, so it is intentionally ignored.
 		head + 'const value = require(\'module.js\');\nmock.module(\'module.js\');',
 
-		// A file whose every import is type-only loads nothing at runtime, so a type-only
-		// `node:test` import does not even make it a test file.
+		// A file whose every import is type-only loads nothing at runtime, so a type-only `node:test` import does not even make it a test file.
 		{
 			code: 'import type {mock} from \'node:test\';\nimport type Value from \'module.js\';\nmock.module(\'module.js\');',
 			languageOptions: {parser: parsers.typescript},
@@ -153,8 +152,7 @@ test.snapshot({
 		// `mock.module` strips the `node:` prefix, so the two spellings name the same module
 		'import {mock} from \'node:test\';\nimport * as os from \'node:os\';\nmock.module(\'os\', {exports: {}});',
 		'import {mock} from \'node:test\';\nimport * as os from \'os\';\nmock.module(\'node:os\', {exports: {}});',
-		// `mock.module` strips the `node:` prefix, so `import 'node:fs'` and `mock.module('fs')`
-		// name the same module.
+		// `mock.module` strips the `node:` prefix, so `import 'node:fs'` and `mock.module('fs')` name the same module.
 		'import {mock} from \'node:test\';\nimport \'node:fs\';\nmock.module(\'fs\');',
 
 		// Paths are compared as written, so a relative specifier matches itself.

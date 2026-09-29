@@ -80,7 +80,7 @@ test.snapshot({
 		// Comment inside the comparison — reported without a fix
 		withAssert('assert.ok(a === /* note */ b);'),
 
-		// A TypeScript wrapper on the callee — the fix rewrites the callee inside the wrapper
+		// A TypeScript wrapper on the callee: the fix rewrites the callee inside the wrapper
 		{
 			code: withAssert('assert!(a === b);'),
 			languageOptions: {parser: parsers.typescript},
@@ -118,24 +118,21 @@ test.snapshot({
 			code: withAssert('assert.ok((a === b) as boolean);'),
 			languageOptions: {parser: parsers.typescript},
 		},
-		// `===` treats `0 === -0` as true and `NaN === NaN` as false, but `strictEqual` is
-		// `Object.is` (which differ on `NaN` and `±0`), so these are reported without a fix.
+		// `===` treats `0 === -0` as true and `NaN === NaN` as false, but `strictEqual` is `Object.is` (which differ on `NaN` and `±0`), so these are reported without a fix.
 		withAssert('assert.ok(x === 0);'),
 		withAssert('assert.ok(NaN === NaN);'),
 		withAssert('assert.ok(x === -0);'),
 		withAssert('assert.ok(x !== 0);'),
 		withAssert('assert.ok(diff === -0.0);'),
 		withAssert('assert.ok(diff === +0);'),
-		// A signed non-zero literal is an ordinary number: `===` and `Object.is` agree on it, so the
-		// rewrite is safe. Only `±0` (and `NaN`) differ.
+		// A signed non-zero literal is an ordinary number: `===` and `Object.is` agree on it, so the rewrite is safe. Only `±0` (and `NaN`) differ.
 		withAssert('assert.ok(diff === -1);'),
 		withAssert('assert.ok(diff === +5);'),
 		withAssert('assert.ok(diff === -1.5);'),
 		withAssert('assert.ok(diff === -0x10);'),
 		withAssert('assert.ok(diff === - 1);'),
 		withAssert('assert.ok(diff !== +1e3);'),
-		// `equal`/`notEqual` treat `NaN` as equal to itself while `==`/`!=` do not, so the loose
-		// rewrite is only reported when a `NaN` operand is present.
+		// `equal`/`notEqual` treat `NaN` as equal to itself while `==`/`!=` do not, so the loose rewrite is only reported when a `NaN` operand is present.
 		withAssert('assert.ok(NaN == NaN);'),
 		withAssert('assert.ok(NaN != NaN);'),
 		withAssert('assert.ok(Number("x") == NaN);'),

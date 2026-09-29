@@ -91,8 +91,7 @@ function getCallableAssertText(callee, context, callableAssertReferences) {
 		&& callee.property.type === 'Identifier'
 		&& callee.property.name === 'strict'
 		&& callee.object.type === 'Identifier'
-		// The fix deletes the range from the end of `assert.strict` to the end of `ok`, which a
-		// parenthesis around either of them sits inside.
+		// The fix deletes the range from the end of `assert.strict` to the end of `ok`, which a parenthesis around either of them sits inside.
 		&& !isParenthesized(callee.object, context)
 		&& !isParenthesized(callee, context)
 		&& callableAssertReferences.has(callee.object)

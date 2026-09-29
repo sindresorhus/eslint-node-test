@@ -22,8 +22,7 @@ export default function toEslintProblem(unicornProblem) {
 		eslintProblem.fix = toEslintFixer(unicornProblem.fix);
 	}
 
-	// Anything iterable, the same as the fix path: a generator defers its body, and ESLint drops a
-	// `suggest` it cannot read without saying so.
+	// Anything iterable, the same as the fix path: a generator defers its body, and ESLint drops a `suggest` it cannot read without saying so.
 	if (unicornProblem.suggest) {
 		// A suggestion without a fix is dropped, the way ESLint drops one it cannot apply.
 		eslintProblem.suggest = [...iterateFixOrProblems(unicornProblem.suggest)]

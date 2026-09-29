@@ -42,9 +42,7 @@ function isDestructuredAssertCall(node, testStack, sourceCode) {
 			return false;
 		}
 
-		// A bare identifier is a destructured method, so its binding records a name. A member call is
-		// a method on the assert object, whose binding records none.
-		// `TestContext#assert` has no `strict`, so a call through that name throws rather than asserts.
+		// A bare identifier is a destructured method, so its binding records a name. A member call is a method on the assert object, whose binding records none. `TestContext#assert` has no `strict`, so a call through that name throws rather than asserts.
 		const method = test.assertBindings.get(variable);
 		return isBareMethodCall
 			? typeof method === 'string' && method !== 'strict'
@@ -86,8 +84,7 @@ const create = context => {
 
 		// Track nested test calls as their own scope (don't let their assertions count for parent).
 		if (parsed && parsed.kind === 'test') {
-			// A skipped callback never runs, so it cannot pass vacuously and cannot let a wrong result
-			// go unnoticed. A `todo` callback does run, so it is still checked.
+			// A skipped callback never runs, so it cannot pass vacuously and cannot let a wrong result go unnoticed. A `todo` callback does run, so it is still checked.
 			if (isSkippedTestCall(node, parsed, context)) {
 				return;
 			}

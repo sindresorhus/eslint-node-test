@@ -93,8 +93,7 @@ const create = context => {
 		return;
 	}
 
-	// A subtest (`t.test(…)`) is a test too, so an empty one is reported. Its TODO form is the
-	// `todo` option on the subtest call, since `t.test` has no `.todo` method.
+	// A subtest (`t.test(…)`) is a test too, so an empty one is reported. Its TODO form is the `todo` option on the subtest call, since `t.test` has no `.todo` method.
 	const tracker = createContextTracker(imports, {trackHooks: true});
 
 	context.on('CallExpression', node => {
@@ -102,8 +101,7 @@ const create = context => {
 		tracker.update(node);
 
 		const parsed = parseTestCall(node, imports);
-		// Only plain tests (a placeholder suite is a different concept); an existing modifier is
-		// intentional. A subtest has no parsed form here, so it always passes this gate.
+		// Only plain tests (a placeholder suite is a different concept); an existing modifier is intentional. A subtest has no parsed form here, so it always passes this gate.
 		if (!isSubtest && (parsed?.kind !== 'test' || parsed.hasExpectedFailure || parsed.modifiers.length > 0)) {
 			return;
 		}
@@ -144,16 +142,14 @@ const create = context => {
 					messageId: isSubtest ? MESSAGE_ID_SUGGESTION_SUBTEST : MESSAGE_ID_SUGGESTION,
 					* fix(fixer, {abort}) {
 						if (isSubtest) {
-							// `t.test('a', …)` becomes `t.test('a', {todo: true})`, which keeps the
-							// subtest and reports it as a pending TODO.
+							// `t.test('a', …)` becomes `t.test('a', {todo: true})`, which keeps the subtest and reports it as a pending TODO.
 							yield callback
 								? fixer.replaceText(callback, '{todo: true}')
 								: fixer.insertTextAfter(node.arguments.at(-1), ', {todo: true}');
 							return;
 						}
 
-						// A test binding `test(…)` becomes `test.todo(…)`, inside a TypeScript cast (`(test as any)(…)` becomes `(test.todo as any)(…)`), since `.todo` after the cast would land in the type.
-						// `removeArgument` stands down on a comment in the gap it would remove, and `.todo` alone would keep the callback.
+						// A test binding `test(…)` becomes `test.todo(…)`, inside a TypeScript cast (`(test as any)(…)` becomes `(test.todo as any)(…)`), since `.todo` after the cast would land in the type. `removeArgument` stands down on a comment in the gap it would remove, and `.todo` alone would keep the callback.
 						const removal = callback && removeArgument(fixer, callback, context);
 						if (callback && !removal) {
 							return abort();

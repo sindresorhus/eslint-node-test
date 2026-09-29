@@ -36,8 +36,7 @@ function operandsDiverge(left, right, context) {
 		return false;
 	}
 
-	// `getStaticValue` answers `null` for a value it cannot resolve, which is most of them, and a
-	// `{value}` wrapper otherwise, so a resolved `undefined` is not mistaken for an unresolved one.
+	// `getStaticValue` answers `null` for a value it cannot resolve, which is most of them, and a `{value}` wrapper otherwise, so a resolved `undefined` is not mistaken for an unresolved one.
 	const leftStatic = getStaticValue(unwrapExpression(left), context.sourceCode.getScope(left));
 	const rightStatic = getStaticValue(unwrapExpression(right), context.sourceCode.getScope(right));
 	if (leftStatic === null || rightStatic === null) {
@@ -89,10 +88,7 @@ const create = context => {
 
 		// Autofix only the member forms (`assert.equal`, `t.assert.equal`). A bare named
 		// import (`equal`) cannot be rewritten to `strictEqual` without also importing it,
-		// so leave it reported but unfixed. The callee is unwrapped first, so a cast around a
-		// bare import is left unfixed too, exactly like the bare import it erases to.
-		// The strict methods compare with `Object.is` where the loose ones use `==`, so an operand pair
-		// the rewrite would flip is reported without a fix as well.
+		// so leave it reported but unfixed. The callee is unwrapped first, so a cast around a bare import is left unfixed too, exactly like the bare import it erases to. The strict methods compare with `Object.is` where the loose ones use `==`, so an operand pair the rewrite would flip is reported without a fix as well.
 		const isBareNamedImport = assertion.methodNode === unwrapExpression(node.callee);
 		if (
 			assertion.methodNode

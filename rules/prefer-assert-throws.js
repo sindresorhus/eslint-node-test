@@ -83,9 +83,7 @@ const create = context => {
 			return;
 		}
 
-		// An `await` in the try body makes it async. A `yield` does not: a generator suspends
-		// synchronously, so the correct replacement is still `assert.throws()`. In an async generator,
-		// though, `yield` awaits its operand, so a rejection there is caught asynchronously too.
+		// An `await` in the try body makes it async. A `yield` does not: a generator suspends synchronously, so the correct replacement is still `assert.throws()`. In an async generator, though, `yield` awaits its operand, so a rejection there is caught asynchronously too.
 		const enclosingFunction = getEnclosingFunction(node);
 		const isAsyncGenerator = Boolean(enclosingFunction?.async && enclosingFunction.generator);
 		const isAsync = node.block.body.some(statement => containsSuspensionPoint(statement, visitorKeys, {includeYield: isAsyncGenerator}));

@@ -43,8 +43,7 @@ function canRewriteMethodCall({node, left, key, mockArguments, sourceCode}) {
 		// `super` names no value to pass, and `mock.method(super, …)` does not parse at all.
 		&& left.object.type !== 'Super'
 		&& (!left.computed || left.property.type !== 'SequenceExpression')
-		// A spread argument fills the rest of the rewritten argument list, so the implementation is no
-		// longer the third argument: `mock.method(o, 'm', ...args)` does not pass an implementation at all.
+		// A spread argument fills the rest of the rewritten argument list, so the implementation is no longer the third argument: `mock.method(o, 'm', ...args)` does not pass an implementation at all.
 		&& mockArguments.every(argument => argument.type !== 'SequenceExpression' && argument.type !== 'SpreadElement');
 }
 
@@ -78,8 +77,7 @@ const create = context => {
 			return false;
 		}
 
-		// The receiver is either a context parameter or a `getTestContext()` call, which is the same
-		// context.
+		// The receiver is either a context parameter or a `getTestContext()` call, which is the same context.
 		const object = unwrapExpression(node.object);
 		return (object.type === 'Identifier' && tracker.isContextIdentifier(object))
 			|| isGetTestContextCall(object, imports);
@@ -122,9 +120,7 @@ const create = context => {
 		const {left} = node;
 		const mockArguments = right.arguments;
 
-		// Resolve the property name to a `mock.method` second argument. That argument must be a
-		// string, so a computed key is only rewritten when it is statically one: a number, boolean,
-		// `null`, or symbol key would make the rewritten call throw.
+		// Resolve the property name to a `mock.method` second argument. That argument must be a string, so a computed key is only rewritten when it is statically one: a number, boolean, `null`, or symbol key would make the rewritten call throw.
 		let key;
 		if (!left.computed && left.property.type === 'Identifier') {
 			key = `'${left.property.name}'`;
@@ -132,10 +128,7 @@ const create = context => {
 			key = sourceCode.getText(left.property);
 		}
 
-		// `mock.method()` falls back to the ORIGINAL method when no implementation is passed, while
-		// `mock.fn()` returns `undefined`, so the rewrite only preserves behavior with an implementation.
-		// Passing `undefined` explicitly does not help: the default parameter still applies. An object
-		// literal is no implementation either: both `mock.fn()` and `mock.method()` read it as options.
+		// `mock.method()` falls back to the ORIGINAL method when no implementation is passed, while `mock.fn()` returns `undefined`, so the rewrite only preserves behavior with an implementation. Passing `undefined` explicitly does not help: the default parameter still applies. An object literal is no implementation either: both `mock.fn()` and `mock.method()` read it as options.
 		const hasImplementation = mockArguments.length === 1
 			&& !isUndefinedExpression(mockArguments[0])
 			&& unwrapExpression(mockArguments[0]).type !== 'ObjectExpression';

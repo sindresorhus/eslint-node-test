@@ -67,11 +67,7 @@ const create = context => {
 		// import (`strictEqual`) cannot be rewritten to `deepStrictEqual` without also importing it,
 		// so leave it reported but unfixed.
 		//
-		// Only autofix when neither argument is a primitive. With a primitive on one side and a fresh
-		// object or array literal on the other, `==` and loose deep equality diverge: `equal(0, [])`
-		// passes while `deepEqual(0, [])` fails. Fixing there would also fight
-		// `no-incorrect-deep-equal`, which rewrites the opposite direction, so the two fixers would
-		// not converge. Leave that case reported but unfixed.
+		// Only autofix when neither argument is a primitive. With a primitive on one side and a fresh object or array literal on the other, `==` and loose deep equality diverge: `equal(0, [])` passes while `deepEqual(0, [])` fails. Fixing there would also fight `no-incorrect-deep-equal`, which rewrites the opposite direction, so the two fixers would not converge. Leave that case reported but unfixed.
 		if (callee.type === 'MemberExpression' && !isPrimitiveOperand(actual, context) && !isPrimitiveOperand(expected, context)) {
 			problem.fix = fixer => fixer.replaceText(callee.property, replacement);
 		}

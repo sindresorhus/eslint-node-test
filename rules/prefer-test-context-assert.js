@@ -47,8 +47,7 @@ function isImportedAssertCallee(callee, imports) {
 		return true;
 	}
 
-	// The module is unwrapped too, so a cast or a non-null assertion on `assert` reads the same
-	// as the bare form, the way `isAssertStrictMember` in the shared helper already does.
+	// The module is unwrapped too, so a cast or a non-null assertion on `assert` reads the same as the bare form, the way `isAssertStrictMember` in the shared helper already does.
 	const moduleObject = object?.type === 'MemberExpression' ? unwrapTypeScriptExpression(object.object) : undefined;
 	return (
 		moduleObject?.type === 'Identifier'
@@ -85,8 +84,7 @@ const create = context => {
 	}
 
 	const tracker = createContextTracker(imports);
-	// A test that declares no context parameter can still reach its context through
-	// `getTestContext()`, so the file has to import that name.
+	// A test that declares no context parameter can still reach its context through `getTestContext()`, so the file has to import that name.
 	const {getTestContextName} = imports;
 	const getTestContextText = getTestContextName ? `${getTestContextName}()` : undefined;
 

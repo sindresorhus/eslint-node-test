@@ -78,8 +78,7 @@ const create = context => {
 	const isSubtestCall = node => {
 		const receiver = getSubtestReceiver(node);
 		if (receiver === undefined) {
-			// A `getTestContext().test(…)` subtest names the innermost frame's context, the same one
-			// the parent's `t` parameter would.
+			// A `getTestContext().test(…)` subtest names the innermost frame's context, the same one the parent's `t` parameter would.
 			return frames.length > 0 && isGetTestContextSubtestCall(node, imports);
 		}
 
@@ -102,8 +101,7 @@ const create = context => {
 				return;
 			}
 
-			// A test without a context parameter still has a context, reachable through
-			// `getTestContext()`, so the frame is pushed either way.
+			// A test without a context parameter still has a context, reachable through `getTestContext()`, so the frame is pushed either way.
 			const parameter = getFirstContextParameter(getTestCallback(node)?.params);
 			const hasPlanOption = hasEnabledPlanOption(node, context);
 			const frame = {
@@ -113,8 +111,7 @@ const create = context => {
 				hasPlan: hasPlanOption,
 				hasPlanOption,
 			};
-			// A test that declares no context parameter still has one, reachable through
-			// `getTestContext()`, so the frame stands in as its own key.
+			// A test that declares no context parameter still has one, reachable through `getTestContext()`, so the frame stands in as its own key.
 			frame.contextKey = frame.contextVariable ?? frame;
 			frames.push(frame);
 			return;
@@ -130,8 +127,7 @@ const create = context => {
 			return;
 		}
 
-		// A `getTestContext()` call names the innermost frame's context, whether or not that test
-		// declared a parameter for it.
+		// A `getTestContext()` call names the innermost frame's context, whether or not that test declared a parameter for it.
 		const contextKey = contextIdentifier
 			? getIdentifierVariable(sourceCode, contextIdentifier)
 			: frames.at(-1)?.contextKey;
@@ -146,8 +142,7 @@ const create = context => {
 			}
 
 			if (frame.hasPlan) {
-				// A test with no context parameter is named by the `getTestContext()` call as the file
-				// writes it, whether through a renamed import or a test binding (`test.getTestContext()`).
+				// A test with no context parameter is named by the `getTestContext()` call as the file writes it, whether through a renamed import or a test binding (`test.getTestContext()`).
 				return {
 					node,
 					messageId: frame.hasPlanOption ? MESSAGE_ID_PLAN_OPTION : MESSAGE_ID_DUPLICATE_CALL,

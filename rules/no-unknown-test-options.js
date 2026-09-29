@@ -37,8 +37,7 @@ const create = context => {
 		return;
 	}
 
-	// A subtest (`t.test(…)`) accepts the test options, and a context hook (`t.beforeEach(…)`) the
-	// hook options; both are method calls, so the tracker recognizes them alongside the imported forms.
+	// A subtest (`t.test(…)`) accepts the test options, and a context hook (`t.beforeEach(…)`) the hook options; both are method calls, so the tracker recognizes them alongside the imported forms.
 	const tracker = createContextTracker(imports, {trackHooks: true});
 
 	context.on('CallExpression', function * (node) {
@@ -64,8 +63,7 @@ const create = context => {
 				continue;
 			}
 
-			// A computed key is read when it folds to a constant (`['skipp']`). A number key is no option
-			// name, so there is nothing to check.
+			// A computed key is read when it folds to a constant (`['skipp']`). A number key is no option name, so there is nothing to check.
 			const name = getStaticPropertyName(property);
 			if (
 				name === undefined

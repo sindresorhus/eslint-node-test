@@ -91,8 +91,7 @@ test.snapshot({
 		`${ASSERT_IMPORT}\nvoid assert.rejects(fn);`,
 		`${ASSERT_IMPORT}\nasync function test() {\n\tvoid assert.rejects(fn);\n}`,
 		`${ASSERT_IMPORT}\nasync function test() {\n\tvoid assert.doesNotReject(fn);\n}`,
-		// A conditional, logical, or sequence expression that hands the assertion's value to a
-		// statement discards it, exactly as a bare statement does
+		// A conditional, logical, or sequence expression that hands the assertion's value to a statement discards it, exactly as a bare statement does
 		`${ASSERT_IMPORT}\nasync function test() {\n\tcondition ? assert.rejects(fn) : null;\n}`,
 		`${ASSERT_IMPORT}\nasync function test() {\n\tcondition && assert.rejects(fn);\n}`,
 		`${ASSERT_IMPORT}\nasync function test() {\n\t(0, assert.rejects(fn));\n}`,
@@ -152,12 +151,10 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 
-		// A class static block sits between the call and the async function, and `await` is a syntax
-		// error inside one, so the problem is reported but no fix is offered.
+		// A class static block sits between the call and the async function, and `await` is a syntax error inside one, so the problem is reported but no fix is offered.
 		`${ASSERT_IMPORT}\nasync function test() {\n\tclass C {\n\t\tstatic {\n\t\t\tassert.rejects(fn);\n\t\t}\n\t}\n}`,
 
-		// A type assertion on the call in a branch binds looser than `await` as it does on a bare
-		// statement, so no fix. A cast around the whole branch would name the type of the awaited value, so no fix there either.
+		// A type assertion on the call in a branch binds looser than `await` as it does on a bare statement, so no fix. A cast around the whole branch would name the type of the awaited value, so no fix there either.
 		{
 			code: `${ASSERT_IMPORT}\nasync function test() {\n\tx ? assert.rejects(fn) as Promise<void> : 0;\n}`,
 			languageOptions: {parser: parsers.typescript},

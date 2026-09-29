@@ -36,14 +36,11 @@ const create = context => {
 		return;
 	}
 
-	// Stack of scopes; each tracks the function it belongs to and whether a test/suite has appeared in
-	// it yet. The function keeps a hook inside an unrelated nested function from counting against a test
-	// that is not in its scope at all.
+	// Stack of scopes; each tracks the function it belongs to and whether a test/suite has appeared in it yet. The function keeps a hook inside an unrelated nested function from counting against a test that is not in its scope at all.
 	const scopeStack = [{seenTest: false, function: undefined}];
 	const pushedCalls = new Set();
 
-	// A subtest (`t.test(…)`) is a test, and a hook declared on a context (`t.beforeEach(…)`) is a
-	// hook; both are method calls, so the tracker recognizes them alongside the imported forms.
+	// A subtest (`t.test(…)`) is a test, and a hook declared on a context (`t.beforeEach(…)`) is a hook; both are method calls, so the tracker recognizes them alongside the imported forms.
 	const tracker = createContextTracker(imports, {trackHooks: true});
 
 	context.on('CallExpression', node => {
@@ -73,8 +70,7 @@ const create = context => {
 		}
 
 		if (isSubtest || parsed?.kind === 'test' || parsed?.kind === 'suite') {
-			// A test inside another function shares no scope with a hook in this one, exactly as a hook
-			// inside another function does not count against a test here. An array-iteration callback is the exception, see `isTestInScope`.
+			// A test inside another function shares no scope with a hook in this one, exactly as a hook inside another function does not count against a test here. An array-iteration callback is the exception, see `isTestInScope`.
 			if (isTestInScope(node, scope.function)) {
 				scope.seenTest = true;
 			}
@@ -89,9 +85,7 @@ const create = context => {
 		return problem;
 	});
 
-	// A callback the call names out of line (`describe('s', body)`) is entered where it is declared,
-	// which the call's own scope does not cover, so a hook after a test in it is still out of order.
-	// Only a test or suite body opens a scope, exactly as its inline spelling does: a hook body does not.
+	// A callback the call names out of line (`describe('s', body)`) is entered where it is declared, which the call's own scope does not cover, so a hook after a test in it is still out of order. Only a test or suite body opens a scope, exactly as its inline spelling does: a hook body does not.
 	const outOfLineCallbacks = new WeakSet();
 
 	context.on(functionTypes, node => {

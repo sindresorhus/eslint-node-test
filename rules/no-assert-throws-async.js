@@ -65,8 +65,7 @@ const create = context => {
 		if (callee.type === 'MemberExpression') {
 			// Prepend `await` only where it is both valid and needed: a bare call statement inside an
 			// async function. Otherwise just switch the method and let `no-unawaited-rejects` guide the await.
-			// An awaited call is never a bare statement, so it is already excluded, and a class static
-			// block between the call and that function is a syntax error either way.
+			// An awaited call is never a bare statement, so it is already excluded, and a class static block between the call and that function is a syntax error either way.
 			const enclosingFunction = getEnclosingFunction(node);
 			const shouldAwait = getFloatingStatement(node)?.canAwait === true
 				&& enclosingFunction?.async === true

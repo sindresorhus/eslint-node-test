@@ -15,8 +15,7 @@ const messages = {
 };
 
 function isBindCall(node) {
-	// A parenthesized optional chain puts the `ChainExpression` on the callee, so `(parse?.bind)(null)`
-	// is the same function-producing call as `parse?.bind(null)`.
+	// A parenthesized optional chain puts the `ChainExpression` on the callee, so `(parse?.bind)(null)` is the same function-producing call as `parse?.bind(null)`.
 	const callee = unwrapExpression(node.callee);
 
 	// `fn['bind'](null)` is the same function-producing call as `fn.bind(null)`.
@@ -36,7 +35,7 @@ const emptyAnalysis = () => ({runs: false, awaits: false, yields: false});
 /*
 What evaluating `node` does, outside any nested function (whose body is a separate evaluation):
 
-- `runs`: it does work before it yields its value — a call that is not producing the function to hand
+- `runs`: it does work before it yields its value: a call that is not producing the function to hand
   over, a `new`, or a tagged template. `assert.throws()` can only catch what happens after it starts,
   so any of these escapes the assertion entirely, whether the expression is the argument itself
   (`assert.throws(parse(input))`) or wraps it (`assert.throws(flag ? parse(a) : null)`).
@@ -147,17 +146,13 @@ const create = context => {
 			node: firstArgument,
 			messageId: MESSAGE_ID_ERROR,
 			data: {method: assertion.method},
-			// A `yield` cannot live in an arrow, so that form is reported without a suggestion.
-			// An `await` in the argument cannot go inside the arrow without making it `async`, and
-			// `assert.throws()` never calls an async function, so that shape is reported without a
-			// suggestion (`no-assert-throws-async` owns turning it into `assert.rejects()`).
+			// A `yield` cannot live in an arrow, so that form is reported without a suggestion. An `await` in the argument cannot go inside the arrow without making it `async`, and `assert.throws()` never calls an async function, so that shape is reported without a suggestion (`no-assert-throws-async` owns turning it into `assert.rejects()`).
 			suggest: awaits || yields || !isCall
 				? undefined
 				: [
 					{
 						messageId: MESSAGE_ID_SUGGESTION,
-						// The argument goes in parentheses: a `{` or `function` at the start of the
-						// arrow body would otherwise parse as a block or a declaration.
+						// The argument goes in parentheses: a `{` or `function` at the start of the arrow body would otherwise parse as a block or a declaration.
 						fix: fixer => fixer.replaceText(firstArgument, `() => (${sourceCode.getText(firstArgument)})`),
 					},
 				],

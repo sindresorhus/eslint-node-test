@@ -84,9 +84,7 @@ const create = context => {
 			return;
 		}
 
-		// The single-argument form has no matcher at all, and an explicit `undefined` or `null` is
-		// what `node:test`'s `assert` treats as no matcher: both match any thrown value. A spread
-		// could expand to a matcher, and any other expression may be one at runtime.
+		// The single-argument form has no matcher at all, and an explicit `undefined` or `null` is what `node:test`'s `assert` treats as no matcher: both match any thrown value. A spread could expand to a matcher, and any other expression may be one at runtime.
 		const [first] = node.arguments;
 		// A call with no arguments at all is an arity problem, which `assertion-arguments` reports.
 		if (!first || first.type === 'SpreadElement') {

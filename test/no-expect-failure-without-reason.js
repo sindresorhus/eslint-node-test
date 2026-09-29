@@ -79,8 +79,7 @@ test.snapshot({
 		},
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\', {expectFailure: true}, () => {}); });',
 
-		// `node:test` turns on an expected failure for any value that is not `undefined`, `false`, a
-		// string, a matcher, or an object, so these are all reasonless expected failures.
+		// `node:test` turns on an expected failure for any value that is not `undefined`, `false`, a string, a matcher, or an object, so these are all reasonless expected failures.
 		withTest('test(\'t\', {expectFailure: !0}, () => {});'),
 		withTest('test(\'t\', {expectFailure: 1}, () => {});'),
 		withTest('test(\'t\', {expectFailure: 0}, () => {});'),

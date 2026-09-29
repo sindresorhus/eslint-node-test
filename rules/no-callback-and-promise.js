@@ -22,8 +22,7 @@ const create = context => {
 		return;
 	}
 
-	// Subtests (`t.test(…)`) and context hooks (`t.beforeEach(…)`) are method calls, not imported
-	// bindings, but their async callback with a `done` parameter fails the same way.
+	// Subtests (`t.test(…)`) and context hooks (`t.beforeEach(…)`) are method calls, not imported bindings, but their async callback with a `done` parameter fails the same way.
 	const tracker = createContextTracker(imports, {trackHooks: true});
 
 	// A body named out of line can be passed to several calls, but it is one function, so it is reported once.
@@ -40,10 +39,7 @@ const create = context => {
 			return;
 		}
 
-		// A context hook (`t.beforeEach(…)`) takes only a callback, so a function in a later slot is
-		// dead code there too.
-		// A callback the call names out of line is still the callback the runner calls, so it is read as
-		// the function its binding reaches.
+		// A context hook (`t.beforeEach(…)`) takes only a callback, so a function in a later slot is dead code there too. A callback the call names out of line is still the callback the runner calls, so it is read as the function its binding reaches.
 		const callback = isContextHook ? resolveCallbackArgument(node.arguments[0], context) : getResolvedTestCallback(node, context, imports);
 		if (
 			!callback?.async
@@ -56,8 +52,7 @@ const create = context => {
 		reportedCallbacks.add(callback);
 
 		return {
-			// A TypeScript `this` parameter is erased before the code runs, so the callback parameter is
-			// the second emitted parameter, which is what `getEffectiveArity` counted.
+			// A TypeScript `this` parameter is erased before the code runs, so the callback parameter is the second emitted parameter, which is what `getEffectiveArity` counted.
 			node: getRuntimeParameter(callback.params, 1),
 			messageId: MESSAGE_ID,
 			data: {kind: parsed?.kind === 'hook' || isContextHook ? 'hook' : 'test'},

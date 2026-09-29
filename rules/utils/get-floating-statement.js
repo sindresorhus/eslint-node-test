@@ -40,20 +40,14 @@ Expression wrappers (optional chaining, TypeScript `as`/`satisfies`/`!`) are ski
 @returns {{statement: import('estree').ExpressionStatement, canAwait: boolean} | undefined}
 */
 export default function getFloatingStatement(node) {
-	// Expression wrappers (optional chaining, TypeScript `as`/`satisfies`/`!`) are skipped on the way
-	// out, so neither a cast on the call nor a cast on the statement can hide a floating call. The walk
-	// starts from the call's outermost wrapper, so a wrapped call in a conditional's test is compared
-	// as the test it is, and a caller that already passes that wrapper is read the same.
+	// Expression wrappers (optional chaining, TypeScript `as`/`satisfies`/`!`) are skipped on the way out, so neither a cast on the call nor a cast on the statement can hide a floating call. The walk starts from the call's outermost wrapper, so a wrapped call in a conditional's test is compared as the test it is, and a caller that already passes that wrapper is read the same.
 	let container = outermostExpressionWrapper(node);
 	let parent = skipExpressionWrappers(container.parent);
-	// Walk out of the `void`, conditional, logical, and sequence expressions that discard or pass on
-	// this call's value, to the statement that discards it. A step that does not pass the value on
-	// still leaves the call discarded, but one that cannot take an `await` in front of it.
+	// Walk out of the `void`, conditional, logical, and sequence expressions that discard or pass on this call's value, to the statement that discards it. A step that does not pass the value on still leaves the call discarded, but one that cannot take an `await` in front of it.
 	let canAwait = true;
 
 	while (true) {
-		// A `void` discards the value, so whatever the enclosing expression takes is still discarded.
-		// It cannot take an `await`, which would be left as a pointless `void await …`.
+		// A `void` discards the value, so whatever the enclosing expression takes is still discarded. It cannot take an `await`, which would be left as a pointless `void await …`.
 		if (parent?.type === 'UnaryExpression' && parent.operator === 'void') {
 			canAwait = false;
 			container = parent;

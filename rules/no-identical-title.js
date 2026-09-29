@@ -36,8 +36,7 @@ const create = context => {
 	*/
 	const scopeCallbackNodes = new WeakSet();
 
-	// A subtest (`t.test(…)`) is a test with a title and its own scope for its children, exactly like
-	// an imported test, so it is tracked through the context tracker.
+	// A subtest (`t.test(…)`) is a test with a title and its own scope for its children, exactly like an imported test, so it is tracked through the context tracker.
 	const tracker = createContextTracker(imports);
 
 	context.on('CallExpression', node => {
@@ -63,8 +62,7 @@ const create = context => {
 		}
 
 		const titleValue = getStaticString(titleNode, context);
-		// An empty title is not the name the runner uses: `node:test` falls back to the callback's
-		// function name, so two empty titles are usually two different names.
+		// An empty title is not the name the runner uses: `node:test` falls back to the callback's function name, so two empty titles are usually two different names.
 		if (titleValue === undefined || titleValue === '') {
 			return;
 		}
@@ -80,8 +78,7 @@ const create = context => {
 		currentScope.add(titleValue);
 	});
 
-	// Push/pop a scope around each suite or test callback body, including one the call names out of
-	// line (`test('a', body)`), which the traversal reaches wherever it is declared.
+	// Push/pop a scope around each suite or test callback body, including one the call names out of line (`test('a', body)`), which the traversal reaches wherever it is declared.
 
 	const opensScope = node => scopeCallbackNodes.has(node) || isOutOfLineCallback(node, context, imports);
 

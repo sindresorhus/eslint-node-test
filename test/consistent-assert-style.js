@@ -75,8 +75,7 @@ test.snapshot({
 		withAssert('assert.strict?.(value);'),
 		withAssert('(assert).strict(value);'),
 
-		// The fix would delete the range between `assert.strict` and `ok`, and a parenthesis around
-		// the strict view sits inside it
+		// The fix would delete the range between `assert.strict` and `ok`, and a parenthesis around the strict view sits inside it
 		withAssert('(assert.strict).ok(value);'),
 		withAssert('((assert.strict)).ok(value);'),
 		withAssert('(  assert.strict  ).ok(value);'),
@@ -150,8 +149,7 @@ test.snapshot({
 			code: withAssert('assert.strict.ok(value);'),
 			options: [assertStyle],
 		},
-		// `assert.strict` on a local that is already the strict function is the same callable assert,
-		// and `assert.strict === assert` there, so the fix stays a truthiness assertion
+		// `assert.strict` on a local that is already the strict function is the same callable assert, and `assert.strict === assert` there, so the fix stays a truthiness assertion
 		'import {strict as assert} from \'node:assert\';\nassert.strict(value);',
 	],
 });

@@ -83,8 +83,7 @@ test.snapshot({
 		'import test from \'node:test\';\ntest(\'t\', () => { const db = makeDb(); db.assert.ok(/re/.test(s)); });',
 	],
 	invalid: [
-		// The inner `str`/`regex` are re-emitted with `getText`, which drops the parentheses around
-		// a sequence expression, so the problem is reported but the fix is withheld.
+		// The inner `str`/`regex` are re-emitted with `getText`, which drops the parentheses around a sequence expression, so the problem is reported but the fix is withheld.
 		`${ASSERT_IMPORT}\nassert.ok(/^foo/.test((a, b)));`,
 		`${ASSERT_IMPORT}\nassert.ok((a, b).match(/^foo/));`,
 
@@ -136,8 +135,7 @@ test.snapshot({
 		// Named import: the callee is an identifier, so the assertion method cannot be renamed
 		`${NAMED_IMPORT}\nstrictEqual(/\\d+/.test('foo'), true);`,
 
-		// A negation around a parenthesized call: the rewrite replaces the whole argument, so the
-		// inner parentheses go with it
+		// A negation around a parenthesized call: the rewrite replaces the whole argument, so the inner parentheses go with it
 		`${ASSERT_IMPORT}\nassert.ok(!(/\\d+/.test('foo')));`,
 
 		// A message argument stays in place after the rewrite
@@ -180,12 +178,10 @@ test.snapshot({
 		// Parenthesized boolean argument — reported but not autofixed (parens would be left behind)
 		String.raw`${ASSERT_IMPORT}
 assert.strictEqual(/\d+/.test('foo'), (true));`,
-		// A statically non-string subject is reported but not fixed: `re.test(x)` coerces `x`,
-		// while `assert.match(x, re)` throws unless `x` is already a string primitive.
+		// A statically non-string subject is reported but not fixed: `re.test(x)` coerces `x`, while `assert.match(x, re)` throws unless `x` is already a string primitive.
 		ASSERT_IMPORT + '\nassert.ok(/5/.test(5));',
 		ASSERT_IMPORT + '\nassert.ok(/a/.test(["a"]));',
-		// A statically non-string subject (`undefined`, `NaN`, a unary expression, a function) is
-		// reported but not fixed: `re.test(x)` coerces `x`, but `assert.match(x, re)` throws.
+		// A statically non-string subject (`undefined`, `NaN`, a unary expression, a function) is reported but not fixed: `re.test(x)` coerces `x`, but `assert.match(x, re)` throws.
 		ASSERT_IMPORT + '\nassert.ok(/d/.test(undefined));',
 		ASSERT_IMPORT + '\nassert.ok(/d/.test(NaN));',
 		ASSERT_IMPORT + '\nassert.ok(/d/.test(-0));',
@@ -201,8 +197,7 @@ assert.strictEqual(/\d+/.test('foo'), (true));`,
 		ASSERT_IMPORT + '\nassert.ok(/a/.test(value = other));',
 		// A logical assignment may evaluate to the old value instead, so it is not fixed
 		ASSERT_IMPORT + '\nassert.ok(/a/.test(value ||= \'abc\'));',
-		// An optional chain makes the call return `undefined` for a nullish receiver, so the truthiness
-		// form is a nullish check rather than a match, and the rewrite would change it
+		// An optional chain makes the call return `undefined` for a nullish receiver, so the truthiness form is a nullish check rather than a match, and the rewrite would change it
 		ASSERT_IMPORT + '\nassert.ok(str?.match(/a/));',
 		ASSERT_IMPORT + '\nassert.ok(/a/.test?.(str));',
 		ASSERT_IMPORT + '\nassert.ok(obj?.deep.match(/a/));',

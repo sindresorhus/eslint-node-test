@@ -53,8 +53,7 @@ test.snapshot({
 		// A callback that is only referenced cannot be read
 		withImport('test("title", callback);'),
 
-		// A hook whose first argument is not a function never runs, so a function in a later slot is
-		// dead code, and the runner never reads `options.fn` for a hook either
+		// A hook whose first argument is not a function never runs, so a function in a later slot is dead code, and the runner never reads `options.fn` for a hook either
 		withHookImport('beforeEach({}, () => { return p.then(x => x); });'),
 		withHookImport('beforeEach({fn() { return p.then(x => x); }});'),
 		withHookImport('test.beforeEach({}, () => { return p.then(x => x); });'),
@@ -63,8 +62,7 @@ test.snapshot({
 		withImport('test(\'title\', t => { t.beforeEach({fn() { return p.then(x => x); }}); });'),
 	],
 	invalid: [
-		// A variable reassigned from a chain holds it just as a declaration does
-		// The declarator that binds the promise alongside a destructuring one still counts
+		// A variable reassigned from a chain holds it just as a declaration does The declarator that binds the promise alongside a destructuring one still counts
 		withImport('test("title", t => { const {a} = {a: 1}, bar = foo().then(fn); return bar; });'),
 
 		withImport('test("title", t => { let bar; bar = foo().then(fn); return bar; });'),

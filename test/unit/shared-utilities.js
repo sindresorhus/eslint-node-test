@@ -124,8 +124,7 @@ test('removeArgument removes the only argument and a dangling trailing comma', (
 });
 
 test('removeArgument removes the whole argument including any expression wrapper', () => {
-	// The call holds the wrapper, not the inner node, so the range has to cover it or the
-	// leftover `as unknown` would stay behind as a dangling argument.
+	// The call holds the wrapper, not the inner node, so the range has to cover it or the leftover `as unknown` would stay behind as a dangling argument.
 	const asTypeScript = {parser: typescriptParser};
 	for (const [code, index, expected] of [
 		['fn(a as unknown);', 0, 'fn();'],
@@ -370,8 +369,7 @@ test('getResolvedTestCallback reads the callback from the slot node:test reads',
 });
 
 test('removeArgument offers no fix when a comment would go with the argument', () => {
-	// The range spans the whole gap around the argument, up to the next argument's first token, and
-	// what it leaves on either side becomes the neighbouring argument's gap.
+	// The range spans the whole gap around the argument, up to the next argument's first token, and what it leaves on either side becomes the neighbouring argument's gap.
 	for (const [code, index] of [
 		['fn(a /* keep */, b);', 0],
 		['fn((/* keep */ a), b);', 0],

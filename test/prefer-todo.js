@@ -12,8 +12,7 @@ test.snapshot({
 		'import test from \'node:test\';\ntest({name: \'t\', timeout: 1, fn() {}});',
 		'import test from \'node:test\';\ntest(\'t\', {fn: other});',
 
-		// A descriptor names its implementation whether the `fn` is inline or a bare binding, and
-		// `node:test` runs the binding, so the test is not a placeholder.
+		// A descriptor names its implementation whether the `fn` is inline or a bare binding, and `node:test` runs the binding, so the test is not a placeholder.
 		'import test from \'node:test\';\nfunction body() {}\ntest({name: \'t\', fn: body});',
 		'import test from \'node:test\';\nconst body = () => {};\ntest({fn: body});',
 		'import test from \'node:test\';\ntest(\'t\', {});',
@@ -84,8 +83,7 @@ test.snapshot({
 			code: 'import test from "node:test";\ntest("t", (() => {}) as unknown);',
 			languageOptions: {parser: parsers.typescript},
 		},
-		// A comment in the argument gap or the body would be removed with the callback,
-		// so the test is reported but no fix is offered
+		// A comment in the argument gap or the body would be removed with the callback, so the test is reported but no fix is offered
 		'import test from \'node:test\';\ntest(\'placeholder\', /* keep me */ () => {});',
 		'import test from \'node:test\';\ntest(\'placeholder\',/* keep me */ () => {});',
 		'import test from \'node:test\';\ntest(\'placeholder\', () => { /* keep me */ });',
@@ -121,24 +119,20 @@ test.snapshot({
 		// A comment in the gap after the callback would be left behind describing the title
 		'import test from \'node:test\';\ntest(\'placeholder\', () => {} /* keep me */);',
 		'import test from \'node:test\';\ntest(\'placeholder\', () => {\n} /* keep me */);',
-		// A subtest is a test too, and `t.test` has no `.todo` method, so its TODO form is the
-		// `todo` option on the subtest call
+		// A subtest is a test too, and `t.test` has no `.todo` method, so its TODO form is the `todo` option on the subtest call
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\', () => {}); });',
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\'); });',
 		'import {test, getTestContext} from \'node:test\';\ntest(\'p\', async () => { await getTestContext().test(\'a\', () => {}); });',
-		// An `fn` in the options object is not a positional argument, so there is nowhere to put the
-		// option: reported without a suggestion
+		// An `fn` in the options object is not a positional argument, so there is nowhere to put the option: reported without a suggestion
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\', {fn() {}}); });',
-		// An options object or descriptor already holds the options slot, so `{todo: true}` would land
-		// in the callback slot, which `node:test` never reads as options: reported without a suggestion
+		// An options object or descriptor already holds the options slot, so `{todo: true}` would land in the callback slot, which `node:test` never reads as options: reported without a suggestion
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test({name: \'a\'}, () => {}); });',
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\', {name: \'x\'}, () => {}); });',
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\', {}, () => {}); });',
 		// An argument after the callback would move into the callback slot and run as the body
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\', () => {}, extra); });',
 
-		// A hook callback is handed the context of the test it runs for, so an empty subtest created
-		// there is the same placeholder
+		// A hook callback is handed the context of the test it runs for, so an empty subtest created there is the same placeholder
 		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { t.test(\'c\', () => {}); });',
 		'import {getTestContext, beforeEach} from \'node:test\';\nbeforeEach(t => { getTestContext().test(\'c\', () => {}); });',
 		'// A comment before the separating comma leaves no safe fix, but must not break the run\nimport test from \'node:test\';\ntest(\'placeholder\' /* keep me */, () => {});',

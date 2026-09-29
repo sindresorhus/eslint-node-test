@@ -45,8 +45,7 @@ const create = context => {
 	const tracker = createContextTracker(imports, {trackHooks: true});
 	const outOfLineCallbacks = new WeakSet();
 
-	// A callback the call names out of line is entered where it is declared, which the call's own frame
-	// does not cover, so an assertion in it was checked against no scope at all.
+	// A callback the call names out of line is entered where it is declared, which the call's own frame does not cover, so an assertion in it was checked against no scope at all.
 
 	context.on(functionTypes, node => {
 		const call = getOutOfLineCallbackCall(node, context, imports);

@@ -32,8 +32,7 @@ test.snapshot({
 
 		// No plan — imported assert is fine
 		withTest('test(\'t\', t => { assert.ok(1); });'),
-		// A `plan` option that is not a usable count declares no plan. `plan: 0` runs the body and
-		// passes, a negative or non-numeric count never completes, and a dynamic one cannot be read.
+		// A `plan` option that is not a usable count declares no plan. `plan: 0` runs the body and passes, a negative or non-numeric count never completes, and a dynamic one cannot be read.
 		withTest('test(\'t\', {plan: 0}, t => { assert.ok(1); });'),
 		withTest('test(\'t\', {plan: -1}, t => { assert.ok(1); });'),
 		withTest('test(\'t\', {plan: \'nope\'}, t => { assert.ok(1); });'),
@@ -71,8 +70,7 @@ test.snapshot({
 		withTest('test(\'a\', t => { t.plan(0); assert.ok(1); });'),
 		withTest('test(\'a\', t => { t.plan(-1); assert.ok(1); });'),
 
-		// A statically skipped test, subtest, or suite never runs its callback, so there is no plan
-		// to mismatch and nothing to convert.
+		// A statically skipped test, subtest, or suite never runs its callback, so there is no plan to mismatch and nothing to convert.
 		withTest('test.skip(\'a\', t => { t.plan(1); assert.ok(1); });'),
 		withTest('test(\'a\', {skip: true}, t => { t.plan(1); assert.ok(1); });'),
 		withTest('test(\'a\', async t => { await t.test(\'b\', {skip: true}, s => { s.plan(1); assert.ok(1); }); });'),
@@ -105,8 +103,7 @@ test.snapshot({
 		+ '\tt.test(\'sub\', () => {});\n'
 		+ '});',
 
-		// A hook's `t` is the context of the test it runs for, and a plan set in one carries into that
-		// test, so an imported assertion there is just as uncounted.
+		// A hook's `t` is the context of the test it runs for, and a plan set in one carries into that test, so an imported assertion there is just as uncounted.
 		'import {beforeEach} from \'node:test\';\nimport assert from \'node:assert\';\nbeforeEach(t => {\n\tt.plan(1);\n\tassert.ok(1);\n});\n\ntest(\'x\', () => {});',
 
 		// Plan + imported namespace assert
@@ -140,8 +137,7 @@ test.snapshot({
 		// A `todo` test still runs its body, so an imported assert inside one does not count
 		'import {todo, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\ntodo(\'a\', () => { getTestContext().plan(1); assert.ok(1); });',
 
-		// A `plan` option is the same plan, and a test with no context parameter reaches its context
-		// through `getTestContext()` just as a `plan()` call does
+		// A `plan` option is the same plan, and a test with no context parameter reaches its context through `getTestContext()` just as a `plan()` call does
 		'import {test, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'a\', {plan: 1}, () => { assert.ok(1); });',
 		'import {test, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'a\', {plan: 1}, t => { assert.ok(1); });',
 		'import {test, getTestContext as gtc} from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'a\', {plan: 1}, () => { assert.ok(1); });',
@@ -154,8 +150,7 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 
-		// A `plan` option is the same plan as `t.plan(n)`, so the imported assertions are the ones
-		// that do not count toward it
+		// A `plan` option is the same plan as `t.plan(n)`, so the imported assertions are the ones that do not count toward it
 		withTest('test(\'t\', {plan: 1}, t => { assert.ok(1); });'),
 
 		// A defaulted context parameter is still the context the plan belongs to
@@ -165,8 +160,7 @@ test.snapshot({
 		// `.only` does not change what a plan counts
 		withTest('test.only(\'t\', t => { t.plan(1); assert.ok(1); });'),
 
-		// A plan reached through `test.getTestContext()` is named through the test binding, since the
-		// file never imported the function itself
+		// A plan reached through `test.getTestContext()` is named through the test binding, since the file never imported the function itself
 		withTest('test(\'t\', t => { test.getTestContext().plan(1); assert.ok(1); });'),
 
 		// The other assert module specifiers are the same imported assertions

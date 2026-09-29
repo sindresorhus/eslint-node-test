@@ -185,9 +185,7 @@ const create = context => {
 			return;
 		}
 
-		// A computed key that folds to a constant names the same property a bare one does, so `{['tags']: []}`
-		// is the `{tags: []}` the runner reads, and a bad tag in it still throws at registration. A getter's
-		// value is the accessor, not the tags.
+		// A computed key that folds to a constant names the same property a bare one does, so `{['tags']: []}` is the `{tags: []}` the runner reads, and a bad tag in it still throws at registration. A getter's value is the accessor, not the tags.
 		const tagsProperty = findOptionsProperty(getTestOptions(node), 'tags');
 		if (tagsProperty?.kind !== 'init') {
 			return;

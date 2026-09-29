@@ -43,8 +43,7 @@ test.snapshot({
 		// A subtest on an unrelated context is not this test's subtest, so the option is still unused
 		withTest('test(\'t\', {concurrency: true}, async (t) => { await t.test(\'a\', s => { s.test(\'b\', () => {}); }); });'),
 
-		// The option is only read from an options object literal, so an options object in a variable is
-		// out of reach
+		// The option is only read from an options object literal, so an options object in a variable is out of reach
 		withTest('const options = {concurrency: true};\ntest(\'t\', options, () => {});'),
 		withTest('test(\'t\', {...options}, () => {});'),
 
@@ -101,15 +100,13 @@ test.snapshot({
 		// A test inside a suite is still a test
 		'import {describe, test} from \'node:test\';\ndescribe(\'s\', () => { test(\'t\', {concurrency: true}, () => {}); });',
 
-		// A TypeScript `this` parameter is erased at compile time, so `t` is the context and `t.todo`
-		// renames this test rather than registering a subtest
+		// A TypeScript `this` parameter is erased at compile time, so `t` is the context and `t.todo` renames this test rather than registering a subtest
 		{
 			code: withTest('test(\'a\', {concurrency: true}, (this: void, t) => { t.todo(\'b\'); });'),
 			languageOptions: {parser: parsers.typescript},
 		},
 
-		// Limitation: an imported `test()` in a test body runs as a subtest, which `concurrency` does
-		// govern, but only a `t.test()` subtest is counted
+		// Limitation: an imported `test()` in a test body runs as a subtest, which `concurrency` does govern, but only a `t.test()` subtest is counted
 		'import test from \'node:test\';\ntest(\'t\', {concurrency: true}, async () => { await test(\'a\', () => {}); });',
 		// A subtest registered in a hook is a real test, and a leaf one
 		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { t.test(\'a\', {concurrency: true}, () => {}); });',

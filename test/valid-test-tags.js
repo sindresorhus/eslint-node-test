@@ -55,8 +55,7 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 
-		// `node:test` rejects six whitespace code points, not every Unicode space: a non-breaking
-		// space and the other Unicode spaces are accepted.
+		// `node:test` rejects six whitespace code points, not every Unicode space: a non-breaking space and the other Unicode spaces are accepted.
 		'import {test} from \'node:test\';\ntest(\'title\', {tags: [\'a\\u00a0b\']}, () => {});',
 		'import {test} from \'node:test\';\ntest(\'title\', {tags: [\'a\\u2028b\']}, () => {});',
 		'import {test} from \'node:test\';\ntest(\'title\', {tags: [\'a\\u3000b\']}, () => {});',
@@ -123,8 +122,7 @@ test.snapshot({
 		// A tag with whitespace or a tag-filter operator character makes `test()` throw
 		withImport('test("title", {tags: [\'a b\']}, () => {});'),
 		withImport(String.raw`test("title", {tags: ['a\tb']}, () => {});`),
-		// The other whitespace code points `node:test` rejects, which `\s` would also have caught. A
-		// carriage return is left out on purpose: it cannot survive the snapshot file round trip.
+		// The other whitespace code points `node:test` rejects, which `\s` would also have caught. A carriage return is left out on purpose: it cannot survive the snapshot file round trip.
 		withImport(String.raw`test("title", {tags: ['a\nb']}, () => {});`),
 		withImport(String.raw`test("title", {tags: ['a\vb']}, () => {});`),
 		withImport(String.raw`test("title", {tags: ['a\fb']}, () => {});`),
@@ -149,8 +147,7 @@ test.snapshot({
 		withImport('test("title", {tags: [\'AND\']}, () => {});'),
 		withImport('test("title", {tags: [\'OR\']}, () => {});'),
 		withImport('test("title", {tags: [\'Not\']}, () => {});'),
-		// A reserved word is reported as itself twice over, never as a lowercase-and-duplicate pair:
-		// the reserved check comes first and returns, so it never reaches the tag list
+		// A reserved word is reported as itself twice over, never as a lowercase-and-duplicate pair: the reserved check comes first and returns, so it never reaches the tag list
 		withImport('test("title", {tags: [\'not\', \'not\']}, () => {});'),
 		// The same for an empty tag, which is reported on the node itself and never collected
 		withImport('test("title", {tags: ["", ""]}, () => {});'),

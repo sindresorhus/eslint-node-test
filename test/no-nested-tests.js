@@ -27,8 +27,7 @@ test.snapshot({
 		// A subtest is created through the context, not by a nested `test()` call.
 		'import test from "node:test";\ntest("a", async t => {\n  await t.test("b", () => {});\n});',
 
-		// A suite or a hook body named out of line holds tests and suites, exactly as its inline
-		// spelling does
+		// A suite or a hook body named out of line holds tests and suites, exactly as its inline spelling does
 		'import {describe, test} from "node:test";\ndescribe("group", body);\nfunction body() {\n  test("inner", () => {});\n}',
 		'import {describe, test} from "node:test";\ndescribe("group", body);\nfunction body() {\n  describe("nested", () => {});\n}',
 		'import {beforeEach, test} from "node:test";\nbeforeEach(body);\nfunction body() {\n  test("inner", () => {});\n}',

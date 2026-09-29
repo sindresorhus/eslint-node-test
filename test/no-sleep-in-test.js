@@ -80,8 +80,7 @@ test.snapshot({
 		withTest('await new Promise(sleep);'),
 		// The object form puts the options first, and `skip` reads the same there
 		'import test from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\ntest({name: \'waits\', skip: true, fn: async () => {\n\tawait delay(500);\n}});',
-		// `skip` marks the test skipped on anything that is neither `undefined` nor `false`, but only a truthy one stops the body, so `{skip: 0}` is in `invalid`
-		// A hook takes its callback first, so the runner never runs an options `fn`
+		// `skip` marks the test skipped on anything that is neither `undefined` nor `false`, but only a truthy one stops the body, so `{skip: 0}` is in `invalid` A hook takes its callback first, so the runner never runs an options `fn`
 		'import {beforeEach} from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\nbeforeEach({fn: async () => {\n\tawait delay(1);\n}});',
 		'// A skipped test never runs its body, out of line exactly as inline\n'
 		+ 'import {test} from \'node:test\';\n'

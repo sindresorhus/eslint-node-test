@@ -18,10 +18,7 @@ function getEnabledAccessor(options) {
 
 	for (let index = options.properties.length - 1; index >= 0; index -= 1) {
 		const property = options.properties[index];
-		// A spread, or a computed key that does not fold to a constant, can name an accessor this scan
-		// never saw, or override one it did, so the effective options stay unreadable. A key that does
-		// fold names the same property a bare one does, which real `mock.method()` also reads, so
-		// `{['getter']: true}` is the `{getter: true}` this rule reports.
+		// A spread, or a computed key that does not fold to a constant, can name an accessor this scan never saw, or override one it did, so the effective options stay unreadable. A key that does fold names the same property a bare one does, which real `mock.method()` also reads, so `{['getter']: true}` is the `{getter: true}` this rule reports.
 		if (
 			property.type === 'SpreadElement'
 			|| (property.computed && getStaticPropertyName(property) === undefined)
@@ -100,8 +97,7 @@ const create = context => {
 			return false;
 		}
 
-		// The receiver is either a context parameter or a `getTestContext()` call, which is the same
-		// context.
+		// The receiver is either a context parameter or a `getTestContext()` call, which is the same context.
 		const object = unwrapExpression(node.object);
 		return (object.type === 'Identifier' && tracker.isContextIdentifier(object))
 			|| isGetTestContextCall(object, imports);

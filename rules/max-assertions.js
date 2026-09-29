@@ -58,9 +58,7 @@ const create = context => {
 		}
 	});
 
-	// A test body the call names out of line is entered where it is declared, which the call's own frame
-	// does not cover, so the assertions in it would count toward nothing. The frame is keyed on the
-	// function instead, and the report lands on it.
+	// A test body the call names out of line is entered where it is declared, which the call's own frame does not cover, so the assertions in it would count toward nothing. The frame is keyed on the function instead, and the report lands on it.
 	const outOfLineFrames = new WeakSet();
 
 	context.on(functionTypes, node => {

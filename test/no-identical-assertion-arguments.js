@@ -6,8 +6,7 @@ const withImport = code => `import assert from 'node:assert';\n${code}`;
 
 test.snapshot({
 	valid: [
-		// `a.b` throws when `a` is nullish while `a?.b` yields `undefined`, so the two do not
-		// reference the same value
+		// `a.b` throws when `a` is nullish while `a?.b` yields `undefined`, so the two do not reference the same value
 		withImport('assert.equal(a.b, a?.b);'),
 		withImport('assert.equal(a?.b, a.b);'),
 		withImport('assert.equal(a.b.c, a?.b.c);'),
@@ -35,8 +34,7 @@ test.snapshot({
 
 		// `.assert.*` on a non-context object — not a test context
 		'import test from \'node:test\';\ntest(\'t\', () => { const db = makeDb(); db.assert.equal(x, x); });',
-		// Two separate `RegExp` literals are distinct objects, so a reference comparison of them
-		// is not the 'always passes / always fails' case the rule reports.
+		// Two separate `RegExp` literals are distinct objects, so a reference comparison of them is not the 'always passes / always fails' case the rule reports.
 		withImport('assert.strictEqual(/a/, /a/);'),
 		withImport('assert.equal(/a/, /a/);'),
 		withImport('assert.notStrictEqual(/a/, /a/);'),

@@ -32,9 +32,7 @@ const create = context => {
 			if (isGlobalMock(member.object, imports) && !member.computed && member.property.type === 'Identifier') {
 				const accessor = member.property.name;
 				if (STATEFUL_ACCESSORS.has(accessor)) {
-					// `mock.timers` is only state-creating through `enable`; `reset` restores and
-					// `tick`/`runAll` create no state. `t.mock` is a different tracker, so switching
-					// those to it would be wrong (and throws for a never-enabled context tracker).
+					// `mock.timers` is only state-creating through `enable`; `reset` restores and `tick`/`runAll` create no state. `t.mock` is a different tracker, so switching those to it would be wrong (and throws for a never-enabled context tracker).
 					if (accessor === 'timers' && calledMethod !== 'enable') {
 						return;
 					}

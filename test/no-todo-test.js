@@ -6,8 +6,7 @@ test.snapshot({
 	valid: [
 		'test.todo("title");',
 		'import test from "node:test";\ntest("title", () => {});',
-		// A trailing object is not the options slot: `node:test` reads options before the
-		// callback and ignores a trailing object, so the test is not actually modified.
+		// A trailing object is not the options slot: `node:test` reads options before the callback and ignores a trailing object, so the test is not actually modified.
 		'import test from "node:test";\ntest("title", () => {}, {todo: "wip"});',
 		'import test from "node:test";\ntest("title", {todo: false}, () => {});',
 		// Only `false` and `undefined` leave the option off.

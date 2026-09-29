@@ -47,8 +47,7 @@ function isArgumentToConsumedPromiseAll(node) {
 		&& parent.callee.object.type === 'Identifier'
 		&& parent.callee.object.name === 'Promise'
 		&& parent.arguments.includes(node)
-		// The `Promise.all(…)` itself must be consumed (awaited, returned, or assigned), not discarded,
-		// otherwise the parent test still finishes before the subtests settle.
+		// The `Promise.all(…)` itself must be consumed (awaited, returned, or assigned), not discarded, otherwise the parent test still finishes before the subtests settle.
 		&& !getFloatingStatement(parent);
 }
 
@@ -64,25 +63,21 @@ copies it on the way, as in `await Promise.all([...promises])`, is reported even
 subtests do settle; the rule documentation says so.
 */
 function isAwaitedViaPromiseAll(iterationCall, sourceCode) {
-	// A cast around the array (`xs.map(…) as Promise<void>[]`) is what `Promise.all()` actually
-	// receives as its argument, so compare against the outermost wrapper.
+	// A cast around the array (`xs.map(…) as Promise<void>[]`) is what `Promise.all()` actually receives as its argument, so compare against the outermost wrapper.
 	const argument = outermostExpressionWrapper(iterationCall);
 	if (isArgumentToConsumedPromiseAll(argument)) {
 		return true;
 	}
 
-	// Two-step form: the array is bound to a variable that is later passed to a consumed
-	// `Promise.all(…)`.
+	// Two-step form: the array is bound to a variable that is later passed to a consumed `Promise.all(…)`.
 	const {parent} = argument;
 	if (parent?.type !== 'VariableDeclarator' || parent.init !== argument || parent.id.type !== 'Identifier') {
 		return false;
 	}
 
-	// Resolve the name from its declaration, not from the subtest call, where a callback parameter of
-	// the same name (`xs.map(promises => t.test(promises))`) would hide it.
+	// Resolve the name from its declaration, not from the subtest call, where a callback parameter of the same name (`xs.map(promises => t.test(promises))`) would hide it.
 	const [variable] = sourceCode.getDeclaredVariables(parent);
-	// A cast on the reference (`Promise.all(promises!)`) is what `Promise.all()` receives, so compare
-	// against the outermost wrapper, as the inline form does.
+	// A cast on the reference (`Promise.all(promises!)`) is what `Promise.all()` receives, so compare against the outermost wrapper, as the inline form does.
 	return variable.references.some(reference => isArgumentToConsumedPromiseAll(outermostExpressionWrapper(reference.identifier)));
 }
 

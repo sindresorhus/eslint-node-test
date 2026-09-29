@@ -11,8 +11,7 @@ const withTest = code => `import test from 'node:test';\n${code}`;
 
 test.snapshot({
 	valid: [
-		// `fn['bind'](null)` and `fn[`bind`](null)` produce the function to hand over, just as
-		// `fn.bind(null)` does
+		// `fn['bind'](null)` and `fn[`bind`](null)` produce the function to hand over, just as `fn.bind(null)` does
 		withAssert('assert.throws(fn[\'bind\'](null));'),
 		withAssert('assert.throws(fn[`bind`](null));'),
 		withAssert('assert.throws(fn[\'bi\' + \'nd\'](null));'),
@@ -37,9 +36,7 @@ test.snapshot({
 		withAssert('assert.throws(fn.bind(undefined, input));'),
 		withAssert('assert.throws(Function(\'throw new Error()\'));'),
 		withAssert('assert.throws(new Function(\'throw new Error()\'));'),
-		// The function-producing form is not looked inside: its receiver and arguments are the setup
-		// that builds the function, and wrapping it in an arrow would return the function rather than
-		// call it
+		// The function-producing form is not looked inside: its receiver and arguments are the setup that builds the function, and wrapping it in an arrow would return the function rather than call it
 		withAssert('assert.throws(parse.bind(null, readFixture(\'x\')), SyntaxError);'),
 		withAssert('assert.throws(getFn().bind(null));'),
 		withAssert('assert.throws(new Function(getCode()));'),
@@ -49,8 +46,7 @@ test.snapshot({
 		withAssert('assert.throws(flag ? callback : other);'),
 		withAssert('assert.throws(object.method);'),
 		withAssert('assert.throws(object[key]);'),
-		// A parenthesized optional chain wraps the callee in a `ChainExpression`, which must not hide
-		// the same `.bind` call
+		// A parenthesized optional chain wraps the callee in a `ChainExpression`, which must not hide the same `.bind` call
 		withAssert('assert.throws((parse?.bind)(null), SyntaxError);'),
 		withAssert('assert.throws((fn.bind)(undefined, input));'),
 
@@ -60,8 +56,7 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 
-		// A nested function body is a separate evaluation, so an `await` inside one is not the
-		// argument's own work
+		// A nested function body is a separate evaluation, so an `await` inside one is not the argument's own work
 		withAssert('assert.throws(async () => { await parse(input); });'),
 		// An `await` with no call in it runs nothing either
 		withAssert('async function run() {\n\tassert.throws(await maybeCallback);\n}'),
@@ -73,21 +68,18 @@ test.snapshot({
 		withAssert('const custom = {assert: {throws() {}}};\ncustom.assert.throws(parse(input));'),
 	],
 	invalid: [
-		// An object literal at the start of the arrow body would parse as a block, so the argument
-		// goes in parentheses
+		// An object literal at the start of the arrow body would parse as a block, so the argument goes in parentheses
 		withAssert('assert.throws({}.constructor());'),
 		withAssert('assert.throws({a: 1}.a.toString());'),
 		withAssert('assert.throws((setup(), parse(b)), SyntaxError);'),
 		// Only an argument that is itself a call gets a suggestion: any other shape may end in a function, which the arrow would return instead of call
 		withAssert('assert.throws((parse(a), fallback));'),
 		withAssert('assert.throws(getHandlers().onError);'),
-		// `await` in the argument cannot go inside a synchronous arrow, and a `yield` cannot go in an
-		// arrow at all, so both are reported without a suggestion
+		// `await` in the argument cannot go inside a synchronous arrow, and a `yield` cannot go in an arrow at all, so both are reported without a suggestion
 		withAssert('async function main() { assert.throws(await getCallback(), /boom/); }'),
 		withAssert('function* generate() { assert.throws(yield getCallback()); }'),
 
-		// Whatever the argument does while it is evaluated escapes the assertion, not just a
-		// top-level call
+		// Whatever the argument does while it is evaluated escapes the assertion, not just a top-level call
 		withAssert('assert.throws(new Parser(input));'),
 		withAssert('assert.throws(new Parser(input), SyntaxError);'),
 		withAssert('assert.throws(tag`input`);'),
@@ -133,8 +125,7 @@ test.snapshot({
 			code: withTest('test(\'t\', t => { (t as Context).assert.throws(parse(input)); });'),
 			languageOptions: {parser: parsers.typescript},
 		},
-		// A branch that skips the call may hand over a function, which the suggested arrow would
-		// return instead of call, so a branching argument is reported without a suggestion
+		// A branch that skips the call may hand over a function, which the suggested arrow would return instead of call, so a branching argument is reported without a suggestion
 		withAssert('assert.throws(flag ? parse(a) : fallback);'),
 		withAssert('assert.throws(parse(a) || fallback);'),
 		// A comment inside the argument survives the suggestion

@@ -50,8 +50,7 @@ test.snapshot({
 		withImport('test(\'a\', \'x\', {name: \'UPPERCASE\'});'),
 		withImport('test(\'a\', fn, {name: \'UPPERCASE\'});'),
 
-		// An options slot holding an object the rule cannot see into may carry a `name`, which wins
-		// over the positional title, so the positional title is not the test's name
+		// An options slot holding an object the rule cannot see into may carry a `name`, which wins over the positional title, so the positional title is not the test's name
 		'import {test} from \'node:test\';\nconst options = {name: \'lowercase\'};\ntest(\'Uppercase positional\', options, () => {});',
 		'import {test} from \'node:test\';\nconst options = {name: \'lowercase\'};\ntest(\'Uppercase\', options, {skip: true}, () => {});',
 	],
@@ -111,8 +110,7 @@ test.snapshot({
 		'import {test} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'Foo\', () => {}); });',
 		'import {test, getTestContext} from \'node:test\';\ntest(\'p\', async () => { await getTestContext().test(\'Foo\', () => {}); });',
 
-		// An uppercase letter outside the BMP is two UTF-16 code units, so indexing the title with
-		// `[0]` sees only a lone surrogate and misses it.
+		// An uppercase letter outside the BMP is two UTF-16 code units, so indexing the title with `[0]` sees only a lone surrogate and misses it.
 		withImport('test("\u{10400}bc", () => {});'),
 		// No lowercase form exists for this one, so it is reported without a fix.
 		withImport('test("\u{1D400}bc", () => {});'),

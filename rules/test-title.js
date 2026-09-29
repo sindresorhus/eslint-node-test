@@ -41,7 +41,7 @@ function getStaticTitleProblem(titleNode, context) {
 	} else {
 		const staticValue = getStaticValue(titleNode, sourceCode.getScope(titleNode));
 		if (staticValue === null) {
-			// A template literal with expressions or some other dynamic node — can't validate.
+			// A template literal with expressions or some other dynamic node: can't validate.
 			return;
 		}
 
@@ -68,8 +68,7 @@ function getStaticTitleProblem(titleNode, context) {
 	}
 
 	if (titleValue !== titleValue.trim()) {
-		// Only a title written as a string is fixed. A statically resolved one (`test(title, …)`) would be
-		// written back as a fresh string literal, which cuts the title off from the value it names.
+		// Only a title written as a string is fixed. A statically resolved one (`test(title, …)`) would be written back as a fresh string literal, which cuts the title off from the value it names.
 		const isWrittenString = titleNode.type === 'Literal' || (titleNode.type === 'TemplateLiteral' && titleNode.expressions.length === 0);
 		if (!isWrittenString) {
 			return {
@@ -97,8 +96,7 @@ const create = context => {
 		return;
 	}
 
-	// A subtest (`t.test(…)`) is rendered in the test output exactly like an imported test, so a
-	// missing/empty title is just as unreadable; it is recognized through the context tracker.
+	// A subtest (`t.test(…)`) is rendered in the test output exactly like an imported test, so a missing/empty title is just as unreadable; it is recognized through the context tracker.
 	const tracker = createContextTracker(imports);
 
 	context.on('CallExpression', node => {
@@ -118,8 +116,7 @@ const create = context => {
 			return;
 		}
 
-		// The object form carries its title in the descriptor's `name`, and `options.name` overrides
-		// a positional title, so resolve the title node from every slot `node:test` reads it from.
+		// The object form carries its title in the descriptor's `name`, and `options.name` overrides a positional title, so resolve the title node from every slot `node:test` reads it from.
 		const titleNode = getTestTitleNode(node);
 		if (titleNode) {
 			return getStaticTitleProblem(titleNode, context);
@@ -134,9 +131,7 @@ const create = context => {
 			};
 		}
 
-		// A descriptor with no `name` is an object first argument that carries no title. A spread or
-		// computed key could supply one, and `node:test` spreads the descriptor, so the title is not
-		// statically known.
+		// A descriptor with no `name` is an object first argument that carries no title. A spread or computed key could supply one, and `node:test` spreads the descriptor, so the title is not statically known.
 		if (
 			firstArgument.type === 'ObjectExpression'
 			&& firstArgument.properties.every(property => property.type !== 'SpreadElement' && !property.computed)
@@ -147,7 +142,7 @@ const create = context => {
 			};
 		}
 
-		// The title comes from a slot this helper cannot pin down, or the title is dynamic — skip.
+		// The title comes from a slot this helper cannot pin down, or the title is dynamic: skip.
 	});
 
 	context.onExit('CallExpression', node => {

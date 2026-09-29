@@ -98,9 +98,7 @@ const create = context => {
 		testCallbackBodies.add(callback.body);
 	});
 
-	// A test body the call names out of line is entered where it is declared, which the call's own
-	// traversal does not cover, so duplicate assertions in it went unseen. The body is registered the
-	// same way, and the block exit below does the rest.
+	// A test body the call names out of line is entered where it is declared, which the call's own traversal does not cover, so duplicate assertions in it went unseen. The body is registered the same way, and the block exit below does the rest.
 
 	context.on(functionTypes, node => {
 		const call = getOutOfLineCallbackCall(node, context, imports);

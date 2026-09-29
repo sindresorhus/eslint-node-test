@@ -46,8 +46,7 @@ const create = context => {
 			};
 
 			// `await` is only valid (and a behavior-preserving fix) inside an async function, and only
-			// where prepending it is faithful (see `getFloatingStatement`). A class static block sits
-			// between the call and that function, where `await` is a syntax error.
+			// where prepending it is faithful (see `getFloatingStatement`). A class static block sits between the call and that function, where `await` is a syntax error.
 			const enclosingFunction = getEnclosingFunction(node);
 			if (enclosingFunction?.async && floating.canAwait && !hasStaticBlockBetween(node, enclosingFunction)) {
 				problem.fix = fixer => fixer.insertTextBefore(node, 'await ');

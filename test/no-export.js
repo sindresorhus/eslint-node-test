@@ -65,8 +65,7 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
-			// An `export` inside an ambient `declare module` block is a type-only surface, but the
-			// parser reports it as an export declaration, so the rule sees it
+			// An `export` inside an ambient `declare module` block is a type-only surface, but the parser reports it as an export declaration, so the rule sees it
 			code: withImport('declare module "x" { export const a: number; }\ntest("x", () => {});'),
 			languageOptions: {parser: parsers.typescript},
 		},

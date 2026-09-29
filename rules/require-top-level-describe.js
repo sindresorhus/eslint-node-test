@@ -40,9 +40,7 @@ const create = context => {
 			return;
 		}
 
-		// Syntactic depth alone would call a `describe` inside a helper function or a hook
-		// top-level, since neither is nested in another suite. A registration is top-level only
-		// when it sits directly in the module scope, or in an array-iteration callback there.
+		// Syntactic depth alone would call a `describe` inside a helper function or a hook top-level, since neither is nested in another suite. A registration is top-level only when it sits directly in the module scope, or in an array-iteration callback there.
 		const isTopLevel = tracker.depth === 0 && isInModuleScope(node);
 
 		let problem;

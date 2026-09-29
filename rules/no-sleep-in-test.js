@@ -67,8 +67,7 @@ function areActiveModifiers(modifiers) {
 }
 
 function hasInactiveTestOptions(node, context) {
-	// The same check the shared skip detection uses: only a truthy `skip` stops the body from running.
-	// `{skip: 0}` reports the test as skipped but still runs its own body, so a sleep in it still costs the time. A suite reads `skip` the same way, see `isSkippedTestCall`.
+	// The same check the shared skip detection uses: only a truthy `skip` stops the body from running. `{skip: 0}` reports the test as skipped but still runs its own body, so a sleep in it still costs the time. A suite reads `skip` the same way, see `isSkippedTestCall`.
 	return hasEnabledSkipOption(getTestOptions(node), context);
 }
 
@@ -310,8 +309,7 @@ const create = context => {
 		return false;
 	};
 
-	// Whether the call sits directly in the tracked test's own callback, which is the scope a
-	// `getTestContext()` call resolves against.
+	// Whether the call sits directly in the tracked test's own callback, which is the scope a `getTestContext()` call resolves against.
 	const isInCurrentTestContext = node => getEnclosingFunction(node) === testStack.at(-1)?.callback;
 
 	const isCurrentTestContextReceiver = (node, receiver) => {
@@ -328,8 +326,7 @@ const create = context => {
 	const isCurrentTestContextSubtestCall = node => {
 		const receiver = getSupportedSubtestReceiver(node);
 		if (receiver === undefined) {
-			// `getTestContext().test(…)` names the context this rule is already tracking, so it
-			// needs no receiver to match against.
+			// `getTestContext().test(…)` names the context this rule is already tracking, so it needs no receiver to match against.
 			return isSubtestCall(node, imports) && isInCurrentTestContext(node);
 		}
 
@@ -436,8 +433,7 @@ const create = context => {
 		}
 	});
 
-	// Whether a registration call runs its callback, read the way the inline path reads it: its
-	// modifiers and its options. A context hook has neither. `TestContext#test` has no `skip`, `todo` or `only` member, so any of them throws; they are read the way the inline path reads them, so only `t.test.skip(…)` counts as not running.
+	// Whether a registration call runs its callback, read the way the inline path reads it: its modifiers and its options. A context hook has neither. `TestContext#test` has no `skip`, `todo` or `only` member, so any of them throws; they are read the way the inline path reads them, so only `t.test.skip(…)` counts as not running.
 	const runsCallback = call => {
 		const parsed = parseTestCall(call, imports);
 		if (parsed) {
@@ -448,11 +444,7 @@ const create = context => {
 			|| (areActiveModifiers(getSubtestModifiers(call)) && !hasInactiveTestOptions(call, context));
 	};
 
-	// Whether a registration around the call skips the callback the call sits in, like
-	// `describe.skip('s', () => { test('a', body); })`. The inline path learns this from the stack, but
-	// an out-of-line body is visited where it is declared, so the call's own ancestors are read instead.
-	// A function named out of line (`describe.skip('s', suiteBody)`) is registered somewhere else, so the
-	// walk goes on from the call that registers it.
+	// Whether a registration around the call skips the callback the call sits in, like `describe.skip('s', () => { test('a', body); })`. The inline path learns this from the stack, but an out-of-line body is visited where it is declared, so the call's own ancestors are read instead. A function named out of line (`describe.skip('s', suiteBody)`) is registered somewhere else, so the walk goes on from the call that registers it.
 	const isInsideSkippedRegistration = call => {
 		const visited = new Set();
 		for (let current = call.parent; current; current = current.parent) {
@@ -482,8 +474,7 @@ const create = context => {
 		return false;
 	};
 
-	// A test body the call names out of line is entered where it is declared, which the call's own
-	// frame does not cover, so a sleep in it sat outside every tracked scope.
+	// A test body the call names out of line is entered where it is declared, which the call's own frame does not cover, so a sleep in it sat outside every tracked scope.
 	const outOfLineTestBodies = new WeakSet();
 
 	context.on(functionTypes, node => {

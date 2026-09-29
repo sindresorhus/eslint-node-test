@@ -56,8 +56,7 @@ test.snapshot({
 		// Every key a hook recognizes, and nothing else
 		withImport('beforeEach(() => {}, {signal, timeout: 1000});'),
 
-		// A leading object is the descriptor whenever it appears, and `node:test` names a test after
-		// `options.name` even outside the object form, so `name` is a known key in every slot
+		// A leading object is the descriptor whenever it appears, and `node:test` names a test after `options.name` even outside the object form, so `name` is a known key in every slot
 		withImport('test({name: "x", skip: true}, () => {});'),
 		withImport('test({name: "x", skip: true}, {only: true});'),
 		withImport('test("x", {name: "y"}, () => {});'),
@@ -65,8 +64,7 @@ test.snapshot({
 		withImport('test(function body() {}, {name: "y"});'),
 	],
 	invalid: [
-		// A hook has no descriptor form, so `before({name})` is a hook with an options object
-		// whose keys the runner ignores
+		// A hook has no descriptor form, so `before({name})` is a hook with an options object whose keys the runner ignores
 		'import {before} from \'node:test\';\nbefore({name: "x"});',
 		'import {afterEach} from \'node:test\';\nafterEach({name: "x"});',
 		// A typo inside the object form is still unknown

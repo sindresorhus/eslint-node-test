@@ -91,8 +91,7 @@ test.snapshot({
 		withAssert('var first = second;\nvar second = first;\nassert.ok(first);'),
 	],
 	invalid: [
-		// A closure over an outer test's binding still refers to that binding, even inside a
-		// nested subtest or a hook — the same capture the context parameter gets
+		// A closure over an outer test's binding still refers to that binding, even inside a nested subtest or a hook: the same capture the context parameter gets
 		'import test from \'node:test\';\ntest("outer", ({assert}) => { test("inner", () => { assert.equal(1, 1); }); });',
 		'import test, {before} from \'node:test\';\ntest("outer", ({assert}) => { before(() => { assert.equal(1, 1); }); });',
 		// A destructured `assert` is a real assertion, exactly like `t.assert`

@@ -39,8 +39,7 @@ test.snapshot({
 		// Conditional in a hook's options object, not inside the hook body
 		withImport('beforeEach(() => {}, {timeout: a ? 1 : 2});'),
 
-		// A conditional in a nested call's argument slot is evaluated by the enclosing test, not by
-		// the nested callback, exactly as at the top level
+		// A conditional in a nested call's argument slot is evaluated by the enclosing test, not by the nested callback, exactly as at the top level
 		withImport('test("outer", async t => { await t.test("x", {skip: a ? 1 : 2}, () => {}); });'),
 		withImport('test("outer", t => { t.beforeEach(() => {}, {timeout: a ? 1 : 2}); });'),
 		'import {test, getTestContext} from \'node:test\';\n'
@@ -73,8 +72,7 @@ test.snapshot({
 		withImport('test("x", t => {\n\tconsole.log(a ? 1 : 2);\n});'),
 		withImport('test("x", t => {\n\tassert.ok(a ? 1 : 2);\n});'),
 		withImport('test("x", t => {\n\tsetup(flag ? work() : other());\n});'),
-		// An unrelated object's `test` method registers nothing, so a conditional in its arguments is
-		// the body's own logic
+		// An unrelated object's `test` method registers nothing, so a conditional in its arguments is the body's own logic
 		withImport('test("x", t => {\n\tclient.test(ready ? 1 : 2);\n});'),
 		withImport('test("x", t => {\n\tassert.test(ready ? 1 : 2);\n});'),
 

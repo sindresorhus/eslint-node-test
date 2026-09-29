@@ -61,8 +61,8 @@ function getBreakTarget(breakStatement) {
 Whether reachable code follows the skip statement before the enclosing test function ends.
 Walks outward: a following sibling statement means code runs after the skip, unless the skip
 is directly followed by a `return` or `throw`, which end the test body right there. A `break`
-or `continue` is not terminal — it leaves the loop or switch the skip sits in, and whatever
-follows that construct still runs — so the walk carries on outward past it. A `break` skips
+or `continue` is not terminal (it leaves the loop or switch the skip sits in, and whatever
+follows that construct still runs), so the walk carries on outward past it. A `break` skips
 the rest of the construct it exits, so the walk carries on from that construct.
 */
 function hasCodeAfter(skipStatement) {
@@ -73,8 +73,7 @@ function hasCodeAfter(skipStatement) {
 			return false;
 		}
 
-		// A class static block is a statement list too, so a skip inside one is followed by the same
-		// code the rule inspects in a block or at the top level.
+		// A class static block is a statement list too, so a skip inside one is followed by the same code the rule inspects in a block or at the top level.
 		const next = getNextStatement(node);
 		if (next) {
 			// A `return` or `throw` right after the skip ends the test body there.
@@ -82,8 +81,7 @@ function hasCodeAfter(skipStatement) {
 				return false;
 			}
 
-			// A `break` or `continue` only leaves the loop or switch, so keep walking outward to the
-			// statement list that construct sits in rather than calling the skip terminal.
+			// A `break` or `continue` only leaves the loop or switch, so keep walking outward to the statement list that construct sits in rather than calling the skip terminal.
 			if (next.type === 'BreakStatement') {
 				node = getBreakTarget(next) ?? parent;
 				continue;
@@ -116,19 +114,16 @@ const create = context => {
 		return;
 	}
 
-	// Hook callbacks receive a test context too, so `t.skip()` in a hook body skips the rest of
-	// that hook exactly as it does in a test body.
+	// Hook callbacks receive a test context too, so `t.skip()` in a hook body skips the rest of that hook exactly as it does in a test body.
 	const tracker = createContextTracker(imports, {trackHooks: true});
 
-	// The name to show for a test-context receiver, or `undefined` when the receiver is some other
-	// object's method of the same name.
+	// The name to show for a test-context receiver, or `undefined` when the receiver is some other object's method of the same name.
 	const getContextName = receiver => {
 		if (receiver.type === 'Identifier') {
 			return tracker.isContextIdentifier(receiver) ? receiver.name : undefined;
 		}
 
-		// A `getTestContext()` import can be bound to another name, or read off a test binding
-		// (`test.getTestContext()`), and the message names what the file actually calls.
+		// A `getTestContext()` import can be bound to another name, or read off a test binding (`test.getTestContext()`), and the message names what the file actually calls.
 		return isGetTestContextCall(receiver, imports) ? sourceCode.getText(receiver) : undefined;
 	};
 
@@ -136,11 +131,9 @@ const create = context => {
 		let problem;
 
 		const callee = unwrapTypeScriptExpression(node.callee);
-		// `t.skip()` can be wrapped in `void` or sit inside a conditional, in which case the statement
-		// that discards it is the one whose remaining code runs after the skip.
+		// `t.skip()` can be wrapped in `void` or sit inside a conditional, in which case the statement that discards it is the one whose remaining code runs after the skip.
 		const statement = getFloatingStatement(node)?.statement;
-		// The receiver is a tracked context parameter or a `getTestContext()` call, behind any
-		// TypeScript wrapper.
+		// The receiver is a tracked context parameter or a `getTestContext()` call, behind any TypeScript wrapper.
 		const name = callee.type === 'MemberExpression'
 			? getContextName(unwrapTypeScriptExpression(callee.object))
 			: undefined;
@@ -162,10 +155,7 @@ const create = context => {
 			};
 
 			// Only suggest inserting `return` when the skip is in a block; in a braceless
-			// `if (x) t.skip()` the inserted `return` would escape the condition. A class static block
-			// is a statement list but not a function either, so a `return` there is a SyntaxError.
-			// A `return` inserted after a `break` or `continue` would leave that statement unreachable,
-			// so the skip is reported without a suggestion when the next one jumps.
+			// `if (x) t.skip()` the inserted `return` would escape the condition. A class static block is a statement list but not a function either, so a `return` there is a SyntaxError. A `return` inserted after a `break` or `continue` would leave that statement unreachable, so the skip is reported without a suggestion when the next one jumps.
 			const next = getNextStatement(statement);
 			const isFollowedByJump = next?.type === 'BreakStatement' || next?.type === 'ContinueStatement';
 			if (isWholeStatement(node, statement) && !isFollowedByJump && statement.parent.type === 'BlockStatement' && !hasStaticBlockBetween(statement, getEnclosingFunction(statement))) {
@@ -175,8 +165,7 @@ const create = context => {
 						data: {name, method},
 						fix(fixer) {
 							// Insert `return;` on its own line, matching the skip statement's indentation.
-							// Anchor after a trailing comment on the statement's line, so a comment documenting
-							// the skip stays with the skip instead of ending up on the inserted `return`.
+							// Anchor after a trailing comment on the statement's line, so a comment documenting the skip stays with the skip instead of ending up on the inserted `return`.
 							const [start] = sourceCode.getRange(statement);
 							const lineStart = sourceCode.text.lastIndexOf('\n', start - 1) + 1;
 							const [indentation] = /^\s*/.exec(sourceCode.text.slice(lineStart, start));

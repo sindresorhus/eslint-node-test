@@ -15,7 +15,7 @@ the `message` (so max = required + 1 for the plain comparisons).
 
 `fail` is omitted because it accepts 0 or 1 args (ambiguous) — not checkable.
 `throws`/`doesNotThrow`/`rejects`/`doesNotReject` accept 1 required + optional error + optional message.
-`ifError` is the exception with no trailing message argument — it takes one value and ignores the rest. It also needs no value: it throws only for an argument that is neither `null` nor `undefined`, so a missing argument passes just like an explicit `undefined`.
+`ifError` is the exception with no trailing message argument: it takes one value and ignores the rest. It also needs no value: it throws only for an argument that is neither `null` nor `undefined`, so a missing argument passes just like an explicit `undefined`.
 `snapshot` is omitted because its optional second argument is an options object, not a message string,
 so it does not fit this map's "trailing string message" model (and it is a `node:test` context
 assertion rather than a `node:assert` method).
@@ -87,8 +87,7 @@ function isInvalidMessageArgument(node, method) {
 		return !METHODS_ACCEPTING_NULL_MESSAGE.has(method);
 	}
 
-	// A function is called to build the message, and any other expression may be a string at runtime,
-	// so only a literal is judged here.
+	// A function is called to build the message, and any other expression may be a string at runtime, so only a literal is judged here.
 	if (node.type !== 'Literal') {
 		return false;
 	}
@@ -144,8 +143,7 @@ const create = context => {
 			};
 		}
 
-		// For methods where max === min there is no message slot, and `ifError` has no message slot at
-		// all: its only argument is the value, which may be any expression.
+		// For methods where max === min there is no message slot, and `ifError` has no message slot at all: its only argument is the value, which may be any expression.
 		if (!hasMessage || max <= min) {
 			return;
 		}
@@ -163,8 +161,7 @@ const create = context => {
 			return;
 		}
 
-		// The message sits in the last slot the method reads, and printf-style substitution arguments
-		// may follow it, so the slot is checked from there on.
+		// The message sits in the last slot the method reads, and printf-style substitution arguments may follow it, so the slot is checked from there on.
 		if (count >= max && isInvalidMessageArgument(node.arguments[max - 1], method)) {
 			return {
 				node: node.arguments[max - 1],

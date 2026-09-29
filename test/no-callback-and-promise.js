@@ -35,8 +35,7 @@ test.snapshot({
 		// A hook's callback is its first argument, so trailing options never hide a 1-arity function
 		withImport('beforeEach(async t => {}, {timeout: 1000});'),
 
-		// A hook whose first argument is not a function never runs, so a `done` parameter or an async
-		// function in a later slot is dead code, and the runner never reads `options.fn` for a hook
+		// A hook whose first argument is not a function never runs, so a `done` parameter or an async function in a later slot is dead code, and the runner never reads `options.fn` for a hook
 		withImport('beforeEach({}, async (t, done) => { done(); });'),
 		withImport('beforeEach({fn: async (t, done) => { done(); }});'),
 		withImport('test.beforeEach({}, async (t, done) => { done(); });'),
@@ -78,8 +77,7 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
-			// TypeScript emits an optional parameter as a plain one, so the arity is still 2 and
-			// `node:test` does pass `done` — unlike a JavaScript default parameter
+			// TypeScript emits an optional parameter as a plain one, so the arity is still 2 and `node:test` does pass `done`, unlike a JavaScript default parameter
 			code: withImport('test("x", async (t, done?: () => void) => { done(); });'),
 			languageOptions: {parser: parsers.typescript},
 		},

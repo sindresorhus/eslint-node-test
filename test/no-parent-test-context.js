@@ -6,8 +6,7 @@ const withImport = code => `import test from 'node:test';\n${code}`;
 
 test.snapshot({
 	valid: [
-		// A `var` that re-binds the context parameter resolves to the same variable, so there is no
-		// parent context for a subtest receiver to name
+		// A `var` that re-binds the context parameter resolves to the same variable, so there is no parent context for a subtest receiver to name
 		'import test from \'node:test\';\ntest(\'a\', t => { var t = other; t.test(\'b\', sub => { t.diagnostic(\'x\'); }); });',
 		// Not a test file
 		'function test(t) { t.test(\'child\', () => { t.mock.fn(); }); }',

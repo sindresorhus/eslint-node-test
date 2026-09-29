@@ -109,8 +109,7 @@ const create = context => {
 		}
 	};
 
-	// A test body the call names out of line (`test('a', body)`) is entered where it is declared, which
-	// the call's own frame does not cover, so it is resolved from its binding instead.
+	// A test body the call names out of line (`test('a', body)`) is entered where it is declared, which the call's own frame does not cover, so it is resolved from its binding instead.
 	const isOutOfLineTestBody = node => getRegistrationKind(getOutOfLineCallbackCall(node, context, imports), imports, context) === 'test';
 
 	context.on('CallExpression', node => {

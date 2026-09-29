@@ -8,8 +8,7 @@ const withNamedImport = names => `import {mock, ${names}} from 'node:test';`;
 test.snapshot({
 	valid: [
 		withImport('class A {\n\tstatic {\n\t\tmock.timers.enable();\n\t\tmock.timers.reset();\n\t\tmock.timers.enable();\n\t}\n}'),
-		// A reset in a static block or static field initializer clears the module body's state, and the
-		// other way round.
+		// A reset in a static block or static field initializer clears the module body's state, and the other way round.
 		withImport('class A {\n\tstatic {\n\t\tmock.timers.enable();\n\t}\n}\nmock.timers.reset();\nmock.timers.enable();'),
 		withImport('mock.timers.enable();\nclass A {\n\tstatic {\n\t\tmock.timers.reset();\n\t}\n}\nmock.timers.enable();'),
 		withImport('class A {\n\tstatic timers = mock.timers.enable();\n}\nmock.timers.reset();\nmock.timers.enable();'),
@@ -42,8 +41,7 @@ test.snapshot({
 		// A parent and its subtest have trackers of their own, and no state is shared between callbacks
 		withImport('test("parent", t => { t.mock.timers.enable(); t.test("child", child => { child.mock.timers.enable(); }); });'),
 		withImport('test.skip("title", t => { t.mock.timers.enable(); t.mock.timers.enable(); });'),
-		// A nested skipped test never runs, whether it is skipped by the chained modifier or through
-		// the options slot of a subtest
+		// A nested skipped test never runs, whether it is skipped by the chained modifier or through the options slot of a subtest
 		withImport('test("title", t => { test.skip("nested", () => { mock.timers.enable(); mock.timers.enable(); }); });'),
 		withImport('test("parent", t => { t.test("child", {skip: true}, child => { child.mock.timers.enable(); child.mock.timers.enable(); }); });'),
 		// The standalone `skip` export has an identifier callee, and its body never runs
@@ -100,8 +98,7 @@ test.snapshot({
 		withImport('const body = t => { t.test("child", child => { child.mock.timers.enable(); child.mock.timers.enable(); }); };\ntest.skip("parent", () => { test("inner", body); });'),
 		withImport('const body = t => { t.test("child", child => { child.mock.timers.reset(); class A { static { child.mock.timers.enable(); child.mock.timers.enable(); } } }); };\n'
 			+ 'test.skip("parent", body);'),
-		// Two different trackers clash only when both mock `Date`, which depends on their `apis`, so enabling
-		// through a second tracker is left alone.
+		// Two different trackers clash only when both mock `Date`, which depends on their `apis`, so enabling through a second tracker is left alone.
 		withImport('test("title", t => { mock.timers.enable({apis: ["setTimeout"]}); t.mock.timers.enable({apis: ["setTimeout"]}); });'),
 		withImport('test("title", t => { mock.timers.enable(); t.mock.timers.enable(); });'),
 		withImport('test("title", t => { t.mock.timers.enable(); mock.timers.enable(); });'),
@@ -139,14 +136,12 @@ test.snapshot({
 		withImport('class A {\n\tstatic {\n\t\tmock.timers.enable();\n\t\tmock.timers.enable();\n\t}\n}'),
 		withImport('mock.timers.enable();\ntest.mock.timers.enable();'),
 
-		// A skip enabled by a falsy value carries the `# SKIP` directive and still runs the body
-		// A skip enabled by a falsy value carries the `# SKIP` directive and still runs the body
+		// A skip enabled by a falsy value carries the `# SKIP` directive and still runs the body A skip enabled by a falsy value carries the `# SKIP` directive and still runs the body
 		withImport('test(\'a\', {skip: 0}, () => { mock.timers.enable(); mock.timers.enable(); });'),
 		withImport('test(\'a\', {skip: \'\'}, () => { mock.timers.enable(); mock.timers.enable(); });'),
 		withImport('mock.timers.enable();\nmock.timers.enable();\nmock.timers.enable();'),
 
-		// A class static block or static field initializer runs while the file loads, in the middle of
-		// the module body, so it shares the module body's enabled state.
+		// A class static block or static field initializer runs while the file loads, in the middle of the module body, so it shares the module body's enabled state.
 		withImport('mock.timers.enable();\nclass A {\n\tstatic {\n\t\tmock.timers.enable();\n\t}\n}'),
 		withImport('class A {\n\tstatic {\n\t\tmock.timers.enable();\n\t}\n}\nmock.timers.enable();'),
 		withImport('mock.timers.enable();\nclass A {\n\tstatic timers = mock.timers.enable();\n}'),
@@ -156,8 +151,7 @@ test.snapshot({
 		withImport('mock.timers.enable();\nclass A {\n\tstatic {\n\t\tclass B {\n\t\t\tstatic {\n\t\t\t\tmock.timers.enable();\n\t\t\t}\n\t\t}\n\t}\n}'),
 		withImport('mock.timers.enable();\nclass A {\n\tstatic {\n\t\tclass B {\n\t\t\tstatic timers = mock.timers.enable();\n\t\t}\n\t}\n}'),
 
-		// A class declared in a callback is defined while that callback runs, so a static block in it
-		// shares the callback's state.
+		// A class declared in a callback is defined while that callback runs, so a static block in it shares the callback's state.
 		withImport('test("title", () => { class A { static { mock.timers.enable(); mock.timers.enable(); } } });'),
 		withImport('test("title", () => { class A { static timers = [mock.timers.enable(), mock.timers.enable()]; } });'),
 		withImport('test("title", () => { mock.timers.enable(); class A { static { mock.timers.enable(); } } });'),
@@ -219,8 +213,7 @@ test.snapshot({
 		// `getTestContext()` names the same tracker as the context parameter
 		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', () => { getTestContext().mock.timers.enable(); getTestContext().mock.timers.enable(); });',
 		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', t => { getTestContext().mock.timers.enable(); t.mock.timers.enable(); });',
-		// A suite callback declares no context parameter, so both `getTestContext()` calls still name
-		// the one tracker they share
+		// A suite callback declares no context parameter, so both `getTestContext()` calls still name the one tracker they share
 		'import {describe, getTestContext} from \'node:test\';\ndescribe(\'a\', () => { getTestContext().mock.timers.enable(); getTestContext().mock.timers.enable(); });',
 
 		// Only a truthy `skip` stops a suite body from running, so a falsy one such as `{skip: 0}` still runs it

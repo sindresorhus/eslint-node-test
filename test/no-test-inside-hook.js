@@ -61,8 +61,7 @@ test.snapshot({
 		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { t.test(\'b\', () => {}); });',
 		'import {before} from \'node:test\';\nbefore(t => { t.test(\'b\', () => {}); });',
 
-		// A hook callback the call names out of line runs as the hook's body, so a test in it is
-		// registered nowhere
+		// A hook callback the call names out of line runs as the hook's body, so a test in it is registered nowhere
 		'import {before, test} from \'node:test\';\nbefore(setup);\nfunction setup() { test(\'a\', () => {}); }',
 		'import {before, test} from \'node:test\';\nconst setup = () => { test(\'a\', () => {}); };\nbefore(setup);',
 		'import {before, describe} from \'node:test\';\nbefore(setup);\nfunction setup() { describe(\'a\', () => {}); }',

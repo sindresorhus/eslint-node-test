@@ -31,8 +31,7 @@ function isStaticNonOptionsValue(node) {
 	return STATIC_NON_OPTIONS_VALUE_TYPES.has(node.type);
 }
 
-// A computed key with a static string is the same property Node reads: `{['apis']: [...]}` names
-// `apis` just as `{apis: [...]}` does.
+// A computed key with a static string is the same property Node reads: `{['apis']: [...]}` names `apis` just as `{apis: [...]}` does.
 function isApisProperty(property) {
 	return property.type === 'Property' && getStaticPropertyName(property) === 'apis';
 }

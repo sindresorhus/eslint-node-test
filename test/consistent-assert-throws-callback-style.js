@@ -70,8 +70,7 @@ test.snapshot({
 			code: withAssert('assert.throws(() => {\n\tthrow new Error("boom");\n});'),
 			options: [{style: 'expression'}],
 		},
-		// A `return` cannot become an expression body without changing what the callback returns,
-		// so an empty block and a lone `return` are both left alone
+		// A `return` cannot become an expression body without changing what the callback returns, so an empty block and a lone `return` are both left alone
 		{
 			code: withAssert('assert.throws(() => {});'),
 			options: [{style: 'expression'}],
@@ -86,8 +85,7 @@ test.snapshot({
 		withAssert('assert.throws(() => parse(input), SyntaxError);'),
 		withAssert('assert.throws(() =>\n\tparse(input));'),
 
-		// A parenthesized body keeps exactly its own parentheses, and a sequence expression is a
-		// safe expression statement, so neither picks up a second pair
+		// A parenthesized body keeps exactly its own parentheses, and a sequence expression is a safe expression statement, so neither picks up a second pair
 		withAssert('assert.throws(() => (parse(input)));'),
 		withAssert('assert.throws(() => (first(), second()));'),
 

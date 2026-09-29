@@ -24,9 +24,7 @@ const create = context => {
 		return;
 	}
 
-	// Subtests (`t.test(…)`) and context hooks (`t.beforeEach(…)`) are method calls on a context
-	// parameter, not imported bindings, so the tracker is needed to see them alongside the imported
-	// `test`/`it` and `before`/`after` spellings.
+	// Subtests (`t.test(…)`) and context hooks (`t.beforeEach(…)`) are method calls on a context parameter, not imported bindings, so the tracker is needed to see them alongside the imported `test`/`it` and `before`/`after` spellings.
 	const tracker = createContextTracker(imports, {trackHooks: true});
 
 	// A body named out of line can be passed to several calls, but it is one function, so it is reported once.
@@ -44,11 +42,7 @@ const create = context => {
 			return;
 		}
 
-		// A context hook (`t.beforeEach(…)`) takes only a callback, so a function in a later slot is
-		// dead code there too.
-		// A callback the call names out of line, for a test or a hook alike, is still the callback the
-		// runner calls, so it is read as the function its binding reaches.
-		// A context hook (`t.beforeEach(…)`) runs its first argument, inline or through the binding it names. The runner never reads a later slot or `options.fn` for a hook.
+		// A context hook (`t.beforeEach(…)`) takes only a callback, so a function in a later slot is dead code there too. A callback the call names out of line, for a test or a hook alike, is still the callback the runner calls, so it is read as the function its binding reaches. A context hook (`t.beforeEach(…)`) runs its first argument, inline or through the binding it names. The runner never reads a later slot or `options.fn` for a hook.
 		const callback = isContextHook ? resolveCallbackArgument(node.arguments[0], context) : getResolvedTestCallback(node, context, imports);
 		if (!callback?.async) {
 			return;
@@ -62,9 +56,7 @@ const create = context => {
 
 		reportedCallbacks.add(callback);
 
-		// A method shorthand (`async fn() {}`) keeps the `async` keyword and the method name on the
-		// surrounding `Property`; the function value's own range starts at the parameter list, so the
-		// keyword is only reachable from the property.
+		// A method shorthand (`async fn() {}`) keeps the `async` keyword and the method name on the surrounding `Property`; the function value's own range starts at the parameter list, so the keyword is only reachable from the property.
 		const functionNode = callback.parent?.type === 'Property' && callback.parent.value === callback
 			? callback.parent
 			: callback;
@@ -76,9 +68,7 @@ const create = context => {
 			messageId: MESSAGE_ID,
 		};
 
-		// Removing the `async` keyword also removes the gap up to the next token, so a comment there
-		// would be lost with it. On a generator it would also change the function's type, from
-		// `AsyncGeneratorFunction` to `GeneratorFunction`, so the suggestion stands down there.
+		// Removing the `async` keyword also removes the gap up to the next token, so a comment there would be lost with it. On a generator it would also change the function's type, from `AsyncGeneratorFunction` to `GeneratorFunction`, so the suggestion stands down there.
 		const nextToken = sourceCode.getTokenAfter(asyncToken);
 		const asyncEnd = sourceCode.getRange(asyncToken)[1];
 		const hasCommentInGap = sourceCode.getCommentsBefore(nextToken)

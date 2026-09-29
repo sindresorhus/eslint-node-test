@@ -6,8 +6,7 @@ const withImport = code => `import test from 'node:test';\n${code}`;
 
 test.snapshot({
 	valid: [
-		// A `var` that re-binds the context parameter resolves to the same variable, so the call is not
-		// a subtest of this test
+		// A `var` that re-binds the context parameter resolves to the same variable, so the call is not a subtest of this test
 		'import test from \'node:test\';\ntest(\'a\', async t => { var t = other; t.test(\'b\', () => {}); });',
 		// Not a test file
 		'function f(t) { t.test("x", () => {}); }',
@@ -93,8 +92,7 @@ test.snapshot({
 		withImport('test("parent", async t => {\n\t0, void t.test("child", () => {});\n});'),
 		withImport('test("parent", async t => {\n\tcondition && void t.test("child", () => {});\n});'),
 		withImport('test("parent", async t => {\n\tcondition ? void t.test("child", () => {}) : null;\n});'),
-		// A conditional, logical, or sequence expression that hands the subtest's value to a statement
-		// discards it, exactly as a bare statement does
+		// A conditional, logical, or sequence expression that hands the subtest's value to a statement discards it, exactly as a bare statement does
 		withImport('test("parent", async t => {\n\tcondition ? t.test("child", () => {}) : null;\n});'),
 		withImport('test("parent", async t => {\n\tcondition && t.test("child", () => {});\n});'),
 		withImport('test("parent", async t => {\n\t(0, t.test("child", () => {}));\n});'),
@@ -132,8 +130,7 @@ test.snapshot({
 		withImport('test("parent", (t, done) => { setTimeout(() => { t.test("child", () => {}); done(); }); });'),
 		withImport('test("parent", (t, done) => { load().then(() => { t.test("child", () => {}); done(); }); });'),
 		withImport('test("parent", t => { t.plan(1, {wait: true}); setTimeout(() => { t.test("child", () => {}); t.assert.ok(true); }); });'),
-		// A class static block sits between the subtest and the async function, where `await` is a
-		// syntax error, so the problem is reported but no fix is offered.
+		// A class static block sits between the subtest and the async function, where `await` is a syntax error, so the problem is reported but no fix is offered.
 		withImport('test(\'p\', async t => { class C { static { t.test(\'c\', () => {}); } } });'),
 
 		// A subtest created through `getTestContext()` is cancelled the same way
@@ -141,13 +138,11 @@ test.snapshot({
 		'import {test, getTestContext} from \'node:test\';\ntest(\'parent\', () => {\n\tgetTestContext().test(\'child\', () => {});\n});',
 		'import {test, getTestContext} from \'node:test\';\ntest(\'parent\', async () => {\n\tclass C { static { getTestContext().test(\'child\', () => {}); } }\n});',
 
-		// A hook callback is handed the context of the test it runs for, so a subtest created there
-		// is cancelled the same way
+		// A hook callback is handed the context of the test it runs for, so a subtest created there is cancelled the same way
 		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { t.test(\'c\', () => {}); });',
 		'import {getTestContext, beforeEach} from \'node:test\';\nbeforeEach(t => { getTestContext().test(\'c\', () => {}); });',
 
-		// A namespace reaches the same function as `it` and as `default`, and each has
-		// `getTestContext` on it
+		// A namespace reaches the same function as `it` and as `default`, and each has `getTestContext` on it
 		'import * as nodeTest from \'node:test\';\nnodeTest.test(\'a\', () => { nodeTest.it.getTestContext().test(\'b\', () => {}); });',
 		'import * as nodeTest from \'node:test\';\nnodeTest.test(\'a\', () => { nodeTest.default.getTestContext().test(\'b\', () => {}); });',
 
@@ -177,8 +172,7 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 
-		// A type assertion on the subtest in a branch binds looser than `await` as it does on a bare
-		// statement, so no fix. A cast around the whole branch would name the type of the awaited value, so no fix there either.
+		// A type assertion on the subtest in a branch binds looser than `await` as it does on a bare statement, so no fix. A cast around the whole branch would name the type of the awaited value, so no fix there either.
 		{
 			code: withImport('test("parent", async t => {\n\tcondition ? t.test("child", () => {}) as any : null;\n});'),
 			languageOptions: {parser: parsers.typescript},

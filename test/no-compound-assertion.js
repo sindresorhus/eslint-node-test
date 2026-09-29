@@ -51,8 +51,7 @@ test.snapshot({
 		withHook('function helper(beforeEach) {\n\tbeforeEach(t => {\n\t\tt.assert.ok(a && b);\n\t});\n}'),
 		withHook('beforeEach.custom(t => {\n\tt.assert.ok(a && b);\n});'),
 
-		// `TestContext#assert` has no `strict` view, so `assert.strict.ok(…)` is a `TypeError`
-		// rather than a compound assertion
+		// `TestContext#assert` has no `strict` view, so `assert.strict.ok(…)` is a `TypeError` rather than a compound assertion
 		withTest('test(\'t\', ({assert}) => { assert.strict.ok(a && b); });'),
 		withTest('test(\'t\', ({assert}) => { assert.strict.equal(a, b); });'),
 
@@ -80,8 +79,7 @@ test.snapshot({
 	t.assert.ok(a && b);
 });`),
 
-		// A `t.plan(n)` makes the assertion count significant, so splitting one assertion into
-		// several would break the test. Still reported, but not fixed.
+		// A `t.plan(n)` makes the assertion count significant, so splitting one assertion into several would break the test. Still reported, but not fixed.
 		withTest(`test('t', t => {
 	t.plan(1);
 	t.assert.ok(a && b);
@@ -175,8 +173,7 @@ test.snapshot({
 			code: withAssert('assert.ok((a && b) as boolean);'),
 			languageOptions: {parser: parsers.typescript},
 		},
-		// A TypeScript wrapper on the callee — the fix keeps the call's own parentheses, which
-		// `assert.ok as any(x)` would need to parse.
+		// A TypeScript wrapper on the callee: the fix keeps the call's own parentheses, which `assert.ok as any(x)` would need to parse.
 		{
 			code: withTestAndAssert('test(\'t\', () => {\n\t(assert.ok as any)(a && b);\n});'),
 			languageOptions: {parser: parsers.typescript},

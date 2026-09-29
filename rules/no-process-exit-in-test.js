@@ -20,8 +20,7 @@ const getExitImportBindings = sourceCode => {
 	const bindings = new Set();
 
 	for (const node of sourceCode.ast.body) {
-		// A type-only declaration binds no value, and a default or namespace import is the whole module
-		// rather than one export, which this rule treats as an alias.
+		// A type-only declaration binds no value, and a default or namespace import is the whole module rather than one export, which this rule treats as an alias.
 		if (
 			node.type !== 'ImportDeclaration'
 			|| node.importKind === 'type'

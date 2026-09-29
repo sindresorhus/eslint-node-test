@@ -135,9 +135,7 @@ const create = context => {
 		return;
 	}
 
-	// Subtests (`t.test(…)`) and hooks declared on a context (`t.beforeEach(…)`) are method calls on
-	// a context parameter, not imported bindings, so the tracker is needed to see them alongside the
-	// imported `test`/`it` spellings.
+	// Subtests (`t.test(…)`) and hooks declared on a context (`t.beforeEach(…)`) are method calls on a context parameter, not imported bindings, so the tracker is needed to see them alongside the imported `test`/`it` spellings.
 	const tracker = createContextTracker(imports, {trackHooks: true});
 
 	context.on('CallExpression', node => {
@@ -156,8 +154,7 @@ const create = context => {
 			return;
 		}
 
-		// A context hook (`t.beforeEach(…)`) takes only a callback, so a function in a later slot is
-		// dead code there too.
+		// A context hook (`t.beforeEach(…)`) takes only a callback, so a function in a later slot is dead code there too.
 		const callback = isContextHook ? getHookCallback(node) : getTestCallback(node, imports);
 		// Only flag non-async functions with a block body (arrow shorthand already returns)
 		if (!callback || callback.async || callback.body.type !== 'BlockStatement') {
@@ -191,19 +188,14 @@ const create = context => {
 			}
 
 			const assignedFromThen = variable.defs.some(definition => {
-				// A destructuring declarator binds a property read off the chain, not the chain
-				// itself. Destructuring does not await, so `const {length} = p.then(f)` reads `length`
-				// off the Promise (`undefined`), and returning it does not return a Promise. A
-				// declarator whose `id` is a plain Identifier binds exactly the name being returned,
-				// so nothing else has to be compared.
+				// A destructuring declarator binds a property read off the chain, not the chain itself. Destructuring does not await, so `const {length} = p.then(f)` reads `length` off the Promise (`undefined`), and returning it does not return a Promise. A declarator whose `id` is a plain Identifier binds exactly the name being returned, so nothing else has to be compared.
 				if (definition.type !== 'Variable' || definition.node.id.type !== 'Identifier') {
 					return false;
 				}
 
 				return containsThen(definition.node.init);
 			}) || variable.references.some(reference => {
-				// A reassignment holds the value just as a declaration does, and it is a write reference
-				// rather than a definition, so the assigned expression comes from the assignment.
+				// A reassignment holds the value just as a declaration does, and it is a write reference rather than a definition, so the assigned expression comes from the assignment.
 				if (!reference.isWrite()) {
 					return false;
 				}

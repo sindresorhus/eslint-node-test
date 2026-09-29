@@ -102,8 +102,7 @@ test.snapshot({
 		withAssert('assert.throws(async () => await operation());'),
 		withAssert('assert[\'rejects\'](async () => await operation());'),
 
-		// Only the first argument is the operation. In the Promise form the async callback is the
-		// error validator, which the runner awaits separately.
+		// Only the first argument is the operation. In the Promise form the async callback is the error validator, which the runner awaits separately.
 		withAssert('async function operation() {}\nassert.rejects(operation(), async () => { await operation(); });'),
 
 		// A defaulted parameter is still a parameter, so the callback receives the error.
@@ -115,8 +114,7 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 
-		// A recursive alias is not a built-in Promise, and the recursion guard keeps the walk over
-		// its members from never ending.
+		// A recursive alias is not a built-in Promise, and the recursion guard keeps the walk over its members from never ending.
 		typed('type Recursive = Promise<void> | {next: Recursive};\ndeclare const operation: () => Recursive;\nassert.rejects(async () => await operation());'),
 	],
 	invalid: [

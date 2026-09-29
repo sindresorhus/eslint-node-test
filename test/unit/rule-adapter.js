@@ -5,9 +5,7 @@ import {toEslintRules} from '../../rules/rule/index.js';
 
 const messages = {problem: 'A problem.'};
 
-// A one-off rule that reports the identifier `name` with whatever `create` returns, to test the
-// adapter itself rather than any one rule.
-// The same, with the meta a rule offering suggestions has to declare.
+// A one-off rule that reports the identifier `name` with whatever `create` returns, to test the adapter itself rather than any one rule. The same, with the meta a rule offering suggestions has to declare.
 const withSuggestions = create => toEslintRules({
 	rule: {
 		create,

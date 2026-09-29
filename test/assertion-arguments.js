@@ -18,8 +18,7 @@ test.snapshot({
 		withAssert('assert.rejects(promise, TypeError, 42);'),
 		withAssert('assert.doesNotReject(promise, () => true, {});'),
 
-		// A primitive in the `throws` matcher slot is the matcher, which `require-throws-expectation`
-		// reports; it is not a message
+		// A primitive in the `throws` matcher slot is the matcher, which `require-throws-expectation` reports; it is not a message
 		withAssert('assert.throws(fn, 42);'),
 		withAssert('assert.throws(fn, true);'),
 		withAssert('assert.throws(fn, 0);'),
@@ -27,8 +26,7 @@ test.snapshot({
 		withAssert('assert.partialDeepStrictEqual(actual, expected);'),
 		withAssert('assert.partialDeepStrictEqual(actual, expected, message);'),
 
-		// `ifError` only throws for a value that is neither `null` nor `undefined`, so a missing
-		// argument passes just like `ifError(undefined)`
+		// `ifError` only throws for a value that is neither `null` nor `undefined`, so a missing argument passes just like `ifError(undefined)`
 		withAssert('assert.ifError();'),
 		withAssert('assert.ifError(undefined);'),
 		withAssert('assert.ifError(null);'),
@@ -84,8 +82,7 @@ test.snapshot({
 		// IfError — 1 required
 		withAssert('assert.ifError(value);'),
 
-		// A message may be followed by printf-style substitution arguments, and `ifError` ignores
-		// everything after its value, so extra arguments are never an arity error
+		// A message may be followed by printf-style substitution arguments, and `ifError` ignores everything after its value, so extra arguments are never an arity error
 		withAssert('assert.ok(value, "message %s", extra);'),
 		withAssert('assert.ok(value, "message", extra, more, andMore);'),
 		withAssert('assert.equal(a, b, "message", extra);'),
@@ -295,7 +292,7 @@ test.snapshot({
 		withAssert('assert.ok(value, 42, "x");'),
 		withAssert('assert.strictEqual(a, b, 42, "x");'),
 
-		// Message arg as an object/array literal — statically not a string, Error, or function
+		// Message arg as an object/array literal: statically not a string, Error, or function
 		withAssert('assert.ok(value, {message: "x"});'),
 		withAssert('assert.ok(value, [1, 2]);'),
 

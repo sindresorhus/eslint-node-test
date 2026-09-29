@@ -24,7 +24,7 @@ test.snapshot({
 		// String key.
 		head + 'mock.timers.enable({"apis": ["setImmediate"]});',
 
-		// Computed string key — the same static key, which Node reads.
+		// Computed string key: the same static key, which Node reads.
 		head + 'mock.timers.enable({["apis"]: ["setImmediate"]});',
 		head + 'mock.timers.enable({[`apis`]: ["setImmediate"]});',
 

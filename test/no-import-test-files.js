@@ -141,8 +141,7 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 
-		// TypeScript's own import forms put the specifier on a `require(…)`, which loads the file
-		// and runs its tests exactly like an import does
+		// TypeScript's own import forms put the specifier on a `require(…)`, which loads the file and runs its tests exactly like an import does
 		{
 			code: 'import helper = require(\'./example.test.js\');',
 			languageOptions: {parser: parsers.typescript},
@@ -160,8 +159,7 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 
-		// A local `require` is still a loader: `createRequire()` returns one, and a function called
-		// `require` with a test file specifier is loading it
+		// A local `require` is still a loader: `createRequire()` returns one, and a function called `require` with a test file specifier is loading it
 		'import {createRequire} from \'node:module\';\nconst require = createRequire(import.meta.url);\nrequire(\'./example.test.js\');',
 		'const {test} = require(\'node:test\');\nfunction load(require) { require(\'./dependency.test.js\'); }',
 	],

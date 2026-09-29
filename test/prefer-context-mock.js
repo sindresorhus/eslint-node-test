@@ -26,8 +26,7 @@ test.snapshot({
 
 		// Shadowed import name
 		withImport('function helper(mock) {\n\tmock.fn();\n}\nhelper(localMock);'),
-		// `mock.timers` is only state-creating through `enable`; `tick`/`runAll` create no
-		// state and `reset` restores. `t.mock` is a different tracker, so these are left alone.
+		// `mock.timers` is only state-creating through `enable`; `tick`/`runAll` create no state and `reset` restores. `t.mock` is a different tracker, so these are left alone.
 		withImport('mock.timers.tick(100);'),
 		withImport('mock.timers.runAll();'),
 		withImport('mock.timers.reset();'),

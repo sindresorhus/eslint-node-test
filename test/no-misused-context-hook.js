@@ -21,8 +21,7 @@ test.snapshot({
 		withTest('test(\'parent\', t => { t.beforeEach(() => {}); items.sort(() => { t.test(\'x\', () => {}); return 0; }); });'),
 		withTest('test(\'parent\', t => { t.beforeEach(() => {}); Array.from(items, () => { t.test(\'x\', () => {}); }); });'),
 
-		// A suite callback runs while the file is collected, so a subtest in one is registered before
-		// the test body finishes and the hooks really do run around it.
+		// A suite callback runs while the file is collected, so a subtest in one is registered before the test body finishes and the hooks really do run around it.
 		'import {test, describe} from \'node:test\';\ntest(\'parent\', t => { t.beforeEach(() => {}); describe(\'d\', () => { t.test(\'x\', () => {}); }); });',
 		'import {test, suite} from \'node:test\';\ntest(\'parent\', t => { t.beforeEach(() => {}); suite(\'d\', () => { t.test(\'x\', () => {}); }); });',
 		withTest('test(\'parent\', t => { t.beforeEach(() => {}); items.every(item => t.test(item, () => {})); });'),
@@ -127,14 +126,12 @@ test.snapshot({
 		'import {test} from \'node:test\';\ntest(\'a\', t => {\n	t.beforeEach(() => {});\n	Array.from([1, 2], i => {\n		test(\'c\' + i, () => {});\n	});\n});',
 	],
 	invalid: [
-		// `Array.of(…)` makes an array of its arguments, so it runs nothing, and the third argument
-		// of `Array.from` is a `thisArg` it passes on rather than calling.
+		// `Array.of(…)` makes an array of its arguments, so it runs nothing, and the third argument of `Array.from` is a `thisArg` it passes on rather than calling.
 		withTest('test(\'parent\', t => { t.beforeEach(() => {}); Array.of(1, () => { t.test(\'x\', () => {}); }); });'),
 		withTest('test(\'parent\', t => { t.beforeEach(() => {}); Array.from(items, item => item, () => { t.test(\'x\', () => {}); }); });'),
 		withTest('test(\'parent\', t => { t.beforeEach(() => {}); items.map(item => item, () => { t.test(\'x\', () => {}); }); });'),
 
-		// `node:test` skips for anything that is neither `undefined` nor `false`, so the child is not
-		// runnable and the hook has nothing to apply to
+		// `node:test` skips for anything that is neither `undefined` nor `false`, so the child is not runnable and the hook has nothing to apply to
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {skip: 0}, () => {}); });'),
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {skip: \'\'}, () => {}); });'),
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test(\'child\', {skip: null}, () => {}); });'),
@@ -144,8 +141,7 @@ test.snapshot({
 		withTest('test(\'leaf\', {skip: 0}, t => { t.beforeEach(() => { prepare(); }); work(); });'),
 		withTest('test(\'leaf\', {skip: \'\'}, t => { t.afterEach(() => {}); });'),
 		withTest('test(\'parent\', {skip: null}, () => { test(\'child\', t => { t.beforeEach(() => {}); }); });'),
-		// A second argument to an array method is `thisArg`, which the method never calls, so a
-		// subtest written there never runs
+		// A second argument to an array method is `thisArg`, which the method never calls, so a subtest written there never runs
 		withTest('test(\'p\', t => { t.beforeEach(() => {}); items.map(() => {}, function () { t.test(\'a\', () => {}); }); });'),
 		withTest('test(\'p\', t => { t.beforeEach(() => {}); items.filter(() => true, function () { t.test(\'a\', () => {}); }); });'),
 		// A declared helper is a real scope boundary, so its subtests do not count even inside a loop
@@ -209,8 +205,7 @@ test.snapshot({
 		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', async () => {\n\tgetTestContext().beforeEach(() => {});\n\tawait getTestContext().test(\'c\', {skip: true}, () => {});\n});',
 		'import * as nodeTest from \'node:test\';\nnodeTest.test(\'a\', () => { nodeTest.getTestContext().afterEach(() => {}); });',
 
-		// `t.test` has no `skip`, `only` or `todo` method, so a chained call throws and registers
-		// nothing, which leaves the hook with no subtest to run around
+		// `t.test` has no `skip`, `only` or `todo` method, so a chained call throws and registers nothing, which leaves the hook with no subtest to run around
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test.todo(\'child\', () => {}); });'),
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test.only(\'child\', () => {}); });'),
 		withTest('test(\'parent\', async t => { t.beforeEach(() => {}); await t.test.only.todo(\'child\', () => {}); });'),
