@@ -35,6 +35,12 @@ test.snapshot({
 
 		// Callback call-site conditions are not traced
 		withImport('if (x) { cases.forEach(c => { test(c.name, () => {}); }); }'),
+
+		// A context hook registered conditionally in a test body is conditional cleanup for that one test
+		'import test from \'node:test\';\ntest(\'x\', t => {\n\tconst server = maybeStart();\n\tif (server) {\n\t\tt.after(() => server.close());\n\t}\n});',
+		'import test from \'node:test\';\ntest(\'x\', t => {\n\tdir && t.after(() => rm(dir));\n});',
+		// An imported hook called in a test body registers on that test, the same as `t.after`
+		'import {test, after} from \'node:test\';\ntest(\'x\', () => {\n\tif (server) {\n\t\tafter(() => server.close());\n\t}\n});',
 	],
 	invalid: [
 		// If statement

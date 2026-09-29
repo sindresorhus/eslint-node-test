@@ -13,6 +13,8 @@ This rule reports a `test`/`it`/`describe`/`suite`/`before`/`after`/`beforeEach`
 
 A test or suite registered inside a hook callback is left to [`no-test-inside-hook`](./no-test-inside-hook.md), whose fix comes first: moving the definition out of the hook and only then splitting the condition is the reachable order, while this rule's advice would leave the other report in place. A hook registered conditionally inside a hook is still reported here, since `no-test-inside-hook` does not report a hook.
 
+A hook registered conditionally in a test body (`if (server) { t.after(() => server.close()); }`) is allowed. It is conditional cleanup for that one test and does not change the suite structure. An imported hook (`after(…)`) called in a test body registers on that test as well, so it is allowed the same way. A subtest (`t.test(…)`) registered conditionally in a test body is still reported.
+
 ## Examples
 
 ```js

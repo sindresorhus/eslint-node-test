@@ -64,9 +64,18 @@ const create = context => {
 		// out of the hook) has to come first, and this rule's advice (move the condition into the
 		// body) would leave that report in place, so reporting both leaves no state the user can reach.
 		// `no-test-inside-hook` does not report a hook inside a hook, so this rule still does: whether such a hook runs depends on the kind and on how it is registered, and a condition around it only adds to that.
+		const callbackKind = nearestTestCallbackKind(node, imports, context);
 		if (
-			getRegistrationKind(node, imports, context) !== 'hook'
-			&& nearestTestCallbackKind(node, imports, context) === 'hook'
+			callbackKind === 'hook'
+			&& getRegistrationKind(node, imports, context) !== 'hook'
+		) {
+			return;
+		}
+
+		// A hook registered conditionally in a test body is conditional cleanup (`if (server) { t.after(() => server.close()); }`), which only affects that one test, so the suite structure stays the same. An imported hook called in a test body registers on that test too, so `after(…)` there is the same as `t.after(…)`.
+		if (
+			(isContextHook || parsed?.kind === 'hook')
+			&& callbackKind === 'test'
 		) {
 			return;
 		}
