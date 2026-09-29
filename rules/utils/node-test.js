@@ -562,12 +562,6 @@ export const parseTestCall = memoizeByNode(PARSED_TEST_CALL, (callExpression, im
 /** Get the modifier identifier node with the given name (`only`/`skip`/`todo`), or `undefined`. */
 export const findModifier = (modifiers, name) => modifiers.find(modifier => modifier.name === name);
 
-export function isHookMemberTestCall(parsed) {
-	return parsed?.kind === 'test'
-		&& parsed.modifiers.length === 1
-		&& HOOK_FUNCTIONS.has(parsed.modifiers[0].name);
-}
-
 /**
 For a subtest-shaped call (`receiver.test(…)`, optionally with chained `.only`/`.skip`/`.todo` modifiers), return the receiver identifier node. Otherwise `undefined`.
 */
@@ -701,16 +695,14 @@ export function getFirstContextParameter(parameters) {
 /**
 Track the test-context parameter names (`t`) introduced by enclosing test, subtest, and optionally hook callbacks, including hooks declared from a test context.
 
-Subtests (`t.test(…)`) are method calls, not imported bindings, so recognizing them requires knowing the enclosing context name. Drive the tracker from a `CallExpression` visitor: query `isSubtestCall`/`isContextName` first (against the current stack), then call `update(node)` to push this call's own context, and `leave(node)` on exit.
+Subtests (`t.test(…)`) are method calls, not imported bindings, so recognizing them requires knowing the enclosing context name. Drive the tracker from a `CallExpression` visitor: query `isSubtestCall`/`isContextReceiver` first (against the current stack), then call `update(node)` to push this call's own context, and `leave(node)` on exit.
 
 Set `trackHooks` to also track hook context parameters.
 
 @returns {{
 	isSubtestCall: (node: import('estree').Node) => boolean,
-	hasIdentifierSubtestReceiver: (node: import('estree').Node) => boolean,
 	isContextIdentifier: (node: import('estree').Node | undefined) => boolean,
 	isContextReceiver: (node: import('estree').Node | undefined) => boolean,
-	isContextName: (name: string | undefined) => boolean,
 	isContextNameInScope: (name: string | undefined, node: import('estree').Node) => boolean,
 	currentContextVariable: () => import('eslint').Scope.Variable | undefined,
 	current: () => string | undefined,
@@ -804,7 +796,6 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 			parsed?.kind === 'hook'
 			&& parsed.modifiers.length === 0
 		)
-		|| isHookMemberTestCall(parsed)
 		|| isContextHookCall(node, isContextReceiver)
 	);
 
@@ -826,11 +817,7 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 		isSubtestCall: isTrackedSubtest,
 		// A receiver that reaches a test context, for `isContextHookCall` and friends.
 		isContextReceiver,
-		// Whether the subtest call has a context-parameter receiver, which the rules that name it in a
-		// message need in order to tell `t.test(…)` from `getTestContext().test(…)`.
-		hasIdentifierSubtestReceiver: node => getSubtestReceiver(node) !== undefined,
 		isContextIdentifier,
-		isContextName: name => name !== undefined && names.includes(name),
 		isContextNameInScope,
 		// The name of the innermost enclosing tracked context, or `undefined` when its
 		// callback declared no context parameter (or we are not inside a tracked callback).
@@ -1282,7 +1269,7 @@ export function getResolvedTestCallback(callExpression, context, imports) {
 	// The slots `getTestCallback` reads, in the same order: a hook only ever runs its first argument,
 	// and a test's `options.fn` wins over any positional callback.
 	const parsed = parseTestCall(callExpression, imports);
-	if (parsed?.kind === 'hook' || isHookMemberTestCall(parsed)) {
+	if (parsed?.kind === 'hook') {
 		return resolveCallbackArgument(callExpression.arguments[0], context);
 	}
 
@@ -1350,7 +1337,7 @@ one should ask for `getHookCallback` themselves.
 */
 export function getTestCallback(callExpression, imports) {
 	const parsed = imports && parseTestCall(callExpression, imports);
-	if (parsed?.kind === 'hook' || isHookMemberTestCall(parsed)) {
+	if (parsed?.kind === 'hook') {
 		return getHookCallback(callExpression);
 	}
 
@@ -1735,10 +1722,6 @@ export function getRegistrationKind(call, imports, isContextReceiver, context) {
 
 	const parsed = parseTestCall(call, imports);
 	if (parsed?.kind === 'hook' && parsed.modifiers.length === 0) {
-		return 'hook';
-	}
-
-	if (isHookMemberTestCall(parsed)) {
 		return 'hook';
 	}
 

@@ -4,7 +4,6 @@ import {
 	getCalleeChain,
 	getHookCallback,
 	getTestCallback,
-	isHookMemberTestCall,
 	MODIFIERS,
 	parseTestCall,
 	resolveImports,
@@ -93,13 +92,8 @@ function isSuiteCallbackCall(parsed) {
 }
 
 function isHookCall(parsed) {
-	return (
-		(
-			parsed?.kind === 'hook'
-			&& parsed.modifiers.length === 0
-		)
-		|| isHookMemberTestCall(parsed)
-	);
+	return parsed?.kind === 'hook'
+		&& parsed.modifiers.length === 0;
 }
 
 function isInsideCallback(node, callbacks, boundaryCalls) {

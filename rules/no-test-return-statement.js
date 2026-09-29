@@ -4,7 +4,6 @@ import {
 	parseTestCall,
 	getHookCallback,
 	getTestCallback,
-	isHookMemberTestCall,
 	isContextHookCall,
 	createContextTracker,
 } from './utils/node-test.js';
@@ -52,10 +51,6 @@ function isDisallowedReturnValue(node, parserServices, checker) {
 // so query it before `update` pushes this call's own context.
 function getCheckedCallback(callExpression, imports, tracker) {
 	const parsed = parseTestCall(callExpression, imports);
-	if (isHookMemberTestCall(parsed)) {
-		return getHookCallback(callExpression);
-	}
-
 	if (parsed?.kind === 'test') {
 		if (parsed.modifiers.some(modifier => !MODIFIERS.has(modifier.name))) {
 			return undefined;

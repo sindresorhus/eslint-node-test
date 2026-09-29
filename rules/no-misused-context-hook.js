@@ -10,6 +10,7 @@ import {
 	getTestOptions,
 	findOptionsProperty,
 	isGetTestContextCall,
+	isGetTestContextSubtestCall,
 } from './utils/node-test.js';
 import {getEnclosingFunction} from './utils/index.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
@@ -85,18 +86,6 @@ const CALLBACK_ARGUMENT_INDEX = new Map([['from', 1]]);
 
 /** Stands in for a `getTestContext()` receiver, which has no identifier to resolve. */
 const GET_TEST_CONTEXT = Symbol('getTestContext receiver');
-
-/**
-Whether the call is a subtest created through `getTestContext().test(…)`.
-*/
-function isGetTestContextSubtestCall(callExpression, imports) {
-	const callee = unwrapTypeScriptExpression(callExpression.callee);
-	return callee?.type === 'MemberExpression'
-		&& !callee.computed
-		&& callee.property.type === 'Identifier'
-		&& callee.property.name === 'test'
-		&& isGetTestContextCall(unwrapTypeScriptExpression(callee.object), imports);
-}
 
 /**
 Whether an iteration callback is invoked by a statement that is itself part of `ancestor`.

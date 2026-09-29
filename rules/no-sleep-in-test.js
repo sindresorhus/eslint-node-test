@@ -12,7 +12,6 @@ import {
 	getFirstContextParameter,
 	findEnabledOptionsProperty,
 	getContextHookName,
-	isHookMemberTestCall,
 	isSubtestCall,
 	MODIFIERS,
 	getImportSpecifierName,
@@ -105,23 +104,15 @@ function getContextHookReceiver(node) {
 }
 
 function getParsedCallback(node, parsed) {
-	if (getParsedKind(parsed) === 'hook') {
+	if (parsed.kind === 'hook') {
 		return getHookCallback(node);
 	}
 
 	return getTestCallback(node);
 }
 
-function getParsedKind(parsed) {
-	return isHookMemberTestCall(parsed) ? 'hook' : parsed.kind;
-}
-
-function getParsedModifiers(parsed) {
-	return isHookMemberTestCall(parsed) ? [] : parsed.modifiers;
-}
-
 function hasInactiveParsedOptions(node, parsed, context) {
-	const kind = getParsedKind(parsed);
+	const {kind} = parsed;
 	if (kind === 'suite') {
 		return hasSkippedSuiteOption(getTestOptions(node), context);
 	}
@@ -377,11 +368,11 @@ const create = context => {
 
 		const parsed = parseTestCall(node, imports);
 		if (parsed) {
-			const kind = getParsedKind(parsed);
+			const {kind} = parsed;
 
 			return (
 				(kind === 'test' || kind === 'hook')
-				&& areActiveModifiers(getParsedModifiers(parsed))
+				&& areActiveModifiers(parsed.modifiers)
 				&& !hasInactiveParsedOptions(node, parsed, context)
 			)
 				? getParsedCallback(node, parsed)
@@ -399,7 +390,7 @@ const create = context => {
 		const parsed = parseTestCall(node, imports);
 		if (parsed) {
 			return (
-				!areActiveModifiers(getParsedModifiers(parsed))
+				!areActiveModifiers(parsed.modifiers)
 				|| hasInactiveParsedOptions(node, parsed, context)
 			)
 				? getParsedCallback(node, parsed)
@@ -455,7 +446,7 @@ const create = context => {
 	const runsCallback = call => {
 		const parsed = parseTestCall(call, imports);
 		if (parsed) {
-			return areActiveModifiers(getParsedModifiers(parsed)) && !hasInactiveParsedOptions(call, parsed, context);
+			return areActiveModifiers(parsed.modifiers) && !hasInactiveParsedOptions(call, parsed, context);
 		}
 
 		return getContextHookName(call) !== undefined

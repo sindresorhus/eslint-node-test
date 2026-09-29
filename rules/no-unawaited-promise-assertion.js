@@ -13,7 +13,6 @@ import {
 	getFirstContextParameter,
 	getDestructuredAssertBindings,
 	parseDestructuredAssertCall,
-	isHookMemberTestCall,
 	isGetTestContextCall,
 	MODIFIERS,
 	HOOK_FUNCTIONS,
@@ -723,7 +722,7 @@ function isSameVariable(identifier, declaration, sourceCode) {
 function getTestBoundaryCallback(node, imports, contextParameters, sourceCode) {
 	const parsed = parseTestCall(node, imports);
 	if (parsed) {
-		const isHook = parsed.kind === 'hook' || isHookMemberTestCall(parsed);
+		const isHook = parsed.kind === 'hook';
 		if (parsed.kind !== 'test' && !isHook) {
 			return undefined;
 		}
