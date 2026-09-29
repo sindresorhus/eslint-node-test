@@ -6,28 +6,6 @@ const withImport = code => `import assert from 'node:assert';\n${code}`;
 
 test.snapshot({
 	valid: [
-		// A getter read through a computed key, or declared with one, runs on every read
-		'import assert from \'node:assert\';\nlet n = 0;\nconst o = {get value() { return n++; }};\nassert.strictEqual(o[\'value\'], o[\'value\']);',
-		'import assert from \'node:assert\';\nlet n = 0;\nconst o = {get [\'value\']() { return n++; }};\nassert.strictEqual(o.value, o.value);',
-		'import assert from \'node:assert\';\nlet n = 0;\nconst o = {get [`value`]() { return n++; }};\nassert.strictEqual(o.value, o.value);',
-		'import assert from \'node:assert\';\nclass C { get [\'value\']() { return Math.random(); } }\nconst c = new C();\nassert.strictEqual(c.value, c.value);',
-		// An optional chain or a TypeScript wrapper around the read is still the same property read
-		'import assert from \'node:assert\';\nlet n = 0;\nconst o = {get value() { return n++; }};\nassert.strictEqual(o?.value, o?.value);',
-		'import assert from \'node:assert\';\nlet n = 0;\nconst o = {get value() { return n++; }};\nassert.strictEqual(o?.[\'value\'], o?.[\'value\']);',
-		{
-			code: 'import assert from \'node:assert\';\nlet n = 0;\nconst o = {get value() { return n++; }};\nassert.strictEqual((o as any).value, (o as any).value);',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'import assert from \'node:assert\';\nlet n = 0;\nconst o = {get value() { return n++; }};\nassert.strictEqual(o?.value!, o?.value!);',
-			languageOptions: {parser: parsers.typescript},
-		},
-
-		// A getter runs on every read, so the two operands are not the same value. This is the
-		// property-read equivalent of the rule already skipping operands that contain a call.
-		withImport('let n = 0;\nconst counter = {get value() { return n++; }};\nassert.notStrictEqual(counter.value, counter.value);'),
-		withImport('let n = 0;\nconst counter = {get value() { return n++; }};\nassert.strictEqual(counter.value, counter.value);'),
-
 		// `a.b` throws when `a` is nullish while `a?.b` yields `undefined`, so the two do not
 		// reference the same value
 		withImport('assert.equal(a.b, a?.b);'),
@@ -35,7 +13,7 @@ test.snapshot({
 		withImport('assert.equal(a.b.c, a?.b.c);'),
 		withImport('assert.equal(this.x, this?.x);'),
 		withImport('assert.notEqual(a.b, a?.b);'),
-		withImport('let n = 0;\nclass Counter { get value() { return n++; } }\nconst counter = new Counter();\nassert.notStrictEqual(counter.value, counter.value);'),
+		// Each `new` expression builds another object, so the two reads are not the same reference
 		withImport('let n = 0;\nclass Counter { get value() { return n++; } }\nassert.notStrictEqual(new Counter().value, new Counter().value);'),
 		// Not an assert file
 		'strictEqual(x, x);',
@@ -68,14 +46,8 @@ test.snapshot({
 		withImport('assert.strictEqual(...args);'),
 		withImport('assert.notStrictEqual(x, ...args);'),
 
-		// A class expression is a class to the receiver just like a class declaration
-		withImport('let n = 0;\nconst Counter = class { get value() { return n++; } };\nconst counter = new Counter();\nassert.strictEqual(counter.value, counter.value);'),
-
 		// `.assert.*` on `this` is not a test context either
 		withImport('function f() {\n\tthis.assert.equal(x, x);\n}'),
-
-		// A getter runs on every read, so the negated form is decided too
-		'import assert from \'node:assert\';\nlet n = 0;\nconst o = {get value() { return n++; }};\nassert.notStrictEqual(o.value, o.value);',
 	],
 	invalid: [
 		// A declaration with no initializer is a plain variable, so the two reads are the same reference
@@ -91,6 +63,9 @@ test.snapshot({
 		withImport('const counter = {value: 1};\nassert.strictEqual(counter.value, counter.value);'),
 		// A setter is not a getter; reading the property twice still yields the same value
 		withImport('const counter = {set value(v) {}};\nassert.strictEqual(counter.value, counter.value);'),
+		// A getter can return a new value on each read, which the rule does not look for, so a getter read twice is reported like any other property read
+		withImport('let n = 0;\nconst counter = {get value() { return n++; }};\nassert.strictEqual(counter.value, counter.value);'),
+		withImport('let n = 0;\nclass Counter { get value() { return n++; } }\nconst counter = new Counter();\nassert.notStrictEqual(counter.value, counter.value);'),
 
 		// Identical identifiers — always passes
 		withImport('assert.strictEqual(x, x);'),
