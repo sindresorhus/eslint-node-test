@@ -113,6 +113,10 @@ test.snapshot({
 		// Node:assert/strict
 		withStrictAssert('assert.deepEqual(a, 1);'),
 		withStrictAssert('assert.deepStrictEqual(a, 1);'),
+		// A strict assert's loose-named methods are the strict pair, so they are fixed too
+		withStrictAssert('assert.notDeepEqual(a, 1);'),
+		withAssert('assert.strict.notDeepEqual(a, \'x\');'),
+		'import {strict as assert} from \'node:assert\';\nassert.deepEqual(a, 1);',
 
 		// T.assert
 		'import test from \'node:test\';\ntest(\'t\', t => { t.assert.deepEqual(a, 1); });',

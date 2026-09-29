@@ -61,8 +61,9 @@ const create = context => {
 		// primitive. The loose pair (`deepEqual` -> `equal`) is not equivalent, because `==` coerces
 		// a value that loose deep equality does not — `deepEqual(0, [])` fails while `equal(0, [])`
 		// passes, and `deepEqual(new Number(1), 1)` fails while `equal(new Number(1), 1)` passes. Leave
-		// the loose pair reported but unfixed.
-		const isLoosePair = method === 'deepEqual' || method === 'notDeepEqual';
+		// the loose pair reported but unfixed. A strict assert's `deepEqual` and `equal` are the strict
+		// pair itself, so there the fix is safe.
+		const isLoosePair = !assertion.isStrict && (method === 'deepEqual' || method === 'notDeepEqual');
 		if (callee.type === 'MemberExpression' && !isLoosePair) {
 			problem.fix = fixer => fixer.replaceText(callee.property, replacement);
 		}
