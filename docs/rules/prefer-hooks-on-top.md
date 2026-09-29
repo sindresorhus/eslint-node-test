@@ -9,7 +9,7 @@
 
 Hooks (`before`, `after`, `beforeEach`, `afterEach`) apply to every test in their scope regardless of where they are written. Placing a hook after a test reads as if it only affects later tests, which is misleading. Keeping all hooks at the top of their scope makes the setup and teardown easy to find and the execution order obvious.
 
-This rule reports a hook declared after a test, `it`, or nested `describe` in the same scope. A hook inside another function is not in the test's scope, so it is not reported.
+This rule reports a hook declared after a test, `it`, or nested `describe` in the same scope. A hook inside another function is not in the test's scope, so it is not reported. Likewise, a test inside another function, such as a helper, does not count. A test registered in an array-iteration callback (`cases.forEach(c => { it(…); })`) does count, since the callback runs where it is written, like a `for…of` body.
 
 ## Examples
 

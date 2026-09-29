@@ -18,6 +18,7 @@ export {default as hasStaticBlockBetween} from './has-static-block-between.js';
 export {isUnknownType} from './types.js';
 export {default as isConditionalBranch} from './is-conditional-branch.js';
 export {default as getEnclosingFunction} from './get-enclosing-function.js';
+export {default as isArrayIterationCallback} from './is-array-iteration-callback.js';
 export {getGlobalProcessObject} from './is-global-process.js';
 export {default as isUnshadowedGlobal} from './is-unshadowed-global.js';
 export {isPrimitiveOperand} from './is-primitive.js';

@@ -32,6 +32,8 @@ test.snapshot({
 		withImport('beforeEach(() => {\n\tit("a", () => {});\n\tbeforeEach(() => {});\n});'),
 		withImport('function body() {\n\tit("a", () => {});\n\tbeforeEach(() => {});\n}\nbeforeEach(body);'),
 		'import {test} from \'node:test\';\ntest(\'p\', t => {\n\tfunction body() {\n\t\tt.test(\'a\', () => {});\n\t\tt.beforeEach(() => {});\n\t}\n\tt.beforeEach(body);\n});',
+		// A hook in an array-iteration callback is still inside another function, so it is not compared with the tests above it
+		withImport('describe("s", () => {\n\tit("a", () => {});\n\tcases.forEach(() => {\n\t\tbeforeEach(() => {});\n\t});\n});'),
 	],
 	invalid: [
 		// A suite callback the call names out of line is that suite's own scope, so a hook after a
@@ -74,5 +76,9 @@ test.snapshot({
 
 		// A subtest body named out of line and registered through `getTestContext()` is a scope of its own
 		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', () => { getTestContext().test(\'b\', body); });\nfunction body(t) { t.test(\'x\', () => {}); t.beforeEach(() => {}); }',
+
+		// A test registered in an array-iteration callback runs where the call is written, so it is a test of the enclosing scope
+		withImport('describe("s", () => {\n\tcases.forEach(c => {\n\t\tit(c, () => {});\n\t});\n\tbeforeEach(() => {});\n});'),
+		withImport('cases.map(c => it(c, () => {}));\nafterEach(() => {});'),
 	],
 });

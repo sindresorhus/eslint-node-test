@@ -114,6 +114,50 @@ Message:
 
 `;
 
+exports[`prefer-hooks-on-top > invalid(15): import {describe, it, test, before, beforeEach, after, afterEach} from 'node:test';\ndescribe(\"s\", () => {\n\tcases.forEach(c => {\n\t\tit(c, () => {});\n\t});\n\tbeforeEach(() => {});\n}); 1`] = `
+
+  1 | import {describe, it, test, before, beforeEach, after, afterEach} from 'node:test';
+  2 | describe("s", () => {
+  3 | 	cases.forEach(c => {
+  4 | 		it(c, () => {});
+  5 | 	});
+  6 | 	beforeEach(() => {});
+  7 | });
+
+`;
+
+exports[`prefer-hooks-on-top > invalid(15): import {describe, it, test, before, beforeEach, after, afterEach} from 'node:test';\ndescribe(\"s\", () => {\n\tcases.forEach(c => {\n\t\tit(c, () => {});\n\t});\n\tbeforeEach(() => {});\n}); 2`] = `
+
+Message:
+  1 | import {describe, it, test, before, beforeEach, after, afterEach} from 'node:test';
+  2 | describe("s", () => {
+  3 | 	cases.forEach(c => {
+  4 | 		it(c, () => {});
+  5 | 	});
+> 6 | 	beforeEach(() => {});
+    | 	^^^^^^^^^^^^^^^^^^^^ Hook \`beforeEach\` should come before any test or \`describe\` in its scope.
+  7 | });
+
+`;
+
+exports[`prefer-hooks-on-top > invalid(16): import {describe, it, test, before, beforeEach, after, afterEach} from 'node:test';\ncases.map(c => it(c, () => {}));\nafterEach(() => {}); 1`] = `
+
+  1 | import {describe, it, test, before, beforeEach, after, afterEach} from 'node:test';
+  2 | cases.map(c => it(c, () => {}));
+  3 | afterEach(() => {});
+
+`;
+
+exports[`prefer-hooks-on-top > invalid(16): import {describe, it, test, before, beforeEach, after, afterEach} from 'node:test';\ncases.map(c => it(c, () => {}));\nafterEach(() => {}); 2`] = `
+
+Message:
+  1 | import {describe, it, test, before, beforeEach, after, afterEach} from 'node:test';
+  2 | cases.map(c => it(c, () => {}));
+> 3 | afterEach(() => {});
+    | ^^^^^^^^^^^^^^^^^^^ Hook \`afterEach\` should come before any test or \`describe\` in its scope.
+
+`;
+
 exports[`prefer-hooks-on-top > invalid(2): import {describe, it, beforeEach} from 'node:test';\ndescribe('user', body);\nfunction body() {\n\tit('a', () => {});\n\tbeforeEach(() => {});\n} 1`] = `
 
   1 | import {describe, it, beforeEach} from 'node:test';

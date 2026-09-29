@@ -1,5 +1,5 @@
 import {resolveImports, parseTestCall, createSuiteDepthTracker} from './utils/node-test.js';
-import {getEnclosingFunction} from './utils/index.js';
+import {getEnclosingFunction, isArrayIterationCallback} from './utils/index.js';
 
 const MESSAGE_ID_NOT_WRAPPED = 'require-top-level-describe/not-wrapped';
 const MESSAGE_ID_TOO_MANY = 'require-top-level-describe/too-many';
@@ -9,24 +9,12 @@ const messages = {
 	[MESSAGE_ID_TOO_MANY]: 'There should be no more than {{max}} top-level `describe` blocks in a file.',
 };
 
-// Array methods that run their first argument once per item, where the call is written.
-const ITERATION_METHODS = new Set(['forEach', 'map', 'flatMap']);
-
-function isIterationCallback(node) {
-	const {parent} = node;
-	return parent?.type === 'CallExpression'
-		&& parent.arguments[0] === node
-		&& parent.callee.type === 'MemberExpression'
-		&& !parent.callee.computed
-		&& ITERATION_METHODS.has(parent.callee.property.name);
-}
-
 /*
 Whether a registration runs directly in the module scope. An array-iteration callback runs where it is written, so a registration in `[1, 2].forEach(n => …)` is as top-level as one in a `for…of` body, while any other function (a helper, a hook body, a class method) may well run inside a suite.
 */
 function isInModuleScope(node) {
 	for (let function_ = getEnclosingFunction(node); function_; function_ = getEnclosingFunction(function_)) {
-		if (!isIterationCallback(function_)) {
+		if (!isArrayIterationCallback(function_)) {
 			return false;
 		}
 	}
