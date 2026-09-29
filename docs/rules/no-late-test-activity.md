@@ -13,7 +13,7 @@ Detached `setTimeout()`, `setImmediate()`, `queueMicrotask()`, and floating Prom
 
 Return or await asynchronous work so the test runner waits for it. Consumed Promise chains and scheduler callbacks inside a consumed `new Promise()` are allowed. Throws are also allowed when a downstream rejection callback handles them. The rule skips callback-style tests and hooks, and tests with a statically recognizable `t.plan(..., {wait: <truthy>})` call as a top-level statement of the test body, anywhere before the first top-level `return` or `throw`.
 
-Only directly executed activity in the test or hook callback is checked, whether it is written inline or named out of line (`test('a', body)`). External callbacks, nested helper functions, and nested detached callbacks are not analyzed.
+Only directly executed activity in the test or hook callback is checked, whether it is written inline or named out of line (`test('a', body)`). External callbacks, nested helper functions, and nested detached callbacks are not analyzed. A chain in a `for` loop's initializer or update slot, or under `void` in a static field initializer, is not read as floating.
 
 ## Examples
 

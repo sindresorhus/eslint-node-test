@@ -155,5 +155,25 @@ test.snapshot({
 		// A class static block sits between the call and the async function, and `await` is a syntax
 		// error inside one, so the problem is reported but no fix is offered.
 		`${ASSERT_IMPORT}\nasync function test() {\n\tclass C {\n\t\tstatic {\n\t\t\tassert.rejects(fn);\n\t\t}\n\t}\n}`,
+
+		// A type assertion on the call in a branch binds looser than `await` as it does on a bare
+		// statement, so no fix. A cast around the whole branch would name the type of the awaited value, so no fix there either.
+		{
+			code: `${ASSERT_IMPORT}\nasync function test() {\n\tx ? assert.rejects(fn) as Promise<void> : 0;\n}`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: `${ASSERT_IMPORT}\nasync function test() {\n\t(x ? assert.rejects(fn) : 0) as any;\n}`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: `${ASSERT_IMPORT}\nasync function test() {\n\t(x ? assert.rejects(fn) : 0) as Promise<void>;\n}`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		// A cast under `!` still binds looser than `await`
+		{
+			code: `${ASSERT_IMPORT}\nasync function test() {\n\t(assert.rejects(fn) as any)!;\n}`,
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

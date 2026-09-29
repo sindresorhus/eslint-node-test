@@ -379,6 +379,35 @@ Suggestion 1/1: Replace with \`rejects\`.:
 
 `;
 
+exports[`no-assert-throws-async > invalid(22): import test from 'node:test';\nimport assert from 'node:assert';\ntest('t', async () => {\n\tx ? assert.throws(async () => {}) as any : 0;\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('t', async () => {
+  4 | 	x ? assert.throws(async () => {}) as any : 0;
+  5 | });
+
+`;
+
+exports[`no-assert-throws-async > invalid(22): import test from 'node:test';\nimport assert from 'node:assert';\ntest('t', async () => {\n\tx ? assert.throws(async () => {}) as any : 0;\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('t', async () => {
+> 4 | 	x ? assert.throws(async () => {}) as any : 0;
+    | 	    ^^^^^^^^^^^^^ \`throws\` does not catch an async function, which never throws synchronously. Use \`rejects\` instead.
+  5 | });
+
+Suggestion 1/1: Replace with \`rejects\`.:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('t', async () => {
+  4 | 	x ? assert.rejects(async () => {}) as any : 0;
+  5 | });
+
+`;
+
 exports[`no-assert-throws-async > invalid(3): import test from 'node:test';\nimport assert from 'node:assert';\ntest('t', async () => {\n\tassert.throws(async () => {}, /boom/);\n}); 1`] = `
 
   1 | import test from 'node:test';

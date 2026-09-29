@@ -26,12 +26,10 @@ import {
 	unwrapTypeScriptExpression,
 	unwrapExpression,
 	skipExpressionWrappers,
-	outermostExpressionWrapper,
 	isExpressionWrapper,
-	getExpressionValuePropagation,
+	getFloatingStatement,
 	hasStaticBlockBetween,
 } from './utils/index.js';
-import {hasLooserBindThanAwait} from './utils/unwrap-typescript-expression.js';
 
 const MESSAGE_ID = 'no-unawaited-promise-assertion';
 
@@ -44,47 +42,6 @@ const TIMER_MODULES = new Set(['node:timers', 'timers']);
 const messages = {
 	[MESSAGE_ID]: 'Assertion in a floating `{{method}}()` callback is not awaited by the test. Await or return the Promise chain.',
 };
-
-function getFloatingExpression(node) {
-	const expression = outermostExpressionWrapper(node);
-
-	let container = expression;
-	let {parent} = expression;
-	let valuePropagates;
-	while ((valuePropagates = getExpressionValuePropagation(parent, container)) !== undefined) {
-		if (!valuePropagates) {
-			return {expression, canFix: false};
-		}
-
-		container = outermostExpressionWrapper(parent);
-		parent = container.parent;
-	}
-
-	if (parent?.type === 'UnaryExpression' && parent.operator === 'void') {
-		return {expression, canFix: false};
-	}
-
-	// A bare expression in a `for` initializer or update slot is discarded the way a floating
-	// statement is. A declaration or an assignment there keeps the Promise, as a static field does, so
-	// something may still await it.
-	if (
-		parent?.type === 'ForStatement'
-		&& (parent.init === container || parent.update === container)
-	) {
-		return {expression, canFix: false};
-	}
-
-	if (parent?.type !== 'ExpressionStatement') {
-		return undefined;
-	}
-
-	return {
-		expression,
-		// A type assertion binds looser than `await`, so `await chain as T` would cast the awaited
-		// value instead of the Promise, exactly as `getFloatingStatement` reports for a bare call.
-		canFix: !hasLooserBindThanAwait(expression),
-	};
-}
 
 function getPromiseChainCalls(node) {
 	const calls = [];
@@ -649,7 +606,7 @@ function isExpressionConsumed(node) {
 		node = node.parent;
 	}
 
-	return getFloatingExpression(node) === undefined;
+	return getFloatingStatement(node) === undefined;
 }
 
 function hasStaticallyTruthyWaitOption(node, sourceCode) {
@@ -889,12 +846,11 @@ export function trackDetachedCallbacks(context) {
 			detachedCallbacks.add(detachedScheduler.callback);
 		}
 
-		const floatingExpression = getFloatingExpression(node);
-		if (!floatingExpression || getEnclosingFunction(node) !== activeFrame.callback) {
+		if (!getFloatingStatement(node) || getEnclosingFunction(node) !== activeFrame.callback) {
 			return;
 		}
 
-		for (const chainCalls of getFloatingPromiseChains(floatingExpression.expression)) {
+		for (const chainCalls of getFloatingPromiseChains(node)) {
 			for (const call of chainCalls) {
 				for (const callback of getPromiseCallbackArguments(call)) {
 					detachedCallbacks.add(callback);
@@ -960,12 +916,12 @@ export function createLateTestActivity(context, {assertionsOnly = false, message
 			return;
 		}
 
-		const floatingExpression = getFloatingExpression(node);
-		if (!floatingExpression) {
+		const floating = getFloatingStatement(node);
+		if (!floating) {
 			return;
 		}
 
-		const chains = getFloatingPromiseChains(floatingExpression.expression);
+		const chains = getFloatingPromiseChains(node);
 		if (chains.length === 0) {
 			return;
 		}
@@ -983,12 +939,12 @@ export function createLateTestActivity(context, {assertionsOnly = false, message
 		}
 
 		if (
-			floatingExpression.canFix
+			floating.canAwait
 			&& activeCallback.async
-			&& isInsideCallbackBody(floatingExpression.expression, activeCallback)
-			&& !hasStaticBlockBetween(floatingExpression.expression, activeCallback)
+			&& isInsideCallbackBody(node, activeCallback)
+			&& !hasStaticBlockBetween(node, activeCallback)
 		) {
-			problems[0].fix = fixer => fixer.insertTextBefore(floatingExpression.expression, 'await ');
+			problems[0].fix = fixer => fixer.insertTextBefore(node, 'await ');
 		}
 
 		return problems;

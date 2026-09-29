@@ -176,5 +176,20 @@ test.snapshot({
 			code: withImport('test("parent", () => { (test.getTestContext() as any).test("child", () => {}); });'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// A type assertion on the subtest in a branch binds looser than `await` as it does on a bare
+		// statement, so no fix. A cast around the whole branch would name the type of the awaited value, so no fix there either.
+		{
+			code: withImport('test("parent", async t => {\n\tcondition ? t.test("child", () => {}) as any : null;\n});'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withImport('test("parent", async t => {\n\tcondition ? t.test("child", () => {}) satisfies any : null;\n});'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: withImport('test("parent", async t => {\n\t(condition ? t.test("child", () => {}) : null) as any;\n});'),
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

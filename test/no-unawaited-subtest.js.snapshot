@@ -843,6 +843,66 @@ Output:
 
 `;
 
+exports[`no-unawaited-subtest > invalid(50): import test from 'node:test';\ntest(\"parent\", async t => {\n\tcondition ? t.test(\"child\", () => {}) as any : null;\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("parent", async t => {
+  3 | 	condition ? t.test("child", () => {}) as any : null;
+  4 | });
+
+`;
+
+exports[`no-unawaited-subtest > invalid(50): import test from 'node:test';\ntest(\"parent\", async t => {\n\tcondition ? t.test(\"child\", () => {}) as any : null;\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test("parent", async t => {
+> 3 | 	condition ? t.test("child", () => {}) as any : null;
+    | 	            ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, so the test's own work does not run alongside it.
+  4 | });
+
+`;
+
+exports[`no-unawaited-subtest > invalid(51): import test from 'node:test';\ntest(\"parent\", async t => {\n\tcondition ? t.test(\"child\", () => {}) satisfies any : null;\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("parent", async t => {
+  3 | 	condition ? t.test("child", () => {}) satisfies any : null;
+  4 | });
+
+`;
+
+exports[`no-unawaited-subtest > invalid(51): import test from 'node:test';\ntest(\"parent\", async t => {\n\tcondition ? t.test(\"child\", () => {}) satisfies any : null;\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test("parent", async t => {
+> 3 | 	condition ? t.test("child", () => {}) satisfies any : null;
+    | 	            ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, so the test's own work does not run alongside it.
+  4 | });
+
+`;
+
+exports[`no-unawaited-subtest > invalid(52): import test from 'node:test';\ntest(\"parent\", async t => {\n\t(condition ? t.test(\"child\", () => {}) : null) as any;\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test("parent", async t => {
+  3 | 	(condition ? t.test("child", () => {}) : null) as any;
+  4 | });
+
+`;
+
+exports[`no-unawaited-subtest > invalid(52): import test from 'node:test';\ntest(\"parent\", async t => {\n\t(condition ? t.test(\"child\", () => {}) : null) as any;\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | test("parent", async t => {
+> 3 | 	(condition ? t.test("child", () => {}) : null) as any;
+    | 	             ^^^^^^^^^^^^^^^^^^^^^^^^^ Subtest \`t.test()\` must be awaited or returned, so the test's own work does not run alongside it.
+  4 | });
+
+`;
+
 exports[`no-unawaited-subtest > invalid(6): import test from 'node:test';\ntest(\"parent\", async t => { t.test.skip(\"child\", () => {}); }); 1`] = `
 
   1 | import test from 'node:test';

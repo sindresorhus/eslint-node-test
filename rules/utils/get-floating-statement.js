@@ -35,7 +35,7 @@ sequence expression hands to a statement that discards it (`x ? fn() : null;`).
 
 Expression wrappers (optional chaining, TypeScript `as`/`satisfies`/`!`) are skipped on the way out, so a cast cannot hide a floating call. Returns `undefined` when the value is used (awaited, returned, assigned, …).
 
-`canAwait` is `true` when prepending `await` to the call is a faithful fix. It is `false` for the `void` form (which would be left with a pointless `void await …`), for a call wrapped in a TypeScript type assertion (`as`/`satisfies`/`<T>`), which binds looser than `await`, and for an operand whose value a surrounding expression does not pass on. A call wrapped only in optional chaining or `!` stays fixable. Report the non-fixable forms without a fix.
+`canAwait` is `true` when prepending `await` to the call is a faithful fix. It is `false` for the `void` form (which would be left with a pointless `void await …`), for a call wrapped in a TypeScript type assertion (`as`/`satisfies`/`<T>`), which binds looser than `await`, also when the cast is around an enclosing expression (`(x ? fn() : 0) as T;`), since the awaited value no longer has the type the cast names, and for an operand whose value a surrounding expression does not pass on. A call wrapped only in optional chaining or `!` stays fixable. Report the non-fixable forms without a fix.
 
 @returns {{statement: import('estree').ExpressionStatement, canAwait: boolean} | undefined}
 */
@@ -75,8 +75,12 @@ export default function getFloatingStatement(node) {
 		return undefined;
 	}
 
-	return {
-		statement: parent,
-		canAwait: canAwait && !hasLooserBindThanAwait(parent.expression),
-	};
+	// A type assertion anywhere between the call and the statement names the type of what it wraps. On the call, it binds looser than `await`, so `await call() as T` casts the awaited value. Around an enclosing expression (`(x ? call() : 0) as T`), the `await` changes the type the cast applies to.
+	for (let current = node; current !== parent; current = current.parent) {
+		if (hasLooserBindThanAwait(current)) {
+			canAwait = false;
+		}
+	}
+
+	return {statement: parent, canAwait};
 }

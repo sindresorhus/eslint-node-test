@@ -97,7 +97,8 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 
-		// TypeScript wrapper around the call must not prevent the suggestion from including `await`
+		// A TypeScript wrapper around the call must not hide it. The suggestion leaves out `await`: `as`
+		// binds looser than `await`, so it would cast the awaited value instead of the Promise.
 		{
 			code: inAsyncTest('assert.throws(async () => {}) as Promise<void>;'),
 			languageOptions: {parser: parsers.typescript},
@@ -115,6 +116,13 @@ test.snapshot({
 		// Already awaited, so the suggestion renames without prepending a second `await`
 		{
 			code: inAsyncTest('await (assert.throws as any)(async () => {});'),
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// A type assertion on the call in a branch binds looser than `await` as it does on a bare
+		// statement, so the suggestion leaves out `await`
+		{
+			code: inAsyncTest('x ? assert.throws(async () => {}) as any : 0;'),
 			languageOptions: {parser: parsers.typescript},
 		},
 	],
