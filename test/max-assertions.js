@@ -78,5 +78,10 @@ test.snapshot({
 			code: 'import {test, getTestContext} from \'node:test\';\ntest(\'a\', () => { getTestContext().test(\'b\', body); });\nfunction body(t) { t.assert.ok(1); t.assert.ok(2); }',
 			options: [{max: 1}],
 		},
+
+		// A subtest registered from a hook runs as a test, whichever way it is written
+		`import {test, beforeEach} from 'node:test';\nimport assert from 'node:assert';\nbeforeEach(async t => { await t.test('x', () => { ${asserts(6)} }); });`,
+		`import {test, beforeEach} from 'node:test';\nimport assert from 'node:assert';\nconst body = () => { ${asserts(6)} };\nbeforeEach(async t => { await t.test('x', body); });`,
+		`import {test, beforeEach, getTestContext} from 'node:test';\nimport assert from 'node:assert';\nbeforeEach(async () => { await getTestContext().test('x', () => { ${asserts(6)} }); });`,
 	],
 });

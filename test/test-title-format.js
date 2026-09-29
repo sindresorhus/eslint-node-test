@@ -127,6 +127,11 @@ test.snapshot({
 			code: 'import test from "node:test";\ntest("unicode title", () => {});',
 			options: [{format: String.raw`^[\p{L}--[a-z]]`}],
 		},
+		// A subtest registered in a hook is a real test with a title
+		{
+			code: 'import {beforeEach} from "node:test";\nbeforeEach(t => { t.test("not starting with Should", () => {}); });',
+			options: [{format: '^Should'}],
+		},
 	],
 });
 

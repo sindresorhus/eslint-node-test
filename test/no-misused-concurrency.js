@@ -111,5 +111,7 @@ test.snapshot({
 		// Limitation: an imported `test()` in a test body runs as a subtest, which `concurrency` does
 		// govern, but only a `t.test()` subtest is counted
 		'import test from \'node:test\';\ntest(\'t\', {concurrency: true}, async () => { await test(\'a\', () => {}); });',
+		// A subtest registered in a hook is a real test, and a leaf one
+		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { t.test(\'a\', {concurrency: true}, () => {}); });',
 	],
 });

@@ -74,5 +74,9 @@ test.snapshot({
 
 		// A subtest body named out of line is a test body too
 		'import {test} from "node:test";\ntest("outer", async t => {\n  await t.test("b", body);\n});\nfunction body() {\n  test("inner", () => {});\n}',
+
+		// A subtest registered from a hook is read as a test in every form: Node runs the `t.test()` form from a `beforeEach`, and the `getTestContext()` form is read the same way, although in a hook it registers on the hook's owner and, awaited, never completes
+		'import {test, beforeEach} from "node:test";\nbeforeEach(async t => {\n  await t.test("b", () => {\n    test("inner", () => {});\n  });\n});',
+		'import {test, beforeEach, getTestContext} from "node:test";\nbeforeEach(async () => {\n  await getTestContext().test("b", () => {\n    test("inner", () => {});\n  });\n});',
 	],
 });

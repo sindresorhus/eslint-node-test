@@ -83,5 +83,31 @@ test.snapshot({
 		+ 'function hook(t) {\n'
 		+ '	t.test(\'x\', () => {});\n'
 		+ '}',
+		// A test in the body of a subtest the hook registers is nested in that subtest, which `no-nested-tests` reports, so only the outer one is reported here, in every form
+		'import {test, beforeEach} from \'node:test\';\n'
+		+ 'beforeEach(async t => {\n'
+		+ '	await t.test(\'x\', () => {\n'
+		+ '		test(\'inner\', () => {});\n'
+		+ '	});\n'
+		+ '});',
+		'import {test, beforeEach, getTestContext} from \'node:test\';\n'
+		+ 'beforeEach(async () => {\n'
+		+ '	await getTestContext().test(\'x\', () => {\n'
+		+ '		test(\'inner\', () => {});\n'
+		+ '	});\n'
+		+ '});',
+		'import {test, beforeEach} from \'node:test\';\n'
+		+ 'beforeEach(() => {\n'
+		+ '	test(\'x\', () => {\n'
+		+ '		test(\'inner\', () => {});\n'
+		+ '	});\n'
+		+ '});',
+		'import {test, beforeEach} from \'node:test\';\n'
+		+ 'const body = () => {\n'
+		+ '	test(\'inner\', () => {});\n'
+		+ '};\n'
+		+ 'beforeEach(async t => {\n'
+		+ '	await t.test(\'x\', body);\n'
+		+ '});',
 	],
 });

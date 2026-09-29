@@ -128,6 +128,22 @@ Message:
 
 `;
 
+exports[`no-misused-concurrency > invalid(17): import {beforeEach} from 'node:test';\nbeforeEach(t => { t.test('a', {concurrency: true}, () => {}); }); 1`] = `
+
+  1 | import {beforeEach} from 'node:test';
+  2 | beforeEach(t => { t.test('a', {concurrency: true}, () => {}); });
+
+`;
+
+exports[`no-misused-concurrency > invalid(17): import {beforeEach} from 'node:test';\nbeforeEach(t => { t.test('a', {concurrency: true}, () => {}); }); 2`] = `
+
+Message:
+  1 | import {beforeEach} from 'node:test';
+> 2 | beforeEach(t => { t.test('a', {concurrency: true}, () => {}); });
+    |                                ^^^^^^^^^^^^^^^^^ The \`concurrency\` option has no effect on a test without subtests. It only controls how a suite or a test's subtests run concurrently.
+
+`;
+
 exports[`no-misused-concurrency > invalid(2): import test from 'node:test';\ntest('t', {concurrency: 5}, () => {}); 1`] = `
 
   1 | import test from 'node:test';

@@ -90,5 +90,7 @@ test.snapshot({
 		// A subtest in a loop registers the same static title each iteration
 		withSetup('test(\'p\', async t => { for (const x of xs) { await t.test(\'same\', () => {}); } });'),
 		'import {suite} from \'node:test\';\nfor (const input of inputs) { suite(\'same\', () => {}); }',
+		// A subtest registered in a hook is a real test with a title
+		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { for (const x of xs) { t.test(\'a\', () => {}); } });',
 	],
 });

@@ -751,10 +751,12 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 		);
 
 	// A subtest is `<context>.test(…)` on a context this tracker knows, which for the
-	// `getTestContext()` form means the innermost frame.
+	// `getTestContext()` form means the innermost frame. `t.test(…)` in a `beforeEach` or `afterEach` body creates a subtest of the test the hook runs for, so a hook's context is read as creating one, the same as `getRegistrationKind` reads it, whether or not this tracker tracks hooks: `trackHooks` only decides whether the hook body opens a frame.
 	const isTrackedSubtest = node => {
 		const receiver = getSubtestReceiver(node);
-		return receiver ? isContextIdentifier(receiver) : isSubtestCall(node, imports);
+		return receiver
+			? isContextIdentifier(receiver) || getContextParameterKind(receiver, imports, context) !== undefined
+			: isSubtestCall(node, imports);
 	};
 
 	// The method name an identifier names, `ASSERT_OBJECT` for the destructured `assert` object

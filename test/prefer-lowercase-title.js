@@ -123,5 +123,7 @@ test.snapshot({
 		// The last argument of a two-argument call is the implementation, even when it is not a local function
 		'import {test} from \'node:test\';\nimport {run} from \'./helpers.js\';\ntest(\'Uppercase\', run);',
 		'import {test} from \'node:test\';\nimport helpers from \'./helpers.js\';\ntest(\'Uppercase\', helpers.run);',
+		// A subtest registered in a hook is a real test with a title
+		'import {beforeEach} from "node:test";\nbeforeEach(t => { t.test("Foo", () => {}); });',
 	],
 });

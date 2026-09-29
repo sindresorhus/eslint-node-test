@@ -2,8 +2,6 @@ import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	resolveImports,
 	parseTestCall,
-	getSubtestReceiver,
-	isGetTestContextSubtestCall,
 	getTestCallback,
 	getOutOfLineCallbackCall,
 	getRegistrationKind,
@@ -278,17 +276,10 @@ const create = context => {
 			);
 	};
 
-	const isSubtestCall = node => {
-		const receiver = getSubtestReceiver(node);
-		if (!receiver) {
-			// A `getTestContext().test(…)` subtest names the innermost test's context, the same one
-			// a context parameter would.
-			return testStack.length > 0 && isGetTestContextSubtestCall(node, imports);
-		}
-
-		const variable = findVariable(sourceCode.getScope(receiver), receiver);
-		return testStack.some(test => test.contextVariable && test.contextVariable === variable);
-	};
+	// A subtest is read the way the out-of-line path below reads it, so one registered from a hook
+	// (`t.test(…)` on the hook's context, or `getTestContext().test(…)`) counts as well.
+	const isSubtestCall = node => parseTestCall(node, imports) === undefined
+		&& getRegistrationKind(node, imports, context) === 'test';
 
 	const enterTestCall = node => {
 		if (!isTestImportCall(node) && !isSubtestCall(node)) {

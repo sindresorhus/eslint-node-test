@@ -38,6 +38,26 @@ Message:
 
 `;
 
+exports[`test-title-format > invalid(11): import {beforeEach} from \"node:test\";\nbeforeEach(t => { t.test(\"not starting with Should\", () => {}); }); 1`] = `
+
+Options:
+- format: '^Should'
+
+Code:
+  1 | import {beforeEach} from "node:test";
+  2 | beforeEach(t => { t.test("not starting with Should", () => {}); });
+
+`;
+
+exports[`test-title-format > invalid(11): import {beforeEach} from \"node:test\";\nbeforeEach(t => { t.test(\"not starting with Should\", () => {}); }); 2`] = `
+
+Message:
+  1 | import {beforeEach} from "node:test";
+> 2 | beforeEach(t => { t.test("not starting with Should", () => {}); });
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test title does not match the required format: \`/^Should/v\`.
+
+`;
+
 exports[`test-title-format > invalid(2): import test from \"node:test\";\ntest(\`Test something\`, () => {}); 1`] = `
 
 Options:

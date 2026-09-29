@@ -175,6 +175,8 @@ test.snapshot({
 
 		// A later computed key that folds to a constant names another option, so it cannot override `tags`
 		withImport('test("title", {tags: ["UPPER"], ["timeout"]: 5}, () => {});'),
+		// A subtest registered in a hook is a real test, and its tags are checked at registration too
+		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { t.test(\'a\', {tags: [\'a b\']}); });',
 	],
 });
 

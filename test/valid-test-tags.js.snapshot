@@ -1266,6 +1266,22 @@ Output:
 
 `;
 
+exports[`valid-test-tags > invalid(71): import {beforeEach} from 'node:test';\nbeforeEach(t => { t.test('a', {tags: ['a b']}); }); 1`] = `
+
+  1 | import {beforeEach} from 'node:test';
+  2 | beforeEach(t => { t.test('a', {tags: ['a b']}); });
+
+`;
+
+exports[`valid-test-tags > invalid(71): import {beforeEach} from 'node:test';\nbeforeEach(t => { t.test('a', {tags: ['a b']}); }); 2`] = `
+
+Message:
+  1 | import {beforeEach} from 'node:test';
+> 2 | beforeEach(t => { t.test('a', {tags: ['a b']}); });
+    |                                       ^^^^^ Tag \`a b\` must not contain whitespace or any of \`&\`, \`|\`, \`!\`, \`(\`, \`)\`, \`*\`.
+
+`;
+
 exports[`valid-test-tags > invalid(8): import {test, it, describe, suite, before} from 'node:test';\ntest(\"title\", {tags: () => {}}, () => {}); 1`] = `
 
   1 | import {test, it, describe, suite, before} from 'node:test';

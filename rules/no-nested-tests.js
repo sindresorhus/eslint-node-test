@@ -20,41 +20,40 @@ const create = context => {
 		return;
 	}
 
-	// Stack of callback function nodes of the `test`/`it` calls we are currently inside.
+	// Stack of callback function nodes of the `test`/`it` calls and subtests we are currently inside.
 	// Suites (`describe`/`suite`) legitimately contain tests and nested suites, so they
 	// do not open a scope here — only a test/it body does.
 	const testCallbackStack = [];
 
+	// The calls whose callbacks are on the stack, so the exit pops exactly what the entry pushed.
+	const pushedCalls = new WeakSet();
+
 	context.on('CallExpression', node => {
 		const parsed = parseTestCall(node, imports);
-		if (!parsed) {
-			return;
-		}
 
 		// A test or suite defined inside a test body should be a subtest (`t.test()`).
-		if ((parsed.kind === 'test' || parsed.kind === 'suite') && testCallbackStack.length > 0) {
+		if ((parsed?.kind === 'test' || parsed?.kind === 'suite') && testCallbackStack.length > 0) {
 			return {
 				node,
 				messageId: MESSAGE_ID,
 			};
 		}
 
-		if (parsed.kind === 'test') {
-			const callback = getTestCallback(node);
-			if (callback) {
-				testCallbackStack.push(callback);
-			}
+		// A subtest's body is a test body too, whichever context registers it, a hook's included, the
+		// same as for a body the call names out of line below.
+		if (getRegistrationKind(node, imports, context) !== 'test') {
+			return;
+		}
+
+		const callback = getTestCallback(node, imports);
+		if (callback) {
+			testCallbackStack.push(callback);
+			pushedCalls.add(node);
 		}
 	});
 
 	context.onExit('CallExpression', node => {
-		const parsed = parseTestCall(node, imports);
-		if (!parsed || parsed.kind !== 'test') {
-			return;
-		}
-
-		const callback = getTestCallback(node);
-		if (callback && testCallbackStack.at(-1) === callback) {
+		if (pushedCalls.delete(node)) {
 			testCallbackStack.pop();
 		}
 	});

@@ -206,5 +206,13 @@ test.snapshot({
 		+ 'test(\'a\', t => {\n'
 		+ '\tt.test(\'sub\', body);\n'
 		+ '});',
+		// A subtest registered from a hook is read as a test in every form: Node runs the `t.test()` form from a `beforeEach`, and the `getTestContext()` form is read the same way, although in a hook it registers on the hook's owner and, awaited, never completes
+		withBeforeEachImport('beforeEach(async t => {\n\tawait t.test(\'sub\', () => {\n\t\tprocess.env.X = \'1\';\n\t});\n});'),
+		'import {beforeEach, getTestContext} from \'node:test\';\n'
+		+ 'beforeEach(async () => {\n'
+		+ '\tawait getTestContext().test(\'sub\', () => {\n'
+		+ '\t\tprocess.env.X = \'1\';\n'
+		+ '\t});\n'
+		+ '});',
 	],
 });

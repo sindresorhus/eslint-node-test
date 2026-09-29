@@ -163,5 +163,7 @@ test.snapshot({
 		// A template literal with an expression is a resolved title too, so it is reported without a fix
 		// eslint-disable-next-line no-template-curly-in-string
 		'import test from "node:test";\ntest(`${"foo"} `, () => {});',
+		// A subtest registered in a hook is a real test with a title
+		'import {beforeEach} from "node:test";\nbeforeEach(t => { t.test(" a ", () => {}); });',
 	],
 });

@@ -179,5 +179,31 @@ test.snapshot({
 		+ '	t.assert.ok(a);\n'
 		+ '}\n'
 		+ 'test(\'a\', body);',
+		// A subtest registered from a hook runs as a test, whichever way it is written
+		'import {beforeEach} from \'node:test\';\n'
+		+ 'import assert from \'node:assert\';\n'
+		+ 'beforeEach(async t => {\n'
+		+ '	await t.test(\'sub\', () => {\n'
+		+ '		assert.ok(x);\n'
+		+ '		assert.ok(x);\n'
+		+ '	});\n'
+		+ '});',
+		'import {beforeEach} from \'node:test\';\n'
+		+ 'import assert from \'node:assert\';\n'
+		+ 'const body = () => {\n'
+		+ '	assert.ok(x);\n'
+		+ '	assert.ok(x);\n'
+		+ '};\n'
+		+ 'beforeEach(async t => {\n'
+		+ '	await t.test(\'sub\', body);\n'
+		+ '});',
+		'import {beforeEach, getTestContext} from \'node:test\';\n'
+		+ 'import assert from \'node:assert\';\n'
+		+ 'beforeEach(async () => {\n'
+		+ '	await getTestContext().test(\'sub\', () => {\n'
+		+ '		assert.ok(x);\n'
+		+ '		assert.ok(x);\n'
+		+ '	});\n'
+		+ '});',
 	],
 });
