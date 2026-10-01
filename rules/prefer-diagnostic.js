@@ -3,12 +3,16 @@ import {
 	resolveImports,
 	createContextTracker,
 	getFirstContextParameter,
+	getHookCallback,
 	getOutOfLineCallbackCall,
+	getParentCallExpression,
 	getRegistrationKind,
+	isContextHookCall,
 	isGetTestContextInScope,
 	isUnreboundParameter,
 } from './utils/node-test.js';
 import {getEnclosingFunction, isUnshadowedGlobal, unwrapExpression} from './utils/index.js';
+import {isStringExpression} from './ast/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-diagnostic/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-diagnostic/suggestion';
@@ -42,6 +46,14 @@ function getGlobalConsoleObject(node) {
 		: undefined;
 }
 
+// Whether `node` is statically a string: a string literal, a template literal, or a `+` concatenation with such an operand. `diagnostic()` writes its message as it is, so under `node --test` an `undefined` or `null` message fails the whole file and an object prints `[object Object]`.
+const isStringArgument = node => isStringExpression(node)
+	|| (
+		node.type === 'BinaryExpression'
+		&& node.operator === '+'
+		&& (isStringArgument(node.left) || isStringArgument(node.right))
+	);
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const imports = resolveImports(context);
@@ -71,6 +83,33 @@ const create = context => {
 		return nodeStart >= start && nodeStart < end;
 	};
 
+	// The innermost context hook callback (`t.beforeEach(ctx => …)`) between `node` and the test body `container` that declares a context parameter. The runner passes a hook its own test context, which has `diagnostic()` too, but the tracker does not track hooks.
+	const getContextHookParameter = (node, container) => {
+		for (let current = getEnclosingFunction(node); current && current !== container; current = getEnclosingFunction(current)) {
+			const call = getParentCallExpression(current);
+			const parameter = getFirstContextParameter(current.params);
+			if (
+				parameter
+				&& call
+				&& getHookCallback(call) === current
+				&& isContextHookCall(call, tracker.isContextReceiver)
+			) {
+				return parameter;
+			}
+		}
+	};
+
+	// The name of a context `parameter` when it still reaches the test context at `node`, which a nested binding of the same name does not.
+	const getParameterName = (parameter, node) => {
+		// A `var` of the same name in the body rebinds the parameter, so the name no longer reaches the test context.
+		const variable = findVariable(context.sourceCode.getScope(node), parameter.name);
+		return variable
+			&& variable.identifiers.includes(parameter)
+			&& isUnreboundParameter(variable)
+			? parameter.name
+			: undefined;
+	};
+
 	/*
 	The name to call `diagnostic()` on at `node`, or `undefined` when no test context is in scope there.
 
@@ -80,11 +119,20 @@ const create = context => {
 		const body = getOutOfLineTestBody(node);
 		const callback = tracker.currentCallback();
 		// The innermost test body names the context: an out-of-line subtest body declared inside a test callback has its own.
-		if (
-			callback
+		const isInsideCallback = callback
 			&& isInside(node, callback)
-			&& !(body && isInside(body, callback))
-		) {
+			&& !(body && isInside(body, callback));
+		const testBody = isInsideCallback ? callback : body;
+		if (!testBody) {
+			return;
+		}
+
+		const hookParameter = getContextHookParameter(node, testBody);
+		if (hookParameter) {
+			return getParameterName(hookParameter, node);
+		}
+
+		if (isInsideCallback) {
 			const name = tracker.current();
 			if (name) {
 				return tracker.isContextNameInScope(name, node) ? name : undefined;
@@ -93,22 +141,12 @@ const create = context => {
 			return getTestContextCall(node);
 		}
 
-		if (!body) {
-			return;
-		}
-
 		const parameter = getFirstContextParameter(body.params);
 		if (!parameter) {
 			return getTestContextCall(node);
 		}
 
-		// A `var` of the same name in the body rebinds the parameter, so the name no longer reaches the test context.
-		const variable = findVariable(context.sourceCode.getScope(node), parameter.name);
-		return variable
-			&& variable.identifiers.includes(parameter)
-			&& isUnreboundParameter(variable)
-			? parameter.name
-			: undefined;
+		return getParameterName(parameter, node);
 	};
 
 	context.on('CallExpression', node => {
@@ -146,10 +184,10 @@ const create = context => {
 			data,
 		};
 
-		// `diagnostic()` takes a single message, so only suggest a rewrite for a single argument. A spread counts as one argument but stands for any number of values, of which `t.diagnostic(…args)` would print only the first. Replacing the whole callee would also drop any comments inside it, such as `console./* trace */log(…)`.
+		// `diagnostic()` takes a single message, so only suggest a rewrite for a single argument. A spread counts as one argument but stands for any number of values, of which `t.diagnostic(…args)` would print only the first. The message has to be a string, which a spread never statically is. Replacing the whole callee would also drop any comments inside it, such as `console./* trace */log(…)`.
 		if (
 			node.arguments.length === 1
-			&& node.arguments[0].type !== 'SpreadElement'
+			&& isStringArgument(node.arguments[0])
 			&& context.sourceCode.getCommentsInside(callee).length === 0
 		) {
 			problem.suggest = [

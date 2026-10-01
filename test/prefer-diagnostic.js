@@ -71,6 +71,9 @@ test.snapshot({
 		'import test from \'node:test\';\nfunction helper() { console.log(\'x\'); }\ntest(\'t\', () => { helper(); });',
 		// A `var` in the body rebinds the context parameter, the same as in an inline body
 		'import test from \'node:test\';\nfunction body(t) { var t = 1; console.log(\'x\'); }\ntest(\'t\', body);',
+		// A callback parameter of the same name shadows the context, and so does one inside a context hook
+		'import test from \'node:test\';\ntest(\'a\', t => { [1].forEach(t => { console.log(t); }); });',
+		'import test from \'node:test\';\ntest(\'a\', t => { t.beforeEach(ctx => { [1].forEach(ctx => { console.log(ctx); }); }); });',
 	],
 	invalid: [
 		// Replacing the whole callee would drop the comment inside it, so no suggestion `globalThis.console` and `global.console` are the same object as the bare global, the way `globalThis.process` is the same as `process`
@@ -103,7 +106,19 @@ test.snapshot({
 
 		// Single-argument console.log — suggestion offered
 		inTest('console.log(\'value\');'),
+		// A statically string argument: a template literal, or a `+` concatenation with a string operand
+		// eslint-disable-next-line no-template-curly-in-string
+		inTest('console.log(`count: ${count}`);'),
+		inTest('console.log(\'count: \' + count);'),
+		inTest('console.log(count + \' items\');'),
+		inTest('console.log(\'a\' + b + c);'),
+		// Any other argument is reported without a suggestion: `t.diagnostic(undefined)` and `t.diagnostic(null)` fail the whole file, and an object prints `[object Object]`
 		inTest('console.log(message);'),
+		inTest('console.log(undefined);'),
+		inTest('console.log(null);'),
+		inTest('console.log({a: 1});'),
+		inTest('console.log(42);'),
+		inTest('console.log(a + b);'),
 
 		// Multiple arguments — reported but no suggestion (diagnostic takes one message)
 		inTest('console.log(\'value\', value);'),
@@ -156,5 +171,14 @@ test.snapshot({
 		'import test, {getTestContext} from \'node:test\';\nfunction body() { console.log(\'x\'); }\ntest(\'t\', body);',
 		// A subtest body declared inside a test names its own context, not the outer test's
 		'import test from \'node:test\';\ntest(\'x\', t => {\n\tfunction body(s) { console.log(\'x\'); }\n\tt.test(\'y\', body);\n});',
+		// A context hook passes its callback a test context of its own, which has `diagnostic()` too
+		'import test from \'node:test\';\ntest(\'o\', async t => { t.beforeEach(t => { console.log(\'x\'); }); await t.test(\'s\', () => {}); });',
+		'import test from \'node:test\';\ntest(\'o\', async t => { t.afterEach(t => { console.log(\'x\'); }); await t.test(\'s\', () => {}); });',
+		'import test from \'node:test\';\ntest(\'o\', async t => { t.before(t => { console.log(\'x\'); }); await t.test(\'s\', () => {}); });',
+		'import test from \'node:test\';\ntest(\'o\', async t => { t.after(t => { console.log(\'x\'); }); await t.test(\'s\', () => {}); });',
+		'import test from \'node:test\';\ntest(\'o\', async t => { t.beforeEach(ctx => { console.log(\'x\'); }); await t.test(\'s\', () => {}); });',
+		'import test from \'node:test\';\nfunction body(t) { t.beforeEach(t => { console.log(\'x\'); }); }\ntest(\'o\', body);',
+		// A hook without a context parameter still sees the test's context
+		'import test from \'node:test\';\ntest(\'o\', async t => { t.beforeEach(() => { console.log(\'x\'); }); await t.test(\'s\', () => {}); });',
 	],
 });
