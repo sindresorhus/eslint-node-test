@@ -814,6 +814,70 @@ Message:
 
 `;
 
+exports[`assertion-arguments > invalid(56): import assert from 'node:assert';\nassert.ifError(value, \"msg\"); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ifError(value, "msg");
+
+`;
+
+exports[`assertion-arguments > invalid(56): import assert from 'node:assert';\nassert.ifError(value, \"msg\"); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ifError(value, "msg");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Too many arguments. Expected at most 1.
+
+`;
+
+exports[`assertion-arguments > invalid(57): import assert from 'node:assert';\nassert.ifError(value, \"msg\", extra); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ifError(value, "msg", extra);
+
+`;
+
+exports[`assertion-arguments > invalid(57): import assert from 'node:assert';\nassert.ifError(value, \"msg\", extra); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ifError(value, "msg", extra);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Too many arguments. Expected at most 1.
+
+`;
+
+exports[`assertion-arguments > invalid(58): import test from 'node:test';\ntest('t', t => { t.assert.ifError(value, \"msg\"); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('t', t => { t.assert.ifError(value, "msg"); });
+
+`;
+
+exports[`assertion-arguments > invalid(58): import test from 'node:test';\ntest('t', t => { t.assert.ifError(value, \"msg\"); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('t', t => { t.assert.ifError(value, "msg"); });
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Too many arguments. Expected at most 1.
+
+`;
+
+exports[`assertion-arguments > invalid(59): import assert from 'node:assert';\nassert.ifError(); 1`] = `
+
+  1 | import assert from 'node:assert';
+  2 | assert.ifError();
+
+`;
+
+exports[`assertion-arguments > invalid(59): import assert from 'node:assert';\nassert.ifError(); 2`] = `
+
+Message:
+  1 | import assert from 'node:assert';
+> 2 | assert.ifError();
+    | ^^^^^^^^^^^^^^^^ Not enough arguments. Expected at least 1.
+
+`;
+
 exports[`assertion-arguments > invalid(6): import assert from 'node:assert';\nassert.doesNotReject(promise, () => true, \"m\", \"dropped\"); 1`] = `
 
   1 | import assert from 'node:assert';
@@ -827,6 +891,22 @@ Message:
   1 | import assert from 'node:assert';
 > 2 | assert.doesNotReject(promise, () => true, "m", "dropped");
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Too many arguments. Expected at most 3.
+
+`;
+
+exports[`assertion-arguments > invalid(60): import {ifError} from 'node:assert';\nifError(); 1`] = `
+
+  1 | import {ifError} from 'node:assert';
+  2 | ifError();
+
+`;
+
+exports[`assertion-arguments > invalid(60): import {ifError} from 'node:assert';\nifError(); 2`] = `
+
+Message:
+  1 | import {ifError} from 'node:assert';
+> 2 | ifError();
+    | ^^^^^^^^^ Not enough arguments. Expected at least 1.
 
 `;
 

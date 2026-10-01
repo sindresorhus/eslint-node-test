@@ -15,7 +15,7 @@ the `message` (so max = required + 1 for the plain comparisons).
 
 `fail` is omitted because it accepts 0 or 1 args (ambiguous) — not checkable.
 `throws`/`doesNotThrow`/`rejects`/`doesNotReject` accept 1 required + optional error + optional message.
-`ifError` is the exception with no trailing message argument: it takes one value and ignores the rest. It also needs no value: it throws only for an argument that is neither `null` nor `undefined`, so a missing argument passes just like an explicit `undefined`.
+`ifError` is the exception with no trailing message argument: it takes exactly one value and ignores the rest (max = min = 1). It throws only for an argument that is neither `null` nor `undefined`, so a missing argument always passes and the assertion checks nothing.
 `snapshot` is omitted because its optional second argument is an options object, not a message string,
 so it does not fit this map's "trailing string message" model (and it is a `node:test` context
 assertion rather than a `node:assert` method).
@@ -37,7 +37,7 @@ const ASSERTION_ARGS = new Map([
 	['doesNotThrow', {min: 1, max: 3}],
 	['rejects', {min: 1, max: 3}],
 	['doesNotReject', {min: 1, max: 3}],
-	['ifError', {min: 0, max: 1, hasMessage: false}],
+	['ifError', {min: 1, max: 1, hasMessage: false}],
 ]);
 
 /*
@@ -143,13 +143,9 @@ const create = context => {
 			};
 		}
 
-		// For methods where max === min there is no message slot, and `ifError` has no message slot at all: its only argument is the value, which may be any expression.
-		if (!hasMessage || max <= min) {
-			return;
-		}
-
-		if (METHODS_WITHOUT_MESSAGE_FORMATTING.has(method)) {
-			// Anything past the message is dropped, so it is a surplus argument the runner ignores.
+		// `ifError` has no message slot at all: its only argument is the value, which may be any expression, and anything after it is dropped just like past the `throws` family's message.
+		if (!hasMessage || METHODS_WITHOUT_MESSAGE_FORMATTING.has(method)) {
+			// Anything past the last argument the method reads is dropped, so it is a surplus argument the runner ignores.
 			if (count > max) {
 				return {
 					node,

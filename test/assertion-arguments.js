@@ -26,8 +26,7 @@ test.snapshot({
 		withAssert('assert.partialDeepStrictEqual(actual, expected);'),
 		withAssert('assert.partialDeepStrictEqual(actual, expected, message);'),
 
-		// `ifError` only throws for a value that is neither `null` nor `undefined`, so a missing argument passes just like `ifError(undefined)`
-		withAssert('assert.ifError();'),
+		// `ifError` only throws for a value that is neither `null` nor `undefined`, so these pass (an explicit value is still a value to check, unlike a missing one)
 		withAssert('assert.ifError(undefined);'),
 		withAssert('assert.ifError(null);'),
 
@@ -82,7 +81,7 @@ test.snapshot({
 		// IfError — 1 required
 		withAssert('assert.ifError(value);'),
 
-		// A message may be followed by printf-style substitution arguments, and `ifError` ignores everything after its value, so extra arguments are never an arity error
+		// A message may be followed by printf-style substitution arguments, so extra arguments are never an arity error
 		withAssert('assert.ok(value, "message %s", extra);'),
 		withAssert('assert.ok(value, "message", extra, more, andMore);'),
 		withAssert('assert.equal(a, b, "message", extra);'),
@@ -94,8 +93,6 @@ test.snapshot({
 		withAssert('assert.partialDeepStrictEqual(a, b, "msg", extra);'),
 		withAssert('assert.match(str, /re/, "msg", extra);'),
 		withAssert('assert.doesNotMatch(str, /re/, "msg", extra);'),
-		withAssert('assert.ifError(value, "msg");'),
-		withAssert('assert.ifError(value, "msg", extra);'),
 		withNamedImport('ok', 'ok(value, "message", extra);'),
 		withStrictAssert('assert.ok(value, "message", extra);'),
 		'import test from \'node:test\';\ntest(\'t\', t => { t.assert.ok(value, "message", extra); });',
@@ -311,5 +308,13 @@ test.snapshot({
 			code: withAssert('assert.ok();'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// `ifError` has no message argument and ignores everything after its value, so a message there is never shown: `assert.ifError(new Error('boom'), 'my message')` fails with `ifError got unwanted exception: boom`
+		withAssert('assert.ifError(value, "msg");'),
+		withAssert('assert.ifError(value, "msg", extra);'),
+		'import test from \'node:test\';\ntest(\'t\', t => { t.assert.ifError(value, "msg"); });',
+		// A missing value always passes, so the assertion checks nothing
+		withAssert('assert.ifError();'),
+		withNamedImport('ifError', 'ifError();'),
 	],
 });
