@@ -598,6 +598,88 @@ Message:
 
 `;
 
+exports[`require-assertion > invalid(43): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('parent', () => { test.skip('child', () => { assert.ok(true); }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | test('parent', () => { test.skip('child', () => { assert.ok(true); }); });
+
+`;
+
+exports[`require-assertion > invalid(43): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('parent', () => { test.skip('child', () => { assert.ok(true); }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+> 3 | test('parent', () => { test.skip('child', () => { assert.ok(true); }); });
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
+
+`;
+
+exports[`require-assertion > invalid(44): import test from 'node:test';\ntest('parent', () => { test('child', {skip: true}, t => { t.assert.ok(true); }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('parent', () => { test('child', {skip: true}, t => { t.assert.ok(true); }); });
+
+`;
+
+exports[`require-assertion > invalid(44): import test from 'node:test';\ntest('parent', () => { test('child', {skip: true}, t => { t.assert.ok(true); }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('parent', () => { test('child', {skip: true}, t => { t.assert.ok(true); }); });
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
+
+`;
+
+exports[`require-assertion > invalid(45): import test from 'node:test';\ntest('parent', () => { test.skip('child', () => { test('grandchild', () => {}); }); }); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | test('parent', () => { test.skip('child', () => { test('grandchild', () => {}); }); });
+
+`;
+
+exports[`require-assertion > invalid(45): import test from 'node:test';\ntest('parent', () => { test.skip('child', () => { test('grandchild', () => {}); }); }); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | test('parent', () => { test.skip('child', () => { test('grandchild', () => {}); }); });
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
+
+`;
+
+exports[`require-assertion > invalid(46): import {describe, it} from \"node:test\";\ndescribe(\"s\", () => { it(\"x\", () => {}); }); 1`] = `
+
+  1 | import {describe, it} from "node:test";
+  2 | describe("s", () => { it("x", () => {}); });
+
+`;
+
+exports[`require-assertion > invalid(46): import {describe, it} from \"node:test\";\ndescribe(\"s\", () => { it(\"x\", () => {}); }); 2`] = `
+
+Message:
+  1 | import {describe, it} from "node:test";
+> 2 | describe("s", () => { it("x", () => {}); });
+    |                       ^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
+
+`;
+
+exports[`require-assertion > invalid(47): import {describe, it} from \"node:test\";\ndescribe(\"s\", {skip: 0}, () => { it(\"x\", () => {}); }); 1`] = `
+
+  1 | import {describe, it} from "node:test";
+  2 | describe("s", {skip: 0}, () => { it("x", () => {}); });
+
+`;
+
+exports[`require-assertion > invalid(47): import {describe, it} from \"node:test\";\ndescribe(\"s\", {skip: 0}, () => { it(\"x\", () => {}); }); 2`] = `
+
+Message:
+  1 | import {describe, it} from "node:test";
+> 2 | describe("s", {skip: 0}, () => { it("x", () => {}); });
+    |                                  ^^^^^^^^^^^^^^^^^ Test is missing an assertion, so a wrong result nothing checks goes unnoticed.
+
+`;
+
 exports[`require-assertion > invalid(5): import test from \"node:test\";\ntest.todo(\"t\", () => { doSomething(); }); 1`] = `
 
   1 | import test from "node:test";

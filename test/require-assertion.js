@@ -4,6 +4,7 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
+		'import test from \'node:test\';\nimport assert from \'node:assert/strict\';\ntest(\'parent\', () => { assert.ok(true); test.skip(\'child\', () => {}); });',
 		// Not a test file — bail out early
 		'test("title", () => { doSomething(); });',
 
@@ -13,6 +14,10 @@ test.snapshot({
 		'import test from "node:test";\ntest("t", {skip: "flaky"}, () => { doSomething(); });',
 		'import test from "node:test";\ntest("t", {skip: {}}, () => { doSomething(); });',
 		'import {it, skip} from "node:test";\nit.skip("t", () => { doSomething(); });\nskip("u", () => { doSomething(); });',
+		// A skipped suite never runs its body, so the tests it would register never run either
+		'import {describe, it} from "node:test";\ndescribe.skip("s", () => { it("x", () => {}); });',
+		'import {describe, it} from "node:test";\ndescribe("s2", {skip: true}, () => { it("y", () => {}); });',
+		'import {describe, it} from "node:test";\ndescribe.skip("s", () => { describe("inner", () => { it("x", () => {}); }); });',
 
 		// The assert.* form
 		'import test from "node:test";\nimport assert from "node:assert";\ntest("t1", () => { assert.strictEqual(1, 1); });',
@@ -215,5 +220,12 @@ test.snapshot({
 		// A concise arrow body is the whole test, so it can pass vacuously too
 		'import test from "node:test";\ntest("t1", () => doSomething());',
 		'import test from "node:test";\ntest("t1", async () => doSomething());',
+		'import test from \'node:test\';\nimport assert from \'node:assert/strict\';\ntest(\'parent\', () => { test.skip(\'child\', () => { assert.ok(true); }); });',
+		'import test from \'node:test\';\ntest(\'parent\', () => { test(\'child\', {skip: true}, t => { t.assert.ok(true); }); });',
+		'import test from \'node:test\';\ntest(\'parent\', () => { test.skip(\'child\', () => { test(\'grandchild\', () => {}); }); });',
+		// A suite that is not skipped runs its body, and so do its tests
+		'import {describe, it} from "node:test";\ndescribe("s", () => { it("x", () => {}); });',
+		// A falsy suite `skip` runs the body. Limitation: `node:test` cancels the tests it registers, but they are still read as running.
+		'import {describe, it} from "node:test";\ndescribe("s", {skip: 0}, () => { it("x", () => {}); });',
 	],
 });

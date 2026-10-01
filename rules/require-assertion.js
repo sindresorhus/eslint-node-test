@@ -84,11 +84,6 @@ const create = context => {
 
 		// Track nested test calls as their own scope (don't let their assertions count for parent).
 		if (parsed && parsed.kind === 'test') {
-			// A skipped callback never runs, so it cannot pass vacuously and cannot let a wrong result go unnoticed. A `todo` callback does run, so it is still checked.
-			if (isSkippedTestCall(node, parsed, context)) {
-				return;
-			}
-
 			const callback = getTestCallback(node);
 			// Only push if there's an inline function body to inspect.
 			if (callback) {
@@ -96,6 +91,8 @@ const create = context => {
 					callNode: node,
 					callback,
 					assertBindings: getDestructuredAssertBindings(callback, imports),
+					// A skipped callback never runs, so it cannot pass vacuously and cannot let a wrong result go unnoticed. A `todo` callback does run, so it is still checked. Keep the skipped frame so its assertions cannot satisfy the parent or register checked tests.
+					skipped: isSkippedTestCall(node, parsed, context) || getContainingTestFrame(node, testStack)?.skipped === true,
 					hasAssertion: false,
 				});
 				return;
@@ -105,8 +102,24 @@ const create = context => {
 			return;
 		}
 
+		// A skipped suite never runs its body, so the tests inside it never run either. Push a skipped frame for them to inherit. A suite that runs needs no frame, since it has no assertions of its own to require.
+		if (parsed?.kind === 'suite' && isSkippedTestCall(node, parsed, context)) {
+			const callback = getTestCallback(node);
+			if (callback) {
+				testStack.push({
+					callNode: node,
+					callback,
+					assertBindings: new Map(),
+					skipped: true,
+					hasAssertion: false,
+				});
+			}
+
+			return;
+		}
+
 		const currentTest = getContainingTestFrame(node, testStack);
-		if (!currentTest) {
+		if (!currentTest || currentTest.skipped) {
 			return;
 		}
 
@@ -133,7 +146,7 @@ const create = context => {
 
 		testStack.pop();
 
-		if (!top.hasAssertion) {
+		if (!top.skipped && !top.hasAssertion) {
 			return {
 				node,
 				messageId: MESSAGE_ID,
