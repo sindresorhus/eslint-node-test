@@ -151,5 +151,27 @@ test.snapshot({
 		// An object literal is the options in both `mock.fn()` and `mock.method()`, not an implementation, so the rewrite would keep the original method
 		withMock('object.method = mock.fn({times: 1});'),
 		inTest('object.method = t.mock.fn({});'),
+
+		// A parenthesized or cast receiver makes the suggestion start with `(`, which would continue the line above when it has no semicolon, so it gets a leading `;`
+		'import test from \'node:test\';\ntest(\'t\', t => {\n\tconst x = 1\n\tobject.method = (t.mock).fn(() => 42)\n});',
+		'import test from \'node:test\';\ntest(\'t\', t => {\n\tconst x = 1;\n\tobject.method = (t.mock).fn(() => 42);\n});',
+		{
+			code: 'import test from \'node:test\';\ntest(\'t\', t => {\n\tconst x = 1\n\tobject.method = (t.mock as any).fn(() => 42)\n});',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import test from \'node:test\';\ntest(\'t\', t => {\n\tconst x = 1;\n\tobject.method = (t.mock as any).fn(() => 42);\n});',
+			languageOptions: {parser: parsers.typescript},
+		},
+		// The parentheses around the assignment already start the statement, so no `;` goes inside them
+		'import test from \'node:test\';\ntest(\'t\', t => {\n\tconst x = 1;\n\t(object.method = (t.mock).fn(() => 42));\n});',
+		// The body of a braceless `if` or loop follows its head, not a statement, so a `;` there would become the whole body
+		'import test from \'node:test\';\ntest(\'t\', t => {\n\tif (enabled) object.method = (t.mock).fn(() => 42)\n});',
+		'import test from \'node:test\';\ntest(\'t\', t => {\n\tdo object.method = (t.mock).fn(() => 42); while (condition)\n});',
+		// A TypeScript `namespace` body is a statement list too
+		{
+			code: 'import {mock} from \'node:test\';\nnamespace N {\n\tconst x = 1\n\tobject.method = (mock as any).fn(() => 42)\n}',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

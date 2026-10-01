@@ -6,12 +6,7 @@ import {
 } from './utils/node-test.js';
 import {skipExpressionWrappers} from './utils/index.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
-
-// A statement starting with `(` or `[` continues the expression above it when the two end up adjacent, so the reorder has to separate them.
-const STARTS_WITH_BRACKET = /^[([]/;
-
-// A token that already ends whatever is above the statement, so a moved expression starting with a bracket needs no leading `;` after it.
-const SEPARATING_TOKENS = new Set([';', '{']);
+import needsLeadingSemicolon from './utils/needs-leading-semicolon.js';
 
 const MESSAGE_ID = 'hooks-order/error';
 
@@ -36,7 +31,8 @@ Build the fix that reorders a block's hooks into canonical order in a single pas
 `undefined` (no fix) when the hooks are not a contiguous run of statements, or a comment sits
 next to them: reordering would otherwise drop or misattribute code.
 */
-function getReorderFix(block, hooks, sourceCode) {
+function getReorderFix(block, hooks, context) {
+	const {sourceCode} = context;
 	const statements = getContainerStatements(block);
 	const positions = hooks.map(hook => statements.indexOf(hook.statement));
 	const min = Math.min(...positions);
@@ -92,18 +88,13 @@ function getReorderFix(block, hooks, sourceCode) {
 			// Only the call moves, so each statement keeps its own `;` (or its lack of one) and everything around the call, including a type-only wrapper (`as void`, `!`). A call starts with an identifier and ends with `)`, so what separates the statements stays the same. The exception is one starting with `(` or `[` (`(t as any).after(…)`), which continues whatever is above the slot unless that already ends there.
 			const text = sourceCode.getText(sorted[index].call);
 			// A token inside the statement (`<any>` or `(` around the call) keeps the moved call apart from what is above, so only one before the statement counts.
-			const tokenBefore = sourceCode.getTokenBefore(hook.call);
-			const needsSeparator = STARTS_WITH_BRACKET.test(text)
-				&& tokenBefore
-				&& sourceCode.getRange(tokenBefore)[1] <= sourceCode.getRange(hook.statement)[0]
-				&& !SEPARATING_TOKENS.has(tokenBefore.value);
-			const prefix = needsSeparator ? ';' : '';
+			const prefix = needsLeadingSemicolon(hook.call, hook.statement, text, context) ? ';' : '';
 			yield fixer.replaceText(hook.call, `${prefix}${text}`);
 		}
 	};
 }
 
-function getBlockProblems(block, hooks, sourceCode) {
+function getBlockProblems(block, hooks, context) {
 	const problems = [];
 	let fix;
 	let isFixComputed = false;
@@ -120,7 +111,7 @@ function getBlockProblems(block, hooks, sourceCode) {
 		// Compute the single block-wide reorder fix once, lazily, and share it across the
 		// block's problems; ESLint applies it once and the re-lint finds the block sorted.
 		if (!isFixComputed) {
-			fix = getReorderFix(block, hooks, sourceCode);
+			fix = getReorderFix(block, hooks, context);
 			isFixComputed = true;
 		}
 
@@ -198,7 +189,7 @@ const create = context => {
 		const problems = [];
 
 		for (const [block, hooks] of hooksByBlock) {
-			problems.push(...getBlockProblems(block, hooks, sourceCode));
+			problems.push(...getBlockProblems(block, hooks, context));
 		}
 
 		return problems;

@@ -6,6 +6,7 @@ import {
 	isGlobalMock,
 } from './utils/node-test.js';
 import {getParenthesizedRange, isValueNotUsable, unwrapExpression} from './utils/index.js';
+import needsLeadingSemicolon from './utils/needs-leading-semicolon.js';
 
 /*
 The source text of a node as written, parentheses included. `getText` leaves them out, and a node
@@ -139,11 +140,13 @@ const create = context => {
 			const objectText = getWrittenText(left.object, context);
 			const implementation = mockArguments.length === 1 ? `, ${sourceCode.getText(mockArguments[0])}` : '';
 			const replacement = `${base}.method(${objectText}, ${key}${implementation})`;
+			// A parenthesized or cast base (`(t.mock as any)`) makes the statement start with `(`, which continues the line above unless that already ends there.
+			const prefix = needsLeadingSemicolon(node, node.parent, replacement, context) ? ';' : '';
 			problem.suggest = [
 				{
 					messageId: MESSAGE_ID_SUGGESTION,
 					data: {base},
-					fix: fixer => fixer.replaceText(node, replacement),
+					fix: fixer => fixer.replaceText(node, `${prefix}${replacement}`),
 				},
 			];
 		}
