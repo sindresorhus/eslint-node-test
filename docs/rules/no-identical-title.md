@@ -11,6 +11,8 @@ Disallow test/suite calls with the same title within the same scope. Duplicate t
 
 Titles are compared per scope: the same title is allowed in different `describe`/`suite` blocks, but not within the same one. Only statically known string titles are checked; dynamic template literals are ignored.
 
+Test and hook callbacks also open a scope for their subtests, whether the callback is inline or named out of line.
+
 ## Examples
 
 ```js

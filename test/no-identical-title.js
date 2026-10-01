@@ -4,6 +4,8 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
+		'import {test, beforeEach} from \'node:test\';\nbeforeEach(t => { t.test(\'x\', () => {}); }); test(\'x\', () => {});',
+		'import test from \'node:test\';\ntest(\'parent\', t => { t.beforeEach(t => { t.test(\'x\', () => {}); }); t.test(\'x\', () => {}); });',
 		// Not a test file
 		'test("a", () => {}); test("a", () => {});',
 		// Unique titles
@@ -134,5 +136,7 @@ test.snapshot({
 		+ 'import {run} from \'./helpers.js\';\n'
 		+ 'test(\'foo\', run);\n'
 		+ 'test(\'foo\', run);',
+		'import {beforeEach} from \'node:test\';\nbeforeEach(t => { t.test(\'x\', () => {}); t.test(\'x\', () => {}); });',
+		'import test from \'node:test\';\ntest(\'parent\', t => { t.beforeEach(hookContext => { hookContext.test(\'x\', () => {}); hookContext.test(\'x\', () => {}); }); });',
 	],
 });

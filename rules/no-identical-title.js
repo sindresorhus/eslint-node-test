@@ -1,10 +1,10 @@
 import {
 	resolveImports,
-	parseTestCall,
+	getRegistrationKind,
 	getTestTitle,
 	getStaticString,
 	getTestCallback,
-	createContextTracker,
+	getHookCallback,
 	isOutOfLineCallback,
 } from './utils/node-test.js';
 import {functionTypes} from './ast/index.js';
@@ -25,8 +25,8 @@ const create = context => {
 	/*
 	Stack of title sets, one per scope level.
 	The bottom of the stack (index 0) is the module top-level.
-	Each suite or test callback body pushes a new set on entry and pops it on exit: the tests
-	registered inside one belong to that suite or test, not to the level that encloses it.
+	Each suite, test, or hook callback body pushes a new set on entry and pops it on exit: the tests
+	registered inside one belong to that callback, not to the level that encloses it.
 	*/
 	const scopeStack = [new Set()];
 
@@ -36,24 +36,21 @@ const create = context => {
 	*/
 	const scopeCallbackNodes = new WeakSet();
 
-	// A subtest (`t.test(…)`) is a test with a title and its own scope for its children, exactly like an imported test, so it is tracked through the context tracker.
-	const tracker = createContextTracker(imports);
-
+	// A subtest (`t.test(…)`) is a test with a title and its own scope for its children, exactly like an imported test, so the shared registration helper classifies both.
 	context.on('CallExpression', node => {
-		const isSubtest = tracker.isSubtestCall(node);
-		tracker.update(node);
-
-		const parsed = parseTestCall(node, imports);
-		if ((!parsed && !isSubtest) || parsed?.kind === 'hook') {
+		const kind = getRegistrationKind(node, imports, context);
+		if (!kind) {
 			return;
 		}
 
-		// Suite and test callbacks (imported tests and subtests alike) open a title scope.
-		if (parsed?.kind === 'suite' || parsed?.kind === 'test' || isSubtest) {
-			const callback = getTestCallback(node);
-			if (callback) {
-				scopeCallbackNodes.add(callback);
-			}
+		// A hook's subtests belong to that hook body, not to registrations beside it.
+		const callback = kind === 'hook' ? getHookCallback(node) : getTestCallback(node);
+		if (callback) {
+			scopeCallbackNodes.add(callback);
+		}
+
+		if (kind === 'hook') {
+			return;
 		}
 
 		const titleNode = getTestTitle(node, context);
@@ -78,13 +75,9 @@ const create = context => {
 		currentScope.add(titleValue);
 	});
 
-	// Push/pop a scope around each suite or test callback body, including one the call names out of line (`test('a', body)`), which the traversal reaches wherever it is declared.
+	// Push/pop a scope around each registration callback body, including one the call names out of line (`test('a', body)`), which the traversal reaches wherever it is declared.
 
 	const opensScope = node => scopeCallbackNodes.has(node) || isOutOfLineCallback(node, context, imports);
-
-	context.onExit('CallExpression', node => {
-		tracker.leave(node);
-	});
 
 	context.on(functionTypes, node => {
 		if (opensScope(node)) {
