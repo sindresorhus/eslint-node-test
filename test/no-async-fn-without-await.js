@@ -8,6 +8,8 @@ const withHookImport = code => `import test, {beforeEach} from 'node:test';\n${c
 
 test.snapshot({
 	valid: [
+		withImport('let body = async () => {}; body = async () => { await load(); }; test(\'a\', body);'),
+		withImport('async function body() {} body = async () => { await load(); }; test(\'a\', body);'),
 
 		// Not a test file — no import from node:test
 		'test(async t => {});',
@@ -146,5 +148,11 @@ test.snapshot({
 		// A body shared by two calls is one function, so it is reported once
 		'import {test} from \'node:test\';\nasync function body() { foo(); }\ntest(\'a\', body);\ntest(\'b\', body);',
 		withImport('async function body() { foo(); }\ntest(\'a\', async t => { t.beforeEach(body); await t.test(\'x\', () => {}); });\ntest(\'b\', body);'),
+
+		// A TypeScript overload signature does not hide the implementation
+		{
+			code: 'import {test, type TestContext} from \'node:test\';\nfunction body(t: TestContext): Promise<void>;\nasync function body(t: TestContext) { foo(); }\ntest(\'a\', body);',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

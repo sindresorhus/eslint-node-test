@@ -331,7 +331,7 @@ test('getTestCallback returns the function node:test actually runs', () => {
 });
 
 // The text of the callback `getResolvedTestCallback` resolves for the last call in `code`.
-const resolvedCallbackText = code => {
+const resolvedCallbackText = (code, languageOptions) => {
 	let text;
 	const rule = {
 		create: context => ({
@@ -344,7 +344,7 @@ const resolvedCallbackText = code => {
 	new Linter().verify(code, {
 		plugins: {test: {rules: {rule}}},
 		rules: {'test/rule': 'error'},
-		languageOptions: {ecmaVersion: 'latest', sourceType: 'module'},
+		languageOptions: {ecmaVersion: 'latest', sourceType: 'module', ...languageOptions},
 	});
 	return text;
 };
@@ -355,6 +355,15 @@ test('getResolvedTestCallback reads the callback from the slot node:test reads',
 	// A named callback is resolved to its function, whatever else is named in the call.
 	assert.strictEqual(resolvedCallbackText(`${head}test('a', second);`), 'function second() {}');
 	assert.strictEqual(resolvedCallbackText(`${head}const title = 'a';\ntest(title, second);`), 'function second() {}');
+	// A changed binding no longer identifies the callback in its initializer or declaration.
+	assert.strictEqual(resolvedCallbackText(`${head}let body = () => {};\nbody = () => {};\ntest('a', body);`), undefined);
+	assert.strictEqual(resolvedCallbackText(`${head}function body() {}\nbody = () => {};\ntest('a', body);`), undefined);
+	assert.strictEqual(resolvedCallbackText(`${head}var body = () => {};\nvar body = () => {};\ntest('a', body);`), undefined);
+	// A TypeScript overload signature is not a second binding: the implementation is the function.
+	const asTypeScript = {parser: typescriptParser};
+	assert.strictEqual(resolvedCallbackText(`${head}function body(t: number): void;\nfunction body(t: number) {}\ntest('a', body);`, asTypeScript), 'function body(t: number) {}');
+	assert.strictEqual(resolvedCallbackText(`${head}function body(t: number): void;\nfunction body(t: number) {}\nbody = () => {};\ntest('a', body);`, asTypeScript), undefined);
+	assert.strictEqual(resolvedCallbackText(`${head}declare function body(t: number): void;\ntest('a', body);`, asTypeScript), undefined);
 
 	// `options.fn` wins over the positional callback, named or inline.
 	assert.strictEqual(resolvedCallbackText(`${head}test('a', {fn: first}, second);`), 'function first() {}');

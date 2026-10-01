@@ -1260,15 +1260,17 @@ export function resolveCallbackArgument(node, context) {
 /** The function `identifier` is bound to by its declaration, or `undefined`. */
 function getBoundFunction(identifier, context) {
 	const variable = findVariable(context.sourceCode.getScope(identifier), identifier);
-	for (const definition of variable?.defs ?? []) {
-		// A `function body() {}` definition carries the declaration; `const body = () => {}` carries the declarator, whose `init` is the function.
-		const node = definition.type === 'FunctionName' ? definition.node : definition.node?.init;
-		if (isFunction(node)) {
-			return node;
-		}
+	// A TypeScript overload signature adds a definition without a body; the implementation is the function.
+	const definitions = variable?.defs.filter(definition => definition.node?.type !== 'TSDeclareFunction') ?? [];
+	// The initializer or declaration is no longer a reliable callback after the binding is reassigned.
+	if (definitions.length !== 1 || variable.references.some(reference => reference.isWrite() && !reference.init)) {
+		return undefined;
 	}
 
-	return undefined;
+	const [definition] = definitions;
+	// A `function body() {}` definition carries the declaration; `const body = () => {}` carries the declarator, whose `init` is the function.
+	const node = definition.type === 'FunctionName' ? definition.node : definition.node?.init;
+	return isFunction(node) ? node : undefined;
 }
 
 /**

@@ -6,6 +6,7 @@ const withImport = code => `import {test, beforeEach} from 'node:test';\n${code}
 
 test.snapshot({
 	valid: [
+		'import test from \'node:test\';\nlet body = (t, done) => { done(); }; body = t => {}; test(\'a\', body);',
 		// A TypeScript `this` parameter is erased, so the emitted function has arity 1 and no `done`
 		{
 			code: withImport('test("x", async function (this: unknown, done) {});'),

@@ -376,6 +376,32 @@ Message:
 
 `;
 
+exports[`no-async-fn-without-await > invalid(18): import {test, type TestContext} from 'node:test';\nfunction body(t: TestContext): Promise<void>;\nasync function body(t: TestContext) { foo(); }\ntest('a', body); 1`] = `
+
+  1 | import {test, type TestContext} from 'node:test';
+  2 | function body(t: TestContext): Promise<void>;
+  3 | async function body(t: TestContext) { foo(); }
+  4 | test('a', body);
+
+`;
+
+exports[`no-async-fn-without-await > invalid(18): import {test, type TestContext} from 'node:test';\nfunction body(t: TestContext): Promise<void>;\nasync function body(t: TestContext) { foo(); }\ntest('a', body); 2`] = `
+
+Message:
+  1 | import {test, type TestContext} from 'node:test';
+  2 | function body(t: TestContext): Promise<void>;
+> 3 | async function body(t: TestContext) { foo(); }
+    | ^^^^^ Async test/hook function has no \`await\`, \`for await\`, \`await using\` or \`yield\`.
+  4 | test('a', body);
+
+Suggestion 1/1: Remove the \`async\` keyword.:
+  1 | import {test, type TestContext} from 'node:test';
+  2 | function body(t: TestContext): Promise<void>;
+  3 | function body(t: TestContext) { foo(); }
+  4 | test('a', body);
+
+`;
+
 exports[`no-async-fn-without-await > invalid(19): import test from 'node:test';\ntest('a', t => { t.test('b', async () => {}); }); 1`] = `
 
   1 | import test from 'node:test';
