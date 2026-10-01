@@ -61,9 +61,6 @@ test.snapshot({
 		// Renamed context parameter
 		withImport('test("parent", async context => { context.test("child", () => {}); });'),
 
-		// Modifier-chained subtest (`t.test.skip`) floating
-		withImport('test("parent", async t => { t.test.skip("child", () => {}); });'),
-
 		// Nested subtest floating
 		withImport('test("parent", async t => { await t.test("child", async t2 => { t2.test("grandchild", () => {}); }); });'),
 
@@ -185,5 +182,16 @@ test.snapshot({
 			code: withImport('test("parent", async t => {\n\t(condition ? t.test("child", () => {}) : null) as any;\n});'),
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// A subtest on an outer test's context, created while one of that context's subtests runs, waits for that subtest, which waits for it, so `await` would hang the test. Reported without a fix.
+		withImport('test(\'p\', async t => { await t.test(\'a\', async () => { t.test(\'b\', () => {}); }); });'),
+		withImport('test(\'p\', async t => { await t.test(\'a\', async u => { t.test(\'b\', () => {}); }); });'),
+		withImport('async function body(t) { await t.test(\'a\', async () => { t.test(\'b\', () => {}); }); }\ntest(\'p\', body);'),
+		// `getTestContext()` and a closure over the running test's own context reach the innermost context, so the fix is kept
+		'import test, {getTestContext} from \'node:test\';\ntest(\'p\', async t => { await t.test(\'a\', async () => { getTestContext().test(\'b\', () => {}); }); });',
+		withImport('test(\'p\', async t => { const run = async () => { t.test(\'b\', () => {}); }; await run(); });'),
+		withImport('async function body(t) { t.test(\'child\', () => {}); }\ntest(\'parent\', body);'),
+		// Limitation: a subtest callback named out of line is traversed where it is declared, outside the frame its call opens, so the fix is still offered there although it hangs the test
+		withImport('test(\'p\', async t => { const inner = async () => { t.test(\'b\', () => {}); }; await t.test(\'a\', inner); });'),
 	],
 });

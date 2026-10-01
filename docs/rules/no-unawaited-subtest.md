@@ -13,6 +13,8 @@ Subtests created through the test context (`t.test()`) return a promise, and a s
 
 This rule reports a subtest call whose value a statement throws away: a bare statement, or an operand of a conditional, logical, or sequence expression whose value reaches such a statement. When the enclosing test function is `async`, it autofixes by inserting `await`. In a synchronous parent it only reports, since `await` would be a syntax error: make the parent `async` (or `return` the subtest) yourself.
 
+A subtest created on an outer test's context from inside one of its running subtests (`t.test()` inside `t.test('a', async () => { … })`) is reported without an autofix: the outer context runs its subtests one at a time, so awaiting it there would make the two wait for each other and hang the test. [`no-parent-test-context`](no-parent-test-context.md) reports this pattern too. Limitation: when the subtest's callback is named out of line (`const inner = async () => { t.test('b', …); }; await t.test('a', inner);`), the rule cannot see that `inner` runs as a subtest, so the autofix is still offered there.
+
 Discarding the subtest with `void` does not help — it still leaves the subtest unawaited — so it is reported too (without an autofix).
 
 ## Examples

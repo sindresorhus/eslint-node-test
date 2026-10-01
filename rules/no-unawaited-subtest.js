@@ -1,3 +1,4 @@
+import {findVariable} from '@eslint-community/eslint-utils';
 import {resolveImports, createContextTracker, getSubtestReceiver} from './utils/node-test.js';
 import {
 	getEnclosingFunction,
@@ -22,6 +23,10 @@ const create = context => {
 
 	const tracker = createContextTracker(imports, {trackHooks: true});
 	const isInsideDetachedCallback = trackDetachedCallbacks(context);
+
+	// A subtest on an outer test's context, created inside one of its running subtests, waits for that subtest, which waits for it, so `await` would hang the test. `getTestContext()` always names the innermost context. With no open frame, the receiver is the parameter of a callback named out of line, which is the innermost context. Limitation: a subtest callback named out of line (`await t.test('a', inner)`) is traversed where it is declared, outside the frame its call opens, so a subtest it creates on the outer context keeps the fix.
+	const isOuterContext = receiver => tracker.currentCallback() !== undefined
+		&& findVariable(context.sourceCode.getScope(receiver), receiver.name) !== tracker.currentContextVariable();
 
 	context.on('CallExpression', node => {
 		// Whether this is a floating subtest must be decided against the current stack,
@@ -48,7 +53,12 @@ const create = context => {
 			// `await` is only valid (and a behavior-preserving fix) inside an async function, and only
 			// where prepending it is faithful (see `getFloatingStatement`). A class static block sits between the call and that function, where `await` is a syntax error.
 			const enclosingFunction = getEnclosingFunction(node);
-			if (enclosingFunction?.async && floating.canAwait && !hasStaticBlockBetween(node, enclosingFunction)) {
+			if (
+				enclosingFunction?.async
+				&& floating.canAwait
+				&& !hasStaticBlockBetween(node, enclosingFunction)
+				&& !(receiver && isOuterContext(receiver))
+			) {
 				problem.fix = fixer => fixer.insertTextBefore(node, 'await ');
 			}
 		}
