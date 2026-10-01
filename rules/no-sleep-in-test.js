@@ -3,22 +3,18 @@ import {
 	resolveImports,
 	parseTestCall,
 	getCalleeChain,
-	getHookCallback,
 	getTestCallback,
 	getParentCallExpression,
 	getOutOfLineCallbackCall,
 	getRegistrationKind,
 	getTestOptions,
-	getFirstContextParameter,
-	findEnabledOptionsProperty,
 	getContextHookName,
-	isSubtestCall,
-	MODIFIERS,
 	getImportSpecifierName,
+	nearestTestCallbackKind,
 } from './utils/node-test.js';
 import {hasEnabledSkipOption} from './shared/skipped-test.js';
-import {getEnclosingFunction, unwrapExpression} from './utils/index.js';
-import {functionTypes, isFunction} from './ast/index.js';
+import {unwrapExpression} from './utils/index.js';
+import {isFunction} from './ast/index.js';
 
 const MESSAGE_ID = 'no-sleep-in-test';
 
@@ -29,7 +25,6 @@ const messages = {
 const CALLBACK_TIMER_MODULES = new Set(['node:timers', 'timers']);
 const PROMISE_TIMER_MODULES = new Set(['node:timers/promises', 'timers/promises']);
 const ACTIVE_TEST_MODIFIERS = new Set(['only', 'todo']);
-const CONTEXT_HOOKS = new Set(['before', 'beforeEach', 'after', 'afterEach']);
 
 function isIdentifierReference(node, name) {
 	return node?.type === 'Identifier' && node.name === name;
@@ -74,40 +69,6 @@ function hasInactiveTestOptions(node, context) {
 function getSubtestModifiers(node) {
 	const {members = []} = getCalleeChain(node.callee) ?? {};
 	return members?.[0]?.name === 'test' ? members.slice(1) : [];
-}
-
-function getSupportedSubtestReceiver(node) {
-	const chain = getCalleeChain(node.callee);
-	if (
-		chain
-		&& chain.members[0]?.name === 'test'
-		&& chain.members.slice(1).every(member => MODIFIERS.has(member.name))
-	) {
-		return chain.root;
-	}
-}
-
-function getContextHookReceiver(node) {
-	const callee = unwrapExpression(node.callee);
-	if (
-		callee?.type !== 'MemberExpression'
-		|| callee.computed
-		|| callee.property.type !== 'Identifier'
-		|| !CONTEXT_HOOKS.has(callee.property.name)
-	) {
-		return;
-	}
-
-	const receiver = unwrapExpression(callee.object);
-	return receiver.type === 'Identifier' ? receiver : undefined;
-}
-
-function getParsedCallback(node, parsed) {
-	if (parsed.kind === 'hook') {
-		return getHookCallback(node);
-	}
-
-	return getTestCallback(node);
 }
 
 function hasInactiveParsedOptions(node, parsed, context) {
@@ -279,161 +240,8 @@ const create = context => {
 	}
 
 	const timerImports = getTimerImportBindings(context.sourceCode);
-	const testStack = [];
-	const inactiveCallbackStack = [];
-	const trackedCalls = new Set();
-	const {sourceCode} = context;
 
-	const getContextVariable = callback => {
-		// A defaulted parameter (`(t = getTestContext())`) declares the context just the same.
-		const parameter = getFirstContextParameter(callback.params);
-		if (!parameter) {
-			return;
-		}
-
-		return findVariable(sourceCode.getScope(parameter), parameter);
-	};
-
-	const hasInactiveCallbackAncestor = node => {
-		for (const {callback} of inactiveCallbackStack) {
-			let current = node;
-			while (current) {
-				if (current === callback) {
-					return true;
-				}
-
-				current = current.parent;
-			}
-		}
-
-		return false;
-	};
-
-	// Whether the call sits directly in the tracked test's own callback, which is the scope a `getTestContext()` call resolves against.
-	const isInCurrentTestContext = node => getEnclosingFunction(node) === testStack.at(-1)?.callback;
-
-	const isCurrentTestContextReceiver = (node, receiver) => {
-		const currentTest = testStack.at(-1);
-		if (!currentTest?.contextVariable) {
-			return false;
-		}
-
-		const receiverVariable = findVariable(sourceCode.getScope(receiver), receiver);
-		return getEnclosingFunction(node) === currentTest.callback
-			&& currentTest.contextVariable === receiverVariable;
-	};
-
-	const isCurrentTestContextSubtestCall = node => {
-		const receiver = getSupportedSubtestReceiver(node);
-		if (receiver === undefined) {
-			// `getTestContext().test(…)` names the context this rule is already tracking, so it needs no receiver to match against.
-			return isSubtestCall(node, imports) && isInCurrentTestContext(node);
-		}
-
-		return receiver.type === 'Identifier' && isCurrentTestContextReceiver(node, receiver);
-	};
-
-	const isCurrentTestContextHookCall = node => {
-		const receiver = getContextHookReceiver(node);
-		if (receiver === undefined) {
-			// Likewise for `getTestContext().beforeEach(…)`.
-			return getContextHookName(node) !== undefined && isInCurrentTestContext(node);
-		}
-
-		return isCurrentTestContextReceiver(node, receiver);
-	};
-
-	const isActiveSubtestCall = node => isCurrentTestContextSubtestCall(node)
-		&& areActiveModifiers(getSubtestModifiers(node))
-		&& !hasInactiveTestOptions(node, context);
-
-	const isInactiveSubtestCall = node => isCurrentTestContextSubtestCall(node)
-		&& (
-			!areActiveModifiers(getSubtestModifiers(node))
-			|| hasInactiveTestOptions(node, context)
-		);
-
-	const getScopeBoundaryCallback = node => {
-		if (hasInactiveCallbackAncestor(node)) {
-			return;
-		}
-
-		const parsed = parseTestCall(node, imports);
-		if (parsed) {
-			const {kind} = parsed;
-
-			return (
-				(kind === 'test' || kind === 'hook')
-				&& areActiveModifiers(parsed.modifiers)
-				&& !hasInactiveParsedOptions(node, parsed, context)
-			)
-				? getParsedCallback(node, parsed)
-				: undefined;
-		}
-
-		if (isCurrentTestContextHookCall(node)) {
-			return getHookCallback(node);
-		}
-
-		return isActiveSubtestCall(node) ? getTestCallback(node) : undefined;
-	};
-
-	const getInactiveScopeCallback = node => {
-		const parsed = parseTestCall(node, imports);
-		if (parsed) {
-			return (
-				!areActiveModifiers(parsed.modifiers)
-				|| hasInactiveParsedOptions(node, parsed, context)
-			)
-				? getParsedCallback(node, parsed)
-				: undefined;
-		}
-
-		if (!isInactiveSubtestCall(node)) {
-			return;
-		}
-
-		return getTestCallback(node);
-	};
-
-	const isInsideTestCallback = node => {
-		const testCallback = testStack.at(-1)?.callback;
-		return testCallback ? getEnclosingFunction(node) === testCallback : false;
-	};
-
-	context.on('CallExpression', node => {
-		const inactiveScopeCallback = getInactiveScopeCallback(node);
-		if (inactiveScopeCallback) {
-			inactiveCallbackStack.push({node, callback: inactiveScopeCallback});
-			trackedCalls.add(node);
-			return;
-		}
-
-		const boundaryCallback = getScopeBoundaryCallback(node);
-		// A skipped registration whose body is named out of line is not on the stack, so it is read from the code.
-		if (boundaryCallback && !isInsideSkippedRegistration(node)) {
-			testStack.push({
-				callback: boundaryCallback,
-				contextVariable: getContextVariable(boundaryCallback),
-			});
-			trackedCalls.add(node);
-		}
-	});
-
-	context.onExit('CallExpression', node => {
-		if (!trackedCalls.has(node)) {
-			return;
-		}
-
-		trackedCalls.delete(node);
-		if (inactiveCallbackStack.at(-1)?.node === node) {
-			inactiveCallbackStack.pop();
-		} else {
-			testStack.pop();
-		}
-	});
-
-	// Whether a registration call runs its callback, read the way the inline path reads it: its modifiers and its options. A context hook has neither. `TestContext#test` has no `skip`, `todo` or `only` member, so any of them throws; they are read the way the inline path reads them, so only `t.test.skip(…)` counts as not running.
+	// Whether a registration call runs its callback, read from its modifiers and its options. A context hook has neither. `TestContext#test` has no `skip`, `todo` or `only` member, so any of them throws; they are read the way the modifiers of an imported `test` are, so only `t.test.skip(…)` counts as not running.
 	const runsCallback = call => {
 		const parsed = parseTestCall(call, imports);
 		if (parsed) {
@@ -444,7 +252,7 @@ const create = context => {
 			|| (areActiveModifiers(getSubtestModifiers(call)) && !hasInactiveTestOptions(call, context));
 	};
 
-	// Whether a registration around the call skips the callback the call sits in, like `describe.skip('s', () => { test('a', body); })`. The inline path learns this from the stack, but an out-of-line body is visited where it is declared, so the call's own ancestors are read instead. A function named out of line (`describe.skip('s', suiteBody)`) is registered somewhere else, so the walk goes on from the call that registers it.
+	// Whether a registration around the call skips the callback the call sits in, like `describe.skip('s', () => { test('a', body); })`. The call's own ancestors are read, which also covers an out-of-line body, visited where it is declared. A function named out of line (`describe.skip('s', suiteBody)`) is registered somewhere else, so the walk goes on from the call that registers it.
 	const isInsideSkippedRegistration = call => {
 		const visited = new Set();
 		for (let current = call.parent; current; current = current.parent) {
@@ -474,29 +282,15 @@ const create = context => {
 		return false;
 	};
 
-	// A test body the call names out of line is entered where it is declared, which the call's own frame does not cover, so a sleep in it sat outside every tracked scope.
-	const outOfLineTestBodies = new WeakSet();
-
-	context.on(functionTypes, node => {
-		const call = getOutOfLineCallbackCall(node, context, imports);
-		// The body is only ever run when the test is not skipped, exactly as the inline path checks.
-		const kind = getRegistrationKind(call, imports, context);
-		if ((kind !== 'test' && kind !== 'hook') || !runsCallback(call) || isInsideSkippedRegistration(call)) {
-			return;
-		}
-
-		outOfLineTestBodies.add(node);
-		testStack.push({callback: node, contextVariable: getContextVariable(node)});
-	});
-
-	context.onExit(functionTypes, node => {
-		if (outOfLineTestBodies.delete(node)) {
-			testStack.pop();
-		}
-	});
+	// Whether the node sits directly in a test or hook body that runs. The nearest enclosing function decides, inline or named out of line, and a skipped registration around it stops the body from running.
+	const isInsideTestCallback = node => {
+		const kind = nearestTestCallbackKind(node, imports, context);
+		return (kind === 'test' || kind === 'hook') && !isInsideSkippedRegistration(node);
+	};
 
 	context.on('NewExpression', node => {
-		if (!isInsideTestCallback(node) || !isSleepPromise(node, timerImports)) {
+		// The sleep shape is cheap to check, so it runs before the walk up the enclosing functions.
+		if (!isSleepPromise(node, timerImports) || !isInsideTestCallback(node)) {
 			return;
 		}
 
@@ -507,7 +301,7 @@ const create = context => {
 	});
 
 	context.on('CallExpression', node => {
-		if (!isInsideTestCallback(node) || !isPromiseTimerSleep(node, timerImports)) {
+		if (!isPromiseTimerSleep(node, timerImports) || !isInsideTestCallback(node)) {
 			return;
 		}
 

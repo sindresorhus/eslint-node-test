@@ -25,6 +25,8 @@ const withSuitePromiseTimerImport = (callee, options, code) => withNodeTestPromi
 
 test.snapshot({
 	valid: [
+		'import test from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\ntest(\'a\', () => { createHelper().beforeEach(async () => { await delay(10); }); });',
+		'import test from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\ntest(\'a\', () => { helper.hooks.beforeEach(async () => { await delay(10); }); });',
 		// A suite body and a helper the test body calls are separate cases
 		'import {describe} from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\nconst body = async () => { await delay(500); };\ndescribe(\'s\', body);',
 		'import test from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\nconst body = async () => { await delay(500); };\ntest(\'waits\', () => { body(); });',
@@ -59,8 +61,6 @@ test.snapshot({
 		'import test from \'node:test\';\nimport {setTimeout as delay} from \'node:timers/promises\';\ntest.expectFailure(\'waits\', {skip: true}, async () => {\n\tawait delay(500);\n});',
 		withPromiseTimerContextImport('await t.test.skip(\'child\', async () => {\n\tawait delay(500);\n});'),
 		withPromiseTimerContextImport('await t.test(\'child\', {skip: true}, async () => {\n\tawait delay(500);\n});'),
-		withPromiseTimerContextImport('function registerSubtest() {\n\tt.test(\'child\', async () => {\n\t\tawait delay(500);\n\t});\n}'),
-		withPromiseTimerContextImport('function registerHook() {\n\tt.beforeEach(async () => {\n\t\tawait delay(500);\n\t});\n}'),
 		withPromiseTimerContextImport('const hooks = library;\nhooks.beforeEach(async () => {\n\tawait delay(500);\n});'),
 		withNodeTestPromiseTimerImport('test.skip(\'outer\', () => {\n\ttest(\'inner\', async () => {\n\t\tawait delay(500);\n\t});\n});'),
 		withPromiseTimerContextImport('await t.test.skip(\'outer\', () => {\n\tt.test(\'inner\', async () => {\n\t\tawait delay(500);\n\t});\n});'),
@@ -322,5 +322,8 @@ test.snapshot({
 		+ '});',
 		// Limitation: a suite with a falsy `skip` cancels the tests it registers, but they are still checked
 		withSuitePromiseTimerImport('describe', '{skip: 0}, ', 'test(\'waits\', async () => {\n\tawait delay(500);\n});'),
+		// A subtest or context hook registered from a nested helper function is read from its receiver's binding, so its callback is a test or hook body like any other. Whether the helper is ever called is not checked.
+		withPromiseTimerContextImport('function registerSubtest() {\n\tt.test(\'child\', async () => {\n\t\tawait delay(500);\n\t});\n}'),
+		withPromiseTimerContextImport('function registerHook() {\n\tt.beforeEach(async () => {\n\t\tawait delay(500);\n\t});\n}'),
 	],
 });
