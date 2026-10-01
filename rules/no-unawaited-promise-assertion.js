@@ -82,11 +82,9 @@ function getPromiseChainCalls(node) {
 const COMBINATOR_METHODS = new Set(['all', 'allSettled', 'race', 'any']);
 
 /*
-The elements of a `Promise.all([…])`-style call, when they are written out as an array literal. Each
-one is a promise whose chain callbacks run just as late as the combinator's own would, since nothing
-awaits the combinator either.
+The method and written-out array of a `Promise.all([…])`-style call, if present. Each element is a promise whose chain callbacks run just as late as the combinator's own would, since nothing awaits the combinator either.
 */
-function getCombinatorElements(node) {
+function getCombinator(node) {
 	// The floating expression is the outermost wrapper, so `Promise.all([…]) as any` reaches here as the cast.
 	node = unwrapExpression(node);
 	const callee = unwrapExpression(node?.callee);
@@ -97,11 +95,13 @@ function getCombinatorElements(node) {
 		|| !COMBINATOR_METHODS.has(callee.property.name)
 		|| unwrapExpression(callee.object)?.name !== 'Promise'
 	) {
-		return [];
+		return undefined;
 	}
 
-	const [firstArgument] = node.arguments.map(argument => unwrapTypeScriptExpression(argument));
-	return firstArgument?.type === 'ArrayExpression' ? flattenArrayElements(firstArgument) : [];
+	const firstArgument = unwrapTypeScriptExpression(node.arguments[0]);
+	return firstArgument?.type === 'ArrayExpression'
+		? {method: callee.property.name, array: firstArgument}
+		: undefined;
 }
 
 /*
@@ -121,10 +121,19 @@ itself, and the chains inside a combinator's array, each kept as its own chain s
 rejection handler is only looked for within one.
 */
 function getFloatingPromiseChains(node) {
+	const combinator = getCombinator(node);
 	return [
 		getPromiseChainCalls(node),
-		...getCombinatorElements(node).map(element => getPromiseChainCalls(element)),
+		...(combinator ? flattenArrayElements(combinator.array).map(element => getPromiseChainCalls(element)) : []),
 	].filter(chainCalls => chainCalls.length > 0);
+}
+
+/** Whether awaiting the floating expression also waits for every chain it contains. `allSettled()` waits too, but it swallows a rejection, so awaiting it cannot fail the test on a late assertion. */
+function canFixWithAwait(node, assertionsOnly) {
+	const combinator = getCombinator(node);
+	return !combinator
+		|| ((combinator.method === 'all' || (combinator.method === 'allSettled' && !assertionsOnly))
+			&& combinator.array.elements.every(element => unwrapExpression(element)?.type !== 'ArrayExpression'));
 }
 
 function isInlineCallback(node) {
@@ -934,6 +943,7 @@ export function createLateTestActivity(context, {assertionsOnly = false, message
 			&& activeCallback.async
 			&& isInsideCallbackBody(node, activeCallback)
 			&& !hasStaticBlockBetween(node, activeCallback)
+			&& canFixWithAwait(node, assertionsOnly)
 		) {
 			problems[0].fix = fixer => fixer.insertTextBefore(node, 'await ');
 		}

@@ -948,13 +948,6 @@ Message:
     | 	                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
   5 | });
 
-Output:
-  1 | import test from 'node:test';
-  2 | import assert from 'node:assert';
-  3 | test('loads', async () => {
-  4 | 	await Promise.allSettled([load().then(value => { assert.strictEqual(value, 42); })]);
-  5 | });
-
 `;
 
 exports[`no-unawaited-promise-assertion > invalid(40): import {test, getTestContext} from 'node:test';\nimport assert from 'node:assert';\ntest('o', async () => {\n\tawait getTestContext().test('s', () => { load().then(v => { assert.equal(v, 1); }); });\n}); 1`] = `
@@ -1253,13 +1246,6 @@ Message:
   3 | test('loads', async () => {
 > 4 | 	Promise.race([load().then(value => { assert.strictEqual(value, 42); })]);
     | 	                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
-  5 | });
-
-Output:
-  1 | import test from 'node:test';
-  2 | import assert from 'node:assert';
-  3 | test('loads', async () => {
-  4 | 	await Promise.race([load().then(value => { assert.strictEqual(value, 42); })]);
   5 | });
 
 `;
@@ -1564,13 +1550,6 @@ Message:
     | 	                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
   5 | });
 
-Output:
-  1 | import test from 'node:test';
-  2 | import assert from 'node:assert';
-  3 | test('loads', async () => {
-  4 | 	await Promise.any([load().then(value => { assert.strictEqual(value, 42); })]);
-  5 | });
-
 `;
 
 exports[`no-unawaited-promise-assertion > invalid(60): import {test, getTestContext} from 'node:test';\ntest('parent', async ({assert}) => {\n\tawait getTestContext().test('child', async () => {\n\t\tload().then(value => { assert.ok(value); });\n\t});\n}); 1`] = `
@@ -1784,13 +1763,6 @@ Message:
   3 | test('loads', async () => {
 > 4 | 	Promise.all([[load().then(value => { assert.strictEqual(value, 42); })]]);
     | 	                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assertion in a floating \`then()\` callback is not awaited by the test. Await or return the Promise chain.
-  5 | });
-
-Output:
-  1 | import test from 'node:test';
-  2 | import assert from 'node:assert';
-  3 | test('loads', async () => {
-  4 | 	await Promise.all([[load().then(value => { assert.strictEqual(value, 42); })]]);
   5 | });
 
 `;

@@ -246,5 +246,13 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		inTest('Promise?.all([load().then(() => { throw error; })]);'),
+
+		// The `await` fix is only offered where awaiting waits for every chain: `all()` and `allSettled()` with direct chain elements, not `race()`, `any()`, or a nested array
+		inAsyncTest('Promise.all([load().then(() => { throw error; })]);'),
+		inAsyncTest('Promise.allSettled([load().then(() => { throw error; })]);'),
+		inAsyncTest('Promise.race([Promise.resolve(), load().then(() => { throw error; })]);'),
+		inAsyncTest('Promise.any([Promise.resolve(), load().then(() => { throw error; })]);'),
+		inAsyncTest('Promise.all([[load().then(() => { throw error; })]]);'),
+		inAsyncTest('Promise.allSettled([[load().then(() => { throw error; })]]);'),
 	],
 });

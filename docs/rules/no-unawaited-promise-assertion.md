@@ -13,6 +13,8 @@ Assertions inside a floating Promise callback are not connected to the Promise r
 
 Return or await the Promise chain so `node:test` waits for the assertion.
 
+The automatic `await` fix is only offered for a chain or a `Promise.all()` with direct chain elements. Awaiting `race()` or `any()` does not wait for every element, awaiting `allSettled()` swallows the failed assertion, and combinators do not await chains inside nested arrays, so these cases need a manual fix.
+
 This rule owns Promise-callback assertions. [`no-late-test-activity`](no-late-test-activity.md) reports other detached Promise activity and assertions in scheduler callbacks.
 
 Only directly executed activity in the test or hook callback is checked, whether it is written inline or named out of line (`test('a', body)`). External callbacks and nested helper functions are not analyzed. A chain in a `for` loop's initializer or update slot, or under `void` in a static field initializer, is not read as floating.

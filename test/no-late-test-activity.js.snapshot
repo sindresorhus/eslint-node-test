@@ -1598,6 +1598,108 @@ Message:
 
 `;
 
+exports[`no-late-test-activity > invalid(76): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', async () => {\n\tPromise.all([load().then(() => { throw error; })]);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | test('example', async () => {
+  4 | 	Promise.all([load().then(() => { throw error; })]);
+  5 | });
+
+`;
+
+exports[`no-late-test-activity > invalid(76): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', async () => {\n\tPromise.all([load().then(() => { throw error; })]);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | test('example', async () => {
+> 4 | 	Promise.all([load().then(() => { throw error; })]);
+    | 	                                 ^^^^^^^^^^^^ Throw in a detached \`then()\` callback can run after the test or hook has finished.
+  5 | });
+
+Output:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | test('example', async () => {
+  4 | 	await Promise.all([load().then(() => { throw error; })]);
+  5 | });
+
+`;
+
+exports[`no-late-test-activity > invalid(77): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', async () => {\n\tPromise.allSettled([load().then(() => { throw error; })]);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | test('example', async () => {
+  4 | 	Promise.allSettled([load().then(() => { throw error; })]);
+  5 | });
+
+`;
+
+exports[`no-late-test-activity > invalid(77): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', async () => {\n\tPromise.allSettled([load().then(() => { throw error; })]);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | test('example', async () => {
+> 4 | 	Promise.allSettled([load().then(() => { throw error; })]);
+    | 	                                        ^^^^^^^^^^^^ Throw in a detached \`then()\` callback can run after the test or hook has finished.
+  5 | });
+
+Output:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | test('example', async () => {
+  4 | 	await Promise.allSettled([load().then(() => { throw error; })]);
+  5 | });
+
+`;
+
+exports[`no-late-test-activity > invalid(78): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', async () => {\n\tPromise.race([Promise.resolve(), load().then(() => { throw error; })]);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | test('example', async () => {
+  4 | 	Promise.race([Promise.resolve(), load().then(() => { throw error; })]);
+  5 | });
+
+`;
+
+exports[`no-late-test-activity > invalid(78): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', async () => {\n\tPromise.race([Promise.resolve(), load().then(() => { throw error; })]);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | test('example', async () => {
+> 4 | 	Promise.race([Promise.resolve(), load().then(() => { throw error; })]);
+    | 	                                                     ^^^^^^^^^^^^ Throw in a detached \`then()\` callback can run after the test or hook has finished.
+  5 | });
+
+`;
+
+exports[`no-late-test-activity > invalid(79): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', async () => {\n\tPromise.any([Promise.resolve(), load().then(() => { throw error; })]);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | test('example', async () => {
+  4 | 	Promise.any([Promise.resolve(), load().then(() => { throw error; })]);
+  5 | });
+
+`;
+
+exports[`no-late-test-activity > invalid(79): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', async () => {\n\tPromise.any([Promise.resolve(), load().then(() => { throw error; })]);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | test('example', async () => {
+> 4 | 	Promise.any([Promise.resolve(), load().then(() => { throw error; })]);
+    | 	                                                    ^^^^^^^^^^^^ Throw in a detached \`then()\` callback can run after the test or hook has finished.
+  5 | });
+
+`;
+
 exports[`no-late-test-activity > invalid(8): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', () => {\n\tPromise.race([load().then(() => { throw error; })]);\n}); 1`] = `
 
   1 | import test from 'node:test';
@@ -1616,6 +1718,50 @@ Message:
   3 | test('example', () => {
 > 4 | 	Promise.race([load().then(() => { throw error; })]);
     | 	                                  ^^^^^^^^^^^^ Throw in a detached \`then()\` callback can run after the test or hook has finished.
+  5 | });
+
+`;
+
+exports[`no-late-test-activity > invalid(80): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', async () => {\n\tPromise.all([[load().then(() => { throw error; })]]);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | test('example', async () => {
+  4 | 	Promise.all([[load().then(() => { throw error; })]]);
+  5 | });
+
+`;
+
+exports[`no-late-test-activity > invalid(80): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', async () => {\n\tPromise.all([[load().then(() => { throw error; })]]);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | test('example', async () => {
+> 4 | 	Promise.all([[load().then(() => { throw error; })]]);
+    | 	                                  ^^^^^^^^^^^^ Throw in a detached \`then()\` callback can run after the test or hook has finished.
+  5 | });
+
+`;
+
+exports[`no-late-test-activity > invalid(81): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', async () => {\n\tPromise.allSettled([[load().then(() => { throw error; })]]);\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | test('example', async () => {
+  4 | 	Promise.allSettled([[load().then(() => { throw error; })]]);
+  5 | });
+
+`;
+
+exports[`no-late-test-activity > invalid(81): import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('example', async () => {\n\tPromise.allSettled([[load().then(() => { throw error; })]]);\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert/strict';
+  3 | test('example', async () => {
+> 4 | 	Promise.allSettled([[load().then(() => { throw error; })]]);
+    | 	                                         ^^^^^^^^^^^^ Throw in a detached \`then()\` callback can run after the test or hook has finished.
   5 | });
 
 `;
