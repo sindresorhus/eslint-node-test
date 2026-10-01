@@ -1,6 +1,5 @@
 import {getStaticValue} from '@eslint-community/eslint-utils';
 import {findOptionsProperty, getTestOptions} from '../utils/node-test.js';
-import unwrapTypeScriptExpression from '../utils/unwrap-typescript-expression.js';
 
 /*
 Shared detection of a test whose callback `node:test` never runs: `test.skip(…)`, `test('a',
@@ -11,25 +10,6 @@ the callback contains (its plan, its assertions) has nothing to say about a skip
 is not skipped: `node:test` runs its body and only marks the test as unfinished, so what the body
 contains is still what runs.
 */
-
-/** Whether the callee chain carries a `.skip` segment, as in `test.skip(…)` or `skip.only(…)`. */
-function hasSkipModifier(node) {
-	node = unwrapTypeScriptExpression(node);
-
-	while (node.type === 'MemberExpression') {
-		if (
-			!node.computed
-			&& node.property.type === 'Identifier'
-			&& node.property.name === 'skip'
-		) {
-			return true;
-		}
-
-		node = unwrapTypeScriptExpression(node.object);
-	}
-
-	return false;
-}
 
 /*
 `node:test` marks a test `# SKIP` for any value that is neither `undefined` nor `false`, so `{skip: 0}`
@@ -61,9 +41,8 @@ Whether `node` is a test call that is statically skipped.
 @param {import('eslint').Rule.RuleContext} context
 */
 export function isSkippedTestCall(node, parsed, context) {
-	// The standalone `skip`/`todo` exports have an `Identifier` callee, so the member walk cannot see them. `parseTestCall` records the modifier for that form, so the `parsed.modifiers` check covers it. Only `skip` decides on its own, since a `todo` test still runs its body; `only(…)` and `todo(…)` run unless the options slot says otherwise. A suite reads `skip` the same way: a truthy one never runs the suite body, while a falsy one such as `{skip: 0}` runs the body and its `before`/`after` hooks and only cancels the tests it registers. Limitation: those cancelled tests are still read as running.
-	return hasSkipModifier(node.callee)
-		|| parsed?.modifiers.some(modifier => modifier.name === 'skip')
+	// `parseTestCall` records every `.skip` modifier, chained (`test.skip(…)`, `describe.skip(…)`) or the standalone `skip` export, so the `parsed.modifiers` check covers each form. Only `skip` decides on its own, since a `todo` test still runs its body; `only(…)` and `todo(…)` run unless the options slot says otherwise. A suite reads `skip` the same way: a truthy one never runs the suite body, while a falsy one such as `{skip: 0}` runs the body and its `before`/`after` hooks and only cancels the tests it registers. Limitation: those cancelled tests are still read as running.
+	return parsed?.modifiers.some(modifier => modifier.name === 'skip')
 		|| hasEnabledSkipOption(getTestOptions(node), context);
 }
 

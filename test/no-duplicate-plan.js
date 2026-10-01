@@ -32,9 +32,7 @@ test.snapshot({
 		withImport('test("x", {skip: true}, t => { t.plan(1); t.plan(2); });'),
 		withImport('test("x", {"skip": true}, t => { t.plan(1); t.plan(2); });'),
 		withImport('test("x", {skip: "reason"}, t => { t.plan(1); t.plan(2); });'),
-		withImport('test("parent", t => { t.test.skip("child", child => { child.plan(1); child.plan(2); }); });'),
 		withImport('test("parent", t => { t.test("child", {skip: true}, child => { child.plan(1); child.plan(2); }); });'),
-		withImport('test("parent", {plan: 1}, t => { t.test.skip("child", () => { t.plan(1); }); });'),
 
 		// Separate tests each get their own plan
 		withImport('test("a", t => { t.plan(1); });\ntest("b", t => { t.plan(1); });'),

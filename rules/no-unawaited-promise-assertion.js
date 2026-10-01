@@ -15,7 +15,6 @@ import {
 	parseDestructuredAssertCall,
 	isGetTestContextCall,
 	MODIFIERS,
-	HOOK_FUNCTIONS,
 	getImportSpecifierName,
 	getOutOfLineCallbackCall,
 	getRegistrationKind,

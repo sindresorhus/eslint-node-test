@@ -1,4 +1,4 @@
-import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
+import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	MODIFIERS,
 	resolveImports,
@@ -6,8 +6,6 @@ import {
 	getTestCallback,
 	getSubtestReceiver,
 	isGetTestContextSubtestCall,
-	getTestOptions,
-	findOptionsProperty,
 	hasEnabledPlanOption,
 	getFirstContextParameter,
 	isGetTestContextCall,

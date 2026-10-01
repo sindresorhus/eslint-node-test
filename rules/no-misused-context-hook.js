@@ -185,7 +185,7 @@ const create = context => {
 		}
 
 		const variable = findVariable(sourceCode.getScope(receiver), receiver);
-		if (variable === undefined) {
+		if (!variable) {
 			return undefined;
 		}
 
@@ -207,7 +207,7 @@ const create = context => {
 		return false;
 	};
 
-	const getRunnableSubtestFrame = (node, enclosingFunction) => {
+	const getRunnableSubtestFrame = node => {
 		const receiver = getDirectSubtestReceiver(node, imports);
 		const frame = getFrame(receiver);
 		if (
@@ -231,7 +231,7 @@ const create = context => {
 
 	context.on('CallExpression', node => {
 		const enclosingFunction = getEnclosingFunction(node);
-		const runnableSubtestFrame = getRunnableSubtestFrame(node, enclosingFunction);
+		const runnableSubtestFrame = getRunnableSubtestFrame(node);
 		// A `{skip: 0}` subtest still runs its own body, but the parent's hooks do not run around it.
 		if (
 			runnableSubtestFrame
