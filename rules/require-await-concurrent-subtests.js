@@ -47,7 +47,7 @@ function isArgumentToConsumedPromiseAll(node) {
 		&& parent.callee.object.type === 'Identifier'
 		&& parent.callee.object.name === 'Promise'
 		&& parent.arguments.includes(node)
-		// The `Promise.all(…)` itself must be consumed (awaited, returned, or assigned), not discarded, otherwise the parent test still finishes before the subtests settle.
+		// The `Promise.all(…)` itself must be consumed (awaited, returned, or assigned), not discarded, otherwise the test body continues while the subtests run. Node still waits for the subtests before the parent test finishes, but nothing in the body waits for them where the awaited promise would have.
 		&& !getFloatingStatement(parent);
 }
 

@@ -9,7 +9,7 @@
 
 Mocks created through the test context (`t.mock`) are [automatically restored](https://nodejs.org/api/test.html#class-mocktracker) when the test finishes. The global `mock` exported from `node:test` is **not** — its mocks persist across tests until you manually call `mock.reset()`/`mock.restoreAll()`. Forgetting that leaks a mock into later tests, causing order-dependent failures that are hard to track down.
 
-This rule reports state-creating calls on the global `mock` (`fn`, `method`, `getter`, `setter`, `property`, `module`, `timers`) and points you to the `t.mock` equivalent. The cleanup methods (`mock.reset()`, `mock.restoreAll()`) are not reported.
+This rule reports state-creating calls on the global `mock` (`fn`, `method`, `getter`, `setter`, `property`, `module`, and `timers.enable`) and points you to the `t.mock` equivalent. The cleanup methods (`mock.reset()`, `mock.restoreAll()`) are not reported. The other `mock.timers` calls (`tick`, `runAll`, `reset`) are not reported either: they create no new state, and they must act on the tracker that enabled the timers, so moving only them to `t.mock` would be wrong.
 
 ## Examples
 

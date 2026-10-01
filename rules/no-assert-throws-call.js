@@ -146,7 +146,7 @@ const create = context => {
 			node: firstArgument,
 			messageId: MESSAGE_ID_ERROR,
 			data: {method: assertion.method},
-			// A `yield` cannot live in an arrow, so that form is reported without a suggestion. An `await` in the argument cannot go inside the arrow without making it `async`, and `assert.throws()` never calls an async function, so that shape is reported without a suggestion (`no-assert-throws-async` owns turning it into `assert.rejects()`).
+			// A `yield` cannot live in an arrow, so that form is reported without a suggestion. An `await` in the argument cannot go inside the arrow without making it `async`, and `assert.throws()` calls an async function without awaiting its promise (it fails with `Missing expected exception.` and the rejection goes unhandled), so that shape is reported without a suggestion (`no-assert-throws-async` owns turning it into `assert.rejects()`).
 			suggest: awaits || yields || !isCall
 				? undefined
 				: [
