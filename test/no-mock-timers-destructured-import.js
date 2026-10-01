@@ -170,5 +170,18 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 
+		// A TypeScript wrapper on the `apis` list or on one of its entries is erased at runtime, so the list is still known: only `setTimeout` is reported, not `clearInterval`
+		{
+			code: `${head}import {setTimeout, clearInterval} from 'node:timers';\nmock.timers.enable({apis: ['setTimeout'] as const});`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: `${head}import {setTimeout, clearInterval} from 'node:timers';\nmock.timers.enable({apis: ['setTimeout'] satisfies string[]});`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: `${head}import {setTimeout, clearInterval} from 'node:timers';\nmock.timers.enable({apis: ['setTimeout' as const]});`,
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

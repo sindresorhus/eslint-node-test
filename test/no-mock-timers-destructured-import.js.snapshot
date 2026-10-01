@@ -508,6 +508,60 @@ Message:
 
 `;
 
+exports[`no-mock-timers-destructured-import > invalid(35): import {test, mock} from 'node:test';\nimport {setTimeout, clearInterval} from 'node:timers';\nmock.timers.enable({apis: ['setTimeout'] as const}); 1`] = `
+
+  1 | import {test, mock} from 'node:test';
+  2 | import {setTimeout, clearInterval} from 'node:timers';
+  3 | mock.timers.enable({apis: ['setTimeout'] as const});
+
+`;
+
+exports[`no-mock-timers-destructured-import > invalid(35): import {test, mock} from 'node:test';\nimport {setTimeout, clearInterval} from 'node:timers';\nmock.timers.enable({apis: ['setTimeout'] as const}); 2`] = `
+
+Message:
+  1 | import {test, mock} from 'node:test';
+> 2 | import {setTimeout, clearInterval} from 'node:timers';
+    |         ^^^^^^^^^^ \`setTimeout\` is imported directly, so \`mock.timers\` cannot intercept it. Call the global \`setTimeout\` instead.
+  3 | mock.timers.enable({apis: ['setTimeout'] as const});
+
+`;
+
+exports[`no-mock-timers-destructured-import > invalid(36): import {test, mock} from 'node:test';\nimport {setTimeout, clearInterval} from 'node:timers';\nmock.timers.enable({apis: ['setTimeout'] satisfies string[]}); 1`] = `
+
+  1 | import {test, mock} from 'node:test';
+  2 | import {setTimeout, clearInterval} from 'node:timers';
+  3 | mock.timers.enable({apis: ['setTimeout'] satisfies string[]});
+
+`;
+
+exports[`no-mock-timers-destructured-import > invalid(36): import {test, mock} from 'node:test';\nimport {setTimeout, clearInterval} from 'node:timers';\nmock.timers.enable({apis: ['setTimeout'] satisfies string[]}); 2`] = `
+
+Message:
+  1 | import {test, mock} from 'node:test';
+> 2 | import {setTimeout, clearInterval} from 'node:timers';
+    |         ^^^^^^^^^^ \`setTimeout\` is imported directly, so \`mock.timers\` cannot intercept it. Call the global \`setTimeout\` instead.
+  3 | mock.timers.enable({apis: ['setTimeout'] satisfies string[]});
+
+`;
+
+exports[`no-mock-timers-destructured-import > invalid(37): import {test, mock} from 'node:test';\nimport {setTimeout, clearInterval} from 'node:timers';\nmock.timers.enable({apis: ['setTimeout' as const]}); 1`] = `
+
+  1 | import {test, mock} from 'node:test';
+  2 | import {setTimeout, clearInterval} from 'node:timers';
+  3 | mock.timers.enable({apis: ['setTimeout' as const]});
+
+`;
+
+exports[`no-mock-timers-destructured-import > invalid(37): import {test, mock} from 'node:test';\nimport {setTimeout, clearInterval} from 'node:timers';\nmock.timers.enable({apis: ['setTimeout' as const]}); 2`] = `
+
+Message:
+  1 | import {test, mock} from 'node:test';
+> 2 | import {setTimeout, clearInterval} from 'node:timers';
+    |         ^^^^^^^^^^ \`setTimeout\` is imported directly, so \`mock.timers\` cannot intercept it. Call the global \`setTimeout\` instead.
+  3 | mock.timers.enable({apis: ['setTimeout' as const]});
+
+`;
+
 exports[`no-mock-timers-destructured-import > invalid(4): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\nmock.timers.enable({apis: [\"setTimeout\"]}); 1`] = `
 
   1 | import {test, mock} from 'node:test';

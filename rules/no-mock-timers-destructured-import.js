@@ -70,8 +70,8 @@ function getEnabledApis(callExpression) {
 			: {all: true};
 	}
 
-	// `undefined`, `void 0` and `null` are three ways to write "no `apis` given", and the runner takes that as every timer API rather than rejecting it.
-	const {value} = apisProperty;
+	// `undefined`, `void 0` and `null` are three ways to write "no `apis` given", and the runner takes that as every timer API rather than rejecting it. A TypeScript wrapper on the list or an entry (`['setTimeout'] as const`) is erased at runtime too.
+	const value = unwrapTypeScriptExpression(apisProperty.value);
 	if (isNoValue(value)) {
 		return {all: true};
 	}
@@ -81,7 +81,8 @@ function getEnabledApis(callExpression) {
 	}
 
 	const apis = [];
-	for (const element of apisProperty.value.elements) {
+	for (const rawElement of value.elements) {
+		const element = rawElement && unwrapTypeScriptExpression(rawElement);
 		if (element?.type !== 'Literal' || typeof element.value !== 'string') {
 			// A spread or computed entry makes the list only partly known, which proves nothing.
 			return {unknown: true};
