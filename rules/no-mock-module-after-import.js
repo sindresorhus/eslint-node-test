@@ -26,12 +26,12 @@ const create = context => {
 
 	const staticImports = new Set();
 	for (const node of sourceCode.ast.body) {
-		// A static re-export loads the target just as an import does, and its bindings are just as unmockable: `export {x} from 'os'`, `export * from 'os'`, `export * as os from 'os'`. Only a declaration-level `import type`/`export type` is erased; Node.js type stripping keeps `import {type X} from '…'` as `import {} from '…'`, which still loads the module.
+		// Only an import that binds a value in this file, or a side-effect import, counts. An import whose every specifier is type-only (`import {type X} from '…'`) and a re-export (`export {x} from '…'`) bind nothing here, so a dynamic `import()` after the mock still gets the mocked module. A side-effect import binds nothing either, but it is only there for the side effects, which already ran with the real module and which the mock cannot undo.
 		const isStaticLoad = node.type === 'ImportDeclaration'
-			? node.importKind !== 'type'
-			: (node.type === 'ExportNamedDeclaration' || node.type === 'ExportAllDeclaration') && node.exportKind !== 'type';
+			&& node.importKind !== 'type'
+			&& (node.specifiers.length === 0 || node.specifiers.some(specifier => specifier.importKind !== 'type'));
 
-		if (isStaticLoad && typeof node.source?.value === 'string') {
+		if (isStaticLoad && typeof node.source.value === 'string') {
 			staticImports.add(normalizeSpecifier(node.source.value));
 		}
 	}

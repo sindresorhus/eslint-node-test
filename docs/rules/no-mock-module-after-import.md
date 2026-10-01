@@ -35,4 +35,4 @@ test('reads a file', async t => {
 });
 ```
 
-Static ESM loads are checked, imports and re-exports alike (`export {x} from '…'`, `export * from '…'`). A declaration-level type-only import or re-export (`import type {X} from '…'`, `export type {X} from '…'`) is erased and does not count. A specifier-level one (`import {type X} from '…'`, `export {type X} from '…'`) does count: Node.js type stripping keeps it as `import {} from '…'`, which loads the module. CommonJS `require()` calls and dynamic imports are intentionally ignored.
+Static ESM imports that bind a value in the file are checked, and so are side-effect imports (`import '…'`). An import that binds only types (`import type {X} from '…'`, `import {type X} from '…'`) and a re-export (`export {x} from '…'`, `export * from '…'`) do not count: they leave no binding in the test file, so a dynamic `import()` after the mock still gets the mocked module. A side-effect import binds nothing either, but it is only there for its side effects, which already ran with the real module, so the mock cannot change what it did. CommonJS `require()` calls and dynamic imports are intentionally ignored.

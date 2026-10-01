@@ -64,14 +64,17 @@ test.snapshot({
 		// A CommonJS `require()` is not a static ESM load, so it is intentionally ignored.
 		head + 'const value = require(\'module.js\');\nmock.module(\'module.js\');',
 
-		// A file whose every import is type-only loads nothing at runtime, so a type-only `node:test` import does not even make it a test file.
+		// An import whose every specifier is type-only leaves no binding in the file, so a dynamic import after the mock still gets the mocked module.
 		{
-			code: 'import type {mock} from \'node:test\';\nimport type Value from \'module.js\';\nmock.module(\'module.js\');',
+			code: head + 'import {type Value} from \'module.js\';\nmock.module(\'module.js\');',
 			languageOptions: {parser: parsers.typescript},
 		},
-	],
-	invalid: [
-		// A static re-export loads its target just as an import does.
+		{
+			code: head + 'import {type Value} from \'./module.ts\';\ntest(\'mock\', async t => {\n\tt.mock.module(\'./module.ts\');\n\tawait import(\'./module.ts\');\n});',
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// A re-export binds nothing in the file, so a dynamic import after the mock still gets the mocked module.
 		head + 'export {value} from \'module.js\';\nmock.module(\'module.js\');',
 		head + 'export * from \'module.js\';\nmock.module(\'module.js\');',
 		head + 'export * as module from \'module.js\';\nmock.module(\'module.js\');',
@@ -79,16 +82,14 @@ test.snapshot({
 			code: head + 'export {type Value, other} from \'module.js\';\nmock.module(\'module.js\');',
 			languageOptions: {parser: parsers.typescript},
 		},
-		// A specifier-level type import or re-export still loads its target: Node.js type stripping keeps it as `import {} from '…'` or `export {} from '…'`.
-		{
-			code: head + 'import {type Value} from \'module.js\';\nmock.module(\'module.js\');',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: head + 'export {type Value} from \'module.js\';\nmock.module(\'module.js\');',
-			languageOptions: {parser: parsers.typescript},
-		},
 
+		// A file whose every import is type-only loads nothing at runtime, so a type-only `node:test` import does not even make it a test file.
+		{
+			code: 'import type {mock} from \'node:test\';\nimport type Value from \'module.js\';\nmock.module(\'module.js\');',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	invalid: [
 		// Default, named, namespace, and side-effect imports.
 		head + 'import value from \'module.js\';\nmock.module(\'module.js\');',
 		head + 'import {value} from \'module.js\';\nmock.module(\'module.js\');',
