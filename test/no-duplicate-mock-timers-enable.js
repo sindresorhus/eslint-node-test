@@ -238,6 +238,22 @@ test.snapshot({
 		withImport('mock.timers.enable(); class Outer { static { class Inner { static { if (condition) { mock.timers.reset(); } } } } } mock.timers.enable();'),
 		withImport('test(\'t\', () => {\n\ttry {\n\t\tmock.timers.enable();\n\t} finally {\n\t\tclass A {\n\t\t\tstatic {}\n\t\t}\n\t}\n\tmock.timers.enable();\n});'),
 		// Limitation: in a `finally` block the static block sees both paths at once. Its `enable()` is reported, a duplicate on the `return` path, but it is not added to the normal path, which had not enabled, so the later duplicate there is missed
-		withImport('test(\'t\', () => {\n\ttry {\n\t\tif (condition) {\n\t\t\tmock.timers.enable();\n\t\t\treturn;\n\t\t}\n\t} finally {\n\t\tclass A {\n\t\t\tstatic {\n\t\t\t\tmock.timers.enable();\n\t\t\t}\n\t\t}\n\t}\n\tmock.timers.enable();\n});'),
+		withImport([
+			'test(\'t\', () => {',
+			'\ttry {',
+			'\t\tif (condition) {',
+			'\t\t\tmock.timers.enable();',
+			'\t\t\treturn;',
+			'\t\t}',
+			'\t} finally {',
+			'\t\tclass A {',
+			'\t\t\tstatic {',
+			'\t\t\t\tmock.timers.enable();',
+			'\t\t\t}',
+			'\t\t}',
+			'\t}',
+			'\tmock.timers.enable();',
+			'});',
+		].join('\n')),
 	],
 });
