@@ -9,6 +9,8 @@
 
 `test` and `it` are aliases. Mixing them in a codebase is purely cosmetic noise — it usually signals copy-pasted code or inconsistent conventions. This rule enforces a single choice, optionally a different one at the top level versus inside a `describe` (the common `test()` / `describe(() => it())` style).
 
+`suite` is an alias for `describe` and is also supported. The `withinDescribe` option applies to both `describe` and `suite` blocks, so the default requires `it` inside either.
+
 ## Options
 
 ```js
@@ -18,6 +20,19 @@
 		{
 			fn: 'test', // 'test' | 'it' — name for top-level test cases (default: 'test')
 			withinDescribe: 'it' // 'test' | 'it' — name inside a `describe` (default: 'it')
+		}
+	]
+}
+```
+
+To use `suite` with `test`, set `withinDescribe` to `'test'`:
+
+```js
+{
+	'node-test/consistent-test-it': [
+		'error',
+		{
+			withinDescribe: 'test'
 		}
 	]
 }
@@ -42,5 +57,21 @@ test('runs', () => {});
 
 describe('group', () => {
 	it('runs', () => {});
+});
+```
+
+With `withinDescribe: 'test'`:
+
+```js
+import {suite, test, it} from 'node:test';
+
+// ❌
+suite('group', () => {
+	it('runs', () => {});
+});
+
+// ✅
+suite('group', () => {
+	test('runs', () => {});
 });
 ```
