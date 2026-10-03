@@ -8,9 +8,15 @@ Keep rules simple. Target common patterns, skip rare edge cases rather than over
 
 ## Detecting `node:test`
 
-`node:test` is import-based. Every rule first resolves the file's imports and then matches calls against the resolved local names. Use the shared helper `rules/utils/node-test.js`:
+`node:test` is import-based. Every rule first resolves the file's imports and then matches calls against the resolved local names.
 
-- `resolveImports(context)`: scans the file's top-level `import` declarations and returns `{locals, namespaces, assertNamespace, assertNamed}`. `locals` maps a local identifier to its canonical `node:test` export (`test`, `it`, `describe`, `suite`, `before`, `after`, `beforeEach`, `afterEach`, `mock`). Handles default import (`import test from 'node:test'`), named/renamed imports, and namespace import. `namespaces` is a set, because a file may bind the module more than once (`import test from 'node:test'` and `import * as nodeTest from 'node:test'` both count). CommonJS `require` is not supported. Most rules bail early when the file does not import `node:test`: `if (!imports.isTestFile) { return; }`.
+**Every rule must bail early when the file does not import `node:test`**: `if (!imports.isTestFile) { return; }`. Assertion rules may use `imports.isAssertOrTestFile` instead. Without this check, the rule reports files of other test runners (like AVA) and source files.
+
+CommonJS is not supported. Never detect `require()` or other CommonJS forms.
+
+Use the shared helper `rules/utils/node-test.js`:
+
+- `resolveImports(context)`: scans the file's top-level `import` declarations and returns `{locals, namespaces, assertNamespace, assertNamed}`. `locals` maps a local identifier to its canonical `node:test` export (`test`, `it`, `describe`, `suite`, `before`, `after`, `beforeEach`, `afterEach`, `mock`). Handles default import (`import test from 'node:test'`), named/renamed imports, and namespace import. `namespaces` is a set, because a file may bind the module more than once (`import test from 'node:test'` and `import * as nodeTest from 'node:test'` both count).
 - `parseTestCall(callExpression, imports)` — classifies a call as a test/suite/hook: returns `{name, kind, modifiers}` where `kind` is `'test'` (`test`/`it`), `'suite'` (`describe`/`suite`), or `'hook'`, and `modifiers` are the chained `.only`/`.skip`/`.todo` identifier nodes.
 - `findModifier`, `getTestOptions`, `findOptionsProperty` — for the two ways a modifier is applied: chained (`test.only(…)`) and via the options object (`test('t', {only: true}, fn)`).
 - `getTestTitle(call, context)`, `getStaticString(node, context)` — resolve static string titles.

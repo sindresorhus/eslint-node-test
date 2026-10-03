@@ -1,269 +1,307 @@
-exports[`no-commented-tests > invalid(1): // test.test('a', () => {}); 1`] = `
+exports[`no-commented-tests > invalid(1): import test from 'node:test';\n// test.test('a', () => {}); 1`] = `
 
-  1 | // test.test('a', () => {});
+  1 | import test from 'node:test';
+  2 | // test.test('a', () => {});
 
 `;
 
-exports[`no-commented-tests > invalid(1): // test.test('a', () => {}); 2`] = `
+exports[`no-commented-tests > invalid(1): import test from 'node:test';\n// test.test('a', () => {}); 2`] = `
 
 Message:
-> 1 | // test.test('a', () => {});
+  1 | import test from 'node:test';
+> 2 | // test.test('a', () => {});
     | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
 
 `;
 
-exports[`no-commented-tests > invalid(10): // after(() => { 1`] = `
+exports[`no-commented-tests > invalid(10): import test from 'node:test';\n// beforeEach(() => { 1`] = `
 
-  1 | // after(() => {
+  1 | import test from 'node:test';
+  2 | // beforeEach(() => {
 
 `;
 
-exports[`no-commented-tests > invalid(10): // after(() => { 2`] = `
+exports[`no-commented-tests > invalid(10): import test from 'node:test';\n// beforeEach(() => { 2`] = `
 
 Message:
-> 1 | // after(() => {
+  1 | import test from 'node:test';
+> 2 | // beforeEach(() => {
     | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
 
 `;
 
-exports[`no-commented-tests > invalid(11): // beforeEach(() => { 1`] = `
+exports[`no-commented-tests > invalid(11): import test from 'node:test';\n// afterEach(() => { 1`] = `
 
-  1 | // beforeEach(() => {
+  1 | import test from 'node:test';
+  2 | // afterEach(() => {
 
 `;
 
-exports[`no-commented-tests > invalid(11): // beforeEach(() => { 2`] = `
+exports[`no-commented-tests > invalid(11): import test from 'node:test';\n// afterEach(() => { 2`] = `
 
 Message:
-> 1 | // beforeEach(() => {
+  1 | import test from 'node:test';
+> 2 | // afterEach(() => {
     | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
 
 `;
 
-exports[`no-commented-tests > invalid(12): // afterEach(() => { 1`] = `
+exports[`no-commented-tests > invalid(12): import test from 'node:test';\n//test(\"foo\", () => {}) 1`] = `
 
-  1 | // afterEach(() => {
+  1 | import test from 'node:test';
+  2 | //test("foo", () => {})
 
 `;
 
-exports[`no-commented-tests > invalid(12): // afterEach(() => { 2`] = `
+exports[`no-commented-tests > invalid(12): import test from 'node:test';\n//test(\"foo\", () => {}) 2`] = `
 
 Message:
-> 1 | // afterEach(() => {
+  1 | import test from 'node:test';
+> 2 | //test("foo", () => {})
     | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
 
 `;
 
-exports[`no-commented-tests > invalid(13): //test(\"foo\", () => {}) 1`] = `
+exports[`no-commented-tests > invalid(13): import test from 'node:test';\n// test.only(\"foo\", () => {}) 1`] = `
 
-  1 | //test("foo", () => {})
+  1 | import test from 'node:test';
+  2 | // test.only("foo", () => {})
 
 `;
 
-exports[`no-commented-tests > invalid(13): //test(\"foo\", () => {}) 2`] = `
+exports[`no-commented-tests > invalid(13): import test from 'node:test';\n// test.only(\"foo\", () => {}) 2`] = `
 
 Message:
-> 1 | //test("foo", () => {})
+  1 | import test from 'node:test';
+> 2 | // test.only("foo", () => {})
     | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
 
 `;
 
-exports[`no-commented-tests > invalid(14): // test.only(\"foo\", () => {}) 1`] = `
+exports[`no-commented-tests > invalid(14): import test from 'node:test';\n// test.skip(\"foo\", () => {}) 1`] = `
 
-  1 | // test.only("foo", () => {})
+  1 | import test from 'node:test';
+  2 | // test.skip("foo", () => {})
 
 `;
 
-exports[`no-commented-tests > invalid(14): // test.only(\"foo\", () => {}) 2`] = `
+exports[`no-commented-tests > invalid(14): import test from 'node:test';\n// test.skip(\"foo\", () => {}) 2`] = `
 
 Message:
-> 1 | // test.only("foo", () => {})
+  1 | import test from 'node:test';
+> 2 | // test.skip("foo", () => {})
     | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
 
 `;
 
-exports[`no-commented-tests > invalid(15): // test.skip(\"foo\", () => {}) 1`] = `
+exports[`no-commented-tests > invalid(15): import test from 'node:test';\n// it.only(\"foo\", () => {}) 1`] = `
 
-  1 | // test.skip("foo", () => {})
+  1 | import test from 'node:test';
+  2 | // it.only("foo", () => {})
 
 `;
 
-exports[`no-commented-tests > invalid(15): // test.skip(\"foo\", () => {}) 2`] = `
+exports[`no-commented-tests > invalid(15): import test from 'node:test';\n// it.only(\"foo\", () => {}) 2`] = `
 
 Message:
-> 1 | // test.skip("foo", () => {})
+  1 | import test from 'node:test';
+> 2 | // it.only("foo", () => {})
     | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
 
 `;
 
-exports[`no-commented-tests > invalid(16): // it.only(\"foo\", () => {}) 1`] = `
+exports[`no-commented-tests > invalid(16): import test from 'node:test';\n/* test(\"foo\", () => {}) */ 1`] = `
 
-  1 | // it.only("foo", () => {})
+  1 | import test from 'node:test';
+  2 | /* test("foo", () => {}) */
 
 `;
 
-exports[`no-commented-tests > invalid(16): // it.only(\"foo\", () => {}) 2`] = `
+exports[`no-commented-tests > invalid(16): import test from 'node:test';\n/* test(\"foo\", () => {}) */ 2`] = `
 
 Message:
-> 1 | // it.only("foo", () => {})
+  1 | import test from 'node:test';
+> 2 | /* test("foo", () => {}) */
     | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
 
 `;
 
-exports[`no-commented-tests > invalid(17): /* test(\"foo\", () => {}) */ 1`] = `
+exports[`no-commented-tests > invalid(17): import test from 'node:test';\n/*\n * test(\"foo\", () => {\n */ 1`] = `
 
-  1 | /* test("foo", () => {}) */
+  1 | import test from 'node:test';
+  2 | /*
+  3 |  * test("foo", () => {
+  4 |  */
 
 `;
 
-exports[`no-commented-tests > invalid(17): /* test(\"foo\", () => {}) */ 2`] = `
+exports[`no-commented-tests > invalid(17): import test from 'node:test';\n/*\n * test(\"foo\", () => {\n */ 2`] = `
 
 Message:
-> 1 | /* test("foo", () => {}) */
+  1 | import test from 'node:test';
+  2 | /*
+> 3 |  * test("foo", () => {
+    | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
+  4 |  */
+
+`;
+
+exports[`no-commented-tests > invalid(18): import test from 'node:test';\n// describe.only(\"group\", () => {}) 1`] = `
+
+  1 | import test from 'node:test';
+  2 | // describe.only("group", () => {})
+
+`;
+
+exports[`no-commented-tests > invalid(18): import test from 'node:test';\n// describe.only(\"group\", () => {}) 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+> 2 | // describe.only("group", () => {})
     | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
 
 `;
 
-exports[`no-commented-tests > invalid(18): /*\n * test(\"foo\", () => {\n */ 1`] = `
+exports[`no-commented-tests > invalid(19): import test from 'node:test';\n// it.todo(\"foo\", () => {}) 1`] = `
 
-  1 | /*
-  2 |  * test("foo", () => {
-  3 |  */
+  1 | import test from 'node:test';
+  2 | // it.todo("foo", () => {})
 
 `;
 
-exports[`no-commented-tests > invalid(18): /*\n * test(\"foo\", () => {\n */ 2`] = `
+exports[`no-commented-tests > invalid(19): import test from 'node:test';\n// it.todo(\"foo\", () => {}) 2`] = `
 
 Message:
-  1 | /*
-> 2 |  * test("foo", () => {
-    | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
-  3 |  */
-
-`;
-
-exports[`no-commented-tests > invalid(19): // describe.only(\"group\", () => {}) 1`] = `
-
-  1 | // describe.only("group", () => {})
-
-`;
-
-exports[`no-commented-tests > invalid(19): // describe.only(\"group\", () => {}) 2`] = `
-
-Message:
-> 1 | // describe.only("group", () => {})
+  1 | import test from 'node:test';
+> 2 | // it.todo("foo", () => {})
     | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
 
 `;
 
-exports[`no-commented-tests > invalid(2): // test.it('a', () => {}); 1`] = `
+exports[`no-commented-tests > invalid(2): import test from 'node:test';\n// test.it('a', () => {}); 1`] = `
 
-  1 | // test.it('a', () => {});
+  1 | import test from 'node:test';
+  2 | // test.it('a', () => {});
 
 `;
 
-exports[`no-commented-tests > invalid(2): // test.it('a', () => {}); 2`] = `
+exports[`no-commented-tests > invalid(2): import test from 'node:test';\n// test.it('a', () => {}); 2`] = `
 
 Message:
-> 1 | // test.it('a', () => {});
+  1 | import test from 'node:test';
+> 2 | // test.it('a', () => {});
     | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
 
 `;
 
-exports[`no-commented-tests > invalid(20): // it.todo(\"foo\", () => {}) 1`] = `
+exports[`no-commented-tests > invalid(20): import test from 'node:test';\n// test.todo(\"foo\", () => {}) 1`] = `
 
-  1 | // it.todo("foo", () => {})
+  1 | import test from 'node:test';
+  2 | // test.todo("foo", () => {})
 
 `;
 
-exports[`no-commented-tests > invalid(20): // it.todo(\"foo\", () => {}) 2`] = `
+exports[`no-commented-tests > invalid(20): import test from 'node:test';\n// test.todo(\"foo\", () => {}) 2`] = `
 
 Message:
-> 1 | // it.todo("foo", () => {})
+  1 | import test from 'node:test';
+> 2 | // test.todo("foo", () => {})
     | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
 
 `;
 
-exports[`no-commented-tests > invalid(21): // test.todo(\"foo\", () => {}) 1`] = `
+exports[`no-commented-tests > invalid(21): import test from 'node:test';\n// test.describe(\"group\", () => {}) 1`] = `
 
-  1 | // test.todo("foo", () => {})
+  1 | import test from 'node:test';
+  2 | // test.describe("group", () => {})
 
 `;
 
-exports[`no-commented-tests > invalid(21): // test.todo(\"foo\", () => {}) 2`] = `
+exports[`no-commented-tests > invalid(21): import test from 'node:test';\n// test.describe(\"group\", () => {}) 2`] = `
 
 Message:
-> 1 | // test.todo("foo", () => {})
+  1 | import test from 'node:test';
+> 2 | // test.describe("group", () => {})
     | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
 
 `;
 
-exports[`no-commented-tests > invalid(22): // test.describe(\"group\", () => {}) 1`] = `
+exports[`no-commented-tests > invalid(22): import test from 'node:test';\n// test.suite(\"group\", () => {}) 1`] = `
 
-  1 | // test.describe("group", () => {})
+  1 | import test from 'node:test';
+  2 | // test.suite("group", () => {})
 
 `;
 
-exports[`no-commented-tests > invalid(22): // test.describe(\"group\", () => {}) 2`] = `
+exports[`no-commented-tests > invalid(22): import test from 'node:test';\n// test.suite(\"group\", () => {}) 2`] = `
 
 Message:
-> 1 | // test.describe("group", () => {})
+  1 | import test from 'node:test';
+> 2 | // test.suite("group", () => {})
     | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
 
 `;
 
-exports[`no-commented-tests > invalid(23): // test.suite(\"group\", () => {}) 1`] = `
+exports[`no-commented-tests > invalid(23): import test from 'node:test';\n// test.beforeEach(() => {}) 1`] = `
 
-  1 | // test.suite("group", () => {})
+  1 | import test from 'node:test';
+  2 | // test.beforeEach(() => {})
 
 `;
 
-exports[`no-commented-tests > invalid(23): // test.suite(\"group\", () => {}) 2`] = `
+exports[`no-commented-tests > invalid(23): import test from 'node:test';\n// test.beforeEach(() => {}) 2`] = `
 
 Message:
-> 1 | // test.suite("group", () => {})
+  1 | import test from 'node:test';
+> 2 | // test.beforeEach(() => {})
     | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
 
 `;
 
-exports[`no-commented-tests > invalid(24): // test.beforeEach(() => {}) 1`] = `
+exports[`no-commented-tests > invalid(24): import test from 'node:test';\n// it.after(() => {}) 1`] = `
 
-  1 | // test.beforeEach(() => {})
+  1 | import test from 'node:test';
+  2 | // it.after(() => {})
 
 `;
 
-exports[`no-commented-tests > invalid(24): // test.beforeEach(() => {}) 2`] = `
+exports[`no-commented-tests > invalid(24): import test from 'node:test';\n// it.after(() => {}) 2`] = `
 
 Message:
-> 1 | // test.beforeEach(() => {})
+  1 | import test from 'node:test';
+> 2 | // it.after(() => {})
     | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
 
 `;
 
-exports[`no-commented-tests > invalid(25): // it.after(() => {}) 1`] = `
+exports[`no-commented-tests > invalid(25): import test from 'node:test';\n// await test(\"foo\", async () => {}) 1`] = `
 
-  1 | // it.after(() => {})
+  1 | import test from 'node:test';
+  2 | // await test("foo", async () => {})
 
 `;
 
-exports[`no-commented-tests > invalid(25): // it.after(() => {}) 2`] = `
+exports[`no-commented-tests > invalid(25): import test from 'node:test';\n// await test(\"foo\", async () => {}) 2`] = `
 
 Message:
-> 1 | // it.after(() => {})
+  1 | import test from 'node:test';
+> 2 | // await test("foo", async () => {})
     | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
 
 `;
 
-exports[`no-commented-tests > invalid(26): // await test(\"foo\", async () => {}) 1`] = `
+exports[`no-commented-tests > invalid(26): import * as nodeTest from 'node:test';\n// nodeTest.test('a', () => {}); 1`] = `
 
-  1 | // await test("foo", async () => {})
+  1 | import * as nodeTest from 'node:test';
+  2 | // nodeTest.test('a', () => {});
 
 `;
 
-exports[`no-commented-tests > invalid(26): // await test(\"foo\", async () => {}) 2`] = `
+exports[`no-commented-tests > invalid(26): import * as nodeTest from 'node:test';\n// nodeTest.test('a', () => {}); 2`] = `
 
 Message:
-> 1 | // await test("foo", async () => {})
+  1 | import * as nodeTest from 'node:test';
+> 2 | // nodeTest.test('a', () => {});
     | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
 
 `;
@@ -316,16 +354,18 @@ Message:
 
 `;
 
-exports[`no-commented-tests > invalid(3): // it.it('a', () => {}); 1`] = `
+exports[`no-commented-tests > invalid(3): import test from 'node:test';\n// it.it('a', () => {}); 1`] = `
 
-  1 | // it.it('a', () => {});
+  1 | import test from 'node:test';
+  2 | // it.it('a', () => {});
 
 `;
 
-exports[`no-commented-tests > invalid(3): // it.it('a', () => {}); 2`] = `
+exports[`no-commented-tests > invalid(3): import test from 'node:test';\n// it.it('a', () => {}); 2`] = `
 
 Message:
-> 1 | // it.it('a', () => {});
+  1 | import test from 'node:test';
+> 2 | // it.it('a', () => {});
     | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
 
 `;
@@ -396,88 +436,98 @@ Message:
 
 `;
 
-exports[`no-commented-tests > invalid(4): import * as nodeTest from 'node:test';\n// nodeTest.test('a', () => {}); 1`] = `
+exports[`no-commented-tests > invalid(4): import test from 'node:test';\n// test(\"foo\", () => { 1`] = `
 
-  1 | import * as nodeTest from 'node:test';
-  2 | // nodeTest.test('a', () => {});
+  1 | import test from 'node:test';
+  2 | // test("foo", () => {
 
 `;
 
-exports[`no-commented-tests > invalid(4): import * as nodeTest from 'node:test';\n// nodeTest.test('a', () => {}); 2`] = `
+exports[`no-commented-tests > invalid(4): import test from 'node:test';\n// test(\"foo\", () => { 2`] = `
 
 Message:
-  1 | import * as nodeTest from 'node:test';
-> 2 | // nodeTest.test('a', () => {});
+  1 | import test from 'node:test';
+> 2 | // test("foo", () => {
     | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
 
 `;
 
-exports[`no-commented-tests > invalid(5): // test(\"foo\", () => { 1`] = `
+exports[`no-commented-tests > invalid(5): import test from 'node:test';\n// it(\"foo\", () => { 1`] = `
 
-  1 | // test("foo", () => {
+  1 | import test from 'node:test';
+  2 | // it("foo", () => {
 
 `;
 
-exports[`no-commented-tests > invalid(5): // test(\"foo\", () => { 2`] = `
+exports[`no-commented-tests > invalid(5): import test from 'node:test';\n// it(\"foo\", () => { 2`] = `
 
 Message:
-> 1 | // test("foo", () => {
+  1 | import test from 'node:test';
+> 2 | // it("foo", () => {
     | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
 
 `;
 
-exports[`no-commented-tests > invalid(6): // it(\"foo\", () => { 1`] = `
+exports[`no-commented-tests > invalid(6): import test from 'node:test';\n// describe(\"group\", () => { 1`] = `
 
-  1 | // it("foo", () => {
+  1 | import test from 'node:test';
+  2 | // describe("group", () => {
 
 `;
 
-exports[`no-commented-tests > invalid(6): // it(\"foo\", () => { 2`] = `
+exports[`no-commented-tests > invalid(6): import test from 'node:test';\n// describe(\"group\", () => { 2`] = `
 
 Message:
-> 1 | // it("foo", () => {
+  1 | import test from 'node:test';
+> 2 | // describe("group", () => {
     | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
 
 `;
 
-exports[`no-commented-tests > invalid(7): // describe(\"group\", () => { 1`] = `
+exports[`no-commented-tests > invalid(7): import test from 'node:test';\n// suite(\"group\", () => { 1`] = `
 
-  1 | // describe("group", () => {
+  1 | import test from 'node:test';
+  2 | // suite("group", () => {
 
 `;
 
-exports[`no-commented-tests > invalid(7): // describe(\"group\", () => { 2`] = `
+exports[`no-commented-tests > invalid(7): import test from 'node:test';\n// suite(\"group\", () => { 2`] = `
 
 Message:
-> 1 | // describe("group", () => {
+  1 | import test from 'node:test';
+> 2 | // suite("group", () => {
     | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
 
 `;
 
-exports[`no-commented-tests > invalid(8): // suite(\"group\", () => { 1`] = `
+exports[`no-commented-tests > invalid(8): import test from 'node:test';\n// before(() => { 1`] = `
 
-  1 | // suite("group", () => {
+  1 | import test from 'node:test';
+  2 | // before(() => {
 
 `;
 
-exports[`no-commented-tests > invalid(8): // suite(\"group\", () => { 2`] = `
+exports[`no-commented-tests > invalid(8): import test from 'node:test';\n// before(() => { 2`] = `
 
 Message:
-> 1 | // suite("group", () => {
+  1 | import test from 'node:test';
+> 2 | // before(() => {
     | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
 
 `;
 
-exports[`no-commented-tests > invalid(9): // before(() => { 1`] = `
+exports[`no-commented-tests > invalid(9): import test from 'node:test';\n// after(() => { 1`] = `
 
-  1 | // before(() => {
+  1 | import test from 'node:test';
+  2 | // after(() => {
 
 `;
 
-exports[`no-commented-tests > invalid(9): // before(() => { 2`] = `
+exports[`no-commented-tests > invalid(9): import test from 'node:test';\n// after(() => { 2`] = `
 
 Message:
-> 1 | // before(() => {
+  1 | import test from 'node:test';
+> 2 | // after(() => {
     | ^ Use \`.skip()\` or remove the commented-out test instead of commenting it out.
 
 `;

@@ -60,7 +60,12 @@ function reportFirstMatch(context, pattern, comment) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const pattern = createPattern(resolveImports(context));
+	const imports = resolveImports(context);
+	if (!imports.isTestFile) {
+		return;
+	}
+
+	const pattern = createPattern(imports);
 
 	context.on('Program:exit', () => {
 		for (const comment of getComments(context)) {

@@ -9,7 +9,7 @@
 
 Node.js discovers test files by their path and executes each one. Importing one of those files can execute it a second time, registering duplicate tests or repeating its side effects.
 
-This rule resolves relative static imports, re-exports, literal dynamic imports, and CommonJS `require(…)` calls from the importing file, then reports targets that match Node.js-style test file name patterns. TypeScript's own import forms count too: `import x = require('…')`, `export = require('…')` and `export import x = require('…')` all load the target. It ignores package specifiers, absolute paths, `file:` URLs, computed dynamic imports, and declaration-level type-only TypeScript imports and exports (`import type {X} from '…'`) because they are erased and do not load the target module. A specifier-level type import (`import {type X} from '…'`) is still reported: Node.js type stripping keeps it as `import {} from '…'`, which loads the module.
+This rule resolves relative static imports, re-exports, and literal dynamic imports from the importing file, then reports targets that match Node.js-style test file name patterns. It only checks files that import from `node:test`, so a test file for another test runner, like AVA, can import a helper such as `test/_helper.js`. CommonJS `require(…)` calls are not checked. It ignores package specifiers, absolute paths, `file:` URLs, computed dynamic imports, and declaration-level type-only TypeScript imports and exports (`import type {X} from '…'`) because they are erased and do not load the target module. A specifier-level type import (`import {type X} from '…'`) is still reported: Node.js type stripping keeps it as `import {} from '…'`, which loads the module.
 
 Name matching follows the file system: on a case-insensitive one (macOS, Windows) `./TEST/Example.Test.js` resolves to the same file as `./test/example.test.js`, so it is matched too. On a case-sensitive file system only the exact lowercase spelling matches.
 
@@ -18,6 +18,9 @@ The rule recognizes JavaScript (`.js`, `.mjs`, `.cjs`), JSX (`.jsx`), and TypeSc
 ## Examples
 
 ```js
+// The rule only checks files that import from `node:test`
+import test from 'node:test';
+
 // ❌
 import './example.test.js';
 await import('./test/helpers.js');

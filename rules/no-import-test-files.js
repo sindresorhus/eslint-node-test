@@ -1,6 +1,7 @@
 import path from 'node:path';
 import {getStaticStringValue} from './ast/index.js';
 import {unwrapTypeScriptExpression} from './utils/index.js';
+import {resolveImports} from './utils/node-test.js';
 
 const MESSAGE_ID = 'no-import-test-files';
 const IS_CASE_INSENSITIVE_FILE_SYSTEM = process.platform === 'darwin' || process.platform === 'win32';
@@ -95,6 +96,11 @@ function getSpecifierValue(node) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	// Only a file that uses `node:test` is run by the Node.js test runner. Other test runners, like AVA, have their own rules for which files are tests.
+	if (!resolveImports(context).isTestFile) {
+		return;
+	}
+
 	const filename = context.physicalFilename ?? context.filename;
 	const getProblem = (node, source) => {
 		const specifier = getSpecifierValue(source);
@@ -106,21 +112,6 @@ const create = context => {
 			node,
 			messageId: MESSAGE_ID,
 		};
-	};
-
-	/*
-	The `require(…)` specifier of a TypeScript import-equals or `export =` form. The import-equals form
-	hides it on a `TSExternalModuleReference`; the `export =` form is the `require(…)` call itself.
-	*/
-	const getRequireProblem = (node, expression) => {
-		const argument = expression?.type === 'TSExternalModuleReference'
-			? expression.expression
-			: (expression?.type === 'CallExpression'
-				&& expression.callee.type === 'Identifier'
-				&& expression.callee.name === 'require'
-				? expression.arguments[0]
-				: undefined);
-		return argument ? getProblem(node, argument) : undefined;
 	};
 
 	context.on('ImportDeclaration', node => {
@@ -145,17 +136,6 @@ const create = context => {
 		return getProblem(node, node.source);
 	});
 	context.on('ImportExpression', node => getProblem(node, node.source));
-	// A CommonJS `require('./other.test.js')` loads the target the same way an import does, so the runner really does execute the dependency a second time. A local `require` counts too: the one `createRequire()` returns loads the file just the same, and with a literal test file specifier any function of that name is loading it. TypeScript's `export = require(…)` is the one exception: the `TSExportAssignment` visitor below already reports it, on the whole statement, so reporting the inner call again would be a second problem for one import.
-	context.on('CallExpression', node => node.parent?.type === 'TSExportAssignment' ? undefined : getRequireProblem(node, node));
-	// TypeScript's own import forms, where the specifier sits on an external module reference instead of an `ImportDeclaration.source`.
-	context.on('TSImportEqualsDeclaration', node => {
-		if (node.importKind === 'type') {
-			return;
-		}
-
-		return getRequireProblem(node, node.moduleReference);
-	});
-	context.on('TSExportAssignment', node => getRequireProblem(node, node.expression));
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
