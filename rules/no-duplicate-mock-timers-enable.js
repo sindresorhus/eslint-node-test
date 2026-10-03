@@ -1,22 +1,19 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	createContextTracker,
-	getFirstContextParameter,
+	getContextVariable,
 	getHookCallback,
-	getOutOfLineCallbackCall,
-	getParentCallExpression,
-	getSubtestReceiver,
 	getTestCallback,
 	HOOK_FUNCTIONS,
 	isGetTestContextCall,
 	isGlobalMock,
-	MODIFIERS,
+	hasOnlyKnownModifiers,
 	parseTestCall,
 	resolveImports,
 } from './utils/node-test.js';
-import {isSkippedTestCall, isInsideSkippedCallback} from './shared/skipped-test.js';
-import {getEnclosingFunction} from './utils/index.js';
-import {isFunction} from './ast/index.js';
+import {isInsideSkippedCallback, isInsideSkippedRegistration, isSkippedRegistration} from './shared/skipped-test.js';
+import {getEnclosingFunction, getStaticPropertyName} from './utils/index.js';
+import {isFunction, isMemberExpression} from './ast/index.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
 const MESSAGE_ID = 'no-duplicate-mock-timers-enable';
@@ -28,23 +25,10 @@ const GLOBAL_RECEIVER = Symbol('global receiver');
 // `getTestContext()` outside any tracked callback, where there is no context parameter to stand in for it. Two such calls still name the same tracker.
 const ROOT_CONTEXT_RECEIVER = Symbol('root context receiver');
 
-function getStaticPropertyName(node) {
-	if (node.type === 'Identifier') {
-		return node.name;
-	}
-
-	if (node.type === 'Literal' && typeof node.value === 'string') {
-		return node.value;
-	}
-}
-
 function getContextMockReceiver(node, contextTracker, contextHookVariables, imports) {
 	const expression = unwrapTypeScriptExpression(node);
 	if (
-		expression.type !== 'MemberExpression'
-		|| expression.computed
-		|| expression.optional
-		|| getStaticPropertyName(expression.property) !== 'mock'
+		!isMemberExpression(expression, {property: 'mock', optional: false})
 	) {
 		return undefined;
 	}
@@ -80,10 +64,7 @@ function getMockReceiver(node, contextTracker, contextHookVariables, imports) {
 function getMockTimersReceiver(node, contextTracker, contextHookVariables, imports) {
 	const expression = unwrapTypeScriptExpression(node);
 	if (
-		expression.type !== 'MemberExpression'
-		|| expression.computed
-		|| expression.optional
-		|| getStaticPropertyName(expression.property) !== 'timers'
+		!isMemberExpression(expression, {property: 'timers', optional: false})
 	) {
 		return undefined;
 	}
@@ -105,7 +86,7 @@ function getMockAction(callExpression, contextTracker, contextHookVariables, imp
 		return undefined;
 	}
 
-	const method = getStaticPropertyName(callee.property);
+	const method = getStaticPropertyName(callee);
 	if (method === 'enable' || method === 'reset') {
 		const receiver = getMockTimersReceiver(callee.object, contextTracker, contextHookVariables, imports);
 		if (receiver) {
@@ -124,7 +105,7 @@ function getMockAction(callExpression, contextTracker, contextHookVariables, imp
 function getContextHookCallback(callExpression, contextTracker) {
 	const callee = unwrapTypeScriptExpression(callExpression.callee);
 	const method = callee.type === 'MemberExpression' && !callee.computed && !callee.optional
-		? getStaticPropertyName(callee.property)
+		? getStaticPropertyName(callee)
 		: undefined;
 	if (
 		!method
@@ -223,41 +204,6 @@ const create = context => {
 	const skippedCallbacks = new Set();
 	const contextHookVariables = new Set();
 	const codePathStack = [];
-	const isSkippedRegistration = call => {
-		const parsed = parseTestCall(call, imports);
-		const isTestOrSuite = (parsed?.kind === 'test' || parsed?.kind === 'suite')
-			&& parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name));
-		return (isTestOrSuite || contextTracker.isContextIdentifier(getSubtestReceiver(call)))
-			&& isSkippedTestCall(call, parsed, context);
-	};
-
-	/*
-	Whether a registration that skips its callback encloses `node` through a body named out of line, as in `test.skip('a', body)`. The body is visited where it is declared, outside the call's frame and often before the call, so the calls are read from the code instead: each function's own call, inline or out of line, then onward from that call.
-	*/
-	const isInsideSkippedOutOfLineBody = node => {
-		const visited = new Set();
-		for (let current = node.parent; current; current = current.parent) {
-			if (!isFunction(current) || visited.has(current)) {
-				continue;
-			}
-
-			// Two bodies that register each other would otherwise lead the walk around forever.
-			visited.add(current);
-			const parentCall = getParentCallExpression(current);
-			const inlineCall = parentCall && getTestCallback(parentCall, imports) === current ? parentCall : undefined;
-			const call = inlineCall ?? getOutOfLineCallbackCall(current, context, imports);
-			if (call && isSkippedRegistration(call)) {
-				return true;
-			}
-
-			if (call && !inlineCall) {
-				current = call;
-			}
-		}
-
-		return false;
-	};
-
 	const trackContextHookCallback = (node, isInSkippedCallback) => {
 		const callback = getContextHookCallback(node, contextTracker);
 		if (
@@ -268,12 +214,9 @@ const create = context => {
 			return;
 		}
 
-		const identifier = getFirstContextParameter(callback.params);
-		if (identifier?.type === 'Identifier') {
-			const variable = findVariable(sourceCode.getScope(identifier), identifier);
-			if (variable) {
-				contextHookVariables.add(variable);
-			}
+		const variable = getContextVariable(callback, context);
+		if (variable) {
+			contextHookVariables.add(variable);
 		}
 
 		trackedCallbacks.add(callback);
@@ -282,12 +225,12 @@ const create = context => {
 	const trackCallbacks = node => {
 		const parsed = parseTestCall(node, imports);
 		const callback = getTestCallback(node);
-		if (callback && isSkippedRegistration(node)) {
+		if (callback && isSkippedRegistration(node, imports, context)) {
 			skippedCallbacks.add(callback);
 		}
 
 		const isInSkippedCallback = isInsideSkippedCallback(node, skippedCallbacks)
-			|| (callback !== undefined && isInsideSkippedOutOfLineBody(node));
+			|| (callback !== undefined && isInsideSkippedRegistration(node, imports, context));
 		// The calls inside a callback that never runs never run either, which the ancestor check then sees.
 		if (isInSkippedCallback && callback) {
 			skippedCallbacks.add(callback);
@@ -298,7 +241,7 @@ const create = context => {
 		if (
 			callback
 			&& parsed?.kind === 'suite'
-			&& parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name))
+			&& hasOnlyKnownModifiers(parsed)
 			&& !isInSkippedCallback
 			&& !skippedCallbacks.has(callback)
 		) {

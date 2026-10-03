@@ -3,8 +3,9 @@ import {
 	parseSupportedAssertionCall,
 	createContextTracker,
 } from './utils/node-test.js';
-import {isStringExpression, getStaticStringValue} from './ast/index.js';
+import {isStringExpression, getStaticStringValue, isMemberExpression} from './ast/index.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
+import {hasCommentInRange} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-assert-match-string/error';
 const MESSAGE_ID_REGEXP_SUGGESTION = 'no-assert-match-string/regexp-suggestion';
@@ -69,16 +70,13 @@ function getMethodReplacementRange(node, parsed, sourceCode) {
 	const {callee} = node;
 	if (
 		callee.type === 'MemberExpression'
-		&& callee.object.type === 'MemberExpression'
-		&& !callee.object.computed
-		&& callee.object.property.type === 'Identifier'
-		&& callee.object.property.name === 'strict'
+		&& isMemberExpression(callee.object, 'strict')
 	) {
 		const range = [
 			sourceCode.getRange(callee.object.property)[0],
 			sourceCode.getRange(parsed.methodNode)[1],
 		];
-		if (hasCommentInRange(sourceCode, callee, range)) {
+		if (hasCommentInRange(callee, range, {sourceCode})) {
 			return undefined;
 		}
 
@@ -86,13 +84,6 @@ function getMethodReplacementRange(node, parsed, sourceCode) {
 	}
 
 	return sourceCode.getRange(parsed.methodNode);
-}
-
-function hasCommentInRange(sourceCode, node, range) {
-	return sourceCode.getCommentsInside(node).some(comment => {
-		const commentRange = sourceCode.getRange(comment);
-		return commentRange[0] >= range[0] && commentRange[1] <= range[1];
-	});
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */

@@ -8,7 +8,7 @@ import {
 	getRegistrationKind,
 	isGetTestContextCall,
 } from './utils/node-test.js';
-import {isLoop, isFunction} from './ast/index.js';
+import {isLoop, isFunction, isMemberExpression} from './ast/index.js';
 import {getEnclosingFunction, unwrapExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'no-snapshot-in-loop';
@@ -33,20 +33,12 @@ function isCurrentContextReference(node, callback, sourceCode) {
 // `getTestContext().assert.snapshot(…)` is the same call reached through a call rather than an identifier, so the callee chain cannot be walked down to a context parameter.
 function isGetTestContextSnapshotCall(node, imports) {
 	const callee = unwrapExpression(node.callee);
-	if (
-		callee?.type !== 'MemberExpression'
-		|| callee.computed
-		|| callee.property.type !== 'Identifier'
-		|| callee.property.name !== 'snapshot'
-	) {
+	if (!isMemberExpression(callee, 'snapshot')) {
 		return false;
 	}
 
 	const assert = unwrapExpression(callee.object);
-	return assert?.type === 'MemberExpression'
-		&& !assert.computed
-		&& assert.property.type === 'Identifier'
-		&& assert.property.name === 'assert'
+	return isMemberExpression(assert, 'assert')
 		&& isGetTestContextCall(unwrapExpression(assert.object), imports);
 }
 

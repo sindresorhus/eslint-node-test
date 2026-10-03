@@ -1,6 +1,7 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {resolveImports, getImportSpecifierName} from './utils/node-test.js';
-import {unwrapExpression, getGlobalProcessObject, isUnshadowedGlobal} from './utils/index.js';
+import {unwrapExpression, isGlobalThisMember} from './utils/index.js';
+import {isMemberExpression} from './ast/index.js';
 
 const MESSAGE_ID_PROCESS_EXIT = 'processExit';
 const MESSAGE_ID_PROCESS_EXIT_CODE = 'processExitCode';
@@ -46,10 +47,7 @@ const getExitImportBindings = sourceCode => {
 const getProcessProperty = (context, node, propertyName) => {
 	const unwrapped = unwrapExpression(node);
 	if (
-		unwrapped?.type !== 'MemberExpression'
-		|| unwrapped.computed
-		|| unwrapped.property.type !== 'Identifier'
-		|| unwrapped.property.name !== propertyName
+		!isMemberExpression(unwrapped, propertyName)
 	) {
 		return;
 	}
@@ -59,9 +57,8 @@ const getProcessProperty = (context, node, propertyName) => {
 		return unwrapped;
 	}
 
-	// A local `globalThis` or `global` is some other object, exactly as a local `process` is.
-	const globalObject = getGlobalProcessObject(object);
-	return globalObject && isUnshadowedGlobal(context, globalObject, globalObject.name) ? unwrapped : undefined;
+	// `globalThis.process` and `global.process` on the real global are the same object as `process`.
+	return isGlobalThisMember(object, 'process', context) ? unwrapped : undefined;
 };
 
 /** Whether a call is a bare call to a name the file imported as `process.exit`. */

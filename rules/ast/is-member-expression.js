@@ -10,7 +10,7 @@
 		computed?: boolean
 	} | string | string[]
 } [options]
-@returns {string}
+@returns {boolean}
 */
 export default function isMemberExpression(node, options) {
 	if (node?.type !== 'MemberExpression') {

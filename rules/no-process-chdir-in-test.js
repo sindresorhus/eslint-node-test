@@ -6,10 +6,11 @@ import {
 	getOutOfLineCallbackCall,
 	getRegistrationKind,
 } from './utils/node-test.js';
+import {isMemberExpression} from './ast/index.js';
 import {
 	getEnclosingFunction,
 	unwrapExpression,
-	getGlobalProcessObject,
+	isGlobalThisMember,
 	isUnshadowedGlobal,
 } from './utils/index.js';
 
@@ -78,10 +79,9 @@ const create = context => {
 
 	const isProcessReference = node => {
 		node = unwrapExpression(node);
-		// A local `globalThis` or `global` is some other object, exactly as a local `process` is.
-		const globalObject = getGlobalProcessObject(node);
-		if (globalObject) {
-			return isUnshadowedGlobal(context, globalObject, globalObject.name);
+		// `globalThis.process` and `global.process` on the real global are the same object as `process`.
+		if (isGlobalThisMember(node, 'process', context)) {
+			return true;
 		}
 
 		if (node?.type !== 'Identifier') {
@@ -89,7 +89,7 @@ const create = context => {
 		}
 
 		const variable = findVariable(sourceCode.getScope(node), node);
-		return processBindings.has(variable) || (node.name === 'process' && (!variable || variable.defs.length === 0));
+		return processBindings.has(variable) || isUnshadowedGlobal(node, 'process', context);
 	};
 
 	const getChdirTarget = node => {
@@ -99,10 +99,7 @@ const create = context => {
 		}
 
 		if (
-			callee?.type === 'MemberExpression'
-			&& !callee.computed
-			&& callee.property.type === 'Identifier'
-			&& callee.property.name === 'chdir'
+			isMemberExpression(callee, 'chdir')
 			&& isProcessReference(callee.object)
 		) {
 			return callee;

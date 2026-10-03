@@ -1,5 +1,5 @@
 import {
-	MODIFIERS,
+	hasOnlyKnownModifiers,
 	resolveImports,
 	parseTestCall,
 	getHookCallback,
@@ -52,7 +52,7 @@ function isDisallowedReturnValue(node, parserServices, checker) {
 function getCheckedCallback(callExpression, imports, tracker) {
 	const parsed = parseTestCall(callExpression, imports);
 	if (parsed?.kind === 'test') {
-		if (parsed.modifiers.some(modifier => !MODIFIERS.has(modifier.name))) {
+		if (!hasOnlyKnownModifiers(parsed)) {
 			return undefined;
 		}
 

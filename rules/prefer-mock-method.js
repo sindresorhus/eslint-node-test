@@ -2,11 +2,11 @@ import {
 	resolveImports,
 	createContextTracker,
 	getStaticString,
-	isGetTestContextCall,
 	isGlobalMock,
 } from './utils/node-test.js';
 import {getParenthesizedRange, isValueNotUsable, unwrapExpression} from './utils/index.js';
 import needsLeadingSemicolon from './utils/needs-leading-semicolon.js';
+import {isMemberExpression, isUndefinedValue} from './ast/index.js';
 
 /*
 The source text of a node as written, parentheses included. `getText` leaves them out, and a node
@@ -50,9 +50,7 @@ function canRewriteMethodCall({node, left, key, mockArguments, sourceCode}) {
 
 /** Whether the expression is written as `undefined`: the `undefined` identifier, or a `void` expression, whatever its operand is. */
 function isUndefinedExpression(node) {
-	node = unwrapExpression(node);
-	return (node.type === 'Identifier' && node.name === 'undefined')
-		|| (node.type === 'UnaryExpression' && node.operator === 'void');
+	return isUndefinedValue(unwrapExpression(node));
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -65,24 +63,6 @@ const create = context => {
 
 	// Hook callbacks receive a real test context, so `t.mock.fn()` is just as trackable there.
 	const tracker = createContextTracker(imports, {trackHooks: true});
-
-	// The context `<ctx>.mock`, seen through optional chaining and TypeScript wrappers.
-	const isContextMock = node => {
-		node = unwrapExpression(node);
-		if (
-			node.type !== 'MemberExpression'
-			|| node.computed
-			|| node.property.type !== 'Identifier'
-			|| node.property.name !== 'mock'
-		) {
-			return false;
-		}
-
-		// The receiver is either a context parameter or a `getTestContext()` call, which is the same context.
-		const object = unwrapExpression(node.object);
-		return (object.type === 'Identifier' && tracker.isContextIdentifier(object))
-			|| isGetTestContextCall(object, imports);
-	};
 
 	// Keep the context-name stack in sync as we enter and leave test callbacks.
 	context.on('CallExpression', node => {
@@ -102,11 +82,8 @@ const create = context => {
 
 		const callee = unwrapExpression(right.callee);
 		if (
-			callee.type !== 'MemberExpression'
-			|| callee.computed
-			|| callee.property.type !== 'Identifier'
-			|| callee.property.name !== 'fn'
-			|| (!isGlobalMock(callee.object, imports) && !isContextMock(callee.object))
+			!isMemberExpression(callee, 'fn')
+			|| (!isGlobalMock(callee.object, imports) && !tracker.isContextMock(callee.object))
 		) {
 			return;
 		}

@@ -9,17 +9,18 @@ import {
 	getSubtestReceiver,
 	getContextHookName,
 	isSubtestCall,
-	getCalleeChain,
 	getFirstContextParameter,
 	getDestructuredAssertBindings,
 	parseDestructuredAssertCall,
 	isGetTestContextCall,
-	MODIFIERS,
+	hasOnlyKnownModifiers,
 	getImportSpecifierName,
 	getOutOfLineCallbackCall,
 	getRegistrationKind,
+	getPlanCallReceiver,
+	findOptionsProperty,
 } from './utils/node-test.js';
-import {functionTypes, isFunction} from './ast/index.js';
+import {functionTypes, isFunction, isMemberExpression} from './ast/index.js';
 import {
 	getEnclosingFunction,
 	unwrapTypeScriptExpression,
@@ -28,6 +29,8 @@ import {
 	isExpressionWrapper,
 	getFloatingStatement,
 	hasStaticBlockBetween,
+	isImportBinding,
+	isUnshadowedGlobal,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'no-unawaited-promise-assertion';
@@ -152,10 +155,7 @@ function getContextAssertReceiver(node) {
 	const {callee} = node;
 	if (
 		callee.type === 'MemberExpression'
-		&& callee.object.type === 'MemberExpression'
-		&& !callee.object.computed
-		&& callee.object.property.type === 'Identifier'
-		&& callee.object.property.name === 'assert'
+		&& isMemberExpression(callee.object, 'assert')
 	) {
 		return callee.object.object;
 	}
@@ -232,20 +232,6 @@ function isTrackedContextHookCall(node, imports, contextParameters, sourceCode) 
 	return variable?.identifiers.some(identifier => contextParameters.includes(identifier)) === true;
 }
 
-function isImportBinding(identifier, sourceCode) {
-	const variable = findVariable(sourceCode.getScope(identifier), identifier);
-	return variable?.defs.some(definition => definition.type === 'ImportBinding') === true;
-}
-
-function isImportedTestCall(node, sourceCode) {
-	const root = getCalleeChain(node.callee)?.root;
-	return Boolean(root) && isImportBinding(root, sourceCode);
-}
-
-function hasOnlyTestModifiers(parsed) {
-	return parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name));
-}
-
 function getImportedAssertReference(node, imports) {
 	let {callee} = node;
 	while (callee.type === 'MemberExpression') {
@@ -317,7 +303,7 @@ function parseScopedAssertionCall(node, imports, sourceCode, parameters) {
 	}
 
 	const importedAssertReference = getImportedAssertReference(assertionCall, imports);
-	return importedAssertReference && isImportBinding(importedAssertReference, sourceCode) ? parsed : undefined;
+	return importedAssertReference && isImportBinding(importedAssertReference, {sourceCode}) ? parsed : undefined;
 }
 
 function isInsideHandledTryBlock(node, boundary) {
@@ -509,21 +495,15 @@ function getTimerImports(sourceCode) {
 	return {named, namespaces};
 }
 
-/** Whether `node` is a name with no local definition, i.e. the global of that name rather than a local binding. */
-function isUnshadowedReference(sourceCode, node) {
-	const variable = findVariable(sourceCode.getScope(node), node);
-	return !variable || variable.defs.length === 0;
-}
-
 function getSchedulerName(node, timerImports, sourceCode) {
 	const callee = unwrapExpression(node.callee);
 	if (callee.type === 'Identifier') {
 		// The name is checked before the scope is resolved: this runs for every call in a test body, and nearly all of them are unrelated.
-		if (SCHEDULER_NAMES.has(callee.name) && isUnshadowedReference(sourceCode, callee)) {
+		if (SCHEDULER_NAMES.has(callee.name) && isUnshadowedGlobal(callee, callee.name, {sourceCode})) {
 			return callee.name;
 		}
 
-		if (timerImports.named.has(callee.name) && isImportBinding(callee, sourceCode)) {
+		if (timerImports.named.has(callee.name) && isImportBinding(callee, {sourceCode})) {
 			return timerImports.named.get(callee.name);
 		}
 	}
@@ -537,8 +517,8 @@ function getSchedulerName(node, timerImports, sourceCode) {
 		&& SCHEDULER_NAMES.has(callee.property.name)
 		&& (
 			// `globalThis.setTimeout` is the same scheduler as the bare global, but only for the unshadowed global: a local `globalThis` or `global` is some other object.
-			((object.name === 'globalThis' || object.name === 'global') && isUnshadowedReference(sourceCode, object))
-			|| (timerImports.namespaces.has(object.name) && isImportBinding(object, sourceCode))
+			((object.name === 'globalThis' || object.name === 'global') && isUnshadowedGlobal(object, object.name, {sourceCode}))
+			|| (timerImports.namespaces.has(object.name) && isImportBinding(object, {sourceCode}))
 		)
 	) {
 		return callee.property.name;
@@ -612,31 +592,10 @@ function isExpressionConsumed(node) {
 	return getFloatingStatement(node) === undefined;
 }
 
+// A `wait` value we cannot resolve is not proven to wait, so it does not count. `wait: 0` is a zero timeout, not a wait, so plain truthiness is the right check.
 function hasStaticallyTruthyWaitOption(node, sourceCode) {
-	node = unwrapTypeScriptExpression(node);
-	if (node?.type !== 'ObjectExpression') {
-		return false;
-	}
-
-	for (let index = node.properties.length - 1; index >= 0; index -= 1) {
-		const property = node.properties[index];
-		if (property.type === 'SpreadElement') {
-			return false;
-		}
-
-		if (
-			property.type === 'Property'
-			&& !property.computed
-			&& (
-				(property.key.type === 'Identifier' && property.key.name === 'wait')
-				|| (property.key.type === 'Literal' && property.key.value === 'wait')
-			)
-		) {
-			return Boolean(getStaticValue(property.value, sourceCode.getScope(property.value))?.value);
-		}
-	}
-
-	return false;
+	const property = findOptionsProperty(unwrapTypeScriptExpression(node), 'wait');
+	return property !== undefined && Boolean(getStaticValue(property.value, sourceCode.getScope(property.value))?.value);
 }
 
 function hasWaitPlan(callback, contextParameter, sourceCode, imports) {
@@ -650,19 +609,13 @@ function hasWaitPlan(callback, contextParameter, sourceCode, imports) {
 			return false;
 		}
 
-		const node = statement.type === 'ExpressionStatement' ? unwrapTypeScriptExpression(statement.expression) : undefined;
-		if (
-			node?.type !== 'CallExpression'
-			|| node.callee.type !== 'MemberExpression'
-			|| node.callee.computed
-			|| node.callee.property.type !== 'Identifier'
-			|| node.callee.property.name !== 'plan'
-		) {
+		const node = statement.type === 'ExpressionStatement' ? unwrapExpression(statement.expression) : undefined;
+		const receiver = node?.type === 'CallExpression' ? getPlanCallReceiver(node) : undefined;
+		if (!receiver) {
 			continue;
 		}
 
 		// The receiver is the test's own context parameter, or a `getTestContext()` call that returns it.
-		const receiver = unwrapTypeScriptExpression(node.callee.object);
 		const isOwnContext = (contextParameter && receiver.type === 'Identifier' && isSameVariable(receiver, contextParameter, sourceCode))
 			|| isGetTestContextCall(receiver, imports);
 		if (isOwnContext && hasStaticallyTruthyWaitOption(node.arguments[1], sourceCode)) {
@@ -685,11 +638,7 @@ function getTestBoundaryCallback(node, imports, contextParameters, sourceCode) {
 			return undefined;
 		}
 
-		if (!isHook && !hasOnlyTestModifiers(parsed)) {
-			return undefined;
-		}
-
-		if (!isImportedTestCall(node, sourceCode)) {
+		if (!isHook && !hasOnlyKnownModifiers(parsed)) {
 			return undefined;
 		}
 

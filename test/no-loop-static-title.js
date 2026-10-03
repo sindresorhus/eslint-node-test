@@ -34,6 +34,10 @@ test.snapshot({
 		// Non-iteration array methods (`find`) are not treated as loops
 		withSetup('xs.find(x => { it(\'static\', () => {}); });'),
 
+		// A private method named like an array method, and a function in the `thisArg` slot, are not iteration callbacks
+		withSetup('class A { #map(callback) {} run() { this.#map(x => { it(\'static\', () => {}); }); } }'),
+		withSetup('xs.map(callback, function () { it(\'static\', () => {}); });'),
+
 		// `options.name` overrides the positional title, so a dynamic name is not a static title
 
 		// eslint-disable-next-line no-template-curly-in-string

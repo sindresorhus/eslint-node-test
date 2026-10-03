@@ -9,6 +9,7 @@ import {
 	getFirstContextParameter,
 	isUnreboundParameter,
 } from './utils/node-test.js';
+import {isNodeInside} from './utils/index.js';
 
 /**
 @import {TSESTree as ESTree} from '@typescript-eslint/types';
@@ -21,12 +22,6 @@ const messages = {
 	[MESSAGE_ID_ERROR]: 'Do not use the parent test context `{{parent}}` inside this subtest. Use this subtest\'s own context instead.',
 	[MESSAGE_ID_SUGGESTION]: 'Replace `{{parent}}` with `{{child}}`.',
 };
-
-function isInsideNode(node, container, sourceCode) {
-	const [nodeStart, nodeEnd] = sourceCode.getRange(node);
-	const [containerStart, containerEnd] = sourceCode.getRange(container);
-	return nodeStart >= containerStart && nodeEnd <= containerEnd;
-}
 
 function getParameterVariable(parameter, sourceCode) {
 	const identifier = getContextParameterIdentifier(parameter);
@@ -86,7 +81,7 @@ function isSubtestReceiver(node) {
 function canSuggestContextReplacement(node, currentFrame, sourceCode) {
 	if (
 		!currentFrame.contextParameter
-		|| !isInsideNode(node, currentFrame.callback.body, sourceCode)
+		|| !isNodeInside(node, currentFrame.callback.body)
 		|| isShorthandPropertyValue(node)
 	) {
 		return false;
@@ -95,16 +90,16 @@ function canSuggestContextReplacement(node, currentFrame, sourceCode) {
 	return findVariable(sourceCode.getScope(node), currentFrame.contextParameter.name) === currentFrame.contextVariable;
 }
 
-function getContainingFrameIndex(node, frames, sourceCode) {
+function getContainingFrameIndex(node, frames) {
 	for (let index = frames.length - 1; index >= 0; index -= 1) {
-		if (isInsideNode(node, frames[index].callback, sourceCode)) {
+		if (isNodeInside(node, frames[index].callback)) {
 			return index;
 		}
 	}
 }
 
 function getParentContextProblem(node, frames, sourceCode) {
-	const currentFrameIndex = getContainingFrameIndex(node, frames, sourceCode);
+	const currentFrameIndex = getContainingFrameIndex(node, frames);
 	if (currentFrameIndex === undefined) {
 		return;
 	}

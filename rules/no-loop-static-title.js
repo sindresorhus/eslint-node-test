@@ -6,27 +6,13 @@ import {
 	getTestTitle,
 } from './utils/node-test.js';
 import {isLoop, isFunction} from './ast/index.js';
+import {isArrayIterationCallback} from './utils/index.js';
 
 const MESSAGE_ID = 'no-loop-static-title';
 
 const messages = {
 	[MESSAGE_ID]: 'This title is static but generated in a loop, so every iteration registers the same title. Include the loop variable so each title is unique.',
 };
-
-// Array methods whose callback is commonly used to generate one test per element.
-const ITERATION_METHODS = new Set(['map', 'forEach', 'flatMap']);
-
-/** Whether `callExpression` is an iteration method call (`xs.map(fn)`) whose callback is `callback`. */
-function isIterationCall(callExpression, callback) {
-	const {callee} = callExpression;
-	return (
-		callee.type === 'MemberExpression'
-		&& !callee.computed
-		&& callee.property.type === 'Identifier'
-		&& ITERATION_METHODS.has(callee.property.name)
-		&& callExpression.arguments.includes(callback)
-	);
-}
 
 /*
 Whether the test/suite call repeats across a loop without an intervening test/suite scope.
@@ -42,7 +28,7 @@ function isInRepeatingScope(node) {
 		}
 
 		if (isFunction(current)) {
-			return current.parent?.type === 'CallExpression' && isIterationCall(current.parent, current);
+			return isArrayIterationCallback(current);
 		}
 
 		current = current.parent;

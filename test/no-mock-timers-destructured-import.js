@@ -102,6 +102,15 @@ test.snapshot({
 		// Enable() inside a test, via context mock
 		head + 'import {setTimeout} from \'node:timers\';\ntest("a", t => { t.mock.timers.enable({apis: ["setTimeout"]}); });',
 
+		// A parenthesized optional chain on the context mock.
+		head + 'import {setTimeout} from \'node:timers\';\ntest("a", t => { (t?.mock).timers.enable({apis: ["setTimeout"]}); });',
+
+		// A TypeScript wrapper on a `getTestContext()` receiver is erased at runtime.
+		{
+			code: 'import {getTestContext} from \'node:test\';\nimport {setTimeout} from \'node:timers\';\n(getTestContext() as any).mock.timers.enable({apis: ["setTimeout"]});',
+			languageOptions: {parser: parsers.typescript},
+		},
+
 		// A TypeScript wrapper on the receiver is erased at runtime
 		{
 			code: head + 'import {setTimeout} from \'node:timers\';\ntest("a", (t: any) => { (t as any).mock.timers.enable({apis: ["setTimeout"]}); });',

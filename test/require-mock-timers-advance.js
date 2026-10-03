@@ -125,6 +125,12 @@ test.snapshot({
 		+ '\tsetTimeout(fn, 1); }); });',
 		// Timer enabled but never advanced
 		withImport('test(\'title\', t => { t.mock.timers.enable({apis: [\'setTimeout\']}); setTimeout(callback, 100); });'),
+		// Optional chaining and a TypeScript wrapper on the callee are the same test
+		withImport('test?.only(\'title\', t => { t.mock.timers.enable({apis: [\'setTimeout\']}); setTimeout(callback, 100); });'),
+		{
+			code: withImport('(test as any)(\'title\', t => { t.mock.timers.enable({apis: [\'setTimeout\']}); setTimeout(callback, 100); });'),
+			languageOptions: {parser: parsers.typescript},
+		},
 
 		// Default enable() includes timer APIs
 		withImport('test(\'title\', t => { t.mock.timers.enable(); });'),

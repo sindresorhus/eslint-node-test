@@ -1,5 +1,6 @@
 import {resolveImports} from './utils/node-test.js';
 import {isExpressionWrapper, outermostExpressionWrapper} from './utils/index.js';
+import {isMemberExpression} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-mock-call-count';
 
@@ -89,10 +90,7 @@ const create = context => {
 
 	context.on('MemberExpression', node => {
 		if (
-			node.computed
-			|| node.optional
-			|| node.property.type !== 'Identifier'
-			|| node.property.name !== 'length'
+			!isMemberExpression(node, {property: 'length', optional: false})
 			|| isWritableReference(node)
 			|| isDirectlyCalledOrTagged(node)
 			|| isInNewExpressionCallee(node)
@@ -102,22 +100,14 @@ const create = context => {
 
 		const calls = node.object;
 		if (
-			calls.type !== 'MemberExpression'
-			|| calls.computed
-			|| calls.optional
-			|| calls.property.type !== 'Identifier'
-			|| calls.property.name !== 'calls'
+			!isMemberExpression(calls, {property: 'calls', optional: false})
 		) {
 			return;
 		}
 
 		const mock = calls.object;
 		if (
-			mock.type !== 'MemberExpression'
-			|| mock.computed
-			|| mock.optional
-			|| mock.property.type !== 'Identifier'
-			|| mock.property.name !== 'mock'
+			!isMemberExpression(mock, {property: 'mock', optional: false})
 		) {
 			return;
 		}

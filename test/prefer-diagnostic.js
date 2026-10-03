@@ -71,16 +71,19 @@ test.snapshot({
 		'import test from \'node:test\';\nfunction helper() { console.log(\'x\'); }\ntest(\'t\', () => { helper(); });',
 		// A `var` in the body rebinds the context parameter, the same as in an inline body
 		'import test from \'node:test\';\nfunction body(t) { var t = 1; console.log(\'x\'); }\ntest(\'t\', body);',
+		// A `var` of the same name in a context hook re-binds the hook's parameter too
+		'import test from \'node:test\';\ntest(\'o\', async t => { t.beforeEach(ctx => { var ctx = other; console.log(\'x\'); }); await t.test(\'s\', () => {}); });',
 		// A callback parameter of the same name shadows the context, and so does one inside a context hook
 		'import test from \'node:test\';\ntest(\'a\', t => { [1].forEach(t => { console.log(t); }); });',
 		'import test from \'node:test\';\ntest(\'a\', t => { t.beforeEach(ctx => { [1].forEach(ctx => { console.log(ctx); }); }); });',
 	],
 	invalid: [
-		// Replacing the whole callee would drop the comment inside it, so no suggestion `globalThis.console` and `global.console` are the same object as the bare global, the way `globalThis.process` is the same as `process`
+		// `globalThis.console` and `global.console` are the same object as the bare global, the way `globalThis.process` is the same as `process`
 		inTest('globalThis.console.log(\'x\');'),
 		inTest('global.console.log(\'x\');'),
 		inTest('globalThis.console.info(\'x\');'),
 
+		// Replacing the whole callee would drop the comment inside it, so no suggestion
 		inTest('console./* keep me */log(\'hi\');'),
 		inTest('console/* keep me */.log(\'hi\');'),
 

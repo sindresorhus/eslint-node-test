@@ -4,6 +4,8 @@ import {
 	createContextTracker,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
+import {isUndefinedValue} from './ast/index.js';
+import {getStaticPropertyName} from './utils/index.js';
 
 const MESSAGE_ID = 'require-throws-expectation';
 
@@ -23,8 +25,7 @@ evaluates to `undefined`, so all three read the same way.
 */
 function isNoMatcher(node) {
 	return node === undefined
-		|| (node.type === 'Identifier' && node.name === 'undefined')
-		|| (node.type === 'UnaryExpression' && node.operator === 'void')
+		|| isUndefinedValue(node)
 		|| (node.type === 'Literal' && node.value === null);
 }
 
@@ -64,7 +65,7 @@ function hasNoOwnKeys(node) {
 		&& !property.method
 		&& !property.computed
 		&& !property.shorthand
-		&& (property.key.type === 'Identifier' ? property.key.name : property.key.value) === '__proto__');
+		&& getStaticPropertyName(property) === '__proto__');
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */

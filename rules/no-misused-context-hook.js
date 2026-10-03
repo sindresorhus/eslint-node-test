@@ -2,20 +2,21 @@ import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
 import {
 	resolveImports,
 	parseTestCall,
-	MODIFIERS,
+	hasOnlyKnownModifiers,
 	getCalleeChain,
 	getSubtestReceiver,
-	getFirstContextParameter,
+	getContextVariable,
 	getTestCallback,
 	getTestOptions,
 	findOptionsProperty,
+	findModifier,
 	isGetTestContextCall,
 	isGetTestContextSubtestCall,
 } from './utils/node-test.js';
 import {getEnclosingFunction} from './utils/index.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 import isFunction from './ast/is-function.js';
-import {hasEnabledSkipOption} from './shared/skipped-test.js';
+import {hasEnabledSkipOption, isInsideSkippedCallback} from './shared/skipped-test.js';
 
 const MESSAGE_ID = 'no-misused-context-hook';
 const CONTEXT_HOOKS = new Set(['beforeEach', 'afterEach']);
@@ -167,13 +168,6 @@ const create = context => {
 	const frames = [];
 	const skippedCallbacks = new Set();
 
-	const getContextVariable = callback => {
-		const parameter = getFirstContextParameter(callback.params);
-		return parameter
-			? findVariable(sourceCode.getScope(parameter), parameter)
-			: undefined;
-	};
-
 	const getFrame = receiver => {
 		// `getTestContext()` returns the context of the innermost frame.
 		if (receiver === GET_TEST_CONTEXT) {
@@ -192,28 +186,13 @@ const create = context => {
 		return frames.findLast(frame => frame.contextVariable === variable);
 	};
 
-	const isInsideSkippedCallback = node => {
-		// Walking to the root is the expensive part of visiting a call, and most files skip nothing.
-		if (skippedCallbacks.size === 0) {
-			return false;
-		}
-
-		for (let current = node.parent; current; current = current.parent) {
-			if (skippedCallbacks.has(current)) {
-				return true;
-			}
-		}
-
-		return false;
-	};
-
 	const getRunnableSubtestFrame = node => {
 		const receiver = getDirectSubtestReceiver(node, imports);
 		const frame = getFrame(receiver);
 		if (
 			!frame
 			|| !isWithinIterationCallbackOf(node, frame.callback, imports)
-			|| isInsideSkippedCallback(node)
+			|| isInsideSkippedCallback(node, skippedCallbacks)
 			|| hasEnabledSkipOption(getTestOptions(node), context)
 		) {
 			return undefined;
@@ -223,10 +202,10 @@ const create = context => {
 	};
 
 	const isRunnableTest = (node, parsed, parentFrame) => parsed?.kind === 'test'
-		&& parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name))
+		&& hasOnlyKnownModifiers(parsed)
 		&& (frames.length === 0 || parentFrame !== undefined)
-		&& !isInsideSkippedCallback(node)
-		&& parsed.modifiers.every(modifier => modifier.name !== 'skip')
+		&& !isInsideSkippedCallback(node, skippedCallbacks)
+		&& findModifier(parsed.modifiers, 'skip') === undefined
 		&& !hasEnabledSkipOption(getTestOptions(node), context);
 
 	context.on('CallExpression', node => {
@@ -248,9 +227,9 @@ const create = context => {
 
 		const parsed = parseTestCall(node, imports);
 		const isSkippedCallback = (parsed?.kind === 'test' || parsed?.kind === 'suite')
-			&& parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name))
+			&& hasOnlyKnownModifiers(parsed)
 			&& (
-				parsed.modifiers.some(modifier => modifier.name === 'skip')
+				findModifier(parsed.modifiers, 'skip') !== undefined
 				// A `{skip: 0}` test runs its own body, but a `{skip: 0}` suite has `node:test` cancel every test it registers, so none of their callbacks run.
 				|| (parsed.kind === 'suite' ? isStaticallySkipped(node, sourceCode) : hasEnabledSkipOption(getTestOptions(node), context))
 			);
@@ -285,7 +264,7 @@ const create = context => {
 		frames.push({
 			node,
 			callback,
-			contextVariable: getContextVariable(callback),
+			contextVariable: getContextVariable(callback, context),
 			hasSubtest: false,
 			hooks: [],
 		});

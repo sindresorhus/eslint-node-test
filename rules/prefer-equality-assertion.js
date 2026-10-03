@@ -3,6 +3,7 @@ import {
 	parseSupportedAssertionCall,
 	createContextTracker,
 } from './utils/node-test.js';
+import {isMemberExpression} from './ast/index.js';
 import {isParenthesized, getParenthesizedRange} from './utils/index.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 import {getConstantInitializer} from './utils/is-primitive.js';
@@ -30,11 +31,7 @@ Whether an operand is statically `NaN`-producing: the `NaN` identifier or `Numbe
 literals (which can be `0 / 0`), a `Number`/`parseInt`/`parseFloat` call (bare or as a `Number.` method), or a negation of one. A
 plain identifier or general call is left to the runtime, matching the rule's best-effort stance.
 */
-const isNumberMember = (node, names) => node.type === 'MemberExpression'
-	&& !node.computed
-	&& node.object.type === 'Identifier'
-	&& node.object.name === 'Number'
-	&& names.includes(node.property.name);
+const isNumberMember = (node, names) => isMemberExpression(node, {properties: names, object: 'Number'});
 
 function couldBeNaN(node) {
 	node = unwrapTypeScriptExpression(node);

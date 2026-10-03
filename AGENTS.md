@@ -19,8 +19,11 @@ Use the shared helper `rules/utils/node-test.js`:
 - `resolveImports(context)`: scans the file's top-level `import` declarations and returns `{locals, namespaces, assertNamespace, assertNamed}`. `locals` maps a local identifier to its canonical `node:test` export (`test`, `it`, `describe`, `suite`, `before`, `after`, `beforeEach`, `afterEach`, `mock`). Handles default import (`import test from 'node:test'`), named/renamed imports, and namespace import. `namespaces` is a set, because a file may bind the module more than once (`import test from 'node:test'` and `import * as nodeTest from 'node:test'` both count).
 - `parseTestCall(callExpression, imports)` — classifies a call as a test/suite/hook: returns `{name, kind, modifiers}` where `kind` is `'test'` (`test`/`it`), `'suite'` (`describe`/`suite`), or `'hook'`, and `modifiers` are the chained `.only`/`.skip`/`.todo` identifier nodes.
 - `findModifier`, `getTestOptions`, `findOptionsProperty` — for the two ways a modifier is applied: chained (`test.only(…)`) and via the options object (`test('t', {only: true}, fn)`).
+- `hasOnlyKnownModifiers(parsed)` — whether every chained member is a real modifier, so `test.foo(…)` does not count as a registration. `parseTestCall` already requires the callee root to be a `node:test` import binding, so do not check that again.
 - `getTestTitle(call, context)`, `getStaticString(node, context)` — resolve static string titles.
 - `getTestCallback(call)` — the inline implementation function (the last function argument).
+- `getContextVariable(callback, context)`, `getContextReceiverText(testBody, node, imports, isContextReceiver)` — the variable a callback's context parameter binds, and the text (`t` or `getTestContext()`) that reaches the test context at a node, for a fix or a message.
+- `getPlanCallReceiver(call)`, `isMockTimers(node, imports, tracker)`, and the tracker's `isContextReceiver`/`isContextMock` — match `<receiver>.plan(…)`, `mock.timers`, and a test context or its `mock`.
 - `parseAssertionCall(call, imports)` — classifies a `node:assert` assertion: `assert.strictEqual(…)`, bare `assert(…)`, named-import `strictEqual(…)`, or `t.assert.strictEqual(…)`. Returns `{method, methodNode, isStrict, contextReceiver}`, where `contextReceiver` is set only for the `<receiver>.assert.*()` form. Assertion rules activate on a `node:assert` import (not necessarily `node:test`), since the advice is correct wherever `node:assert` is used.
 - `parseSupportedAssertionCall(call, imports, tracker)` — the same, but additionally rejects a `<receiver>.assert.*()` call whose receiver is not a tracked test context (`foo.assert.equal(…)` is an unrelated object's method). **Assertion rules should use this**, not `parseAssertionCall`, so the context check cannot be forgotten. Reach for the raw `parseAssertionCall` only when the rule deliberately treats the context form differently (`no-standalone-assert`, `require-context-assert-with-plan`, `prefer-test-context-assert`, `no-compound-assertion`), when it merely asks "is this any assertion?" from a place with no tracker in scope, such as a recursive AST walk (`require-hook`, `require-throws-validator-return-true`), or when it does its own context bookkeeping for other reasons (`no-unawaited-promise-assertion`).
 
@@ -117,16 +120,16 @@ The infrastructure (rule adapter, snapshot test harness, doc generation) is adap
 
 Before writing helpers, check these directories:
 
-- **`rules/ast/`** - AST node type checks: `isMethodCall`, `isMemberExpression`, `isFunction`, `isLoop`, `isExpressionStatement`, `isStringExpression`, `isBooleanLiteral`, `isRegexLiteral`, `getStaticStringValue`, etc.
-- **`rules/utils/`** - General utilities: parenthesis helpers (`isParenthesized`, `getParenthesizedRange`, `getParentheses`), `isSameReference`, `isValueNotUsable`, `isPromiseType`, `isConditionalBranch`, `getEnclosingFunction`, `getComments`, `unwrapTypeScriptExpression`, `unwrapExpression`, `skipExpressionWrappers`, `outermostExpressionWrapper`, `isExpressionWrapper`, `getFloatingStatement`, etc.
+- **`rules/ast/`** - AST node type checks: `isMethodCall`, `isMemberExpression`, `isFunction`, `isLoop`, `isExpressionStatement`, `isStringExpression`, `isBooleanLiteral`, `isRegexLiteral`, `getStaticStringValue`, `isUndefinedValue`, etc.
+- **`rules/utils/`** - General utilities: parenthesis helpers (`isParenthesized`, `getParenthesizedRange`, `getParentheses`), `isSameReference`, `getStaticPropertyName`, `isValueNotUsable`, `isPromiseType`, `isConditionalBranch`, `getEnclosingFunction`, `getComments`, `unwrapTypeScriptExpression`, `unwrapExpression`, `skipExpressionWrappers`, `outermostExpressionWrapper`, `isExpressionWrapper`, `getFloatingStatement`, `isImportBinding`, `isUnshadowedGlobal`, `isGlobalThisMember`, `hasCommentInRange`, `isArrayIterationCallback`, `isNodeInside`, etc.
 - **`rules/fix/`** - Fixer helpers: `removeArgument`, `removeMemberExpressionProperty`.
-- **`rules/shared/`** - Shared rule logic for rules that share patterns (e.g., `test-modifier-rule.js`).
+- **`rules/shared/`** - Shared rule logic for rules that share patterns (e.g., `test-modifier-rule.js`, and `skipped-test.js` for a callback that `node:test` never runs: `isSkippedTestCall`, `isSkippedRegistration`, `isInsideSkippedRegistration`).
 
 Also check `../eslint-plugin-unicorn/rules/ast/`, `../eslint-plugin-unicorn/rules/utils/`, and `../eslint-plugin-unicorn/rules/fix/` — this plugin's helpers were adapted from there and equivalents may already exist for a pattern this plugin doesn't have yet.
 
 Import from the barrel `index.js` in each directory (e.g., `import {isMethodCall} from './ast/index.js'`).
 
-If a helper becomes complicated and clearly general across rules, consider moving it to a shared utility. Keep simple or rule-specific helpers local.
+When at least two rules need the same non-trivial logic, put it in a shared utility instead of copying it: `rules/utils/node-test.js` for `node:test` and `node:assert` concepts (it can also be a method on the context tracker), `rules/utils/` for general helpers, `rules/ast/` for AST shape checks, and `rules/fix/` for fixer helpers. Before you write a helper, search the other rules for a local copy of the same logic, and move that copy to a shared utility instead of adding another one. Keep one-line checks and helpers that only one rule needs local.
 
 Also use `@eslint-community/eslint-utils` for helpers like `findVariable`, `getStaticValue`, and token predicates (`isCommaToken`, `isOpeningParenToken`, `isClosingParenToken`, etc.).
 

@@ -45,6 +45,15 @@ test.snapshot({
 		// A nested skipped test never runs, whether it is skipped by the chained modifier or through the options slot of a subtest
 		withImport('test("title", t => { test.skip("nested", () => { mock.timers.enable(); mock.timers.enable(); }); });'),
 		withImport('test("parent", t => { t.test("child", {skip: true}, child => { child.mock.timers.enable(); child.mock.timers.enable(); }); });'),
+		// A subtest skipped by the chained modifier, a `getTestContext()` subtest skipped through its options, and a subtest skipped in a context hook never run either
+		withImport('test("parent", t => { t.test.skip("child", child => { child.mock.timers.enable(); child.mock.timers.enable(); }); });'),
+		'import {test, mock, getTestContext} from \'node:test\';\ntest("parent", () => { getTestContext().test("child", {skip: true}, () => { mock.timers.enable(); mock.timers.enable(); }); });',
+		withImport('test("parent", t => { t.beforeEach(c => { c.test.skip("child", () => { mock.timers.enable(); mock.timers.enable(); }); }); });'),
+		// The same holds for a body named out of line
+		withImport('const body = () => { test("child", () => { mock.timers.enable(); mock.timers.enable(); }); };\ntest("parent", t => { t.test.skip("x", body); });'),
+		'import {test, mock, getTestContext} from \'node:test\';\n'
+		+ 'const body = () => { test("child", () => { mock.timers.enable(); mock.timers.enable(); }); };\ntest("parent", () => { getTestContext().test("x", {skip: true}, body); });',
+		withImport('function body(t) { t.test.skip("c", () => { test("x", () => { mock.timers.enable(); mock.timers.enable(); }); }); }\ntest("p", body);'),
 		// The standalone `skip` export has an identifier callee, and its body never runs
 		`${withNamedImport('skip')}\nskip('title', () => { mock.timers.enable(); mock.timers.enable(); });`,
 		`${withNamedImport('skip as skipped')}\nskipped('title', () => { mock.timers.enable(); mock.timers.enable(); });`,
@@ -148,9 +157,16 @@ test.snapshot({
 		withImport('class A {\n\tstatic {\n\t\tmock.timers.enable();\n\t\tmock.timers.enable();\n\t}\n}'),
 		withImport('mock.timers.enable();\ntest.mock.timers.enable();'),
 
-		// A skip enabled by a falsy value carries the `# SKIP` directive and still runs the body A skip enabled by a falsy value carries the `# SKIP` directive and still runs the body
+		// A skip enabled by a falsy value carries the `# SKIP` directive and still runs the body
 		withImport('test(\'a\', {skip: 0}, () => { mock.timers.enable(); mock.timers.enable(); });'),
 		withImport('test(\'a\', {skip: \'\'}, () => { mock.timers.enable(); mock.timers.enable(); });'),
+		// A subtest that is `todo` or has a falsy `skip` runs its body too
+		withImport('test("parent", t => { t.test.todo("child", child => { child.mock.timers.enable(); child.mock.timers.enable(); }); });'),
+		withImport('test("parent", t => { t.test("child", {skip: 0}, child => { child.mock.timers.enable(); child.mock.timers.enable(); }); });'),
+		// `.skip` on an object that is not a test context does not skip anything
+		withImport('test("parent", t => { helper.test.skip("c", () => { test("x", () => { mock.timers.enable(); mock.timers.enable(); }); }); });'),
+		// A callback parameter that shadows the context is not a test context either
+		withImport('test("p", t => { [1].forEach(t => { t.test.skip("c", () => { test("x", () => { mock.timers.enable(); mock.timers.enable(); }); }); }); });'),
 		withImport('mock.timers.enable();\nmock.timers.enable();\nmock.timers.enable();'),
 
 		// A class static block or static field initializer runs while the file loads, in the middle of the module body, so it shares the module body's enabled state.

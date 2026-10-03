@@ -1,6 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {
-	MODIFIERS,
+	hasOnlyKnownModifiers,
 	resolveImports,
 	parseTestCall,
 	getTestCallback,
@@ -9,8 +9,8 @@ import {
 	hasEnabledPlanOption,
 	getFirstContextParameter,
 	isGetTestContextCall,
+	getPlanCallReceiver,
 } from './utils/node-test.js';
-import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 import {isSkippedTestCall, isInsideSkippedCallback} from './shared/skipped-test.js';
 
 const MESSAGE_ID_DUPLICATE_CALL = 'no-duplicate-plan/duplicate-call';
@@ -21,45 +21,12 @@ const messages = {
 	[MESSAGE_ID_PLAN_OPTION]: 'Do not call `{{context}}.plan()` when this test already has a `plan` option.',
 };
 
-function getPlanContextIdentifier(node) {
-	// A TypeScript wrapper on the callee (`t.plan!(…)`, `(t.plan as any)(…)`) must not hide the call.
-	const callee = unwrapTypeScriptExpression(node.callee);
-	if (
-		node.optional !== true
-		&& callee.type === 'MemberExpression'
-		&& !callee.computed
-		&& callee.optional !== true
-		&& callee.property.type === 'Identifier'
-		&& callee.property.name === 'plan'
-	) {
-		const object = unwrapTypeScriptExpression(callee.object);
-		return object.type === 'Identifier' ? object : undefined;
-	}
-
-	return undefined;
-}
-
-/*
-Whether the call is `<context>.plan(…)` on a context `getTestContext()` returned, which names the
-same context the test callback's parameter does.
-*/
-function isGetTestContextPlanCall(node, imports) {
-	const callee = unwrapTypeScriptExpression(node.callee);
-	return node.optional !== true
-		&& callee.type === 'MemberExpression'
-		&& !callee.computed
-		&& callee.optional !== true
-		&& callee.property.type === 'Identifier'
-		&& callee.property.name === 'plan'
-		&& isGetTestContextCall(unwrapTypeScriptExpression(callee.object), imports);
-}
-
 function getIdentifierVariable(sourceCode, identifier) {
 	return findVariable(sourceCode.getScope(identifier), identifier);
 }
 
 function isTestCall(parsed) {
-	return parsed !== undefined && parsed.kind === 'test' && parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name));
+	return parsed?.kind === 'test' && hasOnlyKnownModifiers(parsed);
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -82,6 +49,15 @@ const create = context => {
 
 		const receiverVariable = getIdentifierVariable(sourceCode, receiver);
 		return receiverVariable !== undefined && frames.some(frame => frame.contextVariable === receiverVariable);
+	};
+
+	// The context a `<context>.plan(…)` receiver names: the variable of an identifier, or for a context `getTestContext()` returned, the innermost frame's context, which the test callback's parameter names too, whether or not that test declared a parameter for it.
+	const getPlanContextKey = receiver => {
+		if (receiver?.type === 'Identifier') {
+			return getIdentifierVariable(sourceCode, receiver);
+		}
+
+		return receiver !== undefined && isGetTestContextCall(receiver, imports) ? frames.at(-1)?.contextKey : undefined;
 	};
 
 	context.on('CallExpression', node => {
@@ -115,21 +91,9 @@ const create = context => {
 			return;
 		}
 
-		const contextIdentifier = getPlanContextIdentifier(node);
-		const isContextCall = isGetTestContextPlanCall(node, imports);
-		if (contextIdentifier === undefined && !isContextCall) {
-			return;
-		}
-
-		if (isInsideSkippedCallback(node, skippedCallbacks)) {
-			return;
-		}
-
-		// A `getTestContext()` call names the innermost frame's context, whether or not that test declared a parameter for it.
-		const contextKey = contextIdentifier
-			? getIdentifierVariable(sourceCode, contextIdentifier)
-			: frames.at(-1)?.contextKey;
-		if (contextKey === undefined) {
+		const receiver = getPlanCallReceiver(node);
+		const contextKey = getPlanContextKey(receiver);
+		if (contextKey === undefined || isInsideSkippedCallback(node, skippedCallbacks)) {
 			return;
 		}
 
@@ -145,8 +109,7 @@ const create = context => {
 					node,
 					messageId: frame.hasPlanOption ? MESSAGE_ID_PLAN_OPTION : MESSAGE_ID_DUPLICATE_CALL,
 					data: {
-						context: frame.contextName
-							?? sourceCode.getText(unwrapTypeScriptExpression(unwrapTypeScriptExpression(node.callee).object)),
+						context: frame.contextName ?? sourceCode.getText(receiver),
 					},
 				};
 			}

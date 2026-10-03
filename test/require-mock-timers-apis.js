@@ -87,6 +87,7 @@ test.snapshot({
 
 		// Unrelated mock-looking object outside a tracked test context.
 		head + 'helper.mock.timers.enable();',
+		head + '(helper?.mock).timers.enable();',
 
 		// Unrelated test member call is not a test context.
 		head + 'test.foo("a", t => { t.mock.timers.enable(); });',
@@ -188,6 +189,9 @@ test.snapshot({
 
 		// Outer context used inside a subtest.
 		head + 'test("a", t => { t.test("b", subtest => { t.mock.timers.enable(); }); });',
+
+		// A parenthesized optional chain on the context mock.
+		head + 'test("a", t => { (t?.mock).timers.enable(); });',
 
 		// Current test context.
 		'import {test, getTestContext} from \'node:test\';\ntest("a", () => { getTestContext().mock.timers.enable(); });',

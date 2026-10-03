@@ -1,16 +1,15 @@
-import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	resolveImports,
 	createContextTracker,
-	isGetTestContextInScope,
+	getContextReceiverText,
 	parseAssertionCall,
 	getOutOfLineCallbackCall,
 	getRegistrationKind,
-	getFirstContextParameter,
 	LOOSE_TO_STRICT_METHODS,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
-import {functionTypes} from './ast/index.js';
+import {functionTypes, isMemberExpression} from './ast/index.js';
+import {isNodeInside} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-test-context-assert/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-test-context-assert/suggestion';
@@ -51,9 +50,7 @@ function isImportedAssertCallee(callee, imports) {
 	const moduleObject = object?.type === 'MemberExpression' ? unwrapTypeScriptExpression(object.object) : undefined;
 	return (
 		moduleObject?.type === 'Identifier'
-		&& !object.computed
-		&& object.property.type === 'Identifier'
-		&& object.property.name === 'strict'
+		&& isMemberExpression(object, 'strict')
 		&& imports.assertNamespace.has(moduleObject.name)
 	);
 }
@@ -67,13 +64,6 @@ function getAssertMethod(node, imports) {
 	return (assertion.isStrict && LOOSE_TO_STRICT_METHODS.get(assertion.method)) || assertion.method;
 }
 
-function isInsideCallback(node, callback, sourceCode) {
-	const [callbackStart, callbackEnd] = sourceCode.getRange(callback);
-	const [nodeStart] = sourceCode.getRange(node);
-
-	return nodeStart >= callbackStart && nodeStart < callbackEnd;
-}
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -84,9 +74,6 @@ const create = context => {
 	}
 
 	const tracker = createContextTracker(imports);
-	// A test that declares no context parameter can still reach its context through `getTestContext()`, so the file has to import that name.
-	const {getTestContextName} = imports;
-	const getTestContextText = getTestContextName ? `${getTestContextName}()` : undefined;
 
 	// A test body the call names out of line (`test('a', body)`) is entered where it is declared, which the call's own frame does not cover, so it is tracked from the function.
 	const outOfLineBodies = [];
@@ -104,29 +91,6 @@ const create = context => {
 		}
 	});
 
-	// The context of an inline test callback the tracker has open. A nested binding of the same name shadows the context, so `t.assert.ok(…)` (or `gtc().assert.ok(…)`) there would not reach the test context at all. The `getTestContext` import is a binding like any other, so a local declaration in the test body shadows it too.
-	const getTrackedContextName = node => {
-		if (tracker.current()) {
-			return tracker.isContextNameInScope(tracker.current(), node) ? tracker.current() : undefined;
-		}
-
-		return isGetTestContextInScope(imports, node) ? getTestContextText : undefined;
-	};
-
-	// The context of a test body named out of line: its own context parameter while the name still reaches it at `node`, or else `getTestContext()`.
-	const getOutOfLineContextName = (node, body) => {
-		const parameter = getFirstContextParameter(body.params);
-		if (!parameter) {
-			return isGetTestContextInScope(imports, node) ? getTestContextText : undefined;
-		}
-
-		const variable = findVariable(sourceCode.getScope(node), parameter.name);
-		const isContextParameter = variable?.defs.length === 1
-			&& variable.defs[0].type === 'Parameter'
-			&& variable.defs[0].node === body;
-		return isContextParameter ? parameter.name : undefined;
-	};
-
 	context.on('CallExpression', node => {
 		tracker.update(node);
 
@@ -141,16 +105,11 @@ const create = context => {
 		const callback = tracker.currentCallback();
 		const body = outOfLineBodies.at(-1);
 		const isInTrackedCallback = callback !== undefined
-			&& isInsideCallback(node, callback, sourceCode)
-			&& (body === undefined || isInsideCallback(callback, body, sourceCode));
+			&& isNodeInside(node, callback)
+			&& (body === undefined || isNodeInside(callback, body));
 
-		let contextName;
-		if (isInTrackedCallback) {
-			contextName = getTrackedContextName(node);
-		} else if (body) {
-			contextName = getOutOfLineContextName(node, body);
-		}
-
+		const testBody = isInTrackedCallback ? callback : body;
+		const contextName = testBody && getContextReceiverText(testBody, node, imports, tracker.isContextReceiver);
 		if (!contextName) {
 			return;
 		}

@@ -1,20 +1,12 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	resolveImports,
-	parseTestCall,
-	getCalleeChain,
-	getTestCallback,
-	getParentCallExpression,
-	getOutOfLineCallbackCall,
-	getRegistrationKind,
-	getTestOptions,
-	getContextHookName,
 	getImportSpecifierName,
 	nearestTestCallbackKind,
 } from './utils/node-test.js';
-import {hasEnabledSkipOption} from './shared/skipped-test.js';
-import {unwrapExpression} from './utils/index.js';
-import {isFunction} from './ast/index.js';
+import {isInsideSkippedRegistration} from './shared/skipped-test.js';
+import {isGlobalThisMember, isUnshadowedGlobal, unwrapExpression} from './utils/index.js';
+import {isFunction, isMemberExpression} from './ast/index.js';
 
 const MESSAGE_ID = 'no-sleep-in-test';
 
@@ -24,55 +16,15 @@ const messages = {
 
 const CALLBACK_TIMER_MODULES = new Set(['node:timers', 'timers']);
 const PROMISE_TIMER_MODULES = new Set(['node:timers/promises', 'timers/promises']);
-const ACTIVE_TEST_MODIFIERS = new Set(['only', 'todo']);
-
-function isIdentifierReference(node, name) {
-	return node?.type === 'Identifier' && node.name === name;
-}
 
 function isGlobalReference(sourceCode, node, name) {
-	node = unwrapExpression(node);
-	if (!isIdentifierReference(node, name)) {
-		return false;
-	}
-
-	const variable = findVariable(sourceCode.getScope(node), node);
-	return !variable || variable.defs.length === 0;
+	return isUnshadowedGlobal(unwrapExpression(node), name, {sourceCode});
 }
 
 function isSameReference(sourceCode, node, variable) {
 	node = unwrapExpression(node);
 	return node?.type === 'Identifier'
 		&& findVariable(sourceCode.getScope(node), node) === variable;
-}
-
-function isGlobalObjectSetTimeout(sourceCode, node) {
-	node = unwrapExpression(node);
-	return node?.type === 'MemberExpression'
-		&& !node.computed
-		&& (
-			isGlobalReference(sourceCode, node.object, 'globalThis')
-			|| isGlobalReference(sourceCode, node.object, 'global')
-		)
-		&& isIdentifierReference(node.property, 'setTimeout');
-}
-
-function areActiveModifiers(modifiers) {
-	return modifiers.every(modifier => ACTIVE_TEST_MODIFIERS.has(modifier.name));
-}
-
-function hasInactiveTestOptions(node, context) {
-	// The same check the shared skip detection uses: only a truthy `skip` stops the body from running. `{skip: 0}` reports the test as skipped but still runs its own body, so a sleep in it still costs the time. A suite reads `skip` the same way, see `isSkippedTestCall`.
-	return hasEnabledSkipOption(getTestOptions(node), context);
-}
-
-function getSubtestModifiers(node) {
-	const {members = []} = getCalleeChain(node.callee) ?? {};
-	return members?.[0]?.name === 'test' ? members.slice(1) : [];
-}
-
-function hasInactiveParsedOptions(node, parsed, context) {
-	return parsed.kind !== 'hook' && hasInactiveTestOptions(node, context);
 }
 
 function getTimerImportBindings(sourceCode) {
@@ -121,11 +73,13 @@ function isImportedSetTimeout(node, sourceCode, named, namespace) {
 		return named.has(findVariable(sourceCode.getScope(node), node));
 	}
 
-	return node?.type === 'MemberExpression'
-		&& !node.computed
-		&& unwrapExpression(node.object)?.type === 'Identifier'
-		&& namespace.has(findVariable(sourceCode.getScope(node.object), unwrapExpression(node.object)))
-		&& isIdentifierReference(node.property, 'setTimeout');
+	if (!isMemberExpression(node, 'setTimeout')) {
+		return false;
+	}
+
+	const object = unwrapExpression(node.object);
+	return object?.type === 'Identifier'
+		&& namespace.has(findVariable(sourceCode.getScope(object), object));
 }
 
 function isImportedTimerSetTimeout(node, timerImports) {
@@ -139,7 +93,7 @@ function isImportedPromiseTimerSetTimeout(node, timerImports) {
 function isSetTimeoutCallee(node, timerImports) {
 	node = unwrapExpression(node);
 	return isGlobalReference(timerImports.sourceCode, node, 'setTimeout')
-		|| isGlobalObjectSetTimeout(timerImports.sourceCode, node)
+		|| isGlobalThisMember(node, 'setTimeout', {sourceCode: timerImports.sourceCode})
 		|| isImportedTimerSetTimeout(node, timerImports);
 }
 
@@ -241,51 +195,11 @@ const create = context => {
 
 	const timerImports = getTimerImportBindings(context.sourceCode);
 
-	// Whether a registration call runs its callback, read from its modifiers and its options. A context hook has neither. `TestContext#test` has no `skip`, `todo` or `only` member, so any of them throws; they are read the way the modifiers of an imported `test` are, so only `t.test.skip(…)` counts as not running.
-	const runsCallback = call => {
-		const parsed = parseTestCall(call, imports);
-		if (parsed) {
-			return areActiveModifiers(parsed.modifiers) && !hasInactiveParsedOptions(call, parsed, context);
-		}
-
-		return getContextHookName(call) !== undefined
-			|| (areActiveModifiers(getSubtestModifiers(call)) && !hasInactiveTestOptions(call, context));
-	};
-
-	// Whether a registration around the call skips the callback the call sits in, like `describe.skip('s', () => { test('a', body); })`. The call's own ancestors are read, which also covers an out-of-line body, visited where it is declared. A function named out of line (`describe.skip('s', suiteBody)`) is registered somewhere else, so the walk goes on from the call that registers it.
-	const isInsideSkippedRegistration = call => {
-		const visited = new Set();
-		for (let current = call.parent; current; current = current.parent) {
-			if (!isFunction(current) || visited.has(current)) {
-				continue;
-			}
-
-			// Two bodies that register each other would otherwise lead the walk around forever.
-			visited.add(current);
-			// The options and descriptor forms put the callback in an `fn` property, one level below the call.
-			const parentCall = getParentCallExpression(current);
-			const inlineRegistration = parentCall && getTestCallback(parentCall, imports) === current ? parentCall : undefined;
-			const registration = inlineRegistration ?? getOutOfLineCallbackCall(current, context, imports);
-			if (
-				registration
-				&& getRegistrationKind(registration, imports, context) !== undefined
-				&& !runsCallback(registration)
-			) {
-				return true;
-			}
-
-			if (registration && !inlineRegistration) {
-				current = registration;
-			}
-		}
-
-		return false;
-	};
-
 	// Whether the node sits directly in a test or hook body that runs. The nearest enclosing function decides, inline or named out of line, and a skipped registration around it stops the body from running.
 	const isInsideTestCallback = node => {
 		const kind = nearestTestCallbackKind(node, imports, context);
-		return (kind === 'test' || kind === 'hook') && !isInsideSkippedRegistration(node);
+		// `{skip: 0}` reports the test as skipped but still runs its own body, so a sleep in it still costs the time.
+		return (kind === 'test' || kind === 'hook') && !isInsideSkippedRegistration(node, imports, context);
 	};
 
 	context.on('NewExpression', node => {

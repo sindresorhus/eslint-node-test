@@ -558,6 +558,70 @@ Suggestion 1/1: Replace with \`getTestContext().assert.ok()\`.:
 
 `;
 
+exports[`prefer-test-context-assert > invalid(30): import test from 'node:test';\nimport assert from 'node:assert';\ntest('o', async t => {\n\tt.beforeEach(ctx => { assert.ok(value); });\n\tawait t.test('s', () => {});\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('o', async t => {
+  4 | 	t.beforeEach(ctx => { assert.ok(value); });
+  5 | 	await t.test('s', () => {});
+  6 | });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(30): import test from 'node:test';\nimport assert from 'node:assert';\ntest('o', async t => {\n\tt.beforeEach(ctx => { assert.ok(value); });\n\tawait t.test('s', () => {});\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('o', async t => {
+> 4 | 	t.beforeEach(ctx => { assert.ok(value); });
+    | 	                      ^^^^^^^^^ Prefer the test context \`ctx.assert.ok()\` over the imported \`node:assert\`, so the runner ties the assertion to this test.
+  5 | 	await t.test('s', () => {});
+  6 | });
+
+Suggestion 1/1: Replace with \`ctx.assert.ok()\`.:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('o', async t => {
+  4 | 	t.beforeEach(ctx => { ctx.assert.ok(value); });
+  5 | 	await t.test('s', () => {});
+  6 | });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(31): import test from 'node:test';\nimport assert from 'node:assert';\ntest('o', async t => {\n\tt.afterEach(function (ctx) { assert.ok(value); });\n\tawait t.test('s', () => {});\n}); 1`] = `
+
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('o', async t => {
+  4 | 	t.afterEach(function (ctx) { assert.ok(value); });
+  5 | 	await t.test('s', () => {});
+  6 | });
+
+`;
+
+exports[`prefer-test-context-assert > invalid(31): import test from 'node:test';\nimport assert from 'node:assert';\ntest('o', async t => {\n\tt.afterEach(function (ctx) { assert.ok(value); });\n\tawait t.test('s', () => {});\n}); 2`] = `
+
+Message:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('o', async t => {
+> 4 | 	t.afterEach(function (ctx) { assert.ok(value); });
+    | 	                             ^^^^^^^^^ Prefer the test context \`ctx.assert.ok()\` over the imported \`node:assert\`, so the runner ties the assertion to this test.
+  5 | 	await t.test('s', () => {});
+  6 | });
+
+Suggestion 1/1: Replace with \`ctx.assert.ok()\`.:
+  1 | import test from 'node:test';
+  2 | import assert from 'node:assert';
+  3 | test('o', async t => {
+  4 | 	t.afterEach(function (ctx) { ctx.assert.ok(value); });
+  5 | 	await t.test('s', () => {});
+  6 | });
+
+`;
+
 exports[`prefer-test-context-assert > invalid(4): import test from 'node:test';\nimport assert from 'node:assert';\ntest('x', t => {\n\tfunction body(s) {\n\t\tassert.ok(value);\n\t}\n\tt.test('y', body);\n}); 1`] = `
 
   1 | import test from 'node:test';

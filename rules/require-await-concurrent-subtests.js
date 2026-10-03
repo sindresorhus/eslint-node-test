@@ -1,6 +1,11 @@
 import {resolveImports, createContextTracker} from './utils/node-test.js';
-import isFunction from './ast/is-function.js';
-import {outermostExpressionWrapper, getFloatingStatement} from './utils/index.js';
+import {isMemberExpression} from './ast/index.js';
+import {
+	outermostExpressionWrapper,
+	getFloatingStatement,
+	getEnclosingFunction,
+	isArrayIterationCallback,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'require-await-concurrent-subtests';
 
@@ -8,44 +13,17 @@ const messages = {
 	[MESSAGE_ID]: 'Subtests created in a `{{method}}()` callback are not awaited, so the test continues while they run. Use `await Promise.all(items.map(item => t.test(…)))`.',
 };
 
-// Array methods commonly used to create one subtest per element.
-const ITERATION_METHODS = new Set(['map', 'forEach', 'flatMap']);
-
-/** Find the iteration call (`xs.map(cb)`) whose callback directly encloses `node`, or `undefined`. */
+/** Find the iteration call (`xs.map(cb)`) whose callback directly encloses `node`, or `undefined`. Any other function is a scope boundary (the test callback or a helper). */
 function findEnclosingIterationCall(node) {
-	let current = node.parent;
-	while (current) {
-		if (isFunction(current)) {
-			const {parent} = current;
-			if (
-				parent?.type === 'CallExpression'
-				&& parent.callee.type === 'MemberExpression'
-				&& !parent.callee.computed
-				&& parent.callee.property.type === 'Identifier'
-				&& ITERATION_METHODS.has(parent.callee.property.name)
-				&& parent.arguments.includes(current)
-			) {
-				return parent;
-			}
-
-			// Any other function is a scope boundary (the test callback or a helper).
-			return undefined;
-		}
-
-		current = current.parent;
-	}
+	const callback = getEnclosingFunction(node);
+	return callback && isArrayIterationCallback(callback) ? callback.parent : undefined;
 }
 
 /** Whether `node` is an argument to a consumed `Promise.all(…)` / `Promise.allSettled(…)`. */
 function isArgumentToConsumedPromiseAll(node) {
 	const {parent} = node;
 	return parent?.type === 'CallExpression'
-		&& parent.callee.type === 'MemberExpression'
-		&& !parent.callee.computed
-		&& parent.callee.property.type === 'Identifier'
-		&& (parent.callee.property.name === 'all' || parent.callee.property.name === 'allSettled')
-		&& parent.callee.object.type === 'Identifier'
-		&& parent.callee.object.name === 'Promise'
+		&& isMemberExpression(parent.callee, {properties: ['all', 'allSettled'], object: 'Promise'})
 		&& parent.arguments.includes(node)
 		// The `Promise.all(…)` itself must be consumed (awaited, returned, or assigned), not discarded, otherwise the test body continues while the subtests run. Node still waits for the subtests before the parent test finishes, but nothing in the body waits for them where the awaited promise would have.
 		&& !getFloatingStatement(parent);

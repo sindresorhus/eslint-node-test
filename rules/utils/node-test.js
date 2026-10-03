@@ -1,8 +1,12 @@
 import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
 import isFunction from '../ast/is-function.js';
+import isMemberExpression from '../ast/is-member-expression.js';
 import {getStaticPropertyName} from './is-same-reference.js';
 import unwrapTypeScriptExpression, {isTypeScriptExpressionWrapper} from './unwrap-typescript-expression.js';
-import {outermostExpressionWrapper} from './skip-expression-wrappers.js';
+import {outermostExpressionWrapper, unwrapExpression} from './skip-expression-wrappers.js';
+import isImportBinding from './is-import-binding.js';
+import isNodeInside from './is-node-inside.js';
+import getEnclosingFunction from './get-enclosing-function.js';
 
 /*
 Detection helpers for Node.js's built-in test runner (`node:test`).
@@ -236,25 +240,16 @@ function getDeclaredVariable(identifier, node, imports) {
 	return imports.sourceCode.getDeclaredVariables(node).find(variable => variable.identifiers.includes(identifier));
 }
 
-function isImportedBindingReference(identifier, imports) {
-	return getVariable(identifier, imports)?.defs.some(definition => definition.type === 'ImportBinding') ?? false;
-}
-
 /**
 Whether a node references the global `mock` — a named/renamed import, `namespace.mock`, or `test.mock`/`it.mock`.
 */
 export function isGlobalMock(node, imports) {
 	node = unwrapTypeScriptExpression(node);
 	if (node.type === 'Identifier') {
-		return imports.mockLocals.has(node.name) && isImportedBindingReference(node, imports);
+		return imports.mockLocals.has(node.name) && isImportBinding(node, imports);
 	}
 
-	if (
-		node.type !== 'MemberExpression'
-		|| node.computed
-		|| node.property.type !== 'Identifier'
-		|| node.property.name !== 'mock'
-	) {
+	if (!isMemberExpression(node, 'mock')) {
 		return false;
 	}
 
@@ -264,7 +259,16 @@ export function isGlobalMock(node, imports) {
 			imports.namespaces.has(object.name)
 			|| TEST_FUNCTIONS.has(imports.locals.get(object.name))
 		)
-		&& isImportedBindingReference(object, imports);
+		&& isImportBinding(object, imports);
+}
+
+/**
+Whether a node is `mock.timers`, through the global `mock` (`mock.timers`) or a test context (`t.mock.timers`). A TypeScript wrapper on the receiver must not hide the call, the way it does not hide `mock.method(…)` in every other mock rule.
+*/
+export function isMockTimers(node, imports, tracker) {
+	node = unwrapTypeScriptExpression(node);
+	return isMemberExpression(node, 'timers')
+		&& (isGlobalMock(node.object, imports) || tracker.isContextMock(node.object));
 }
 
 /** Check whether a call resolves to `getTestContext()` from `node:test`. */
@@ -274,7 +278,7 @@ export function isGetTestContextCall(node, imports) {
 	}
 
 	const chain = getCalleeChain(node.callee);
-	if (!chain || !isImportedBindingReference(chain.root, imports)) {
+	if (!chain || !isImportBinding(chain.root, imports)) {
 		return false;
 	}
 
@@ -504,7 +508,7 @@ export const parseTestCall = memoizeByNode(PARSED_TEST_CALL, (callExpression, im
 	const {root, members} = chain;
 	// Every branch below requires the root to be one of the file's `node:test` bindings, so gate on the
 	// name first. Resolving the scope is the expensive part, and most calls in a file are unrelated.
-	if (!isTestBindingName(root.name, imports) || !isImportedBindingReference(root, imports)) {
+	if (!isTestBindingName(root.name, imports) || !isImportBinding(root, imports)) {
 		return undefined;
 	}
 
@@ -553,6 +557,9 @@ export const parseTestCall = memoizeByNode(PARSED_TEST_CALL, (callExpression, im
 	return {...parsed, kind};
 });
 
+/** Whether every member chained on a parsed test call is a real modifier (`only`/`skip`/`todo`), so `test.foo(…)` does not count as a registration. */
+export const hasOnlyKnownModifiers = parsed => parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name));
+
 /** Get the modifier identifier node with the given name (`only`/`skip`/`todo`), or `undefined`. */
 export const findModifier = (modifiers, name) => modifiers.find(modifier => modifier.name === name);
 
@@ -580,16 +587,22 @@ export function getSubtestReceiver(callExpression) {
 	return chain.root;
 }
 
+/**
+The receiver of a `<receiver>.plan(…)` call, seen through TypeScript wrappers, or `undefined` when the call is not one. Optional chaining (`t?.plan()`, `t.plan?.()`) still calls the method on a context, which is never nullish, so it counts. Whether the receiver is a test context is for the caller to decide, since each rule matches it against its own frames.
+*/
+export function getPlanCallReceiver(callExpression) {
+	// A TypeScript wrapper on the callee (`t.plan!(…)`, `(t.plan as any)(…)`) must not hide the call.
+	const callee = unwrapTypeScriptExpression(callExpression.callee);
+	return isMemberExpression(callee, 'plan') ? unwrapTypeScriptExpression(callee.object) : undefined;
+}
+
 /*
 Whether the call creates a subtest through a `getTestContext()` receiver, which has no identifier
 for `getSubtestReceiver` to return.
 */
 export function isGetTestContextSubtestCall(callExpression, imports) {
 	const callee = unwrapTypeScriptExpression(callExpression.callee);
-	return callee?.type === 'MemberExpression'
-		&& !callee.computed
-		&& callee.property.type === 'Identifier'
-		&& callee.property.name === 'test'
+	return isMemberExpression(callee, 'test')
 		&& isGetTestContextCall(unwrapTypeScriptExpression(callee.object), imports);
 }
 
@@ -685,6 +698,12 @@ export function getFirstContextParameter(parameters) {
 	return parameter && getContextParameterIdentifier(parameter);
 }
 
+/** The variable a callback's context parameter binds, or `undefined` when it declares none. A defaulted parameter (`(t = getTestContext())`) declares the context just the same. */
+export function getContextVariable(callback, context) {
+	const parameter = getFirstContextParameter(callback?.params);
+	return parameter ? findVariable(context.sourceCode.getScope(parameter), parameter.name) : undefined;
+}
+
 /**
 Track the test-context parameter names (`t`) introduced by enclosing test, subtest, and optionally hook callbacks, including hooks declared from a test context.
 
@@ -696,7 +715,7 @@ Set `trackHooks` to also track hook context parameters.
 	isSubtestCall: (node: import('estree').Node) => boolean,
 	isContextIdentifier: (node: import('estree').Node | undefined) => boolean,
 	isContextReceiver: (node: import('estree').Node | undefined) => boolean,
-	isContextNameInScope: (name: string | undefined, node: import('estree').Node) => boolean,
+	isContextMock: (node: import('estree').Node) => boolean,
 	currentContextVariable: () => import('eslint').Scope.Variable | undefined,
 	current: () => string | undefined,
 	currentCallback: () => import('estree').Node | undefined,
@@ -775,6 +794,13 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 	const isContextReceiver = node => isContextIdentifier(node)
 		|| isGetTestContextCall(unwrapTypeScriptExpression(node), imports);
 
+	// The context `<ctx>.mock`, seen through optional chaining and TypeScript wrappers. The receiver is either a context parameter or a `getTestContext()` call, which is the same context. An unrelated `<anything>.mock` is another object's API and has nothing to do with the test runner's mock tracker. A TypeScript wrapper on the receiver (`(t as any).mock`) is erased at runtime, so the receiver is unwrapped before it is matched against the context.
+	const isContextMock = node => {
+		node = unwrapExpression(node);
+		return isMemberExpression(node, 'mock')
+			&& isContextReceiver(unwrapExpression(node.object));
+	};
+
 	const isTrackedHookCall = (node, parsed) => trackHooks && (
 		(
 			parsed?.kind === 'hook'
@@ -784,23 +810,14 @@ export function createContextTracker(imports, {trackHooks = false} = {}) {
 	);
 
 	const isTrackedTestCall = parsed => parsed?.kind === 'test'
-		&& parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name));
-
-	// Whether `name` still resolves to one of the open contexts' parameters at `node`. A nested binding of the same name (a block-scoped `const t`, a `catch (t)`, a callback parameter) shadows the context, so writing `name.diagnostic(…)` there would not reach the test context.
-	const isContextNameInScope = (name, node) => {
-		if (variables.length === 0 || name === undefined) {
-			return false;
-		}
-
-		return isContextVariable(findVariable(imports.sourceCode.getScope(node), name));
-	};
+		&& hasOnlyKnownModifiers(parsed);
 
 	return {
 		isSubtestCall: isTrackedSubtest,
 		// A receiver that reaches a test context, for `isContextHookCall` and friends.
 		isContextReceiver,
+		isContextMock,
 		isContextIdentifier,
-		isContextNameInScope,
 		// The name of the innermost enclosing tracked context, or `undefined` when its
 		// callback declared no context parameter (or we are not inside a tracked callback).
 		current: () => names.at(-1),
@@ -979,11 +996,9 @@ export function getOutOfLineCallbackCall(node, context, imports) {
 
 	// The declared variable, not a lookup by name from inside: a parameter or local named like the function would otherwise hide it.
 	const variable = getDeclaredVariable(identifier, declarator ?? node, imports);
-	const [start, end] = context.sourceCode.getRange(node);
 	for (const reference of variable?.references ?? []) {
 		// A body registering itself (`t.test('again', body)` inside `body`) only runs once something else registered it, so that other call is the one that says what the body is.
-		const [referenceStart] = context.sourceCode.getRange(reference.identifier);
-		if (referenceStart >= start && referenceStart < end) {
+		if (isNodeInside(reference.identifier, node)) {
 			continue;
 		}
 
@@ -995,6 +1010,33 @@ export function getOutOfLineCallbackCall(node, context, imports) {
 	}
 
 	return undefined;
+}
+
+/**
+The calls that run the functions enclosing `node`, innermost first. For each enclosing function, that is the call it is the inline callback of, or else the registration that names it out of line (`test('a', body)`). An out-of-line body is visited where it is declared, outside the call's frame and often before the call, so the calls are read from the code instead, and the walk goes on outward from the registration, since the body is declared somewhere else. An inline call is any call that runs the function as its callback, so the caller decides which ones are registrations.
+*/
+export function * getEnclosingCallbackCalls(node, context, imports) {
+	const visited = new Set();
+	for (let current = node.parent; current; current = current.parent) {
+		if (!isFunction(current) || visited.has(current)) {
+			continue;
+		}
+
+		// Two bodies that register each other would otherwise lead the walk around forever.
+		visited.add(current);
+		// The options and descriptor forms put the callback in an `fn` property, one level below the call.
+		const parentCall = getParentCallExpression(current);
+		const inlineCall = parentCall && getTestCallback(parentCall, imports) === current ? parentCall : undefined;
+		const call = inlineCall ?? getOutOfLineCallbackCall(current, context, imports);
+		if (!call) {
+			continue;
+		}
+
+		yield call;
+		if (!inlineCall) {
+			current = call;
+		}
+	}
 }
 
 /** The function a registration call runs, read from the slot `node:test` reads it from. */
@@ -1054,13 +1096,45 @@ The import is a binding like any other, so a declaration in a test body hides it
 @param {import('estree').Node} node The node the name has to resolve at.
 @returns {boolean}
 */
-export function isGetTestContextInScope(imports, node) {
+function isGetTestContextInScope(imports, node) {
 	if (!imports.getTestContextName) {
 		return false;
 	}
 
 	const variable = findVariable(imports.sourceCode.getScope(node), imports.getTestContextName);
 	return variable?.defs.some(definition => definition.type === 'ImportBinding') ?? false;
+}
+
+/** The innermost context hook callback (`t.beforeEach(ctx => …)`) between `node` and the test body `container` that declares a context parameter. The runner passes a hook its own test context, which the parent test's context parameter does not name. */
+function getContextHookCallback(node, container, isContextReceiver) {
+	for (let current = getEnclosingFunction(node); current && current !== container; current = getEnclosingFunction(current)) {
+		const call = getParentCallExpression(current);
+		if (
+			getFirstContextParameter(current.params)
+			&& call
+			&& getHookCallback(call) === current
+			&& isContextHookCall(call, isContextReceiver)
+		) {
+			return current;
+		}
+	}
+}
+
+/**
+The text that reaches the test context at `node` inside `testBody`, to call a context method on: the context parameter of the innermost context hook callback in between, or else of `testBody`, while its name still resolves to that parameter there, or else `getTestContext()` when `testBody` declares no context parameter and the import is in scope. `undefined` when neither reaches it. `isContextReceiver` is the tracker's, to recognize the receiver of a context hook.
+
+A test that declares no context parameter can still reach its context through `getTestContext()`, so the file has to import that name. The `getTestContext` import is a binding like any other, so a local declaration in the test body shadows it too.
+*/
+export function getContextReceiverText(testBody, node, imports, isContextReceiver) {
+	const callback = getContextHookCallback(node, testBody, isContextReceiver) ?? testBody;
+	const parameter = getFirstContextParameter(callback.params);
+	if (!parameter) {
+		return isGetTestContextInScope(imports, node) ? `${imports.getTestContextName}()` : undefined;
+	}
+
+	// A nested binding of the same name shadows the parameter, and a `var` of the same name in the body re-binds it, so the name no longer reaches the test context.
+	const variable = findVariable(imports.sourceCode.getScope(node), parameter.name);
+	return variable?.identifiers.includes(parameter) && isUnreboundParameter(variable) ? parameter.name : undefined;
 }
 
 /**
@@ -1686,7 +1760,7 @@ export function getRegistrationKind(call, imports, context) {
 
 	// A member `node:test` does not have (`test.custom(…)`, `beforeEach.foo(…)`) throws before anything runs, which is how the context tracker reads it too.
 	if (parsed) {
-		return parsed.kind !== 'hook' && parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name)) ? parsed.kind : undefined;
+		return parsed.kind !== 'hook' && hasOnlyKnownModifiers(parsed) ? parsed.kind : undefined;
 	}
 
 	if (isGetTestContextSubtestCall(call, imports)) {
@@ -1738,7 +1812,7 @@ function isAssertNamespaceIdentifier(node, imports) {
 	return (
 		node.type === 'Identifier'
 		&& imports.assertNamespace.has(node.name)
-		&& isImportedBindingReference(node, imports)
+		&& isImportBinding(node, imports)
 	);
 }
 
@@ -1746,21 +1820,14 @@ function isNamedStrictAssertIdentifier(node, imports) {
 	return (
 		node.type === 'Identifier'
 		&& imports.assertNamed.get(node.name) === 'strict'
-		&& isImportedBindingReference(node, imports)
+		&& isImportBinding(node, imports)
 	);
 }
 
 function isAssertStrictMember(node, imports) {
 	node = unwrapTypeScriptExpression(node);
-	const object = node.type === 'MemberExpression' ? unwrapTypeScriptExpression(node.object) : undefined;
-	return (
-		node.type === 'MemberExpression'
-		&& !node.computed
-		&& object?.type === 'Identifier'
-		&& isAssertNamespaceIdentifier(object, imports)
-		&& node.property.type === 'Identifier'
-		&& node.property.name === 'strict'
-	);
+	return isMemberExpression(node, 'strict')
+		&& isAssertNamespaceIdentifier(unwrapTypeScriptExpression(node.object), imports);
 }
 
 function isTestContextAssertMember(node, imports) {
@@ -1867,7 +1934,7 @@ export const parseAssertionCall = memoizeByNode(PARSED_ASSERTION_CALL, (callExpr
 	if (
 		callee.type === 'Identifier'
 		&& imports.assertNamed.get(callee.name) === 'strict'
-		&& isImportedBindingReference(callee, imports)
+		&& isImportBinding(callee, imports)
 	) {
 		return {
 			method: 'ok',
@@ -1880,7 +1947,7 @@ export const parseAssertionCall = memoizeByNode(PARSED_ASSERTION_CALL, (callExpr
 	if (
 		callee.type === 'Identifier'
 		&& imports.assertNamed.has(callee.name)
-		&& isImportedBindingReference(callee, imports)
+		&& isImportBinding(callee, imports)
 	) {
 		return {
 			method: imports.assertNamed.get(callee.name),
@@ -1892,7 +1959,7 @@ export const parseAssertionCall = memoizeByNode(PARSED_ASSERTION_CALL, (callExpr
 	if (
 		callee.type === 'Identifier'
 		&& imports.assertNamespace.has(callee.name)
-		&& isImportedBindingReference(callee, imports)
+		&& isImportBinding(callee, imports)
 	) {
 		// `assert(value)` — the bare assert function (alias of `ok`); no method identifier to rewrite.
 		return {

@@ -66,12 +66,10 @@ test.snapshot({
 		withImport('test.unknown("x", t => { t.plan(1); t.plan(2); });'),
 		'import * as nodeTest from \'node:test\';\nnodeTest.test.unknown("x", t => { t.plan(1); t.plan(2); });',
 
-		// Unsupported computed, destructured, aliased, optional receiver, and optional call forms
+		// Unsupported computed, destructured, and aliased forms
 		withImport('test("x", t => { t.plan(1); t["plan"](2); });'),
 		withImport('test("x", t => { t.plan(1); const {plan} = t; plan(2); });'),
 		withImport('test("x", t => { t.plan(1); const plan = t.plan; plan(2); });'),
-		withImport('test("x", t => { t.plan(1); t?.plan(2); });'),
-		withImport('test("x", t => { t.plan(1); t.plan?.(2); });'),
 
 		// TypeScript
 		{
@@ -179,6 +177,12 @@ test.snapshot({
 		},
 		// A defaulted context parameter is still the test context.
 		'import test from \'node:test\';\ntest(\'t\', (t = getContext()) => { t.plan(1); t.plan(2); });',
+
+		// Optional chaining still calls `plan()`, since a test context is never nullish, so the second call throws
+		withImport('test("x", t => { t.plan(1); t?.plan(2); });'),
+		withImport('test("x", t => { t.plan(1); t.plan?.(2); });'),
+		withImport('test("x", t => { t?.plan(1); t.plan(2); });'),
+		'import {test, getTestContext} from \'node:test\';\ntest(\'t\', () => { getTestContext().plan(1); getTestContext()?.plan(2); });',
 
 		// `getTestContext()` sets the same plan as the context parameter, in either spelling
 		'import {test, getTestContext} from \'node:test\';\ntest(\'t\', () => { getTestContext().plan(1); getTestContext().plan(2); });',

@@ -8,6 +8,7 @@ import {
 	MODIFIERS,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
+import {getStaticStringValue} from './ast/index.js';
 
 const MESSAGE_ID_NOT_ARRAY = 'valid-test-tags/not-array';
 const MESSAGE_ID_HOLE = 'valid-test-tags/hole';
@@ -46,16 +47,8 @@ const messages = {
 
 function getStaticString(node) {
 	node = unwrapTypeScriptExpression(node);
-	if (node.type === 'Literal' && typeof node.value === 'string') {
-		return {node, value: node.value};
-	}
-
-	if (node.type === 'TemplateLiteral' && node.expressions.length === 0) {
-		const value = node.quasis[0].value.cooked;
-		if (typeof value === 'string') {
-			return {node, value};
-		}
-	}
+	const value = getStaticStringValue(node);
+	return value === undefined ? undefined : {node, value};
 }
 
 function isStaticValue(node) {

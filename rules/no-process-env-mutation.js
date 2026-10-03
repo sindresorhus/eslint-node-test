@@ -5,15 +5,17 @@ import {
 	getTestCallback,
 	getOutOfLineCallbackCall,
 	getRegistrationKind,
-	getFirstContextParameter,
-	MODIFIERS,
+	getContextVariable,
+	hasOnlyKnownModifiers,
 	getImportSpecifierName,
 } from './utils/node-test.js';
 import {
 	unwrapExpression,
 	getEnclosingFunction,
-	getGlobalProcessObject,
+	isGlobalThisMember,
 	isUnshadowedGlobal,
+	isImportBinding,
+	getStaticPropertyName,
 } from './utils/index.js';
 import {functionTypes} from './ast/index.js';
 
@@ -37,57 +39,9 @@ const REFLECT_MUTATORS = new Set([
 	'set',
 ]);
 
-const getStaticPropertyName = node => {
-	if (node.type === 'Identifier') {
-		return node.name;
-	}
-
-	return getStaticExpressionPropertyName(node);
-};
-
-const getStaticExpressionPropertyName = node => {
-	if (node.type === 'Literal' && (typeof node.value === 'string' || typeof node.value === 'number')) {
-		return String(node.value);
-	}
-
-	if (node.type === 'TemplateLiteral' && node.expressions.length === 0) {
-		return node.quasis[0].value.cooked;
-	}
-};
-
-const getMemberPropertyName = node => {
-	if (node.type !== 'MemberExpression') {
-		return;
-	}
-
-	if (!node.computed && node.property.type === 'Identifier') {
-		return node.property.name;
-	}
-
-	if (node.computed) {
-		return getStaticExpressionPropertyName(unwrapExpression(node.property));
-	}
-};
-
-const isImportBinding = (context, node, names) => {
-	if (node.type !== 'Identifier' || !names.has(node.name)) {
-		return false;
-	}
-
-	const variable = findVariable(context.sourceCode.getScope(node), node);
-	return variable?.defs.some(definition => definition.type === 'ImportBinding') ?? false;
-};
-
-const getRootIdentifier = node => {
-	node = unwrapExpression(node);
-	if (node?.type === 'Identifier') {
-		return node;
-	}
-
-	if (node?.type === 'MemberExpression') {
-		return getRootIdentifier(node.object);
-	}
-};
+const isImportedName = (context, node, names) => node.type === 'Identifier'
+	&& names.has(node.name)
+	&& isImportBinding(node, context);
 
 const collectProcessModuleBindings = context => {
 	const processNames = new Set();
@@ -129,21 +83,20 @@ const create = context => {
 
 	const isProcessObject = node => {
 		node = unwrapExpression(node);
-		// A local `globalThis` or `global` is some other object, exactly as a local `process` is.
-		const globalObject = getGlobalProcessObject(node);
-		if (globalObject) {
-			return isUnshadowedGlobal(context, globalObject, globalObject.name);
+		// `globalThis.process` and `global.process` on the real global are the same object as `process`.
+		if (isGlobalThisMember(node, 'process', context)) {
+			return true;
 		}
 
 		return node?.type === 'Identifier'
 			&& (
-				isImportBinding(context, node, processNames)
-				|| (node.name === 'process' && isUnshadowedGlobal(context, node, 'process'))
+				isImportedName(context, node, processNames)
+				|| (node.name === 'process' && isUnshadowedGlobal(node, 'process', context))
 			);
 	};
 
 	const isEnvironmentDestructuringProperty = (property, localName) => {
-		if (property.type !== 'Property' || property.computed || getStaticPropertyName(property.key) !== 'env') {
+		if (property.type !== 'Property' || getStaticPropertyName(property) !== 'env') {
 			return false;
 		}
 
@@ -191,7 +144,7 @@ const create = context => {
 		}
 
 		if (node.type === 'Identifier') {
-			return isImportBinding(context, node, environmentNames) || isEnvironmentAlias(node, seenVariables);
+			return isImportedName(context, node, environmentNames) || isEnvironmentAlias(node, seenVariables);
 		}
 
 		// `process.env` is a truthy object that is never nullish, so a defensive `process.env ?? {}` or `process.env || {}` still evaluates to `process.env`.
@@ -200,7 +153,7 @@ const create = context => {
 		}
 
 		return node.type === 'MemberExpression'
-			&& getMemberPropertyName(node) === 'env'
+			&& getStaticPropertyName(node) === 'env'
 			&& isProcessObject(node.object);
 	};
 
@@ -248,31 +201,10 @@ const create = context => {
 		}
 	};
 
-	const getContextVariable = callback => {
-		// A defaulted parameter (`(t = getTestContext())`) declares the context just the same.
-		const parameter = getFirstContextParameter(callback.params);
-		if (!parameter) {
-			return;
-		}
-
-		return findVariable(sourceCode.getScope(parameter), parameter);
-	};
-
+	// `parseTestCall` already requires the callee to start at a `node:test` import, so a standalone `only(…)`, `skip(…)` or `todo(…)` import counts too.
 	const isTestImportCall = node => {
 		const parsed = parseTestCall(node, imports);
-		if (
-			parsed?.kind !== 'test'
-			|| parsed.modifiers.some(modifier => !MODIFIERS.has(modifier.name))
-		) {
-			return false;
-		}
-
-		const root = getRootIdentifier(node.callee);
-		return root?.type === 'Identifier'
-			&& (
-				isImportBinding(context, root, imports.locals)
-				|| (imports.namespaces.has(root.name) && isImportBinding(context, root, imports.namespaces))
-			);
+		return parsed?.kind === 'test' && hasOnlyKnownModifiers(parsed);
 	};
 
 	// A subtest is read the way the out-of-line path below reads it, so one registered from a hook (`t.test(…)` on the hook's context, or `getTestContext().test(…)`) counts as well.
@@ -291,7 +223,7 @@ const create = context => {
 
 		testStack.push({
 			callback,
-			contextVariable: getContextVariable(callback),
+			contextVariable: getContextVariable(callback, context),
 		});
 		trackedCalls.add(node);
 	};
@@ -316,12 +248,12 @@ const create = context => {
 
 		// The kind comes from the shared classifier, so a subtest counts as a test too. Only an imported call has modifiers to check, which a subtest never does.
 		const parsed = parseTestCall(call, imports);
-		if (getRegistrationKind(call, imports, context) !== 'test' || parsed?.modifiers.some(modifier => !MODIFIERS.has(modifier.name))) {
+		if (getRegistrationKind(call, imports, context) !== 'test' || (parsed && !hasOnlyKnownModifiers(parsed))) {
 			return;
 		}
 
 		outOfLineTestBodies.add(node);
-		testStack.push({callback: node, contextVariable: getContextVariable(node)});
+		testStack.push({callback: node, contextVariable: getContextVariable(node, context)});
 	};
 
 	const leaveOutOfLineTestBody = node => {
@@ -376,13 +308,13 @@ const create = context => {
 			return;
 		}
 
-		const method = getMemberPropertyName(callee);
+		const method = getStaticPropertyName(callee);
 		const object = unwrapExpression(callee.object);
 		if (
 			method
 			&& (
-				(OBJECT_MUTATORS.has(method) && isUnshadowedGlobal(context, object, 'Object'))
-				|| (REFLECT_MUTATORS.has(method) && isUnshadowedGlobal(context, object, 'Reflect'))
+				(OBJECT_MUTATORS.has(method) && isUnshadowedGlobal(object, 'Object', context))
+				|| (REFLECT_MUTATORS.has(method) && isUnshadowedGlobal(object, 'Reflect', context))
 			)
 		) {
 			return unwrapExpression(node.arguments[0]);

@@ -1,5 +1,12 @@
 import {getStaticValue} from '@eslint-community/eslint-utils';
-import {findOptionsProperty, getTestOptions} from '../utils/node-test.js';
+import {
+	findOptionsProperty,
+	getCalleeChain,
+	getEnclosingCallbackCalls,
+	getRegistrationKind,
+	getTestOptions,
+	parseTestCall,
+} from '../utils/node-test.js';
 
 /*
 Shared detection of a test whose callback `node:test` never runs: `test.skip(…)`, `test('a',
@@ -60,4 +67,26 @@ export function isInsideSkippedCallback(node, skippedCallbacks) {
 	}
 
 	return false;
+}
+
+/**
+Whether `call` registers a test, suite or subtest whose callback `node:test` never runs, read from its modifiers and its options. A hook, including a context hook, has neither, so it always runs its callback. `TestContext#test` has no `skip`, `todo` or `only` member, so any of them throws; they are read the way the modifiers of an imported `test` are, so only `t.test.skip(…)` counts as not running. Only a truthy `skip` option stops the body from running, see `hasEnabledSkipOption`.
+*/
+export function isSkippedRegistration(call, imports, context) {
+	const kind = getRegistrationKind(call, imports, context);
+	if (kind !== 'test' && kind !== 'suite') {
+		return false;
+	}
+
+	const modifiers = parseTestCall(call, imports)?.modifiers ?? getCalleeChain(call.callee)?.members.slice(1) ?? [];
+	return modifiers.some(modifier => modifier.name === 'skip')
+		|| hasEnabledSkipOption(getTestOptions(call), context);
+}
+
+/**
+Whether a registration that skips its callback encloses `node`, like `describe.skip('s', () => { test('a', body); })`. The node's own ancestors are read, which also covers an out-of-line body, visited where it is declared. A function named out of line (`describe.skip('s', suiteBody)`) is registered somewhere else, so the walk goes on from the call that registers it.
+*/
+export function isInsideSkippedRegistration(node, imports, context) {
+	return getEnclosingCallbackCalls(node, context, imports)
+		.some(call => isSkippedRegistration(call, imports, context));
 }

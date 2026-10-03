@@ -1,6 +1,5 @@
-import {resolveImports, createContextTracker, isGetTestContextCall} from './utils/node-test.js';
-import isFunction from './ast/is-function.js';
-import isLoop from './ast/is-loop.js';
+import {resolveImports, createContextTracker} from './utils/node-test.js';
+import {isFunction, isLoop, isMemberExpression} from './ast/index.js';
 import {
 	getEnclosingFunction,
 	getFloatingStatement,
@@ -17,7 +16,7 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Add `return` after `{{name}}.{{method}}()`.',
 };
 
-const SKIP_METHODS = new Set(['skip', 'todo']);
+const SKIP_METHODS = ['skip', 'todo'];
 
 /** The statement written right after `statement` in its own statement list, if there is one. */
 function getNextStatement(statement) {
@@ -117,33 +116,19 @@ const create = context => {
 	// Hook callbacks receive a test context too, so `t.skip()` in a hook body skips the rest of that hook exactly as it does in a test body.
 	const tracker = createContextTracker(imports, {trackHooks: true});
 
-	// The name to show for a test-context receiver, or `undefined` when the receiver is some other object's method of the same name.
-	const getContextName = receiver => {
-		if (receiver.type === 'Identifier') {
-			return tracker.isContextIdentifier(receiver) ? receiver.name : undefined;
-		}
-
-		// A `getTestContext()` import can be bound to another name, or read off a test binding (`test.getTestContext()`), and the message names what the file actually calls.
-		return isGetTestContextCall(receiver, imports) ? sourceCode.getText(receiver) : undefined;
-	};
-
 	context.on('CallExpression', node => {
 		let problem;
 
 		const callee = unwrapTypeScriptExpression(node.callee);
 		// `t.skip()` can be wrapped in `void` or sit inside a conditional, in which case the statement that discards it is the one whose remaining code runs after the skip.
 		const statement = getFloatingStatement(node)?.statement;
-		// The receiver is a tracked context parameter or a `getTestContext()` call, behind any TypeScript wrapper.
-		const name = callee.type === 'MemberExpression'
-			? getContextName(unwrapTypeScriptExpression(callee.object))
-			: undefined;
+		// The receiver is a tracked context parameter or a `getTestContext()` call, behind any TypeScript wrapper. Any other receiver is some other object's method of the same name. A `getTestContext()` import can be bound to another name, or read off a test binding (`test.getTestContext()`), and the message names what the file actually calls.
+		const receiver = callee.type === 'MemberExpression' ? unwrapTypeScriptExpression(callee.object) : undefined;
+		const name = receiver && tracker.isContextReceiver(receiver) ? sourceCode.getText(receiver) : undefined;
 
 		if (
 			statement?.type === 'ExpressionStatement'
-			&& callee.type === 'MemberExpression'
-			&& !callee.computed
-			&& callee.property.type === 'Identifier'
-			&& SKIP_METHODS.has(callee.property.name)
+			&& isMemberExpression(callee, SKIP_METHODS)
 			&& name
 			&& hasCodeAfter(statement)
 		) {

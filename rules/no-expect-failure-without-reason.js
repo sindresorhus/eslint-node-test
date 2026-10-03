@@ -5,7 +5,7 @@ import {
 	createContextTracker,
 	getTestOptions,
 	findOptionsProperty,
-	MODIFIERS,
+	hasOnlyKnownModifiers,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
 
@@ -61,7 +61,7 @@ const create = context => {
 			(!parsed && !isSubtest)
 			|| parsed?.kind === 'hook'
 			|| parsed?.hasExpectedFailure
-			|| parsed?.modifiers.some(modifier => !MODIFIERS.has(modifier.name))
+			|| (parsed && !hasOnlyKnownModifiers(parsed))
 		) {
 			return;
 		}

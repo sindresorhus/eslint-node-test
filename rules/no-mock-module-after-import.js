@@ -1,11 +1,11 @@
 import {
 	createContextTracker,
 	getStaticString,
-	isGetTestContextCall,
 	isGlobalMock,
 	resolveImports,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
+import {isMemberExpression} from './ast/index.js';
 
 const MESSAGE_ID = 'no-mock-module-after-import';
 
@@ -42,21 +42,6 @@ const create = context => {
 
 	const tracker = createContextTracker(imports, {trackHooks: true});
 
-	const isContextMock = node => {
-		const mock = unwrapTypeScriptExpression(node);
-		if (
-			mock?.type !== 'MemberExpression'
-			|| mock.computed
-			|| mock.property.type !== 'Identifier'
-			|| mock.property.name !== 'mock'
-		) {
-			return false;
-		}
-
-		const context = unwrapTypeScriptExpression(mock.object);
-		return tracker.isContextIdentifier(context) || isGetTestContextCall(context, imports);
-	};
-
 	context.on('CallExpression', node => {
 		tracker.update(node);
 	});
@@ -67,11 +52,8 @@ const create = context => {
 	context.on('CallExpression', node => {
 		const callee = unwrapTypeScriptExpression(node.callee);
 		if (
-			callee?.type !== 'MemberExpression'
-			|| callee.computed
-			|| callee.property.type !== 'Identifier'
-			|| callee.property.name !== 'module'
-			|| (!isGlobalMock(unwrapTypeScriptExpression(callee.object), imports) && !isContextMock(callee.object))
+			!isMemberExpression(callee, 'module')
+			|| (!isGlobalMock(unwrapTypeScriptExpression(callee.object), imports) && !tracker.isContextMock(callee.object))
 		) {
 			return;
 		}

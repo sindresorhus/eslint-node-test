@@ -10,6 +10,10 @@ test.snapshot({
 		inTest('const promises = xs.map(x => t.test(x, () => {}));\nawait Promise.all(promises);'),
 		inTest('const promises = xs.map(x => t.test(x, () => {}));\nreturn Promise.allSettled(promises);'),
 
+		// A private method named like an array method, and a function in the `thisArg` slot, are not iteration callbacks
+		inTest('class A { #map(callback) {} run() { this.#map(x => t.test(x, () => {})); } }'),
+		inTest('xs.map(callback, function () { t.test(\'x\', () => {}); });'),
+
 		// Correctly awaited via Promise.all
 		inTest('await Promise.all(xs.map(x => t.test(x, () => {})));'),
 		inTest('await Promise.allSettled(xs.map(x => t.test(x, () => {})));'),

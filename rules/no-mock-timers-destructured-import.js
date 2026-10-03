@@ -2,12 +2,12 @@ import {
 	resolveImports,
 	findOptionsProperty,
 	createContextTracker,
-	isGetTestContextCall,
-	isGlobalMock,
+	isMockTimers,
 	getImportSpecifierName,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
-import {getStaticPropertyName} from './utils/is-same-reference.js';
+import {isMemberExpression, isUndefinedValue} from './ast/index.js';
+import {getStaticPropertyName} from './utils/index.js';
 
 const MESSAGE_ID = 'no-mock-timers-destructured-import';
 const MESSAGE_ID_NAMESPACE = 'no-mock-timers-destructured-import/namespace';
@@ -34,8 +34,7 @@ const TIMER_APIS = new Set(FUNCTION_TO_API.values());
 
 /** Whether a node is `undefined`, `void …` or `null`, which the runner reads the same as a value that is left out. */
 function isNoValue(node) {
-	return (node.type === 'Identifier' && node.name === 'undefined')
-		|| (node.type === 'UnaryExpression' && node.operator === 'void')
+	return isUndefinedValue(node)
 		|| (node.type === 'Literal' && node.value === null);
 }
 
@@ -132,30 +131,6 @@ const create = context => {
 
 	const tracker = createContextTracker(imports, {trackHooks: true});
 
-	// `t.mock.timers` (a test context) or `getTestContext().mock.timers`. An unrelated `<anything>.mock.timers` is another object's API and has nothing to do with the global tracker. A TypeScript wrapper on the receiver (`(t as any).mock`) is erased at runtime, so the receiver is unwrapped before it is matched against the context.
-	const isContextMock = node => {
-		node = unwrapTypeScriptExpression(node);
-		return node?.type === 'MemberExpression'
-			&& !node.computed
-			&& node.property.type === 'Identifier'
-			&& node.property.name === 'mock'
-			&& (
-				tracker.isContextIdentifier(unwrapTypeScriptExpression(node.object))
-				|| isGetTestContextCall(node.object, imports)
-			);
-	};
-
-	// A TypeScript wrapper on the receiver must not hide the call, the way it does not hide `mock.method(…)` in every other mock rule.
-	const isMockTimers = node => {
-		const expression = unwrapTypeScriptExpression(node);
-		return expression.type === 'MemberExpression'
-			&& !expression.computed
-			&& expression.property.type === 'Identifier'
-			&& expression.property.name === 'timers'
-			// `mock.timers` (global import) or `t.mock.timers` (context).
-			&& (isGlobalMock(expression.object, imports) || isContextMock(expression.object));
-	};
-
 	const enabledApis = new Set();
 	let isAllEnabled = false;
 
@@ -165,11 +140,8 @@ const create = context => {
 		// A TypeScript wrapper on the callee (`enable!(…)`, `(enable as any)(…)`) must not hide the call.
 		const callee = unwrapTypeScriptExpression(node.callee);
 		if (
-			callee.type === 'MemberExpression'
-			&& !callee.computed
-			&& callee.property.type === 'Identifier'
-			&& callee.property.name === 'enable'
-			&& isMockTimers(callee.object)
+			isMemberExpression(callee, 'enable')
+			&& isMockTimers(callee.object, imports, tracker)
 		) {
 			const apis = getEnabledApis(node);
 			if (apis.all) {

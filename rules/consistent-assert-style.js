@@ -1,5 +1,6 @@
 import {isParenthesized} from './utils/index.js';
 import {ASSERT_MODULES, getImportSpecifierName} from './utils/node-test.js';
+import {isMemberExpression} from './ast/index.js';
 
 const MESSAGE_ID = 'consistent-assert-style';
 
@@ -85,11 +86,7 @@ function getCallableAssertText(callee, context, callableAssertReferences) {
 	}
 
 	if (
-		callee.type === 'MemberExpression'
-		&& !callee.computed
-		&& !callee.optional
-		&& callee.property.type === 'Identifier'
-		&& callee.property.name === 'strict'
+		isMemberExpression(callee, {property: 'strict', optional: false})
 		&& callee.object.type === 'Identifier'
 		// The fix deletes the range from the end of `assert.strict` to the end of `ok`, which a parenthesis around either of them sits inside.
 		&& !isParenthesized(callee.object, context)
@@ -136,12 +133,8 @@ const create = context => {
 
 		if (
 			node.optional
-			|| callee.type !== 'MemberExpression'
+			|| !isMemberExpression(callee, {property: 'ok', optional: false})
 			|| isParenthesized(callee, context)
-			|| callee.optional
-			|| callee.computed
-			|| callee.property.type !== 'Identifier'
-			|| callee.property.name !== 'ok'
 		) {
 			return;
 		}

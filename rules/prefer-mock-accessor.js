@@ -1,10 +1,9 @@
 import {
 	resolveImports,
 	createContextTracker,
-	isGetTestContextCall,
 	isGlobalMock,
 } from './utils/node-test.js';
-import {isFunction} from './ast/index.js';
+import {isFunction, isMemberExpression} from './ast/index.js';
 import {unwrapTypeScriptExpression, unwrapExpression, getStaticPropertyName} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-mock-accessor';
@@ -86,22 +85,6 @@ const create = context => {
 	}
 
 	const tracker = createContextTracker(imports, {trackHooks: true});
-	const isContextMock = node => {
-		node = unwrapExpression(node);
-		if (
-			node.type !== 'MemberExpression'
-			|| node.computed
-			|| node.property.type !== 'Identifier'
-			|| node.property.name !== 'mock'
-		) {
-			return false;
-		}
-
-		// The receiver is either a context parameter or a `getTestContext()` call, which is the same context.
-		const object = unwrapExpression(node.object);
-		return (object.type === 'Identifier' && tracker.isContextIdentifier(object))
-			|| isGetTestContextCall(object, imports);
-	};
 
 	context.on('CallExpression', node => {
 		tracker.update(node);
@@ -113,11 +96,8 @@ const create = context => {
 	context.on('CallExpression', node => {
 		const callee = unwrapExpression(node.callee);
 		if (
-			callee.type !== 'MemberExpression'
-			|| callee.computed
-			|| callee.property.type !== 'Identifier'
-			|| callee.property.name !== 'method'
-			|| (!isGlobalMock(unwrapExpression(callee.object), imports) && !isContextMock(callee.object))
+			!isMemberExpression(callee, 'method')
+			|| (!isGlobalMock(unwrapExpression(callee.object), imports) && !tracker.isContextMock(callee.object))
 		) {
 			return;
 		}

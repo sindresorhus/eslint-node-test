@@ -6,12 +6,13 @@ import {
 	getSubtestReceiver,
 	HOOK_FUNCTIONS,
 	isGlobalMock,
-	MODIFIERS,
-	getFirstContextParameter,
+	hasOnlyKnownModifiers,
+	getContextVariable,
 	isGetTestContextCall,
 } from './utils/node-test.js';
 import {getEnclosingFunction, getStaticPropertyName} from './utils/index.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
+import {isMemberExpression} from './ast/index.js';
 
 const MESSAGE_ID = 'require-mock-timers-advance';
 const messages = {
@@ -19,17 +20,6 @@ const messages = {
 };
 
 const ADVANCE_METHODS = new Set(['tick', 'runAll']);
-
-/** The name a key node spells, bare or quoted. A computed key is not read. */
-function getKeyName(node) {
-	if (node.type === 'Identifier') {
-		return node.name;
-	}
-
-	if (node.type === 'Literal' && typeof node.value === 'string') {
-		return node.value;
-	}
-}
 
 function isDynamicProperty(property) {
 	return property.type === 'Property' && property.computed && property.key.type !== 'Literal';
@@ -87,20 +77,12 @@ function mayEnableTimerApis(callExpression) {
 	return false;
 }
 
-function isImportedIdentifier(node, sourceCode) {
-	const variable = findVariable(sourceCode.getScope(node), node);
-	return variable?.defs.some(({type}) => type === 'ImportBinding') ?? false;
-}
-
 /*
 The receiver key for a `<context>.mock` object, or `undefined` when the object is something else's.
 */
 function getContextMockKey(mockObject, imports, sourceCode, contextVariables) {
 	if (
-		mockObject?.type !== 'MemberExpression'
-		|| mockObject.computed
-		|| mockObject.optional
-		|| getKeyName(mockObject.property) !== 'mock'
+		!isMemberExpression(mockObject, {property: 'mock', optional: false})
 	) {
 		return;
 	}
@@ -129,10 +111,7 @@ function getContextMockKey(mockObject, imports, sourceCode, contextVariables) {
 function getMockTimersReceiverKey(node, imports, sourceCode, contextVariables) {
 	node = unwrapTypeScriptExpression(node);
 	if (
-		node.type !== 'MemberExpression'
-		|| node.computed
-		|| node.optional
-		|| getKeyName(node.property) !== 'timers'
+		!isMemberExpression(node, {property: 'timers', optional: false})
 	) {
 		return;
 	}
@@ -156,7 +135,7 @@ function getMockTimersCall(callExpression, imports, sourceCode, contextVariables
 		return;
 	}
 
-	const method = getKeyName(callee.property);
+	const method = getStaticPropertyName(callee);
 	const receiverKey = getMockTimersReceiverKey(callee.object, imports, sourceCode, contextVariables);
 	if (!method || !receiverKey) {
 		return;
@@ -171,27 +150,6 @@ function satisfyPending(scope, receiverKey) {
 			pending.satisfied = true;
 		}
 	}
-}
-
-function getContextVariable(callback, sourceCode) {
-	const parameter = getFirstContextParameter(callback.params);
-	if (!parameter) {
-		return;
-	}
-
-	return findVariable(sourceCode.getScope(parameter), parameter);
-}
-
-function getCalleeRootIdentifier(node) {
-	while (
-		node.type === 'MemberExpression'
-		&& !node.computed
-		&& !node.optional
-	) {
-		node = node.object;
-	}
-
-	return node.type === 'Identifier' ? node : undefined;
 }
 
 function getContextVariables(scopeStack) {
@@ -214,7 +172,7 @@ function getContextCallKind(node, imports, sourceCode, scopeStack) {
 	}
 
 	const object = unwrapTypeScriptExpression(callee.object);
-	const property = getKeyName(callee.property);
+	const property = getStaticPropertyName(callee);
 
 	// `getTestContext().test(…)` and `getTestContext().beforeEach(…)` name the innermost context, the same one a context parameter would, whether or not the enclosing test declared one.
 	if (scopeStack.length > 0 && isGetTestContextCall(object, imports)) {
@@ -235,12 +193,9 @@ function getContextCallKind(node, imports, sourceCode, scopeStack) {
 
 function getScopeCallback(node, imports, sourceCode, scopeStack) {
 	const parsed = parseTestCall(node, imports);
-	const root = getCalleeRootIdentifier(node.callee);
 	if (
 		(parsed?.kind === 'test' || parsed?.kind === 'hook')
-		&& parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name))
-		&& root
-		&& isImportedIdentifier(root, sourceCode)
+		&& hasOnlyKnownModifiers(parsed)
 	) {
 		return getTestCallback(node);
 	}
@@ -262,7 +217,7 @@ const create = context => {
 	context.on('CallExpression', node => {
 		const callback = getScopeCallback(node, imports, sourceCode, scopeStack);
 		if (callback) {
-			const contextVariable = getContextVariable(callback, sourceCode);
+			const contextVariable = getContextVariable(callback, context);
 			scopeStack.push({
 				callNode: node,
 				callback,

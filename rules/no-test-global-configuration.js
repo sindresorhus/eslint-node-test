@@ -1,14 +1,14 @@
-import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	createContextTracker,
 	getCalleeChain,
 	getHookCallback,
 	getTestCallback,
-	MODIFIERS,
+	hasOnlyKnownModifiers,
 	parseTestCall,
 	resolveImports,
 	TEST_FUNCTIONS,
 } from './utils/node-test.js';
+import {isImportBinding} from './utils/index.js';
 
 const MESSAGE_ID = 'no-test-global-configuration';
 
@@ -21,13 +21,8 @@ const configurationMethods = new Map([
 	['snapshot', new Set(['setDefaultSnapshotSerializers', 'setResolveSnapshotPath'])],
 ]);
 
-function isImportedReference(node, sourceCode) {
-	const variable = findVariable(sourceCode.getScope(node), node);
-	return variable?.defs.some(definition => definition.type === 'ImportBinding') ?? false;
-}
-
 function isNodeTestObjectReference(node, imports, sourceCode) {
-	if (!isImportedReference(node, sourceCode)) {
+	if (!isImportBinding(node, {sourceCode})) {
 		return false;
 	}
 
@@ -65,7 +60,7 @@ function isGlobalConfigurationCall(node, imports, sourceCode) {
 	if (
 		configuration
 		&& members.length === 1
-		&& isImportedReference(root, sourceCode)
+		&& isImportBinding(root, {sourceCode})
 	) {
 		return isConfigurationMethod(configuration, members[0].name);
 	}
@@ -80,14 +75,14 @@ function isGlobalConfigurationCall(node, imports, sourceCode) {
 function isTestCallbackCall(parsed) {
 	return (
 		parsed?.kind === 'test'
-		&& parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name))
+		&& hasOnlyKnownModifiers(parsed)
 	);
 }
 
 function isSuiteCallbackCall(parsed) {
 	return (
 		parsed?.kind === 'suite'
-		&& parsed.modifiers.every(modifier => MODIFIERS.has(modifier.name))
+		&& hasOnlyKnownModifiers(parsed)
 	);
 }
 

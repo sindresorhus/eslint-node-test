@@ -9,7 +9,7 @@
 
 Declare a plan only once per test. Both `t.plan()` and the test-level `plan` option set the expected assertion and subtest count, and setting it again fails at runtime.
 
-Plans in separate tests and subtests are independent. Skipped callbacks are ignored; todo callbacks are checked. To stay simple, this rule is path-insensitive and ignores aliases, destructuring, computed properties, and optional calls.
+Plans in separate tests and subtests are independent. Skipped callbacks are ignored; todo callbacks are checked. To stay simple, this rule is path-insensitive and ignores aliases, destructuring, and computed properties.
 
 ## Examples
 

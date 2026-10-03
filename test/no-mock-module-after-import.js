@@ -57,6 +57,9 @@ test.snapshot({
 		// Context mock aliases and shadowed context names are intentionally ignored.
 		head + 'import \'module.js\';\ntest(\'mock\', t => {\n\tconst moduleMock = t.mock;\n\tmoduleMock.module(\'module.js\');\n});',
 		head + 'import \'module.js\';\ntest(\'mock\', t => {\n\tfunction helper(t) {\n\t\tt.mock.module(\'module.js\');\n\t}\n});',
+		// An unrelated `<object>.mock` is not the test runner's
+		head + 'import \'module.js\';\ntest(\'a\', () => { helper.mock.module(\'module.js\'); });',
+		head + 'import \'module.js\';\ntest(\'a\', () => { (helper?.mock).module(\'module.js\'); });',
 
 		// A missing specifier cannot name a statically imported module.
 		head + 'import \'module.js\';\nmock.module();',
@@ -112,6 +115,7 @@ test.snapshot({
 		// Context-only mocks.
 		'import {test} from \'node:test\';\nimport \'module.js\';\ntest(\'mock\', t => {\n\tt.mock.module(\'module.js\');\n});',
 		'import {test} from \'node:test\';\nimport \'module.js\';\ntest(\'mock\', (t = fallback) => {\n\tt.mock.module(\'module.js\');\n});',
+		'import {test} from \'node:test\';\nimport \'module.js\';\ntest(\'mock\', t => {\n\t(t?.mock).module(\'module.js\');\n});',
 		'import {getTestContext} from \'node:test\';\nimport \'module.js\';\ngetTestContext().mock.module(\'module.js\');',
 		'import {getTestContext as context} from \'node:test\';\nimport \'module.js\';\ncontext().mock.module(\'module.js\');',
 		'import * as nodeTest from \'node:test\';\nimport \'module.js\';\nnodeTest.getTestContext().mock.module(\'module.js\');',

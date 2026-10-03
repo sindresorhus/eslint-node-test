@@ -8,11 +8,13 @@ import {
 	isContextHookCall,
 	getTestCallback,
 	getFirstContextParameter,
+	getContextVariable,
 	isGetTestContextCall,
 	hasEnabledPlanOption,
 	isEnabledPlanCount,
 	getOutOfLineCallbackCall,
 	getRegistrationKind,
+	getPlanCallReceiver,
 } from './utils/node-test.js';
 import {functionTypes} from './ast/index.js';
 import {isSkippedTestCall, isInsideSkippedCallback} from './shared/skipped-test.js';
@@ -24,24 +26,13 @@ const messages = {
 	[MESSAGE_ID]: 'This assertion is not counted toward the test\'s plan. Use `{{context}}.assert` so the runner counts it.',
 };
 
-/** The variable a callback's context parameter binds, or `undefined` when it declares none. */
-function getContextVariable(callback, sourceCode) {
-	const parameter = getFirstContextParameter(callback?.params);
-	return parameter ? findVariable(sourceCode.getScope(parameter), parameter) : undefined;
-}
-
 /**
 The receiver of a `<context>.plan(…)` call, `null` when the call is not a plan, and the string
 `'getTestContext()'` when the receiver is a `getTestContext()` call rather than a context parameter.
 */
 function getPlanReceiver(node, context, imports) {
-	const callee = unwrapTypeScriptExpression(node.callee);
-	if (
-		callee?.type !== 'MemberExpression'
-		|| callee.computed
-		|| callee.property.type !== 'Identifier'
-		|| callee.property.name !== 'plan'
-	) {
+	const receiver = getPlanCallReceiver(node);
+	if (receiver === undefined) {
 		return null;
 	}
 
@@ -54,7 +45,6 @@ function getPlanReceiver(node, context, imports) {
 		}
 	}
 
-	const receiver = unwrapTypeScriptExpression(callee.object);
 	return isGetTestContextCall(receiver, imports) ? 'getTestContext()' : receiver;
 }
 
@@ -94,7 +84,7 @@ const create = context => {
 	// Open the frame for a test, subtest, or hook call, which is what its assertions and its plan attach to. `hookName` is the hook's name, or `undefined` for a test. `node` is what closes the frame: the call, or the callback itself when the call names it out of line.
 	const openFrame = ({node, call, callback, hookName, isContextHook, contextName}) => {
 		const isHook = hookName !== undefined;
-		const contextVariable = getContextVariable(callback, sourceCode);
+		const contextVariable = getContextVariable(callback, context);
 		// `t.plan(1)` and the test-level `plan` option set the same expected count, so the option counts here too. A hook has no `plan` option, so an object after its callback sets none.
 		const hasPlanOption = !isHook && hasEnabledPlanOption(call, context);
 		frames.push({

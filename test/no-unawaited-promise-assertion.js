@@ -76,6 +76,29 @@ test.snapshot({
 		withBeforeImport('function wrapper(before) {\n\tbefore(() => {\n\t\tload().then(value => { assert.strictEqual(value, 42); });\n\t});\n}\n\nwrapper(fakeBefore);'),
 		withNamespaceImport('function wrapper(nodeTest) {\n\tnodeTest.test(\'not node:test\', () => {\n\t\tload().then(value => { assert.strictEqual(value, 42); });\n\t});\n}\n\nwrapper(fakeTest);'),
 
+		// The `wait` option is read like every other test option: a static computed key names it, a spread before it cannot override it, and any truthy value waits
+		'import test from "node:test";\nimport assert from "node:assert";\n'
+		+ 'test(\'a\', async t => {\n\tt.plan(1, {[\'wait\']: true});\n\tload().then(value => { assert.strictEqual(value, 42); });\n});',
+		'import test from "node:test";\nimport assert from "node:assert";\n'
+		+ 'test(\'a\', async t => {\n\tt.plan(1, {\'wait\': true});\n\tload().then(value => { assert.strictEqual(value, 42); });\n});',
+		'import test from "node:test";\nimport assert from "node:assert";\n'
+		+ 'test(\'a\', async t => {\n\tt.plan(1, {...options, wait: true});\n\tload().then(value => { assert.strictEqual(value, 42); });\n});',
+		'import test from "node:test";\nimport assert from "node:assert";\n'
+		+ 'test(\'a\', async t => {\n\tt.plan(1, {wait: 1});\n\tload().then(value => { assert.strictEqual(value, 42); });\n});',
+
+		// Optional chaining and a TypeScript wrapper on the callee still set the wait plan
+		'import test from "node:test";\n'
+		+ 'test("a", async t => {\n\tt?.plan(1, {wait: true});\n\tload().then(value => {\n\t\tt.assert.strictEqual(value, 42);\n\t});\n});',
+		'import test from "node:test";\n'
+		+ 'test("a", async t => {\n\tt.plan?.(1, {wait: true});\n\tload().then(value => {\n\t\tt.assert.strictEqual(value, 42);\n\t});\n});',
+		{
+			code: 'import test from "node:test";\n'
+				+ 'test("a", async t => {\n\tt.plan!(1, {wait: true});\n\tload().then(value => {\n\t\tt.assert.strictEqual(value, 42);\n\t});\n});',
+			languageOptions: {parser: parsers.typescript},
+		},
+		'import {test, getTestContext} from "node:test";\nimport assert from "node:assert";\n'
+		+ 'test("a", async () => {\n\tgetTestContext()?.plan(1, {wait: true});\n\tload().then(value => { assert.strictEqual(value, 42); });\n});',
+
 		// A wait plan through `getTestContext()` is the same wait plan
 		'import {test, getTestContext} from \'node:test\';\ntest(\'a\', async t => {\n\tgetTestContext().plan(1, {wait: true});\n\tPromise.resolve().then(() => { t.assert.ok(true); });\n});',
 		'import {test, getTestContext} from \'node:test\';\n'
@@ -237,9 +260,23 @@ test.snapshot({
 		'// A `getTestContext()` hook is the same hook, so its callback is the same boundary\nimport {test, getTestContext} from \'node:test\';\nimport assert from \'node:assert\';\n'
 		+ 'test(\'a\', t => {\n\tgetTestContext().beforeEach(() => {\n\t\tfoo().then(() => { assert.ok(x); });\n\t});\n});',
 
+		// A `wait` value or key that cannot be resolved is not proven to wait: a dynamic value, a spread after it, or a dynamic key after it that could override it
+		'import test from "node:test";\nimport assert from "node:assert";\n'
+		+ 'test(\'a\', async t => {\n\tt.plan(1, {wait: shouldWait});\n\tload().then(value => { assert.strictEqual(value, 42); });\n});',
+		'import test from "node:test";\nimport assert from "node:assert";\n'
+		+ 'test(\'a\', async t => {\n\tt.plan(1, {wait: true, ...options});\n\tload().then(value => { assert.strictEqual(value, 42); });\n});',
+		'import test from "node:test";\nimport assert from "node:assert";\n'
+		+ 'test(\'a\', async t => {\n\tt.plan(1, {wait: true, [key]: false});\n\tload().then(value => { assert.strictEqual(value, 42); });\n});',
+
 		// `wait: false` is not a wait plan, so the runner does not block for the assertion
 		'import test from \'node:test\';\nimport assert from \'node:assert\';\n'
 		+ 'test(\'a\', async t => {\n\tt.plan(1, {wait: false});\n\tload().then(value => { assert.strictEqual(value, 42); });\n});',
+
+		// A wait plan on some other object, or on the parent test's context, does not make this test wait
+		'import test from "node:test";\nimport assert from "node:assert";\n'
+		+ 'test(\'a\', async t => {\n\tother.plan(1, {wait: true});\n\tload().then(value => { assert.strictEqual(value, 42); });\n});',
+		'import test from "node:test";\nimport assert from "node:assert";\n'
+		+ 'test(\'a\', async t => {\n\tawait t.test(\'b\', async u => {\n\t\tt.plan(1, {wait: true});\n\t\tload().then(value => { assert.strictEqual(value, 42); });\n\t});\n});',
 
 		// A chain whose value a surrounding expression hands on to the discarded statement can take the `await`; the discarded side of `&&` has nowhere to put one, so it is reported without a fix
 		inAsyncTest('flag || load().then(value => { assert.strictEqual(value, 42); });'),

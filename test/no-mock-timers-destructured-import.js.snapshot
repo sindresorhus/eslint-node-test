@@ -88,7 +88,43 @@ Message:
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(14): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest(\"a\", (t: any) => { (t as any).mock.timers.enable({apis: [\"setTimeout\"]}); }); 1`] = `
+exports[`no-mock-timers-destructured-import > invalid(14): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest(\"a\", t => { (t?.mock).timers.enable({apis: [\"setTimeout\"]}); }); 1`] = `
+
+  1 | import {test, mock} from 'node:test';
+  2 | import {setTimeout} from 'node:timers';
+  3 | test("a", t => { (t?.mock).timers.enable({apis: ["setTimeout"]}); });
+
+`;
+
+exports[`no-mock-timers-destructured-import > invalid(14): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest(\"a\", t => { (t?.mock).timers.enable({apis: [\"setTimeout\"]}); }); 2`] = `
+
+Message:
+  1 | import {test, mock} from 'node:test';
+> 2 | import {setTimeout} from 'node:timers';
+    |         ^^^^^^^^^^ \`setTimeout\` is imported directly, so \`mock.timers\` cannot intercept it. Call the global \`setTimeout\` instead.
+  3 | test("a", t => { (t?.mock).timers.enable({apis: ["setTimeout"]}); });
+
+`;
+
+exports[`no-mock-timers-destructured-import > invalid(15): import {getTestContext} from 'node:test';\nimport {setTimeout} from 'node:timers';\n(getTestContext() as any).mock.timers.enable({apis: [\"setTimeout\"]}); 1`] = `
+
+  1 | import {getTestContext} from 'node:test';
+  2 | import {setTimeout} from 'node:timers';
+  3 | (getTestContext() as any).mock.timers.enable({apis: ["setTimeout"]});
+
+`;
+
+exports[`no-mock-timers-destructured-import > invalid(15): import {getTestContext} from 'node:test';\nimport {setTimeout} from 'node:timers';\n(getTestContext() as any).mock.timers.enable({apis: [\"setTimeout\"]}); 2`] = `
+
+Message:
+  1 | import {getTestContext} from 'node:test';
+> 2 | import {setTimeout} from 'node:timers';
+    |         ^^^^^^^^^^ \`setTimeout\` is imported directly, so \`mock.timers\` cannot intercept it. Call the global \`setTimeout\` instead.
+  3 | (getTestContext() as any).mock.timers.enable({apis: ["setTimeout"]});
+
+`;
+
+exports[`no-mock-timers-destructured-import > invalid(16): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest(\"a\", (t: any) => { (t as any).mock.timers.enable({apis: [\"setTimeout\"]}); }); 1`] = `
 
   1 | import {test, mock} from 'node:test';
   2 | import {setTimeout} from 'node:timers';
@@ -96,7 +132,7 @@ exports[`no-mock-timers-destructured-import > invalid(14): import {test, mock} f
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(14): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest(\"a\", (t: any) => { (t as any).mock.timers.enable({apis: [\"setTimeout\"]}); }); 2`] = `
+exports[`no-mock-timers-destructured-import > invalid(16): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest(\"a\", (t: any) => { (t as any).mock.timers.enable({apis: [\"setTimeout\"]}); }); 2`] = `
 
 Message:
   1 | import {test, mock} from 'node:test';
@@ -106,7 +142,7 @@ Message:
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(15): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest(\"a\", t => { t!.mock.timers.enable({apis: [\"setTimeout\"]}); }); 1`] = `
+exports[`no-mock-timers-destructured-import > invalid(17): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest(\"a\", t => { t!.mock.timers.enable({apis: [\"setTimeout\"]}); }); 1`] = `
 
   1 | import {test, mock} from 'node:test';
   2 | import {setTimeout} from 'node:timers';
@@ -114,7 +150,7 @@ exports[`no-mock-timers-destructured-import > invalid(15): import {test, mock} f
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(15): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest(\"a\", t => { t!.mock.timers.enable({apis: [\"setTimeout\"]}); }); 2`] = `
+exports[`no-mock-timers-destructured-import > invalid(17): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest(\"a\", t => { t!.mock.timers.enable({apis: [\"setTimeout\"]}); }); 2`] = `
 
 Message:
   1 | import {test, mock} from 'node:test';
@@ -124,7 +160,7 @@ Message:
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(16): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest(\"a\", t => { (t.mock satisfies any).timers.enable({apis: [\"setTimeout\"]}); }); 1`] = `
+exports[`no-mock-timers-destructured-import > invalid(18): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest(\"a\", t => { (t.mock satisfies any).timers.enable({apis: [\"setTimeout\"]}); }); 1`] = `
 
   1 | import {test, mock} from 'node:test';
   2 | import {setTimeout} from 'node:timers';
@@ -132,7 +168,7 @@ exports[`no-mock-timers-destructured-import > invalid(16): import {test, mock} f
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(16): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest(\"a\", t => { (t.mock satisfies any).timers.enable({apis: [\"setTimeout\"]}); }); 2`] = `
+exports[`no-mock-timers-destructured-import > invalid(18): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest(\"a\", t => { (t.mock satisfies any).timers.enable({apis: [\"setTimeout\"]}); }); 2`] = `
 
 Message:
   1 | import {test, mock} from 'node:test';
@@ -142,7 +178,7 @@ Message:
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(17): import * as nodeTest from 'node:test';\nimport {setTimeout} from 'node:timers';\nnodeTest.mock.timers.enable(); 1`] = `
+exports[`no-mock-timers-destructured-import > invalid(19): import * as nodeTest from 'node:test';\nimport {setTimeout} from 'node:timers';\nnodeTest.mock.timers.enable(); 1`] = `
 
   1 | import * as nodeTest from 'node:test';
   2 | import {setTimeout} from 'node:timers';
@@ -150,49 +186,13 @@ exports[`no-mock-timers-destructured-import > invalid(17): import * as nodeTest 
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(17): import * as nodeTest from 'node:test';\nimport {setTimeout} from 'node:timers';\nnodeTest.mock.timers.enable(); 2`] = `
+exports[`no-mock-timers-destructured-import > invalid(19): import * as nodeTest from 'node:test';\nimport {setTimeout} from 'node:timers';\nnodeTest.mock.timers.enable(); 2`] = `
 
 Message:
   1 | import * as nodeTest from 'node:test';
 > 2 | import {setTimeout} from 'node:timers';
     |         ^^^^^^^^^^ \`setTimeout\` is imported directly, so \`mock.timers\` cannot intercept it. Call the global \`setTimeout\` instead.
   3 | nodeTest.mock.timers.enable();
-
-`;
-
-exports[`no-mock-timers-destructured-import > invalid(18): import {test, mock} from 'node:test';\nimport {setImmediate} from 'node:timers';\nmock.timers.enable({apis: [\"setImmediate\"]}); 1`] = `
-
-  1 | import {test, mock} from 'node:test';
-  2 | import {setImmediate} from 'node:timers';
-  3 | mock.timers.enable({apis: ["setImmediate"]});
-
-`;
-
-exports[`no-mock-timers-destructured-import > invalid(18): import {test, mock} from 'node:test';\nimport {setImmediate} from 'node:timers';\nmock.timers.enable({apis: [\"setImmediate\"]}); 2`] = `
-
-Message:
-  1 | import {test, mock} from 'node:test';
-> 2 | import {setImmediate} from 'node:timers';
-    |         ^^^^^^^^^^^^ \`setImmediate\` is imported directly, so \`mock.timers\` cannot intercept it. Call the global \`setImmediate\` instead.
-  3 | mock.timers.enable({apis: ["setImmediate"]});
-
-`;
-
-exports[`no-mock-timers-destructured-import > invalid(19): import {test, mock} from 'node:test';\nimport {type clearTimeout, setTimeout} from 'node:timers';\nmock.timers.enable({apis: [\"setTimeout\"]}); 1`] = `
-
-  1 | import {test, mock} from 'node:test';
-  2 | import {type clearTimeout, setTimeout} from 'node:timers';
-  3 | mock.timers.enable({apis: ["setTimeout"]});
-
-`;
-
-exports[`no-mock-timers-destructured-import > invalid(19): import {test, mock} from 'node:test';\nimport {type clearTimeout, setTimeout} from 'node:timers';\nmock.timers.enable({apis: [\"setTimeout\"]}); 2`] = `
-
-Message:
-  1 | import {test, mock} from 'node:test';
-> 2 | import {type clearTimeout, setTimeout} from 'node:timers';
-    |                            ^^^^^^^^^^ \`setTimeout\` is imported directly, so \`mock.timers\` cannot intercept it. Call the global \`setTimeout\` instead.
-  3 | mock.timers.enable({apis: ["setTimeout"]});
 
 `;
 
@@ -214,7 +214,43 @@ Message:
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(20): import {test, mock} from 'node:test';\nimport * as timers from 'node:timers';\nmock.timers.enable();\ntimers.setTimeout(fn, 1); 1`] = `
+exports[`no-mock-timers-destructured-import > invalid(20): import {test, mock} from 'node:test';\nimport {setImmediate} from 'node:timers';\nmock.timers.enable({apis: [\"setImmediate\"]}); 1`] = `
+
+  1 | import {test, mock} from 'node:test';
+  2 | import {setImmediate} from 'node:timers';
+  3 | mock.timers.enable({apis: ["setImmediate"]});
+
+`;
+
+exports[`no-mock-timers-destructured-import > invalid(20): import {test, mock} from 'node:test';\nimport {setImmediate} from 'node:timers';\nmock.timers.enable({apis: [\"setImmediate\"]}); 2`] = `
+
+Message:
+  1 | import {test, mock} from 'node:test';
+> 2 | import {setImmediate} from 'node:timers';
+    |         ^^^^^^^^^^^^ \`setImmediate\` is imported directly, so \`mock.timers\` cannot intercept it. Call the global \`setImmediate\` instead.
+  3 | mock.timers.enable({apis: ["setImmediate"]});
+
+`;
+
+exports[`no-mock-timers-destructured-import > invalid(21): import {test, mock} from 'node:test';\nimport {type clearTimeout, setTimeout} from 'node:timers';\nmock.timers.enable({apis: [\"setTimeout\"]}); 1`] = `
+
+  1 | import {test, mock} from 'node:test';
+  2 | import {type clearTimeout, setTimeout} from 'node:timers';
+  3 | mock.timers.enable({apis: ["setTimeout"]});
+
+`;
+
+exports[`no-mock-timers-destructured-import > invalid(21): import {test, mock} from 'node:test';\nimport {type clearTimeout, setTimeout} from 'node:timers';\nmock.timers.enable({apis: [\"setTimeout\"]}); 2`] = `
+
+Message:
+  1 | import {test, mock} from 'node:test';
+> 2 | import {type clearTimeout, setTimeout} from 'node:timers';
+    |                            ^^^^^^^^^^ \`setTimeout\` is imported directly, so \`mock.timers\` cannot intercept it. Call the global \`setTimeout\` instead.
+  3 | mock.timers.enable({apis: ["setTimeout"]});
+
+`;
+
+exports[`no-mock-timers-destructured-import > invalid(22): import {test, mock} from 'node:test';\nimport * as timers from 'node:timers';\nmock.timers.enable();\ntimers.setTimeout(fn, 1); 1`] = `
 
   1 | import {test, mock} from 'node:test';
   2 | import * as timers from 'node:timers';
@@ -223,7 +259,7 @@ exports[`no-mock-timers-destructured-import > invalid(20): import {test, mock} f
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(20): import {test, mock} from 'node:test';\nimport * as timers from 'node:timers';\nmock.timers.enable();\ntimers.setTimeout(fn, 1); 2`] = `
+exports[`no-mock-timers-destructured-import > invalid(22): import {test, mock} from 'node:test';\nimport * as timers from 'node:timers';\nmock.timers.enable();\ntimers.setTimeout(fn, 1); 2`] = `
 
 Message:
   1 | import {test, mock} from 'node:test';
@@ -234,7 +270,7 @@ Message:
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(21): import {test, mock} from 'node:test';\nimport * as timers from 'node:timers';\nmock.timers.enable({apis: [\"setTimeout\"]});\ntimers.setTimeout(fn, 1); 1`] = `
+exports[`no-mock-timers-destructured-import > invalid(23): import {test, mock} from 'node:test';\nimport * as timers from 'node:timers';\nmock.timers.enable({apis: [\"setTimeout\"]});\ntimers.setTimeout(fn, 1); 1`] = `
 
   1 | import {test, mock} from 'node:test';
   2 | import * as timers from 'node:timers';
@@ -243,7 +279,7 @@ exports[`no-mock-timers-destructured-import > invalid(21): import {test, mock} f
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(21): import {test, mock} from 'node:test';\nimport * as timers from 'node:timers';\nmock.timers.enable({apis: [\"setTimeout\"]});\ntimers.setTimeout(fn, 1); 2`] = `
+exports[`no-mock-timers-destructured-import > invalid(23): import {test, mock} from 'node:test';\nimport * as timers from 'node:timers';\nmock.timers.enable({apis: [\"setTimeout\"]});\ntimers.setTimeout(fn, 1); 2`] = `
 
 Message:
   1 | import {test, mock} from 'node:test';
@@ -254,7 +290,7 @@ Message:
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(22): import {test, mock} from 'node:test';\nimport * as timers from 'node:timers';\nmock.timers.enable({apis: [\"Date\", \"setImmediate\"]});\ntimers.setImmediate(fn); 1`] = `
+exports[`no-mock-timers-destructured-import > invalid(24): import {test, mock} from 'node:test';\nimport * as timers from 'node:timers';\nmock.timers.enable({apis: [\"Date\", \"setImmediate\"]});\ntimers.setImmediate(fn); 1`] = `
 
   1 | import {test, mock} from 'node:test';
   2 | import * as timers from 'node:timers';
@@ -263,7 +299,7 @@ exports[`no-mock-timers-destructured-import > invalid(22): import {test, mock} f
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(22): import {test, mock} from 'node:test';\nimport * as timers from 'node:timers';\nmock.timers.enable({apis: [\"Date\", \"setImmediate\"]});\ntimers.setImmediate(fn); 2`] = `
+exports[`no-mock-timers-destructured-import > invalid(24): import {test, mock} from 'node:test';\nimport * as timers from 'node:timers';\nmock.timers.enable({apis: [\"Date\", \"setImmediate\"]});\ntimers.setImmediate(fn); 2`] = `
 
 Message:
   1 | import {test, mock} from 'node:test';
@@ -274,7 +310,7 @@ Message:
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(23): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest('a', (t: any) => { t.mock.timers.enable!({apis: ['setTimeout']}); setTimeout(f, 1); }); 1`] = `
+exports[`no-mock-timers-destructured-import > invalid(25): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest('a', (t: any) => { t.mock.timers.enable!({apis: ['setTimeout']}); setTimeout(f, 1); }); 1`] = `
 
   1 | import {test, mock} from 'node:test';
   2 | import {setTimeout} from 'node:timers';
@@ -282,7 +318,7 @@ exports[`no-mock-timers-destructured-import > invalid(23): import {test, mock} f
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(23): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest('a', (t: any) => { t.mock.timers.enable!({apis: ['setTimeout']}); setTimeout(f, 1); }); 2`] = `
+exports[`no-mock-timers-destructured-import > invalid(25): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest('a', (t: any) => { t.mock.timers.enable!({apis: ['setTimeout']}); setTimeout(f, 1); }); 2`] = `
 
 Message:
   1 | import {test, mock} from 'node:test';
@@ -292,7 +328,7 @@ Message:
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(24): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest('a', (t: any) => { (t.mock.timers.enable as any)({apis: ['setTimeout']}); setTimeout(f, 1); }); 1`] = `
+exports[`no-mock-timers-destructured-import > invalid(26): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest('a', (t: any) => { (t.mock.timers.enable as any)({apis: ['setTimeout']}); setTimeout(f, 1); }); 1`] = `
 
   1 | import {test, mock} from 'node:test';
   2 | import {setTimeout} from 'node:timers';
@@ -300,7 +336,7 @@ exports[`no-mock-timers-destructured-import > invalid(24): import {test, mock} f
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(24): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest('a', (t: any) => { (t.mock.timers.enable as any)({apis: ['setTimeout']}); setTimeout(f, 1); }); 2`] = `
+exports[`no-mock-timers-destructured-import > invalid(26): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest('a', (t: any) => { (t.mock.timers.enable as any)({apis: ['setTimeout']}); setTimeout(f, 1); }); 2`] = `
 
 Message:
   1 | import {test, mock} from 'node:test';
@@ -310,7 +346,7 @@ Message:
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(25): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest('a', () => { mock.timers.enable({apis: undefined}); setTimeout(f, 1); }); 1`] = `
+exports[`no-mock-timers-destructured-import > invalid(27): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest('a', () => { mock.timers.enable({apis: undefined}); setTimeout(f, 1); }); 1`] = `
 
   1 | import {test, mock} from 'node:test';
   2 | import {setTimeout} from 'node:timers';
@@ -318,7 +354,7 @@ exports[`no-mock-timers-destructured-import > invalid(25): import {test, mock} f
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(25): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest('a', () => { mock.timers.enable({apis: undefined}); setTimeout(f, 1); }); 2`] = `
+exports[`no-mock-timers-destructured-import > invalid(27): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest('a', () => { mock.timers.enable({apis: undefined}); setTimeout(f, 1); }); 2`] = `
 
 Message:
   1 | import {test, mock} from 'node:test';
@@ -328,7 +364,7 @@ Message:
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(26): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest('a', () => { mock.timers.enable({apis: null}); setTimeout(f, 1); }); 1`] = `
+exports[`no-mock-timers-destructured-import > invalid(28): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest('a', () => { mock.timers.enable({apis: null}); setTimeout(f, 1); }); 1`] = `
 
   1 | import {test, mock} from 'node:test';
   2 | import {setTimeout} from 'node:timers';
@@ -336,7 +372,7 @@ exports[`no-mock-timers-destructured-import > invalid(26): import {test, mock} f
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(26): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest('a', () => { mock.timers.enable({apis: null}); setTimeout(f, 1); }); 2`] = `
+exports[`no-mock-timers-destructured-import > invalid(28): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest('a', () => { mock.timers.enable({apis: null}); setTimeout(f, 1); }); 2`] = `
 
 Message:
   1 | import {test, mock} from 'node:test';
@@ -346,7 +382,7 @@ Message:
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(27): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest('a', () => { mock.timers.enable({apis: void 0}); setTimeout(f, 1); }); 1`] = `
+exports[`no-mock-timers-destructured-import > invalid(29): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest('a', () => { mock.timers.enable({apis: void 0}); setTimeout(f, 1); }); 1`] = `
 
   1 | import {test, mock} from 'node:test';
   2 | import {setTimeout} from 'node:timers';
@@ -354,49 +390,13 @@ exports[`no-mock-timers-destructured-import > invalid(27): import {test, mock} f
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(27): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest('a', () => { mock.timers.enable({apis: void 0}); setTimeout(f, 1); }); 2`] = `
+exports[`no-mock-timers-destructured-import > invalid(29): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest('a', () => { mock.timers.enable({apis: void 0}); setTimeout(f, 1); }); 2`] = `
 
 Message:
   1 | import {test, mock} from 'node:test';
 > 2 | import {setTimeout} from 'node:timers';
     |         ^^^^^^^^^^ \`setTimeout\` is imported directly, so \`mock.timers\` cannot intercept it. Call the global \`setTimeout\` instead.
   3 | test('a', () => { mock.timers.enable({apis: void 0}); setTimeout(f, 1); });
-
-`;
-
-exports[`no-mock-timers-destructured-import > invalid(28): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\nmock.timers.enable(undefined); 1`] = `
-
-  1 | import {test, mock} from 'node:test';
-  2 | import {setTimeout} from 'node:timers';
-  3 | mock.timers.enable(undefined);
-
-`;
-
-exports[`no-mock-timers-destructured-import > invalid(28): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\nmock.timers.enable(undefined); 2`] = `
-
-Message:
-  1 | import {test, mock} from 'node:test';
-> 2 | import {setTimeout} from 'node:timers';
-    |         ^^^^^^^^^^ \`setTimeout\` is imported directly, so \`mock.timers\` cannot intercept it. Call the global \`setTimeout\` instead.
-  3 | mock.timers.enable(undefined);
-
-`;
-
-exports[`no-mock-timers-destructured-import > invalid(29): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\nmock.timers.enable(null); 1`] = `
-
-  1 | import {test, mock} from 'node:test';
-  2 | import {setTimeout} from 'node:timers';
-  3 | mock.timers.enable(null);
-
-`;
-
-exports[`no-mock-timers-destructured-import > invalid(29): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\nmock.timers.enable(null); 2`] = `
-
-Message:
-  1 | import {test, mock} from 'node:test';
-> 2 | import {setTimeout} from 'node:timers';
-    |         ^^^^^^^^^^ \`setTimeout\` is imported directly, so \`mock.timers\` cannot intercept it. Call the global \`setTimeout\` instead.
-  3 | mock.timers.enable(null);
 
 `;
 
@@ -418,7 +418,43 @@ Message:
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(30): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\nmock.timers.enable(void 0); 1`] = `
+exports[`no-mock-timers-destructured-import > invalid(30): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\nmock.timers.enable(undefined); 1`] = `
+
+  1 | import {test, mock} from 'node:test';
+  2 | import {setTimeout} from 'node:timers';
+  3 | mock.timers.enable(undefined);
+
+`;
+
+exports[`no-mock-timers-destructured-import > invalid(30): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\nmock.timers.enable(undefined); 2`] = `
+
+Message:
+  1 | import {test, mock} from 'node:test';
+> 2 | import {setTimeout} from 'node:timers';
+    |         ^^^^^^^^^^ \`setTimeout\` is imported directly, so \`mock.timers\` cannot intercept it. Call the global \`setTimeout\` instead.
+  3 | mock.timers.enable(undefined);
+
+`;
+
+exports[`no-mock-timers-destructured-import > invalid(31): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\nmock.timers.enable(null); 1`] = `
+
+  1 | import {test, mock} from 'node:test';
+  2 | import {setTimeout} from 'node:timers';
+  3 | mock.timers.enable(null);
+
+`;
+
+exports[`no-mock-timers-destructured-import > invalid(31): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\nmock.timers.enable(null); 2`] = `
+
+Message:
+  1 | import {test, mock} from 'node:test';
+> 2 | import {setTimeout} from 'node:timers';
+    |         ^^^^^^^^^^ \`setTimeout\` is imported directly, so \`mock.timers\` cannot intercept it. Call the global \`setTimeout\` instead.
+  3 | mock.timers.enable(null);
+
+`;
+
+exports[`no-mock-timers-destructured-import > invalid(32): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\nmock.timers.enable(void 0); 1`] = `
 
   1 | import {test, mock} from 'node:test';
   2 | import {setTimeout} from 'node:timers';
@@ -426,7 +462,7 @@ exports[`no-mock-timers-destructured-import > invalid(30): import {test, mock} f
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(30): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\nmock.timers.enable(void 0); 2`] = `
+exports[`no-mock-timers-destructured-import > invalid(32): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\nmock.timers.enable(void 0); 2`] = `
 
 Message:
   1 | import {test, mock} from 'node:test';
@@ -436,7 +472,7 @@ Message:
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(31): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\nmock.timers.enable({['now']: 1000}); 1`] = `
+exports[`no-mock-timers-destructured-import > invalid(33): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\nmock.timers.enable({['now']: 1000}); 1`] = `
 
   1 | import {test, mock} from 'node:test';
   2 | import {setTimeout} from 'node:timers';
@@ -444,7 +480,7 @@ exports[`no-mock-timers-destructured-import > invalid(31): import {test, mock} f
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(31): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\nmock.timers.enable({['now']: 1000}); 2`] = `
+exports[`no-mock-timers-destructured-import > invalid(33): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\nmock.timers.enable({['now']: 1000}); 2`] = `
 
 Message:
   1 | import {test, mock} from 'node:test';
@@ -454,7 +490,7 @@ Message:
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(32): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest('a', () => { (mock.timers as any).enable({apis: ['setTimeout']}); setTimeout(f, 1); }); 1`] = `
+exports[`no-mock-timers-destructured-import > invalid(34): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest('a', () => { (mock.timers as any).enable({apis: ['setTimeout']}); setTimeout(f, 1); }); 1`] = `
 
   1 | import {test, mock} from 'node:test';
   2 | import {setTimeout} from 'node:timers';
@@ -462,7 +498,7 @@ exports[`no-mock-timers-destructured-import > invalid(32): import {test, mock} f
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(32): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest('a', () => { (mock.timers as any).enable({apis: ['setTimeout']}); setTimeout(f, 1); }); 2`] = `
+exports[`no-mock-timers-destructured-import > invalid(34): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest('a', () => { (mock.timers as any).enable({apis: ['setTimeout']}); setTimeout(f, 1); }); 2`] = `
 
 Message:
   1 | import {test, mock} from 'node:test';
@@ -472,7 +508,7 @@ Message:
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(33): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest('a', t => { (t.mock.timers as any).enable({apis: ['setTimeout']}); setTimeout(f, 1); }); 1`] = `
+exports[`no-mock-timers-destructured-import > invalid(35): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest('a', t => { (t.mock.timers as any).enable({apis: ['setTimeout']}); setTimeout(f, 1); }); 1`] = `
 
   1 | import {test, mock} from 'node:test';
   2 | import {setTimeout} from 'node:timers';
@@ -480,7 +516,7 @@ exports[`no-mock-timers-destructured-import > invalid(33): import {test, mock} f
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(33): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest('a', t => { (t.mock.timers as any).enable({apis: ['setTimeout']}); setTimeout(f, 1); }); 2`] = `
+exports[`no-mock-timers-destructured-import > invalid(35): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest('a', t => { (t.mock.timers as any).enable({apis: ['setTimeout']}); setTimeout(f, 1); }); 2`] = `
 
 Message:
   1 | import {test, mock} from 'node:test';
@@ -490,7 +526,7 @@ Message:
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(34): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest('a', () => { (mock!.timers).enable({apis: ['setTimeout']}); setTimeout(f, 1); }); 1`] = `
+exports[`no-mock-timers-destructured-import > invalid(36): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest('a', () => { (mock!.timers).enable({apis: ['setTimeout']}); setTimeout(f, 1); }); 1`] = `
 
   1 | import {test, mock} from 'node:test';
   2 | import {setTimeout} from 'node:timers';
@@ -498,7 +534,7 @@ exports[`no-mock-timers-destructured-import > invalid(34): import {test, mock} f
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(34): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest('a', () => { (mock!.timers).enable({apis: ['setTimeout']}); setTimeout(f, 1); }); 2`] = `
+exports[`no-mock-timers-destructured-import > invalid(36): import {test, mock} from 'node:test';\nimport {setTimeout} from 'node:timers';\ntest('a', () => { (mock!.timers).enable({apis: ['setTimeout']}); setTimeout(f, 1); }); 2`] = `
 
 Message:
   1 | import {test, mock} from 'node:test';
@@ -508,7 +544,7 @@ Message:
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(35): import {test, mock} from 'node:test';\nimport {setTimeout, clearInterval} from 'node:timers';\nmock.timers.enable({apis: ['setTimeout'] as const}); 1`] = `
+exports[`no-mock-timers-destructured-import > invalid(37): import {test, mock} from 'node:test';\nimport {setTimeout, clearInterval} from 'node:timers';\nmock.timers.enable({apis: ['setTimeout'] as const}); 1`] = `
 
   1 | import {test, mock} from 'node:test';
   2 | import {setTimeout, clearInterval} from 'node:timers';
@@ -516,7 +552,7 @@ exports[`no-mock-timers-destructured-import > invalid(35): import {test, mock} f
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(35): import {test, mock} from 'node:test';\nimport {setTimeout, clearInterval} from 'node:timers';\nmock.timers.enable({apis: ['setTimeout'] as const}); 2`] = `
+exports[`no-mock-timers-destructured-import > invalid(37): import {test, mock} from 'node:test';\nimport {setTimeout, clearInterval} from 'node:timers';\nmock.timers.enable({apis: ['setTimeout'] as const}); 2`] = `
 
 Message:
   1 | import {test, mock} from 'node:test';
@@ -526,7 +562,7 @@ Message:
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(36): import {test, mock} from 'node:test';\nimport {setTimeout, clearInterval} from 'node:timers';\nmock.timers.enable({apis: ['setTimeout'] satisfies string[]}); 1`] = `
+exports[`no-mock-timers-destructured-import > invalid(38): import {test, mock} from 'node:test';\nimport {setTimeout, clearInterval} from 'node:timers';\nmock.timers.enable({apis: ['setTimeout'] satisfies string[]}); 1`] = `
 
   1 | import {test, mock} from 'node:test';
   2 | import {setTimeout, clearInterval} from 'node:timers';
@@ -534,7 +570,7 @@ exports[`no-mock-timers-destructured-import > invalid(36): import {test, mock} f
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(36): import {test, mock} from 'node:test';\nimport {setTimeout, clearInterval} from 'node:timers';\nmock.timers.enable({apis: ['setTimeout'] satisfies string[]}); 2`] = `
+exports[`no-mock-timers-destructured-import > invalid(38): import {test, mock} from 'node:test';\nimport {setTimeout, clearInterval} from 'node:timers';\nmock.timers.enable({apis: ['setTimeout'] satisfies string[]}); 2`] = `
 
 Message:
   1 | import {test, mock} from 'node:test';
@@ -544,7 +580,7 @@ Message:
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(37): import {test, mock} from 'node:test';\nimport {setTimeout, clearInterval} from 'node:timers';\nmock.timers.enable({apis: ['setTimeout' as const]}); 1`] = `
+exports[`no-mock-timers-destructured-import > invalid(39): import {test, mock} from 'node:test';\nimport {setTimeout, clearInterval} from 'node:timers';\nmock.timers.enable({apis: ['setTimeout' as const]}); 1`] = `
 
   1 | import {test, mock} from 'node:test';
   2 | import {setTimeout, clearInterval} from 'node:timers';
@@ -552,7 +588,7 @@ exports[`no-mock-timers-destructured-import > invalid(37): import {test, mock} f
 
 `;
 
-exports[`no-mock-timers-destructured-import > invalid(37): import {test, mock} from 'node:test';\nimport {setTimeout, clearInterval} from 'node:timers';\nmock.timers.enable({apis: ['setTimeout' as const]}); 2`] = `
+exports[`no-mock-timers-destructured-import > invalid(39): import {test, mock} from 'node:test';\nimport {setTimeout, clearInterval} from 'node:timers';\nmock.timers.enable({apis: ['setTimeout' as const]}); 2`] = `
 
 Message:
   1 | import {test, mock} from 'node:test';

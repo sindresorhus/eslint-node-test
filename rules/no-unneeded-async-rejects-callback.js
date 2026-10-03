@@ -5,7 +5,12 @@ import {
 	createContextTracker,
 } from './utils/node-test.js';
 import {isFunction} from './ast/index.js';
-import {containsSuspensionPoint, isParenthesized, unwrapTypeScriptExpression} from './utils/index.js';
+import {
+	containsSuspensionPoint,
+	hasCommentInRange,
+	isParenthesized,
+	unwrapTypeScriptExpression,
+} from './utils/index.js';
 
 /**
 @import {TSESTree as ESTree} from '@typescript-eslint/types';
@@ -42,13 +47,6 @@ function getAwaitedCallbackBody(callback) {
 	if (awaitExpression.type === 'AwaitExpression') {
 		return {expression, awaitExpression, shouldAddReturn};
 	}
-}
-
-function hasCommentInRange(sourceCode, node, range) {
-	return sourceCode.getCommentsInside(node).some(comment => {
-		const commentRange = sourceCode.getRange(comment);
-		return commentRange[0] >= range[0] && commentRange[1] <= range[1];
-	});
 }
 
 function isBuiltInPromiseType(type, program, seen = new Set()) {
@@ -180,7 +178,7 @@ const create = context => {
 						const asyncToken = sourceCode.getFirstToken(callback);
 						const tokenAfterAsync = sourceCode.getTokenAfter(asyncToken);
 						const asyncRange = [sourceCode.getRange(asyncToken)[0], sourceCode.getRange(tokenAfterAsync)[0]];
-						if (hasCommentInRange(sourceCode, callback, asyncRange)) {
+						if (hasCommentInRange(callback, asyncRange, context)) {
 							return abort();
 						}
 
@@ -189,7 +187,7 @@ const create = context => {
 						const awaitToken = sourceCode.getFirstToken(awaited.awaitExpression);
 						const tokenAfterAwait = sourceCode.getTokenAfter(awaitToken);
 						const awaitRange = [sourceCode.getRange(awaitToken)[0], sourceCode.getRange(tokenAfterAwait)[0]];
-						if (hasCommentInRange(sourceCode, callback, awaitRange)) {
+						if (hasCommentInRange(callback, awaitRange, context)) {
 							return abort();
 						}
 

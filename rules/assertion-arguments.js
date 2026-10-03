@@ -4,6 +4,7 @@ import {
 	createContextTracker,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
+import {isUndefinedValue} from './ast/index.js';
 
 const MESSAGE_ID_TOO_FEW = 'too-few-arguments';
 const MESSAGE_ID_TOO_MANY = 'too-many-arguments';
@@ -80,10 +81,7 @@ function isInvalidMessageArgument(node, method) {
 	}
 
 	// `undefined` and `void …` are the explicit form of a missing message, which only some methods accept.
-	if (
-		(node.type === 'Identifier' && node.name === 'undefined')
-		|| (node.type === 'UnaryExpression' && node.operator === 'void')
-	) {
+	if (isUndefinedValue(node)) {
 		return !METHODS_ACCEPTING_NULL_MESSAGE.has(method);
 	}
 

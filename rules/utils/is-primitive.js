@@ -20,7 +20,7 @@ export default function isPrimitive(node, context) {
 	}
 
 	if (node.type === 'Identifier') {
-		return ['undefined', 'NaN', 'Infinity'].includes(node.name) && isUnshadowedGlobal(context, node, node.name);
+		return ['undefined', 'NaN', 'Infinity'].includes(node.name) && isUnshadowedGlobal(node, node.name, context);
 	}
 
 	if (node.type === 'TemplateLiteral') {

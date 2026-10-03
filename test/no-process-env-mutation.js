@@ -44,6 +44,7 @@ test.snapshot({
 		inTest('const Object = {assign() {}};\nObject.assign(process.env, values);'),
 		inTest('const Reflect = {set() {}};\nReflect.set(process.env, \'NODE_ENV\', \'production\');'),
 		inTest('const env = \'stdout\';\nprocess[env].NODE_ENV = \'production\';'),
+		inTest('const env = \'stdout\';\nconst {[env]: environment} = process;\nenvironment.NODE_ENV = \'production\';'),
 		inTest('const assign = \'keys\';\nObject[assign](process.env, values);'),
 		inTest('const set = \'get\';\nReflect[set](process.env, \'NODE_ENV\', \'production\');'),
 
@@ -112,6 +113,13 @@ test.snapshot({
 		inTest('delete process.env.NODE_ENV;'),
 		inTest('process.env[name] = \'production\';'),
 		inTest('process[\'env\'].NODE_ENV = \'production\';'),
+		// A computed key that folds to `env` names the same property
+		inTest('process[\'e\' + \'nv\'].NODE_ENV = \'production\';'),
+		{
+			code: inTest('process[\'env\' as const].NODE_ENV = \'production\';'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		inTest('Object[\'ass\' + \'ign\'](process.env, {NODE_ENV: \'production\'});'),
 		inTest('[process.env.NODE_ENV] = [\'production\'];'),
 		inTest('({nodeEnvironment: process.env.NODE_ENV} = values);'),
 		inTest('for (process.env.NODE_ENV of values) {}'),
@@ -121,6 +129,9 @@ test.snapshot({
 		'import test from \'node:test\';\ntest.only(\'reads config\', () => {\n\tprocess.env.NODE_ENV = \'production\';\n});',
 		'import * as nodeTest from \'node:test\';\nnodeTest.test(\'reads config\', () => {\n\tprocess.env.NODE_ENV = \'production\';\n});',
 		'import {test as nodeTest} from \'node:test\';\nnodeTest(\'reads config\', () => {\n\tprocess.env.NODE_ENV = \'production\';\n});',
+		// A standalone modifier import registers a test too
+		'import {only} from \'node:test\';\nonly(\'reads config\', () => {\n\tprocess.env.NODE_ENV = \'production\';\n});',
+		'import {todo} from \'node:test\';\ntodo(\'reads config\', () => {\n\tprocess.env.NODE_ENV = \'production\';\n});',
 		'import {it} from \'node:test\';\nit(\'reads config\', () => {\n\tprocess.env.NODE_ENV = \'production\';\n});',
 
 		// Mutating `process.env` itself
@@ -141,6 +152,9 @@ test.snapshot({
 		// Local aliases
 		inTest('const environment = process.env;\nenvironment.NODE_ENV = \'production\';'),
 		inTest('const {env: environment} = process;\nenvironment.NODE_ENV = \'production\';'),
+		inTest('const {\'env\': environment} = process;\nenvironment.NODE_ENV = \'production\';'),
+		inTest('const {[\'env\']: environment} = process;\nenvironment.NODE_ENV = \'production\';'),
+		inTest('process[`env`].NODE_ENV = \'production\';'),
 
 		// Subtests
 		'import test from \'node:test\';\ntest(\'parent\', async t => {\n\tawait t.test(\'child\', () => {\n\t\tprocess.env.NODE_ENV = \'production\';\n\t});\n});',

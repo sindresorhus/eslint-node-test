@@ -1,10 +1,10 @@
 import {
 	createContextTracker,
-	isGetTestContextCall,
-	isGlobalMock,
+	isMockTimers,
 	resolveImports,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
+import {isMemberExpression, isUndefinedValue} from './ast/index.js';
 import {getStaticPropertyName} from './utils/index.js';
 
 const MESSAGE_ID = 'require-mock-timers-apis';
@@ -20,11 +20,8 @@ function isMissingApisValue(node) {
 		return true;
 	}
 
-	return (
-		(expression.type === 'Identifier' && expression.name === 'undefined')
-		|| (expression.type === 'UnaryExpression' && expression.operator === 'void')
-		|| (expression.type === 'Literal' && !expression.value)
-	);
+	return isUndefinedValue(expression)
+		|| (expression.type === 'Literal' && !expression.value);
 }
 
 function isStaticNonOptionsValue(node) {
@@ -78,33 +75,6 @@ const create = context => {
 
 	const tracker = createContextTracker(imports, {trackHooks: true});
 
-	const isContextMock = node => {
-		const expression = unwrapTypeScriptExpression(node);
-		if (
-			expression.type !== 'MemberExpression'
-			|| expression.computed
-			|| expression.property.type !== 'Identifier'
-			|| expression.property.name !== 'mock'
-		) {
-			return false;
-		}
-
-		const object = unwrapTypeScriptExpression(expression.object);
-		return (
-			tracker.isContextIdentifier(object)
-			|| isGetTestContextCall(object, imports)
-		);
-	};
-
-	const isMockTimers = node => {
-		const expression = unwrapTypeScriptExpression(node);
-		return expression.type === 'MemberExpression'
-			&& !expression.computed
-			&& expression.property.type === 'Identifier'
-			&& expression.property.name === 'timers'
-			&& (isGlobalMock(unwrapTypeScriptExpression(expression.object), imports) || isContextMock(expression.object));
-	};
-
 	context.on('CallExpression', node => {
 		tracker.update(node);
 	});
@@ -116,11 +86,8 @@ const create = context => {
 	context.on('CallExpression', node => {
 		const callee = unwrapTypeScriptExpression(node.callee);
 		if (
-			callee.type === 'MemberExpression'
-			&& !callee.computed
-			&& callee.property.type === 'Identifier'
-			&& callee.property.name === 'enable'
-			&& isMockTimers(callee.object)
+			isMemberExpression(callee, 'enable')
+			&& isMockTimers(callee.object, imports, tracker)
 			&& isMissingApisOption(node)
 		) {
 			return {

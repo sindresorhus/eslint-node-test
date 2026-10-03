@@ -137,5 +137,9 @@ test.snapshot({
 				+ '});',
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// A context hook gets its own test context, so the hook's parameter names it, not the parent test's
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'o\', async t => {\n\tt.beforeEach(ctx => { assert.ok(value); });\n\tawait t.test(\'s\', () => {});\n});',
+		'import test from \'node:test\';\nimport assert from \'node:assert\';\ntest(\'o\', async t => {\n\tt.afterEach(function (ctx) { assert.ok(value); });\n\tawait t.test(\'s\', () => {});\n});',
 	],
 });

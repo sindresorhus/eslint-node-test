@@ -4,9 +4,9 @@ import {
 	createContextTracker,
 	getTestOptions,
 	findOptionsProperty,
-	isGetTestContextCall,
 } from './utils/node-test.js';
 import unwrapTypeScriptExpression from './utils/unwrap-typescript-expression.js';
+import {isMemberExpression} from './ast/index.js';
 
 const MESSAGE_ID_OPTION = 'no-skip-without-reason/option';
 const MESSAGE_ID_CALL = 'no-skip-without-reason/call';
@@ -16,7 +16,7 @@ const messages = {
 	[MESSAGE_ID_CALL]: 'Pass a reason message to `{{context}}.{{modifier}}()`.',
 };
 
-const REASON_MODIFIERS = new Set(['skip', 'todo']);
+const REASON_MODIFIERS = ['skip', 'todo'];
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -50,23 +50,14 @@ const create = context => {
 
 		// Context method form: `t.skip()` / `t.todo()` with no reason message. The receiver is a tracked context parameter or a `getTestContext()` call, behind any TypeScript wrapper.
 		const callee = unwrapTypeScriptExpression(node.callee);
-		if (node.arguments.length === 0 && callee.type === 'MemberExpression' && !callee.computed && callee.property.type === 'Identifier' && REASON_MODIFIERS.has(callee.property.name)) {
+		if (node.arguments.length === 0 && isMemberExpression(callee, REASON_MODIFIERS)) {
 			const receiver = unwrapTypeScriptExpression(callee.object);
-			if (receiver.type === 'Identifier' && tracker.isContextIdentifier(receiver)) {
+			if (tracker.isContextReceiver(receiver)) {
+				// Named as the file writes it: the context parameter, a renamed `getTestContext()` import, or `test.getTestContext()`.
 				problems.push({
 					node,
 					messageId: MESSAGE_ID_CALL,
-					data: {context: receiver.name, modifier: callee.property.name},
-				});
-			} else if (isGetTestContextCall(receiver, imports)) {
-				// Named as the file writes it: a renamed import, or `test.getTestContext()`.
-				problems.push({
-					node,
-					messageId: MESSAGE_ID_CALL,
-					data: {
-						context: context.sourceCode.getText(receiver),
-						modifier: callee.property.name,
-					},
+					data: {context: context.sourceCode.getText(receiver), modifier: callee.property.name},
 				});
 			}
 		}
